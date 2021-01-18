@@ -28,6 +28,8 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
@@ -173,7 +175,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      */
     @Override
     public Optional<SemanticModel> semanticModel(Path filePath) {
-        return waitAndGetModuleCompilation(filePath).map(ModuleCompilation::getSemanticModel);
+        Optional<Module> module = this.module(filePath);
+        if (module.isEmpty()) {
+            return Optional.empty();
+        }
+        return waitAndGetPackageCompilation(filePath)
+                .map(pkgCompilation -> pkgCompilation.getSemanticModel(module.get().moduleId()));
     }
 
     /**
@@ -183,7 +190,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @return {@link ModuleCompilation}
      */
     @Override
-    public Optional<ModuleCompilation> waitAndGetModuleCompilation(Path filePath) {
+    public Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath) {
         // Get Project and Lock
         Optional<ProjectPair> projectPair = projectPair(filePath);
         if (projectPair.isEmpty()) {
@@ -193,39 +200,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (document.isEmpty()) {
             return Optional.empty();
         }
-        // Get Module
-        Module module = document.get().module();
+        // Get Package
+        Package packageInstance = document.get().module().packageInstance();
         // Lock Project Instance
         projectPair.get().locker().lock();
         try {
-            return Optional.of(module.getCompilation());
-        } finally {
-            // Unlock Project Instance
-            projectPair.get().locker().unlock();
-        }
-    }
-
-    /**
-     * Returns module compilation from the file path provided.
-     *
-     * @param module {@link Module}
-     * @return {@link ModuleCompilation}
-     */
-    @Override
-    public Optional<ModuleCompilation> waitAndGetModuleCompilation(Module module) {
-        // TODO: Remove this once singleProject.sourceRoot is tempDir issue fixed
-        Optional<ProjectPair> projectPair = sourceRootToProject.entrySet().stream()
-                .filter(e -> e.getValue().project().equals(module.project()))
-                .findFirst()
-                .map(Map.Entry::getValue);
-        // Get Project and Lock
-        if (projectPair.isEmpty()) {
-            return Optional.empty();
-        }
-        // Lock Project Instance
-        projectPair.get().locker().lock();
-        try {
-            return Optional.of(module.getCompilation());
+            return Optional.of(packageInstance.getCompilation());
         } finally {
             // Unlock Project Instance
             projectPair.get().locker().unlock();
