@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.commons.CompletionExtension;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.completions.util.K8sCompletionRouter;
 import org.ballerinalang.langserver.contexts.K8sCompletionContextImpl;
+import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionParams;
 
@@ -38,14 +39,16 @@ public class K8sCompletionExtension implements CompletionExtension {
 
     @Override
     public boolean validate(CompletionParams inputParams) {
-        return inputParams.getTextDocument().getUri().endsWith("Kubernetes.toml");
+        String uri = inputParams.getTextDocument().getUri();
+        String fileName = uri.substring(uri.lastIndexOf('/') + 1);
+        return fileName.equals(TomlSyntaxTreeUtil.KUBERNETES_TOML);
     }
 
     @Override
     public List<CompletionItem> execute(CompletionParams inputParams, CompletionContext context,
                                         LanguageServerContext serverContext) throws Throwable {
         K8sCompletionContextImpl k8sContext = new K8sCompletionContextImpl(context, serverContext);
-        K8sCompletionRouter k8sCompletionRouter = new K8sCompletionRouter();
+        K8sCompletionRouter k8sCompletionRouter = new K8sCompletionRouter(serverContext);
         return k8sCompletionRouter.getCompletionItems(k8sContext);
     }
 }

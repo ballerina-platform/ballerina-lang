@@ -21,6 +21,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CodeActionExtension;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 
@@ -36,13 +37,14 @@ public class TomlCodeActionExtension implements CodeActionExtension {
 
     @Override
     public boolean validate(CodeActionParams inputParams) {
-        return inputParams.getTextDocument().getUri().endsWith("Kubernetes.toml");
+        String uri = inputParams.getTextDocument().getUri();
+        String fileName = uri.substring(uri.lastIndexOf('/') + 1);
+        return fileName.equals(TomlSyntaxTreeUtil.KUBERNETES_TOML);
     }
 
     @Override
     public List<? extends CodeAction> execute(CodeActionParams inputParams, CodeActionContext context,
                                               LanguageServerContext serverContext) {
-        TomlCodeActionRouter tomlCodeActionRouter = new TomlCodeActionRouter();
-        return tomlCodeActionRouter.getAvailableCodeActions(context);
+        return TomlCodeActionRouter.getAvailableCodeActions(context);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ import java.util.List;
  * @since 2.0.0
  */
 public class ServiceInfo {
-    private ServiceDeclarationNode node;
-    private String serviceName;
-    private ListenerInfo listener;
-    private List<ResourceInfo> resourceInfo;
+    private final ServiceDeclarationNode node;
+    private final String serviceName;
+    private final ListenerInfo listener;
+    private final List<ResourceInfo> resourceInfo;
 
     public ServiceInfo(ListenerInfo listener, ServiceDeclarationNode node, String serviceName) {
         this.listener = listener;
@@ -52,22 +52,6 @@ public class ServiceInfo {
 
     public List<ResourceInfo> getResourceInfo() {
         return resourceInfo;
-    }
-
-    public void setNode(ServiceDeclarationNode node) {
-        this.node = node;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
-
-    public void setListener(ListenerInfo listener) {
-        this.listener = listener;
-    }
-
-    public void setResourceInfo(List<ResourceInfo> resourceInfo) {
-        this.resourceInfo = resourceInfo;
     }
 
     public void addResource(ResourceInfo resourceInfo) {

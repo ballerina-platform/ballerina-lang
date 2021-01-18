@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.toml;
 
 import io.ballerina.toml.validator.schema.Schema;
 import org.apache.commons.io.IOUtils;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -32,42 +33,45 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class TomlSnippetManager {
-
-    private static volatile TomlSnippetManager snippetManager = null;
+    private static final LanguageServerContext.Key<TomlSnippetManager> LS_PACKAGE_LOADER_KEY =
+            new LanguageServerContext.Key<>();
     private final Map<Parent, Map<String, CompletionItem>> completions;
 
-    private TomlSnippetManager() {
+    private TomlSnippetManager(LanguageServerContext context) {
         Schema c2cRootSchema = Schema.from(getValidationSchema());
         TomlSchemaVisitor visitor = new TomlSchemaVisitor();
         c2cRootSchema.accept(visitor);
-        this.completions = removeRedundantCompletions(visitor.getAllCompletionSnippets());
+        this.completions = optimizeCompletionsWithOnlyTables(visitor.getAllCompletionSnippets());
+        context.put(LS_PACKAGE_LOADER_KEY, this);
     }
 
     public Map<Parent, Map<String, CompletionItem>> getCompletions() {
         return Collections.unmodifiableMap(completions);
     }
 
-    public static synchronized TomlSnippetManager getInstance() {
+    public static TomlSnippetManager getInstance(LanguageServerContext context) {
+        TomlSnippetManager snippetManager = context.get(LS_PACKAGE_LOADER_KEY);
         if (snippetManager == null) {
-            snippetManager = new TomlSnippetManager();
+            snippetManager = new TomlSnippetManager(context);
         }
+
         return snippetManager;
     }
 
-    private Map<Parent, Map<String, CompletionItem>> removeRedundantCompletions(Map<Parent, Map<String,
+    private Map<Parent, Map<String, CompletionItem>> optimizeCompletionsWithOnlyTables(Map<Parent, Map<String,
             CompletionItem>> completions) {
         Map<Parent, Map<String, CompletionItem>> optimizedCompletions = new HashMap<>();
         for (Map.Entry<Parent, Map<String, CompletionItem>> entry : completions.entrySet()) {
             Parent key = entry.getKey();
             Map<String, CompletionItem> value = entry.getValue();
-            if (!isRedundantCompletion(value)) {
+            if (!isContainsOnlyTable(value)) {
                 optimizedCompletions.put(key, value);
             }
         }
         return optimizedCompletions;
     }
 
-    private boolean isRedundantCompletion(Map<String, CompletionItem> value) {
+    private boolean isContainsOnlyTable(Map<String, CompletionItem> value) {
         boolean isRedundant = true;
         for (Map.Entry<String, CompletionItem> childEntry : value.entrySet()) {
             CompletionItem completionItem = childEntry.getValue();

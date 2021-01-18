@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,8 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class TomlSyntaxTreeUtil {
+    public static final String KUBERNETES_TOML = "Kubernetes.toml";
+
     public static final String NUMBER = "Number";
     public static final String STRING = "String";
     public static final String BOOLEAN = "Boolean";

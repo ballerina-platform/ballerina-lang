@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.codeaction.extensions.K8sDiagnosticsBasedCodeAction;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ServiceLoader;
 
@@ -30,12 +32,7 @@ import java.util.ServiceLoader;
  */
 public class TomlCodeActionRouter {
 
-    private final List<K8sDiagnosticsBasedCodeAction> actionProviders;
-
-    public TomlCodeActionRouter() {
-        this.actionProviders = new ArrayList<>();
-        ServiceLoader.load(K8sDiagnosticsBasedCodeAction.class).forEach(actionProviders::add);
-    }
+    private static final List<K8sDiagnosticsBasedCodeAction> actionProviders = loadProviders();
 
     /**
      * Returns a list of supported code actions.
@@ -43,7 +40,7 @@ public class TomlCodeActionRouter {
      * @param ctx {@link CodeActionContext}
      * @return list of code actions
      */
-    public List<CodeAction> getAvailableCodeActions(CodeActionContext ctx) {
+    public static List<CodeAction> getAvailableCodeActions(CodeActionContext ctx) {
         List<CodeAction> codeActions = new ArrayList<>();
         List<Diagnostic> cursorDiagnostics = ctx.cursorDiagnostics();
         if (cursorDiagnostics != null && !cursorDiagnostics.isEmpty()) {
@@ -54,12 +51,18 @@ public class TomlCodeActionRouter {
         return codeActions;
     }
 
-    private List<CodeAction> handleDiagnostics(Diagnostic diagnostic, CodeActionContext ctx) {
+    private static List<CodeAction> handleDiagnostics(Diagnostic diagnostic, CodeActionContext ctx) {
         for (K8sDiagnosticsBasedCodeAction action : actionProviders) {
             if (action.validate(diagnostic, ctx)) {
                 return action.handle(diagnostic, ctx);
             }
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
+    }
+
+    private static List<K8sDiagnosticsBasedCodeAction> loadProviders() {
+        List<K8sDiagnosticsBasedCodeAction> list = new ArrayList<>();
+        ServiceLoader.load(K8sDiagnosticsBasedCodeAction.class).forEach(list::add);
+        return list;
     }
 }

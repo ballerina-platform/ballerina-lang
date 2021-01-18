@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.codeaction.providers.kubernetes;
 
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
-import org.ballerinalang.langserver.codeaction.K8sDiagnosticsBasedCodeAction;
+import org.ballerinalang.langserver.codeaction.extensions.K8sDiagnosticsBasedCodeAction;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.toml.ProbeStore;
 import org.ballerinalang.langserver.toml.TomlProbesVisitor;

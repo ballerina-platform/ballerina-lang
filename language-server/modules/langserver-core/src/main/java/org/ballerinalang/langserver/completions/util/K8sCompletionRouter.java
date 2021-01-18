@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import io.ballerina.toml.syntax.tree.TableNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.completions.TomlCompletionContext;
 import org.ballerinalang.langserver.completions.toml.Parent;
 import org.ballerinalang.langserver.completions.toml.ParentType;
@@ -42,6 +43,7 @@ import org.eclipse.lsp4j.Position;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +55,12 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class K8sCompletionRouter {
+
+    private LanguageServerContext serverContext;
+
+    public K8sCompletionRouter(LanguageServerContext serverContext) {
+        this.serverContext = serverContext;
+    }
 
     /**
      * Get the completion Items for Kubernetes.toml depending on the the context.
@@ -73,12 +81,13 @@ public class K8sCompletionRouter {
     public List<CompletionItem> getCompletionItemsBasedOnCursor(TomlCompletionContext ctx) {
         Node node = ctx.getNodeAtCursor();
         if (node == null) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         Map<String, CompletionItem> completions;
         Node reference = node;
-        //Gets all the support completions from Schema. TODO Remove singlethon and add this to startup
-        Map<Parent, Map<String, CompletionItem>> c2cSnippets = TomlSnippetManager.getInstance().getCompletions();
+        //Gets all the support completions from Schema.
+        Map<Parent, Map<String, CompletionItem>> c2cSnippets =
+                TomlSnippetManager.getInstance(serverContext).getCompletions();
 
         //In Kubernetes.toml all the suggestions are support based on the current Table/Table of Arrray.
         //This loop checks the parent of the current node until table or table of array found.
@@ -159,29 +168,30 @@ public class K8sCompletionRouter {
                 continue;
             }
             ParentType type = parent.getType();
-            CompletionItem item = new CompletionItem();
+            CompletionItem item;
             if (type == ParentType.TABLE) {
                 Table objectNode = new Table(key);
-                item.setInsertText(objectNode.prettyPrint());
-                item.setDetail(TomlSyntaxTreeUtil.TABLE);
-                item.setLabel(key);
-                item.setKind(CompletionItemKind.Snippet);
-                item.setInsertTextFormat(InsertTextFormat.Snippet);
-                item.setSortText(SortingUtil.genSortText(3));
+                item = createRootCompletionItem(key, TomlSyntaxTreeUtil.TABLE, objectNode.prettyPrint());
             } else if (type == ParentType.TABLE_ARRAY) {
                 TableArray objectNode = new TableArray(key);
-                item.setInsertText(objectNode.prettyPrint());
-                item.setLabel(key);
-                item.setKind(CompletionItemKind.Snippet);
-                item.setInsertTextFormat(InsertTextFormat.Snippet);
-                item.setDetail(TomlSyntaxTreeUtil.TABLE_ARRAY);
-                item.setSortText(SortingUtil.genSortText(3));
+                item = createRootCompletionItem(key, TomlSyntaxTreeUtil.TABLE_ARRAY, objectNode.prettyPrint());
             } else {
                 continue;
             }
             completions.put(key, item);
         }
         return completions;
+    }
+
+    private CompletionItem createRootCompletionItem(String key, String type, String insertText) {
+        CompletionItem item = new CompletionItem();
+        item.setInsertText(insertText);
+        item.setDetail(type);
+        item.setLabel(key);
+        item.setKind(CompletionItemKind.Snippet);
+        item.setInsertTextFormat(InsertTextFormat.Snippet);
+        item.setSortText(SortingUtil.genSortText(3));
+        return item;
     }
 
     private Map<String, CompletionItem> getChildFromDottedKey(Map<Parent, Map<String, CompletionItem>> snippets,
@@ -192,7 +202,7 @@ public class K8sCompletionRouter {
                 return entry.getValue();
             }
         }
-        return null;
+        return Collections.emptyMap();
     }
 
     private List<String> findExistingChildEntries(TableNode tableNode, Map<String, CompletionItem> completions) {

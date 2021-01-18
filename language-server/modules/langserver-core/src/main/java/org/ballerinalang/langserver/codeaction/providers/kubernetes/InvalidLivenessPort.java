@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +31,11 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.codeaction.K8sDiagnosticsBasedCodeAction")
+@JavaSPIService("org.ballerinalang.langserver.codeaction.extensions.K8sDiagnosticsBasedCodeAction")
 public class InvalidLivenessPort extends AbstractInvalidPortCodeAction {
 
     @Override
     public boolean validate(Diagnostic diagnostic, CodeActionContext ctx) {
-        if (!ctx.fileUri().endsWith("Kubernetes.toml")) {
-            return false;
-        }
         return diagnostic.getMessage().equals("Invalid Liveness Probe Port");
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,11 +70,11 @@ public class AddResourceToK8sCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
         NonTerminalNode matchedNode = context.positionDetails().matchedNode();
-        if (!(matchedNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION)) {
+        if (matchedNode.kind() != SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
             return Collections.emptyList();
         }
 
-        Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve("Kubernetes.toml");
+        Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve(TomlSyntaxTreeUtil.KUBERNETES_TOML);
         Optional<SyntaxTree> tomlSyntaxTreeOptional = TomlSyntaxTreeUtil.getTomlSyntaxTree(k8sPath);
         if (tomlSyntaxTreeOptional.isEmpty()) {
             return Collections.emptyList();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,9 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
 
+    public static final String CLOUD_CONFIG_ENVS = "cloud.config.envs";
+    public static final String KEY_REF = "key_ref";
+
     public AddConfigsToK8sCodeAction() {
         super(Collections.singletonList(
                 CodeActionNodeType.MODULE_VARIABLE));
@@ -67,33 +70,34 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve("Kubernetes.toml");
-        Optional<SyntaxTree> tomlSyntaxTreeOptional = TomlSyntaxTreeUtil.getTomlSyntaxTree(k8sPath);
-        if (tomlSyntaxTreeOptional.isEmpty()) {
+        Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve(TomlSyntaxTreeUtil.KUBERNETES_TOML);
+        Optional<SyntaxTree> parseSyntaxTree = TomlSyntaxTreeUtil.getTomlSyntaxTree(k8sPath);
+        if (parseSyntaxTree.isEmpty()) {
             return Collections.emptyList();
         }
 
-        SyntaxTree tomlSyntaxTree = tomlSyntaxTreeOptional.get();
+        SyntaxTree tomlSyntaxTree = parseSyntaxTree.get();
         DocumentNode documentNode = tomlSyntaxTree.rootNode();
 
         List<CodeAction> codeActionList = new ArrayList<>();
         ModuleVariableDeclarationNode variableNode = (ModuleVariableDeclarationNode) matchedNode;
         BindingPatternNode bindingPatternNode = variableNode.typedBindingPattern().bindingPattern();
-        if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
-            CaptureBindingPatternNode captureBindingPatternNode = (CaptureBindingPatternNode) bindingPatternNode;
-            String variableName = captureBindingPatternNode.variableName().text();
-            if (isEnvExistInK8sToml(documentNode, variableName)) {
-                return codeActionList;
-            }
-
-            String importText = generateEnvArrayTest(variableName);
-            int endLine = documentNode.members().get(documentNode.members().size() - 1).lineRange().endLine().line();
-            Position position = new Position(endLine + 1, 0);
-            List<TextEdit> edits = Collections.singletonList(new TextEdit(new Range(position, position), importText));
-            CodeAction action =
-                    createQuickFixCodeAction("Add as env to Kubernetes.toml", edits, k8sPath.toUri().toString());
-            codeActionList.add(action);
+        if (bindingPatternNode.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
+            return codeActionList;
         }
+        CaptureBindingPatternNode captureBindingPatternNode = (CaptureBindingPatternNode) bindingPatternNode;
+        String variableName = captureBindingPatternNode.variableName().text();
+        if (isEnvExistInK8sToml(documentNode, variableName)) {
+            return codeActionList;
+        }
+
+        String importText = generateEnvArrayTest(variableName);
+        int endLine = documentNode.members().get(documentNode.members().size() - 1).lineRange().endLine().line();
+        Position position = new Position(endLine + 1, 0);
+        List<TextEdit> edits = Collections.singletonList(new TextEdit(new Range(position, position), importText));
+        CodeAction action =
+                createQuickFixCodeAction("Add as env to Kubernetes.toml", edits, k8sPath.toUri().toString());
+        codeActionList.add(action);
         return codeActionList;
     }
 
@@ -112,14 +116,16 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
 
     private boolean isEnvExistInK8sToml(DocumentNode documentNode, String variableName) {
         for (DocumentMemberDeclarationNode member : documentNode.members()) {
-            if (member.kind() == io.ballerina.toml.syntax.tree.SyntaxKind.TABLE_ARRAY) {
-                TableArrayNode tableNode = (TableArrayNode) member;
-                String tableArrayName = TomlSyntaxTreeUtil.toDottedString(tableNode.identifier());
-                if (tableArrayName.equals("cloud.config.envs")) {
-                    if (isEnvExistInTableArray(variableName, tableNode)) {
-                        return true;
-                    }
-                }
+            if (member.kind() != io.ballerina.toml.syntax.tree.SyntaxKind.TABLE_ARRAY) {
+                continue;
+            }
+            TableArrayNode tableNode = (TableArrayNode) member;
+            String tableArrayName = TomlSyntaxTreeUtil.toDottedString(tableNode.identifier());
+            if (!tableArrayName.equals(CLOUD_CONFIG_ENVS)) {
+                continue;
+            }
+            if (isEnvExistInTableArray(variableName, tableNode)) {
+                return true;
             }
         }
         return false;
@@ -128,25 +134,28 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
     private boolean isEnvExistInTableArray(String variableName, TableArrayNode tableNode) {
         for (KeyValueNode keyValueNode : tableNode.fields()) {
             String key = TomlSyntaxTreeUtil.toDottedString(keyValueNode.identifier());
-            if (key.equals("key_ref")) {
-                ValueNode value = keyValueNode.value();
-                if (value.kind() == io.ballerina.toml.syntax.tree.SyntaxKind.STRING_LITERAL) {
-                    StringLiteralNode stringNode = (StringLiteralNode) value;
-                    Optional<io.ballerina.toml.syntax.tree.Token> content = stringNode.content();
-                    if (content.isPresent()) {
-                        if (content.get().text().equals(variableName)) {
-                            return true;
-                        }
-                    }
-                }
+            if (!key.equals(KEY_REF)) {
+                continue;
+            }
+            ValueNode value = keyValueNode.value();
+            if (value.kind() != io.ballerina.toml.syntax.tree.SyntaxKind.STRING_LITERAL) {
+                continue;
+            }
+            StringLiteralNode stringNode = (StringLiteralNode) value;
+            Optional<io.ballerina.toml.syntax.tree.Token> content = stringNode.content();
+            if (content.isEmpty()) {
+                continue;
+            }
+            if (content.get().text().equals(variableName)) {
+                return true;
             }
         }
         return false;
     }
 
     private String generateEnvArrayTest(String configVariable) {
-        return CommonUtil.LINE_SEPARATOR + "[[cloud.config.envs]]" + CommonUtil.LINE_SEPARATOR +
-                "key_ref=\"" + configVariable + "\"" + CommonUtil.LINE_SEPARATOR +
+        return CommonUtil.LINE_SEPARATOR + "[[" + CLOUD_CONFIG_ENVS + "]]" + CommonUtil.LINE_SEPARATOR +
+                KEY_REF + "=\"" + configVariable + "\"" + CommonUtil.LINE_SEPARATOR +
                 "config_name=\"" + configVariable + "\"" + CommonUtil.LINE_SEPARATOR;
     }
 }
