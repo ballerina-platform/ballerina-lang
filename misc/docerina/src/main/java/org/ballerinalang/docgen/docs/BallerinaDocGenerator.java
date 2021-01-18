@@ -501,6 +501,17 @@ public class BallerinaDocGenerator {
                 }
             }
             if (hasPublicConstructs) {
+                module.records.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.functions.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.classes.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.clients.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.listeners.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.abstractObjects.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.enums.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.types.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.constants.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.annotations.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.errors.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
                 moduleDocs.add(module);
             }
         }
