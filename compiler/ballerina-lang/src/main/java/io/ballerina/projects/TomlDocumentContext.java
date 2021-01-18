@@ -1,12 +1,10 @@
 package io.ballerina.projects;
 
-import io.ballerina.toml.semantic.ast.TomlTransformer;
-import io.ballerina.toml.syntax.tree.DocumentNode;
-import io.ballerina.toml.syntax.tree.SyntaxTree;
-import io.ballerina.toml.semantic.ast.TomlTableNode;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
-
+/**
+ * Toml document context used in ProjectAPI Inner Tree.
+ *
+ * @since 2.0.0
+ */
 public class TomlDocumentContext {
     private TomlDocument tomlDocument;
 
@@ -22,4 +20,7 @@ public class TomlDocumentContext {
         return new TomlDocumentContext(new TomlDocument(documentConfig.name(), documentConfig.content()));
     }
 
+    public TomlDocument tomlDocument() {
+        return tomlDocument;
+    }
 }

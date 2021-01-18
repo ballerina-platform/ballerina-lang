@@ -24,8 +24,8 @@ public class Package {
     // Following are not final since they will be lazy loaded
     private Optional<PackageMd> packageMd = null;
     private Optional<BallerinaToml> ballerinaToml = null;
-    private DependenciesToml dependenciesToml = null;
-    private KubernetesToml kubernetesToml = null;
+    private Optional<DependenciesToml> dependenciesToml = null;
+    private Optional<KubernetesToml> kubernetesToml = null;
 
     private Package(PackageContext packageContext, Project project) {
         this.packageContext = packageContext;
@@ -147,6 +147,24 @@ public class Package {
             );
         }
         return this.ballerinaToml;
+    }
+
+    public Optional<DependenciesToml> dependenciesToml() {
+        if (null == this.dependenciesToml) {
+            this.dependenciesToml = this.packageContext.dependenciesTomlContext().map(c ->
+                    DependenciesToml.from(c, this)
+            );
+        }
+        return this.dependenciesToml;
+    }
+
+    public Optional<KubernetesToml> kubernetesToml() {
+        if (null == this.kubernetesToml) {
+            this.kubernetesToml = this.packageContext.kubernetesTomlContext().map(c ->
+                    KubernetesToml.from(c, this)
+            );
+        }
+        return this.kubernetesToml;
     }
 
     public Optional<PackageMd> packageMd() {

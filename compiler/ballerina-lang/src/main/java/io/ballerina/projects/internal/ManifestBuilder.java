@@ -1,10 +1,28 @@
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.*;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
-import io.ballerina.toml.semantic.ast.*;
+import io.ballerina.toml.semantic.ast.Node;
+import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
+import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
+import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
+import io.ballerina.toml.semantic.ast.TomlStringValueNode;
+import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.ast.TomlValueNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -16,9 +34,18 @@ import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.compiler.CompilerOptionName;
 
-import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+/**
+ * Build Manifest using toml files.
+ *
+ * @since 2.0.0
+ */
 public class ManifestBuilder {
 
     private TomlDocument ballerinaToml;
@@ -36,7 +63,7 @@ public class ManifestBuilder {
 
     private ManifestBuilder(TomlDocument ballerinaToml, TomlDocument dependenciesToml) {
         this.ballerinaToml = ballerinaToml;
-        this.dependenciesToml = ballerinaToml;
+        this.dependenciesToml = dependenciesToml;
         this.diagnosticList = new ArrayList<>();
         this.packageManifest = parseAsPackageManifest();
         this.buildOptions = parseBuildOptions();

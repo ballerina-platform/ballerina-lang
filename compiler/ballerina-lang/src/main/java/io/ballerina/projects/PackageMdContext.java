@@ -3,6 +3,11 @@ package io.ballerina.projects;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
+/**
+ * MD Document Context used in ProjectAPI Inner Tree.
+ *
+ * @since 2.0.0
+ */
 public class PackageMdContext {
     private TextDocument textDocument;
     private DocumentId documentId;

@@ -24,10 +24,6 @@ import io.ballerina.toml.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 /**
  * Represents a generic TOML document in a Ballerina package.
  *

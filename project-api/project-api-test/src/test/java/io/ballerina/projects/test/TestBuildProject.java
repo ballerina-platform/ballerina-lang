@@ -633,7 +633,7 @@ public class TestBuildProject {
         ModuleDescriptor moduleDesc = ModuleDescriptor.from(moduleName, pkgManifest.descriptor());
 
         ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleDesc, Collections.emptyList(),
-                Collections.emptyList(),null,  Collections.emptyList());
+                Collections.emptyList(), null,  Collections.emptyList());
         Package newPackage = oldPackage.modify().addModule(newModuleConfig).apply();
 
         Assert.assertEquals(newPackage.module(newModuleId).documentIds().size(), 0);

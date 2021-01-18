@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
@@ -139,17 +138,17 @@ public class PackageCompilation {
                     diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
 
-        addOtherDiagnostics(diagnostics);
+        //addOtherDiagnostics(diagnostics);
         diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         compiled = true;
     }
 
-    private void addOtherDiagnostics(List<Diagnostic> diagnostics) {
-        Optional<TomlDocumentContext> ballerinaToml = rootPackageContext.ballerinaTomlContext();
-        if (ballerinaToml.isPresent()) {
-            // todo fix me
-            // BallerinaToml ballerinaToml = ballerinaTomlOptional.get();
-            // diagnostics.addAll(ballerinaToml.diagnostics().allDiagnostics);
-        }
-    }
+//    private void addOtherDiagnostics(List<Diagnostic> diagnostics) {
+//        Optional<TomlDocumentContext> ballerinaToml = rootPackageContext.ballerinaTomlContext();
+////        if (ballerinaToml.isPresent()) {
+////            // todo fix me
+////            // BallerinaToml ballerinaToml = ballerinaTomlOptional.get();
+////            // diagnostics.addAll(ballerinaToml.diagnostics().allDiagnostics);
+////        }
+//    }
 }

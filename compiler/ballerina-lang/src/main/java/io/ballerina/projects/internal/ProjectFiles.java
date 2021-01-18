@@ -17,12 +17,8 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.BallerinaToml;
-import io.ballerina.projects.BallerinaTomlException;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.MdDocument;
-import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -171,7 +167,7 @@ public class ProjectFiles {
     }
 
     public static BuildOptions createBuildOptions(Path projectPath, BuildOptions theirOptions) {
-        Path ballerinaTomlFilePath = projectPath.resolve(ProjectConstants.BALLERINA_TOML);
+        //Path ballerinaTomlFilePath = projectPath.resolve(ProjectConstants.BALLERINA_TOML);
         // todo fix me
 //        BallerinaToml ballerinaToml = null;//BallerinaToml.from(ballerinaTomlFilePath);
 //        if (ballerinaToml.diagnostics().hasErrors()) {

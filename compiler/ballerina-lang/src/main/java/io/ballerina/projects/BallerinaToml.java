@@ -17,51 +17,18 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.internal.DefaultDiagnosticResult;
-import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
-import io.ballerina.toml.semantic.TomlType;
-import io.ballerina.toml.semantic.ast.Node;
-import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
-import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
-import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
-import io.ballerina.toml.semantic.ast.TomlStringValueNode;
-import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
-import io.ballerina.toml.semantic.ast.TomlTableNode;
-import io.ballerina.toml.semantic.ast.TomlValueNode;
-import io.ballerina.toml.semantic.ast.TopLevelNode;
-import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
-import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticCode;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextRange;
-import org.ballerinalang.compiler.CompilerOptionName;
-
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-
 /**
  * Represents the 'Ballerina.toml' file in a package.
  *
  * @since 2.0.0
  */
-public class BallerinaToml{
+public class BallerinaToml {
 
     private TomlDocumentContext ballerinaTomlContext;
-    private Package aPackage;
+    private Package packageInstance;
 
     private BallerinaToml(Package aPackage, TomlDocumentContext ballerinaTomlContext) {
-        this.aPackage = aPackage;
+        this.packageInstance = aPackage;
         this.ballerinaTomlContext = ballerinaTomlContext;
 
     }
@@ -70,4 +37,11 @@ public class BallerinaToml{
         return new BallerinaToml(pkg, ballerinaTomlContext);
     }
 
+    public TomlDocumentContext ballerinaTomlContext() {
+        return ballerinaTomlContext;
+    }
+
+    public Package packageInstance() {
+        return packageInstance;
+    }
 }

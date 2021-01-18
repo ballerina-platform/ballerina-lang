@@ -17,7 +17,9 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.*;
+import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PackageDescriptor;
 
 import java.nio.file.Path;
 import java.util.List;

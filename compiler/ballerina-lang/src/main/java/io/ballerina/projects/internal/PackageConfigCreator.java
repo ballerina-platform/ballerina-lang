@@ -17,7 +17,22 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.*;
+import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.DocumentConfig;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.ModuleConfig;
+import io.ballerina.projects.ModuleDescriptor;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageId;
+import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
@@ -108,13 +123,13 @@ public class PackageConfigCreator {
                 packageData.defaultModule(), packageId, moduleDependencyGraph));
 
         DocumentConfig ballerinaToml = packageData.ballerinaToml()
-                .map( data -> createDocumentConfig(data,null)).orElse(null);
+                .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig dependenciesToml = packageData.dependenciesToml()
-                .map( data -> createDocumentConfig(data,null)).orElse(null);
+                .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig kubernetesToml = packageData.kubernetesToml()
-                .map( data -> createDocumentConfig(data,null)).orElse(null);
+                .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig packageMd = packageData.packageMd()
-                .map( data -> createDocumentConfig(data,null)).orElse(null);
+                .map(data -> createDocumentConfig(data, null)).orElse(null);
 
         return PackageConfig.from(packageId, packageData.packagePath(), packageManifest, ballerinaToml,
                 dependenciesToml, kubernetesToml, packageMd, moduleConfigs, packageDependencyGraph);
