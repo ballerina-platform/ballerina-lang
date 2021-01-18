@@ -66,6 +66,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
@@ -278,6 +279,8 @@ public class TypedescriptorTest {
         assertEquals(members.get(0).typeKind(), INT);
         assertEquals(members.get(1).typeKind(), STRING);
         assertEquals(members.get(2).typeKind(), FLOAT);
+
+        assertEquals(type.signature(), "int|string|float");
     }
 
     @Test(enabled = false)
@@ -307,6 +310,9 @@ public class TypedescriptorTest {
             assertEquals(member.typeKind(), SINGLETON);
             assertEquals(member.signature(), expSignatures.get(i));
         }
+
+        String expSignature = members.stream().map(TypeSymbol::signature).collect(Collectors.joining("|"));
+        assertEquals(union.signature(), expSignature);
     }
 
     @DataProvider(name = "FiniteTypeDataProvider")

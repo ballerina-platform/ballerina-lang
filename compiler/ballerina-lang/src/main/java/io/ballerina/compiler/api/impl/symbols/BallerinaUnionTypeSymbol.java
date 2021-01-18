@@ -49,6 +49,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
     private List<TypeSymbol> memberTypes;
+    private String signature;
 
     public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BUnionType unionType) {
         super(context, TypeDescKind.UNION, moduleID, unionType);
@@ -83,6 +84,23 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
 
     @Override
     public String signature() {
+        if (this.signature != null) {
+            return this.signature;
+        }
+
+        BType type = this.getBType();
+        if (type.tag == TypeTags.UNION) {
+            this.signature = getSignatureForUnion(type);
+        } else if (type.tag == TypeTags.FINITE) {
+            this.signature = getSignatureForFiniteType();
+        } else {
+            throw new IllegalStateException("Invalid type kind: " + type.getClass().getName());
+        }
+
+        return this.signature;
+    }
+
+    private String getSignatureForUnion(BType type) {
         BUnionType unionType = (BUnionType) this.getBType();
         if (unionType.isCyclic && (unionType.tsymbol != null) && !unionType.tsymbol.getName().getValue().isEmpty()) {
             String typeStr;
@@ -99,10 +117,12 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         if (unionType.resolvingToString) {
             return "...";
         }
+
         List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
-        if (memberTypes.size() == 2 &&
-                memberTypes.get(1).typeKind() == TypeDescKind.NIL) {
-            return memberTypes.get(0).signature() + "?";
+        if (memberTypes.size() == 2) {
+            TypeSymbol member1 = memberTypes.get(0);
+            return member1.typeKind() == TypeDescKind.NIL ?
+                    memberTypes.get(1).signature() + "?" : member1.signature() + "?";
         } else {
             StringJoiner joiner = new StringJoiner("|");
             unionType.resolvingToString = true;
@@ -112,5 +132,14 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             unionType.resolvingToString = false;
             return joiner.toString();
         }
+    }
+
+    private String getSignatureForFiniteType() {
+        List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
+        StringJoiner joiner = new StringJoiner("|");
+        for (TypeSymbol typeDescriptor : memberTypes) {
+            joiner.add(typeDescriptor.signature());
+        }
+        return joiner.toString();
     }
 }
