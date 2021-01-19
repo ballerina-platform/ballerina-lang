@@ -18,7 +18,13 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaBooleanTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaByteTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaDecimalTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaFloatTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaIntTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaNilTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaStringTypeSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
@@ -63,9 +69,11 @@ import java.util.Set;
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
@@ -553,14 +561,22 @@ public class TypedescriptorTest {
     @DataProvider(name = "BasicTestPosProvider")
     public Object[][] getBasicTestPos() {
         return new Object[][]{
-//                {186, 8, INT, BallerinaIntTypeSymbol.class},
-//                {187, 10, FLOAT, BallerinaFloatTypeSymbol.class},
-//                {188, 12, DECIMAL, BallerinaDecimalTypeSymbol.class},
-//                {189, 12, BOOLEAN, BallerinaBooleanTypeSymbol.class},
-//                {190, 7, NIL, BallerinaNilTypeSymbol.class},
-//                {191, 11, STRING, BallerinaStringTypeSymbol.class},
+                {186, 8, INT, BallerinaIntTypeSymbol.class},
+                {187, 10, FLOAT, BallerinaFloatTypeSymbol.class},
+                {188, 12, DECIMAL, BallerinaDecimalTypeSymbol.class},
+                {189, 12, BOOLEAN, BallerinaBooleanTypeSymbol.class},
+                {190, 7, NIL, BallerinaNilTypeSymbol.class},
+                {191, 11, STRING, BallerinaStringTypeSymbol.class},
                 {192, 9, BYTE, BallerinaByteTypeSymbol.class},
         };
+    }
+
+    @Test
+    public void testMultilineTypedefs() {
+        Symbol symbol = getSymbol(198, 18);
+        assertEquals(symbol.kind(), TYPE);
+        assertEquals(((TypeSymbol) symbol).typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) symbol).name(), "CancelledError");
     }
 
     private Symbol getSymbol(int line, int column) {
