@@ -29,9 +29,12 @@ public interface Symbol {
 
     /**
      * Get the symbol name.
-     * 
+     *
      * @return {@link String} name of the symbol
+     * @deprecated This method is expected to be removed from this interface. The plan is to make this method available
+     * only to symbols actually associated with a name.
      */
+    @Deprecated
     String name();
 
     /**
