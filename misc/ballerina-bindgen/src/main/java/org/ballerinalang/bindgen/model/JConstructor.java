@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.bindgen.model;
 
+import org.ballerinalang.bindgen.command.BindingsGenerator;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -88,6 +90,10 @@ public class JConstructor implements Cloneable {
                     JError jError = new JError(exceptionType);
                     exceptionName = jError.getShortExceptionName();
                     exceptionConstName = jError.getExceptionConstName();
+                    if (BindingsGenerator.getModulesFlag()) {
+                        exceptionName = getPackageAlias(exceptionName, exceptionType);
+                        exceptionConstName = getPackageAlias(exceptionConstName, exceptionType);
+                    }
                     setExceptionList(jError);
                     hasException = true;
                     handleException = true;
@@ -96,6 +102,13 @@ public class JConstructor implements Cloneable {
             } catch (ClassNotFoundException ignore) {
             }
         }
+    }
+
+    private String getPackageAlias(String shortClassName, Class objectType) {
+        if (objectType.getPackage() != parentClass.getPackage()) {
+            return objectType.getPackageName().replace(".", "") + ":" + shortClassName;
+        }
+        return shortClassName;
     }
 
     void setConstructorName(String name) {
