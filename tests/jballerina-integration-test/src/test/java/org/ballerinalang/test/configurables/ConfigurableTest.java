@@ -100,7 +100,7 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testNoConfigFile() throws BallerinaTestException {
         Path filePath = Paths.get(negativeTestFileLocation, "noConfig.bal").toAbsolutePath();
-        LogLeecher errorLeecher = new LogLeecher("error: Configuration toml file `Config.toml` is not found",
+        LogLeecher errorLeecher = new LogLeecher("error: Value not provided for required configurable variable 'name'",
                 ERROR);
         bMainInstance.runMain("run", new String[]{filePath.toString()}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, testFileLocation + "/NegativeTests");
