@@ -20,10 +20,17 @@ package org.ballerinalang.model.tree.bindingpattern;
 import org.ballerinalang.model.tree.Node;
 
 /**
- * The interface with the APIs to implement the wild-card-binding-pattern.
+ * The interface with the APIs to implement the simple-binding-pattern.
  *
  * @since 2.0.0
  */
-public interface WildCardBindingPatternNode extends Node {
+public interface SimpleBindingPatternNode extends Node {
 
+    CaptureBindingPattern getCaptureBindingPattern();
+
+    void setCaptureBindingPattern(CaptureBindingPattern captureBindingPattern);
+
+    WildCardBindingPatternNode getWildCardBindingPatternNode();
+
+    void setWildCardBindingPatternNode(WildCardBindingPatternNode wildCardBindingPatternNode);
 }
