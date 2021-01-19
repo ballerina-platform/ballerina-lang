@@ -200,7 +200,7 @@ public class PackageResolution {
     }
 
     private DependencyGraph<ResolvedPackageDependency> getDependencyGraphWithPackageDescriptors() {
-        PackageDependencyGraphBuilder depGraphBuilder = PackageDependencyGraphBuilder.getInstance();
+        PackageDependencyGraphBuilder depGraphBuilder = new PackageDependencyGraphBuilder();
         if (rootPackageContext.project().kind() == ProjectKind.BALR_PROJECT) {
             createDependencyGraphFromBALR(depGraphBuilder);
         } else {
@@ -235,7 +235,7 @@ public class PackageResolution {
             }
         }
 
-        depGraphBuilder.mergeGraph(rootPackageContext.dependencyGraph());
+        depGraphBuilder.mergeGraph(rootPackageContext.dependencyGraph(), PackageDependencyScope.DEFAULT);
     }
 
     private void createDependencyGraphFromSources(PackageDependencyGraphBuilder depGraphBuilder) {
@@ -247,7 +247,7 @@ public class PackageResolution {
                 packageResolver.resolvePackages(new ArrayList<>(packageLoadRequests), rootPackageContext.project());
 
         PackageDescriptor rootPkgDesc = rootPackageContext.descriptor();
-        depGraphBuilder.addNode(rootPkgDesc);
+        depGraphBuilder.addNode(rootPkgDesc, PackageDependencyScope.DEFAULT);
         for (ResolutionResponse resolutionResponse : resolutionResponses) {
             if (resolutionResponse.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
                 // We don't log errors for unresolved direct dependencies
@@ -258,15 +258,17 @@ public class PackageResolution {
             PackageDescriptor dependencyDescriptor = directDependency.descriptor();
             ResolutionRequest resolutionRequest = resolutionResponse.packageLoadRequest();
             if (resolutionRequest.scope() == PackageDependencyScope.DEFAULT) {
-                depGraphBuilder.addDependency(rootPkgDesc, dependencyDescriptor);
+                depGraphBuilder.addDependency(rootPkgDesc, dependencyDescriptor, PackageDependencyScope.DEFAULT);
 
                 // Merge direct dependency's dependency graph with the current one.
-                depGraphBuilder.mergeGraph(directDependency.packageContext().dependencyGraph());
+                depGraphBuilder.mergeGraph(directDependency.packageContext().dependencyGraph(),
+                        PackageDependencyScope.DEFAULT);
             } else if (resolutionRequest.scope() == PackageDependencyScope.TEST_ONLY) {
-                depGraphBuilder.addTestDependency(rootPkgDesc, dependencyDescriptor);
+                depGraphBuilder.addDependency(rootPkgDesc, dependencyDescriptor, PackageDependencyScope.TEST_ONLY);
 
                 // Merge direct dependency's dependency graph with the current one.
-                depGraphBuilder.mergeTestDependencyGraph(directDependency.packageContext().dependencyGraph());
+                depGraphBuilder.mergeGraph(directDependency.packageContext().dependencyGraph(),
+                        PackageDependencyScope.TEST_ONLY);
             }
         }
 
