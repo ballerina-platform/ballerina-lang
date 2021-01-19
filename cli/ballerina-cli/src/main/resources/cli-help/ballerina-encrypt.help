@@ -2,7 +2,7 @@ NAME
        ballerina-encrypt - Encrypt sensitive configuration values
     
 SYNOPSIS
-       ballerina encrypt
+       bal encrypt
 
 
 DESCRIPTION
@@ -32,4 +32,4 @@ DEFAULT BEHAVIOUR
 
 EXAMPLES
        Encrypt sensitive data.
-          $ ballerina encrypt
+          $ bal encrypt

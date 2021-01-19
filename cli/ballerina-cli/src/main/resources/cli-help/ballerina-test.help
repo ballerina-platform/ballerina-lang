@@ -2,8 +2,8 @@ NAME
        ballerina-test - Run package tests
 
 SYNOPSIS
-       ballerina test [<options>]
-                      [<ballerina-file-path> | <ballerina-package-path>] [<config properties>]
+       bal test [<options>]
+                [<ballerina-file-path> | <ballerina-package-path>] [<config properties>]
 
 
 DESCRIPTION
@@ -94,32 +94,32 @@ CONFIG PROPERTIES
 
 EXAMPLES
         Run all tests in the current package.
-           $ ballerina test
+           $ bal test
 
         List all test groups in the package.
-           $ ballerina test --list-groups
+           $ bal test --list-groups
 
         Run only the set of tests belonging to the `group_x` in the current package.
-           $ ballerina test --groups group_x
+           $ bal test --groups group_x
 
         Run only the given set of functions in the current package.
-            $ ballerina test --tests testFunction
+            $ bal test --tests testFunction
 
         Run the given set of functions in the default module only
-            $ ballerina test --tests PackageName:testA1,testB*
+            $ bal test --tests PackageName:testA1,testB*
 
         Run the all functions in the given module
-            $ ballerina test --tests PackageName.ModuleName:*
+            $ bal test --tests PackageName.ModuleName:*
 
         Run only the previously-failed test cases in the current package.
-            $ ballerina test --rerun-failed
+            $ bal test --rerun-failed
 
         Run tests in a single BAL file.
-           $ ballerina test main_test.bal
+           $ bal test main_test.bal
 
         Run tests and generate a test report.
-           $ ballerina test --test-report
+           $ bal test --test-report
 
         Run tests with code coverage. This will generate a test report
         with test statuses and code coverage information.
-           $ ballerina test --code-coverage
+           $ bal test --code-coverage
