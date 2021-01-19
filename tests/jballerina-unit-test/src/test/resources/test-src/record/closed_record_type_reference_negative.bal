@@ -80,3 +80,27 @@ type UserData2 record {|
     int index;
     *Data;
 |};
+
+type Rec1 record {|
+    int i;
+    string...;
+|};
+
+type IncludingRec1 record {|
+    boolean b;
+    *Rec1;
+|};
+
+type Rec2 record {|
+    float f;
+    error...;
+|};
+
+type IncludingRec2 record {| // cannot use type inclusion with more than one open record
+    *Rec1;
+    *Rec2;
+|};
+
+function testRestTypeOverridingNegative() {
+    IncludingRec1 rec1 = {i: 1, b: false, "s": "str", "f": 3.02}; // incompatible types: expected 'string', found 'float'
+}

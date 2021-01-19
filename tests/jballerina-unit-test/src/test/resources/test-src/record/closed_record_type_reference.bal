@@ -180,3 +180,58 @@ function testDefaultValueInitInBALOs() returns records:BClosedManager {
     records:BClosedManager mgr = {};
     return mgr;
 }
+
+// Test overriding test field
+
+type Rec1 record {|
+    int i;
+    string...;
+|};
+
+type Rec2 record {|
+    string s;
+    any|error...;
+|};
+
+type IncludingRec1 record {|
+    boolean b;
+    *Rec1;
+|};
+
+type IncludingRec2 record {|
+    *Rec1;
+    boolean...;
+|};
+
+type IncludingRec3 record {|
+    int i;
+    *Rec2;
+|};
+
+function testRestTypeOverriding() {
+    IncludingRec1 r1 = {b: false, i: 1, "s": "str"};
+    assertEquality("str", r1["s"]);
+    IncludingRec2 r2 = {i: 1, "b": false};
+    assertEquality(false, r2["b"]);
+    IncludingRec3 r3 = {i: 1, s: "str", "e": error("Message")};
+    assertEquality(true, r3["e"] is error);
+    error e = <error> r3["e"];
+    assertEquality("Message", e.message());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}

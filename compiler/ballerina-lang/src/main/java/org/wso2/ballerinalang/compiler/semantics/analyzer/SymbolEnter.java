@@ -2320,16 +2320,38 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (recordTypeNode.restFieldType == null) {
-            if (recordTypeNode.sealed) {
-                recordType.restFieldType = symTable.noType;
-                return;
-            }
+        if (recordTypeNode.restFieldType != null) {
+            recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
+            return;
+        }
+
+        if (!recordTypeNode.sealed) {
             recordType.restFieldType = symTable.anydataType;
             return;
         }
 
-        recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
+        for (BLangType typeRef : recordTypeNode.typeRefs) {
+            if (typeRef.type.tag != TypeTags.RECORD) {
+                continue;
+            }
+            BType restFieldType = ((BRecordType) typeRef.type).restFieldType;
+            if (restFieldType == null || restFieldType == symTable.noType) {
+                continue;
+            }
+            if (recordType.restFieldType != null) {
+                recordType.restFieldType = symTable.noType;
+                dlog.error(recordTypeNode.pos,
+                        DiagnosticErrorCode.CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD);
+                return;
+            }
+            recordType.restFieldType = restFieldType;
+            recordType.sealed = false;
+        }
+
+        if (recordType.restFieldType != null) {
+            return;
+        }
+        recordType.restFieldType = symTable.noType;
     }
 
     private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
