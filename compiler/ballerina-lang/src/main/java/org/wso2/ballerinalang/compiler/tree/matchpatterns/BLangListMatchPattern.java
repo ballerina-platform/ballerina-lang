@@ -32,6 +32,7 @@ import java.util.List;
  * @since 2.0.0
  */
 public class BLangListMatchPattern extends BLangMatchPattern implements ListMatchPatternNode {
+
     public List<BLangMatchPattern> matchPatterns = new ArrayList<>();
     public BLangRestMatchPattern restMatchPattern;
 

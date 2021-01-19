@@ -35,15 +35,10 @@ public class TraceConstants {
     public static final String TAG_KEY_SPAN_KIND = "span.kind";
 
     public static final String TAG_KEY_STR_ERROR = "error";
+    public static final String TAG_KEY_STR_ERROR_MESSAGE = "error.message";
     public static final String TAG_KEY_HTTP_STATUS_CODE = "http.status_code";
     public static final String TAG_STR_TRUE = "true";
 
     public static final String TAG_SPAN_KIND_SERVER = "server";
     public static final String TAG_SPAN_KIND_CLIENT = "client";
-
-    public static final String LOG_KEY_MESSAGE = "message";
-    public static final String LOG_KEY_ERROR_KIND = "error.kind";
-    public static final String LOG_KEY_EVENT_TYPE = "event";
-    public static final String LOG_ERROR_KIND_EXCEPTION = "Exception";
-    public static final String LOG_EVENT_TYPE_ERROR = "error";
 }

@@ -128,10 +128,16 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMessageMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangNamedArgMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -391,6 +397,30 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangListBindingPattern listBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorMatchPattern errorMatchPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorMessageMatchPattern errorMessageMatchPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorCauseMatchPattern errorCauseMatchPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorFieldMatchPatterns errorFieldMatchPatterns) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangSimpleMatchPattern simpleMatchPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangNamedArgMatchPattern namedArgMatchPattern) {
         throw new AssertionError();
     }
 

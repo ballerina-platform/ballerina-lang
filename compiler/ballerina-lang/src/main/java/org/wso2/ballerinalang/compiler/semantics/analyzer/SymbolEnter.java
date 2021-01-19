@@ -526,7 +526,19 @@ public class SymbolEnter extends BLangNodeVisitor {
             defineNode(f, objMethodsEnv);
         });
 
+        defineIncludedMethods(classDefinition, objMethodsEnv, false);
+    }
+
+    private void defineIncludedMethods(BLangClassDefinition classDefinition, SymbolEnv objMethodsEnv,
+                                       boolean defineReadOnlyInclusionsOnly) {
         Set<String> includedFunctionNames = new HashSet<>();
+
+        if (defineReadOnlyInclusionsOnly) {
+            for (BAttachedFunction function : ((BObjectTypeSymbol) classDefinition.type.tsymbol).referencedFunctions) {
+                includedFunctionNames.add(function.funcName.value);
+            }
+        }
+
         // Add the attached functions of the referenced types to this object.
         // Here it is assumed that all the attached functions of the referred type are
         // resolved by the time we reach here. It is achieved by ordering the typeDefs
@@ -536,6 +548,24 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (type == null || type == symTable.semanticError) {
                 return;
             }
+
+            if (type.tag == TypeTags.INTERSECTION) {
+                if (!defineReadOnlyInclusionsOnly) {
+                    // Will be defined once all the readonly type's methods are defined.
+                    continue;
+                }
+
+                type = ((BIntersectionType) type).effectiveType;
+            } else {
+                if (defineReadOnlyInclusionsOnly) {
+                    if (!isImmutable((BObjectType) type)) {
+                        continue;
+                    }
+                } else if (isImmutable((BObjectType) type)) {
+                    continue;
+                }
+            }
+
             List<BAttachedFunction> functions = ((BObjectTypeSymbol) type.tsymbol).attachedFuncs;
             for (BAttachedFunction function : functions) {
                 defineReferencedFunction(classDefinition.pos, classDefinition.flagSet, objMethodsEnv,
@@ -546,7 +576,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineReferencedClassFields(BLangClassDefinition classDefinition, SymbolEnv typeDefEnv,
-                                             BObjectType objType) {
+                                             BObjectType objType, boolean defineReadOnlyInclusionsOnly) {
         Set<BSymbol> referencedTypes = new HashSet<>();
         List<BLangType> invalidTypeRefs = new ArrayList<>();
         // Get the inherited fields from the type references
@@ -556,43 +586,91 @@ public class SymbolEnter extends BLangNodeVisitor {
             fieldNames.put(fieldVariable.name.value, fieldVariable);
         }
 
-        classDefinition.referencedFields = classDefinition.typeRefs.stream().flatMap(typeRef -> {
+        List<BLangSimpleVariable> referencedFields = new ArrayList<>();
+
+        for (BLangType typeRef : classDefinition.typeRefs) {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
             if (referredType == symTable.semanticError) {
-                return Stream.empty();
+                continue;
+            }
+
+            int tag = classDefinition.type.tag;
+            if (tag == TypeTags.OBJECT) {
+                if (isInvalidIncludedTypeInClass(referredType)) {
+                    if (!defineReadOnlyInclusionsOnly) {
+                        dlog.error(typeRef.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
+                    }
+                    invalidTypeRefs.add(typeRef);
+                    continue;
+                }
+
+                BObjectType objectType = null;
+
+                if (referredType.tag == TypeTags.INTERSECTION) {
+                    if (!defineReadOnlyInclusionsOnly) {
+                        // Will be defined once all the readonly type's fields are defined.
+                        continue;
+                    }
+                } else {
+                    objectType = (BObjectType) referredType;
+
+                    if (defineReadOnlyInclusionsOnly) {
+                        if (!isImmutable(objectType)) {
+                            continue;
+                        }
+                    } else if (isImmutable(objectType)) {
+                        continue;
+                    }
+                }
+            } else if (defineReadOnlyInclusionsOnly) {
+                continue;
             }
 
             // Check for duplicate type references
             if (!referencedTypes.add(referredType.tsymbol)) {
                 dlog.error(typeRef.pos, DiagnosticErrorCode.REDECLARED_TYPE_REFERENCE, typeRef);
-                return Stream.empty();
+                continue;
             }
 
-            if (classDefinition.type.tag == TypeTags.OBJECT) {
-                if (referredType.tag != TypeTags.OBJECT) {
-                    dlog.error(typeRef.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
-                    invalidTypeRefs.add(typeRef);
-                    return Stream.empty();
+            BType effectiveIncludedType = referredType;
+
+            if (tag == TypeTags.OBJECT) {
+                BObjectType objectType;
+
+                if (referredType.tag == TypeTags.INTERSECTION) {
+                    effectiveIncludedType = objectType = (BObjectType) ((BIntersectionType) referredType).effectiveType;
+                } else {
+                    objectType = (BObjectType) referredType;
                 }
 
-                BObjectType objectType = (BObjectType) referredType;
                 if (classDefinition.type.tsymbol.owner != referredType.tsymbol.owner) {
+                    boolean errored = false;
                     for (BField field : objectType.fields.values()) {
                         if (!Symbols.isPublic(field.symbol)) {
                             dlog.error(typeRef.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS,
-                                    typeRef);
+                                       typeRef);
                             invalidTypeRefs.add(typeRef);
-                            return Stream.empty();
+                            errored = true;
+                            break;
                         }
+                    }
+
+                    if (errored) {
+                        continue;
                     }
 
                     for (BAttachedFunction func : ((BObjectTypeSymbol) objectType.tsymbol).attachedFuncs) {
                         if (!Symbols.isPublic(func.symbol)) {
                             dlog.error(typeRef.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS,
-                                    typeRef);
+                                       typeRef);
                             invalidTypeRefs.add(typeRef);
-                            return Stream.empty();
+                            errored = true;
+                            break;
                         }
+                    }
+
+                    if (errored) {
+                        continue;
                     }
                 }
             }
@@ -601,28 +679,30 @@ public class SymbolEnter extends BLangNodeVisitor {
             // by the time we reach here. It is achieved by ordering the typeDefs according
             // to the precedence.
             // Default values of fields are not inherited.
-            return ((BStructureType) referredType).fields.values().stream().filter(f -> {
-                if (fieldNames.containsKey(f.name.value)) {
-                    BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
-                    return !types.isAssignable(existingVariable.type, f.type);
+            for (BField field : ((BStructureType) effectiveIncludedType).fields.values()) {
+                if (fieldNames.containsKey(field.name.value)) {
+                    BLangSimpleVariable existingVariable = fieldNames.get(field.name.value);
+                    if (types.isAssignable(existingVariable.type, field.type)) {
+                        continue;
+                    }
                 }
-                return true;
-            }).map(field -> {
+
                 BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
                 var.flagSet = field.symbol.getFlags();
-                return var;
-            });
-        }).collect(Collectors.toList());
+                referencedFields.add(var);
+            }
+        }
         classDefinition.typeRefs.removeAll(invalidTypeRefs);
 
-        for (BLangSimpleVariable field : classDefinition.referencedFields) {
+        for (BLangSimpleVariable field : referencedFields) {
             defineNode(field, typeDefEnv);
             if (field.symbol.type == symTable.semanticError) {
                 continue;
             }
-            objType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos,
-                    field.symbol));
+            objType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos, field.symbol));
         }
+
+        classDefinition.referencedFields.addAll(referencedFields);
     }
 
     private List<BLangClassDefinition> getClassDefinitions(List<TopLevelNode> topLevelNodes) {
@@ -2211,7 +2291,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // todo: check for class fields and object fields
-        defineReferencedClassFields(classDefinition, typeDefEnv, objType);
+        defineReferencedClassFields(classDefinition, typeDefEnv, objType, false);
     }
 
     private void defineFieldsOfObjectOrRecordTypeDef(BLangTypeDefinition typeDef, SymbolEnv pkgEnv) {
@@ -2414,7 +2494,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineUndefinedReadOnlyTypes(List<BLangTypeDefinition> typeDefNodes, List<BLangNode> typDefs,
+    private void defineUndefinedReadOnlyTypes(List<BLangTypeDefinition> typeDefNodes, List<BLangNode> typeDefs,
                                               SymbolEnv pkgEnv) {
         // Any newly added typedefs are due to `T & readonly` typed fields. Once the fields are set for all
         // type-definitions we can revisit the newly added type-definitions and define the fields and members for them.
@@ -2422,7 +2502,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // If all the fields of a structure are readonly or final, mark the structure type itself as readonly.
         // If the type is a `readonly object` validate if all fields are compatible.
-        validateFieldsAndSetReadOnlyType(typDefs, pkgEnv);
+        validateFieldsAndSetReadOnlyType(typeDefs, pkgEnv);
+
+        defineReadOnlyInclusions(typeDefs, pkgEnv);
     }
 
     private void populateImmutableTypeFieldsAndMembers(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
@@ -2544,6 +2626,24 @@ public class SymbolEnter extends BLangNodeVisitor {
                 structureType.tsymbol.flags |= Flags.READONLY;
                 structureType.flags |= Flags.READONLY;
             }
+        }
+    }
+
+    private void defineReadOnlyInclusions(List<BLangNode> typeDefs, SymbolEnv pkgEnv) {
+        for (BLangNode typeDef : typeDefs) {
+            if (typeDef.getKind() != NodeKind.CLASS_DEFN) {
+                continue;
+            }
+
+            BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
+            SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, pkgEnv);
+            BObjectType objType = (BObjectType) ((BObjectTypeSymbol) classDefinition.symbol).type;
+            defineReferencedClassFields(classDefinition, typeDefEnv, objType, true);
+
+            SymbolEnv objMethodsEnv = SymbolEnv.createClassMethodsEnv(classDefinition,
+                                                                      (BObjectTypeSymbol) classDefinition.symbol,
+                                                                      pkgEnv);
+            defineIncludedMethods(classDefinition, objMethodsEnv, true);
         }
     }
 
@@ -2993,9 +3093,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return Stream.empty();
             }
 
+            int referredTypeTag = referredType.tag;
             if (structureTypeNode.type.tag == TypeTags.OBJECT) {
-                if (referredType.tag != TypeTags.OBJECT) {
-                    dlog.error(typeRef.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
+                if (referredTypeTag != TypeTags.OBJECT) {
+                    DiagnosticErrorCode errorCode = DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE;
+
+                    if (referredTypeTag == TypeTags.INTERSECTION &&
+                            isReadOnlyAndObjectIntersection((BIntersectionType) referredType)) {
+                        errorCode = DiagnosticErrorCode.INVALID_READ_ONLY_TYPEDESC_INCLUSION_IN_OBJECT_TYPEDESC;
+                    }
+
+                    dlog.error(typeRef.pos, errorCode, typeRef);
                     invalidTypeRefs.add(typeRef);
                     return Stream.empty();
                 }
@@ -3022,7 +3130,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
 
-            if (structureTypeNode.type.tag == TypeTags.RECORD && referredType.tag != TypeTags.RECORD) {
+            if (structureTypeNode.type.tag == TypeTags.RECORD && referredTypeTag != TypeTags.RECORD) {
                 dlog.error(typeRef.pos, DiagnosticErrorCode.INCOMPATIBLE_RECORD_TYPE_REFERENCE, typeRef);
                 invalidTypeRefs.add(typeRef);
                 return Stream.empty();
@@ -3254,6 +3362,62 @@ public class SymbolEnter extends BLangNodeVisitor {
             return VIRTUAL;
         }
         return SOURCE;
+    }
+
+    private boolean isInvalidIncludedTypeInClass(BType includedType) {
+        int tag = includedType.tag;
+
+        if (tag == TypeTags.OBJECT) {
+            return false;
+        }
+
+        if (tag != TypeTags.INTERSECTION) {
+            return true;
+        }
+
+        for (BType constituentType : ((BIntersectionType) includedType).getConstituentTypes()) {
+            int constituentTypeTag = constituentType.tag;
+
+            if (constituentTypeTag != TypeTags.OBJECT && constituentTypeTag != TypeTags.READONLY) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isImmutable(BObjectType objectType) {
+        if (Symbols.isFlagOn(objectType.flags, Flags.READONLY)) {
+            return true;
+        }
+
+        Collection<BField> fields = objectType.fields.values();
+        if (fields.isEmpty()) {
+            return false;
+        }
+
+        for (BField field : fields) {
+            if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
+                    !Symbols.isFlagOn(field.type.flags, Flags.READONLY)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isReadOnlyAndObjectIntersection(BIntersectionType referredType) {
+        BType effectiveType = referredType.effectiveType;
+
+        if (effectiveType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(effectiveType.flags, Flags.READONLY)) {
+            return false;
+        }
+
+        for (BType constituentType : referredType.getConstituentTypes()) {
+            if (constituentType.tag == TypeTags.READONLY) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

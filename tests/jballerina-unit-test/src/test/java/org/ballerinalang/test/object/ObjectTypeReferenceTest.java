@@ -151,6 +151,7 @@ public class ObjectTypeReferenceTest {
         Assert.assertEquals(result.getErrorCount(), 0);
 
         BRunUtil.invoke(result, "testObjectConstructorWithReadOnlyReference");
+        BRunUtil.invoke(result, "testReadOnlyAndObjectIntersectionInclusion");
     }
 
     @Test
@@ -203,16 +204,22 @@ public class ObjectTypeReferenceTest {
                 "'readonly' reference: 'stream<int>' can never be 'readonly'", 119, 9);
         BAssertUtil.validateError(negativeResult, i++, "invalid field in an object constructor expression with a " +
                 "'readonly' reference: 'future' can never be 'readonly'", 120, 9);
+        BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
+                "descriptor in a 'class' that is not 'readonly'", 135, 6);
+        BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
+                "descriptor in an 'object' type descriptor", 141, 6);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
     public void testSimpleObjectTypeReferenceNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'x'", 18, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'y'", 18, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'value'", 33, 6);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'value' is not initialized", 35, 56);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
@@ -318,6 +325,12 @@ public class ObjectTypeReferenceTest {
                                           ". bars) returns int:Signed16', found 'function test8(int:Signed16 anInt, " +
                                           "Bar... bars) returns int'",
                                   84, 5);
+        BAssertUtil.validateError(result, index++, "no implementation found for the method 'toString' of class " +
+                "'InvalidReadOnlyClassWithMissingImpl'", 93, 1);
+        BAssertUtil.validateError(result, index++, "no implementation found for the method 'toFloat' of class " +
+                "'InvalidReadOnlyClassWithMissingImpls'", 101, 1);
+        BAssertUtil.validateError(result, index++, "no implementation found for the method 'toString' of class " +
+                "'InvalidReadOnlyClassWithMissingImpls'", 101, 1);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
