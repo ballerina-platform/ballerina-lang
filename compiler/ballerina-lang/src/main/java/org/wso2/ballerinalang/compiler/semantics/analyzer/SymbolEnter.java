@@ -2945,7 +2945,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BAttachedFunction createResourceFunction(BLangFunction funcNode, BInvokableSymbol funcSymbol,
                                                      BInvokableType funcType) {
         BLangResourceFunction resourceFunction = (BLangResourceFunction) funcNode;
-        Name accessor = names.fromIdNode(resourceFunction.accessorName);
+        Name accessor = names.fromIdNode(resourceFunction.methodName);
         List<Name> resourcePath = resourceFunction.resourcePath.stream()
                 .map(names::fromIdNode)
                 .collect(Collectors.toList());

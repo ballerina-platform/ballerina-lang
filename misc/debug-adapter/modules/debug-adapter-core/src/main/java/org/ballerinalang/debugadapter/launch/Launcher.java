@@ -79,10 +79,10 @@ public abstract class Launcher {
         if (OSUtils.isWindows()) {
             ballerinaExec.add("cmd.exe");
             ballerinaExec.add("/c");
-            ballerinaExec.add(ballerinaHome + File.separator + "bin" + File.separator + "ballerina.bat");
+            ballerinaExec.add(ballerinaHome + File.separator + "bin" + File.separator + "bal.bat");
         } else {
             ballerinaExec.add("bash");
-            ballerinaExec.add(ballerinaHome + File.separator + "bin" + File.separator + "ballerina");
+            ballerinaExec.add(ballerinaHome + File.separator + "bin" + File.separator + "bal");
         }
 
         String ballerinaCmd = args.get(ARG_BALLERINA_COMMAND) == null ? "" : args.get(ARG_BALLERINA_COMMAND).toString();
