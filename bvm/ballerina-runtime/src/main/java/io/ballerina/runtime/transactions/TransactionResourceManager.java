@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,7 +129,7 @@ public class TransactionResourceManager {
      *
      */
     private void setLogProperties() {
-        final Path projectRoot = Paths.get(System.getProperty(USER_DIR));
+        final Path projectRoot = Paths.get(RuntimeUtils.USER_DIR);
         if (projectRoot != null) {
             String logDir = getTransactionLogDirectory();
             Path logDirPath = Paths.get(logDir);
