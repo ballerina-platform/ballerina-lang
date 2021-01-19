@@ -18,42 +18,39 @@
 package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.matchpatterns.ListMatchPatternNode;
-import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
-import org.ballerinalang.model.tree.matchpatterns.RestMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.ErrorCauseMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.ErrorMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.SimpleMatchPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Represent list-match-pattern.
+ * Represent error-cause-match-pattern.
  *
  * @since 2.0.0
  */
-public class BLangListMatchPattern extends BLangMatchPattern implements ListMatchPatternNode {
+public class BLangErrorCauseMatchPattern extends BLangMatchPattern implements ErrorCauseMatchPatternNode {
 
-    public List<BLangMatchPattern> matchPatterns = new ArrayList<>();
-    public BLangRestMatchPattern restMatchPattern;
+    public BLangSimpleMatchPattern simpleMatchPattern;
+    public BLangErrorMatchPattern errorMatchPattern;
 
     @Override
-    public List<? extends MatchPatternNode> getMatchPatterns() {
-        return matchPatterns;
+    public SimpleMatchPatternNode getSimpleMatchPattern() {
+        return simpleMatchPattern;
     }
 
     @Override
-    public void addMatchPattern(MatchPatternNode matchPattern) {
-        matchPatterns.add((BLangMatchPattern) matchPattern);
+    public void setSimpleMatchPattern(SimpleMatchPatternNode simpleMatchPatternNode) {
+        this.simpleMatchPattern = (BLangSimpleMatchPattern) simpleMatchPatternNode;
     }
 
     @Override
-    public RestMatchPatternNode getRestMatchPattern() {
-        return restMatchPattern;
+    public ErrorMatchPatternNode getErrorMatchPattern() {
+        return errorMatchPattern;
     }
 
     @Override
-    public void setRestMatchPattern(RestMatchPatternNode restMatchPattern) {
-        this.restMatchPattern = (BLangRestMatchPattern) restMatchPattern;
+    public void setErrorMatchPattern(ErrorMatchPatternNode errorMatchPattern) {
+        this.errorMatchPattern = (BLangErrorMatchPattern) errorMatchPattern;
     }
 
     @Override
@@ -63,6 +60,6 @@ public class BLangListMatchPattern extends BLangMatchPattern implements ListMatc
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.LIST_MATCH_PATTERN;
+        return NodeKind.ERROR_CAUSE_MATCH_PATTERN;
     }
 }

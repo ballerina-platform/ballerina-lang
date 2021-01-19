@@ -17,31 +17,43 @@
  */
 package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.matchpatterns.ErrorFieldMatchPatternsNode;
+import org.ballerinalang.model.tree.matchpatterns.NamedArgMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.RestMatchPatternNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Represent rest-match-pattern.
+ * Represent error-field-match-patterns.
  *
  * @since 2.0.0
  */
-public class BLangRestMatchPattern extends BLangMatchPattern implements RestMatchPatternNode {
+public class BLangErrorFieldMatchPatterns extends BLangMatchPattern implements ErrorFieldMatchPatternsNode {
 
-    public BLangIdentifier variableName;
-    public BVarSymbol symbol;
+    public List<BLangNamedArgMatchPattern> namedArgMatchPatterns = new ArrayList<>();
+    public BLangRestMatchPattern restMatchPattern;
 
     @Override
-    public IdentifierNode getIdentifier() {
-        return variableName;
+    public List<? extends NamedArgMatchPatternNode> getNamedArgMatchPatterns() {
+        return namedArgMatchPatterns;
     }
 
     @Override
-    public void setIdentifier(IdentifierNode variableName) {
-        this.variableName = (BLangIdentifier) variableName;
+    public void addNamedArgMatchPattern(NamedArgMatchPatternNode namedArgMatchPatternNode) {
+        namedArgMatchPatterns.add((BLangNamedArgMatchPattern) namedArgMatchPatternNode);
+    }
+
+    @Override
+    public RestMatchPatternNode getRestMatchPattern() {
+        return restMatchPattern;
+    }
+
+    @Override
+    public void setRestMatchPattern(RestMatchPatternNode restMatchPattern) {
+        this.restMatchPattern = (BLangRestMatchPattern) restMatchPattern;
     }
 
     @Override
@@ -51,6 +63,6 @@ public class BLangRestMatchPattern extends BLangMatchPattern implements RestMatc
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.REST_MATCH_PATTERN;
+        return NodeKind.ERROR_FIELD_MATCH_PATTERN;
     }
 }

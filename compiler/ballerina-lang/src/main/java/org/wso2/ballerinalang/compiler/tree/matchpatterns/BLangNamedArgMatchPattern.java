@@ -19,30 +19,20 @@ package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.matchpatterns.RestMatchPatternNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.NamedArgMatchPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * Represent rest-match-pattern.
+ * Represent named-arg-match-pattern.
  *
  * @since 2.0.0
  */
-public class BLangRestMatchPattern extends BLangMatchPattern implements RestMatchPatternNode {
+public class BLangNamedArgMatchPattern extends BLangMatchPattern implements NamedArgMatchPatternNode {
 
-    public BLangIdentifier variableName;
-    public BVarSymbol symbol;
-
-    @Override
-    public IdentifierNode getIdentifier() {
-        return variableName;
-    }
-
-    @Override
-    public void setIdentifier(IdentifierNode variableName) {
-        this.variableName = (BLangIdentifier) variableName;
-    }
+    public BLangIdentifier argName;
+    public BLangMatchPattern matchPattern;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -51,6 +41,26 @@ public class BLangRestMatchPattern extends BLangMatchPattern implements RestMatc
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.REST_MATCH_PATTERN;
+        return NodeKind.NAMED_ARG_MATCH_PATTERN;
+    }
+
+    @Override
+    public IdentifierNode getIdentifier() {
+        return argName;
+    }
+
+    @Override
+    public void setIdentifier(IdentifierNode variableName) {
+        this.argName = (BLangIdentifier) variableName;
+    }
+
+    @Override
+    public MatchPatternNode getMatchPattern() {
+        return matchPattern;
+    }
+
+    @Override
+    public void setMatchPattern(MatchPatternNode matchPattern) {
+        this.matchPattern = (BLangMatchPattern) matchPattern;
     }
 }
