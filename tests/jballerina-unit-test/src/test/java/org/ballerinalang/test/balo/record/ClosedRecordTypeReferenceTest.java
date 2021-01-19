@@ -68,14 +68,14 @@ public class ClosedRecordTypeReferenceTest {
         BAssertUtil.validateError(negative, index++, "only type references are allowed as type inclusions", 50, 6);
         BAssertUtil.validateError(negative, index++, "only type references are allowed as type inclusions", 51, 6);
         BAssertUtil.validateError(negative, index++, "missing non-defaultable required record field 'gender'", 67, 18);
-        BAssertUtil.validateError(negative, index++, "cannot use type inclusion with more than one open record", 70,
-                15);
         BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 72, 6);
         BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 76, 6);
         BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 81, 6);
-        BAssertUtil.validateError(negative, index++, "cannot use type inclusion with more than one open record", 99,
-                20);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'float'", 105, 60);
+        BAssertUtil.validateError(negative, index++, "cannot use type inclusion with more than one open record with " +
+                "different rest descriptor types", 99, 20);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'float'", 135, 60);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'error'", 136, 50);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'anydata', found 'error'", 137, 50);
         assertEquals(negative.getErrorCount(), index);
     }
 

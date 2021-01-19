@@ -181,7 +181,7 @@ function testDefaultValueInitInBALOs() returns records:BClosedManager {
     return mgr;
 }
 
-// Test overriding test field
+// Test overriding rest descriptor.
 
 type Rec1 record {|
     int i;
@@ -208,6 +208,36 @@ type IncludingRec3 record {|
     *Rec2;
 |};
 
+type Rec3 record {
+    int i;
+};
+
+type Rec4 record {
+    int j;
+};
+
+type IncludingRec4 record {|
+    int k;
+    *Rec3;
+    *Rec4;
+|};
+
+type Rec5 record {|
+    int i;
+    string...;
+|};
+
+type Rec6 record {|
+    int j;
+    string...;
+|};
+
+type IncludingRec5 record {|
+    int k;
+    *Rec5;
+    *Rec6;
+|};
+
 function testRestTypeOverriding() {
     IncludingRec1 r1 = {b: false, i: 1, "s": "str"};
     assertEquality("str", r1["s"]);
@@ -217,6 +247,12 @@ function testRestTypeOverriding() {
     assertEquality(true, r3["e"] is error);
     error e = <error> r3["e"];
     assertEquality("Message", e.message());
+    IncludingRec4 r4 = {i: 1, j: 2, k: 3, "s": "str"};
+    assertEquality("str", r4["s"]);
+    IncludingRec4 r5 = {i: 1, j: 2, k: 3, "s": "str", "b": false};
+    assertEquality(false, r5["b"]);
+    IncludingRec5 r6 = {i: 1, j: 2, k: 3, "s1": "str1", "s2": "str2"};
+    assertEquality("str2", r6["s2"]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
