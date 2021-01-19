@@ -54,7 +54,8 @@ public abstract class AbstractInvalidResourceCodeAction extends ProbeBasedDiagno
 
     public List<CodeAction> addResourceToService(Diagnostic diagnostic, CodeActionContext ctx, Probe probe) {
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
-        ProjectServiceInfo projectServiceInfo = ProjectServiceInfoHolder.getInstance(project.orElseThrow());
+        ProjectServiceInfo projectServiceInfo =
+                ProjectServiceInfoHolder.getInstance(ctx.languageServercontext()).getProjectInfo(project.orElseThrow());
         Map<String, List<ServiceInfo>> serviceList = projectServiceInfo.getServiceMap();
         List<CodeAction> codeActionList = new ArrayList<>();
         for (Map.Entry<String, List<ServiceInfo>> entry : serviceList.entrySet()) {

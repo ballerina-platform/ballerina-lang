@@ -50,7 +50,8 @@ public abstract class AbstractInvalidServiceCodeAction extends ProbeBasedDiagnos
 
     public List<CodeAction> fixServicePath(Diagnostic diagnostic, CodeActionContext ctx, Probe probe) {
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
-        ProjectServiceInfo projectServiceInfo = ProjectServiceInfoHolder.getInstance(project.orElseThrow());
+        ProjectServiceInfo projectServiceInfo =
+                ProjectServiceInfoHolder.getInstance(ctx.languageServercontext()).getProjectInfo(project.orElseThrow());
         Map<String, List<ServiceInfo>> serviceList = projectServiceInfo.getServiceMap();
         List<CodeAction> codeActionList = new ArrayList<>();
         for (List<ServiceInfo> serviceInfos : serviceList.values()) {

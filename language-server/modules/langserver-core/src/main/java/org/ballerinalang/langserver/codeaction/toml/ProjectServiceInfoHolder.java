@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.codeaction.toml;
 
 import io.ballerina.projects.Project;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -30,17 +31,28 @@ import java.util.Map;
  */
 public class ProjectServiceInfoHolder {
 
-    private static final Map<Path, ProjectServiceInfo> projectServiceInfoDir = new HashMap<>();
+    private static final LanguageServerContext.Key<ProjectServiceInfoHolder> LS_PACKAGE_LOADER_KEY =
+            new LanguageServerContext.Key<>();
+    private final Map<Path, ProjectServiceInfo> projectServiceInfoDir = new HashMap<>();
 
-    private ProjectServiceInfoHolder() {
+    private ProjectServiceInfoHolder(LanguageServerContext context) {
+        context.put(LS_PACKAGE_LOADER_KEY, this);
     }
 
-    public static ProjectServiceInfo getInstance(Project project) {
+    public static ProjectServiceInfoHolder getInstance(LanguageServerContext context) {
+        ProjectServiceInfoHolder projectServiceInfoHolder = context.get(LS_PACKAGE_LOADER_KEY);
+        if (projectServiceInfoHolder == null) {
+            projectServiceInfoHolder = new ProjectServiceInfoHolder(context);
+        }
+        return projectServiceInfoHolder;
+    }
+
+    public ProjectServiceInfo getProjectInfo(Project project) {
         Path path = project.sourceRoot();
-        ProjectServiceInfo projectServiceInfo = ProjectServiceInfoHolder.projectServiceInfoDir.get(path);
+        ProjectServiceInfo projectServiceInfo = this.projectServiceInfoDir.get(path);
         if (projectServiceInfo == null) {
             projectServiceInfo = new ProjectServiceInfo(project);
-            projectServiceInfoDir.put(path, projectServiceInfo);
+            this.projectServiceInfoDir.put(path, projectServiceInfo);
         }
         return projectServiceInfo;
     }
