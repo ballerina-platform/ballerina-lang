@@ -16,11 +16,19 @@
 
 import ballerina/java;
 
+function init() {
+    externInitializeModule();
+}
+
 final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ timeWindow: 600000, buckets: 5,
     percentiles: [0.33, 0.5, 0.66, 0.75, 0.95, 0.99, 0.999] }];
 
 final map<string> DEFAULT_TAGS = {};
 
+function externInitializeModule() = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.Utils",
+    name: "initializeModule"
+} external;
 
 # Start a span with no parent span.
 #

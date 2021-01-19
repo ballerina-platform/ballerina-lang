@@ -98,10 +98,10 @@ Once a deviation is fixed, the relevant tests in the `deviation` directory need 
 
 To run all the tests, navigate to the `ballerina-spec-conformance-tests` project and use the Ballerina `test` command.
 ```cmd
-$ ballerina test --experimental
+$ bal test --experimental
 ```
 
 To skip the **deviation** tests, use the `--disable-groups` option with the Ballerina `test` command.
 ```cmd
-$ ballerina test --experimental --disable-groups=deviation
+$ bal test --experimental --disable-groups=deviation
 ```
