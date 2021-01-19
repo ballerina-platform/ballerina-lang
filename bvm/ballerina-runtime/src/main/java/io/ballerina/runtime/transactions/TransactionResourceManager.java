@@ -78,7 +78,6 @@ public class TransactionResourceManager {
     private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
     private static final String CONFIG_TRANSACTION_MANAGER_ENABLED = "b7a.transaction.manager.enabled";
     private static final String CONFIG_TRANSACTION_LOG_BASE = "b7a.transaction.log.base";
-    private static final String USER_DIR = "user.dir";
 
     private static final ConfigRegistry CONFIG_REGISTRY = ConfigRegistry.getInstance();
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
