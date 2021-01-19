@@ -56,6 +56,8 @@ public enum CompilerOptionName {
 
     DUMP_BIR_FILE("dumpBIRFile"),
 
+    CLOUD("cloud"),
+
     LOCK_ENABLED("lockEnabled"),
 
     EXPERIMENTAL_FEATURES_ENABLED("experimentalFeaturesEnabled"),

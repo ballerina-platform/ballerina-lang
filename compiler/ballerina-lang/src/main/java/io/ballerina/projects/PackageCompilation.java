@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
@@ -79,6 +80,8 @@ public class PackageCompilation {
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, compilationOptions.getBirDumpFile());
+        options.put(DUMP_BIR_FILE, compilationOptions.getBirDumpFile());
+        options.put(CLOUD, compilationOptions.getCloud());
     }
 
     static PackageCompilation from(PackageContext rootPackageContext) {

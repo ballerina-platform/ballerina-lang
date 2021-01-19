@@ -31,15 +31,17 @@ class CompilationOptions {
     private Boolean observabilityIncluded;
     private Boolean dumpBir;
     private String dumpBirFile;
+    private String cloud;
 
     public CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental,
-                              Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile) {
+                              Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile, String cloud) {
         this.skipTests = skipTests;
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
         this.dumpBirFile = dumpBirFile;
+        this.cloud = cloud;
     }
 
     boolean skipTests() {
@@ -66,6 +68,10 @@ class CompilationOptions {
         return dumpBirFile;
     }
 
+    public String getCloud() {
+        return cloud;
+    }
+
     /**
      * Merge the given compilation options by favoring theirs if there are conflicts.
      *
@@ -83,6 +89,7 @@ class CompilationOptions {
         this.observabilityIncluded = Objects.requireNonNullElseGet(
                 theirOptions.observabilityIncluded, () -> toBooleanDefaultIfNull(this.observabilityIncluded));
         this.dumpBir = Objects.requireNonNullElseGet(theirOptions.dumpBir, () -> toBooleanDefaultIfNull(this.dumpBir));
+        this.cloud = theirOptions.cloud;
         this.dumpBirFile = theirOptions.dumpBirFile;
         return this;
     }
