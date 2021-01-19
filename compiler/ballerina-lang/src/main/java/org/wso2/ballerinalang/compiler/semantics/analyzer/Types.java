@@ -2348,13 +2348,8 @@ public class Types {
     public boolean isValidErrorDetailType(BType detailType) {
         switch (detailType.tag) {
             case TypeTags.MAP:
+            case TypeTags.RECORD:
                 return isAssignable(detailType, symTable.detailType);
-            case TypeTags.RECORD: {
-                if (isSealedRecord((BRecordType) detailType)) {
-                    return false;
-                }
-                return isAssignable(detailType, symTable.detailType);
-            }
         }
         return false;
     }
