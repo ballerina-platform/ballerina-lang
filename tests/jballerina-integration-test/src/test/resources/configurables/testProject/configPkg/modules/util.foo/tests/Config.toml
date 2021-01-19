@@ -1,4 +1,4 @@
-[testOrg.configPkg.util.foo]
+[configPkg.util.foo]
 intVar = 41
 floatVar = 3.6
 stringVar = "test string"

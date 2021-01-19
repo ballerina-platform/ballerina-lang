@@ -129,7 +129,7 @@ class AIDataMapperCodeActionUtil {
         // Get the semantic model
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
         // To restrict the code action from appearing for handled cases.
-        List<Symbol> fileContentSymbols = semanticModel.moduleLevelSymbols();
+        List<Symbol> fileContentSymbols = semanticModel.moduleSymbols();
 
         List<DiagnosticProperty<?>> props = diagnostic.properties();
         if (props.size() != 2 || props.get(RIGHT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC ||

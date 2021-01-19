@@ -134,4 +134,119 @@ public abstract class AbstractLexer {
         this.leadingTriviaList = new ArrayList<>(INITIAL_TRIVIA_CAPACITY);
         return trivia;
     }
+
+    /**
+     * Check whether a given char is an identifier following char.
+     * <p>
+     * <code>IdentifierFollowingChar := IdentifierInitialChar | Digit</code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is an identifier following char. <code>false</code> otherwise.
+     */
+    protected static boolean isIdentifierFollowingChar(int c) {
+        return isIdentifierInitialChar(c) || isDigit(c);
+    }
+
+    /**
+     * Check whether a given char is a digit.
+     * <p>
+     * <code>Digit := 0..9</code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character represents a digit. <code>false</code> otherwise.
+     */
+    protected static boolean isDigit(int c) {
+        return ('0' <= c && c <= '9');
+    }
+
+    /**
+     * Check whether a given char is a hexa digit.
+     * <p>
+     * <code>HexDigit := Digit | a .. f | A .. F</code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character represents a hex digit. <code>false</code> otherwise.
+     */
+    protected static boolean isHexDigit(int c) {
+        if ('a' <= c && c <= 'f') {
+            return true;
+        }
+
+        if ('A' <= c && c <= 'F') {
+            return true;
+        }
+
+        return isDigit(c);
+    }
+
+    /**
+     * Check whether a given char is an identifier start char.
+     * <p>
+     * <code>IdentifierInitialChar := A .. Z | a .. z | _ | UnicodeIdentifierChar</code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is an identifier start char. <code>false</code> otherwise.
+     */
+    protected static boolean isIdentifierInitialChar(int c) {
+        if ('A' <= c && c <= 'Z') {
+            return true;
+        }
+
+        if ('a' <= c && c <= 'z') {
+            return true;
+        }
+
+        if (c == '_') {
+            return true;
+        }
+
+        return isUnicodeIdentifierChar(c);
+    }
+
+    /**
+     * Check whether a given char is a unicode identifier char.
+     * <p>
+     * <code> UnicodeIdentifierChar := ^ ( AsciiChar | UnicodeNonIdentifierChar ) </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is a unicode identifier char. <code>false</code> otherwise.
+     */
+    protected static boolean isUnicodeIdentifierChar(int c) {
+        // check ASCII char range
+        if (0x0000 <= c && c <= 0x007F) {
+            return false;
+        }
+
+        // check UNICODE private use char
+        if (isUnicodePrivateUseChar(c) || isUnicodePatternWhiteSpaceChar(c)) {
+            return false;
+        }
+
+        // TODO: if (UnicodePatternSyntaxChar) return false
+        return (c != Character.MAX_VALUE);
+    }
+
+    /**
+     * Check whether a given char is a unicode private use char.
+     * <p>
+     * <code> UnicodePrivateUseChar := 0xE000 .. 0xF8FF | 0xF0000 .. 0xFFFFD | 0x100000 .. 0x10FFFD </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is a unicode private use char. <code>false</code> otherwise.
+     */
+    protected static boolean isUnicodePrivateUseChar(int c) {
+        return (0xE000 <= c && c <= 0xF8FF || 0xF0000 <= c && c <= 0xFFFFD || 0x100000 <= c && c <= 0x10FFFD);
+    }
+
+    /**
+     * Check whether a given char is a unicode pattern white space char.
+     * <p>
+     * <code> UnicodePatternWhiteSpaceChar := 0x200E | 0x200F | 0x2028 | 0x2029 </code>
+     *
+     * @param c character to check
+     * @return <code>true</code>, if the character is a unicode pattern white space char. <code>false</code> otherwise.
+     */
+    protected static boolean isUnicodePatternWhiteSpaceChar(int c) {
+        return (0x200E == c || 0x200F == c || 0x2028 == c || 0x2029 == c);
+    }
 }

@@ -67,7 +67,7 @@ public class TraceManager {
         bSpan.getSpan().finish();
     }
 
-    public void log(BSpan bSpan, Map<String, Object> fields) {
+    public void addEvent(BSpan bSpan, Map<String, Object> fields) {
         bSpan.getSpan().log(fields);
     }
 

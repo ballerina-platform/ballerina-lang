@@ -34,9 +34,7 @@ public type Info record {|
 |};
 
 # An instant in time.
-// todo use readonly qualifier once #27501 fixed
-//public type Timestamp readonly & object {
-public type Timestamp object {
+public type Timestamp readonly & object {
     # Returns milliseconds since 1970-01-01T00:00:00Z, not including leap seconds
     public function toMillisecondsInt() returns int;
     # Returns a string representation of the timestamp in ISO 8601 format

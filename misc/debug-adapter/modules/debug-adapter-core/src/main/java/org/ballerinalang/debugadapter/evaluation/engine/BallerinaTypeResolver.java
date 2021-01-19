@@ -119,7 +119,7 @@ public class BallerinaTypeResolver {
 
     private static Optional<Symbol> getTypeDefinitionSymbol(SuspendedContext context, String typeName) {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
-        return semanticContext.moduleLevelSymbols()
+        return semanticContext.moduleSymbols()
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS)
                 .filter(symbol -> encodeIdentifier(symbol.name(), IdentifierModifier.IdentifierType.OTHER)

@@ -27,12 +27,14 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
-import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSClientLogger;
@@ -44,8 +46,8 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
@@ -173,7 +175,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      */
     @Override
     public Optional<SemanticModel> semanticModel(Path filePath) {
-        return waitAndGetModuleCompilation(filePath).map(ModuleCompilation::getSemanticModel);
+        Optional<Module> module = this.module(filePath);
+        if (module.isEmpty()) {
+            return Optional.empty();
+        }
+        return waitAndGetPackageCompilation(filePath)
+                .map(pkgCompilation -> pkgCompilation.getSemanticModel(module.get().moduleId()));
     }
 
     /**
@@ -183,7 +190,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @return {@link ModuleCompilation}
      */
     @Override
-    public Optional<ModuleCompilation> waitAndGetModuleCompilation(Path filePath) {
+    public Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath) {
         // Get Project and Lock
         Optional<ProjectPair> projectPair = projectPair(filePath);
         if (projectPair.isEmpty()) {
@@ -193,39 +200,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (document.isEmpty()) {
             return Optional.empty();
         }
-        // Get Module
-        Module module = document.get().module();
+        // Get Package
+        Package packageInstance = document.get().module().packageInstance();
         // Lock Project Instance
         projectPair.get().locker().lock();
         try {
-            return Optional.of(module.getCompilation());
-        } finally {
-            // Unlock Project Instance
-            projectPair.get().locker().unlock();
-        }
-    }
-
-    /**
-     * Returns module compilation from the file path provided.
-     *
-     * @param module {@link Module}
-     * @return {@link ModuleCompilation}
-     */
-    @Override
-    public Optional<ModuleCompilation> waitAndGetModuleCompilation(Module module) {
-        // TODO: Remove this once singleProject.sourceRoot is tempDir issue fixed
-        Optional<ProjectPair> projectPair = sourceRootToProject.entrySet().stream()
-                .filter(e -> e.getValue().project().equals(module.project()))
-                .findFirst()
-                .map(Map.Entry::getValue);
-        // Get Project and Lock
-        if (projectPair.isEmpty()) {
-            return Optional.empty();
-        }
-        // Lock Project Instance
-        projectPair.get().locker().lock();
-        try {
-            return Optional.of(module.getCompilation());
+            return Optional.of(packageInstance.getCompilation());
         } finally {
             // Unlock Project Instance
             projectPair.get().locker().unlock();
@@ -242,7 +222,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     public void didOpen(Path filePath, DidOpenTextDocumentParams params) {
         // Create Project, if not exists
         Path projectRoot = projectRoot(filePath);
-        sourceRootToProject.computeIfAbsent(projectRoot, this::createProject);
+        sourceRootToProject.computeIfAbsent(projectRoot, path -> createProject(filePath));
         // Get document
         ProjectPair projectPair = sourceRootToProject.get(projectRoot);
         if (projectPair == null) {
@@ -332,48 +312,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     private Pair<ProjectKind, Path> computeProjectKindAndProjectRoot(Path path) {
-        Path projectRoot;
-        if (path.toFile().isDirectory()) {
-            if (ProjectConstants.MODULES_ROOT.equals(path.getParent().toFile().getName())) {
-                projectRoot = path.getParent().getParent();
-            } else {
-                projectRoot = path;
-            }
-            return new ImmutablePair<>(ProjectKind.BUILD_PROJECT, projectRoot);
+        if (ProjectPaths.isStandaloneBalFile(path)) {
+            return new ImmutablePair<>(ProjectKind.SINGLE_FILE_PROJECT, path);
+        } else {
+            return new ImmutablePair<>(ProjectKind.BUILD_PROJECT, ProjectPaths.packageRoot(path));
         }
-        // Check if the file is a source file in the default module
-        projectRoot = path.getParent();
-        if (hasBallerinaToml(projectRoot)) {
-            return new ImmutablePair<>(ProjectKind.BUILD_PROJECT, projectRoot);
-        }
-
-        // Check if the file is a test file in the default module
-        Path testsRoot = path.getParent();
-        projectRoot = testsRoot.getParent();
-        if (ProjectConstants.TEST_DIR_NAME.equals(testsRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
-            return new ImmutablePair<>(ProjectKind.BUILD_PROJECT, projectRoot);
-        }
-
-        // Check if the file is a source file in a non-default module
-        Path modulesRoot = path.getParent().getParent();
-        projectRoot = modulesRoot.getParent();
-        if (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
-            return new ImmutablePair<>(ProjectKind.BUILD_PROJECT, projectRoot);
-        }
-
-        // Check if the file is a test file in a non-default module
-        modulesRoot = testsRoot.getParent().getParent();
-        projectRoot = modulesRoot.getParent();
-
-        if (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
-            return new ImmutablePair<>(ProjectKind.BUILD_PROJECT, projectRoot);
-        }
-
-        return new ImmutablePair<>(ProjectKind.SINGLE_FILE_PROJECT, path);
-    }
-
-    private static boolean hasBallerinaToml(Path filePath) {
-        return filePath.resolve(ProjectConstants.BALLERINA_TOML).toFile().exists();
     }
 
     private Optional<ProjectPair> projectPair(Path filePath) {
@@ -384,74 +327,36 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Pair<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndProjectRoot(filePath);
         ProjectKind projectKind = projectKindAndProjectRootPair.getLeft();
         Path projectRoot = projectKindAndProjectRootPair.getRight();
-        Project project;
-        BuildOptions options = new BuildOptionsBuilder().offline(true).build();
-        if (projectKind == ProjectKind.BUILD_PROJECT) {
-            project = BuildProject.load(projectRoot, options);
-        } else {
-            project = SingleFileProject.load(projectRoot, options);
-        }
-        clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
-                "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
-                project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
-        return ProjectPair.from(project);
-    }
-
-    private Optional<Path> modulePath(ModuleId moduleId, Project project) {
-        if (project.currentPackage().moduleIds().contains(moduleId)) {
-            if (project.currentPackage().getDefaultModule().moduleId() == moduleId) {
-                return Optional.of(project.sourceRoot());
+        try {
+            Project project;
+            BuildOptions options = new BuildOptionsBuilder().offline(true).build();
+            if (projectKind == ProjectKind.BUILD_PROJECT) {
+                project = BuildProject.load(projectRoot, options);
             } else {
-                return Optional.of(project.sourceRoot().resolve(ProjectConstants.MODULES_ROOT).resolve(
-                        project.currentPackage().module(moduleId).moduleName().moduleNamePart()));
+                project = SingleFileProject.load(projectRoot, options);
             }
+            clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
+                                          "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
+                                          project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
+            return ProjectPair.from(project);
+        } catch (ProjectException e) {
+            clientLogger.notifyUser("Project load failed: " + e.getMessage(), e);
+            clientLogger.logError("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
+                                          "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
+                                          projectKind.name().toLowerCase(Locale.getDefault()) + "'} failed}", e,
+                                  new TextDocumentIdentifier(filePath.toUri().toString()));
+            return null;
         }
-        return Optional.empty();
     }
 
     private Optional<Document> document(Path filePath, Project project) {
-        Optional<DocumentId> documentId = documentId(filePath, project);
-        if (documentId.isEmpty()) {
+        try {
+            DocumentId documentId = project.documentId(filePath);
+            Module module = project.currentPackage().module(documentId.moduleId());
+            return Optional.of(module.document(documentId));
+        } catch (ProjectException e) {
             return Optional.empty();
         }
-        Module module = project.currentPackage().module(documentId.get().moduleId());
-        return Optional.of(module.document(documentId.get()));
-    }
-
-    private Optional<DocumentId> documentId(Path documentFilePath, Project project) {
-        // Single File Project
-        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            Module oldModule = project.currentPackage().module(
-                    project.currentPackage().moduleIds().iterator().next());
-            return Optional.of(oldModule.documentIds().iterator().next());
-        }
-
-        // Build Project
-        Path parent = documentFilePath.getParent();
-        String filePathDocName = documentFilePath.getFileName().toString();
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            // TODO: Check whether this logic also works for Single File projects
-            Optional<Path> modulePath = modulePath(moduleId, project);
-            if (modulePath.isPresent()) {
-                if (parent.equals(modulePath.get())
-                        || parent.equals(modulePath.get().resolve(ProjectConstants.TEST_DIR_NAME))) {
-                    Module module = project.currentPackage().module(moduleId);
-                    for (DocumentId documentId : module.documentIds()) {
-                        if (module.document(documentId).name().equals(filePathDocName)) {
-                            return Optional.of(documentId);
-                        }
-                    }
-
-                    for (DocumentId documentId : module.testDocumentIds()) {
-                        String docName = module.document(documentId).name();
-                        if (docName.equals(ProjectConstants.TEST_DIR_NAME + File.separator + filePathDocName)) {
-                            return Optional.of(documentId);
-                        }
-                    }
-                }
-            }
-        }
-        return Optional.empty();
     }
 
     /**
