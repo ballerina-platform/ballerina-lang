@@ -74,8 +74,10 @@ public class TransactionResourceManager {
             TRANSACTION_PACKAGE_VERSION, "onRollback");
     private static final String ATOMIKOS_LOG_BASE_PROPERTY = "com.atomikos.icatch.log_base_dir";
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
+    private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
     private static final String CONFIG_TRANSACTION_MANAGER_ENABLED = "b7a.transaction.manager.enabled";
     private static final String CONFIG_TRANSACTION_LOG_BASE = "b7a.transaction.log.base";
+    public static final String USER_DIR = "user.dir";
 
     private static final ConfigRegistry CONFIG_REGISTRY = ConfigRegistry.getInstance();
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
@@ -126,7 +128,7 @@ public class TransactionResourceManager {
      *
      */
     private void setLogProperties() {
-        final Path projectRoot = findProjectRoot(Paths.get(System.getProperty("user.dir")));
+        final Path projectRoot = Paths.get(System.getProperty(USER_DIR));
         if (projectRoot != null) {
             String logDir = getTransactionLogDirectory();
             String logPath = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
@@ -140,6 +142,7 @@ public class TransactionResourceManager {
             }
             System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logPath);
             System.setProperty(ATOMIKOS_LOG_NAME_PROPERTY, "transaction_recovery");
+            System.setProperty(ATOMIKOS_REGISTERED_PROPERTY, "not-registered");
         }
     }
 
