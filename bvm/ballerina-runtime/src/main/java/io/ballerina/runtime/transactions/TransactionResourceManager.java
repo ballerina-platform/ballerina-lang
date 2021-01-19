@@ -77,6 +77,7 @@ public class TransactionResourceManager {
     private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
     private static final String CONFIG_TRANSACTION_MANAGER_ENABLED = "b7a.transaction.manager.enabled";
     private static final String CONFIG_TRANSACTION_LOG_BASE = "b7a.transaction.log.base";
+    public static final String LOG_DIR = "transaction_log_dir";
     public static final String USER_DIR = "user.dir";
 
     private static final ConfigRegistry CONFIG_REGISTRY = ConfigRegistry.getInstance();
@@ -131,16 +132,22 @@ public class TransactionResourceManager {
         final Path projectRoot = Paths.get(System.getProperty(USER_DIR));
         if (projectRoot != null) {
             String logDir = getTransactionLogDirectory();
-            String logPath = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
-            Path transactionLogDirectory = Paths.get(logPath);
+            Path logDirPath = Paths.get(logDir);
+            Path transactionLogDirectory;
+            if (!logDirPath.isAbsolute()) {
+                logDir = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
+                transactionLogDirectory = Paths.get(logDir);
+            } else {
+                transactionLogDirectory = logDirPath;
+            }
             if (!Files.exists(transactionLogDirectory)) {
                 try {
                     Files.createDirectory(transactionLogDirectory);
                 } catch (IOException e) {
-                    stderr.println("error: failed to create '" + logDir + "' transaction log directory");
+                    stderr.println("error: failed to create transaction log directory in " + logDir);
                 }
             }
-            System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logPath);
+            System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logDir);
             System.setProperty(ATOMIKOS_LOG_NAME_PROPERTY, "transaction_recovery");
             System.setProperty(ATOMIKOS_REGISTERED_PROPERTY, "not-registered");
         }
