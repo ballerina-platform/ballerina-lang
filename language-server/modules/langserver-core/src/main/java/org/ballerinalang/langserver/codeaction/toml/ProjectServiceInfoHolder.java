@@ -31,16 +31,16 @@ import java.util.Map;
  */
 public class ProjectServiceInfoHolder {
 
-    private static final LanguageServerContext.Key<ProjectServiceInfoHolder> LS_PACKAGE_LOADER_KEY =
+    private static final LanguageServerContext.Key<ProjectServiceInfoHolder> LS_PROJECT_SERVICE_HOLDER_KEY =
             new LanguageServerContext.Key<>();
     private final Map<Path, ProjectServiceInfo> projectServiceInfoDir = new HashMap<>();
 
     private ProjectServiceInfoHolder(LanguageServerContext context) {
-        context.put(LS_PACKAGE_LOADER_KEY, this);
+        context.put(LS_PROJECT_SERVICE_HOLDER_KEY, this);
     }
 
     public static ProjectServiceInfoHolder getInstance(LanguageServerContext context) {
-        ProjectServiceInfoHolder projectServiceInfoHolder = context.get(LS_PACKAGE_LOADER_KEY);
+        ProjectServiceInfoHolder projectServiceInfoHolder = context.get(LS_PROJECT_SERVICE_HOLDER_KEY);
         if (projectServiceInfoHolder == null) {
             projectServiceInfoHolder = new ProjectServiceInfoHolder(context);
         }
