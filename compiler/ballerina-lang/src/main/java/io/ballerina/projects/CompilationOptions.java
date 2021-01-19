@@ -103,7 +103,7 @@ class CompilationOptions {
 
     private String toStringDefaultIfNull(String value) {
         if (value == null) {
-            return "k8s";
+            return "";
         }
         return value;
     }
