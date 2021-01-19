@@ -24,7 +24,7 @@ import org.jline.reader.UserInterruptException;
 /**
  * Terminal adapter which encapsulates Jline.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class DumbJlineTerminalAdapter extends JlineTerminalAdapter {
     public DumbJlineTerminalAdapter(LineReader lineReader) {

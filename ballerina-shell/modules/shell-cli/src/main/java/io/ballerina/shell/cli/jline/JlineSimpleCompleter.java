@@ -41,7 +41,7 @@ import static io.ballerina.shell.cli.PropertiesLoader.TOPICS_FILE;
  * If the input starts with /, built-in commands are given.
  * Otherwise keyword completion is given.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class JlineSimpleCompleter implements Completer {
     private final StringsCompleter topicsCompleter;

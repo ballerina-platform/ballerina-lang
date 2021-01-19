@@ -22,7 +22,7 @@ package io.ballerina.shell.exceptions;
  * Exception to signify that shell execution failed because of an
  * error in the invoker. Most probably compiler error.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class InvokerException extends BallerinaShellException {
     public InvokerException() {

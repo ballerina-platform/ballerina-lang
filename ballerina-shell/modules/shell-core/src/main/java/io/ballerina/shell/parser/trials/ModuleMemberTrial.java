@@ -34,7 +34,7 @@ import io.ballerina.tools.text.TextDocuments;
  * Checks if this is a possible module dcln. If it is definitely as module dcln,
  * any error is rejected. Otherwise, it is still checked.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ModuleMemberTrial extends DualTreeParserTrial {
     public ModuleMemberTrial(TrialTreeParser parentParser) {

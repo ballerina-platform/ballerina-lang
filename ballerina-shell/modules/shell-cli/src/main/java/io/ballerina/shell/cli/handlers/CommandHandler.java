@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Handler to contain all commands and handle them.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class CommandHandler {
     private static final String COMMAND_PREFIX = "/";

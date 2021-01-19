@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Test simple snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class PatternEvaluatorTest extends AbstractEvaluatorTest {
     private static final String TUPLE_EVALUATOR_TESTCASE = "testcases/evaluator/pattern.tuple.json";

@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Test simple snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class BasicsEvaluatorTest extends AbstractEvaluatorTest {
     private static final String BASICS_MODULES_TESTCASE = "testcases/evaluator/basics.modules.json";

@@ -24,7 +24,7 @@ import io.ballerina.shell.parser.TrialTreeParser;
 /**
  * Trial which is run with and without trailing semicolon.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class DualTreeParserTrial extends TreeParserTrial {
     private static final String SEMICOLON = ";";

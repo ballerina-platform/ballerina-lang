@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 /**
  * Test simple snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class BasicTypeEvaluatorTest extends AbstractIntegrationTest {
     private static final String STRING_EVALUATOR_TESTCASE = "testcases/values.strings.json";

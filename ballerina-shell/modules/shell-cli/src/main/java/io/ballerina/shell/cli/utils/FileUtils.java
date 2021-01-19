@@ -32,7 +32,7 @@ import java.util.Scanner;
 /**
  * Utility class to read resource files.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class FileUtils {
     private static final String SPECIAL_DELIMITER = "\\A";

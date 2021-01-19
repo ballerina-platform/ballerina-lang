@@ -28,7 +28,7 @@ import java.util.HashMap;
  * Persists the global variables.
  * Uses a string id (context id) to keep different sessions.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class InvokerMemory {
     private static final String QUOTE = "'";

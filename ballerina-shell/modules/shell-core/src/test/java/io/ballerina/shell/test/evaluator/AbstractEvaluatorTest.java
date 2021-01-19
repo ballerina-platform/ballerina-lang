@@ -32,7 +32,7 @@ import org.testng.Assert;
  * TODO: Find a way to test concurrency.
  * TODO: Add db lib/http lib support and test Transactions
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class AbstractEvaluatorTest {
     /**

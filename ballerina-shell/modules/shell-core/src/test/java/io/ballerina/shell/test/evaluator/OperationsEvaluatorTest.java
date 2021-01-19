@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Test simple snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class OperationsEvaluatorTest extends AbstractEvaluatorTest {
     private static final String SHIFT_OPERATION_TESTCASE = "testcases/evaluator/operations.shift.json";

@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Test simple snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class JavaInteropEvaluatorTest extends AbstractEvaluatorTest {
     private static final String JAVA_INTEROP_EVALUATOR_TESTCASE = "testcases/evaluator/java.interop.json";

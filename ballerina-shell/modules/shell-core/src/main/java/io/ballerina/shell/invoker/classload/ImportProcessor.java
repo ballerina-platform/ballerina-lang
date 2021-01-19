@@ -23,7 +23,7 @@ import io.ballerina.shell.exceptions.InvokerException;
 /**
  * Signature of a function that processes an import and returns its prefix.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public interface ImportProcessor {
     /**

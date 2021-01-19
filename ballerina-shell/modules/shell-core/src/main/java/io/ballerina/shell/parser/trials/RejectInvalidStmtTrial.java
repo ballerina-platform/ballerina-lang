@@ -26,7 +26,7 @@ import io.ballerina.shell.parser.TrialTreeParser;
  * Will thrown runtime errors if invalid statements found.
  * Act as a way to detect errors faster and fail instead of lagging.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class RejectInvalidStmtTrial extends TreeParserTrial {
     private static final String DOCUMENTATION_START = "#";

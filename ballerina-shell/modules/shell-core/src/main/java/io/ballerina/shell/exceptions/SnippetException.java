@@ -22,7 +22,7 @@ package io.ballerina.shell.exceptions;
  * Snippet caused some error.
  * Possible because of an invalid type of entry.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class SnippetException extends BallerinaShellException {
     public SnippetException() {

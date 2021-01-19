@@ -23,7 +23,7 @@ import io.ballerina.shell.DiagnosticReporter;
 /**
  * Test class to test DiagnosticReporter functionality.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class TestReporter extends DiagnosticReporter {
 }

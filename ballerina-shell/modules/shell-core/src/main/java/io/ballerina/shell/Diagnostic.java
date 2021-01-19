@@ -25,7 +25,7 @@ import io.ballerina.tools.text.TextDocument;
  * These are collected and returned to the callee.
  * Can be used to determine a cause of an error.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class Diagnostic {
     private final String message;

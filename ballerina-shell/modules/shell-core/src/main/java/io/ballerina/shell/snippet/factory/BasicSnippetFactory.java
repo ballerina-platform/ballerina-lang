@@ -73,7 +73,7 @@ import java.util.Map;
 /**
  * A factory that will create snippets from given nodes.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class BasicSnippetFactory extends SnippetFactory {
     // Create a caches of Syntax kind -> Variable types/Sub snippets that are known.

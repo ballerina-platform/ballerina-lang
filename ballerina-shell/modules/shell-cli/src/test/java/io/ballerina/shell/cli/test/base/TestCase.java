@@ -21,7 +21,7 @@ package io.ballerina.shell.cli.test.base;
 /**
  * Test case for terminal testing.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class TestCase {
     private String code;

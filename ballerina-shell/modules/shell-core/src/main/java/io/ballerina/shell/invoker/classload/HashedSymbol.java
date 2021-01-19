@@ -28,7 +28,7 @@ import java.util.Objects;
  * The symbol name and kind is used to hash the symbol.
  * No other use than to remember the symbols that were seen earlier.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class HashedSymbol {
     private final String name;

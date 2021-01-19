@@ -35,7 +35,7 @@ import static io.ballerina.shell.cli.PropertiesLoader.APP_NAME;
 /**
  * Main entry point for REPL shell application.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ReplShellApplication {
     /**

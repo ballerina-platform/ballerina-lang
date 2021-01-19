@@ -28,7 +28,7 @@ import java.nio.charset.Charset;
 /**
  * Class load invoker made testable.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class TestInvoker extends ClassLoadInvoker {
     private String output = "";

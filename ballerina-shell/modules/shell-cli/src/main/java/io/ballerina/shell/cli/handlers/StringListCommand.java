@@ -27,7 +27,7 @@ import java.util.function.Supplier;
  * Handler that will output a string.
  * String is given as a callback.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class StringListCommand extends AbstractCommand {
     protected Supplier<List<String>> supplier;

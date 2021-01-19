@@ -23,7 +23,7 @@ package io.ballerina.shell.invoker.classload;
  * If not required, the type is fully visible.
  * Otherwise it would be one of any, error, any|error
  *
- * @since slp8
+ * @since 2.0.0
  */
 public enum ElevatedType {
     NONE("()"),

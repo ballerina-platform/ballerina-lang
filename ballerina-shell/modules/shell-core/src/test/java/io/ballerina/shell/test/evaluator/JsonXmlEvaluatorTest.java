@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Test Json/Xml based snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class JsonXmlEvaluatorTest extends AbstractEvaluatorTest {
     private static final String JSON_EVALUATOR_TESTCASE = "testcases/evaluator/json.json.json";

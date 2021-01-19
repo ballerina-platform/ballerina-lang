@@ -26,7 +26,7 @@ import java.util.Objects;
  * Needs information such as variable name, its code and
  * whether it is an any/error/(any|error)
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class GlobalVariable {
     private final String type;

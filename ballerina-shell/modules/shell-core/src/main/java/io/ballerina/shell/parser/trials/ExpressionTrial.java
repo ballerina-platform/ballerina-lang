@@ -26,7 +26,7 @@ import io.ballerina.shell.parser.TrialTreeParser;
 /**
  * Attempts to parse source as a expression.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ExpressionTrial extends StatementTrial {
     public ExpressionTrial(TrialTreeParser parentParser) {

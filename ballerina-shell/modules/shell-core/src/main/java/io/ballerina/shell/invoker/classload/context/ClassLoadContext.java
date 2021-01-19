@@ -30,7 +30,7 @@ import java.util.Objects;
  * Context that is used to populate the template
  * of {@link ClassLoadInvoker} objects.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ClassLoadContext {
     private final String contextId;

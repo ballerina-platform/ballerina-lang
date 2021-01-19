@@ -21,7 +21,7 @@ package io.ballerina.shell.cli.handlers.help;
 /**
  * Exception thrown by help providers.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class HelpProviderException extends Exception {
     public HelpProviderException(String message) {

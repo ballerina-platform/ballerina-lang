@@ -36,7 +36,7 @@ import java.util.List;
  * Each implemented method except {@code createSnippet} will return null
  * if the snippet creation failed.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class SnippetFactory extends DiagnosticReporter {
     /**
@@ -118,6 +118,8 @@ public abstract class SnippetFactory extends DiagnosticReporter {
 
     /**
      * Snippet creation helper interface.
+     *
+     * @since 2.0.0
      */
     private interface SnippetCreator {
         Snippet create(Node node) throws SnippetException;

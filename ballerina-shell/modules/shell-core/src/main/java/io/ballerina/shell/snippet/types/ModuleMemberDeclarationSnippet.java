@@ -29,7 +29,7 @@ import java.util.Optional;
  * Module level declarations. These are not active or runnable.
  * Any undefined variable in these declarations are ignored.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ModuleMemberDeclarationSnippet extends Snippet {
     public ModuleMemberDeclarationSnippet(SnippetSubKind subKind, ModuleMemberDeclarationNode rootNode) {

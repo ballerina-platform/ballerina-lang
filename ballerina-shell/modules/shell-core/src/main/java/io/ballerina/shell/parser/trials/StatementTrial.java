@@ -37,7 +37,7 @@ import io.ballerina.tools.text.TextDocuments;
  * Puts in the main function statement level and checks for the the entry.
  * TODO: Improve performance.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class StatementTrial extends DualTreeParserTrial {
     public StatementTrial(TrialTreeParser parentParser) {

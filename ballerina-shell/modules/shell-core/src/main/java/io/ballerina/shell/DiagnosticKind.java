@@ -22,7 +22,7 @@ package io.ballerina.shell;
  * Diagnostic kind refers to the type of the diagnostic.
  * A diagnostic may be referring to an error, debug message, etc...
  *
- * @since slp8
+ * @since 2.0.0
  */
 public enum DiagnosticKind {
     ERROR, DEBUG, WARN

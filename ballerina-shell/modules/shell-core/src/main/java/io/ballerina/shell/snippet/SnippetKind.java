@@ -22,7 +22,7 @@ package io.ballerina.shell.snippet;
  * Kind determines the subtype of the snippet.
  * This can be used to cast to the subtype.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public enum SnippetKind {
     IMPORT_DECLARATION,

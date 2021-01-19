@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  * A library independent adapter for ballerina shell.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class TerminalAdapter {
     @SuppressWarnings("unused")

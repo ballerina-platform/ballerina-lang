@@ -40,7 +40,7 @@ import java.util.Objects;
  * The source code is placed in several places and is attempted to parse.
  * This continues until the correct type can be determined.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class SerialTreeParser extends TrialTreeParser {
     private final List<TreeParserTrial> nodeParserTrials;

@@ -33,7 +33,7 @@ import io.ballerina.tools.text.TextDocuments;
  * Puts in the module level and checks for empty module level entry.
  * Empty entries are converted to ().
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class EmptyExpressionTrial extends TreeParserTrial {
     private static final Node EMPTY_NODE = NodeFactory.createNilLiteralNode(

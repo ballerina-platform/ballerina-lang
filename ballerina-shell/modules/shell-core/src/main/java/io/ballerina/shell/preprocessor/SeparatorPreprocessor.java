@@ -31,7 +31,7 @@ import java.util.Stack;
  * based on the semicolons and brackets. Outputs the split input.
  * If a comment starting is detected, this will ignore anything upto a new line.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class SeparatorPreprocessor extends Preprocessor {
     private static final char ESCAPE_CHAR = '\\';

@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Test simple snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ObjectEvaluatorTest extends AbstractEvaluatorTest {
     private static final String CLASS_EVALUATOR_TESTCASE = "testcases/evaluator/object.class.json";

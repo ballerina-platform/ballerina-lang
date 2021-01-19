@@ -21,7 +21,7 @@ package io.ballerina.shell.test.evaluator.base;
 /**
  * One statement in a evaluator test case.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class TestCase {
     private String description;

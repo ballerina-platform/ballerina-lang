@@ -23,7 +23,7 @@ import io.ballerina.shell.cli.BallerinaShell;
 /**
  * Toggles debug mode.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ToggleDebugCommand extends AbstractCommand {
     public ToggleDebugCommand(BallerinaShell ballerinaShell) {

@@ -33,7 +33,7 @@ import static io.ballerina.shell.cli.PropertiesLoader.HELP_EXAMPLE_POSTFIX;
  * Will fetch the topic and show the description associated with them.
  * TODO: Replace with a proper help provider for REPL.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class RemoteBbeHelpProvider implements HelpProvider {
     private static final char HYPHEN = '-';

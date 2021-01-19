@@ -22,7 +22,7 @@ package io.ballerina.shell.utils;
  * Utility functions required by invokers.
  * Static class.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class StringUtils {
     private static final int MAX_VAR_STRING_LENGTH = 78;

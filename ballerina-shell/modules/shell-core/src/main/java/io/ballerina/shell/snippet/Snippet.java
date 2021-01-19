@@ -45,7 +45,7 @@ import java.util.Set;
  * with the same type. Same goes for functions, classes etc..)
  * However, any valid redeclaration in a different scope may be possible.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class Snippet {
     protected final SnippetSubKind subKind;
@@ -113,6 +113,8 @@ public abstract class Snippet {
 
     /**
      * A helper class to find the imports used in a snippet.
+     *
+     * @since 2.0.0
      */
     protected static class ImportNameFinder extends NodeVisitor {
         private final Set<String> imports;

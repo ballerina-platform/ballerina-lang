@@ -22,7 +22,7 @@ package io.ballerina.shell.cli.handlers.help;
  * Help provider interface for the providing classes.
  * Provides help for a given topic.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public interface HelpProvider {
     /**

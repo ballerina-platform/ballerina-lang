@@ -21,7 +21,7 @@ package io.ballerina.shell.snippet;
 /**
  * Snippet sub type to further categorize snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public enum SnippetSubKind {
     IMPORT_DECLARATION(SnippetKind.IMPORT_DECLARATION),

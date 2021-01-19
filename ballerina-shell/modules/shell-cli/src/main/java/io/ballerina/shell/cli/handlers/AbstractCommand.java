@@ -23,7 +23,7 @@ import io.ballerina.shell.cli.BallerinaShell;
 /**
  * Base class for handlers.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class AbstractCommand {
     protected final BallerinaShell ballerinaShell;

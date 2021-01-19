@@ -31,7 +31,7 @@ import static io.ballerina.shell.cli.PropertiesLoader.HELP_FILE;
 /**
  * Outputs help messages to the shell.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class HelpCommand extends AbstractCommand {
     private final HelpProvider helpProvider;

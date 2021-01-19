@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  * the system.exit calls will not exit the VM.
  * TODO: Remove this and fix VM exit bug.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class NoExitVmSecManager extends SecurityManager {
     private static final String EXIT_VM_REGEXP = "exitVM\\.([0-9]+)";

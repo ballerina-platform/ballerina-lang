@@ -90,7 +90,7 @@ import java.util.stream.Collectors;
  * This invoker will save all the variable values in a static class and
  * load them into the generated class effectively managing any side-effects.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     // Context related information
@@ -346,6 +346,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         Set<GlobalVariable> foundVariables = new HashSet<>();
         for (Symbol symbol : symbols) {
             HashedSymbol hashedSymbol = new HashedSymbol(symbol);
+            // TODO: After name alternative is implemented use it.
             String variableName = symbol.name();
 
             boolean ignoreSymbol = knownSymbols.contains(hashedSymbol)
@@ -415,6 +416,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             for (Symbol symbol : symbols) {
                 if (!symbol.kind().equals(SymbolKind.MODULE)) {
                     this.newSymbols.add(new HashedSymbol(symbol));
+                    // TODO: After name alternative is implemented use it.
                     return Map.entry(symbol.name(), newSnippet.toString());
                 }
             }

@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 /**
  * Test simple snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class FlowControlEvaluatorTest extends AbstractIntegrationTest {
     private static final String ELVIS_EVALUATOR_TESTCASE = "testcases/flow.control.elvis.json";

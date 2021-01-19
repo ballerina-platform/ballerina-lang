@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
  * Test simple snippets.
  * TODO: Find a way to test concurrency.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ConcurrencyEvaluatorTest extends AbstractEvaluatorTest {
     private static final String LOCK_EVALUATOR_TESTCASE = "testcases/evaluator/concurrency.lock.json";

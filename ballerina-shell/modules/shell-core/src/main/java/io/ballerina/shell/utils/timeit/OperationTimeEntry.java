@@ -24,7 +24,7 @@ import java.time.Duration;
  * Entry object for operation times required by {@code TimeIt}.
  * Can perform operations on data.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class OperationTimeEntry {
     private Duration totalDuration;

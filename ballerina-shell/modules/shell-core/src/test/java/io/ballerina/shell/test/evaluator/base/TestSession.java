@@ -23,7 +23,7 @@ import java.util.ArrayList;
 /**
  * A test case consisting of several test case statements.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class TestSession extends ArrayList<TestCase> {
 }

@@ -30,7 +30,7 @@ import io.ballerina.shell.exceptions.TreeParserException;
  * the tree that is parsed should have
  * {@code ImportDeclarationNode} as the root node.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class TreeParser extends DiagnosticReporter {
     /**

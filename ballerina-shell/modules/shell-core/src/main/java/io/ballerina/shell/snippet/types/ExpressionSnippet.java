@@ -25,7 +25,7 @@ import io.ballerina.shell.snippet.SnippetSubKind;
  * These are expressions that are executable. These do not have to contain semicolons.
  * If the expression is a Expression Statement, the semicolon will be stripped.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ExpressionSnippet extends ExecutableSnippet {
     public ExpressionSnippet(ExpressionNode rootNode) {

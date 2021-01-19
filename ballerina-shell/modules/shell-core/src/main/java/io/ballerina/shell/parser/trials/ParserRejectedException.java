@@ -21,7 +21,7 @@ package io.ballerina.shell.parser.trials;
 /**
  * Exception to denote that statement was rejected from trial parser.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ParserRejectedException extends RuntimeException {
     public ParserRejectedException(String message) {

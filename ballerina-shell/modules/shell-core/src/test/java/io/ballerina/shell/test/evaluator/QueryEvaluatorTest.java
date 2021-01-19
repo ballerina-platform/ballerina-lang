@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Test simple snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class QueryEvaluatorTest extends AbstractEvaluatorTest {
     private static final String QUERY_EXPR_EVALUATOR_TESTCASE = "testcases/evaluator/query.expr.json";

@@ -35,7 +35,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Trial for testing for the correct syntax tree.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class TreeParserTrial {
     protected final TrialTreeParser parentParser;

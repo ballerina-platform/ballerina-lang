@@ -23,7 +23,7 @@ import io.ballerina.shell.cli.BallerinaShell;
 /**
  * Exits from the shell.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ExitCommand extends AbstractCommand {
     public ExitCommand(BallerinaShell ballerinaShell) {

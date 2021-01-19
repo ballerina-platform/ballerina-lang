@@ -38,7 +38,7 @@ import static io.ballerina.shell.cli.PropertiesLoader.REPL_PROMPT;
  * Class that will integrate tests with the shell
  * by piping input/output streams.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class TestIntegrator extends Thread {
     private final InputStream inputStream;

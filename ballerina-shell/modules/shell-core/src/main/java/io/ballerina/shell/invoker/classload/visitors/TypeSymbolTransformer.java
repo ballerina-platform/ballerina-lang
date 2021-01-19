@@ -28,7 +28,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
  * The transformation state saving logic should be implemented in child classes.
  *
  * @param <T> Type to transform.
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class TypeSymbolTransformer<T> extends TypeSymbolVisitor {
     private T state;

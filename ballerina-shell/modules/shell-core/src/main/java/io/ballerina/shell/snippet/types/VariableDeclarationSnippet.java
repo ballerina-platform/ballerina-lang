@@ -25,7 +25,7 @@ import io.ballerina.shell.snippet.SnippetSubKind;
  * These will be variable declarations.
  * Currently only module level variable declarations are accepted.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class VariableDeclarationSnippet extends ExecutableSnippet {
     public VariableDeclarationSnippet(ModuleVariableDeclarationNode rootNode) {

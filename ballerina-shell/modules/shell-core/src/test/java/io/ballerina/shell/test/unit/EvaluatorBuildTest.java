@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Tests if evaluator builds are successful.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class EvaluatorBuildTest {
     @Test

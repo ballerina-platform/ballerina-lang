@@ -28,7 +28,7 @@ import java.io.OutputStream;
 /**
  * Configuration that uses command utils to provide options.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class BShellConfiguration {
     private final long treeParsingTimeout;
@@ -110,6 +110,8 @@ public class BShellConfiguration {
 
     /**
      * Modes to create the evaluator.
+     *
+     * @since 2.0.0
      */
     public enum EvaluatorMode {
         DEFAULT
@@ -117,6 +119,8 @@ public class BShellConfiguration {
 
     /**
      * Builder to build the evaluator config.
+     *
+     * @since 2.0.0
      */
     public static class Builder {
         private EvaluatorMode evaluatorMode;

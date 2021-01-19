@@ -40,7 +40,7 @@ import java.util.concurrent.TimeoutException;
  * better error message.
  * Otherwise error will be just 'timed out'
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class GetErrorMessageTrial extends TreeParserTrial {
     private static final int ERROR_TIMEOUT_MULTIPLIER = 10;

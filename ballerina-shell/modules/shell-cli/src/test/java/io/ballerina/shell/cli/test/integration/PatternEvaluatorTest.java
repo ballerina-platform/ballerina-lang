@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 /**
  * Test simple snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class PatternEvaluatorTest extends AbstractIntegrationTest {
     private static final String TUPLE_EVALUATOR_TESTCASE = "testcases/pattern.tuple.json";

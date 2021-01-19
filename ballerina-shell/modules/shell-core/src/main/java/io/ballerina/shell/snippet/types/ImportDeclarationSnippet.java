@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 /**
  * Snippet that represent a import statement.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ImportDeclarationSnippet extends Snippet {
     public ImportDeclarationSnippet(ImportDeclarationNode rootNode) {

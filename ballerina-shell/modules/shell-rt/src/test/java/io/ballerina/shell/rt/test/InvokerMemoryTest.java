@@ -29,7 +29,7 @@ import java.nio.charset.Charset;
 /**
  * Test Invoker memory functions.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class InvokerMemoryTest {
     @Test

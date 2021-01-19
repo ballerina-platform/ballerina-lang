@@ -22,7 +22,7 @@ package io.ballerina.shell.exceptions;
  * Parsing of the expression failed.
  * Not a valid ballerina statement.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class TreeParserException extends BallerinaShellException {
     public TreeParserException() {

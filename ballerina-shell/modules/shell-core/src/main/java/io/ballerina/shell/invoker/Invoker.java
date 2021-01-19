@@ -49,7 +49,7 @@ import java.util.Optional;
  * fill the template. This should be a logic-less as much as possible.
  * Invoker and its context may be tightly coupled.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class Invoker extends DiagnosticReporter {
     private static final String NON_ACCESSIBLE_TYPE_CODE = "BCE2037";

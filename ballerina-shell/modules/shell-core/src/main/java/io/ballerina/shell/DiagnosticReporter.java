@@ -27,7 +27,7 @@ import java.util.List;
  * Encapsulates the diagnostic list and add APIs to add/view diagnostics.
  * A diagnostic represents error, a warning or a message.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class DiagnosticReporter {
     private final List<Diagnostic> diagnostics;

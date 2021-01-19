@@ -24,7 +24,7 @@ import io.ballerina.shell.snippet.types.ExecutableSnippet;
 /**
  * A context representing a statement/expression.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class StatementContext {
     private final String code;

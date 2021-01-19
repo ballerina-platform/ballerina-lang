@@ -71,7 +71,7 @@ import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
  * Visits all the types in a given type.
  * Will visit nested/parameterized/... types and perform given operations.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class TypeSymbolVisitor {
     /**

@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Test class to test {@link DiagnosticReporter}.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class DiagnosticReporterTest {
     @Test

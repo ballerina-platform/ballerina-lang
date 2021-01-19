@@ -23,7 +23,7 @@ import io.ballerina.shell.cli.BallerinaShell;
 /**
  * Resets shell state.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ResetStateCommand extends AbstractCommand {
     public ResetStateCommand(BallerinaShell ballerinaShell) {

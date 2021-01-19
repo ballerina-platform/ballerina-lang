@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Test simple snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ErrorsEvaluatorTest extends AbstractEvaluatorTest {
     private static final String HANDLING_EVALUATOR_TESTCASE = "testcases/evaluator/errors.handling.json";

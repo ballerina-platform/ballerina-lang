@@ -22,7 +22,7 @@ package io.ballerina.shell.exceptions;
  * Preprocessor found a error in the input.
  * Mismatching brackets or similar error.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class PreprocessorException extends BallerinaShellException {
     public PreprocessorException() {

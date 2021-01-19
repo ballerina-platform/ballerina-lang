@@ -24,7 +24,7 @@ import io.ballerina.shell.exceptions.BallerinaShellException;
  * Interface for timed operations to run via {@code TimeIt}.
  *
  * @param <T> Return type for operation.
- * @since slp8
+ * @since 2.0.0
  */
 public interface TimedOperation<T> {
     /**

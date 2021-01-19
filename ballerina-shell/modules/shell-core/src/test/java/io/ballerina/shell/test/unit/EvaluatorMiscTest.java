@@ -30,7 +30,7 @@ import java.util.Set;
 /**
  * Misc functionality testing of evaluator.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class EvaluatorMiscTest {
     @Test

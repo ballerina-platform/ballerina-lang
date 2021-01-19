@@ -27,7 +27,7 @@ import io.ballerina.shell.utils.StringUtils;
  * The {@code isNew} defines whether the variable was newly added.
  * For old variables, there should be an entry in the static memory class.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class VariableContext {
     private final String name;

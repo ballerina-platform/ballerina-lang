@@ -33,7 +33,7 @@ import io.ballerina.tools.text.TextDocuments;
  * Doesn't have any false positives or true negatives.
  * Only checked if the source starts with import keyword.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ImportDeclarationTrial extends TreeParserTrial {
     public ImportDeclarationTrial(TrialTreeParser parentParser) {

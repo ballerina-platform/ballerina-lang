@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * Test tree parser use cases.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class TrialTreeParserTest {
     private static final String STATEMENT_TESTCASES = "testcases/treeparser.statement.json";

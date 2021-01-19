@@ -27,7 +27,7 @@ import io.ballerina.shell.snippet.SnippetSubKind;
  * Executable snippets changes the state (global vars) of the program when run.
  * Imports and module dclns are not executable.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class ExecutableSnippet extends Snippet {
     protected ExecutableSnippet(SnippetSubKind subKind, Node rootNode) {

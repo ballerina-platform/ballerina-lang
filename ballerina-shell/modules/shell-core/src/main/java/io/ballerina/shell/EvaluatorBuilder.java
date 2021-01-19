@@ -35,7 +35,7 @@ import java.util.Objects;
  * By default this will use {@link SeparatorPreprocessor}, {@link TrialTreeParser},
  * {@link BasicSnippetFactory} and {@link ClassLoadInvoker}.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class EvaluatorBuilder {
     private Preprocessor preprocessor;

@@ -27,7 +27,7 @@ import org.jline.utils.AttributedStyle;
 /**
  * Terminal adapter which encapsulates Jline.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class JlineTerminalAdapter extends TerminalAdapter {
     protected final LineReader lineReader;

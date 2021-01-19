@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Test snippet factory use cases.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class BasicSnippetFactoryTest {
     private static final String IMPORT_TESTCASES = "testcases/snippet.import.json";

@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Test preprocessor use cases.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class SeparatorPreprocessorTest {
     private static final String TESTCASES = "testcases/preprocessor.separator.json";

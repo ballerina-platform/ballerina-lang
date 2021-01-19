@@ -23,7 +23,7 @@ package io.ballerina.shell.exceptions;
  * Every inherit exception that is thrown in this project are of this base type.
  * All other exceptions will be unhandled exceptions.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public abstract class BallerinaShellException extends Exception {
     public BallerinaShellException(String message) {

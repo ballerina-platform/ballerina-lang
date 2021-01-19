@@ -24,7 +24,7 @@ import io.ballerina.tools.text.TextDocument;
 /**
  * Exception to denote that trial failed.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ParserTrialFailedException extends Exception {
     public ParserTrialFailedException(TextDocument textDocument, Diagnostic diagnostic) {

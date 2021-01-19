@@ -32,7 +32,7 @@ import java.util.Set;
  * Imports that were stored to be able to search with the prefix.
  * The prefixes used will always be quoted identifiers.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class HashedImports {
 

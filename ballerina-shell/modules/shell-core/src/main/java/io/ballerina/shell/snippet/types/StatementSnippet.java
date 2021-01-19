@@ -25,7 +25,7 @@ import io.ballerina.shell.snippet.SnippetSubKind;
  * These are normal statements that should be evaluated from
  * top to bottom inside a function.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class StatementSnippet extends ExecutableSnippet {
     public StatementSnippet(SnippetSubKind subKind, StatementNode rootNode) {

@@ -26,7 +26,7 @@ import java.util.Properties;
 /**
  * Loads the properties file.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class PropertiesLoader {
     public static final String APP_NAME = "app.name";

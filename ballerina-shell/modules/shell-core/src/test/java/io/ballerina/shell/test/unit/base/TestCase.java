@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Test case for unit tests.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class TestCase {
     private String name;

@@ -37,7 +37,7 @@ import java.util.Optional;
  * Creates an virtual shell which will accept input from
  * a terminal and evaluate each expression.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class Evaluator extends DiagnosticReporter {
     private final Preprocessor preprocessor;

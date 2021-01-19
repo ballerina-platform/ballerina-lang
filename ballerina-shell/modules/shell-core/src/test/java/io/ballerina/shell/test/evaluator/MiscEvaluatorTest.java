@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Test simple snippets.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class MiscEvaluatorTest extends AbstractEvaluatorTest {
     private static final String ENUM_EVALUATOR_TESTCASE = "testcases/evaluator/values.enum.json";

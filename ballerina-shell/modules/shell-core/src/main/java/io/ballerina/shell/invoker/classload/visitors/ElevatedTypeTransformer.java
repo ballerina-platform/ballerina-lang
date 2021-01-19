@@ -30,7 +30,7 @@ import io.ballerina.shell.invoker.classload.ElevatedType;
  * If the type can be assigned to error the transformed result would be ERROR.
  * If the type can be assigned to any|error the transformed result would be ANY_ERROR.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ElevatedTypeTransformer extends TypeSymbolTransformer<ElevatedType> {
     @Override
