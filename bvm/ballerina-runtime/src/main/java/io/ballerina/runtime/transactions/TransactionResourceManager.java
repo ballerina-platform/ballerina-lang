@@ -225,6 +225,7 @@ public class TransactionResourceManager {
      */
     //TODO:Comment for now, might need it for distributed transactions.
     public boolean prepare(String transactionId, String transactionBlockId) {
+        endXATransaction(transactionId, transactionBlockId);
         if (transactionManagerEnabled) {
             return true;
         }
@@ -264,7 +265,6 @@ public class TransactionResourceManager {
      */
     public boolean notifyCommit(String transactionId, String transactionBlockId) {
         Strand strand = Scheduler.getStrand();
-        endXATransaction(transactionId, transactionBlockId);
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean commitSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -522,7 +522,6 @@ public class TransactionResourceManager {
     }
 
     void rollbackTransaction(String transactionId, String transactionBlockId, Object error) {
-        endXATransaction(transactionId, transactionBlockId);
         notifyAbort(transactionId, transactionBlockId, error);
     }
 
