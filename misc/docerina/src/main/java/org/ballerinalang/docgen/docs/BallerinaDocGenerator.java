@@ -120,12 +120,14 @@ public class BallerinaDocGenerator {
                         String htmlData = "<!DOCTYPE html>\n" +
                                 "<html>\n" +
                                 "<head>\n" +
-                                "\t<meta http-equiv=\"refresh\" content=\"0; URL=../index.html#/ballerina/" +
+                                "\t<meta http-equiv=\"refresh\" content=\"0; URL=../index.html#/" +
+                                jsonPackageLib.packages.get(0).orgName + "/" +
                                 jsonPackageLib.packages.get(0).name +
                                 "/latest\" />\n" +
                                 "</head>\n" +
                                 "<body>\n" +
-                                "\t<h1>If you are not redirected please click this <a href=\"../index.html#/ballerina" +
+                                "\t<h1>If you are not redirected please click this <a href=\"../index.html#/" +
+                                jsonPackageLib.packages.get(0).orgName + "/" +
                                 jsonPackageLib.packages.get(0).name + "/latest\">link</a> </h1>\n" +
                                 "</body>\n" +
                                 "</html>";
