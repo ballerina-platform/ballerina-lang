@@ -2335,10 +2335,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
             BType restFieldType = ((BRecordType) typeRef.type).restFieldType;
-            if (restFieldType == null || restFieldType == symTable.noType) {
+            if (restFieldType == symTable.noType) {
                 continue;
             }
-            if (recordType.restFieldType != null && recordType.restFieldType.tag != restFieldType.tag) {
+            if (recordType.restFieldType != null && !types.isSameType(recordType.restFieldType, restFieldType)) {
                 recordType.restFieldType = symTable.noType;
                 dlog.error(recordTypeNode.pos,
                         DiagnosticErrorCode.

@@ -136,3 +136,26 @@ function testRestTypeOverridingNegative() {
     IncludingRec3 rec2 = {i: 1, j: 2, k: 3, "s": error("Message")}; // incompatible types: expected 'string', found 'error'
     IncludingRec4 rec3 = {i: 1, j: 2, k: 3, "s": error("Message")}; // incompatible types: expected 'anydata', found 'error'
 }
+
+type Rec7 record {|
+   int x;
+   string...;
+|};
+
+type Rec8 record {|
+   int y;
+   string...;
+|};
+
+type Rec9 record {|
+  Rec7...;
+|};
+
+type Rec10 record {|
+  Rec8...;
+|};
+
+type Baz record {| // // cannot use type inclusion with more than one open record
+  *Rec9;
+  *Rec10;
+|};
