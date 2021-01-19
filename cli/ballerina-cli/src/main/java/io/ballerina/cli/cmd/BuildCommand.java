@@ -48,11 +48,11 @@ import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
- * This class represents the "ballerina build" command.
+ * This class represents the "bal build" command.
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = BUILD_COMMAND, description = "Ballerina build - Build Ballerina module(s) and generate " +
+@CommandLine.Command(name = BUILD_COMMAND, description = "bal build - Build Ballerina module(s) and generate " +
                                                          "executable output.")
 public class BuildCommand implements BLauncherCmd {
 
@@ -134,7 +134,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
-    private static final String buildCmd = "ballerina build [-o <output>] [--offline] [--skip-tests]\n" +
+    private static final String buildCmd = "bal build [-o <output>] [--offline] [--skip-tests]\n" +
             "                    [<ballerina-file | package-path>] [(--key=value)...]";
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
@@ -209,7 +209,7 @@ public class BuildCommand implements BLauncherCmd {
                 CommandUtil.printError(this.errStream,
                         "'-o' and '--output' are only supported when building a single Ballerina " +
                                 "file.",
-                        "ballerina build -o <output-file> <ballerina-file> ",
+                        "bal build -o <output-file> <ballerina-file> ",
                         true);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -282,7 +282,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina build [-o <output-file>] [--offline] [--skip-tests] [--skip-lock] " +
+        out.append("  bal build [-o <output-file>] [--offline] [--skip-tests] [--skip-lock] " +
                    "{<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]\n");
     }
 

@@ -113,7 +113,7 @@ public class PackagingTestCase extends BaseTest {
 
         // First try to push without building
         String firstMsg = "error: cannot find balo file for the module: " + moduleName + ". Run " +
-                          "'ballerina build -c <module_name>' to compile and generate the balo.";
+                          "'bal build -c <module_name>' to compile and generate the balo.";
         LogLeecher clientLeecher = new LogLeecher(firstMsg, LeecherType.ERROR);
         balClient.runMain("push", new String[]{moduleName}, envVariables, new String[]{},
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
@@ -217,7 +217,7 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test push all packages in project to central")
     public void testPushAllPackages() throws Exception {
-        // Test ballerina init
+        // Test bal init
         Path projectPath = tempProjectDirectory.resolve("pushAllPackageTest");
         
         // Create project
@@ -281,7 +281,7 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test and run a module which has a module name contains period. eg: foo.bar")
     public void testBuildAndRunModuleWithPeriod() throws BallerinaTestException {
-        // Test ballerina init
+        // Test bal init
         Path projectPath = tempProjectDirectory.resolve("buildAndRunModuleWithPeriodProject");
 
         // Create project
