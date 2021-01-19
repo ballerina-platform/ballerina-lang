@@ -148,7 +148,7 @@ public class BuildCommand implements BLauncherCmd {
     private Boolean observabilityIncluded;
 
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
-    private String cloudProvider;
+    private String cloud;
 
     public void execute() {
         if (this.helpFlag) {
@@ -259,7 +259,7 @@ public class BuildCommand implements BLauncherCmd {
                 .skipTests(skipTests)
                 .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
-                .cloud(cloudProvider)
+                .cloud(cloud)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
                 .build();

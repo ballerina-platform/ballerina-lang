@@ -89,7 +89,7 @@ class CompilationOptions {
         this.observabilityIncluded = Objects.requireNonNullElseGet(
                 theirOptions.observabilityIncluded, () -> toBooleanDefaultIfNull(this.observabilityIncluded));
         this.dumpBir = Objects.requireNonNullElseGet(theirOptions.dumpBir, () -> toBooleanDefaultIfNull(this.dumpBir));
-        this.cloud = theirOptions.cloud;
+        this.cloud = Objects.requireNonNullElse(this.cloud, toStringDefaultIfNull(this.cloud));
         this.dumpBirFile = theirOptions.dumpBirFile;
         return this;
     }
@@ -99,5 +99,12 @@ class CompilationOptions {
             return false;
         }
         return bool;
+    }
+
+    private String toStringDefaultIfNull(String value) {
+        if (value == null) {
+            return "k8s";
+        }
+        return value;
     }
 }

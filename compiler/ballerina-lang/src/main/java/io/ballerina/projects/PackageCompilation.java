@@ -80,7 +80,6 @@ public class PackageCompilation {
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, compilationOptions.getBirDumpFile());
-        options.put(DUMP_BIR_FILE, compilationOptions.getBirDumpFile());
         options.put(CLOUD, compilationOptions.getCloud());
     }
 
