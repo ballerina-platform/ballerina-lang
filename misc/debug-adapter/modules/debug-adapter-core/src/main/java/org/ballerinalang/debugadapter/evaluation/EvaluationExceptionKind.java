@@ -40,7 +40,8 @@ public enum EvaluationExceptionKind {
     INVALID("Invalid expression: '%s'"),
     SYNTAX_ERROR("Syntax errors found: " + System.lineSeparator() + "%s"),
     COMPILATION_ERRORS("Compilation error(s) found: " + System.lineSeparator() + "%s"),
-    UNSUPPORTED_EXPRESSION("Unsupported expressions/sub-expressions found: %s" + System.lineSeparator()),
+    UNSUPPORTED_EXPRESSION("Following expressions/sub-expressions are not supported by the evaluator: " +
+            System.lineSeparator() + "%s"),
     UNSUPPORTED_OPERATION("'%s' operation is not supported for types: '%s' and '%s'"),
     INTERNAL_ERROR("Internal error occurred while evaluating the expression: '%s'"),
     CUSTOM_ERROR("%s");

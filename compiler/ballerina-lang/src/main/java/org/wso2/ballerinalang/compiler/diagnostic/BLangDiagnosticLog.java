@@ -17,18 +17,33 @@
  */
 package org.wso2.ballerinalang.compiler.diagnostic;
 
+import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.diagnostic.properties.BCollectionProperty;
+import org.wso2.ballerinalang.compiler.diagnostic.properties.BNumericProperty;
+import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
+import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
+import org.wso2.ballerinalang.compiler.diagnostic.properties.NonCatProperty;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -47,12 +62,16 @@ public class BLangDiagnosticLog implements DiagnosticLog {
 
     private int errorCount = 0;
     private PackageCache packageCache;
+    private TypesFactory typesFactory;
+    private SymbolFactory symbolFactory;
     private PackageID currentPackageId;
     private boolean isMute = false;
 
     private BLangDiagnosticLog(CompilerContext context) {
         context.put(DIAGNOSTIC_LOG_KEY, this);
         this.packageCache = PackageCache.getInstance(context);
+        this.typesFactory = TypesFactory.getInstance(context);
+        this.symbolFactory = SymbolFactory.getInstance(context);
     }
 
     public static BLangDiagnosticLog getInstance(CompilerContext context) {
@@ -77,7 +96,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      */
     public void error(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(ERROR_PREFIX, code, args);
-        reportDiagnostic(null, code, location, msg, DiagnosticSeverity.ERROR);
+        reportDiagnostic(null, code, location, msg, DiagnosticSeverity.ERROR, args);
     }
 
     /**
@@ -89,7 +108,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      */
     public void warning(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(WARNING_PREFIX, code, args);
-        reportDiagnostic(null, code, location, msg, DiagnosticSeverity.WARNING);
+        reportDiagnostic(null, code, location, msg, DiagnosticSeverity.WARNING, args);
     }
 
     /**
@@ -101,7 +120,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      */
     public void note(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(NOTE_PREFIX, code, args);
-        reportDiagnostic(null, code, location, msg, DiagnosticSeverity.INFO);
+        reportDiagnostic(null, code, location, msg, DiagnosticSeverity.INFO, args);
     }
 
     /**
@@ -147,12 +166,12 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     @Override
     @Deprecated
     public void logDiagnostic(DiagnosticSeverity severity, Location location, CharSequence message) {
-        reportDiagnostic(null, null, location, message.toString(), severity);
+        reportDiagnostic(null, null, location, message.toString(), severity, new Object[] {});
     }
 
     @Override
     public void logDiagnostic(DiagnosticSeverity severity, PackageID pkgId, Location location, CharSequence message) {
-        reportDiagnostic(pkgId, null, location, message.toString(), severity);
+        reportDiagnostic(pkgId, null, location, message.toString(), severity, new Object[] {});
     }
 
     /**
@@ -177,7 +196,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     }
 
     private void reportDiagnostic(PackageID packageID, DiagnosticCode diagnosticCode, Location location,
-                                  String msg, DiagnosticSeverity severity) {
+                                  String msg, DiagnosticSeverity severity, Object[] args) {
         if (severity == DiagnosticSeverity.ERROR) {
             this.errorCount++;
         }
@@ -194,13 +213,41 @@ public class BLangDiagnosticLog implements DiagnosticLog {
             diagInfo = new DiagnosticInfo(null, msg, severity);
         }
 
-        BLangDiagnostic diagnostic = new BLangDiagnostic(location, msg, diagInfo, diagnosticCode);
+        List<DiagnosticProperty<?>> argList = convertDiagArgsToProps(args);
+        BLangDiagnostic diagnostic = new BLangDiagnostic(location, msg, diagInfo, diagnosticCode, argList);
 
         if (packageID != null) {
             storeDiagnosticInModule(packageID, diagnostic);
         } else {
             storeDiagnosticInModule(currentPackageId, diagnostic);
         }
+    }
+
+    private List<DiagnosticProperty<?>> convertDiagArgsToProps(Object[] args) {
+        List<DiagnosticProperty<?>> diagArgs = new ArrayList<>();
+        for (Object arg : args) {
+            DiagnosticProperty<?> dArg;
+            if (arg instanceof BType) {
+                TypeSymbol tsybol = typesFactory.getTypeDescriptor((BType) arg);
+                dArg = new BSymbolicProperty(tsybol);
+            } else if (arg instanceof BSymbol) {
+                BSymbol symbolArg = (BSymbol) arg;
+                Symbol symbol = symbolFactory.getBCompiledSymbol(symbolArg, symbolArg.getName().getValue());
+                dArg = new BSymbolicProperty(symbol);
+            } else if (arg instanceof String) {
+                dArg = new BStringProperty((String) arg);
+            } else if (arg instanceof Number) {
+                dArg = new BNumericProperty((Number) arg);
+            } else if (arg instanceof Collection) {
+                Collection<DiagnosticProperty<?>> diagProperties
+                        = convertDiagArgsToProps(((Collection<?>) arg).toArray());
+                dArg = new BCollectionProperty(diagProperties);
+            } else {
+                dArg = new NonCatProperty(arg);
+            }
+            diagArgs.add(dArg);
+        }
+        return diagArgs;
     }
 
     private void storeDiagnosticInModule(PackageID pkgId, Diagnostic diagnostic) {

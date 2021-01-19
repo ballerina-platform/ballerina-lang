@@ -50,7 +50,26 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         final String span6Position = FILE_NAME + ":38:16";
         final String entryPointFunctionModule = "intg_tests/tracing_tests:0.0.1";
         final String entryPointFunctionPosition = "01_main_function.bal:19:1";
-
+        final List<BMockSpan.BMockSpanEvent> expectedCheckpoints = Arrays.asList(
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":20:5"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":22:13"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":25:23"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":32:16"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":32:21"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":33:11"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":38:16"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":39:11"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":44:43"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":44:43"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":54:31"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":55:5"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":55:5"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":56:11"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":56:5"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":56:5"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":57:1"),
+                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":29:9")
+        );
         List<BMockSpan> spans = this.getFinishedSpans("Unknown Service");
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
@@ -77,6 +96,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.main", "true"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "main")
             ));
+            Assert.assertEquals(span.getCheckpoints(), expectedCheckpoints);
         });
 
         Optional<BMockSpan> span2 = spans.stream()
@@ -157,7 +177,11 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithPanic"),
-                    new AbstractMap.SimpleEntry<>("error", "true")
+                    new AbstractMap.SimpleEntry<>("error", "true"),
+                    new AbstractMap.SimpleEntry<>("error.message", "Test Error\n" +
+                            "\tat intg_tests.tracing_tests.utils.0_0_1.MockClient:callWithPanic(" +
+                            "mock_client_endpoint.bal:58)\n" +
+                            "\t   intg_tests.tracing_tests.0_0_1:main(01_main_function.bal:32)")
             ));
         });
 
@@ -178,7 +202,11 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithErrorReturn"),
-                    new AbstractMap.SimpleEntry<>("error", "true")
+                    new AbstractMap.SimpleEntry<>("error", "true"),
+                    new AbstractMap.SimpleEntry<>("error.message", "Test Error\n" +
+                            "\tat intg_tests.tracing_tests.utils.0_0_1.MockClient:callWithErrorReturn(" +
+                            "mock_client_endpoint.bal:46)\n" +
+                            "\t   intg_tests.tracing_tests.0_0_1:main(01_main_function.bal:38)")
             ));
         });
     }

@@ -20,6 +20,7 @@ package org.ballerinalang.test.jvm;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -52,5 +53,11 @@ public class CodegenErrorsTest {
     public void testTooLargePackageVar() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/too-large-package-variable.bal");
         BAssertUtil.validateError(result, 0, "method is too large: '.<init>'", ".", 1, 1);
+    }
+
+    @Test
+    public void testTooLargeStringConstants() {
+        CompileResult result = BCompileUtil.compile("test-src/jvm/too-large-string-constants.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
     }
 }

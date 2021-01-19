@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Represents the implementation of a Compiled Ballerina Symbol.
@@ -40,7 +39,6 @@ public class BallerinaSymbol implements Symbol {
     private final String name;
     private final PackageID moduleID;
     private final SymbolKind symbolKind;
-    private final Documentation docAttachment;
     private final Location position;
     private final BSymbol internalSymbol;
 
@@ -48,7 +46,6 @@ public class BallerinaSymbol implements Symbol {
         this.name = name;
         this.moduleID = moduleID;
         this.symbolKind = symbolKind;
-        this.docAttachment = getDocAttachment(symbol);
 
         if (symbol == null) {
             throw new IllegalArgumentException("'symbol' cannot be null");
@@ -86,14 +83,6 @@ public class BallerinaSymbol implements Symbol {
         return this.symbolKind;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Optional<Documentation> docAttachment() {
-        return Optional.ofNullable(this.docAttachment);
-    }
-
     @Override
     public Location location() {
         return this.position;
@@ -126,7 +115,7 @@ public class BallerinaSymbol implements Symbol {
         return this.internalSymbol;
     }
 
-    private Documentation getDocAttachment(BSymbol symbol) {
+    Documentation getDocAttachment(BSymbol symbol) {
         return symbol == null ? null : new BallerinaDocumentation(symbol.markdownDocumentation);
     }
 

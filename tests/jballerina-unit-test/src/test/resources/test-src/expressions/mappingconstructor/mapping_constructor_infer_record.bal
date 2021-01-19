@@ -292,7 +292,7 @@ function testInferringForReadOnly() {
     |} rec1 = <readonly & record {|
                    int i;
                    string str;
-               |}> rd1;
+               |}> checkpanic rd1;
 
     var fn = function() {
         rec1.i = 12;
@@ -336,7 +336,7 @@ function testInferringForReadOnly() {
                           Person & readonly pn;
                           Person & readonly pnDup;
                           (Person & readonly)|record {|boolean b;|}...;
-                      |} & readonly> rd2;
+                      |} & readonly> checkpanic rd2;
 
     fn = function() {
         rec2.pn = pn;
@@ -383,7 +383,7 @@ function testInferringForReadOnlyInUnion() {
                           Person & readonly pn;
                           Person & readonly pnDup;
                           (Person & readonly)|record {|boolean b;|}...;
-                      |} & readonly> rd;
+                      |} & readonly> checkpanic rd;
 
     var fn = function() {
         rec.pn = pn;
@@ -421,7 +421,7 @@ function testValidReadOnlyWithDifferentFieldKinds() {
     };
 
     // This should represent the inferred type.
-    assertEquality(true, <any> x is record {|
+    assertEquality(true, <any> checkpanic x is record {|
                                         boolean[] b;
                                         record {| map<int[]> & readonly d; |} c;
                                         int[] & readonly...;
@@ -431,7 +431,7 @@ function testValidReadOnlyWithDifferentFieldKinds() {
                 boolean[] b;
                 record {| map<int[]> d; |} c;
                 int[] & readonly...;
-            |}> x;
+            |}> checkpanic x;
 
     assertEquality(true, y.b.isReadOnly());
     assertEquality(<boolean[2]> [true, false], y.b);
@@ -475,7 +475,7 @@ function testValidReadOnlyInUnionWithDifferentFieldKinds() {
                 boolean[] b;
                 string c;
                 int[] & readonly...;
-            |}> x;
+            |}> checkpanic x;
 
     assertEquality(true, y.b.isReadOnly());
     assertEquality(<boolean[2]> [true, false], y.b);
@@ -497,7 +497,7 @@ function testValidReadOnlyInUnionWithDifferentFieldKinds() {
 
     assertEquality(true, x2 is record {|boolean[] b; int[]...;|});
 
-    var y2 = <record {|boolean[] b; int[]...;|}> x2;
+    var y2 = <record {|boolean[] b; int[]...;|}> checkpanic x2;
 
     assertEquality(false, y2["c"].isReadOnly());
 
@@ -516,6 +516,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

@@ -38,6 +38,7 @@ public enum ParserRuleContext {
     FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER("func-def-or-type-without-first-qualifier"),
     PARAM_LIST("parameters"),
     PARAMETER_START("parameter-start"),
+    PARAMETER_START_WITHOUT_ANNOTATION("parameter-start-without-annotation"),
     PARAM_END("param-end"),
     REQUIRED_PARAM("required-parameter"),
     DEFAULTABLE_PARAM("defaultable-parameter"),
@@ -327,6 +328,8 @@ public enum ParserRuleContext {
     INTERMEDIATE_CLAUSE_START("intermediate-clause-start"),
     ON_FAIL_CLAUSE("on_fail_clause"),
     ON_FA("on_fail_clause"),
+    TYPEDESC_TYPE_DESCRIPTOR("typedesc-type-descriptor"),
+    TYPEDESC_TYPE_DESCRIPTOR_RHS("typedesc-type-descriptor-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -526,6 +529,7 @@ public enum ParserRuleContext {
     WORKER_NAME("worker-name"),
     FIELD_OR_FUNC_NAME("field-or-func-name"),
     ORDER_DIRECTION("order-direction"),
+    VAR_REF_COLON("var-ref-colon"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -657,6 +661,23 @@ public enum ParserRuleContext {
     ENUM_MEMBER_START("enum-member-start"),
     TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER("tuple-type-desc-or-list-cont-member"),
     TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC("top.level.func.def.or.func.type.desc"),
+    ERROR_TYPE_OR_TYPE_REF("error-type-or-type-ref"),
+    PARAMETERIZED_TYPE_OR_TYPE_REF("parameterized-type-or-type-ref"),
+    OBJECT_TYPE_OR_TYPE_REF("object-type-or-type-ref"),
+    STREAM_TYPE_OR_TYPE_REF("stream-type-or-type-ref"),
+    TABLE_TYPE_OR_TYPE_REF("table-type-or-type-ref"),
+    TYPEDESC_TYPE_OR_TYPE_REF("typedesc-type-or-type-ref"),
+    XML_TYPE_OR_TYPE_REF("xml-type-or-type-ref"),
+    TYPEDESC_RHS_OR_TYPE_REF("typedesc-rhs-or-type-ref"),
+    OBJECT_TYPE_OBJECT_KEYWORD_RHS("object-type-object-keyword-rhs"),
+    TABLE_CONS_OR_QUERY_EXPR_OR_VAR_REF("table-cons-or-query-expr-or-var-ref"),
+    EXPRESSION_START_TABLE_KEYWORD_RHS("expression-start-table-keyword-rhs"),
+    QUERY_EXPR_OR_VAR_REF("query-expr-or-var-ref"),
+    QUERY_CONSTRUCT_TYPE_RHS("query-construct-type-rhs"),
+    ERROR_CONS_EXPR_OR_VAR_REF("error-cons-expr-or-var-ref"),
+    ERROR_CONS_ERROR_KEYWORD_RHS("error-cons-error-keyword-rhs"),
+    QUALIFIED_IDENTIFIER_START_IDENTIFIER("qualified-identifier-start-identifier"),
+    QUALIFIED_IDENTIFIER_PREDECLARED_PREFIX("qualified-identifier-predeclared-prefix"),
     ;
 
     private String value;

@@ -32,8 +32,8 @@ public class MarkdownDocAttachment {
     public List<Parameter> parameters;
     public String returnValueDescription;
 
-    public MarkdownDocAttachment() {
-        this.parameters = new ArrayList<>();
+    public MarkdownDocAttachment(int paramCount) {
+        this.parameters = new ArrayList<>(paramCount);
     }
 
     /**

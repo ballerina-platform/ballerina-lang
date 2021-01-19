@@ -18,7 +18,6 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.LangLibrary;
-import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -31,7 +30,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents a Ballerina Type Descriptor.
@@ -46,14 +44,12 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     private final TypeDescKind typeDescKind;
     private final ModuleID moduleID;
     private final BType bType;
-    private final Documentation docAttachment;
 
     public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
         this.context = context;
         this.typeDescKind = typeDescKind;
         this.moduleID = moduleID;
         this.bType = bType;
-        this.docAttachment = getDocAttachment(bType);
     }
 
     @Override
@@ -77,11 +73,6 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     @Override
     public SymbolKind kind() {
         return SymbolKind.TYPE;
-    }
-
-    @Override
-    public Optional<Documentation> docAttachment() {
-        return Optional.ofNullable(this.docAttachment);
     }
 
     @Override
@@ -158,10 +149,5 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         }
 
         return ((BallerinaClassSymbol) typeSymbol).getBType();
-    }
-
-    private Documentation getDocAttachment(BType bType) {
-        return (bType == null || bType.tsymbol == null) ? null
-                : new BallerinaDocumentation(bType.tsymbol.markdownDocumentation);
     }
 }

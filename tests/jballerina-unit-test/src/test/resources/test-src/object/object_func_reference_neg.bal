@@ -85,3 +85,21 @@ public class FooImpl1 {
         return 0;
     }
 }
+
+public type Timestamp readonly & object {
+    public function toString() returns string;
+};
+
+readonly class InvalidReadOnlyClassWithMissingImpl {
+    *Timestamp;
+
+    public function toInt() returns int => 0;
+
+    public function toFloat() returns float => 0;
+}
+
+readonly class InvalidReadOnlyClassWithMissingImpls {
+    *InvalidReadOnlyClassWithMissingImpl;
+
+    public function toInt() returns int => 0;
+}

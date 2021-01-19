@@ -75,7 +75,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -378,6 +380,17 @@ public class EnvironmentResolver extends BLangNodeVisitor {
         }
         // Specially check for the position of the cursor to support the completion for complete sources
         // eg: string modifiedStr = sampleStr.replace("hello", "Hello").<cursor>toLower();
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
+            this.acceptNode(positionalArg, this.symbolEnv);
+        }
+
+        for (BLangNamedArgsExpression namedArg : errorConstructorExpr.namedArgs) {
+            this.acceptNode(namedArg, this.symbolEnv);
+        }
     }
 
     @Override

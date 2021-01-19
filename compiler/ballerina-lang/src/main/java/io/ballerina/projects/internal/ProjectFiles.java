@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.internal;
 
+import io.ballerina.projects.BallerinaToml;
+import io.ballerina.projects.BallerinaTomlException;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.PackageManifest;
@@ -37,6 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectUtils.checkReadPermission;
 
 /**
  * Contains a set of utility methods that create an in-memory representation of a Ballerina project directory.
@@ -147,13 +150,18 @@ public class ProjectFiles {
         return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);
     }
 
-    public static PackageManifest createPackageManifest(Path ballerinaTomlFilePath) {
-        return BallerinaTomlProcessor.parseAsPackageManifest(ballerinaTomlFilePath);
+    public static PackageManifest createPackageManifest(BallerinaToml ballerinaToml) {
+        return ballerinaToml.packageManifest();
     }
 
     public static BuildOptions createBuildOptions(Path projectPath, BuildOptions theirOptions) {
         Path ballerinaTomlFilePath = projectPath.resolve(ProjectConstants.BALLERINA_TOML);
-        BuildOptions defaultBuildOptions = BallerinaTomlProcessor.parse(ballerinaTomlFilePath).getBuildOptions();
+        BallerinaToml ballerinaToml = BallerinaToml.from(ballerinaTomlFilePath);
+        if (ballerinaToml.diagnostics().hasErrors()) {
+            throw new BallerinaTomlException(ballerinaToml.getErrorMessage());
+        }
+
+        BuildOptions defaultBuildOptions = ballerinaToml.buildOptions();
         if (defaultBuildOptions == null) {
             defaultBuildOptions = new BuildOptionsBuilder().build();
         }
@@ -178,10 +186,7 @@ public class ProjectFiles {
             throw new ProjectException("Provided path is already within a Ballerina package: " + projectDirPath);
         }
 
-        if (!projectDirPath.toFile().canRead() || !projectDirPath.toFile().canWrite() ||
-                !projectDirPath.toFile().canExecute()) {
-            throw new ProjectException("Insufficient privileges to path: " + projectDirPath);
-        }
+        checkReadPermission(projectDirPath);
     }
 
     public static void validateSingleFileProjectFilePath(Path filePath) {
@@ -209,6 +214,7 @@ public class ProjectFiles {
                 }
             }
         }
+        checkReadPermission(filePath);
     }
 
     public static void validateBalrProjectPath(Path balrPath) {

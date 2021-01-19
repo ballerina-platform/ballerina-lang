@@ -15,12 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package io.ballerina.runtime.api.creators;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FunctionType;
-import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
@@ -87,13 +87,13 @@ public class ValueCreator {
     }
 
     /**
-     * Creates a new tuple with given tuple type.
+     * Creates a new integer array.
      *
-     * @param type the {@code TupleType} object representing the type
-     * @return the new array
+     * @param values initial array values
+     * @return integer array
      */
-    public static BArray createTupleValue(TupleType type) {
-        return new TupleValueImpl(type);
+    public static BArray createArrayValue(long[] values) {
+        return new ArrayValueImpl(values, false);
     }
 
     /**
@@ -102,8 +102,8 @@ public class ValueCreator {
      * @param values initial array values
      * @return integer array
      */
-    public static BArray createArrayValue(long[] values) {
-        return new ArrayValueImpl(values);
+    public static BArray createReadonlyArrayValue(long[] values) {
+        return new ArrayValueImpl(values, true);
     }
 
     /**
@@ -113,7 +113,17 @@ public class ValueCreator {
      * @return boolean array
      */
     public static BArray createArrayValue(boolean[] values) {
-        return new ArrayValueImpl(values);
+        return new ArrayValueImpl(values, false);
+    }
+
+    /**
+     * Creates a new boolean array.
+     *
+     * @param values initial array values
+     * @return boolean array
+     */
+    public static BArray createReadonlyArrayValue(boolean[] values) {
+        return new ArrayValueImpl(values, true);
     }
 
     /**
@@ -123,7 +133,17 @@ public class ValueCreator {
      * @return byte array
      */
     public static BArray createArrayValue(byte[] values) {
-        return new ArrayValueImpl(values);
+        return new ArrayValueImpl(values, false);
+    }
+
+    /**
+     * Creates a new byte array.
+     *
+     * @param values initial array values
+     * @return byte array
+     */
+    public static BArray createReadonlyArrayValue(byte[] values) {
+        return new ArrayValueImpl(values, true);
     }
 
     /**
@@ -133,7 +153,17 @@ public class ValueCreator {
      * @return float array
      */
     public static BArray createArrayValue(double[] values) {
-        return new ArrayValueImpl(values);
+        return new ArrayValueImpl(values, false);
+    }
+
+    /**
+     * Creates a new float array.
+     *
+     * @param values initial array values
+     * @return float array
+     */
+    public static BArray createReadonlyArrayValue(double[] values) {
+        return new ArrayValueImpl(values, true);
     }
 
     /**
@@ -143,7 +173,17 @@ public class ValueCreator {
      * @return string array
      */
     public static BArray createArrayValue(BString[] values) {
-        return new ArrayValueImpl(values);
+        return new ArrayValueImpl(values, false);
+    }
+
+    /**
+     * Creates a new string array.
+     *
+     * @param values initial array values
+     * @return string array
+     */
+    public static BArray createReadonlyArrayValue(BString[] values) {
+        return new ArrayValueImpl(values, true);
     }
 
     /**
@@ -166,6 +206,16 @@ public class ValueCreator {
      */
     public static BArray createArrayValue(ArrayType type, int length) {
         return new ArrayValueImpl(type, length);
+    }
+
+    /**
+     * Creates a new tuple with given tuple type.
+     *
+     * @param type the {@code TupleType} object representing the type
+     * @return the new array
+     */
+    public static BArray createTupleValue(TupleType type) {
+        return new TupleValueImpl(type);
     }
 
     /**
@@ -608,7 +658,7 @@ public class ValueCreator {
      * @param keyValues initial map values to be populated.
      * @return map value
      */
-    public static BMap<BString, Object> createMapValue(MapType mapType, BMapInitialValueEntry[] keyValues) {
+    public static BMap<BString, Object> createMapValue(Type mapType, BMapInitialValueEntry[] keyValues) {
         return new MapValueImpl<>(mapType, keyValues);
     }
 
@@ -659,6 +709,23 @@ public class ValueCreator {
     }
 
     /**
+     * Create a readonly record value that populates record fields using the given package id, record type name and a
+     * map of field names and associated values for fields.
+     *
+     * @param packageId      the package id that the record type resides.
+     * @param recordTypeName name of the record type.
+     * @param valueMap       values to be used for fields when creating the record.
+     * @return value of the populated record.
+     */
+    public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
+                                                                  Map<String, Object> valueMap) {
+        MapValueImpl<BString, Object> bmap = (MapValueImpl<BString, Object>) ValueUtils.createRecordValue(
+                packageId, recordTypeName, valueMap);
+        bmap.freezeDirect();
+        return bmap;
+    }
+
+    /**
      * Populate a runtime record value with given field values.
      *
      * @param record which needs to get populated
@@ -699,5 +766,8 @@ public class ValueCreator {
      */
     public static BTable createTableValue(TableType tableType) {
         return new TableValueImpl(tableType);
+    }
+
+    private ValueCreator() {
     }
 }

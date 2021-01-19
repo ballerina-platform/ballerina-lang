@@ -44,7 +44,7 @@
                           ]
                         },
                         {
-                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_CODE_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -53,7 +53,7 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "kind": "CODE_DESCRIPTION",
                                   "value": " ``# WS # WS Deprecated`` is a valid deprecation documentation line",
                                   "trailingMinutiae": [
                                     {

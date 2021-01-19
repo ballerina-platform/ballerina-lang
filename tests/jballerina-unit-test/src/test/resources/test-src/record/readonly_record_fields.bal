@@ -239,7 +239,7 @@ function testTypeReadOnlyFlagForAllReadOnlyFieldsInAnonymousRecord() {
     readonly rd = modAnonRecord;
     assertTrue(<any|error> rd is record { int x; });
     assertTrue(rd is record { int x; } & readonly);
-    record { int x; } rec = <record { int x; } & readonly> rd;
+    record { int x; } rec = <record { int x; } & readonly> checkpanic rd;
     assertEquality(2, rec.x);
 
     record {|
@@ -249,7 +249,7 @@ function testTypeReadOnlyFlagForAllReadOnlyFieldsInAnonymousRecord() {
     readonly rd2 = localAnonRecord;
     assertTrue(<any|error> rd2 is record {| int x; Bar y; |});
     assertTrue(rd2 is record { int x; Bar y; } & readonly);
-    var rec2 = <record { int x; Bar y; } & readonly> rd2;
+    var rec2 = <record { int x; Bar y; } & readonly> checkpanic rd2;
     assertEquality(1, rec2.x);
     assertEquality("Amy", rec2.y.name);
     assertEquality(1001, rec2.y.id);
@@ -780,6 +780,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

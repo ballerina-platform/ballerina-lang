@@ -28,6 +28,8 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
@@ -37,6 +39,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -67,14 +70,28 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     /**
      * Cache mapping of document path to source root.
      */
-    private static final Map<Path, Path> pathToSourceRootCache;
+    private final Map<Path, Path> pathToSourceRootCache;
+    private static final LanguageServerContext.Key<BallerinaWorkspaceManager> WORKSPACE_MANAGER_KEY =
+            new LanguageServerContext.Key<>();
+    private final LSClientLogger clientLogger;
 
-    static {
+    private BallerinaWorkspaceManager(LanguageServerContext serverContext) {
+        serverContext.put(WORKSPACE_MANAGER_KEY, this);
+        this.clientLogger = LSClientLogger.getInstance(serverContext);
         Cache<Path, Path> cache = CacheBuilder.newBuilder()
                 .expireAfterWrite(10, TimeUnit.MINUTES)
                 .maximumSize(1000)
                 .build();
-        pathToSourceRootCache = cache.asMap();
+        this.pathToSourceRootCache = cache.asMap();
+    }
+
+    public static BallerinaWorkspaceManager getInstance(LanguageServerContext serverContext) {
+        BallerinaWorkspaceManager workspaceManager = serverContext.get(WORKSPACE_MANAGER_KEY);
+        if (workspaceManager == null) {
+            workspaceManager = new BallerinaWorkspaceManager(serverContext);
+        }
+
+        return workspaceManager;
     }
 
     @Override
@@ -158,7 +175,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      */
     @Override
     public Optional<SemanticModel> semanticModel(Path filePath) {
-        return waitAndGetModuleCompilation(filePath).map(ModuleCompilation::getSemanticModel);
+        Optional<Module> module = this.module(filePath);
+        if (module.isEmpty()) {
+            return Optional.empty();
+        }
+        return waitAndGetPackageCompilation(filePath)
+                .map(pkgCompilation -> pkgCompilation.getSemanticModel(module.get().moduleId()));
     }
 
     /**
@@ -168,7 +190,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @return {@link ModuleCompilation}
      */
     @Override
-    public Optional<ModuleCompilation> waitAndGetModuleCompilation(Path filePath) {
+    public Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath) {
         // Get Project and Lock
         Optional<ProjectPair> projectPair = projectPair(filePath);
         if (projectPair.isEmpty()) {
@@ -178,39 +200,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (document.isEmpty()) {
             return Optional.empty();
         }
-        // Get Module
-        Module module = document.get().module();
+        // Get Package
+        Package packageInstance = document.get().module().packageInstance();
         // Lock Project Instance
         projectPair.get().locker().lock();
         try {
-            return Optional.of(module.getCompilation());
-        } finally {
-            // Unlock Project Instance
-            projectPair.get().locker().unlock();
-        }
-    }
-
-    /**
-     * Returns module compilation from the file path provided.
-     *
-     * @param module {@link Module}
-     * @return {@link ModuleCompilation}
-     */
-    @Override
-    public Optional<ModuleCompilation> waitAndGetModuleCompilation(Module module) {
-        // TODO: Remove this once singleProject.sourceRoot is tempDir issue fixed
-        Optional<ProjectPair> projectPair = sourceRootToProject.entrySet().stream()
-                .filter(e -> e.getValue().project().equals(module.project()))
-                .findFirst()
-                .map(Map.Entry::getValue);
-        // Get Project and Lock
-        if (projectPair.isEmpty()) {
-            return Optional.empty();
-        }
-        // Lock Project Instance
-        projectPair.get().locker().lock();
-        try {
-            return Optional.of(module.getCompilation());
+            return Optional.of(packageInstance.getCompilation());
         } finally {
             // Unlock Project Instance
             projectPair.get().locker().unlock();
@@ -303,7 +298,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             Path projectRoot = project.get().sourceRoot();
             sourceRootToProject.remove(projectRoot);
-            LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
+            clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
                     "' {project: '" + projectRoot.toUri().toString() +
                     "' kind: '" + project.get().kind().name().toLowerCase(Locale.getDefault()) +
                     "'} removed}");
@@ -376,7 +371,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         } else {
             project = SingleFileProject.load(projectRoot, options);
         }
-        LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
+        clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
                 "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
                 project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
         return ProjectPair.from(project);

@@ -28,6 +28,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
+import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -50,6 +51,7 @@ import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBu
 import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.WorkerCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.XMLNSCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -62,9 +64,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
 
 /**
  * Interface for completion item providers.
@@ -165,7 +169,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             } else if (symbol.kind() == SymbolKind.WORKER) {
                 CompletionItem workerItem = WorkerCompletionItemBuilder.build((WorkerSymbol) symbol);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, workerItem));
+            } else if (symbol.kind() == XMLNS) {
+                CompletionItem xmlItem = XMLNSCompletionItemBuilder.build((XMLNamespaceSymbol) symbol);
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, xmlItem));
             }
+            
             processedSymbols.add(symbol);
         });
         return completionItems;
@@ -181,7 +189,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(bSymbol -> {
-            if (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS) {
+            if (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS
+                    || bSymbol.kind() == ENUM) {
                 CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
@@ -257,7 +266,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     return new SymbolCompletionItem(ctx, null, item);
                 }).collect(Collectors.toList());
 
-        List<Package> packages = LSPackageLoader.getDistributionRepoPackages();
+        List<Package> packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages();
         // TODO: Refactor to match the latest project structure
 //        packages.addAll(LSPackageLoader.getCurrentProjectModules(currentPkg, ctx));
         packages.forEach(pkg -> {
@@ -357,23 +366,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return new SymbolCompletionItem(context, symbol, completionItem);
     }
 
-    /**
-     * Whether the cursor is located at the qualified name reference context.
-     * This is added in order to support both of the following cases,
-     * Ex:
-     * (1) ... http:<cursor>
-     * (2) ... http:a<cursor>
-     *
-     * @param tokenAtCursor Token at cursor
-     * @param nodeAtCursor  Node at cursor
-     * @return {@link Boolean} status
-     */
-    @Deprecated
-    protected boolean qualifiedNameReferenceContext(Token tokenAtCursor, Node nodeAtCursor) {
-        return nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
-                || tokenAtCursor.text().equals(SyntaxKind.COLON_TOKEN.stringValue());
-    }
-
     protected List<LSCompletionItem> actionKWCompletions(BallerinaCompletionContext context) {
         /*
         Add the start keywords of the following actions.
@@ -414,6 +406,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE64_LITERAL.get()));
 
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol instanceof VariableSymbol || symbol.kind() == FUNCTION)

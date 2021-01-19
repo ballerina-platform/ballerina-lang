@@ -54,6 +54,12 @@ public enum Snippet {
 
     DEF_ERROR_TYPE_DESC(SnippetGenerator.getErrorTypeDescSnippet()),
 
+    DEF_TABLE_TYPE_DESC(SnippetGenerator.getTableTypeDescSnippet()),
+
+    DEF_TABLE_WITH_KEY_TYPE_DESC(SnippetGenerator.getTableWithKeyTypeDescSnippet()),
+
+    DEF_STREAM(SnippetGenerator.getStreamDefSnippet()),
+
 //    DEF_RESOURCE_HTTP(SnippetGenerator.getResourceDefinitionSnippet()),
 //
 //    DEF_RESOURCE_COMMON(SnippetGenerator.getCommonResourceDefinitionSnippet()),
@@ -114,6 +120,8 @@ public enum Snippet {
 
     DEF_REMOTE_FUNCTION(SnippetGenerator.getRemoteFunctionSnippet()),
 
+    DEF_REMOTE_METHOD_DECL(SnippetGenerator.getRemoteMethodDeclSnippet()),
+
     DEF_INIT_FUNCTION(SnippetGenerator.getInitFunctionSnippet()),
 
     DEF_ATTACH_FUNCTION(SnippetGenerator.getAttachFunctionSnippet()),
@@ -133,6 +141,10 @@ public enum Snippet {
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),
 
     EXPR_OBJECT_CONSTRUCTOR(SnippetGenerator.getObjectConstructorSnippet()),
+
+    EXPR_BASE16_LITERAL(SnippetGenerator.getBase16LiteralSnippet()),
+
+    EXPR_BASE64_LITERAL(SnippetGenerator.getBase64LiteralSnippet()),
 
 
     // Keyword Snippets
@@ -251,6 +263,32 @@ public enum Snippet {
     KW_DESCENDING(SnippetGenerator.getDescendingKeywordSnippet()),
 
     KW_TRANSACTIONAL(SnippetGenerator.getTransactionalKeywordSnippet()),
+
+    KW_SOURCE(SnippetGenerator.getKeywordSnippet("source")),
+
+    KW_OBJ_FUNCTION(SnippetGenerator.getKeywordSnippet("object function")),
+
+    KW_SERVICE_REMOTE_FUNCTION(SnippetGenerator.getKeywordSnippet("service remote function")),
+
+    KW_PARAMETER(SnippetGenerator.getKeywordSnippet("parameter")),
+
+    KW_RETURN(SnippetGenerator.getKeywordSnippet("parameter")),
+
+    KW_OBJECT_FIELD(SnippetGenerator.getKeywordSnippet("object field")),
+
+    KW_RECORD_FIELD(SnippetGenerator.getKeywordSnippet("record field")),
+
+    KW_SOURCE_ANNOTATION(SnippetGenerator.getKeywordSnippet("source annotation")),
+
+    KW_SOURCE_EXTERNAL(SnippetGenerator.getKeywordSnippet("source external")),
+
+    KW_SOURCE_VAR(SnippetGenerator.getKeywordSnippet("source var")),
+
+    KW_SOURCE_CONST(SnippetGenerator.getKeywordSnippet("source const")),
+
+    KW_SOURCE_LISTENER(SnippetGenerator.getKeywordSnippet("source listener")),
+
+    KW_SOURCE_WORKER(SnippetGenerator.getKeywordSnippet("source worker")),
 
     // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),

@@ -70,7 +70,7 @@ public class BallerinaFieldSymbol extends BallerinaSymbol implements FieldSymbol
      */
     @Override
     public boolean isOptional() {
-        return (this.bField.type.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
+        return (this.bField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
     }
 
     @Override

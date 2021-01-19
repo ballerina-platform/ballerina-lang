@@ -725,14 +725,28 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             RequiredParameterNode requiredParameterNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(requiredParameterNode.annotations());
-        Token asteriskToken =
-                modifyToken(requiredParameterNode.asteriskToken().orElse(null));
         Node typeName =
                 modifyNode(requiredParameterNode.typeName());
         Token paramName =
                 modifyToken(requiredParameterNode.paramName().orElse(null));
         return requiredParameterNode.modify(
-                requiredParameterNode.kind(),
+                annotations,
+                typeName,
+                paramName);
+    }
+
+    @Override
+    public IncludedRecordParameterNode transform(
+            IncludedRecordParameterNode includedRecordParameterNode) {
+        NodeList<AnnotationNode> annotations =
+                modifyNodeList(includedRecordParameterNode.annotations());
+        Token asteriskToken =
+                modifyToken(includedRecordParameterNode.asteriskToken());
+        Node typeName =
+                modifyNode(includedRecordParameterNode.typeName());
+        Token paramName =
+                modifyToken(includedRecordParameterNode.paramName().orElse(null));
+        return includedRecordParameterNode.modify(
                 annotations,
                 asteriskToken,
                 typeName,
@@ -2925,7 +2939,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public FieldMatchPatternNode transform(
             FieldMatchPatternNode fieldMatchPatternNode) {
-        SimpleNameReferenceNode fieldNameNode =
+        IdentifierToken fieldNameNode =
                 modifyNode(fieldMatchPatternNode.fieldNameNode());
         Token colonToken =
                 modifyToken(fieldMatchPatternNode.colonToken());

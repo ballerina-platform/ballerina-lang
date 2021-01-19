@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
 /**
- * Test class to test positive scenarios of remote debugging ballerina test command.
+ * Test class to test positive scenarios of remote debugging bal test command.
  */
 public class BallerinaTestRemoteDebugTest extends BaseTestCase {
 

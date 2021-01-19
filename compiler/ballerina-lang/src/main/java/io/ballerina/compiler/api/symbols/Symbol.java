@@ -20,8 +20,6 @@ package io.ballerina.compiler.api.symbols;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.tools.diagnostics.Location;
 
-import java.util.Optional;
-
 /**
  * Represents a compiled language symbol.
  *
@@ -31,9 +29,12 @@ public interface Symbol {
 
     /**
      * Get the symbol name.
-     * 
+     *
      * @return {@link String} name of the symbol
+     * @deprecated This method is expected to be removed from this interface. The plan is to make this method available
+     * only to symbols actually associated with a name.
      */
+    @Deprecated
     String name();
 
     /**
@@ -51,19 +52,10 @@ public interface Symbol {
     SymbolKind kind();
 
     /**
-     * Get the Documentation attachment bound to the symbol.
-     *
-     * @return {@link Optional} doc attachment
-     */
-    Optional<Documentation> docAttachment();
-
-    /**
      * This retrieves position information of the symbol in the source code. The position given here is the location of
      * the definition of the symbol.
      *
      * @return The position information of the symbol
      */
     Location location();
-
-    // TODO: Add the annotation attachment API
 }

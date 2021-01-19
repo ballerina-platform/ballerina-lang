@@ -65,17 +65,17 @@ function testIntersectionInUnion() {
 
 type InboundHandler object {
     public function canProcess(int req) returns boolean;
-    readonly boolean enabled;
+    boolean enabled;
 };
 
 type IntermediateInboundHandler object {
     *InboundHandler;
-    readonly int allow;
+    int allow;
 };
 
-class InboundHandlerImpl {
+readonly class InboundHandlerImpl {
     *IntermediateInboundHandler;
-    readonly int count;
+    final int count;
 
     public function init(int allow, boolean enabled = false) {
         self.enabled = enabled;
@@ -174,6 +174,20 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic error(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" +
-                                                        actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON, message = "expected '" + expectedValAsString + "', found '" +
+                                                        actualValAsString + "'");
+}
+
+type Y readonly & record { int i; };
+
+type Z record {
+    Y y;
+};
+
+public function testReadOnlyIntersectionFieldInRecord() {
+    readonly & record { int i; } y = {i: 10};
+    Z z = {y};
+    assertEquality(z.y, y);
 }

@@ -16,12 +16,13 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.projects.Document;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -44,20 +45,20 @@ public class MarkAsUntaintedCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     CodeActionContext context) {
-        if (!(diagnostic.getMessage().contains(CommandConstants.TAINTED_PARAM_PASSED))) {
+        if (!(diagnostic.message().contains(CommandConstants.TAINTED_PARAM_PASSED))) {
             return Collections.emptyList();
         }
 
-        String diagnosticMessage = diagnostic.getMessage();
+        String diagnosticMessage = diagnostic.message();
         String uri = context.fileUri();
         Matcher matcher = CommandConstants.TAINTED_PARAM_PATTERN.matcher(diagnosticMessage);
         if (matcher.find() && matcher.groupCount() > 0) {
             String param = matcher.group(1);
             String commandTitle = String.format(CommandConstants.MARK_UNTAINTED_TITLE, param);
             // Extract specific content range
-            Range range = diagnostic.getRange();
+            Range range = CommonUtil.toRange(diagnostic.location().lineRange());
             Document document = context.workspace().document(context.filePath()).orElseThrow();
-            String content = getContent(document, diagnostic.getRange());
+            String content = getContent(document, CommonUtil.toRange(diagnostic.location().lineRange()));
             // Add `untaint` keyword
             matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);
             String editText = matcher.find() ? "<@untainted>  " + content : "<@untainted> (" + content + ")";

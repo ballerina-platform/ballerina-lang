@@ -82,10 +82,12 @@ public class LambdaGen {
 
     private final SymbolTable symbolTable;
     private final JvmPackageGen jvmPackageGen;
+    private final JvmCastGen jvmCastGen;
 
-    public LambdaGen(JvmPackageGen jvmPackageGen) {
+    public LambdaGen(JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen) {
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
+        this.jvmCastGen = jvmCastGen;
     }
 
     public void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
@@ -116,7 +118,7 @@ public class LambdaGen {
                     .cleanupPathSeparators(balFileName));
         }
         mv.visitMethodInsn(INVOKESTATIC, jvmClass, lambdaDetails.encodedFuncName, methodDesc, false);
-        JvmCastGen.addBoxInsn(mv, lambdaDetails.returnType);
+        jvmCastGen.addBoxInsn(mv, lambdaDetails.returnType);
     }
 
     private void handleAsyncCallLambda(BIRTerminator.AsyncCall ins, LambdaDetails lambdaDetails, MethodVisitor mv,
@@ -157,7 +159,7 @@ public class LambdaGen {
         mv.visitInsn(ICONST_1);
         BIROperand ref = ins.args.get(0);
         mv.visitInsn(AALOAD);
-        JvmCastGen.addUnboxInsn(mv, ref.variableDcl.type);
+        jvmCastGen.addUnboxInsn(mv, ref.variableDcl.type);
         mv.visitVarInsn(ALOAD, closureMapsCount);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
@@ -193,7 +195,7 @@ public class LambdaGen {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitIntInsn(BIPUSH, argIndex);
             mv.visitInsn(AALOAD);
-            JvmCastGen.addUnboxInsn(mv, paramType);
+            jvmCastGen.addUnboxInsn(mv, paramType);
             paramBTypes.add(paramIndex - 1, paramType);
             paramIndex += 1;
             argIndex += 1;
@@ -211,7 +213,7 @@ public class LambdaGen {
         mv.visitVarInsn(ALOAD, arrayIndex);
         mv.visitIntInsn(BIPUSH, paramIndex);
         mv.visitInsn(AALOAD);
-        JvmCastGen.addUnboxInsn(mv, symbolTable.booleanType);
+        jvmCastGen.addUnboxInsn(mv, symbolTable.booleanType);
     }
 
     private List<BType> getFpParamTypes(LambdaDetails lambdaDetails) {
@@ -241,7 +243,7 @@ public class LambdaGen {
             mv.visitVarInsn(ALOAD, lambdaDetails.closureMapsCount);
             mv.visitIntInsn(BIPUSH, argIndex);
             mv.visitInsn(AALOAD);
-            JvmCastGen.addUnboxInsn(mv, dcl.type);
+            jvmCastGen.addUnboxInsn(mv, dcl.type);
             paramBTypes.add(paramIndex - 1, dcl.type);
             paramIndex += 1;
             argIndex += 1;

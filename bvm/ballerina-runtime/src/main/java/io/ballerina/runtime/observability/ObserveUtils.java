@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.tracer.BSpan;
 import org.ballerinalang.config.ConfigRegistry;
@@ -35,6 +34,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
+import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
@@ -159,6 +159,37 @@ public class ObserveUtils {
     }
 
     /**
+     * Add record checkpoint data to active Trace Span.
+     *
+     * @param env The Ballerina Environment
+     * @param pkg The package the instrumented code belongs to
+     * @param position The source code position the instrumented code defined in
+     */
+    public static void recordCheckpoint(Environment env, BString pkg, BString position) {
+        if (!tracingEnabled) {
+            return;
+        }
+
+        ObserverContext observerContext = (ObserverContext) env.getStrandLocal(KEY_OBSERVER_CONTEXT);
+        if (observerContext == null) {
+            return;
+        }
+        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
+        if (span == null) {
+            return;
+        }
+
+        // Adding Position and Module ID to the Jaeger Span
+        Map<String, String> eventAttributes = new HashMap<>(2);
+        eventAttributes.put(TAG_KEY_SRC_MODULE, pkg.getValue());
+        eventAttributes.put(TAG_KEY_SRC_POSITION, position.getValue());
+
+        HashMap<String, Object> event = new HashMap<>(1);
+        event.put(CHECKPOINT_EVENT_NAME, eventAttributes);
+        span.addEvent(event);
+    }
+
+    /**
      * Stop observation of an observer context.
      *
      * @param env Ballerina environment
@@ -195,10 +226,8 @@ public class ObserveUtils {
         if (observerContext == null) {
             return;
         }
-        observers.forEach(observer -> {
-            observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, TAG_TRUE_VALUE);
-            observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, errorValue);
-        });
+        observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, TAG_TRUE_VALUE);
+        observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR_VALUE, errorValue);
     }
 
     /**
@@ -295,25 +324,7 @@ public class ObserveUtils {
     @Deprecated     // Discussion: https://groups.google.com/g/ballerina-dev/c/VMEk3t8boH0
     public static void logMessageToActiveSpan(String logLevel, Supplier<String> logMessage,
                                               boolean isError) {
-        if (!tracingEnabled) {
-            return;
-        }
-        Environment balEnv = new Environment(Scheduler.getStrand());
-        ObserverContext observerContext = (ObserverContext) balEnv.getStrandLocal(KEY_OBSERVER_CONTEXT);
-        if (observerContext == null) {
-            return;
-        }
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
-        if (span == null) {
-            return;
-        }
-        HashMap<String, Object> logs = new HashMap<>(1);
-        logs.put(logLevel, logMessage.get());
-        if (!isError) {
-            span.log(logs);
-        } else {
-            span.logError(logs);
-        }
+        // Do Nothing
     }
 
     /**

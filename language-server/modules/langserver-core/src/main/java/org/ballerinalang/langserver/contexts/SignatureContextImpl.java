@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.contexts;
 
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
@@ -39,8 +40,9 @@ public class SignatureContextImpl extends AbstractDocumentServiceContext impleme
                          String fileUri,
                          WorkspaceManager wsManager,
                          SignatureHelpCapabilities capabilities,
-                         Position cursorPos) {
-        super(operation, fileUri, wsManager);
+                         Position cursorPos,
+                         LanguageServerContext serverContext) {
+        super(operation, fileUri, wsManager, serverContext);
         this.capabilities = capabilities;
         this.cursorPos = cursorPos;
     }
@@ -78,8 +80,8 @@ public class SignatureContextImpl extends AbstractDocumentServiceContext impleme
         private SignatureHelpCapabilities capabilities;
         private Position position;
 
-        public SignatureContextBuilder() {
-            super(LSContextOperation.TXT_SIGNATURE);
+        public SignatureContextBuilder(LanguageServerContext serverContext) {
+            super(LSContextOperation.TXT_SIGNATURE, serverContext);
         }
 
         /**
@@ -107,7 +109,8 @@ public class SignatureContextImpl extends AbstractDocumentServiceContext impleme
                     this.fileUri,
                     this.wsManager,
                     this.capabilities,
-                    this.position);
+                    this.position,
+                    this.serverContext);
         }
 
         @Override

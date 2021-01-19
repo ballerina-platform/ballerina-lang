@@ -17,12 +17,6 @@
 
 apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
-configurations.testCompileClasspath {
-    resolutionStrategy {
-        preferProjectModules()
-    }
-}
-
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:java')

@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.toml.semantic.TomlType;
@@ -40,11 +39,9 @@ import io.ballerina.toml.semantic.ast.TopLevelNode;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIG_FILE_NAME;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.DEFAULT_MODULE;
@@ -59,34 +56,31 @@ import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.S
  */
 public class ConfigTomlParser {
 
-    static final Path CONFIG_FILE_PATH = Paths.get(RuntimeUtils.USER_DIR).resolve(CONFIG_FILE_NAME);
-
     private ConfigTomlParser() {
     }
 
-    private static TomlTableNode getConfigurationData() throws TomlException {
-        if (!Files.exists(CONFIG_FILE_PATH)) {
-            throw new TomlException("Configuration toml file `" + CONFIG_FILE_NAME + "` is not found");
+    private static TomlTableNode getConfigurationData(Path filePath) throws TomlException {
+        Path configFilePath = filePath.resolve(CONFIG_FILE_NAME);
+        if (!Files.exists(configFilePath)) {
+            throw new TomlException("Configuration toml file `" + CONFIG_FILE_NAME + "` is not found in directory '" +
+                    filePath.toString() + "'");
         }
-        ConfigToml configToml = new ConfigToml(CONFIG_FILE_PATH);
+        ConfigToml configToml = new ConfigToml(configFilePath);
         return configToml.tomlAstNode();
     }
 
-    public static void populateConfigMap(Map<Module, VariableKey[]> configurationData) throws TomlException {
+    public static void populateConfigMap(Path filePath, Map<Module, VariableKey[]> configurationData)
+            throws TomlException {
         if (configurationData.isEmpty()) {
             return;
         }
-        TomlTableNode tomlNode = getConfigurationData();
+        TomlTableNode tomlNode = getConfigurationData(filePath);
         if (tomlNode.entries().isEmpty()) {
             //No values provided at toml file
             return;
         }
         for (Map.Entry<Module, VariableKey[]> moduleEntry : configurationData.entrySet()) {
-            String orgName = moduleEntry.getKey().getOrg();
-            String moduleName = moduleEntry.getKey().getName();
-            TomlTableNode orgNode = orgName.equals(ANON_ORG) ? tomlNode : extractOrganizationNode(tomlNode, orgName);
-            TomlTableNode moduleNode = moduleName.equals(DEFAULT_MODULE) ? orgNode : extractModuleNode(orgNode,
-                    moduleName);
+            TomlTableNode moduleNode = retrieveModuleNode(tomlNode, moduleEntry.getKey());
             for (VariableKey key : moduleEntry.getValue()) {
                 if (!moduleNode.entries().containsKey(key.variable)) {
                     //It is an optional configurable variable
@@ -96,6 +90,21 @@ public class ConfigTomlParser {
                 ConfigurableMap.put(key, value);
             }
         }
+    }
+
+    private static TomlTableNode retrieveModuleNode(TomlTableNode tomlNode, Module module) {
+        String orgName = module.getOrg();
+        String moduleName = module.getName();
+        if (tomlNode.entries().containsKey(orgName)) {
+            tomlNode =  (TomlTableNode) tomlNode.entries().get(orgName);
+        }
+        TomlTableNode moduleNode = moduleName.equals(DEFAULT_MODULE) ? tomlNode : extractModuleNode(tomlNode,
+                moduleName);
+        if (moduleNode == null) {
+            throw new TomlException(INVALID_TOML_FILE + "Module '" + moduleName + "' from organization '" + orgName
+                    + "' not found.");
+        }
+        return moduleNode;
     }
 
     private static Object validateNodeAndExtractValue(VariableKey key, Map<String, TopLevelNode> valueMap) {

@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.codeaction;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CodeActionExtension;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 
@@ -39,7 +40,9 @@ public class BallerinaCodeActionExtension implements CodeActionExtension {
     }
 
     @Override
-    public List<? extends CodeAction> execute(CodeActionParams inputParams, CodeActionContext context) {
+    public List<? extends CodeAction> execute(CodeActionParams inputParams,
+                                              CodeActionContext context,
+                                              LanguageServerContext serverContext) {
         return CodeActionRouter.getAvailableCodeActions(context);
     }
 }

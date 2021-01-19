@@ -21,9 +21,9 @@ package org.ballerinalang.test.documentation;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
+import org.ballerinalang.docgen.generator.model.DocPackage;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
-import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
@@ -53,20 +53,15 @@ public class FieldLevelDocsTest {
     // bClass with both module-level & field-level documentation
     private BClass employeeCls;
 
-    private static final String PARAGRAPH_OPEN_TAG = "<p>";
-    private static final String PARAGRAPH_CLOSE_TAG = "</p>";
-    private static final String NEW_LINE = "\n";
-    private static final String PARAGRAPH_CLOSE_WITH_NEW_LINE = PARAGRAPH_CLOSE_TAG + NEW_LINE;
-
     @BeforeClass
     public void setup() throws IOException {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "record_object_fields_project";
         io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
-        Project docerinaProject = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
+        DocPackage docerinaDocPackage = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
                 .packageOrg().toString(), project.currentPackage().packageVersion().toString());
-        Module testModule = docerinaProject.modules.get(0);
+        Module testModule = docerinaDocPackage.modules.get(0);
 
         for (Record record : testModule.records) {
             String recordName = record.name;
@@ -113,9 +108,9 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(streetField, formatHtmlDescription("street of the address"));
-        testDescription(cityField, formatHtmlDescription("city of the address"));
-        testDescription(countryCodeField, formatHtmlDescription("country code of the address"));
+        testDescription(streetField, "street of the address\n");
+        testDescription(cityField, "city of the address\n");
+        testDescription(countryCodeField, "country code of the address\n");
     }
 
     @Test(description = "Test records with field-level field docs")
@@ -138,9 +133,9 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(nameField, formatHtmlDescription("name of the person"));
-        testDescription(ageField, formatHtmlDescription("age of the person"));
-        testDescription(countryCodeField, formatHtmlDescription("country code of the person"));
+        testDescription(nameField, "name of the person\n");
+        testDescription(ageField, "age of the person\n");
+        testDescription(countryCodeField, "country code of the person\n");
     }
 
 
@@ -164,9 +159,9 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(numberField, formatHtmlDescription("apartment no"));
-        testDescription(streetField, formatHtmlDescription("apartment street"));
-        testDescription(countryCodeField, formatHtmlDescription("apartment country-code"));
+        testDescription(numberField, "apartment no\n");
+        testDescription(streetField, "apartment street\n");
+        testDescription(countryCodeField, "apartment country-code\n");
     }
 
     @Test(description = "Test bClass with module-level field docs")
@@ -186,8 +181,8 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(nameField, formatHtmlDescription("student name"));
-        testDescription(ageField, formatHtmlDescription("student age"));
+        testDescription(nameField, "student name\n");
+        testDescription(ageField, "student age\n");
     }
 
     @Test(description = "Test bClass with field-level field docs")
@@ -207,8 +202,8 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(nameField, formatHtmlDescription("Teacher name"));
-        testDescription(ageField, formatHtmlDescription("Teacher age"));
+        testDescription(nameField, "Teacher name\n");
+        testDescription(ageField, "Teacher age\n");
     }
 
     @Test(description = "Test bClass with both module-level & field-level field docs. field-level is the priority")
@@ -228,22 +223,22 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(empNoField, formatHtmlDescription("funny number"));
-        testDescription(ageField, formatHtmlDescription("funny age"));
+        testDescription(empNoField, "funny number\n");
+        testDescription(ageField, "funny age\n");
     }
 
     @Test(description = "Test documentation of bClasses with markdown styles")
     public void testObjectDocsWithMarkdownStyles() {
         Assert.assertEquals(teacherCls.description.trim(),
-                "<p><code>Teacher</code> object in <em>school</em> located in <strong>New York</strong>\n"
-                        + "<code>Senior</code> teacher of the school</p>");
+                "`Teacher` object in *school* located in **New York**\n"
+                        + "`Senior` teacher of the school");
     }
 
     @Test(description = "Test documentation of records with markdown styles")
     public void testRecordDocsWithMarkdownStyles() {
         Assert.assertEquals(apartmentRecord.description.trim(),
-                "<p><code>Apartment</code> record in the <em>town</em>\n"
-                        + "<code>test</code> documentation row</p>");
+                "`Apartment` record in the *town*\n"
+                        + "`test` documentation row");
     }
 
     private void testDescription(DefaultableVariable field, String expectedDesc) {
@@ -251,7 +246,4 @@ public class FieldLevelDocsTest {
         Assert.assertEquals(field.description, expectedDesc);
     }
 
-    private String formatHtmlDescription(String desc) {
-        return PARAGRAPH_OPEN_TAG + desc + PARAGRAPH_CLOSE_WITH_NEW_LINE;
-    }
 }

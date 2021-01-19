@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
@@ -34,28 +35,38 @@ import java.nio.charset.StandardCharsets;
  * @since 1.0.0
  */
 public class LSClientLogger {
-    private static LanguageClient languageClient = null;
-    private static boolean isInitializedOnce = false;
-    private static final LSClientConfigHolder configHolder = LSClientConfigHolder.getInstance();
+    private LanguageClient languageClient;
+    private boolean isInitializedOnce;
+    private LSClientConfigHolder configHolder;
+    private static final LanguageServerContext.Key<LSClientLogger> CLIENT_LOGGER_KEY =
+            new LanguageServerContext.Key<>();
+
+    public static LSClientLogger getInstance(LanguageServerContext serverContext) {
+        LSClientLogger lsClientLogger = serverContext.get(CLIENT_LOGGER_KEY);
+        if (lsClientLogger == null) {
+            lsClientLogger = new LSClientLogger(serverContext);
+        }
+
+        return lsClientLogger;
+    }
+
+    private LSClientLogger(LanguageServerContext serverContext) {
+        serverContext.put(CLIENT_LOGGER_KEY, this);
+    }
 
     /**
      * Initializes the client logger.
      *
      * @param languageClient {@link LanguageClient}
      */
-    public static void initialize(LanguageClient languageClient) {
-        LSClientLogger.languageClient = languageClient;
-        LSClientLogger.isInitializedOnce = true;
+    public void initialize(LanguageClient languageClient, LanguageServerContext serverContext) {
+        this.languageClient = languageClient;
+        this.isInitializedOnce = true;
+        this.configHolder = LSClientConfigHolder.getInstance(serverContext);
     }
 
-    /**
-     * Notify user an error message through LSP protocol.
-     *
-     * @param operation operation name
-     * @param error     {@link Throwable}
-     */
-    public static void notifyUser(String operation, Throwable error) {
-        if (!LSClientLogger.isInitializedOnce) {
+    public void notifyUser(String operation, Throwable error) {
+        if (!this.isInitializedOnce) {
             return;
         }
         if (languageClient != null) {
@@ -72,12 +83,12 @@ public class LSClientLogger {
      * @param identifier text document
      * @param pos        pos
      */
-    public static void logError(String message, Throwable error, TextDocumentIdentifier identifier, Position... pos) {
-        if (!LSClientLogger.isInitializedOnce) {
+    public void logError(String message, Throwable error, TextDocumentIdentifier identifier, Position... pos) {
+        if (!this.isInitializedOnce) {
             return;
         }
         String details = getErrorDetails(identifier, error, pos);
-        if (configHolder.getConfig().isDebugLogEnabled() && LSClientLogger.languageClient != null) {
+        if (this.configHolder.getConfig().isDebugLogEnabled() && this.languageClient != null) {
             final Charset charset = StandardCharsets.UTF_8;
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try {
@@ -86,7 +97,7 @@ public class LSClientLogger {
             } catch (UnsupportedEncodingException e1) {
                 //ignore
             }
-            LSClientLogger.languageClient.logMessage(
+            this.languageClient.logMessage(
                     new MessageParams(MessageType.Error, message + " " + details + "\n" + baos));
         }
     }
@@ -96,13 +107,12 @@ public class LSClientLogger {
      *
      * @param message log message
      */
-    public static void logTrace(String message) {
-        if (!LSClientLogger.isInitializedOnce) {
+    public void logTrace(String message) {
+        if (!this.isInitializedOnce) {
             return;
         }
-        if (configHolder.getConfig().isTraceLogEnabled() && LSClientLogger.languageClient != null) {
-            LSClientLogger.languageClient.logMessage(
-                    new MessageParams(MessageType.Info, message));
+        if (this.configHolder.getConfig().isTraceLogEnabled() && this.languageClient != null) {
+            this.languageClient.logMessage(new MessageParams(MessageType.Info, message));
         }
     }
 

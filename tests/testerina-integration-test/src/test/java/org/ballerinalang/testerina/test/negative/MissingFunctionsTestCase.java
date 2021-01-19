@@ -42,8 +42,7 @@ public class MissingFunctionsTestCase extends BaseTestCase {
 
     @Test
     public void testMissingBeforeFunction() throws BallerinaTestException {
-        String errMsg = "error: Cannot find the specified before function : [beforeFunc-nonExist] for testerina " +
-                "function : [beforeFuncNegative]";
+        String errMsg = "ERROR [before-func-negative.bal:(22:13,22:31)] undefined symbol 'beforeFuncNonExist'";
         LogLeecher clientLeecher = new LogLeecher(errMsg, ERROR);
         balClient.runMain("test", new String[]{"before-func-negative.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
@@ -52,8 +51,7 @@ public class MissingFunctionsTestCase extends BaseTestCase {
 
     @Test
     public void testMissingAfterFunction() throws BallerinaTestException {
-        String errMsg = "error: Cannot find the specified after function : [afterFunc-nonExist] for testerina " +
-                "function : [afterFuncNegative]";
+        String errMsg = "ERROR [after-func-negative.bal:(22:12,22:29)] undefined symbol 'afterFuncNonExist'";
         LogLeecher clientLeecher = new LogLeecher(errMsg, ERROR);
         balClient.runMain("test", new String[]{"after-func-negative.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
@@ -62,7 +60,7 @@ public class MissingFunctionsTestCase extends BaseTestCase {
 
     @Test
     public void testMissingDependsOnFunction() throws BallerinaTestException {
-        String errMsg = "error: Cannot find the specified dependsOn function : non-existing";
+        String errMsg = "ERROR [depends-on-negative.bal:(22:17,22:28)] undefined symbol 'nonExisting'";
         LogLeecher clientLeecher = new LogLeecher(errMsg, ERROR);
         balClient.runMain("test", new String[]{"depends-on-negative.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
