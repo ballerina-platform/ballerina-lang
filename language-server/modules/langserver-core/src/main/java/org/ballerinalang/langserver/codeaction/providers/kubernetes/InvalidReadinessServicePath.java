@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.kubernetes;
 
-import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.toml.Probe;
 import org.ballerinalang.langserver.toml.ProbeStore;
@@ -31,7 +30,6 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.codeaction.extensions.K8sDiagnosticsBasedCodeAction")
 public class InvalidReadinessServicePath extends AbstractInvalidServiceCodeAction {
 
     @Override

@@ -181,15 +181,15 @@ public class AddResourceToK8sCodeAction extends AbstractCodeActionProvider {
             return port;
         }
     }
-}
 
-enum ProbeType {
-    LIVENESS("liveness"),
-    READINESS("readiness");
+    enum ProbeType {
+        LIVENESS("liveness"),
+        READINESS("readiness");
 
-    final String tableName;
+        final String tableName;
 
-    ProbeType(String tableName) {
-        this.tableName = tableName;
+        ProbeType(String tableName) {
+            this.tableName = tableName;
+        }
     }
 }

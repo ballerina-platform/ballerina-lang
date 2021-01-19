@@ -41,8 +41,8 @@ import java.util.List;
  */
 public class C2CVisitor extends NodeVisitor {
 
-    private List<ListenerInfo> listeners = new ArrayList<>();
-    private List<ServiceInfo> services = new ArrayList<>();
+    private final List<ListenerInfo> listeners = new ArrayList<>();
+    private final List<ServiceInfo> services = new ArrayList<>();
 
     @Override
     public void visit(ListenerDeclarationNode listenerDeclarationNode) {

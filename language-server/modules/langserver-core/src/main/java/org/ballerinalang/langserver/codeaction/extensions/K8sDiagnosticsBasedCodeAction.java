@@ -28,8 +28,17 @@ import java.util.List;
  */
 public interface K8sDiagnosticsBasedCodeAction {
 
+    /**
+     * Checks if the provider matches the diagnostic in the users code.
+     *
+     * @return boolean with the validity of the provider
+     */
     boolean validate(Diagnostic diagnostic, CodeActionContext ctx);
 
+    /**
+     * Generates the code action according to the diagnostic.
+     *
+     * @return list of code actions to resolve the diagnostic.
+     */
     List<CodeAction> handle(Diagnostic diagnostic, CodeActionContext ctx);
-
 }

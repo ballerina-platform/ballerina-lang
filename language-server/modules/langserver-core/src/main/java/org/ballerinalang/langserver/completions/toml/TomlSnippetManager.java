@@ -33,7 +33,7 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class TomlSnippetManager {
-    private static final LanguageServerContext.Key<TomlSnippetManager> LS_PACKAGE_LOADER_KEY =
+    private static final LanguageServerContext.Key<TomlSnippetManager> TOML_SNIPPET_MANAGER_KEY =
             new LanguageServerContext.Key<>();
     private final Map<Parent, Map<String, CompletionItem>> completions;
 
@@ -42,7 +42,7 @@ public class TomlSnippetManager {
         TomlSchemaVisitor visitor = new TomlSchemaVisitor();
         c2cRootSchema.accept(visitor);
         this.completions = optimizeCompletionsWithOnlyTables(visitor.getAllCompletionSnippets());
-        context.put(LS_PACKAGE_LOADER_KEY, this);
+        context.put(TOML_SNIPPET_MANAGER_KEY, this);
     }
 
     public Map<Parent, Map<String, CompletionItem>> getCompletions() {
@@ -50,7 +50,7 @@ public class TomlSnippetManager {
     }
 
     public static TomlSnippetManager getInstance(LanguageServerContext context) {
-        TomlSnippetManager snippetManager = context.get(LS_PACKAGE_LOADER_KEY);
+        TomlSnippetManager snippetManager = context.get(TOML_SNIPPET_MANAGER_KEY);
         if (snippetManager == null) {
             snippetManager = new TomlSnippetManager(context);
         }

@@ -23,16 +23,13 @@ import org.eclipse.lsp4j.Diagnostic;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ServiceLoader;
 
 /**
  * Code Action Router for Kubernetes.toml.
  *
  * @since 2.0.0
  */
-public class TomlCodeActionRouter {
-
-    private static final List<K8sDiagnosticsBasedCodeAction> actionProviders = loadProviders();
+public class K8sCodeActionRouter {
 
     /**
      * Returns a list of supported code actions.
@@ -43,7 +40,7 @@ public class TomlCodeActionRouter {
     public static List<CodeAction> getAvailableCodeActions(CodeActionContext ctx) {
         List<CodeAction> codeActions = new ArrayList<>();
         List<Diagnostic> cursorDiagnostics = ctx.cursorDiagnostics();
-        if (cursorDiagnostics != null && !cursorDiagnostics.isEmpty()) {
+        if (!cursorDiagnostics.isEmpty()) {
             for (Diagnostic diagnostic : cursorDiagnostics) {
                 codeActions.addAll(handleDiagnostics(diagnostic, ctx));
             }
@@ -52,17 +49,11 @@ public class TomlCodeActionRouter {
     }
 
     private static List<CodeAction> handleDiagnostics(Diagnostic diagnostic, CodeActionContext ctx) {
-        for (K8sDiagnosticsBasedCodeAction action : actionProviders) {
+        for (K8sDiagnosticsBasedCodeAction action : K8sCodeActionHolder.getAllCodeActions()) {
             if (action.validate(diagnostic, ctx)) {
                 return action.handle(diagnostic, ctx);
             }
         }
         return Collections.emptyList();
-    }
-
-    private static List<K8sDiagnosticsBasedCodeAction> loadProviders() {
-        List<K8sDiagnosticsBasedCodeAction> list = new ArrayList<>();
-        ServiceLoader.load(K8sDiagnosticsBasedCodeAction.class).forEach(list::add);
-        return list;
     }
 }

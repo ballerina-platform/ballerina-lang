@@ -25,6 +25,9 @@ import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -33,18 +36,22 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.LanguageExtension")
-public class TomlCodeActionExtension implements CodeActionExtension {
+public class K8sCodeActionExtension implements CodeActionExtension {
 
     @Override
     public boolean validate(CodeActionParams inputParams) {
         String uri = inputParams.getTextDocument().getUri();
-        String fileName = uri.substring(uri.lastIndexOf('/') + 1);
+        Path fileNamePath = Paths.get(URI.create(uri)).getFileName();
+        if (fileNamePath == null) {
+            return false;
+        }
+        String fileName = fileNamePath.toString();
         return fileName.equals(TomlSyntaxTreeUtil.KUBERNETES_TOML);
     }
 
     @Override
     public List<? extends CodeAction> execute(CodeActionParams inputParams, CodeActionContext context,
                                               LanguageServerContext serverContext) {
-        return TomlCodeActionRouter.getAvailableCodeActions(context);
+        return K8sCodeActionRouter.getAvailableCodeActions(context);
     }
 }

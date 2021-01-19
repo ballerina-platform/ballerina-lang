@@ -56,8 +56,7 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
     public static final String KEY_REF = "key_ref";
 
     public AddConfigsToK8sCodeAction() {
-        super(Collections.singletonList(
-                CodeActionNodeType.MODULE_VARIABLE));
+        super(Collections.singletonList(CodeActionNodeType.MODULE_VARIABLE));
     }
 
     /**
@@ -91,7 +90,7 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
             return codeActionList;
         }
 
-        String importText = generateEnvArrayTest(variableName);
+        String importText = generateEnvArrayText(variableName);
         int endLine = documentNode.members().get(documentNode.members().size() - 1).lineRange().endLine().line();
         Position position = new Position(endLine + 1, 0);
         List<TextEdit> edits = Collections.singletonList(new TextEdit(new Range(position, position), importText));
@@ -102,7 +101,7 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
     }
 
     private boolean isConfigurableVariable(NonTerminalNode matchedNode) {
-        if (!(matchedNode.kind() == SyntaxKind.MODULE_VAR_DECL)) {
+        if (matchedNode.kind() != SyntaxKind.MODULE_VAR_DECL) {
             return false;
         }
         ModuleVariableDeclarationNode variableDeclarationNode = (ModuleVariableDeclarationNode) matchedNode;
@@ -121,10 +120,7 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
             }
             TableArrayNode tableNode = (TableArrayNode) member;
             String tableArrayName = TomlSyntaxTreeUtil.toDottedString(tableNode.identifier());
-            if (!tableArrayName.equals(CLOUD_CONFIG_ENVS)) {
-                continue;
-            }
-            if (isEnvExistInTableArray(variableName, tableNode)) {
+            if (tableArrayName.equals(CLOUD_CONFIG_ENVS) && isEnvExistInTableArray(variableName, tableNode)) {
                 return true;
             }
         }
@@ -143,17 +139,14 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
             }
             StringLiteralNode stringNode = (StringLiteralNode) value;
             Optional<io.ballerina.toml.syntax.tree.Token> content = stringNode.content();
-            if (content.isEmpty()) {
-                continue;
-            }
-            if (content.get().text().equals(variableName)) {
+            if (content.isPresent() && content.get().text().equals(variableName)) {
                 return true;
             }
         }
         return false;
     }
 
-    private String generateEnvArrayTest(String configVariable) {
+    private String generateEnvArrayText(String configVariable) {
         return CommonUtil.LINE_SEPARATOR + "[[" + CLOUD_CONFIG_ENVS + "]]" + CommonUtil.LINE_SEPARATOR +
                 KEY_REF + "=\"" + configVariable + "\"" + CommonUtil.LINE_SEPARATOR +
                 "config_name=\"" + configVariable + "\"" + CommonUtil.LINE_SEPARATOR;

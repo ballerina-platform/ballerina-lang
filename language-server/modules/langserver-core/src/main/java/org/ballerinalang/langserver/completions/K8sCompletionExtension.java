@@ -27,6 +27,9 @@ import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionParams;
 
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -40,7 +43,11 @@ public class K8sCompletionExtension implements CompletionExtension {
     @Override
     public boolean validate(CompletionParams inputParams) {
         String uri = inputParams.getTextDocument().getUri();
-        String fileName = uri.substring(uri.lastIndexOf('/') + 1);
+        Path fileNamePath = Paths.get(URI.create(uri)).getFileName();
+        if (fileNamePath == null) {
+            return false;
+        }
+        String fileName = fileNamePath.toString();
         return fileName.equals(TomlSyntaxTreeUtil.KUBERNETES_TOML);
     }
 
@@ -48,7 +55,6 @@ public class K8sCompletionExtension implements CompletionExtension {
     public List<CompletionItem> execute(CompletionParams inputParams, CompletionContext context,
                                         LanguageServerContext serverContext) throws Throwable {
         K8sCompletionContextImpl k8sContext = new K8sCompletionContextImpl(context, serverContext);
-        K8sCompletionRouter k8sCompletionRouter = new K8sCompletionRouter(serverContext);
-        return k8sCompletionRouter.getCompletionItems(k8sContext);
+        return K8sCompletionRouter.getCompletionItems(k8sContext, serverContext);
     }
 }
