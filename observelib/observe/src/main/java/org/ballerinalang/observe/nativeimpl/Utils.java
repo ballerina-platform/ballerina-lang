@@ -19,6 +19,7 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -40,17 +41,21 @@ import java.util.Map.Entry;
  */
 public class Utils {
 
-    private static final Type STATISTIC_CONFIG_TYPE =
-            ValueCreator.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
-                                           ObserveNativeImplConstants.STATISTIC_CONFIG).getType();
+    static Type metricType;
+    static Type statisticsConfigType;
+    static Type percentileValueType;
+    static Type snapshotType;
 
-    private static final Type PERCENTILE_VALUE_TYPE =
-            ValueCreator.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
-                                           ObserveNativeImplConstants.PERCENTILE_VALUE).getType();
-
-    private static final Type SNAPSHOT_TYPE =
-            ValueCreator.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
-                                           ObserveNativeImplConstants.SNAPSHOT).getType();
+    public static void initializeModule(Environment env) {
+        metricType = ValueCreator.createRecordValue(env.getCurrentModule(),
+                ObserveNativeImplConstants.METRIC).getType();
+        statisticsConfigType = ValueCreator.createRecordValue(env.getCurrentModule(),
+                ObserveNativeImplConstants.STATISTIC_CONFIG).getType();
+        percentileValueType = ValueCreator.createRecordValue(env.getCurrentModule(),
+                ObserveNativeImplConstants.PERCENTILE_VALUE).getType();
+        snapshotType = ValueCreator.createRecordValue(env.getCurrentModule(),
+                ObserveNativeImplConstants.SNAPSHOT).getType();
+    }
 
     public static Map<String, String> toStringMap(BMap<BString, ?> map) {
         Map<String, String> returnMap = new HashMap<>();
@@ -63,18 +68,18 @@ public class Utils {
         return returnMap;
     }
 
-    public static BArray createBSnapshots(Snapshot[] snapshots) {
+    public static BArray createBSnapshots(Environment env, Snapshot[] snapshots) {
         if (snapshots != null && snapshots.length > 0) {
 
-            BArray bSnapshots = ValueCreator.createArrayValue(TypeCreator.createArrayType(SNAPSHOT_TYPE));
+            BArray bSnapshots = ValueCreator.createArrayValue(TypeCreator.createArrayType(snapshotType));
             int index = 0;
             for (Snapshot snapshot : snapshots) {
-                BArray bPercentiles = ValueCreator.createArrayValue(TypeCreator.createArrayType(PERCENTILE_VALUE_TYPE));
+                BArray bPercentiles = ValueCreator.createArrayValue(TypeCreator.createArrayType(percentileValueType));
                 int percentileIndex = 0;
                 for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
                     BMap<BString, Object> bPercentileValue =
-                            ValueCreator.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
-                                                           ObserveNativeImplConstants.PERCENTILE_VALUE);
+                            ValueCreator.createRecordValue(env.getCurrentModule(),
+                                    ObserveNativeImplConstants.PERCENTILE_VALUE);
                     bPercentileValue.put(StringUtils.fromString("percentile"), percentileValue.getPercentile());
                     bPercentileValue.put(StringUtils.fromString("value"), percentileValue.getValue());
                     bPercentiles.add(percentileIndex, bPercentileValue);
@@ -82,7 +87,7 @@ public class Utils {
                 }
 
                 BMap<BString, Object> aSnapshot = ValueCreator.createRecordValue(
-                        ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.SNAPSHOT);
+                        env.getCurrentModule(), ObserveNativeImplConstants.SNAPSHOT);
                 aSnapshot.put(StringUtils.fromString("timeWindow"), snapshot.getTimeWindow().toMillis());
                 aSnapshot.put(StringUtils.fromString("mean"), snapshot.getMean());
                 aSnapshot.put(StringUtils.fromString("max"), snapshot.getMax());
@@ -98,9 +103,9 @@ public class Utils {
         }
     }
 
-    public static BArray createBStatisticConfig(StatisticConfig[] configs) {
+    public static BArray createBStatisticConfig(Environment env, StatisticConfig[] configs) {
         if (configs != null) {
-            BArray bStatsConfig = ValueCreator.createArrayValue(TypeCreator.createArrayType(STATISTIC_CONFIG_TYPE));
+            BArray bStatsConfig = ValueCreator.createArrayValue(TypeCreator.createArrayType(statisticsConfigType));
             int index = 0;
             for (StatisticConfig config : configs) {
                 BArray bPercentiles = ValueCreator.createArrayValue(TypeCreator.createArrayType(
@@ -110,8 +115,8 @@ public class Utils {
                     bPercentiles.add(percentileIndex, percentile);
                     percentileIndex++;
                 }
-                BMap<BString, Object> aSnapshot = ValueCreator.createRecordValue(
-                        ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.STATISTIC_CONFIG);
+                BMap<BString, Object> aSnapshot = ValueCreator.createRecordValue(env.getCurrentModule(),
+                        ObserveNativeImplConstants.STATISTIC_CONFIG);
                 aSnapshot.put(StringUtils.fromString("percentiles"), bPercentiles);
                 aSnapshot.put(StringUtils.fromString("timeWindow"), config.getTimeWindow());
                 aSnapshot.put(StringUtils.fromString("buckets"), config.getBuckets());
@@ -120,7 +125,7 @@ public class Utils {
             }
             return bStatsConfig;
         } else {
-            return ValueCreator.createArrayValue(TypeCreator.createArrayType(STATISTIC_CONFIG_TYPE));
+            return ValueCreator.createArrayValue(TypeCreator.createArrayType(statisticsConfigType));
         }
     }
 }

@@ -1163,15 +1163,28 @@ public class JvmTypeGen {
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
-
             mv.visitLdcInsn(paramSymbol.name.value);
+            mv.visitInsn(AASTORE);
+        }
 
+        mv.visitLdcInsn((long) params.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, BOOLEAN_VALUE);
+        for (int i = 0; i < params.size(); i++) {
+            BVarSymbol paramSymbol = params.get(i);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+            mv.visitLdcInsn(paramSymbol.defaultableParam);
+            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
+                    String.format("(Z)L%s;", BOOLEAN_VALUE), false);
             mv.visitInsn(AASTORE);
         }
 
         mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_METHOD_TYPE_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;JL%s;[L%s;[L%s;)V",
-                        STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL, STRING_VALUE, STRING_VALUE, STRING_VALUE),
+                String.format("(L%s;L%s;L%s;JL%s;[L%s;[L%s;[L%s;)V",
+                        STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL, STRING_VALUE, STRING_VALUE, STRING_VALUE,
+                        BOOLEAN_VALUE),
                 false);
     }
 

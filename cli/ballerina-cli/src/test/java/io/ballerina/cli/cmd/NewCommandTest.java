@@ -30,7 +30,7 @@ import java.nio.file.Path;
 
 
 /**
- * Test cases for ballerina new command.
+ * Test cases for bal new command.
  *
  * @since 2.0.0
  */

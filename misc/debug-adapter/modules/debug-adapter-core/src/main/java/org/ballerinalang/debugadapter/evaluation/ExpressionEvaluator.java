@@ -20,6 +20,7 @@ import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.validator.SerialExpressionValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,14 +32,14 @@ import org.slf4j.LoggerFactory;
 public class ExpressionEvaluator {
 
     private final SuspendedContext context;
+    private final SerialExpressionValidator expressionValidator;
     private final EvaluatorBuilder evaluatorBuilder;
-    private final DebugExpressionCompiler expressionCompiler;
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionEvaluator.class);
 
     public ExpressionEvaluator(SuspendedContext context) {
         this.context = context;
+        this.expressionValidator = new SerialExpressionValidator();
         this.evaluatorBuilder = new EvaluatorBuilder(context);
-        this.expressionCompiler = context.getDebugCompiler();
     }
 
     /**
@@ -46,8 +47,8 @@ public class ExpressionEvaluator {
      */
     public Value evaluate(String expression) {
         try {
-            ExpressionNode compiledExprNode = expressionCompiler.validateAndCompile(expression);
-            Evaluator evaluator = evaluatorBuilder.build(compiledExprNode);
+            ExpressionNode parsedExpression = expressionValidator.validateAndGetResult(expression);
+            Evaluator evaluator = evaluatorBuilder.build(parsedExpression);
             return evaluator.evaluate().getJdiValue();
         } catch (EvaluationException e) {
             return context.getAttachedVm().mirrorOf(e.getMessage());

@@ -21,15 +21,12 @@ package io.ballerina.runtime.observability.tracer;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.opentracing.Span;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static io.ballerina.runtime.observability.tracer.TraceConstants.DEFAULT_OPERATION_NAME;
 import static io.ballerina.runtime.observability.tracer.TraceConstants.DEFAULT_SERVICE_NAME;
 import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.TAG_KEY_STR_ERROR;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.TAG_STR_TRUE;
 
 /**
  * {@code BSpan} holds the trace of the current context.
@@ -83,14 +80,8 @@ public class BSpan {
         manager.finishSpan(this);
     }
 
-    public void log(Map<String, Object> fields) {
-        manager.log(this, fields);
-    }
-
-    public void logError(Map<String, Object> fields) {
-        addTags(Collections.singletonMap(TAG_KEY_STR_ERROR, TAG_STR_TRUE));
-        manager.log(this, fields);
-
+    public void addEvent(Map<String, Object> fields) {
+        manager.addEvent(this, fields);
     }
 
     public void addTags(Map<String, String> tags) {

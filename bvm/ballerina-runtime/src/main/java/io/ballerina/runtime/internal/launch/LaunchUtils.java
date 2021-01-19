@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.launch.LaunchListener;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.ConfigTomlParser;
+import io.ballerina.runtime.internal.configurable.ConfigurableConstants;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
@@ -167,5 +168,10 @@ public class LaunchUtils {
         } catch (TomlException exception) {
             throw ErrorCreator.createError(StringUtils.fromString(exception.getMessage()));
         }
+    }
+
+    public static Path getConfigPath() {
+        Map<String, String> envVariables = System.getenv();
+        return Paths.get(envVariables.getOrDefault(ConfigurableConstants.CONFIG_ENV_VARIABLE, RuntimeUtils.USER_DIR));
     }
 }

@@ -138,6 +138,31 @@ function testObjectConstructorWithReadOnlyReference() {
     assertEquality(603, obVal.getSum());
 }
 
+public type Timestamp readonly & object {
+    int value;
+
+    public function toMillisecondsInt() returns int;
+    public function toString() returns string;
+};
+
+readonly class TimestampImpl  {
+    *Timestamp;
+
+    function init(decimal value) {
+        self.value = <int> value;
+    }
+
+    public function toMillisecondsInt() returns int => self.value;
+
+    public function toString() returns string => "test";
+}
+
+function testReadOnlyAndObjectIntersectionInclusion() {
+    Timestamp tp = new TimestampImpl(12345.2);
+    assertTrue(<any> tp is TimestampImpl);
+    assertEquality(12345, tp.value);
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

@@ -76,6 +76,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -395,8 +397,24 @@ public class Types {
         return symTable.noType;
     }
 
-    BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BLangExpression constPatternExpr) {
+    public BType resolvePatternTypeFromMatchExpr(BLangErrorMatchPattern errorMatchPattern, BLangExpression matchExpr) {
         if (matchExpr == null) {
+            return errorMatchPattern.type;
+        }
+
+        BType matchExprType = matchExpr.type;
+        BType patternType = errorMatchPattern.type;
+        if (isAssignable(matchExprType, patternType)) {
+            return matchExprType;
+        }
+        if (isAssignable(patternType, matchExprType)) {
+            return patternType;
+        }
+        return symTable.noType;
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BLangConstPattern constPattern, BLangExpression constPatternExpr) {
+        if (constPattern.matchExpr == null) {
             if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
             } else {
@@ -404,7 +422,7 @@ public class Types {
             }
         }
 
-        BType matchExprType = matchExpr.type;
+        BType matchExprType = constPattern.matchExpr.type;
         BType constMatchPatternExprType = constPatternExpr.type;
 
         if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -418,25 +436,20 @@ public class Types {
             }
             return symTable.noType;
         }
-
         // After the above check, according to spec all other const-patterns should be literals.
         BLangLiteral constPatternLiteral = (BLangLiteral) constPatternExpr;
-
         if (containsAnyType(constMatchPatternExprType)) {
             return matchExprType;
         } else if (containsAnyType(matchExprType)) {
             return constMatchPatternExprType;
         }
-
         // This should handle specially
         if (matchExprType.tag == TypeTags.BYTE && constMatchPatternExprType.tag == TypeTags.INT) {
             return matchExprType;
         }
-
         if (isAssignable(constMatchPatternExprType, matchExprType)) {
             return constMatchPatternExprType;
         }
-
         if (matchExprType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) matchExprType).getMemberTypes()) {
                 if (memberType.tag == TypeTags.FINITE) {
@@ -2291,7 +2304,35 @@ public class Types {
         return getElementType(((BArrayType) type).getElementType());
     }
 
+    public boolean checkListenerCompatibilityAtServiceDecl(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            // There should be at least one listener compatible type and all the member types, except error type
+            // should be listener compatible.
+            int listenerCompatibleTypeCount = 0;
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (memberType.tag != TypeTags.ERROR) {
+                    if (!checkListenerCompatibility(memberType)) {
+                        return false;
+                    }
+                    listenerCompatibleTypeCount++;
+                }
+            }
+            return listenerCompatibleTypeCount > 0;
+        }
+        return checkListenerCompatibility(type);
+    }
+
     public boolean checkListenerCompatibility(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            for (BType memberType : unionType.getMemberTypes()) {
+                if (!checkListenerCompatibility(memberType)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         if (type.tag != TypeTags.OBJECT) {
             return false;
         }

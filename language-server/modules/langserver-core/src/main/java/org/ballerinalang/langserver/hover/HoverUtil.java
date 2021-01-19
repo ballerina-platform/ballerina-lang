@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -56,15 +57,15 @@ public class HoverUtil {
      * @return {@link Hover} Hover content
      */
     public static Hover getHover(HoverContext context) {
+        Optional<Document> srcFile = context.workspace().document(context.filePath());
         Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
-        if (semanticModel.isEmpty()) {
+        if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }
 
         Position cursorPosition = context.getCursorPosition();
         LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
-        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
-        Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(relPath, linePosition);
+        Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(), linePosition);
         if (symbolAtCursor.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }
@@ -86,7 +87,7 @@ public class HoverUtil {
             case TYPE:
                 if (((TypeSymbol) symbolAtCursor.get()).typeKind() == TypeDescKind.TYPE_REFERENCE) {
                     return getTypeRefHoverMarkupContent((TypeReferenceTypeSymbol) symbolAtCursor.get(),
-                                                        semanticModel.get(), relPath);
+                                                        semanticModel.get(), srcFile.get());
                 }
                 return getDefaultHoverObject();
             default:
@@ -203,8 +204,8 @@ public class HoverUtil {
     }
 
     private static Hover getTypeRefHoverMarkupContent(TypeReferenceTypeSymbol typeSymbol, SemanticModel model,
-                                                      String fileName) {
-        Optional<Symbol> associatedDef = model.symbol(fileName, typeSymbol.location().lineRange().startLine());
+                                                      Document srcFile) {
+        Optional<Symbol> associatedDef = model.symbol(srcFile, typeSymbol.location().lineRange().startLine());
 
         if (associatedDef.isEmpty()) {
             return getDefaultHoverObject();

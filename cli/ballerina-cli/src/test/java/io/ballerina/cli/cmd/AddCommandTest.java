@@ -28,7 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Test cases for ballerina add command.
+ * Test cases for bal add command.
  *
  * @since 2.0.0
  */

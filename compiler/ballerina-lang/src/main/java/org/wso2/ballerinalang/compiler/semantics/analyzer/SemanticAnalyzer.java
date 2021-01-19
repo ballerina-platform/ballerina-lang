@@ -114,11 +114,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMessageMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangNamedArgMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -720,6 +726,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         int ownerSymTag = env.scope.owner.tag;
+        boolean isListenerDecl = varNode.flagSet.contains(Flag.LISTENER);
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET) {
             // This is a variable declared in a function, let expression, an action or a resource
             // If the variable is parameter then the variable symbol is already defined
@@ -734,7 +741,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeVarNode(varNode, env, AttachPoint.Point.RECORD_FIELD, AttachPoint.Point.FIELD);
         } else {
             varNode.annAttachments.forEach(annotationAttachment -> {
-                if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
+                if (isListenerDecl) {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.LISTENER);
                 } else if (Symbols.isFlagOn(varNode.symbol.flags, Flags.SERVICE)) {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
@@ -793,13 +800,32 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // e.g. int a = x + a;
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
 
-        typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
-        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER) &&
-                !types.checkListenerCompatibility(varNode.symbol.type)) {
-            dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LISTENER_VARIABLE, varNode.name);
+        if (isListenerDecl) {
+            BType rhsType = typeChecker.checkExpr(rhsExpr, varInitEnv,
+                    BUnionType.create(null, lhsType, symTable.errorType));
+            validateListenerCompatibility(varNode, rhsType);
+        } else {
+            typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
         }
 
         transferForkFlag(varNode);
+    }
+
+    private void validateListenerCompatibility(BLangSimpleVariable varNode, BType rhsType) {
+        if (rhsType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) rhsType).getMemberTypes()) {
+                if (memberType.tag == TypeTags.ERROR) {
+                    continue;
+                }
+                if (!types.checkListenerCompatibility(varNode.symbol.type)) {
+                    dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LISTENER_VARIABLE, varNode.name);
+                }
+            }
+        } else {
+            if (!types.checkListenerCompatibility(varNode.symbol.type)) {
+                dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LISTENER_VARIABLE, varNode.name);
+            }
+        }
     }
 
     private boolean shouldInferErrorType(BLangSimpleVariable varNode) {
@@ -2770,10 +2796,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangCaptureBindingPattern captureBindingPattern = (BLangCaptureBindingPattern) bindingPattern;
                 captureBindingPattern.type = patternType;
                 analyzeNode(captureBindingPattern, env);
-                varBindingPattern.declaredVars.put(captureBindingPattern.getIdentifier().getValue(),
-                        captureBindingPattern.symbol);
                 break;
         }
+        varBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
         varBindingPattern.type = bindingPattern.type;
     }
 
@@ -2788,6 +2813,88 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorMatchPattern errorMatchPattern) {
+        if (errorMatchPattern.errorTypeReference != null) {
+            errorMatchPattern.type = symResolver.resolveTypeNode(errorMatchPattern.errorTypeReference, env);
+        } else {
+            errorMatchPattern.type = symTable.errorType;
+        }
+        errorMatchPattern.type = types.resolvePatternTypeFromMatchExpr(errorMatchPattern,
+                    errorMatchPattern.matchExpr);
+
+        if (errorMatchPattern.errorMessageMatchPattern != null) {
+            analyzeNode(errorMatchPattern.errorMessageMatchPattern, env);
+            errorMatchPattern.declaredVars.putAll(errorMatchPattern.errorMessageMatchPattern.declaredVars);
+        }
+
+        if (errorMatchPattern.errorCauseMatchPattern != null) {
+            analyzeNode(errorMatchPattern.errorCauseMatchPattern, env);
+            errorMatchPattern.declaredVars.putAll(errorMatchPattern.errorCauseMatchPattern.declaredVars);
+        }
+
+        if (errorMatchPattern.errorFieldMatchPatterns != null) {
+            analyzeNode(errorMatchPattern.errorFieldMatchPatterns, env);
+            errorMatchPattern.declaredVars.putAll(errorMatchPattern.errorFieldMatchPatterns.declaredVars);
+        }
+    }
+
+    @Override
+    public void visit(BLangSimpleMatchPattern simpleMatchPattern) {
+        if (simpleMatchPattern.wildCardMatchPattern != null) {
+            analyzeNode(simpleMatchPattern.wildCardMatchPattern, env);
+            simpleMatchPattern.wildCardMatchPattern.isLastPattern = true;
+            return;
+        }
+        if (simpleMatchPattern.constPattern != null) {
+            analyzeNode(simpleMatchPattern.constPattern, env);
+            return;
+        }
+        if (simpleMatchPattern.varVariableName != null) {
+            analyzeNode(simpleMatchPattern.varVariableName, env);
+            simpleMatchPattern.declaredVars.putAll(simpleMatchPattern.varVariableName.declaredVars);
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorMessageMatchPattern errorMessageMatchPattern) {
+        BLangSimpleMatchPattern simpleMatchPattern = errorMessageMatchPattern.simpleMatchPattern;
+        analyzeNode(simpleMatchPattern, env);
+        errorMessageMatchPattern.declaredVars.putAll(simpleMatchPattern.declaredVars);
+    }
+
+    @Override
+    public void visit(BLangErrorCauseMatchPattern errorCauseMatchPattern) {
+        if (errorCauseMatchPattern.simpleMatchPattern != null) {
+            analyzeNode(errorCauseMatchPattern.simpleMatchPattern, env);
+            errorCauseMatchPattern.declaredVars.putAll(errorCauseMatchPattern.simpleMatchPattern.declaredVars);
+            return;
+        }
+        if (errorCauseMatchPattern.errorMatchPattern != null) {
+            analyzeNode(errorCauseMatchPattern.errorMatchPattern, env);
+            errorCauseMatchPattern.declaredVars.putAll(errorCauseMatchPattern.errorMatchPattern.declaredVars);
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorFieldMatchPatterns errorFieldMatchPatterns) {
+        for (BLangNamedArgMatchPattern namedArgMatchPattern : errorFieldMatchPatterns.namedArgMatchPatterns) {
+            analyzeNode(namedArgMatchPattern, env);
+            errorFieldMatchPatterns.declaredVars.putAll(namedArgMatchPattern.declaredVars);
+        }
+        if (errorFieldMatchPatterns.restMatchPattern != null) {
+            errorFieldMatchPatterns.restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
+            analyzeNode(errorFieldMatchPatterns.restMatchPattern, env);
+            errorFieldMatchPatterns.declaredVars.putAll(errorFieldMatchPatterns.restMatchPattern.declaredVars);
+        }
+    }
+
+    @Override
+    public void visit(BLangNamedArgMatchPattern namedArgMatchPattern) {
+        analyzeNode(namedArgMatchPattern.matchPattern, env);
+        namedArgMatchPattern.declaredVars.putAll(namedArgMatchPattern.matchPattern.declaredVars);
+    }
+
+    @Override
     public void visit(BLangConstPattern constMatchPattern) {
         BLangExpression constPatternExpr = constMatchPattern.expr;
         typeChecker.checkExpr(constPatternExpr, env);
@@ -2798,8 +2905,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         constRef.variableName);
             }
         }
-        constMatchPattern.type = types.resolvePatternTypeFromMatchExpr(constMatchPattern.matchExpr,
-                constMatchPattern.expr);
+        constMatchPattern.type = types.resolvePatternTypeFromMatchExpr(constMatchPattern, constMatchPattern.expr);
     }
 
     @Override
@@ -3073,10 +3179,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (serviceNode.serviceNameLiteral != null) {
             typeChecker.checkExpr(serviceNode.serviceNameLiteral, env, symTable.stringType);
         }
+        
+        BType serviceType = serviceNode.type = serviceNode.serviceClass.type;
 
         for (BLangExpression attachExpr : serviceNode.attachedExprs) {
             final BType exprType = typeChecker.checkExpr(attachExpr, env);
-            if (exprType != symTable.semanticError && !types.checkListenerCompatibility(exprType)) {
+            if (exprType != symTable.semanticError && !types.checkListenerCompatibilityAtServiceDecl(exprType)) {
                 dlog.error(attachExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, LISTENER_NAME, exprType);
             } else if (exprType != symTable.semanticError && serviceNode.listenerType == null) {
                 serviceNode.listenerType = exprType;
@@ -3093,45 +3201,70 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(attachExpr.pos, DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT);
             }
 
+            // Validate listener attachment based on attach-point of the service decl and second param of listener.
             if (exprType.getKind() == TypeKind.OBJECT) {
                 BObjectType listenerType = (BObjectType) exprType;
-                validateServicePathOnListener(serviceNode, attachExpr, listenerType);
+                validateServiceAttachmentOnListener(serviceNode, attachExpr, listenerType, serviceType);
+            } else if (exprType.getKind() == TypeKind.UNION) {
+                for (BType memberType : ((BUnionType) exprType).getMemberTypes()) {
+                    if (memberType.tag == TypeTags.ERROR) {
+                        continue;
+                    }
+                    if (memberType.tag == TypeTags.OBJECT) {
+                        validateServiceAttachmentOnListener(serviceNode, attachExpr,
+                                (BObjectType) memberType, serviceType);
+                    }
+                }
             }
         }
     }
 
-    private void validateServicePathOnListener(BLangService serviceNode, BLangExpression attachExpr,
-                                               BObjectType listenerType) {
+    private void validateServiceAttachmentOnListener(BLangService serviceNode, BLangExpression attachExpr,
+                                                     BObjectType listenerType, BType serviceType) {
         for (var func : ((BObjectTypeSymbol) listenerType.tsymbol).attachedFuncs) {
             if (func.funcName.value.equals("attach")) {
-                BType pathParam = func.type.paramTypes.get(1);
-                boolean isStringComponentAvailable = types.isAssignable(symTable.stringType, pathParam);
-                boolean isNullable = pathParam.isNullable();
-                boolean isArrayComponentAvailable = types.isAssignable(symTable.arrayStringType, pathParam);
-
-                boolean pathLiteral = serviceNode.serviceNameLiteral != null;
-                boolean absolutePath = !serviceNode.absoluteResourcePath.isEmpty();
-
-                Location pos = attachExpr.getPosition();
-
-                if (!pathLiteral && isStringComponentAvailable && !isArrayComponentAvailable && !isNullable) {
-                    dlog.error(pos, DiagnosticErrorCode.SERVICE_LITERAL_REQUIRED_BY_LISTENER);
-                } else if (!absolutePath && isArrayComponentAvailable && !isStringComponentAvailable && !isNullable) {
-                    dlog.error(pos, DiagnosticErrorCode.SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER);
-                } else if (!pathLiteral && !absolutePath && !isNullable) {
-                    dlog.error(pos, DiagnosticErrorCode.SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER);
+                List<BType> paramTypes = func.type.paramTypes;
+                if (serviceType != null && serviceType != symTable.noType) {
+                    validateServiceTypeAgainstAttachMethod(serviceNode.type, paramTypes.get(0), attachExpr.pos);
                 }
-
-                // Path literal is provided, listener does not accept path literal
-                if (pathLiteral && !isStringComponentAvailable) {
-                    dlog.error(pos, DiagnosticErrorCode.SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER);
-                }
-
-                // Absolute path is provided, Listener does not accept abs path
-                if (absolutePath && !isArrayComponentAvailable) {
-                    dlog.error(pos, DiagnosticErrorCode.SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER);
-                }
+                validateServiceAttachpointAgainstAttachMethod(serviceNode, attachExpr, paramTypes.get(1));
             }
+        }
+    }
+
+    private void validateServiceTypeAgainstAttachMethod(BType serviceType, BType targetType, Location pos) {
+        if (!types.isAssignable(serviceType, targetType)) {
+            dlog.error(pos, DiagnosticErrorCode.SERVICE_TYPE_IS_NOT_SUPPORTED_BY_LISTENER);
+        }
+    }
+
+    private void validateServiceAttachpointAgainstAttachMethod(BLangService serviceNode, BLangExpression listenerExpr,
+                                                               BType attachPointParam) {
+        boolean isStringComponentAvailable = types.isAssignable(symTable.stringType, attachPointParam);
+        boolean isNullable = attachPointParam.isNullable();
+        boolean isArrayComponentAvailable = types.isAssignable(symTable.arrayStringType, attachPointParam);
+
+        boolean pathLiteral = serviceNode.serviceNameLiteral != null;
+        boolean absolutePath = !serviceNode.absoluteResourcePath.isEmpty();
+
+        Location pos = listenerExpr.getPosition();
+
+        if (!pathLiteral && isStringComponentAvailable && !isArrayComponentAvailable && !isNullable) {
+            dlog.error(pos, DiagnosticErrorCode.SERVICE_LITERAL_REQUIRED_BY_LISTENER);
+        } else if (!absolutePath && isArrayComponentAvailable && !isStringComponentAvailable && !isNullable) {
+            dlog.error(pos, DiagnosticErrorCode.SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER);
+        } else if (!pathLiteral && !absolutePath && !isNullable) {
+            dlog.error(pos, DiagnosticErrorCode.SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER);
+        }
+
+        // Path literal is provided, listener does not accept path literal
+        if (pathLiteral && !isStringComponentAvailable) {
+            dlog.error(pos, DiagnosticErrorCode.SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER);
+        }
+
+        // Absolute path is provided, Listener does not accept abs path
+        if (absolutePath && !isArrayComponentAvailable) {
+            dlog.error(pos, DiagnosticErrorCode.SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER);
         }
     }
 
@@ -3742,7 +3875,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             BTypeSymbol tsymbol = type.tsymbol;
             if (tsymbol == null ||
-                    !Symbols.isFlagOn(tsymbol.flags, Flags.CLASS) ||
+                    (!Symbols.isFlagOn(tsymbol.flags, Flags.CLASS) && type.tag != TypeTags.INTERSECTION) ||
                     !Symbols.isFlagOn(flags, Flags.READONLY)) {
                 continue;
             }
@@ -3754,6 +3887,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (nonReadOnly && !objectConstructorExpr) {
+                if (type.tag == TypeTags.INTERSECTION) {
+                    dlog.error(typeRef.pos,
+                               DiagnosticErrorCode.INVALID_READ_ONLY_TYPEDESC_INCLUSION_IN_NON_READ_ONLY_CLASS);
+                    continue;
+                }
                 dlog.error(typeRef.pos, DiagnosticErrorCode.INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS);
             }
         }
