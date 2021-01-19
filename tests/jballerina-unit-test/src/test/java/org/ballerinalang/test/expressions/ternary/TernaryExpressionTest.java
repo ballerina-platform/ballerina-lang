@@ -347,6 +347,12 @@ public class TernaryExpressionTest {
         Assert.assertEquals(((BInteger) results[0]).intValue(), 7);
     }
 
+    @Test
+    public void testPredeclPrefixInTernary() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testPredeclPrefixInTernary");
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 11);
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
