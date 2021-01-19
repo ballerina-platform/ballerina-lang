@@ -4883,15 +4883,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (isInConditionalExpr && lhsExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) lhsExpr;
-            STNode modulePrefix = qualifiedNameRef.modulePrefix;
-            if (modulePrefix.kind != SyntaxKind.IDENTIFIER_TOKEN) {
-                STToken preDeclaredPrefix = (STToken) ((STBuiltinSimpleNameReferenceNode) modulePrefix).name;
-                STNode identifier = STNodeFactory.createIdentifierToken(preDeclaredPrefix.text(),
-                        preDeclaredPrefix.leadingMinutiae(), preDeclaredPrefix.trailingMinutiae());
-                lhsExpr = STNodeFactory.createQualifiedNameReferenceNode(identifier, qualifiedNameRef.colon,
-                        qualifiedNameRef.identifier);
-            }
+            lhsExpr = generateQualifiedNameRef(lhsExpr);
         }
 
         STNode newLhsExpr;
@@ -12129,19 +12121,9 @@ public class BallerinaParser extends AbstractParser {
         } else {
             // Case identifier:identifier : expr or preDeclaredPrefix:identifier : expr
             if (middleExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) middleExpr;
-                STNode modulePrefix =  qualifiedNameRef.modulePrefix;
-                // modulePrefix will be a STBuiltinSimpleNameReferenceNode if the module prefix is a predeclared prefix
-                // hence convert it to an identifier (case : preDeclaredPrefix:identifier : expr)
-                if (modulePrefix.kind != SyntaxKind.IDENTIFIER_TOKEN) {
-                    STBuiltinSimpleNameReferenceNode builtInType = (STBuiltinSimpleNameReferenceNode) modulePrefix;
-                    STToken nameToken = (STToken) builtInType.name;
-                    STNode preDeclaredPrefix = STNodeFactory.createIdentifierToken(nameToken.text(),
-                            nameToken.leadingMinutiae(), nameToken.trailingMinutiae());
-                    middleExpr = STNodeFactory.createQualifiedNameReferenceNode(preDeclaredPrefix,
-                            qualifiedNameRef.colon, qualifiedNameRef.identifier);
-                }
+                middleExpr = generateQualifiedNameRef(middleExpr);
             }
+
             colon = parseColon();
             endContext();
             // start parsing end-expr, by giving higher-precedence to the end-expr, over currently
@@ -12150,6 +12132,23 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
+    }
+
+    private STNode generateQualifiedNameRef(STNode qualifiedName) {
+        STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) qualifiedName;
+        STNode modulePrefix =  qualifiedNameRef.modulePrefix;
+        // modulePrefix will be a STBuiltinSimpleNameReferenceNode if the module prefix is a predeclared prefix
+        // hence convert it to an identifier
+        if (modulePrefix.kind != SyntaxKind.IDENTIFIER_TOKEN) {
+            STBuiltinSimpleNameReferenceNode builtInType = (STBuiltinSimpleNameReferenceNode) modulePrefix;
+            STToken nameToken = (STToken) builtInType.name;
+            STNode preDeclaredPrefix = STNodeFactory.createIdentifierToken(nameToken.text(),
+                    nameToken.leadingMinutiae(), nameToken.trailingMinutiae());
+            return STNodeFactory.createQualifiedNameReferenceNode(preDeclaredPrefix,
+                    qualifiedNameRef.colon, qualifiedNameRef.identifier);
+        } else {
+            return qualifiedName;
+        }
     }
 
     /**
