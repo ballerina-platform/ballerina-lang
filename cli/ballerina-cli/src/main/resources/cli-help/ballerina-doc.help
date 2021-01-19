@@ -2,7 +2,7 @@ NAME
        ballerina-doc - Build the documentation of a Ballerina package
 
 SYNOPSIS
-       ballerina doc [<options>]
+       bal doc [<options>]
 
 DESCRIPTION
        Doc command builds the documentation for a Ballerina package.
@@ -25,7 +25,7 @@ OPTIONS
 
 EXAMPLES
        Generate API documentation for the current package.
-          $ ballerina doc
+          $ bal doc
 
        Generate API documentation for a Ballerina package in a given path.
-          $ ballerina doc /path/to/package
+          $ bal doc /path/to/package

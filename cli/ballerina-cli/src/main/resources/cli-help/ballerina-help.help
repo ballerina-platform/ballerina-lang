@@ -1,5 +1,5 @@
 NAME
-       The Ballerina build tool
+       The bal build tool
 
 SYNOPSIS
        ballerina <-v | --version>
