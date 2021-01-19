@@ -131,10 +131,8 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
         StringJoiner joiner = new StringJoiner(" ");
 
-        if (!this.qualifiers().isEmpty()) {
-            for (Qualifier qualifier : this.qualifiers()) {
-                joiner.add(qualifier.getValue());
-            }
+        for (Qualifier qualifier : this.qualifiers()) {
+            joiner.add(qualifier.getValue());
         }
 
         this.signature = joiner.add(this.typeDescriptor().signature()).add(this.name()).toString();
