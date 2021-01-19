@@ -2504,21 +2504,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // If the type is a `readonly object` validate if all fields are compatible.
         validateFieldsAndSetReadOnlyType(typeDefs, pkgEnv);
 
-        for (BLangNode typeDef : typeDefs) {
-            if (typeDef.getKind() != NodeKind.CLASS_DEFN) {
-                continue;
-            }
-
-            BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
-            SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, pkgEnv);
-            BObjectType objType = (BObjectType) ((BObjectTypeSymbol) classDefinition.symbol).type;
-            defineReferencedClassFields(classDefinition, typeDefEnv, objType, true);
-
-            SymbolEnv objMethodsEnv = SymbolEnv.createClassMethodsEnv(classDefinition,
-                                                                      (BObjectTypeSymbol) classDefinition.symbol,
-                                                                      pkgEnv);
-            defineIncludedMethods(classDefinition, objMethodsEnv, true);
-        }
+        defineReadOnlyInclusions(typeDefs, pkgEnv);
     }
 
     private void populateImmutableTypeFieldsAndMembers(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
@@ -2640,6 +2626,24 @@ public class SymbolEnter extends BLangNodeVisitor {
                 structureType.tsymbol.flags |= Flags.READONLY;
                 structureType.flags |= Flags.READONLY;
             }
+        }
+    }
+
+    private void defineReadOnlyInclusions(List<BLangNode> typeDefs, SymbolEnv pkgEnv) {
+        for (BLangNode typeDef : typeDefs) {
+            if (typeDef.getKind() != NodeKind.CLASS_DEFN) {
+                continue;
+            }
+
+            BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
+            SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, pkgEnv);
+            BObjectType objType = (BObjectType) ((BObjectTypeSymbol) classDefinition.symbol).type;
+            defineReferencedClassFields(classDefinition, typeDefEnv, objType, true);
+
+            SymbolEnv objMethodsEnv = SymbolEnv.createClassMethodsEnv(classDefinition,
+                                                                      (BObjectTypeSymbol) classDefinition.symbol,
+                                                                      pkgEnv);
+            defineIncludedMethods(classDefinition, objMethodsEnv, true);
         }
     }
 
