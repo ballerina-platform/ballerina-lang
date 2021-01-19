@@ -579,22 +579,4 @@ public class TransactionResourceManager {
             failedLocalParticipantSet.add(gTransactionId);
         }
     }
-
-    /**
-     * Find the project root by recursively up to the root.
-     *
-     * @param projectDir project path
-     * @return project root
-     */
-    private static Path findProjectRoot(Path projectDir) {
-        Path path = projectDir.resolve("Ballerina.toml");
-        if (Files.exists(path)) {
-            return projectDir;
-        }
-        Path parentsParent = projectDir.getParent();
-        if (null != parentsParent) {
-            return findProjectRoot(parentsParent);
-        }
-        return null;
-    }
 }
