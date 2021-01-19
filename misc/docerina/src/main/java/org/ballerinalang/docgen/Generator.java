@@ -564,6 +564,7 @@ public class Generator {
                 }
                 String defaultValue = recordField.expression().toString();
                 Type type = Type.fromNode(recordField.typeName(), semanticModel);
+                type.isReadOnly = recordField.readonlyKeyword().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
                         defaultValue);
                 variables.add(defaultableVariable);
@@ -576,6 +577,7 @@ public class Generator {
                 }
                 Type type = Type.fromNode(recordField.typeName(), semanticModel);
                 type.isNullable = recordField.questionMarkToken().isPresent();
+                type.isReadOnly = recordField.readonlyKeyword().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
                         "");
                 variables.add(defaultableVariable);
