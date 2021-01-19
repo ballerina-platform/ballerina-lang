@@ -4882,6 +4882,18 @@ public class BallerinaParser extends AbstractParser {
             return lhsExpr;
         }
 
+        if (isInConditionalExpr && lhsExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) lhsExpr;
+            STNode modulePrefix = qualifiedNameRef.modulePrefix;
+            if (modulePrefix.kind != SyntaxKind.IDENTIFIER_TOKEN) {
+                STToken preDeclaredPrefix = (STToken) ((STBuiltinSimpleNameReferenceNode) modulePrefix).name;
+                STNode identifier = STNodeFactory.createIdentifierToken(preDeclaredPrefix.text(),
+                        preDeclaredPrefix.leadingMinutiae(), preDeclaredPrefix.trailingMinutiae());
+                lhsExpr = STNodeFactory.createQualifiedNameReferenceNode(identifier, qualifiedNameRef.colon,
+                        qualifiedNameRef.identifier);
+            }
+        }
+
         STNode newLhsExpr;
         STNode operator;
         switch (nextTokenKind) {
