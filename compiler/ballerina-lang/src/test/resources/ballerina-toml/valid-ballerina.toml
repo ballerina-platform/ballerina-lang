@@ -33,3 +33,4 @@ groupId = "swagger.io"
 observabilityIncluded = true
 offline = true
 skipTests = false
+cloud = "k8s"
