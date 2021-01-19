@@ -4490,11 +4490,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangErrorFieldBindingPatterns createErrorFieldBindingPattern(Node errorFieldBindingPatternNode,
-                                                                          BLangErrorFieldBindingPatterns bLangErrorFieldBindingPatterns) {
+                                                                          BLangErrorFieldBindingPatterns
+                                                                                  bLangErrorFieldBindingPatterns) {
         BLangBindingPattern bindingPattern = transformBindingPattern(errorFieldBindingPatternNode);
         bLangErrorFieldBindingPatterns.pos = getPosition(errorFieldBindingPatternNode);
         if (bindingPattern.getKind() == NodeKind.NAMED_ARG_BINDING_PATTERN) {
-            bLangErrorFieldBindingPatterns.addNamedArgBindingPattern((org.ballerinalang.model.tree.bindingpattern.NamedArgBindingPatternNode) bindingPattern);
+            bLangErrorFieldBindingPatterns.
+                    addNamedArgBindingPattern(
+                            (org.ballerinalang.model.tree.bindingpattern.NamedArgBindingPatternNode) bindingPattern);
         } else if (bindingPattern.getKind() == NodeKind.REST_BINDING_PATTERN) {
             bLangErrorFieldBindingPatterns.restBindingPattern = (BLangRestBindingPattern) bindingPattern;
         }
@@ -4518,7 +4521,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (BLangErrorFieldBindingPatterns) TreeBuilder.createErrorFieldBindingPattern();
         for (int i = index; i < errorBindingPatternNode.argListBindingPatterns().size(); i++) {
             Node errorFieldBindingPatternNode = errorBindingPatternNode.argListBindingPatterns().get(i);
-            bLangErrorBindingPattern.errorFieldBindingPatterns = createErrorFieldBindingPattern(errorFieldBindingPatternNode, bLangErrorFieldBindingPatterns);
+            bLangErrorBindingPattern.errorFieldBindingPatterns =
+                    createErrorFieldBindingPattern(errorFieldBindingPatternNode, bLangErrorFieldBindingPatterns);
         }
     }
 

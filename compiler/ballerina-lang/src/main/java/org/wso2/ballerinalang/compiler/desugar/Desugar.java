@@ -3765,7 +3765,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                          BLangBlockStmt restPatternBlock,
                                                                          BLangSimpleVarRef varRef,
                                                                          Location pos) {
-        BLangExpression condition = null;
+        BLangExpression condition = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
         if (errorBindingPattern.errorMessageBindingPattern != null) {
             Location messagePos = errorBindingPattern.errorMessageBindingPattern.pos;
             BLangInvocation messageInvocation = createLangLibInvocationNode(ERROR_MESSAGE_FUNCTION_NAME, varRef,
@@ -3787,7 +3787,8 @@ public class Desugar extends BLangNodeVisitor {
             ifBlock.addStatement(causeVarDef);
             BLangSimpleVarRef causeVarRef = ASTBuilderUtil.createVariableRef(errorCausePos, causeVarDef.var.symbol);
             BLangExpression errorCauseCondition =
-                    createConditionForErrorCauseBindingPattern(errorBindingPattern.errorCauseBindingPattern, causeVarRef);
+                    createConditionForErrorCauseBindingPattern(errorBindingPattern.errorCauseBindingPattern,
+                            causeVarRef);
             condition = ASTBuilderUtil.createBinaryExpr(pos, condition, errorCauseCondition, symTable.booleanType,
                     OperatorKind.AND, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.AND,
                             symTable.booleanType, symTable.booleanType));
@@ -4522,7 +4523,8 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangExpression condition = null;
         for (int i = 0; i < errorFieldBindingPatterns.namedArgBindingPatterns.size(); i++) {
-            BLangNamedArgBindingPattern namedArgBindingPattern = errorFieldBindingPatterns.namedArgBindingPatterns.get(i);
+            BLangNamedArgBindingPattern namedArgBindingPattern =
+                    errorFieldBindingPatterns.namedArgBindingPatterns.get(i);
             String argName = namedArgBindingPattern.argName.value;
             BLangBindingPattern bindingPattern = namedArgBindingPattern.bindingPattern;
             Location matchPatternPos = bindingPattern.pos;
@@ -4586,8 +4588,9 @@ public class Desugar extends BLangNodeVisitor {
         return createConditionForSimpleMatchPattern(errorMsgPattern.simpleMatchPattern, matchExprVarRef);
     }
 
-    private BLangExpression createConditionForErrorMessageBindingPattern(BLangErrorMessageBindingPattern errorMsgPattern,
-                                                                         BLangSimpleVarRef matchExprVarRef) {
+    private BLangExpression createConditionForErrorMessageBindingPattern(
+            BLangErrorMessageBindingPattern errorMsgPattern,
+            BLangSimpleVarRef matchExprVarRef) {
         return createConditionForSimpleBindingPattern(errorMsgPattern.simpleBindingPattern, matchExprVarRef);
     }
 

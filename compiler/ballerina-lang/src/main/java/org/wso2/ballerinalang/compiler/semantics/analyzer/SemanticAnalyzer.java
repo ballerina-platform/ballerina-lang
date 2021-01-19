@@ -2837,6 +2837,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case ERROR_BINDING_PATTERN:
                 BLangErrorBindingPattern errorBindingPattern = (BLangErrorBindingPattern) bindingPattern;
                 analyzeNode(errorBindingPattern, env);
+                errorBindingPattern.type = types.resolvePatternTypeFromMatchExpr(errorBindingPattern,
+                        varBindingPattern.matchExpr, env);
                 break;
             case MAPPING_BINDING_PATTERN:
                 BLangMappingBindingPattern mappingBindingPattern = (BLangMappingBindingPattern) bindingPattern;
