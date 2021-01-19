@@ -67,11 +67,13 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
@@ -125,11 +127,20 @@ public class ImmutableTypeCloner {
         SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDef, objectType.tsymbol.scope, pkgEnv);
 
         Iterator<BField> objectTypeFieldIterator = objectType.fields.values().iterator();
-        Iterator<BLangSimpleVariable> classFieldIterator = classDef.fields.iterator();
+
+        Map<String, BLangSimpleVariable> classFields = new HashMap<>();
+
+        for (BLangSimpleVariable field : classDef.fields) {
+            classFields.put(field.name.value, field);
+        }
+
+        for (BLangSimpleVariable field : classDef.referencedFields) {
+            classFields.put(field.name.value, field);
+        }
 
         while (objectTypeFieldIterator.hasNext()) {
             BField typeField = objectTypeFieldIterator.next();
-            BLangSimpleVariable classField = classFieldIterator.next();
+            BLangSimpleVariable classField = classFields.get(typeField.name.value);
 
             BType type = typeField.type;
 

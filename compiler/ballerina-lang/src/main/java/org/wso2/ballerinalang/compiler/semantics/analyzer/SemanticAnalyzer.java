@@ -114,11 +114,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMessageMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangNamedArgMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -2790,10 +2796,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangCaptureBindingPattern captureBindingPattern = (BLangCaptureBindingPattern) bindingPattern;
                 captureBindingPattern.type = patternType;
                 analyzeNode(captureBindingPattern, env);
-                varBindingPattern.declaredVars.put(captureBindingPattern.getIdentifier().getValue(),
-                        captureBindingPattern.symbol);
                 break;
         }
+        varBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
         varBindingPattern.type = bindingPattern.type;
     }
 
@@ -2808,6 +2813,88 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorMatchPattern errorMatchPattern) {
+        if (errorMatchPattern.errorTypeReference != null) {
+            errorMatchPattern.type = symResolver.resolveTypeNode(errorMatchPattern.errorTypeReference, env);
+        } else {
+            errorMatchPattern.type = symTable.errorType;
+        }
+        errorMatchPattern.type = types.resolvePatternTypeFromMatchExpr(errorMatchPattern,
+                    errorMatchPattern.matchExpr);
+
+        if (errorMatchPattern.errorMessageMatchPattern != null) {
+            analyzeNode(errorMatchPattern.errorMessageMatchPattern, env);
+            errorMatchPattern.declaredVars.putAll(errorMatchPattern.errorMessageMatchPattern.declaredVars);
+        }
+
+        if (errorMatchPattern.errorCauseMatchPattern != null) {
+            analyzeNode(errorMatchPattern.errorCauseMatchPattern, env);
+            errorMatchPattern.declaredVars.putAll(errorMatchPattern.errorCauseMatchPattern.declaredVars);
+        }
+
+        if (errorMatchPattern.errorFieldMatchPatterns != null) {
+            analyzeNode(errorMatchPattern.errorFieldMatchPatterns, env);
+            errorMatchPattern.declaredVars.putAll(errorMatchPattern.errorFieldMatchPatterns.declaredVars);
+        }
+    }
+
+    @Override
+    public void visit(BLangSimpleMatchPattern simpleMatchPattern) {
+        if (simpleMatchPattern.wildCardMatchPattern != null) {
+            analyzeNode(simpleMatchPattern.wildCardMatchPattern, env);
+            simpleMatchPattern.wildCardMatchPattern.isLastPattern = true;
+            return;
+        }
+        if (simpleMatchPattern.constPattern != null) {
+            analyzeNode(simpleMatchPattern.constPattern, env);
+            return;
+        }
+        if (simpleMatchPattern.varVariableName != null) {
+            analyzeNode(simpleMatchPattern.varVariableName, env);
+            simpleMatchPattern.declaredVars.putAll(simpleMatchPattern.varVariableName.declaredVars);
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorMessageMatchPattern errorMessageMatchPattern) {
+        BLangSimpleMatchPattern simpleMatchPattern = errorMessageMatchPattern.simpleMatchPattern;
+        analyzeNode(simpleMatchPattern, env);
+        errorMessageMatchPattern.declaredVars.putAll(simpleMatchPattern.declaredVars);
+    }
+
+    @Override
+    public void visit(BLangErrorCauseMatchPattern errorCauseMatchPattern) {
+        if (errorCauseMatchPattern.simpleMatchPattern != null) {
+            analyzeNode(errorCauseMatchPattern.simpleMatchPattern, env);
+            errorCauseMatchPattern.declaredVars.putAll(errorCauseMatchPattern.simpleMatchPattern.declaredVars);
+            return;
+        }
+        if (errorCauseMatchPattern.errorMatchPattern != null) {
+            analyzeNode(errorCauseMatchPattern.errorMatchPattern, env);
+            errorCauseMatchPattern.declaredVars.putAll(errorCauseMatchPattern.errorMatchPattern.declaredVars);
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorFieldMatchPatterns errorFieldMatchPatterns) {
+        for (BLangNamedArgMatchPattern namedArgMatchPattern : errorFieldMatchPatterns.namedArgMatchPatterns) {
+            analyzeNode(namedArgMatchPattern, env);
+            errorFieldMatchPatterns.declaredVars.putAll(namedArgMatchPattern.declaredVars);
+        }
+        if (errorFieldMatchPatterns.restMatchPattern != null) {
+            errorFieldMatchPatterns.restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
+            analyzeNode(errorFieldMatchPatterns.restMatchPattern, env);
+            errorFieldMatchPatterns.declaredVars.putAll(errorFieldMatchPatterns.restMatchPattern.declaredVars);
+        }
+    }
+
+    @Override
+    public void visit(BLangNamedArgMatchPattern namedArgMatchPattern) {
+        analyzeNode(namedArgMatchPattern.matchPattern, env);
+        namedArgMatchPattern.declaredVars.putAll(namedArgMatchPattern.matchPattern.declaredVars);
+    }
+
+    @Override
     public void visit(BLangConstPattern constMatchPattern) {
         BLangExpression constPatternExpr = constMatchPattern.expr;
         typeChecker.checkExpr(constPatternExpr, env);
@@ -2818,8 +2905,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         constRef.variableName);
             }
         }
-        constMatchPattern.type = types.resolvePatternTypeFromMatchExpr(constMatchPattern.matchExpr,
-                constMatchPattern.expr);
+        constMatchPattern.type = types.resolvePatternTypeFromMatchExpr(constMatchPattern, constMatchPattern.expr);
     }
 
     @Override
@@ -3789,7 +3875,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             BTypeSymbol tsymbol = type.tsymbol;
             if (tsymbol == null ||
-                    !Symbols.isFlagOn(tsymbol.flags, Flags.CLASS) ||
+                    (!Symbols.isFlagOn(tsymbol.flags, Flags.CLASS) && type.tag != TypeTags.INTERSECTION) ||
                     !Symbols.isFlagOn(flags, Flags.READONLY)) {
                 continue;
             }
@@ -3801,6 +3887,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (nonReadOnly && !objectConstructorExpr) {
+                if (type.tag == TypeTags.INTERSECTION) {
+                    dlog.error(typeRef.pos,
+                               DiagnosticErrorCode.INVALID_READ_ONLY_TYPEDESC_INCLUSION_IN_NON_READ_ONLY_CLASS);
+                    continue;
+                }
                 dlog.error(typeRef.pos, DiagnosticErrorCode.INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS);
             }
         }
