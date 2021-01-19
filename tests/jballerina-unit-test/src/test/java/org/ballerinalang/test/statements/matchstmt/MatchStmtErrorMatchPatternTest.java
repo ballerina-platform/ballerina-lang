@@ -38,10 +38,10 @@ public class MatchStmtErrorMatchPatternTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/statements/matchstmt/error-match-pattern.bal");
-        restPatternResult = BCompileUtil.compile("test-src/statements/matchstmt/error-match-pattern-with-rest-match" +
-                "-pattern.bal");
-        resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/error-match-pattern-negative.bal");
+        result = BCompileUtil.compile("test-src/statements/matchstmt/error_match_pattern.bal");
+        restPatternResult = BCompileUtil.compile("test-src/statements/matchstmt" +
+                "/error_match_pattern_with_rest_match_pattern.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/error_match_pattern_negative.bal");
     }
 
     @Test

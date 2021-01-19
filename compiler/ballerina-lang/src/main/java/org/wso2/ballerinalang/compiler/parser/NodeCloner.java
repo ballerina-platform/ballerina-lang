@@ -781,9 +781,9 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangErrorMatchPattern clone = new BLangErrorMatchPattern();
         source.cloneRef = clone;
         clone.matchExpr = source.matchExpr;
-        clone.errorMessageMatchPattern = source.errorMessageMatchPattern;
-        clone.errorFieldMatchPatterns = source.errorFieldMatchPatterns;
-        clone.errorCauseMatchPattern = source.errorCauseMatchPattern;
+        clone.errorMessageMatchPattern = clone(source.errorMessageMatchPattern);
+        clone.errorFieldMatchPatterns = clone(source.errorFieldMatchPatterns);
+        clone.errorCauseMatchPattern = clone(source.errorCauseMatchPattern);
         clone.errorTypeReference = source.errorTypeReference;
     }
 
@@ -791,15 +791,15 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangErrorMessageMatchPattern source) {
         BLangErrorMessageMatchPattern clone = new BLangErrorMessageMatchPattern();
         source.cloneRef = clone;
-        clone.simpleMatchPattern = source.simpleMatchPattern;
+        clone.simpleMatchPattern = clone(source.simpleMatchPattern);
     }
 
     @Override
     public void visit(BLangErrorCauseMatchPattern source) {
         BLangErrorCauseMatchPattern clone = new BLangErrorCauseMatchPattern();
         source.cloneRef = clone;
-        clone.errorMatchPattern = source.errorMatchPattern;
-        clone.simpleMatchPattern = source.simpleMatchPattern;
+        clone.errorMatchPattern = clone(source.errorMatchPattern);
+        clone.simpleMatchPattern = clone(source.simpleMatchPattern);
     }
 
     @Override
@@ -807,7 +807,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangNamedArgMatchPattern clone = new BLangNamedArgMatchPattern();
         source.cloneRef = clone;
         clone.argName = source.argName;
-        clone.matchPattern = source.matchPattern;
+        clone.matchPattern = clone(source.matchPattern);
     }
 
     @Override
@@ -815,22 +815,23 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangErrorFieldMatchPatterns clone = new BLangErrorFieldMatchPatterns();
         source.cloneRef = clone;
         clone.namedArgMatchPatterns = cloneList(source.namedArgMatchPatterns);
+        clone.restMatchPattern = clone(source.restMatchPattern);
     }
 
     @Override
     public void visit(BLangSimpleMatchPattern source) {
         BLangSimpleMatchPattern clone = new BLangSimpleMatchPattern();
         source.cloneRef = clone;
-        clone.wildCardMatchPattern = source.wildCardMatchPattern;
-        clone.constPattern = source.constPattern;
-        clone.varVariableName = source.varVariableName;
+        clone.wildCardMatchPattern = clone(source.wildCardMatchPattern);
+        clone.constPattern = clone(source.constPattern);
+        clone.varVariableName = clone(source.varVariableName);
     }
 
     @Override
     public void visit(BLangFieldMatchPattern source) {
         BLangFieldMatchPattern clone = new BLangFieldMatchPattern();
         source.cloneRef = clone;
-        clone.matchPattern = source.matchPattern;
+        clone.matchPattern = clone(source.matchPattern);
         clone.fieldName = source.fieldName;
     }
 

@@ -4072,7 +4072,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         if (kind == SyntaxKind.IDENTIFIER_TOKEN && ((IdentifierToken) matchPattern).text().equals("_")) {
-            // wildcard match
             BLangWildCardMatchPattern bLangWildCardMatchPattern =
                     (BLangWildCardMatchPattern) TreeBuilder.createWildCardMatchPattern();
             bLangWildCardMatchPattern.pos = matchPatternPos;

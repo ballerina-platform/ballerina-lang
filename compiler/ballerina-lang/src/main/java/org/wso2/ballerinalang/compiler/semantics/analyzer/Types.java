@@ -402,11 +402,13 @@ public class Types {
             return errorMatchPattern.type;
         }
 
-        if (isAssignable(matchExpr.type, errorMatchPattern.type)) {
-            return matchExpr.type;
+        BType matchExprType = matchExpr.type;
+        BType patternType = errorMatchPattern.type;
+        if (isAssignable(matchExprType, patternType)) {
+            return matchExprType;
         }
-        if (isAssignable(errorMatchPattern.type, matchExpr.type)) {
-            return errorMatchPattern.type;
+        if (isAssignable(patternType, matchExprType)) {
+            return patternType;
         }
         return symTable.noType;
     }
