@@ -88,7 +88,7 @@ public class TableJsonDataSource implements JsonDataSource {
         BIterator itr = this.tableValue.getIterator();
         while (itr.hasNext()) {
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
-            MapValueImpl record = ((MapValueImpl) tupleValue.get(0));
+            MapValueImpl record = ((MapValueImpl) tupleValue.get(1));
             try {
                 values.append(this.objGen.transform(record));
             } catch (IOException e) {
