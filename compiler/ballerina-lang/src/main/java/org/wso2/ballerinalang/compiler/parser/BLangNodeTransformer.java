@@ -699,7 +699,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         String resourceFuncName = calculateResourceFunctionName(accessorName, relativeResourcePath);
         BLangIdentifier name = createIdentifier(getPosition(accessorName), resourceFuncName);
         populateFunctionNode(name, qualifierList, methodSignature, functionBody, bLFunction);
-        bLFunction.accessorName = createIdentifier(accessorName);
+        bLFunction.methodName = createIdentifier(accessorName);
 
         bLFunction.resourcePath =  new ArrayList<>();
         List<BLangSimpleVariable> params = new ArrayList<>();
