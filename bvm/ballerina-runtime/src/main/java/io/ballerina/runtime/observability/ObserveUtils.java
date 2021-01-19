@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.tracer.BSpan;
 import org.ballerinalang.config.ConfigRegistry;
@@ -185,9 +184,9 @@ public class ObserveUtils {
         eventAttributes.put(TAG_KEY_SRC_MODULE, pkg.getValue());
         eventAttributes.put(TAG_KEY_SRC_POSITION, position.getValue());
 
-        HashMap<String, Object> events = new HashMap<>(1);
-        events.put(CHECKPOINT_EVENT_NAME, eventAttributes);
-        span.log(events);
+        HashMap<String, Object> event = new HashMap<>(1);
+        event.put(CHECKPOINT_EVENT_NAME, eventAttributes);
+        span.addEvent(event);
     }
 
     /**
@@ -227,10 +226,8 @@ public class ObserveUtils {
         if (observerContext == null) {
             return;
         }
-        observers.forEach(observer -> {
-            observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, TAG_TRUE_VALUE);
-            observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, errorValue);
-        });
+        observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, TAG_TRUE_VALUE);
+        observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR_VALUE, errorValue);
     }
 
     /**
@@ -327,25 +324,7 @@ public class ObserveUtils {
     @Deprecated     // Discussion: https://groups.google.com/g/ballerina-dev/c/VMEk3t8boH0
     public static void logMessageToActiveSpan(String logLevel, Supplier<String> logMessage,
                                               boolean isError) {
-        if (!tracingEnabled) {
-            return;
-        }
-        Environment balEnv = new Environment(Scheduler.getStrand());
-        ObserverContext observerContext = (ObserverContext) balEnv.getStrandLocal(KEY_OBSERVER_CONTEXT);
-        if (observerContext == null) {
-            return;
-        }
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
-        if (span == null) {
-            return;
-        }
-        HashMap<String, Object> logs = new HashMap<>(1);
-        logs.put(logLevel, logMessage.get());
-        if (!isError) {
-            span.log(logs);
-        } else {
-            span.logError(logs);
-        }
+        // Do Nothing
     }
 
     /**

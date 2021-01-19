@@ -3,6 +3,6 @@ class Foo {
     final readonly b;
     final int bar = 10;
     public final string c;
-    final function() functionType;
-    public final function() functionType;
+    final function () functionType;
+    public final function () functionType;
 }

@@ -88,7 +88,7 @@ public class BindgenCommand implements BLauncherCmd {
     @CommandLine.Parameters
     private List<String> classNames;
 
-    private static final String BINDGEN_CMD = "ballerina bindgen [(-cp|--classpath) <classpath>...]\n" +
+    private static final String BINDGEN_CMD = "bal bindgen [(-cp|--classpath) <classpath>...]\n" +
             "                  [(-mvn|--maven) <groupId>:<artifactId>:<version>]\n" +
             "                  [(-o|--output) <output> | (-m|--modules)]\n" +
             "                  [--public]\n" +
@@ -179,7 +179,7 @@ public class BindgenCommand implements BLauncherCmd {
     private void setOutError(String errorValue) {
         outError.println("\n" + errorValue + "\n");
         outStream.println(BINDGEN_CMD);
-        outStream.println("\nUse 'ballerina bindgen --help' for more information on the command.");
+        outStream.println("\nUse 'bal bindgen --help' for more information on the command.");
     }
 
     @Override
@@ -201,8 +201,8 @@ public class BindgenCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina " + COMPONENT_IDENTIFIER + " java.utils.ArrayDeque\n");
-        out.append("  ballerina " + COMPONENT_IDENTIFIER + " -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar " +
+        out.append("  bal " + COMPONENT_IDENTIFIER + " java.utils.ArrayDeque\n");
+        out.append("  bal " + COMPONENT_IDENTIFIER + " -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar " +
                 "  -o ./src/sample org.yaml.snakeyaml.Yaml org.apache.pdfbox.pdmodel.PDDocument java.io.File\n");
     }
 
