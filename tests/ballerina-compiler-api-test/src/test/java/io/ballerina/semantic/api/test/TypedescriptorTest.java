@@ -298,6 +298,24 @@ public class TypedescriptorTest {
         assertEquals(members.get(2).typeKind(), DECIMAL);
     }
 
+    @Test(dataProvider = "UnionWithNilPos")
+    public void testUnionTypeWithNil(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), UNION);
+        assertEquals(type.signature(), signature);
+    }
+
+    @DataProvider(name = "UnionWithNilPos")
+    public Object[][] getUnionWithNilPos() {
+        return new Object[][]{
+                {198, 11, "int?"},
+                {199, 17, "int|float|()"},
+                {200, 11, "A?"},
+//                {201, 15, "A|B|()"}, TODO: Disabled due to /ballerina-lang/issues/27957
+        };
+    }
+
     @Test(dataProvider = "FiniteTypeDataProvider")
     public void testFiniteType(int line, int column, List<String> expSignatures) {
         Symbol symbol = getSymbol(line, column);

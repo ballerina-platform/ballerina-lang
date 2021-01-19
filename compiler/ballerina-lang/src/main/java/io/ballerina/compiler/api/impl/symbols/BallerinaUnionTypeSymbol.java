@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+
 /**
  * Represents an union type descriptor.
  *
@@ -119,9 +121,9 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         }
 
         List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
-        if (memberTypes.size() == 2) {
+        if (containsTwoElements(memberTypes) && containsNil(memberTypes)) {
             TypeSymbol member1 = memberTypes.get(0);
-            return member1.typeKind() == TypeDescKind.NIL ?
+            return member1.typeKind() == NIL ?
                     memberTypes.get(1).signature() + "?" : member1.signature() + "?";
         } else {
             StringJoiner joiner = new StringJoiner("|");
@@ -141,5 +143,27 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             joiner.add(typeDescriptor.signature());
         }
         return joiner.toString();
+    }
+
+    private boolean containsNil(List<TypeSymbol> types) {
+        for (TypeSymbol type : types) {
+            if (type.typeKind() == NIL) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean containsTwoElements(List<TypeSymbol> types) {
+        if (types.size() == 2) {
+            for (TypeSymbol type : types) {
+                BType internalType = ((AbstractTypeSymbol) type).getBType();
+                if (internalType.tag == TypeTags.FINITE && ((BFiniteType) internalType).getValueSpace().size() > 1) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }
