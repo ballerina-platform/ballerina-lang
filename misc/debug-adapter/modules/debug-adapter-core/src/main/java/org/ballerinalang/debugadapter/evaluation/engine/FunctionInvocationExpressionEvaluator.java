@@ -88,7 +88,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
 
     private Optional<FunctionSymbol> findFunctionWithinModule() {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
-        List<Symbol> functionMatches = semanticContext.moduleLevelSymbols()
+        List<Symbol> functionMatches = semanticContext.moduleSymbols()
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
                         && modifyName(symbol.name()).equals(functionName))

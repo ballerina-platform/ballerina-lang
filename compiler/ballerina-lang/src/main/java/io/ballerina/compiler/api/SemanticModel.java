@@ -72,7 +72,7 @@ public interface SemanticModel {
      *
      * @return A list of module-scoped symbols
      */
-    List<Symbol> moduleLevelSymbols();
+    List<Symbol> moduleSymbols();
 
     /**
      * Finds all the references of the specified symbol within the relevant scope.

@@ -793,7 +793,7 @@ public class TestBuildProject {
         }
 
         // Test module level symbols
-        List<Symbol> symbols = semanticModel.moduleLevelSymbols();
+        List<Symbol> symbols = semanticModel.moduleSymbols();
         Assert.assertEquals(symbols.size(), 5);
 
         // Test symbol
