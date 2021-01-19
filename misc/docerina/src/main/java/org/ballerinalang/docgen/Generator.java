@@ -350,6 +350,8 @@ public class Generator {
         String name = classDefinitionNode.className().text();
         String description = getDocFromMetadata(classDefinitionNode.metadata());
         boolean isDeprecated = isDeprecated(classDefinitionNode.metadata());
+        boolean isReadOnly = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.READONLY_KEYWORD);
+        boolean isIsolated = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.ISOLATED_KEYWORD);
 
         List<DefaultableVariable> fields = getDefaultableVariableList(classDefinitionNode.members(),
                 classDefinitionNode.metadata(), semanticModel);
@@ -376,12 +378,12 @@ public class Generator {
         }
 
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
-            return new Client(name, description, isDeprecated, fields, functions);
+            return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
                 || name.equals("Listener")) {
-            return new Listener(name, description, isDeprecated, fields, functions);
+            return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
         } else {
-            return new BClass(name, description, isDeprecated, fields, functions);
+            return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
         }
     }
 
