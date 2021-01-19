@@ -31,6 +31,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
@@ -46,6 +47,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -364,17 +366,26 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Pair<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndProjectRoot(filePath);
         ProjectKind projectKind = projectKindAndProjectRootPair.getLeft();
         Path projectRoot = projectKindAndProjectRootPair.getRight();
-        Project project;
-        BuildOptions options = new BuildOptionsBuilder().offline(true).build();
-        if (projectKind == ProjectKind.BUILD_PROJECT) {
-            project = BuildProject.load(projectRoot, options);
-        } else {
-            project = SingleFileProject.load(projectRoot, options);
+        try {
+            Project project;
+            BuildOptions options = new BuildOptionsBuilder().offline(true).build();
+            if (projectKind == ProjectKind.BUILD_PROJECT) {
+                project = BuildProject.load(projectRoot, options);
+            } else {
+                project = SingleFileProject.load(projectRoot, options);
+            }
+            clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
+                                          "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
+                                          project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
+            return ProjectPair.from(project);
+        } catch (ProjectException e) {
+            clientLogger.notifyUser("Project load failed: " + e.getMessage(), e);
+            clientLogger.logError("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
+                                          "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
+                                          projectKind.name().toLowerCase(Locale.getDefault()) + "'} failed}", e,
+                                  new TextDocumentIdentifier(filePath.toUri().toString()));
+            return null;
         }
-        clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
-                "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
-                project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
-        return ProjectPair.from(project);
     }
 
     private Optional<Path> modulePath(ModuleId moduleId, Project project) {
