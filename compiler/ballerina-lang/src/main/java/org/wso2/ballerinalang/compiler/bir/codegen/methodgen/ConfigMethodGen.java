@@ -111,7 +111,6 @@ public class ConfigMethodGen {
         for (PackageID id : imprtMods) {
             generateInvokeConfiguration(mv, id);
         }
-
         generateInvokeConfiguration(mv, packageID);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
