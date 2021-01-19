@@ -2,7 +2,7 @@ NAME
        ballerina-shell - Run ballerina interactive REPL
 
 SYNOPSIS
-       ballerina shell [-d|--debug] [-f|--force-dumb]  [-t|--time-out]
+       bal shell [-d|--debug] [-f|--force-dumb]  [-t|--time-out]
 
 
 DESCRIPTION
@@ -24,10 +24,10 @@ OPTIONS
 
 EXAMPLES
        Run ballerina shell.
-          $ ballerina shell
+          $ bal shell
 
        Run ballerina shell in debug mode.
-          $ ballerina shell -d
+          $ bal shell -d
 
        Run ballerina shell with 1s time out.
-          $ ballerina shell -t 1000
+          $ bal shell -t 1000
