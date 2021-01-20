@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -99,6 +99,7 @@ public class CodeActionUtil {
             case SERVICE_DECLARATION:
                 return CodeActionNodeType.SERVICE;
             case FUNCTION_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
                 if (node.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
                     return CodeActionNodeType.RESOURCE;
                 } else {
@@ -221,7 +222,7 @@ public class CodeActionUtil {
             // Map
             TypeSymbol prevType = null;
             boolean isConstrainedMap = true;
-            for (FieldSymbol recordField : recordLiteral.fieldDescriptors()) {
+            for (RecordFieldSymbol recordField : recordLiteral.fieldDescriptors()) {
                 TypeDescKind typeDescKind = recordField.typeDescriptor().typeKind();
                 if (prevType != null && typeDescKind != prevType.typeKind()) {
                     isConstrainedMap = false;
@@ -504,7 +505,8 @@ public class CodeActionUtil {
                     // Cursor within the service
                     ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) member;
                     for (Node memberNode : serviceDeclrNode.members()) {
-                        if (memberNode.kind() == SyntaxKind.FUNCTION_DEFINITION
+                        if ((memberNode.kind() == SyntaxKind.FUNCTION_DEFINITION ||
+                                memberNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION)
                                 && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
                             // Cursor on the resource function
                             return Optional.of((NonTerminalNode) memberNode);
@@ -581,6 +583,7 @@ public class CodeActionUtil {
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
             case OBJECT_METHOD_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
                 TextRange functionBodyTextRange = ((FunctionDefinitionNode) node).functionBody().textRange();
                 return isWithinRange(positionOffset, functionBodyTextRange.startOffset(),
                         functionBodyTextRange.endOffset());
@@ -642,6 +645,7 @@ public class CodeActionUtil {
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
             case OBJECT_METHOD_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
                 FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
                 Optional<MetadataNode> functionMetadata = functionDefinitionNode.metadata();
                 int functionStartOffset = functionMetadata.map(metadataNode -> metadataNode.textRange().endOffset())

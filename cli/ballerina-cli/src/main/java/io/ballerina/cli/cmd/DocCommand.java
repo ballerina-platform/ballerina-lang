@@ -50,7 +50,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
- * This class represents the "ballerina doc" command.
+ * This class represents the "bal doc" command.
  *
  * @since 2.0.0
  */
@@ -135,7 +135,7 @@ public class DocCommand implements BLauncherCmd {
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
-                    "ballerina doc <project_path> [--offline]\n",
+                    "bal doc <project_path> [--offline]\n",
                     false);
             CommandUtil.exitError(true);
             return;
@@ -193,7 +193,7 @@ public class DocCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina doc \n");
+        out.append("  bal doc \n");
     }
 
     @Override

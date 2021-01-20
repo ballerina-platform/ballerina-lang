@@ -43,7 +43,7 @@ class PositionUtil {
 
         return (startLine < cursorLine && endLine > cursorLine)
                 || (startLine < cursorLine && endLine == cursorLine && endColumn > cursorColumn)
-                || (startLine == cursorLine && startColumn < cursorColumn && endLine > cursorLine)
+                || (startLine == cursorLine && endLine > cursorLine)
                 || (startLine == endLine && startLine == cursorLine
                 && startColumn <= cursorColumn && endColumn > cursorColumn);
     }

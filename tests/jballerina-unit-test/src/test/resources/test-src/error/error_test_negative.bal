@@ -97,11 +97,11 @@ function testIndirectErrorDestructuring() {
     RNStrError e3 = error RNStrError(message="Msg", fatal=false, other="k");
 }
 
-type TrxErrorData2 record {
+type TrxErrorData2 record {|
     string message = "";
     error cause?;
     map<string> data = {};
-};
+|};
 
 const string reasonA = "ErrNo-1";
 type UserDefErrorTwoA error<TrxErrorData2>;

@@ -2,9 +2,9 @@
 
 Ballerina has a built-in documentation framework named Docerina. The documentation framework allows you to write unstructured document with a bit of structure to enable generating HTML content as API documentation.
 
-Developers can write the documentation inline with the Ballerina source code using the lightweight [markdown](https://daringfireball.net/projects/markdown/syntax) markup language. They can mark special occurrences such as parameters, return parameters, fields, endpoints within the documentation code using documentation attributes. Once the code is documented, developers can generate a basic HTML version of their Ballerina modules using the `ballerina doc` command. You are encouraged to have your custom themes and styles, to have a better presentation of your Ballerina documentation.
+Developers can write the documentation inline with the Ballerina source code using the lightweight [markdown](https://daringfireball.net/projects/markdown/syntax) markup language. They can mark special occurrences such as parameters, return parameters, fields, endpoints within the documentation code using documentation attributes. Once the code is documented, developers can generate a basic HTML version of their Ballerina modules using the `bal doc` command. You are encouraged to have your custom themes and styles, to have a better presentation of your Ballerina documentation.
 
-Ballerina design and usage is aligned with project and module semantics of Ballerina. You can generate documentation for the project modules using the ``ballerina doc`` command.
+Ballerina design and usage is aligned with project and module semantics of Ballerina. You can generate documentation for the project modules using the ``bal doc`` command.
 
 
 ## Overview
@@ -12,7 +12,7 @@ Ballerina design and usage is aligned with project and module semantics of Balle
 * Ballerina programmers can place the documentation inline with the source code using documentation syntax.
 * Ballerina records, type definitions, objects, global variables, annotations, endpoints can be documented using the documentation syntax.
 * Fields, parameters, return parameters, endpoints can be marked using documentation attributes.
-* HTML documents can be generated using the ``ballerina doc`` command for each Ballerina module and if you have custom handlebars templates, you can use them to generate the HTMLs.
+* HTML documents can be generated using the ``bal doc`` command for each Ballerina module and if you have custom handlebars templates, you can use them to generate the HTMLs.
 
 ## Writing Ballerina Documentation
 
@@ -131,7 +131,7 @@ A typical project structure of a Ballerina project is like this:
       modules.can.include.dots.in.dir.name.bal
 ```
 
-`ballerina doc` command will read the `Module.md` and append it in the generated HTML file.
+`bal doc` command will read the `Module.md` and append it in the generated HTML file.
 
 Please check [HTTP module documentation](https://ballerina.io/learn/api-docs/ballerina/http.html) for a sample HTML that has a `Module.md` content at the top, followed by the other module constructs.
 
@@ -144,7 +144,7 @@ First, let's create a new Ballerina project:
 ```bash
 $ mkdir myproject
 $ cd myproject
-$ ballerina init -i
+$ bal init -i
 Create Ballerina.toml [yes/y, no/n]: (n) y
 Organization name: (nirmal) y
 Version: (0.0.1)
@@ -158,7 +158,7 @@ Ballerina project initialized
 ```
 Now, let's generate documentation of the project:
 ```bash
-$ ballerina doc
+$ bal doc
 ```
 Output:
 ```bash
@@ -187,19 +187,19 @@ time.html
 If you want to generate documentation for a selected Ballerina module, then you can execute the following command from the ballerina project root directory:
 
 ```bash
-$ ballerina doc <module_name>
+$ bal doc <module_name>
 ```
 
 If you have custom Handlebars templates, you can pass them via the `doc` command:
 
 ```bash
-$ ballerina doc -t <path_to_templates> <module_name>
+$ bal doc -t <path_to_templates> <module_name>
 ```
 
 If you have a custom Organization name, you can pass it using `-e` flag:
 
 ```bash
-$ ballerina doc -e orgName=<your_organization_name> <module_name>
+$ bal doc -e orgName=<your_organization_name> <module_name>
 ```
 
-For other options, please run `ballerina doc --help`.
+For other options, please run `bal doc --help`.

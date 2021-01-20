@@ -10,10 +10,10 @@ function testFooError() returns Foo {
 }
 
 public type GraphAPIError distinct error<GraphAPIErrorDetails>;
-public type GraphAPIErrorDetails record {
+public type GraphAPIErrorDetails record {|
     string code;
     map<anydata> details;
-};
+|};
 
 public function testFunctionCallInDetailArgExpr() {
     json codeJson = "1234";

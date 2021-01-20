@@ -17,7 +17,7 @@
 function testIntersectionTypes() {
     testIntersectionWithMemberTypeDefinedAfter();
     testIntersectionInUnion();
-    //testComplexIntersectionsInUnions();
+    testComplexIntersectionsInUnions();
     testTypeCheckingAgainstEffectiveType1();
     testTypeCheckingAgainstEffectiveType2();
 }
@@ -63,60 +63,60 @@ function testIntersectionInUnion() {
     assertEquality((), d);
 }
 
-//type InboundHandler object {
-//    public function canProcess(int req) returns boolean;
-//    readonly boolean enabled;
-//};
-//
-//type IntermediateInboundHandler object {
-//    *InboundHandler;
-//    readonly int allow;
-//};
-//
-//class InboundHandlerImpl {
-//    *IntermediateInboundHandler;
-//    readonly int count;
-//
-//    public function init(int allow, boolean enabled = false) {
-//        self.enabled = enabled;
-//        self.allow = allow;
-//        self.count = allow * 2;
-//    }
-//
-//    public function canProcess(int req) returns boolean {
-//        return self.enabled && req < self.allow;
-//    }
-//}
+type InboundHandler object {
+    public function canProcess(int req) returns boolean;
+    boolean enabled;
+};
 
-//type InboundHandlers InboundHandler[]|InboundHandler[][];
-//
-//type Handlers record {|
-//    (InboundHandlers & readonly)? handlers;
-//|};
-//
-//type NonImmutableHandlers record {|
-//    InboundHandlers|int? handlers?;
-//|};
-//
-//function testComplexIntersectionsInUnions() {
-//    InboundHandler[] & readonly arr = [new InboundHandlerImpl(10, true), new InboundHandlerImpl(20)];
-//
-//    Handlers h1 = {handlers: arr};
-//    NonImmutableHandlers h2 = h1;
-//
-//    Handlers & readonly h3 = {handlers: arr};
-//    NonImmutableHandlers & readonly h4 = h3;
-//
-//    assertTrue(h2?.handlers is InboundHandlers & readonly);
-//    assertTrue(h2?.handlers is readonly);
-//
-//    InboundHandlers hds = <InboundHandlers> h2?.handlers;
-//    InboundHandler[] hdArray = <InboundHandler[]> hds;
-//
-//    assertTrue(hdArray[0].canProcess(5));
-//    assertFalse(hdArray[0].canProcess(12));
-//    assertFalse(hdArray[1].canProcess(10));
-//}
+type IntermediateInboundHandler object {
+    *InboundHandler;
+    int allow;
+};
+
+readonly class InboundHandlerImpl {
+    *IntermediateInboundHandler;
+    final int count;
+
+    public function init(int allow, boolean enabled = false) {
+        self.enabled = enabled;
+        self.allow = allow;
+        self.count = allow * 2;
+    }
+
+    public function canProcess(int req) returns boolean {
+        return self.enabled && req < self.allow;
+    }
+}
+
+type InboundHandlers InboundHandler[]|InboundHandler[][];
+
+type Handlers record {|
+    (InboundHandlers & readonly)? handlers;
+|};
+
+type NonImmutableHandlers record {|
+    InboundHandlers|int? handlers?;
+|};
+
+function testComplexIntersectionsInUnions() {
+    InboundHandler[] & readonly arr = [new InboundHandlerImpl(10, true), new InboundHandlerImpl(20)];
+
+    Handlers h1 = {handlers: arr};
+    NonImmutableHandlers h2 = h1;
+
+    Handlers & readonly h3 = {handlers: arr};
+    NonImmutableHandlers & readonly h4 = h3;
+
+    assertTrue(h2?.handlers is InboundHandlers & readonly);
+    assertTrue(h2?.handlers is readonly);
+
+    InboundHandlers hds = <InboundHandlers> h2?.handlers;
+    InboundHandler[] hdArray = <InboundHandler[]> hds;
+
+    assertTrue(hdArray[0].canProcess(5));
+    assertFalse(hdArray[0].canProcess(12));
+    assertFalse(hdArray[1].canProcess(10));
+}
 
 function testTypeCheckingAgainstEffectiveType1() {
     readonly & json a = null;

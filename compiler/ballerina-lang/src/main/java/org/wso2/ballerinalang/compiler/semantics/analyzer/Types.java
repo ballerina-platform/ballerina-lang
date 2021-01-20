@@ -76,6 +76,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -395,8 +397,24 @@ public class Types {
         return symTable.noType;
     }
 
-    BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BLangExpression constPatternExpr) {
+    public BType resolvePatternTypeFromMatchExpr(BLangErrorMatchPattern errorMatchPattern, BLangExpression matchExpr) {
         if (matchExpr == null) {
+            return errorMatchPattern.type;
+        }
+
+        BType matchExprType = matchExpr.type;
+        BType patternType = errorMatchPattern.type;
+        if (isAssignable(matchExprType, patternType)) {
+            return matchExprType;
+        }
+        if (isAssignable(patternType, matchExprType)) {
+            return patternType;
+        }
+        return symTable.noType;
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BLangConstPattern constPattern, BLangExpression constPatternExpr) {
+        if (constPattern.matchExpr == null) {
             if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
             } else {
@@ -404,7 +422,7 @@ public class Types {
             }
         }
 
-        BType matchExprType = matchExpr.type;
+        BType matchExprType = constPattern.matchExpr.type;
         BType constMatchPatternExprType = constPatternExpr.type;
 
         if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -418,25 +436,20 @@ public class Types {
             }
             return symTable.noType;
         }
-
         // After the above check, according to spec all other const-patterns should be literals.
         BLangLiteral constPatternLiteral = (BLangLiteral) constPatternExpr;
-
         if (containsAnyType(constMatchPatternExprType)) {
             return matchExprType;
         } else if (containsAnyType(matchExprType)) {
             return constMatchPatternExprType;
         }
-
         // This should handle specially
         if (matchExprType.tag == TypeTags.BYTE && constMatchPatternExprType.tag == TypeTags.INT) {
             return matchExprType;
         }
-
         if (isAssignable(constMatchPatternExprType, matchExprType)) {
             return constMatchPatternExprType;
         }
-
         if (matchExprType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) matchExprType).getMemberTypes()) {
                 if (memberType.tag == TypeTags.FINITE) {
@@ -2335,13 +2348,8 @@ public class Types {
     public boolean isValidErrorDetailType(BType detailType) {
         switch (detailType.tag) {
             case TypeTags.MAP:
+            case TypeTags.RECORD:
                 return isAssignable(detailType, symTable.detailType);
-            case TypeTags.RECORD: {
-                if (isSealedRecord((BRecordType) detailType)) {
-                    return false;
-                }
-                return isAssignable(detailType, symTable.detailType);
-            }
         }
         return false;
     }
@@ -2707,7 +2715,9 @@ public class Types {
             sourceTypes.add(source);
         }
 
+        boolean targetIsAUnion = false;
         if (target.tag == TypeTags.UNION) {
+            targetIsAUnion = true;
             targetTypes.addAll(getEffectiveMemberTypes((BUnionType) target));
         } else {
             targetTypes.add(target);
@@ -2731,6 +2741,17 @@ public class Types {
             }
 
             if (!isValueType(s)) {
+                // prevent cyclic unions being compared as individual items
+                if (s instanceof BUnionType && targetIsAUnion) {
+                    BUnionType sUnion = (BUnionType) s;
+                    BUnionType targetUnion = (BUnionType) target;
+                    if (sUnion.isCyclic && targetUnion.isCyclic) {
+                         if (isAssignable(sUnion, targetUnion, unresolvedTypes)) {
+                             sourceIterator.remove();
+                             continue;
+                         }
+                    }
+                }
                 continue;
             }
 

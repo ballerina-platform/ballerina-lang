@@ -447,8 +447,7 @@ public class LangLibArrayTest {
                 "incompatible types: expected '(descending|ascending)', found 'function (int) returns (int)'",
                 130, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns " +
-                        "((boolean|int|float|decimal|string|(boolean|int|float|decimal|string)?[])?)?', " +
+                "incompatible types: expected 'isolated function ((any|error)) returns (OrderedType?)?', " +
                         "found 'string'", 132, 8);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type",
@@ -466,8 +465,7 @@ public class LangLibArrayTest {
                 "invalid member type of the array/tuple to sort: 'map<string>?[]' is not an ordered type",
                 148, 35);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns (" +
-                        "(boolean|int|float|decimal|string|(boolean|int|float|decimal|string)?[])?)?', " +
+                "incompatible types: expected 'isolated function ((any|error)) returns (OrderedType?)?', " +
                         "found 'isolated function (map<string>?) returns (map<string>?)'",
                 150, 62);
         BAssertUtil.validateError(negativeResult, errorIndex++,
@@ -485,8 +483,8 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid sort key function return type: '(int|string)' is not an ordered type", 173, 52);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected '(boolean|int|float|decimal|string|" +
-                        "(boolean|int|float|decimal|string)?[])?', found 'any'", 176, 60);
+                "incompatible types: expected '(boolean|int|float|decimal|string|OrderedType?[])?', " +
+                        "found 'any'", 176, 60);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
