@@ -197,7 +197,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
     }
 
     private Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef, String methodName) {
-        return classDef.methods()
+        return classDef.methods().values()
                 .stream()
                 .filter(methodSymbol -> modifyName(methodSymbol.name()).equals(methodName))
                 .findFirst();

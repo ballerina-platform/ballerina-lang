@@ -444,12 +444,13 @@ public class Generator {
         return new BAbstractObject(name, description, isDeprecated, fields, functions);
     }
 
+    // TODO: Revisit this. This probably can be written in a much simpler way.
     private static List<Function> getInclusionFunctions(TypeSymbol typeSymbol, Type originType,
                                                         NodeList<Node> members) {
         List<Function> functions = new ArrayList<>();
         if (typeSymbol instanceof ObjectTypeSymbol) {
             ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) typeSymbol;
-            objectTypeSymbol.methods().forEach(methodSymbol -> {
+            objectTypeSymbol.methods().values().forEach(methodSymbol -> {
                 String methodName = methodSymbol.name();
                 // Check if the inclusion function is overridden
                 if (members.stream().anyMatch(node -> {
@@ -598,32 +599,32 @@ public class Generator {
                 }
                 if (typeSymbol instanceof RecordTypeSymbol) {
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeSymbol;
-                    recordTypeSymbol.fieldDescriptors().forEach(field -> {
-                        Type type = new Type(field.name());
+                    recordTypeSymbol.fieldDescriptors().forEach((name, field) -> {
+                        Type type = new Type(name);
                         Type elemType;
-                        String name;
+                        String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            name = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().name();
                         } else {
-                            name = field.typeDescriptor().signature();
+                            typeName = field.typeDescriptor().signature();
                         }
-                        elemType = new Type(name);
+                        elemType = new Type(typeName);
                         Type.resolveSymbol(elemType, field.typeDescriptor());
                         type.elementType = elemType;
                         originType.memberTypes.add(type);
                     });
                 } else if (typeSymbol instanceof ObjectTypeSymbol) {
                     ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) typeSymbol;
-                    objectTypeSymbol.fieldDescriptors().forEach(field -> {
-                        Type type = new Type(field.name());
+                    objectTypeSymbol.fieldDescriptors().forEach((name, field) -> {
+                        Type type = new Type(name);
                         Type elemType;
-                        String name;
+                        String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            name = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().name();
                         } else {
-                            name = field.typeDescriptor().signature();
+                            typeName = field.typeDescriptor().signature();
                         }
-                        elemType = new Type(name);
+                        elemType = new Type(typeName);
                         Type.resolveSymbol(elemType, field.typeDescriptor());
                         type.elementType = elemType;
                         originType.memberTypes.add(type);

@@ -75,7 +75,7 @@ public class FunctionGenerator {
                                                 DocumentServiceContext context) {
         Module module = context.workspace().module(context.filePath()).orElseThrow();
         String currentOrg = module.packageInstance().descriptor().org().value();
-        String currentModule = module.descriptor().name().packageName().value();
+        String currentModule = module.descriptor().name().toString();
         String currentVersion = module.packageInstance().descriptor().version().value().toString();
 
         StringBuilder newText = new StringBuilder();
