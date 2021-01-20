@@ -147,6 +147,9 @@ public class BuildCommand implements BLauncherCmd {
             "JAR file(s).")
     private Boolean observabilityIncluded;
 
+    @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
+    private String cloud;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -256,6 +259,7 @@ public class BuildCommand implements BLauncherCmd {
                 .skipTests(skipTests)
                 .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
+                .cloud(cloud)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
                 .build();
