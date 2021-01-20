@@ -216,7 +216,9 @@ public class MemberAccessTest {
             { "testRecordMemberAccessByConstant" },
             { "testRecordMemberAccessByVariable" },
             { "testRecordMemberAccessForNonExistingKey" },
-            { "testRestFieldAccessOnNilableUnion" }
+            { "testRestFieldAccessOnNilableRecordUnion" },
+            { "testAccessOnNilableMapUnion" },
+            { "testAccessOnNilableRecordMapUnion" }
         };
     }
 

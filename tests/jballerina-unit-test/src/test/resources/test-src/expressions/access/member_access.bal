@@ -575,7 +575,7 @@ type IntRecord record {|
     int...;
 |};
 
-function testRestFieldAccessOnNilableUnion() returns boolean {
+function testRestFieldAccessOnNilableRecordUnion() returns boolean {
     StringRecord? f = {"x": "abc", "y": "def"};
     var v1 = f["x"];
     assertEquality("abc", v1);
@@ -591,6 +591,59 @@ function testRestFieldAccessOnNilableUnion() returns boolean {
     StringRecord|IntRecord? fb2 = ();
     var v5 = fb2["x"];
     assertEquality((), v5);
+    return true;
+}
+
+function testAccessOnNilableMapUnion() returns boolean {
+    map<string>? f = {"x": "abc", "y": "def"};
+    var v1 = f["x"];
+    assertEquality("abc", v1);
+    var v2 = f["z"];
+    assertEquality((), v2);
+
+    map<string>|map<int>? fb1 = {"x": 100, "y": 200};
+    int|string? v3 = fb1["z"];
+    assertEquality((), v3);
+    int|string? v4 = fb1["y"];
+    assertEquality(200, v4);
+
+    map<int>|map<string>? fb2 = ();
+    var v5 = fb2["x"];
+    assertEquality((), v5);
+    return true;
+}
+
+type IntAndStringRecord record {|
+    int x;
+    string...;
+|};
+
+function testAccessOnNilableRecordMapUnion() returns boolean {
+    map<string>|IntRecord? r1 = {"x": "abc", "y": "def"};
+    var v1 = r1["x"];
+    assertEquality("abc", v1);
+    var v2 = r1["a"];
+    assertEquality((), v2);
+
+    map<string>|IntRecord? r2 = {"x": 111, "y": 222};
+    var v3 = r2["a"];
+    assertEquality((), v3);
+    var v4 = r2["y"];
+    assertEquality(222, v4);
+
+    IntAndStringRecord|map<string> r3 = {"a": "foo", "b": "bar"};
+    var v5 = r3["x"];
+    assertEquality((), v5);
+    var v6 = r3["b"];
+    assertEquality("bar", v6);
+
+    IntAndStringRecord|map<string> r4 = {"x": 1234, "y": "bar"};
+    var v7 = r4["x"];
+    assertEquality(1234, v7);
+    var v8 = r4["y"];
+    assertEquality("bar", v8);
+    var v9 = r4["a"];
+    assertEquality((), v9);
     return true;
 }
 
