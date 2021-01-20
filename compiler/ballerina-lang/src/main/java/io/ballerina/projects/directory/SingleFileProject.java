@@ -19,6 +19,7 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -27,8 +28,6 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.util.ProjectConstants;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -66,15 +65,16 @@ public class SingleFileProject extends Project {
     }
 
     private SingleFileProject(ProjectEnvironmentBuilder environmentBuilder, Path filePath, BuildOptions buildOptions) {
-        super(ProjectKind.SINGLE_FILE_PROJECT, createTempProjectRoot(), environmentBuilder, buildOptions);
+        super(ProjectKind.SINGLE_FILE_PROJECT, filePath, environmentBuilder, buildOptions);
         populateCompilerContext();
     }
 
-    private static Path createTempProjectRoot() {
-        try {
-            return Files.createTempDirectory("ballerina-project" + System.nanoTime());
-        } catch (IOException e) {
-            throw new ProjectException("error while creating project root directory for single file execution. ", e);
+    @Override
+    public DocumentId documentId(Path file) {
+        if (!this.sourceRoot.toAbsolutePath().normalize().toString().equals(
+                file.toAbsolutePath().normalize().toString())) {
+            throw new ProjectException("provided path does not belong to the project");
         }
+        return this.currentPackage().getDefaultModule().documentIds().iterator().next();
     }
 }

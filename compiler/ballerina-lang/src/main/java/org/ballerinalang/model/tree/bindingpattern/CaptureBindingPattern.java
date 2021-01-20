@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.tree.bindingpattern;
 
-import org.ballerinalang.model.symbols.VariableSymbol;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.Node;
 
@@ -31,6 +30,4 @@ public interface CaptureBindingPattern extends Node {
     IdentifierNode getIdentifier();
 
     void setIdentifier(IdentifierNode variableName);
-
-    VariableSymbol getSymbol();
 }

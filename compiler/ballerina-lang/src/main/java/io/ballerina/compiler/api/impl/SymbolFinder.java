@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -294,6 +295,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(typeDefinition.annAttachments);
         lookupNode(typeDefinition.typeNode);
     }
 
@@ -1039,6 +1041,13 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangErrorType errorType) {
         lookupNode(errorType.detailType);
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        lookupNode(errorConstructorExpr.errorTypeRef);
+        lookupNodes(errorConstructorExpr.positionalArgs);
+        lookupNodes(errorConstructorExpr.namedArgs);
     }
 
     @Override

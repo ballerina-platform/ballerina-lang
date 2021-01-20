@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -77,5 +78,11 @@ public class VariableScopeTest {
         //testVariableResourceScope
         BAssertUtil.validateError(resultNegative, 3, "undefined symbol 'a'", 42, 17);
         BAssertUtil.validateError(resultNegative, 4, "undefined symbol 'b'", 47, 17);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

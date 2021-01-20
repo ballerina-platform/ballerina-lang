@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -39,19 +39,15 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.completions.FieldCompletionItem;
+import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
-import org.ballerinalang.langserver.exception.LSStdlibCacheException;
-import org.ballerinalang.langserver.util.definition.LSStandardLibCache;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
@@ -70,12 +66,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -105,6 +97,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
+import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER_KEYWORD;
+import static org.ballerinalang.langserver.common.utils.CommonKeys.SEMI_COLON_SYMBOL_KEY;
+import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD_KEY;
 
 /**
  * Common utils to be reuse in language server implementation.
@@ -146,7 +141,7 @@ public class CommonUtil {
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
-        BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "ballerina" +
+        BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
     }
 
@@ -214,7 +209,7 @@ public class CommonUtil {
             pkgNameComponent = pkgName;
         }
         String importStatement = ItemResolverConstants.IMPORT + " "
-                + orgName + CommonKeys.SLASH_KEYWORD_KEY + pkgNameComponent + CommonKeys.SEMI_COLON_SYMBOL_KEY
+                + orgName + SLASH_KEYWORD_KEY + pkgNameComponent + SEMI_COLON_SYMBOL_KEY
                 + CommonUtil.LINE_SEPARATOR;
         return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
     }
@@ -288,8 +283,8 @@ public class CommonUtil {
      * @param fields  List of field descriptors
      * @return {@link List}     List of completion items for the struct fields
      */
-    public static List<LSCompletionItem> getRecordFieldCompletionItems(CompletionContext context,
-                                                                       List<FieldSymbol> fields) {
+    public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
+                                                                       List<RecordFieldSymbol> fields) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         fields.forEach(field -> {
             String insertText = getRecordFieldCompletionInsertText(field, 0);
@@ -300,7 +295,7 @@ public class CommonUtil {
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
-            completionItems.add(new FieldCompletionItem(context, field, fieldItem));
+            completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem));
         });
 
         return completionItems;
@@ -313,12 +308,13 @@ public class CommonUtil {
      * @param fields  List of fields
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
-    public static LSCompletionItem getFillAllStructFieldsItem(CompletionContext context, List<FieldSymbol> fields) {
+    public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
+                                                              List<RecordFieldSymbol> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
-        for (FieldSymbol fieldSymbol : fields) {
+        for (RecordFieldSymbol fieldSymbol : fields) {
             String defaultFieldEntry = fieldSymbol.name()
-                    + CommonKeys.PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(fieldSymbol.typeDescriptor());
+                    + PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(fieldSymbol.typeDescriptor());
             fieldEntries.add(defaultFieldEntry);
         }
 
@@ -341,7 +337,7 @@ public class CommonUtil {
      * @param context LS Operation context
      * @return {@link LSCompletionItem} generated for error type
      */
-    public static LSCompletionItem getErrorTypeCompletionItem(CompletionContext context) {
+    public static LSCompletionItem getErrorTypeCompletionItem(BallerinaCompletionContext context) {
         CompletionItem errorTypeCItem = new CompletionItem();
         errorTypeCItem.setInsertText(ItemResolverConstants.ERROR);
         errorTypeCItem.setLabel(ItemResolverConstants.ERROR);
@@ -372,7 +368,8 @@ public class CommonUtil {
      * @param typeName type name to be filtered against
      * @return {@link Optional} type found
      */
-    public static Optional<TypeSymbol> getTypeFromModule(CompletionContext context, String alias, String typeName) {
+    public static Optional<TypeSymbol> getTypeFromModule(BallerinaCompletionContext context, String alias,
+                                                         String typeName) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, alias);
         if (module.isEmpty()) {
             return Optional.empty();
@@ -401,7 +398,7 @@ public class CommonUtil {
      * @param alias   alias value
      * @return {@link Optional} scope entry for the module symbol
      */
-    public static Optional<ModuleSymbol> searchModuleForAlias(CompletionContext context, String alias) {
+    public static Optional<ModuleSymbol> searchModuleForAlias(PositionedOperationContext context, String alias) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         for (Symbol symbol : visibleSymbols) {
             if (symbol.kind() == MODULE && symbol.name().equals(alias)) {
@@ -455,18 +452,6 @@ public class CommonUtil {
         return isTestSource(relativePath) ? parentPkg.getTestablePkg() : parentPkg;
     }
 
-    /**
-     * Get the current module's imports.
-     *
-     * @param ctx LS Operation Context
-     * @return {@link List}     List of imports in the current file
-     */
-    public static List<BLangImportPackage> getCurrentFileImports(LSContext ctx) {
-        return getCurrentModuleImports(ctx).stream()
-                .filter(importInCurrentFilePredicate(ctx))
-                .collect(Collectors.toList());
-    }
-
     public static boolean isInvalidSymbol(BSymbol symbol) {
         return ("_".equals(symbol.name.getValue())
                 || symbol instanceof BAnnotationSymbol
@@ -485,34 +470,6 @@ public class CommonUtil {
                 && ((BLangSimpleVariableDef) node).var.expr != null
                 && ((BLangSimpleVariableDef) node).var.expr.type instanceof BFutureType
                 && ((BFutureType) ((BLangSimpleVariableDef) node).var.expr.type).workerDerivative;
-    }
-
-    /**
-     * Get the TopLevel nodes of the current file.
-     *
-     * @param pkgNode Current Package node
-     * @param ctx     Service Operation context
-     * @return {@link List}     List of Top Level Nodes
-     */
-    public static List<TopLevelNode> getCurrentFileTopLevelNodes(BLangPackage pkgNode, LSContext ctx) {
-        String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
-                .filter(cUnit ->
-                        cUnit.getPosition().lineRange().filePath().replace("/", FILE_SEPARATOR)
-                                .equals(relativeFilePath))
-                .findAny().orElse(null);
-        List<TopLevelNode> topLevelNodes = filteredCUnit == null
-                ? new ArrayList<>()
-                : new ArrayList<>(filteredCUnit.getTopLevelNodes());
-
-        // Filter out the lambda functions from the top level nodes
-        return topLevelNodes.stream()
-                .filter(topLevelNode -> !(topLevelNode instanceof BLangFunction
-                        && ((BLangFunction) topLevelNode).flagSet.contains(Flag.LAMBDA))
-                        && !(topLevelNode instanceof BLangSimpleVariable
-                        && ((BLangSimpleVariable) topLevelNode).flagSet.contains(Flag.SERVICE))
-                        && !(topLevelNode instanceof BLangImportPackage && topLevelNode.getWS() == null))
-                .collect(Collectors.toList());
     }
 
     /**
@@ -545,7 +502,7 @@ public class CommonUtil {
      * @param recordType record type descriptor to evaluate
      * @return {@link List} of required fields captured
      */
-    public static List<FieldSymbol> getMandatoryRecordFields(RecordTypeSymbol recordType) {
+    public static List<RecordFieldSymbol> getMandatoryRecordFields(RecordTypeSymbol recordType) {
         return recordType.fieldDescriptors().stream()
                 .filter(field -> !field.hasDefaultValue() && !field.isOptional())
                 .collect(Collectors.toList());
@@ -557,18 +514,18 @@ public class CommonUtil {
      * @param bField BField to evaluate
      * @return {@link String} Insert text
      */
-    public static String getRecordFieldCompletionInsertText(FieldSymbol bField, int tabOffset) {
+    public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField, int tabOffset) {
         TypeSymbol fieldType = CommonUtil.getRawType(bField.typeDescriptor());
         StringBuilder insertText = new StringBuilder(bField.name() + ": ");
         if (fieldType.typeKind() == TypeDescKind.RECORD) {
-            List<FieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
+            List<RecordFieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
             if (requiredFields.isEmpty()) {
                 insertText.append("{").append("${1}}");
                 return insertText.toString();
             }
             insertText.append("{").append(LINE_SEPARATOR);
             List<String> requiredFieldInsertTexts = new ArrayList<>();
-            for (FieldSymbol field : requiredFields) {
+            for (RecordFieldSymbol field : requiredFields) {
                 String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
                         getRecordFieldCompletionInsertText(field, tabOffset + 1);
                 requiredFieldInsertTexts.add(fieldText);
@@ -586,45 +543,6 @@ public class CommonUtil {
         }
 
         return insertText.toString();
-    }
-
-    /**
-     * Get the current module's imports.
-     *
-     * @param ctx LS Operation Context
-     * @return {@link List}     List of imports in the current file
-     */
-    public static List<BLangImportPackage> getCurrentModuleImports(LSContext ctx) {
-        String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        BLangPackage ownerPkg = getSourceOwnerBLangPackage(relativePath, currentPkg);
-        return ownerPkg.imports;
-    }
-
-    ///////////////////////////////
-    /////      Predicates     /////
-    ///////////////////////////////
-
-    /**
-     * Predicate to check for the imports in the current file.
-     *
-     * @return {@link Predicate}    Predicate for the check
-     */
-    public static Predicate<BLangImportPackage> importInCurrentFilePredicate(LSContext ctx) {
-        String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return importPkg -> importPkg.pos.lineRange().filePath().replace("/", FILE_SEPARATOR).equals(currentFile);
-    }
-
-    /**
-     * Predicate to check for the standard library imports in the current file which aren't cached already.
-     *
-     * @return {@link Predicate}    Predicate for the check
-     */
-    public static Predicate<BLangImportPackage> stdLibImportsNotCachedPredicate(LSContext ctx) {
-        String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return importPkg -> importPkg.pos.lineRange().filePath().replace("/", FILE_SEPARATOR).equals(currentFile)
-                && importPkg.getWS() != null && (importPkg.orgName.value.equals(BALLERINA_ORG_NAME)
-                || importPkg.orgName.value.equals(BALLERINAX_ORG_NAME));
     }
 
     /**
@@ -833,7 +751,7 @@ public class CommonUtil {
      * @param importsAcceptor import acceptor
      * @param currentModuleId current module id
      * @param moduleID        module id
-     * @param context         {@link LSContext}
+     * @param context         {@link DocumentServiceContext}
      * @return module prefix
      */
     public static String getModulePrefix(ImportsAcceptor importsAcceptor, ModuleID currentModuleId,
@@ -951,23 +869,6 @@ public class CommonUtil {
             // ignore
         }
         return Optional.empty();
-    }
-
-    /**
-     * Update the standard library cache.
-     *
-     * @param context Language Server operation context
-     */
-    public static void updateStdLibCache(LSContext context) throws LSStdlibCacheException {
-        Boolean enabled = context.get(DocumentServiceKeys.ENABLE_STDLIB_DEFINITION_KEY);
-        if (enabled == null || !enabled) {
-            return;
-        }
-        List<BLangImportPackage> stdLibImports = getCurrentModuleImports(context).stream()
-                .filter(stdLibImportsNotCachedPredicate(context))
-                .collect(Collectors.toList());
-
-        LSStandardLibCache.getInstance().updateCache(stdLibImports);
     }
 
     /**

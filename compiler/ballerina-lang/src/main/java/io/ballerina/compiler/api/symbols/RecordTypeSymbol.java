@@ -31,14 +31,7 @@ public interface RecordTypeSymbol extends TypeSymbol {
      *
      * @return {@link List} of ballerina field
      */
-    List<FieldSymbol> fieldDescriptors();
-
-    /**
-     * Whether inclusive record ot not.
-     *
-     * @return {@link Boolean} inclusive or not
-     */
-    boolean inclusive();
+    List<RecordFieldSymbol> fieldDescriptors();
 
     /**
      * Get the rest type descriptor.

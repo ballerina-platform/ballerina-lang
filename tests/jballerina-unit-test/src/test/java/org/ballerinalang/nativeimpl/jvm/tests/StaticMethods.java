@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
@@ -23,13 +24,18 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
@@ -59,6 +65,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -587,5 +594,46 @@ public class StaticMethods {
 
     public static Object getValue() {
         return StringUtils.fromString("Ballerina");
+    }
+
+
+    public static BMap<BString, Object> createStudentUsingType() {
+        Module module = new Module("$anon", ".", "0.0.0");
+        BMap<BString, Object> bmap = ValueCreator.createRecordValue(module, "(Student & readonly)");
+        BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("name"), StringUtils.fromString("Riyafa")), ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("birth"), "Sri Lanka")};
+        return ValueCreator.createMapValue(bmap.getType(), mapInitialValueEntries);
+    }
+
+    public static BMap<BString, Object> createStudent() {
+        Module module = new Module("$anon", ".", "0.0.0");
+        Map<String, Object> mapInitialValueEntries = new HashMap<>();
+        mapInitialValueEntries.put("name", StringUtils.fromString("Riyafa"));
+        mapInitialValueEntries.put("birth", StringUtils.fromString("Sri Lanka"));
+        return ValueCreator.createReadonlyRecordValue(module, "Student", mapInitialValueEntries);
+    }
+
+    public static BMap<BString, Object> createDetails() {
+        Module module = new Module("$anon", ".", "0.0.0");
+        Map<String, Object> mapInitialValueEntries = new HashMap<>();
+        mapInitialValueEntries.put("name", StringUtils.fromString("Riyafa"));
+        mapInitialValueEntries.put("id", 123);
+        return ValueCreator.createReadonlyRecordValue(module, "Details", mapInitialValueEntries);
+    }
+
+    public static BMap<BString, Object> createRawDetails() {
+        Module module = new Module("$anon", ".", "0.0.0");
+        Map<String, Field> fieldMap = new HashMap<>();
+        fieldMap.put("name", TypeCreator
+                .createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
+        fieldMap.put("id", TypeCreator
+                .createField(PredefinedTypes.TYPE_INT, "id", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
+        RecordType recordType = TypeCreator.createRecordType("Details", module, SymbolFlags.READONLY
+                , fieldMap, null, true, 0);
+        BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("name"), StringUtils.fromString("aee")), ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("id"), 123L)};
+        return ValueCreator.createMapValue(recordType, mapInitialValueEntries);
     }
 }

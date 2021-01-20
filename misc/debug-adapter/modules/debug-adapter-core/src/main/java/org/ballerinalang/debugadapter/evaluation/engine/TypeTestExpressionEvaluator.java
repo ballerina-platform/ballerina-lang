@@ -1,0 +1,94 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.ballerinalang.debugadapter.evaluation.engine;
+
+import com.sun.jdi.Value;
+import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
+import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
+import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CHECK_IS_TYPE_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
+
+/**
+ * Type test expression evaluator implementation.
+ *
+ * @since 2.0.0
+ */
+public class TypeTestExpressionEvaluator extends Evaluator {
+
+    private final TypeTestExpressionNode syntaxNode;
+    private final Evaluator exprEvaluator;
+
+    public TypeTestExpressionEvaluator(SuspendedContext context, TypeTestExpressionNode typeofExpressionNode,
+                                       Evaluator exprEvaluator) {
+        super(context);
+        this.syntaxNode = typeofExpressionNode;
+        this.exprEvaluator = exprEvaluator;
+    }
+
+    @Override
+    public BExpressionValue evaluate() throws EvaluationException {
+        try {
+            BExpressionValue result = exprEvaluator.evaluate();
+            // primitive types need to be handled separately, as the jvm runtime util method accepts only the sub
+            // classes of 'java.lang.Object'. Therefore java primitive types are converted into their wrapper
+            // implementations first.
+            Value valueAsObject = getValueAsObject(context, result.getJdiValue());
+
+            // Resolves runtime type(s) using type descriptor nodes.
+            // resolvedTypes.size() > 1 for union types.
+            List<Value> resolvedTypes = BallerinaTypeResolver.resolve(context, syntaxNode.typeDescriptor());
+            for (Value type : resolvedTypes) {
+                boolean typeMatched = checkIsType(valueAsObject, type);
+                if (typeMatched) {
+                    return VMUtils.make(context, true);
+                }
+            }
+            return VMUtils.make(context, false);
+        } catch (EvaluationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
+                    syntaxNode.toSourceCode().trim()));
+        }
+    }
+
+    private boolean checkIsType(Value lhsExpressionResult, Value type) throws EvaluationException {
+        List<String> methodArgTypeNames = new ArrayList<>();
+        methodArgTypeNames.add(JAVA_OBJECT_CLASS);
+        methodArgTypeNames.add(B_TYPE_CLASS);
+        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, CHECK_IS_TYPE_METHOD,
+                methodArgTypeNames);
+
+        List<Value> methodArgs = new ArrayList<>();
+        methodArgs.add(lhsExpressionResult);
+        methodArgs.add(type);
+        method.setArgValues(methodArgs);
+        return Boolean.parseBoolean(new BExpressionValue(context, method.invoke()).getStringValue());
+    }
+}

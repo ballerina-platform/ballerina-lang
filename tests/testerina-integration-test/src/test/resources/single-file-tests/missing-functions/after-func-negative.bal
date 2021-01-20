@@ -19,7 +19,7 @@ import ballerina/test;
 // Tests the behaviour when a non-exesting function is provided as the after function
 
 @test:Config {
-    after:"afterFunc-nonExist"
+    after: afterFuncNonExist
 }
 public function afterFuncNegative() {
 }

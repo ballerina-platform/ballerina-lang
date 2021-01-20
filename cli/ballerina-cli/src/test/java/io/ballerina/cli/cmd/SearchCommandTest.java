@@ -40,7 +40,7 @@ public class SearchCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(actual.contains("ballerina: no keyword given"));
-        Assert.assertTrue(actual.contains("ballerina search [<org>|<package>|<text>]"));
+        Assert.assertTrue(actual.contains("bal search [<org>|<package>|<text>]"));
     }
 
     @Test(description = "Search with too many args")
@@ -52,7 +52,7 @@ public class SearchCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(actual.contains("ballerina: too many arguments"));
-        Assert.assertTrue(actual.contains("ballerina search [<org>|<package>|<text>]"));
+        Assert.assertTrue(actual.contains("bal search [<org>|<package>|<text>]"));
     }
 
     @Test(description = "Test search command with argument and a help")

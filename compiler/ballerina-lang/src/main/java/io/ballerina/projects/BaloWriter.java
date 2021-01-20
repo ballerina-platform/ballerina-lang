@@ -138,10 +138,10 @@ public abstract class BaloWriter {
                                                   this.packageContext.packageVersion().toString());
 
         PackageManifest packageManifest = this.packageContext.manifest();
-        packageJson.setLicenses((List<String>) packageManifest.getValue("license"));
-        packageJson.setAuthors((List<String>) packageManifest.getValue("authors"));
-        packageJson.setSourceRepository((String) packageManifest.getValue("repository"));
-        packageJson.setKeywords((List<String>) packageManifest.getValue("keywords"));
+        packageJson.setLicenses(packageManifest.license());
+        packageJson.setAuthors(packageManifest.authors());
+        packageJson.setSourceRepository(packageManifest.repository());
+        packageJson.setKeywords(packageManifest.keywords());
 
         packageJson.setPlatform(target);
         packageJson.setLanguageSpecVersion(langSpecVersion);

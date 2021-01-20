@@ -20,6 +20,7 @@ package org.ballerinalang.test.javainterop.basic;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,5 +41,10 @@ public class ObjectTest {
     @Test (enabled = false)
     public void testInteropsInsideObject() {
         BRunUtil.invoke(result, "testInteropsInsideObject");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -26,7 +26,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -42,7 +42,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvider<FunctionTypeDescriptorNode> {
 
     public FunctionTypeDescriptorNodeContext() {
@@ -50,7 +50,7 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, FunctionTypeDescriptorNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onSuggestionsAfterQualifiers(context, node)) {
@@ -80,7 +80,7 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
         return new ArrayList<>();
     }
 
-    private boolean withinParameterContext(CompletionContext context, FunctionTypeDescriptorNode node) {
+    private boolean withinParameterContext(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
         FunctionSignatureNode functionSignatureNode = node.functionSignature();
         if (functionSignatureNode.isMissing()) {
             return false;
@@ -92,7 +92,7 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
         return openParanRange.endOffset() <= txtPosInTree && txtPosInTree <= closeParanRange.startOffset();
     }
 
-    private boolean withinReturnKWContext(CompletionContext context, FunctionTypeDescriptorNode node) {
+    private boolean withinReturnKWContext(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
         FunctionSignatureNode functionSignatureNode = node.functionSignature();
         if (functionSignatureNode.isMissing()) {
             return false;
@@ -105,7 +105,7 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
                 || returnTypeDescNode.get().returnsKeyword().isMissing());
     }
 
-    private boolean onSuggestionsAfterQualifiers(CompletionContext context, FunctionTypeDescriptorNode node) {
+    private boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
         int cursor = context.getCursorPositionInTree();
         NodeList<Token> qualifiers = node.qualifierList();
         Token functionKeyword = node.functionKeyword();

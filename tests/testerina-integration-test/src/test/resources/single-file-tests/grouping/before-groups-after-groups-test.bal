@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Test file to test the test execution behavior when @BeforeGroups and @AfterGroups functions
-# are defined. The expected behavior is that, each @BeforeGroups function will execute before the first
-# test of that group is executed and each @AfterGroups function will execute after the
-# last test of that group is executed.
+// Test file to test the test execution behavior when @BeforeGroups and @AfterGroups functions are defined.
+// The expected behavior is that, each @BeforeGroups function will execute before the first
+// test of that group is executed and each @AfterGroups function will execute after the
+// last test of that group is executed.
 
 import ballerina/test;
 
@@ -55,14 +55,17 @@ function beforeFunc() {
 
 # Test function
 @test:Config {
-    before: "beforeFunc",
-    after: "afterFunc"
+    before: beforeFunc,
+    after: afterFunc
 }
 function testFunction() {
     a += "4";
 }
 
-@test:Config {groups: ["g1"]}
+@test:Config {
+    groups: ["g1"],
+    dependsOn: [testFunction]
+}
 function testFunction2() {
     a += "8";
 }

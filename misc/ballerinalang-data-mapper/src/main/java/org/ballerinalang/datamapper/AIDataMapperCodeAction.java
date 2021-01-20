@@ -16,17 +16,17 @@
 package org.ballerinalang.datamapper;
 
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.datamapper.config.LSClientExtendedConfig;
+import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
@@ -54,32 +54,33 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
-        if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
+        if (diagnostic.message().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
             getAIDataMapperCommand(diagnostic, context).map(actions::add);
         }
         return actions;
     }
-
-
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isEnabled() {
-        return LSClientConfigHolder.getInstance().getConfigAs(LSClientExtendedConfig.class).getDataMapper().isEnabled();
+    public boolean isEnabled(LanguageServerContext serverContext) {
+        return LSClientConfigHolder.getInstance(serverContext)
+                .getConfigAs(ClientExtendedConfigImpl.class).getDataMapper().isEnabled();
     }
 
     /**
      * Return data mapping code action.
      *
      * @param diagnostic {@link Diagnostic}
-     * @param context    {@link LSContext}
+     * @param context    {@link CodeActionContext}
      * @return data mapper code action
      */
-    private static Optional<CodeAction> getAIDataMapperCommand(Diagnostic diagnostic,
-                                                               CodeActionContext context) {
+    private static Optional<CodeAction> getAIDataMapperCommand(Diagnostic diagnostic, CodeActionContext context) {
         try {
-            if (CommonUtil.getRawType(context.positionDetails().matchedExprType()).typeKind() == TypeDescKind.RECORD) {
+            TypeDescKind typeDescriptor = CommonUtil.getRawType(context.positionDetails().matchedExprType()).typeKind();
+
+            if (typeDescriptor == TypeDescKind.RECORD || typeDescriptor == TypeDescKind.COMPILATION_ERROR) {
                 CodeAction action = new CodeAction("Generate mapping function");
                 action.setKind(CodeActionKind.QuickFix);
 

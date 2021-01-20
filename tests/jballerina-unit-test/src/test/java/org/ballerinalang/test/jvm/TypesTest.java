@@ -35,6 +35,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -572,8 +573,11 @@ public class TypesTest {
         Assert.assertEquals(returns[0].stringValue(), "[[1, 2, 3], [3, 4, 5], [7, 8, 9]]");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'string'.*")
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}JSONOperationError \\{\"message\":\"JSON value " +
+                    "is not " +
+                    "a mapping\"\\}\n" +
+                    "\tat types:testGetFromNull\\(types.bal:588\\)")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }
@@ -777,5 +781,11 @@ public class TypesTest {
     @Test
     public void testTypeDescValuePrint() {
         BRunUtil.invoke(compileResult, "testTypeDescValuePrint");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        objectsResult = null;
     }
 }

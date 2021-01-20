@@ -210,8 +210,8 @@ public class PackagingNegativeTestCase extends BaseTest {
         // Remove Ballerina.toml
         Files.deleteIfExists(projectPath.resolve("Ballerina.toml"));
 
-        String msg = "ballerina: couldn't locate Ballerina.toml in the project directory. Run 'ballerina init' to " +
-                "create the Ballerina.toml file automatically and re-run the 'ballerina push' command";
+        String msg = "ballerina: couldn't locate Ballerina.toml in the project directory. Run 'bal init' to " +
+                "create the Ballerina.toml file automatically and re-run the 'bal push' command";
 
         String[] clientArgs = {moduleName};
         balClient.runMain("push", clientArgs, envVariables, new String[0],
@@ -353,7 +353,7 @@ public class PackagingNegativeTestCase extends BaseTest {
     public void testBuildingBalInsidePackage() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("projectxyz");
         String msg = "error: you are trying to build a ballerina file inside a package within a project. Try running " +
-                "'ballerina build <package-name>'";
+                "'bal build <package-name>'";
         String sourcePath = Paths.get(moduleName, "main.bal").toString();
         balClient.runMain("build", new String[] {sourcePath}, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());

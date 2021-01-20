@@ -21,6 +21,7 @@ package org.ballerinalang.test.record;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -33,10 +34,31 @@ import static org.testng.Assert.assertEquals;
  */
 public class ReadonlyRecordFieldTest {
 
-    @Test
-    public void testReadonlyRecordFields() {
+    @Test(dataProvider = "readonlyRecordFieldTestFunctions")
+    public void testReadonlyRecordFields(String testFunction) {
         CompileResult result = BCompileUtil.compile("test-src/record/readonly_record_fields.bal");
-        BRunUtil.invoke(result, "testReadonlyRecordFields");
+        BRunUtil.invoke(result, testFunction);
+    }
+
+    @DataProvider(name = "readonlyRecordFieldTestFunctions")
+    public Object[][] readonlyRecordFieldTestFunctions() {
+        return new Object[][]{
+                {"testRecordWithSimpleReadonlyFields"},
+                {"testInvalidRecordSimpleReadonlyFieldUpdate"},
+                {"testValidUpdateOfPossiblyReadonlyFieldInUnion"},
+                {"testInvalidUpdateOfPossiblyReadonlyFieldInUnion"},
+                {"testRecordWithStructuredReadonlyFields"},
+                {"testReadOnlyFieldWithDefaultValue"},
+                {"testTypeReadOnlyFlagForAllReadOnlyFields"},
+                {"testTypeReadOnlyFlagForAllReadOnlyFieldsInAnonymousRecord"},
+                {"testSubTypingWithReadOnlyFields"},
+                {"testSubTypingWithReadOnlyFieldsViaReadOnlyType"},
+                {"testSubTypingWithReadOnlyFieldsNegative"},
+                {"testSubTypingWithReadOnlyFieldsPositiveComposite"},
+                {"testSubTypingWithReadOnlyFieldsNegativeComposite"},
+                {"testSubTypingMapAsRecordWithReadOnlyFields"},
+                {"testReadOnlyFieldsOfClassTypes"}
+        };
     }
 
     @Test
@@ -61,6 +83,30 @@ public class ReadonlyRecordFieldTest {
         validateError(result, index++, "cannot update 'readonly' record field 'code' in 'Quux'", 169, 5);
         validateError(result, index++, "incompatible types: expected 'record {| readonly int i; string s; readonly " +
                 "boolean b; |}', found 'record {| int i; string s; boolean b; |}'", 183, 12);
+        validateError(result, index++, "invalid 'readonly' field, 'stream<int>' can never be 'readonly'", 191, 9);
+        validateError(result, index++, "cannot initialize abstract object '(NonReadOnlyClass & readonly)'", 192, 17);
+        validateError(result, index++, "cannot initialize abstract object '(ReadOnlyClass & readonly)'", 205, 43);
+        validateError(result, index++, "invalid 'readonly' field, 'stream<int>' can never be 'readonly'", 206, 5);
+        validateError(result, index++, "cannot initialize abstract object '(NonReadOnlyClass & readonly)'", 209, 69);
+        validateError(result, index++, "cannot initialize abstract object '(ReadOnlyClass & readonly)'", 209, 77);
+        validateError(result, index++, "incompatible types: expected 'readonly', found 'record {| readonly int x; " +
+                "anydata...; |}'", 227, 15);
+        validateError(result, index++, "incompatible types: expected 'readonly', found 'record {| readonly int x; " +
+                "anydata...; |}'", 242, 19);
+        validateError(result, index++, "incompatible types: expected 'readonly', found " +
+                "'OpenRecordWithNoFieldDescriptors'", 243, 20);
+        validateError(result, index++, "incompatible types: expected 'readonly', found " +
+                "'OpenRecordWithNoFieldDescriptors'", 244, 20);
+        validateError(result, index++, "incompatible types: expected 'readonly', found " +
+                "'OpenIntRecordWithNoFieldDescriptors'", 245, 20);
+        validateError(result, index++, "incompatible types: expected 'readonly', found " +
+                "'OpenIntRecordWithNoFieldDescriptors'", 246, 20);
+        validateError(result, index++, "incompatible types: expected 'readonly', found " +
+                "'OpenRecordWithFieldDescriptors'", 247, 20);
+        validateError(result, index++, "incompatible types: expected 'readonly', found " +
+                "'OpenRecordWithFieldDescriptors'", 248, 20);
+        validateError(result, index++, "incompatible types: expected 'readonly', found 'record {| readonly int x; int" +
+                "...; |}'", 249, 20);
         assertEquals(result.getErrorCount(), index);
     }
 }

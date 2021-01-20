@@ -24,6 +24,7 @@ package org.ballerinalang.debugadapter.evaluation;
 public enum EvaluationExceptionKind {
 
     FUNCTION_NOT_FOUND("Undefined function '%s'"),
+    CLASS_NOT_FOUND("Undefined class: %s"),
     OBJECT_METHOD_NOT_FOUND("Undefined method '%s' in object `%s`"),
     LANG_LIB_METHOD_NOT_FOUND("Undefined function '%s' in type '%s'"),
     LANG_LIB_NOT_FOUND("Failed to load lang library: '%s'"),
@@ -39,7 +40,8 @@ public enum EvaluationExceptionKind {
     INVALID("Invalid expression: '%s'"),
     SYNTAX_ERROR("Syntax errors found: " + System.lineSeparator() + "%s"),
     COMPILATION_ERRORS("Compilation error(s) found: " + System.lineSeparator() + "%s"),
-    UNSUPPORTED_EXPRESSION("Unsupported expressions/sub-expressions found: %s" + System.lineSeparator()),
+    UNSUPPORTED_EXPRESSION("Following expressions/sub-expressions are not supported by the evaluator: " +
+            System.lineSeparator() + "%s"),
     UNSUPPORTED_OPERATION("'%s' operation is not supported for types: '%s' and '%s'"),
     INTERNAL_ERROR("Internal error occurred while evaluating the expression: '%s'"),
     CUSTOM_ERROR("%s");

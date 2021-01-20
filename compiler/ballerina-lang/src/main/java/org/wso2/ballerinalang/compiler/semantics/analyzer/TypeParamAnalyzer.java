@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -167,14 +168,13 @@ public class TypeParamAnalyzer {
     // Private methods.
 
     private static boolean containsTypeParam(BType type, HashSet<BType> resolvedTypes) {
-
-        if (isTypeParam(type)) {
-            return true;
-        }
         if (resolvedTypes.contains(type)) {
             return false;
         }
         resolvedTypes.add(type);
+        if (isTypeParam(type)) {
+            return true;
+        }
         switch (type.tag) {
             case TypeTags.ARRAY:
                 return containsTypeParam(((BArrayType) type).eType, resolvedTypes);
@@ -244,7 +244,7 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private BType createBuiltInType(BType type, Name name, long flag) {
+    private BType createBuiltInType(BType type, Name name, long flags) {
         // Handle built-in types.
         switch (type.tag) {
             case TypeTags.INT:
@@ -253,13 +253,16 @@ public class TypeParamAnalyzer {
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
             case TypeTags.BOOLEAN:
-                return new BType(type.tag, null, name, flag);
+                return new BType(type.tag, null, name, flags);
             case TypeTags.ANY:
-                return new BAnyType(type.tag, null, name, flag);
+                return new BAnyType(type.tag, null, name, flags);
             case TypeTags.ANYDATA:
-                return new BAnydataType(type.tag, null, name, flag);
-            case TypeTags.READONLY: // TODO: 4/5/20 validate for cloneXxx
-                return new BReadonlyType(type.tag, null, name, flag);
+                BAnydataType anydataType = new BAnydataType((BUnionType) type);
+                anydataType.name = name;
+                anydataType.flags |= flags;
+                return anydataType;
+            case TypeTags.READONLY:
+                return new BReadonlyType(type.tag, null, name, flags);
         }
         // For others, we will use TSymbol.
         return type;
@@ -294,6 +297,30 @@ public class TypeParamAnalyzer {
         }
         // Bound type is a structure. Visit recursively to find bound type.
         switch (expType.tag) {
+            case TypeTags.XML:
+                if (!TypeTags.isXMLTypeTag(actualType.tag)) {
+                    return;
+                }
+                switch (actualType.tag) {
+                    case TypeTags.XML:
+                        BType constraint = ((BXMLType) actualType).constraint;
+                        while (constraint.tag == TypeTags.XML) {
+                            constraint = ((BXMLType) constraint).constraint;
+                        }
+                        findTypeParam(loc, ((BXMLType) expType).constraint, constraint, env,
+                                resolvedTypes, result);
+                        return;
+                    case TypeTags.XML_TEXT:
+                        findTypeParam(loc, ((BXMLType) expType).constraint, actualType, env,
+                                resolvedTypes, result);
+                        return;
+                    case TypeTags.UNION:
+                        findTypeParamInUnion(loc, ((BXMLType) expType).constraint, (BUnionType) actualType, env,
+                                resolvedTypes, result);
+                        return;
+                    default:
+                        return;
+                }
             case TypeTags.ARRAY:
                 if (actualType.tag == TypeTags.ARRAY) {
                     findTypeParam(loc, ((BArrayType) expType).eType, ((BArrayType) actualType).eType, env,
@@ -411,6 +438,10 @@ public class TypeParamAnalyzer {
             return false;
         }
 
+        if (source.name.getValue().isEmpty()) {
+            return false;
+        }
+
         return source.pkgID.equals(target.pkgID) && source.name.equals(target.name);
     }
 
@@ -491,6 +522,12 @@ public class TypeParamAnalyzer {
             }
             if (type.tag == TypeTags.MAP) {
                 members.add(((BMapType) type).constraint);
+            }
+            if (TypeTags.isXMLTypeTag(type.tag)) {
+                if (type.tag == TypeTags.XML) {
+                    members.add(((BXMLType) type).constraint);
+                }
+                members.add(type);
             }
             if (type.tag == TypeTags.RECORD) {
                 for (BField field : ((BRecordType) type).fields.values()) {
@@ -608,11 +645,12 @@ public class TypeParamAnalyzer {
 
     private BType getMatchingBoundType(BType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         if (isTypeParam(expType)) {
-            return env.typeParamsEntries.stream().filter(typeParamEntry -> typeParamEntry.typeParam == expType)
-                    .findFirst()
-                    .map(typeParamEntry -> typeParamEntry.boundType)
-                    // Else, this need to be inferred from the context.
-                    .orElse(symTable.noType);
+            for (SymbolEnv.TypeParamEntry typeParamEntry : env.typeParamsEntries) {
+                if (typeParamEntry.typeParam == expType) {
+                    return typeParamEntry.boundType;
+                }
+            }
+            return symTable.noType;
         }
 
         if (resolvedTypes.contains(expType)) {

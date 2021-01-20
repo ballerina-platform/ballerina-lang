@@ -17,21 +17,18 @@
 package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.Value;
-import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ParameterNode;
-import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
-import io.ballerina.compiler.syntax.tree.RestParameterNode;
-import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterKind;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
 
@@ -42,33 +39,26 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  */
 public class InvocationArgProcessor {
 
-    static Map<String, Value> validateAndProcessArguments(SuspendedContext context, String functionName,
-                                                          List<Map.Entry<String, Evaluator>> argEvaluators)
-            throws EvaluationException {
+    public static final String DEFAULTABLE_PARAM_SUFFIX = "[Defaultable]";
 
-        Optional<FunctionDefinitionNode> functionDefinition = new FunctionNodeFinder(functionName).searchIn(context
-                .getDocument().module());
-        if (functionDefinition.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
-                    functionName));
-        }
-        SeparatedNodeList<ParameterNode> params = functionDefinition.get().functionSignature().parameters();
-        return generateNamedArgs(context, functionName, params, argEvaluators);
-    }
-
-    static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName,
-                                                SeparatedNodeList<ParameterNode> params,
-                                                List<Map.Entry<String, Evaluator>> argEvaluators)
-            throws EvaluationException {
+    static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName, FunctionTypeSymbol
+            definition, List<Map.Entry<String, Evaluator>> argEvaluators) throws EvaluationException {
 
         boolean namedArgsFound = false;
         boolean restArgsFound = false;
+        List<ParameterSymbol> params = new ArrayList<>();
+        Map<String, ParameterSymbol> remainingParams = new HashMap<>();
+
+        for (ParameterSymbol parameterSymbol : definition.parameters()) {
+            params.add(parameterSymbol);
+            remainingParams.put(parameterSymbol.name().get(), parameterSymbol);
+        }
+        if (definition.restParam().isPresent()) {
+            params.add(definition.restParam().get());
+            remainingParams.put(definition.restParam().get().name().get(), definition.restParam().get());
+        }
 
         Map<String, Value> argValues = new HashMap<>();
-
-        Map<String, ParameterNode> remainingParams = new HashMap<>();
-        params.stream().forEach(parameterNode -> remainingParams.put(getParameterName(parameterNode), parameterNode));
-
         for (int i = 0; i < argEvaluators.size(); i++) {
             Map.Entry<String, Evaluator> arg = argEvaluators.get(i);
             ArgType argType = getArgType(arg);
@@ -85,7 +75,8 @@ public class InvocationArgProcessor {
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                             "too many arguments in call to '" + functionName + "'."));
                 }
-                String parameterName = getParameterName(params.get(i));
+
+                String parameterName = params.get(i).name().get();
                 argValues.put(parameterName, arg.getValue().evaluate().getJdiValue());
                 remainingParams.remove(parameterName);
             } else if (argType == ArgType.NAMED) {
@@ -109,9 +100,9 @@ public class InvocationArgProcessor {
                 }
 
                 String restParamName = null;
-                for (Map.Entry<String, ParameterNode> entry : remainingParams.entrySet()) {
-                    ParameterType parameterType = getParamType(entry.getValue());
-                    if (parameterType == ParameterType.REST) {
+                for (Map.Entry<String, ParameterSymbol> entry : remainingParams.entrySet()) {
+                    ParameterKind parameterType = entry.getValue().kind();
+                    if (parameterType == ParameterKind.REST) {
                         restParamName = entry.getKey();
                         break;
                     }
@@ -126,32 +117,18 @@ public class InvocationArgProcessor {
             }
         }
 
-        for (Map.Entry<String, ParameterNode> entry : remainingParams.entrySet()) {
+        for (Map.Entry<String, ParameterSymbol> entry : remainingParams.entrySet()) {
             String paramName = entry.getKey();
-            ParameterType parameterType = getParamType(entry.getValue());
-            if (parameterType == ParameterType.REQUIRED) {
+            ParameterKind parameterType = entry.getValue().kind();
+            if (parameterType == ParameterKind.REQUIRED) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                         "missing required parameter '" + paramName + "'."));
-            } else if (parameterType == ParameterType.DEFAULTABLE) {
-                Value defaultValue = new ExpressionEvaluator(context)
-                        .evaluate(((DefaultableParameterNode) entry.getValue()).expression()
-                                .toSourceCode());
-                argValues.put(paramName, defaultValue);
+            } else if (parameterType == ParameterKind.DEFAULTABLE) {
+                argValues.put(paramName + DEFAULTABLE_PARAM_SUFFIX, VMUtils.make(context, 0).getJdiValue());
             }
         }
 
         return argValues;
-    }
-
-    private static String getParameterName(ParameterNode parameterNode) {
-        if (parameterNode instanceof RequiredParameterNode) {
-            return ((RequiredParameterNode) parameterNode).paramName().get().toSourceCode().trim();
-        } else if (parameterNode instanceof DefaultableParameterNode) {
-            return ((DefaultableParameterNode) parameterNode).paramName().get().toSourceCode().trim();
-        } else if (parameterNode instanceof RestParameterNode) {
-            return ((RestParameterNode) parameterNode).paramName().get().toSourceCode().trim();
-        }
-        return null;
     }
 
     private static ArgType getArgType(Map.Entry<String, Evaluator> arg) {
@@ -163,17 +140,6 @@ public class InvocationArgProcessor {
             return ArgType.REST;
         }
         return ArgType.UNKNOWN;
-    }
-
-    private static ParameterType getParamType(ParameterNode node) {
-        if (node instanceof RequiredParameterNode) {
-            return ParameterType.REQUIRED;
-        } else if (node instanceof DefaultableParameterNode) {
-            return ParameterType.DEFAULTABLE;
-        } else if (node instanceof RestParameterNode) {
-            return ParameterType.REST;
-        }
-        return ParameterType.UNKNOWN;
     }
 
     private static boolean isPositionalArg(Map.Entry<String, Evaluator> arg) {
@@ -191,13 +157,6 @@ public class InvocationArgProcessor {
     private enum ArgType {
         POSITIONAL,
         NAMED,
-        REST,
-        UNKNOWN
-    }
-
-    private enum ParameterType {
-        REQUIRED,
-        DEFAULTABLE,
         REST,
         UNKNOWN
     }

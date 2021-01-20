@@ -61,7 +61,7 @@ public class JField {
         externalType = getBallerinaHandleType(type);
         isStatic = isStaticField(field);
         fieldName = field.getName();
-        fieldObj = new JParameter(type);
+        fieldObj = new JParameter(type, field.getDeclaringClass());
         fieldObj.setHasNext(false);
 
         if (type.isPrimitive() || type.equals(String.class)) {

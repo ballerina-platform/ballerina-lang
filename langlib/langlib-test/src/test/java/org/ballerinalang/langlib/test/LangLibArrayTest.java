@@ -211,30 +211,48 @@ public class LangLibArrayTest {
     }
 
     @Test
-    public void testReverse() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReverse");
+    public void testLastIndexOf() {
+        BRunUtil.invoke(compileResult, "testLastIndexOf");
+    }
 
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
-        BValueArray arr = (BValueArray) returns[0];
+    @Test
+    public void testReverseInt() {
+        BRunUtil.invoke(compileResult, "testReverseInt");
+    } 
 
-        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
-        assertEquals(arr.size(), 5);
-        assertEquals(arr.getInt(0), 10);
-        assertEquals(arr.getInt(1), 20);
-        assertEquals(arr.getInt(2), 30);
-        assertEquals(arr.getInt(3), 40);
-        assertEquals(arr.getInt(4), 50);
+    @Test
+    public void testReverseFloat() {
+        BRunUtil.invoke(compileResult, "testReverseFloat");
+    }
 
-        assertEquals(returns[1].getType().getTag(), TypeTags.ARRAY_TAG);
-        arr = (BValueArray) returns[1];
+    @Test
+    public void testReverseStr() {
+        BRunUtil.invoke(compileResult, "testReverseStr");
+    }
 
-        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
-        assertEquals(arr.size(), 5);
-        assertEquals(arr.getInt(0), 50);
-        assertEquals(arr.getInt(1), 40);
-        assertEquals(arr.getInt(2), 30);
-        assertEquals(arr.getInt(3), 20);
-        assertEquals(arr.getInt(4), 10);
+    @Test
+    public void testReverseBool() {
+        BRunUtil.invoke(compileResult, "testReverseBool");
+    }
+
+    @Test
+    public void testReverseByte() {
+        BRunUtil.invoke(compileResult, "testReverseByte");
+    }
+
+    @Test
+    public void testReverseMap() {
+        BRunUtil.invoke(compileResult, "testReverseMap");
+    }
+
+    @Test
+    public void testReverseRecord() {
+        BRunUtil.invoke(compileResult, "testReverseRecord");
+    }
+
+    @Test
+    public void testArrayReverseEquality() {
+        BRunUtil.invoke(compileResult, "testArrayReverseEquality");
     }
 
     @Test
@@ -429,8 +447,7 @@ public class LangLibArrayTest {
                 "incompatible types: expected '(descending|ascending)', found 'function (int) returns (int)'",
                 130, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns " +
-                        "((boolean|int|float|decimal|string|(boolean|int|float|decimal|string)?[])?)?', " +
+                "incompatible types: expected 'isolated function ((any|error)) returns (OrderedType?)?', " +
                         "found 'string'", 132, 8);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type",
@@ -448,8 +465,7 @@ public class LangLibArrayTest {
                 "invalid member type of the array/tuple to sort: 'map<string>?[]' is not an ordered type",
                 148, 35);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns (" +
-                        "(boolean|int|float|decimal|string|(boolean|int|float|decimal|string)?[])?)?', " +
+                "incompatible types: expected 'isolated function ((any|error)) returns (OrderedType?)?', " +
                         "found 'isolated function (map<string>?) returns (map<string>?)'",
                 150, 62);
         BAssertUtil.validateError(negativeResult, errorIndex++,
@@ -467,8 +483,8 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid sort key function return type: '(int|string)' is not an ordered type", 173, 52);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected '(boolean|int|float|decimal|string|" +
-                        "(boolean|int|float|decimal|string)?[])?', found 'any'", 176, 60);
+                "incompatible types: expected '(boolean|int|float|decimal|string|OrderedType?[])?', " +
+                        "found 'any'", 176, 60);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 

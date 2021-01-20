@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
+import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -95,6 +96,7 @@ public class CompilerDriver {
     private final CompilerPluginRunner compilerPluginRunner;
     private final Desugar desugar;
     private final BIRGen birGenerator;
+    private final BIREmitter birEmitter;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private final IsolationAnalyzer isolationAnalyzer;
@@ -126,6 +128,7 @@ public class CompilerDriver {
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
+        this.birEmitter = BIREmitter.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
@@ -142,10 +145,14 @@ public class CompilerDriver {
         // This logic interested in loading lang modules from source. For others we can load from balo.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
+            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langJavaModuleSymbol = pkgLoader.loadPackageSymbol(JAVA, null, null);
             symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
-            symResolver.reloadErrorAndDependentTypes();
-            symResolver.reloadIntRangeType();
+            symResolver.bootstrapJsonType();
+            symResolver.bootstrapAnydataType();
+            symResolver.boostrapErrorType();
+            symResolver.bootstrapCloneableType();
+            symResolver.defineOperators();
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
             symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
@@ -159,7 +166,6 @@ public class CompilerDriver {
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langTypedescModuleSymbol = pkgLoader.loadPackageSymbol(TYPEDESC, null, null);
-            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
@@ -181,8 +187,11 @@ public class CompilerDriver {
 
         // Other lang modules requires annotation module. Hence loading it first.
         symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
-
-        symResolver.reloadErrorAndDependentTypes();
+        symResolver.bootstrapJsonType();
+        symResolver.bootstrapAnydataType();
+        symResolver.boostrapErrorType();
+        symResolver.bootstrapCloneableType();
+        symResolver.defineOperators();
 
         if (langLib.equals(JAVA)) {
             symbolTable.langJavaModuleSymbol = getLangModuleFromSource(JAVA);
@@ -222,7 +231,11 @@ public class CompilerDriver {
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
         }
 
-        symResolver.reloadIntRangeType();
+        if (langLib.equals(ERROR)) {
+            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
+        }
+        symResolver.bootstrapCloneableType();
+        symResolver.bootstrapIntRangeType();
 
         // Now load each module.
         getLangModuleFromSource(langLib);
@@ -305,6 +318,11 @@ public class CompilerDriver {
         }
 
         birGen(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.BIR_EMIT)) {
+            return;
+        }
+
+        birEmit(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
             return;
         }
@@ -361,6 +379,10 @@ public class CompilerDriver {
         return this.birGenerator.genBIR(pkgNode);
     }
 
+    private BLangPackage birEmit(BLangPackage pkgNode) {
+        return this.birEmitter.emit(pkgNode);
+    }
+
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
@@ -389,6 +411,6 @@ public class CompilerDriver {
             return null;
         }
 
-        return codeGen(birGen(desugar(pkg))).symbol;
+        return codeGen(birEmit(birGen(desugar(pkg)))).symbol;
     }
 }

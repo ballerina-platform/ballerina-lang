@@ -1,0 +1,31 @@
+NAME
+       ballerina-doc - Build the documentation of a Ballerina package
+
+SYNOPSIS
+       bal doc [<options>]
+
+DESCRIPTION
+       Doc command builds the documentation for a Ballerina package.
+
+       This command writes the module documentation to the 'target/apidocs'
+       directory inside the package.
+
+OPTIONS
+       -o <output>, --output <output>
+           Write output to the given folder.
+
+       -e, --exclude
+           List of modules to be excluded.
+
+       --experimental
+           Enable experimental language features.
+
+       --offline
+           Build offline without downloading dependencies.
+
+EXAMPLES
+       Generate API documentation for the current package.
+          $ bal doc
+
+       Generate API documentation for a Ballerina package in a given path.
+          $ bal doc /path/to/package

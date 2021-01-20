@@ -20,17 +20,20 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.regex.Pattern;
 
 /**
  * Represents an union type descriptor.
@@ -38,6 +41,12 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements UnionTypeSymbol {
+
+    private static final String INT_CLONEABLE = "__Cloneable";
+    private static final String CLONEABLE = "Cloneable";
+    private static final String CLONEABLE_TYPE = "CloneableType";
+    private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE + "([12])?");
+    private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
     private List<TypeSymbol> memberTypes;
 
@@ -74,13 +83,33 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
 
     @Override
     public String signature() {
+        BUnionType unionType = (BUnionType) this.getBType();
+        if (unionType.isCyclic && (unionType.tsymbol != null) && !unionType.tsymbol.getName().getValue().isEmpty()) {
+            String typeStr;
+            typeStr = unionType.tsymbol.getName().getValue();
+            if (pCloneable.matcher(typeStr).matches()) {
+                typeStr = CLONEABLE;
+            } else if (Symbols.isFlagOn(unionType.flags, Flags.TYPE_PARAM) &&
+                    pCloneableType.matcher(typeStr).matches()) {
+                typeStr = CLONEABLE;
+            }
+            return typeStr;
+        }
+
+        if (unionType.resolvingToString) {
+            return "...";
+        }
         List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
         if (memberTypes.size() == 2 &&
                 memberTypes.get(1).typeKind() == TypeDescKind.NIL) {
             return memberTypes.get(0).signature() + "?";
         } else {
             StringJoiner joiner = new StringJoiner("|");
-            memberTypes.forEach(typeDescriptor -> joiner.add(typeDescriptor.signature()));
+            unionType.resolvingToString = true;
+            for (TypeSymbol typeDescriptor : memberTypes) {
+                joiner.add(typeDescriptor.signature());
+            }
+            unionType.resolvingToString = false;
             return joiner.toString();
         }
     }

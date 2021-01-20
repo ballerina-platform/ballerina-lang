@@ -21,7 +21,7 @@ dependencies {
     implementation 'info.picocli:picocli'
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-tool')
+    implementation project(':ballerina-cli')
     implementation project(':formatter:formatter-core')
 
     testCompile 'org.testng:testng'

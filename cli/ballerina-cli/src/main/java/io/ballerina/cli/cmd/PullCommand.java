@@ -18,13 +18,13 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -37,16 +37,16 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectConstants.PKG_NAME_REGEX;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static java.nio.file.Files.createDirectories;
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
- * This class represents the "ballerina pull" command.
+ * This class represents the "bal pull" command.
  *
  * @since 2.0.0
  */
@@ -81,12 +81,12 @@ public class PullCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.isEmpty()) {
-            CommandUtil.printError(this.errStream, "no package given", "ballerina pull <package-name> ", false);
+            CommandUtil.printError(this.errStream, "no package given", "bal pull <package-name> ", false);
             return;
         }
 
         if (argList.size() > 1) {
-            CommandUtil.printError(this.errStream, "too many arguments", "ballerina pull <package-name> ", false);
+            CommandUtil.printError(this.errStream, "too many arguments", "bal pull <package-name> ", false);
             return;
         }
 
@@ -102,7 +102,7 @@ public class PullCommand implements BLauncherCmd {
 
         if (!validPackageName(resourceName)) {
             CommandUtil.printError(errStream, "invalid package name. Provide the package name with the org name ",
-                    "ballerina pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}", false);
+                    "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}", false);
             return;
         }
 
@@ -163,7 +163,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina pull\n");
+        out.append("  bal pull\n");
     }
 
     @Override

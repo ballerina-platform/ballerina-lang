@@ -1,0 +1,27 @@
+NAME
+       ballerina-pull - Fetch packages from Ballerina Central
+
+SYNOPSIS
+       bal pull <org-name>/<package-name>[:<version>]
+
+
+DESCRIPTION
+       The pull command downloads the specified package from Ballerina Central
+       along with its dependencies. It then caches this package in the
+       '.ballerina' directory in the user home.
+
+       Ballerina Central is a package repository hosted at
+       https://central.ballerina.io/. A package repository organizes packages
+       into a three-level hierarchy: organization, package name, and version.
+       Organizations are unique within a repository and can be mapped to an
+       individual user or organization registered with the repository.
+
+
+EXAMPLES
+       Pull the latest version of 'gmail' connector in 'wso2' organization
+       from Ballerina Central.
+          $ bal pull wso2/gmail
+
+       Pull the '1.1.0' version of 'gmail' connector in 'wso2' organization
+       from Ballerina Central.
+          $ bal pull wso2/gmail:1.1.0

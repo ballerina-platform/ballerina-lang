@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.formatter.cli;
 
-import org.ballerinalang.tool.BLauncherCmd;
+import io.ballerina.cli.BLauncherCmd;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * Class to implement "format" command for ballerina.
- * Ex: ballerina format [ballerinaFile | ModuleName] [-d | --dry-run]
+ * Ex: bal format [ballerinaFile | ModuleName] [-d | --dry-run]
  */
 @CommandLine.Command(name = "format", description = "format given Ballerina source file")
 public class FormatCmd implements BLauncherCmd {

@@ -40,4 +40,9 @@ public class StringSchema extends AbstractSchema {
     public Optional<String> pattern() {
         return Optional.ofNullable(pattern);
     }
+
+    @Override
+    public void accept(SchemaVisitor visitor) {
+        visitor.visit(this);
+    }
 }

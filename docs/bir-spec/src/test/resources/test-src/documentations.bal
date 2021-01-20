@@ -89,7 +89,8 @@ public class Person {
         return self.firstName + " " + self.lastName;
     }
 
-};
+}
+
 # Creates and returns a `Person` object given the parameters.
 #
 # + fname - First name of the person

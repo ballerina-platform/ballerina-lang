@@ -24,14 +24,18 @@
             <class name="io.ballerina.semantic.api.test.AnnotationsTest" />
             <class name="io.ballerina.semantic.api.test.ClassSymbolTest" />
             <class name="io.ballerina.semantic.api.test.DiagnosticsTest" />
+            <class name="io.ballerina.semantic.api.test.DocumentationTest" />
             <class name="io.ballerina.semantic.api.test.ExpressionTypeTest" />
+            <class name="io.ballerina.semantic.api.test.FieldSymbolTest" />
             <class name="io.ballerina.semantic.api.test.LangLibFunctionTest" />
             <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest" />
             <class name="io.ballerina.semantic.api.test.SymbolBIRTest" />
+            <class name="io.ballerina.semantic.api.test.SymbolEquivalenceTest" />
             <class name="io.ballerina.semantic.api.test.SymbolFlagToQualifierMappingTest" />
             <class name="io.ballerina.semantic.api.test.TestSourcesTest" />
             <class name="io.ballerina.semantic.api.test.SymbolLookupTest" />
             <class name="io.ballerina.semantic.api.test.SymbolPositionTest" />
+            <class name="io.ballerina.semantic.api.test.TypeCacheTest" />
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
             <class name="io.ballerina.semantic.api.test.ServiceSemanticAPITest" />
@@ -46,6 +50,19 @@
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInTestsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInWorkersTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.XMLRefsTest" />
+
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByAnnotationTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByClassTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByConstantTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByEnumTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByFunctionTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByImportTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByObjectTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByRecordTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByVarDeclTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByVarDeclNegativeTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByWorkerTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByXMLNSTest" />
         </classes>
     </test>
 </suite>

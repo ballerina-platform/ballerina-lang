@@ -18,9 +18,9 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class InitCommand implements BLauncherCmd {
         if (argList != null && !(1 == argList.size())) {
             CommandUtil.printError(errStream,
                     "too many arguments.",
-                    "ballerina init <project-name>",
+                    "bal init <project-name>",
                     true);
             return;
         }
@@ -111,7 +111,7 @@ public class InitCommand implements BLauncherCmd {
         // Check if the template exists
         if (!template.equals("") && !CommandUtil.getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
-                    "Template not found, use `ballerina init --help` to view available templates.",
+                    "Template not found, use `bal init --help` to view available templates.",
                     null,
                     false);
             return;
@@ -167,7 +167,7 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina init \n");
+        out.append("  bal init \n");
     }
 
     @Override

@@ -97,7 +97,8 @@ public class Cast {
             if (isList) {
                 BObject bObject;
                 try {
-                    bObject = createObjectValue(objType.getPackage(), castObjType.getName(), createHandleValue(jObj));
+                    bObject = createObjectValue(castObjType.getPackage(), castObjType.getName(),
+                            createHandleValue(jObj));
                 } catch (Exception e) {
                     return createError(StringUtils.fromString(moduleName + " Error while initializing the new " +
                             "object from `" + castObjTypeName + "` type: " + e));

@@ -17,10 +17,12 @@
  */
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateDocsTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
+import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
@@ -29,7 +31,6 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
-import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import picocli.CommandLine;
@@ -49,7 +50,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
- * This class represents the "ballerina doc" command.
+ * This class represents the "bal doc" command.
  *
  * @since 2.0.0
  */
@@ -134,7 +135,7 @@ public class DocCommand implements BLauncherCmd {
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
-                    "ballerina doc <project_path> [--offline]\n",
+                    "bal doc <project_path> [--offline]\n",
                     false);
             CommandUtil.exitError(true);
             return;
@@ -168,7 +169,7 @@ public class DocCommand implements BLauncherCmd {
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CreateTargetDirTask()) // create target directory.
-                //.addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
+                .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
                 .addTask(new CreateDocsTask(outStream, outputPath)) // creates API documentation
                 .build();
@@ -192,7 +193,7 @@ public class DocCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina doc \n");
+        out.append("  bal doc \n");
     }
 
     @Override

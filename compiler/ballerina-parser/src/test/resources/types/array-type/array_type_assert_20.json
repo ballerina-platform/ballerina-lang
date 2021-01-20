@@ -1,0 +1,68 @@
+{
+  "kind": "TYPE_DEFINITION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "TYPE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "myint",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "ARRAY_TYPE_DESC",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "INT_TYPE_DESC",
+          "children": [
+            {
+              "kind": "INT_KEYWORD"
+            }
+          ]
+        },
+        {
+          "kind": "OPEN_BRACKET_TOKEN"
+        },
+        {
+          "kind": "NUMERIC_LITERAL",
+          "children": [
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+              "value": "5"
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACKET_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    }
+  ]
+}
