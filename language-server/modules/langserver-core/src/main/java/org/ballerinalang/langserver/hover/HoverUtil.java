@@ -117,7 +117,7 @@ public class HoverUtil {
         }
 
         List<String> methods = new ArrayList<>();
-        classSymbol.methods().forEach(method -> {
+        classSymbol.methods().forEach((name, method) -> {
             StringBuilder methodInfo = new StringBuilder();
             Optional<Documentation> methodDoc = method.documentation();
             methodInfo.append(quotedString(method.typeDescriptor().signature()));

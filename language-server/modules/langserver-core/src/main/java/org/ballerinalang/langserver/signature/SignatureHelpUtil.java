@@ -491,7 +491,7 @@ public class SignatureHelpUtil {
 
         List<FunctionSymbol> visibleMethods = fieldTypeDesc.get().langLibMethods();
         if (CommonUtil.getRawType(fieldTypeDesc.get()).typeKind() == TypeDescKind.OBJECT) {
-            visibleMethods.addAll(((ObjectTypeSymbol) CommonUtil.getRawType(fieldTypeDesc.get())).methods());
+            visibleMethods.addAll(((ObjectTypeSymbol) CommonUtil.getRawType(fieldTypeDesc.get())).methods().values());
         }
         Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
@@ -508,7 +508,7 @@ public class SignatureHelpUtil {
         List<FunctionSymbol> functionSymbols = new ArrayList<>();
         if (CommonUtil.getRawType(typeDescriptor).typeKind() == TypeDescKind.OBJECT) {
             ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) CommonUtil.getRawType(typeDescriptor);
-            functionSymbols.addAll(objTypeDesc.methods());
+            functionSymbols.addAll(objTypeDesc.methods().values());
         }
         functionSymbols.addAll(typeDescriptor.langLibMethods());
 

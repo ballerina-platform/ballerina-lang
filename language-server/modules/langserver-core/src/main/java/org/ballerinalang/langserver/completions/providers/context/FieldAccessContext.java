@@ -199,7 +199,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         TypeSymbol rawType = CommonUtil.getRawType(fieldTypeDesc.get());
         List<FunctionSymbol> visibleMethods = rawType.langLibMethods();
         if (rawType.typeKind() == TypeDescKind.OBJECT) {
-            visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods());
+            visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods().values());
         }
         Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
@@ -246,7 +246,8 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                     completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
                     completionItems.add(new ObjectFieldCompletionItem(context, fieldDescriptor, completionItem));
                 });
-                completionItems.addAll(this.getCompletionItemList(objTypeDesc.methods(), context));
+                completionItems.addAll(
+                        this.getCompletionItemList(new ArrayList<>(objTypeDesc.methods().values()), context));
                 break;
             case UNION:
                 UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rawType;

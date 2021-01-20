@@ -216,8 +216,8 @@ public class TypedescriptorTest {
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
 
-        List<MethodSymbol> methods = clazz.methods();
-        MethodSymbol method = methods.get(0);
+        Map<String, MethodSymbol> methods = clazz.methods();
+        MethodSymbol method = methods.get("getName");
         assertEquals(fields.size(), 1);
         assertEquals(method.name(), "getName");
 

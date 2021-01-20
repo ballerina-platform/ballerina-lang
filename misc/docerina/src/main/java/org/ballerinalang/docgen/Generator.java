@@ -444,12 +444,13 @@ public class Generator {
         return new BAbstractObject(name, description, isDeprecated, fields, functions);
     }
 
+    // TODO: Revisit this. This probably can be written in a much simpler way.
     private static List<Function> getInclusionFunctions(TypeSymbol typeSymbol, Type originType,
                                                         NodeList<Node> members) {
         List<Function> functions = new ArrayList<>();
         if (typeSymbol instanceof ObjectTypeSymbol) {
             ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) typeSymbol;
-            objectTypeSymbol.methods().forEach(methodSymbol -> {
+            objectTypeSymbol.methods().values().forEach(methodSymbol -> {
                 String methodName = methodSymbol.name();
                 // Check if the inclusion function is overridden
                 if (members.stream().anyMatch(node -> {

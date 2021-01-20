@@ -78,11 +78,11 @@ public class ServiceSemanticAPITest {
                                           "$get$foo$*", "$get$foo$*$**");
         assertList(symbol.methods(), expMethods);
 
-        MethodSymbol method = symbol.methods().get(0);
+        MethodSymbol method = symbol.methods().get("foo");
         assertEquals(method.qualifiers().size(), 1);
         assertTrue(method.qualifiers().contains(Qualifier.REMOTE));
 
-        method = symbol.methods().get(1);
+        method = symbol.methods().get("$get$barPath");
         assertEquals(method.qualifiers().size(), 1);
         assertTrue(method.qualifiers().contains(Qualifier.RESOURCE));
     }
