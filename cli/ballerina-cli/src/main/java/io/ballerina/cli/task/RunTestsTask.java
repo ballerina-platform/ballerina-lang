@@ -381,7 +381,7 @@ public class RunTestsTask implements Task {
         cmdArgs.add(target.path().toString());
         cmdArgs.add(orgName);
         cmdArgs.add(packageName);
-        cmdArgs.add(moduleName);
+        cmdArgs.add(moduleName.isEmpty() ? "''" : moduleName); // see JDK-7028124
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
         return proc.waitFor();
