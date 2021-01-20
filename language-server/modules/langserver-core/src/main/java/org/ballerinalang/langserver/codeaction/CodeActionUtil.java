@@ -37,6 +37,8 @@ import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -493,22 +495,54 @@ public class CodeActionUtil {
                 continue;
             }
 
-            if (member.kind() == SyntaxKind.SERVICE_DECLARATION && isWithinStartSegment) {
-                return Optional.of(member);
+            if (member.kind() == SyntaxKind.SERVICE_DECLARATION) {
+                if (isWithinStartSegment) {
+                    // Cursor on the service
+                    return Optional.of(member);
+                } else {
+                    // Cursor within the service
+                    ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) member;
+                    for (Node memberNode : serviceDeclrNode.members()) {
+                        if ((memberNode.kind() == SyntaxKind.FUNCTION_DEFINITION ||
+                                memberNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION)
+                                && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
+                            // Cursor on the resource function
+                            return Optional.of((NonTerminalNode) memberNode);
+                        }
+                    }
+                    return Optional.of(member);
+                }
             } else if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION && isWithinStartSegment) {
                 return Optional.of(member);
-            } else if (isWithinStartSegment && member.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+            } else if (member.kind() == SyntaxKind.FUNCTION_DEFINITION && isWithinStartSegment) {
                 return Optional.of(member);
             } else if (isWithinBody &&
                     (member.kind() == SyntaxKind.LOCAL_VAR_DECL || member.kind() == SyntaxKind.MODULE_VAR_DECL)) {
                 return Optional.of(member);
-            } else if (member.kind() == SyntaxKind.TYPE_DEFINITION && isWithinStartSegment) {
+            } else if (member.kind() == SyntaxKind.TYPE_DEFINITION) {
                 TypeDefinitionNode definitionNode = (TypeDefinitionNode) member;
                 Node typeDesc = definitionNode.typeDescriptor();
-                if (typeDesc.kind() == SyntaxKind.RECORD_TYPE_DESC || typeDesc.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
+                if (isWithinStartSegment) {
+                    if (typeDesc.kind() == SyntaxKind.RECORD_TYPE_DESC ||
+                            typeDesc.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
+                        return Optional.of(member);
+                    }
+                } else if (typeDesc.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
+                    ObjectTypeDescriptorNode objectTypeDescNode = (ObjectTypeDescriptorNode) typeDesc;
+                    for (Node memberNode : objectTypeDescNode.members()) {
+                        if (memberNode.kind() == SyntaxKind.METHOD_DECLARATION
+                                && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
+                            // Cursor on the object function
+                            return Optional.of((NonTerminalNode) memberNode);
+                        }
+                    }
                     return Optional.of(member);
                 }
                 return Optional.empty();
+            } else if (member.kind() == SyntaxKind.RECORD_TYPE_DESC && isWithinBody) {
+                return Optional.of(member);
+            } else if (member.kind() == SyntaxKind.OBJECT_TYPE_DESC && isWithinStartSegment) {
+                return Optional.of(member);
             } else if (member.kind() == SyntaxKind.METHOD_DECLARATION && isWithinStartSegment) {
                 return Optional.of(member);
             } else if (member.kind() == SyntaxKind.CLASS_DEFINITION) {
@@ -527,6 +561,8 @@ public class CodeActionUtil {
                     }
                     return Optional.of(member);
                 }
+            } else if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION && isWithinStartSegment) {
+                return Optional.of(member);
             } else if (isWithinBody && member.kind() == SyntaxKind.IMPORT_DECLARATION) {
                 return Optional.of(member);
             } else if (isWithinBody && member.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
@@ -562,26 +598,30 @@ public class CodeActionUtil {
             case SERVICE_DECLARATION:
                 ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) node;
                 return isWithinRange(positionOffset, serviceDeclarationNode.openBraceToken().textRange().startOffset(),
-                        serviceDeclarationNode.closeBraceToken().textRange().endOffset());
+                                     serviceDeclarationNode.closeBraceToken().textRange().endOffset());
             case CLASS_DEFINITION:
                 ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
                 return isWithinRange(positionOffset, classDefinitionNode.openBrace().textRange().startOffset(),
-                        classDefinitionNode.closeBrace().textRange().endOffset());
+                                     classDefinitionNode.closeBrace().textRange().endOffset());
             case TYPE_DEFINITION:
                 TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node;
                 return isWithinRange(positionOffset,
-                        typeDefinitionNode.typeDescriptor().textRange().startOffset(),
-                        typeDefinitionNode.semicolonToken().textRange().startOffset());
+                                     typeDefinitionNode.typeDescriptor().textRange().startOffset(),
+                                     typeDefinitionNode.semicolonToken().textRange().startOffset());
+            case RECORD_TYPE_DESC:
+                RecordTypeDescriptorNode recordTypeDescNode = (RecordTypeDescriptorNode) node;
+                return isWithinRange(positionOffset, recordTypeDescNode.bodyStartDelimiter().textRange().startOffset(),
+                                     recordTypeDescNode.bodyEndDelimiter().textRange().endOffset());
             case IMPORT_DECLARATION:
                 ImportDeclarationNode importDeclarationNode = (ImportDeclarationNode) node;
                 return isWithinRange(positionOffset,
-                        importDeclarationNode.textRange().startOffset(),
-                        importDeclarationNode.semicolon().textRange().startOffset());
+                                     importDeclarationNode.textRange().startOffset(),
+                                     importDeclarationNode.semicolon().textRange().startOffset());
             case LOCAL_VAR_DECL:
                 VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
                 return isWithinRange(positionOffset,
-                        variableDeclarationNode.textRange().startOffset(),
-                        variableDeclarationNode.semicolonToken().textRange().startOffset());
+                                     variableDeclarationNode.textRange().startOffset(),
+                                     variableDeclarationNode.semicolonToken().textRange().startOffset());
             case MODULE_VAR_DECL:
                 ModuleVariableDeclarationNode moduleVariableDeclarationNode = (ModuleVariableDeclarationNode) node;
                 return isWithinRange(positionOffset,
@@ -637,21 +677,25 @@ public class CodeActionUtil {
                 int methodStartOffset = methodMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
                         .orElseGet(() -> methodDeclarationNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, methodStartOffset,
-                        methodDeclarationNode.semicolon().textRange().endOffset());
+                                     methodDeclarationNode.semicolon().textRange().endOffset());
             case CLASS_DEFINITION:
                 ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
                 Optional<MetadataNode> classMetadata = classDefinitionNode.metadata();
                 int classStartOffset = classMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
                         .orElseGet(() -> classDefinitionNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, classStartOffset,
-                        classDefinitionNode.openBrace().textRange().endOffset());
+                                     classDefinitionNode.openBrace().textRange().endOffset());
+            case OBJECT_TYPE_DESC:
+                ObjectTypeDescriptorNode objectTypeDescNode = (ObjectTypeDescriptorNode) node;
+                return isWithinRange(positionOffset, objectTypeDescNode.textRange().startOffset() - 1,
+                                     objectTypeDescNode.openBrace().textRange().endOffset());
             case TYPE_DEFINITION:
                 TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node;
                 Optional<MetadataNode> typeMetadata = typeDefinitionNode.metadata();
                 int typeStartOffset = typeMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
                         .orElseGet(() -> typeDefinitionNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, typeStartOffset,
-                        typeDefinitionNode.typeDescriptor().textRange().startOffset());
+                                     typeDefinitionNode.typeDescriptor().textRange().startOffset());
             case IMPORT_DECLARATION:
             case LOCAL_VAR_DECL:
             case MODULE_VAR_DECL:
