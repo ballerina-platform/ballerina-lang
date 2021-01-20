@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,28 +19,32 @@
 package io.ballerina.toml.validator.schema;
 
 /**
- * Represents array schema in JSON schema.
+ * Schema Visitor for Toml Schema.
  *
  * @since 2.0.0
  */
-public class ArraySchema extends AbstractSchema {
-    private AbstractSchema items;
-
-    public ArraySchema(Type type) {
-        super(type);
+public abstract class SchemaVisitor {
+    public void visit(Schema rootSchema) {
+        throw new AssertionError();
     }
 
-    public ArraySchema(Type type, AbstractSchema items) {
-        super(type);
-        this.items = items;
+    public void visit(ArraySchema arraySchema) {
+        throw new AssertionError();
     }
 
-    public AbstractSchema items() {
-        return items;
+    public void visit(BooleanSchema booleanSchema) {
+        throw new AssertionError();
     }
 
-    @Override
-    public void accept(SchemaVisitor visitor) {
-        visitor.visit(this);
+    public void visit(NumericSchema numericSchema) {
+        throw new AssertionError();
+    }
+
+    public void visit(ObjectSchema objectSchema) {
+        throw new AssertionError();
+    }
+
+    public void visit(StringSchema stringSchema) {
+        throw new AssertionError();
     }
 }
