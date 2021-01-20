@@ -150,9 +150,3 @@ function consumeStream(stream<Type, ErrorType> strm) returns error? {
         return v;
     }
 }
-
-// TODO: This for debugging purposes, remove once completed.
-function print(any|error? data) = @java:Method {
-    'class: "org.ballerinalang.langlib.query.Print",
-    name: "print"
-} external;
