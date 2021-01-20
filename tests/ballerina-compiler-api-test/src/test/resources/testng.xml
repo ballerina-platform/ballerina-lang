@@ -63,6 +63,11 @@
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByVarDeclNegativeTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByWorkerTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByXMLNSTest" />
+
+            <class name="io.ballerina.semantic.api.test.typebynode.TypeByConstructorExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.TypeByLiteralTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.TypeByReferenceTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.TypeByTemplateExprTest" />
         </classes>
     </test>
 </suite>
