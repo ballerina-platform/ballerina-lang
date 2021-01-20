@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaNilTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaStringTypeSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -64,6 +65,7 @@ import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -208,8 +210,8 @@ public class TypedescriptorTest {
         ClassSymbol clazz = (ClassSymbol) symbol;
         assertEquals(clazz.typeKind(), OBJECT);
 
-        List<ObjectFieldSymbol> fields = clazz.fieldDescriptors();
-        ObjectFieldSymbol field = fields.get(0);
+        Map<String, ClassFieldSymbol> fields = clazz.fieldDescriptors();
+        ObjectFieldSymbol field = fields.get("name");
         assertEquals(fields.size(), 1);
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
@@ -229,9 +231,11 @@ public class TypedescriptorTest {
         assertEquals(type.typeKind(), RECORD);
         assertFalse(type.restTypeDescriptor().isPresent());
 
-        List<RecordFieldSymbol> fields = type.fieldDescriptors();
-        RecordFieldSymbol field = fields.get(0);
+        Map<String, RecordFieldSymbol> fields = type.fieldDescriptors();
         assertEquals(fields.size(), 1);
+        assertTrue(fields.containsKey("path"));
+
+        RecordFieldSymbol field = fields.get("path");
         assertEquals(field.name(), "path");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
     }
