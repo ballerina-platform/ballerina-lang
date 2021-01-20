@@ -18,6 +18,7 @@
 package org.ballerinalang.debugadapter.launch;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
@@ -39,7 +40,10 @@ public class SingleFileLauncher extends Launcher {
         Map<String, String> env = processBuilder.environment();
         // set environment ballerina home
         env.put("BALLERINA_HOME", getBallerinaHome());
-        processBuilder.directory(Paths.get(projectRoot).getParent().toFile());
+        Path singleFileRoot = Paths.get(projectRoot).getParent();
+        if (singleFileRoot != null) {
+            processBuilder.directory(singleFileRoot.toFile());
+        }
         return processBuilder.start();
     }
 }
