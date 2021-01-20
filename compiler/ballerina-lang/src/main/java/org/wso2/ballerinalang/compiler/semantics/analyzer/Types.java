@@ -2736,7 +2736,8 @@ public class Types {
                     BUnionType targetUnion = (BUnionType) target;
                     if (sUnion.isCyclic && targetUnion.isCyclic) {
                          if (isAssignable(sUnion, targetUnion, unresolvedTypes)) {
-                             return true;
+                             sourceIterator.remove();
+                             continue;
                          }
                     }
                 }

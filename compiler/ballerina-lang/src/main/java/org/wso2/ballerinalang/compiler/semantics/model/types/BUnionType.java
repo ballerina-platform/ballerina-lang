@@ -116,6 +116,7 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public String toString() {
 
+        // This logic is added to prevent duplicate recursive calls to toString
         if (resolvingToString) {
             if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
                 return this.tsymbol.getName().getValue();
@@ -124,17 +125,8 @@ public class BUnionType extends BType implements UnionType {
         }
         resolvingToString = true;
 
-        StringJoiner joiner = new StringJoiner(getKind().typeName());
 
-        // This logic is added to prevent duplicate recursive calls to toString
         long numberOfNotNilTypes = 0L;
-        for (BType bType : this.memberTypes) {
-            if (bType.tag != TypeTags.NIL) {
-                joiner.add(bType.toString());
-                numberOfNotNilTypes++;
-            }
-        }
-
         String typeStr;
         // improve readability of cyclic union types
         if (isCyclic && (tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
@@ -145,6 +137,13 @@ public class BUnionType extends BType implements UnionType {
                 typeStr = CLONEABLE;
             }
         } else {
+            StringJoiner joiner = new StringJoiner(getKind().typeName());
+            for (BType bType : this.memberTypes) {
+                if (bType.tag != TypeTags.NIL) {
+                    joiner.add(bType.toString());
+                    numberOfNotNilTypes++;
+                }
+            }
             typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
         }
 
