@@ -178,7 +178,8 @@ public class ManifestBuilder {
         TopLevelNode platformNode = otherEntries.remove("platform");
         Map<String, PackageManifest.Platform> platforms = getPlatforms(platformNode);
 
-        return PackageManifest.from(descriptor, dependencies, platforms, otherEntries);
+        return PackageManifest.from(descriptor, dependencies, platforms, otherEntries,
+                new DefaultDiagnosticResult(diagnosticList));
     }
 
     private BuildOptions parseBuildOptions() {

@@ -263,7 +263,7 @@ public class BaloFiles {
             platforms.put(packageJson.getPlatform(), platform);
         }
 
-        return PackageManifest.from(pkgDesc, dependencies, platforms, Collections.emptyMap());
+        return PackageManifest.from(pkgDesc, dependencies, platforms);
     }
 
     private static PackageJson readPackageJson(Path balrPath, Path packageJsonPath) {
