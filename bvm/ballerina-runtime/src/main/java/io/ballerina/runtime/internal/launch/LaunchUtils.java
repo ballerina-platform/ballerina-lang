@@ -50,6 +50,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_C
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIG_FILE_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_METRICS_REPORTER;
@@ -172,6 +173,7 @@ public class LaunchUtils {
 
     public static Path getConfigPath() {
         Map<String, String> envVariables = System.getenv();
-        return Paths.get(envVariables.getOrDefault(ConfigurableConstants.CONFIG_ENV_VARIABLE, RuntimeUtils.USER_DIR));
+        return Paths.get(envVariables.getOrDefault(ConfigurableConstants.CONFIG_ENV_VARIABLE,
+                Paths.get(RuntimeUtils.USER_DIR, CONFIG_FILE_NAME).toString()));
     }
 }

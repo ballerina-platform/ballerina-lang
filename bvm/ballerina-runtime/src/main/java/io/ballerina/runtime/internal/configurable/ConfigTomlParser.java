@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIG_FILE_NAME;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.DEFAULT_MODULE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_TOML_FILE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_VARIABLE_TYPE;
@@ -59,8 +58,7 @@ public class ConfigTomlParser {
     private ConfigTomlParser() {
     }
 
-    private static TomlTableNode getConfigurationData(Path filePath) throws TomlException {
-        Path configFilePath = filePath.resolve(CONFIG_FILE_NAME);
+    private static TomlTableNode getConfigurationData(Path configFilePath) throws TomlException {
         if (!Files.exists(configFilePath)) {
             return null;
         }
@@ -80,6 +78,10 @@ public class ConfigTomlParser {
         }
         for (Map.Entry<Module, VariableKey[]> moduleEntry : configurationData.entrySet()) {
             TomlTableNode moduleNode = retrieveModuleNode(tomlNode, moduleEntry.getKey());
+            if (moduleNode == null) {
+                //Module could contain optional configurable variable
+                continue;
+            }
             for (VariableKey key : moduleEntry.getValue()) {
                 if (!moduleNode.entries().containsKey(key.variable)) {
                     //It is an optional configurable variable
@@ -99,10 +101,6 @@ public class ConfigTomlParser {
         }
         TomlTableNode moduleNode = moduleName.equals(DEFAULT_MODULE) ? tomlNode : extractModuleNode(tomlNode,
                 moduleName);
-        if (moduleNode == null) {
-            throw new TomlException(INVALID_TOML_FILE + "Module '" + moduleName + "' from organization '" + orgName
-                    + "' not found.");
-        }
         return moduleNode;
     }
 

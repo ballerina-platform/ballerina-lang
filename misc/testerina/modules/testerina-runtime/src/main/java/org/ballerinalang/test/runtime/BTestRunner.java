@@ -38,6 +38,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -59,6 +60,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -82,6 +84,7 @@ public class BTestRunner {
     private static final String TEST_START_FUNCTION_NAME = ".<teststart>";
     private static final String TEST_STOP_FUNCTION_NAME = ".<teststop>";
     private static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
+    private static final String CONFIG_FILE_NAME = "Config.toml";
 
     private PrintStream errStream;
     private PrintStream outStream;
@@ -575,7 +578,11 @@ public class BTestRunner {
         if (!moduleName.equals("")) {
             configFilePath = configFilePath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
         }
-        return configFilePath.resolve(ProjectConstants.TEST_DIR_NAME);
+        configFilePath = configFilePath.resolve(ProjectConstants.TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
+        if (!Files.exists(configFilePath)) {
+            configFilePath = Paths.get(RuntimeUtils.USER_DIR).resolve(CONFIG_FILE_NAME);
+        }
+        return configFilePath;
     }
 
     private void stopSuite(TestSuite suite, Scheduler scheduler, Class<?> initClazz, Class<?> testInitClazz,
