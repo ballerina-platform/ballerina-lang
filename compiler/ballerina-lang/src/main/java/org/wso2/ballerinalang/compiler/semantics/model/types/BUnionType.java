@@ -117,33 +117,35 @@ public class BUnionType extends BType implements UnionType {
     public String toString() {
 
         // This logic is added to prevent duplicate recursive calls to toString
-        if (resolvingToString) {
+        if (this.resolvingToString) {
             if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
                 return this.tsymbol.getName().getValue();
             }
             return "...";
         }
-        resolvingToString = true;
+        this.resolvingToString = true;
 
+        StringJoiner joiner = new StringJoiner(getKind().typeName());
 
+        // This logic is added to prevent duplicate recursive calls to toString
         long numberOfNotNilTypes = 0L;
+        for (BType bType : this.memberTypes) {
+            if (bType.tag != TypeTags.NIL) {
+                joiner.add(bType.toString());
+                numberOfNotNilTypes++;
+            }
+        }
+
         String typeStr;
         // improve readability of cyclic union types
         if (isCyclic && (tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
             typeStr = this.tsymbol.getName().getValue();
             if (pCloneable.matcher(typeStr).matches()) {
                 typeStr = CLONEABLE;
-            } else if (pCloneableType.matcher(typeStr).matches()) {
+            } else if (Symbols.isFlagOn(this.flags, Flags.TYPE_PARAM) && pCloneableType.matcher(typeStr).matches()) {
                 typeStr = CLONEABLE;
             }
         } else {
-            StringJoiner joiner = new StringJoiner(getKind().typeName());
-            for (BType bType : this.memberTypes) {
-                if (bType.tag != TypeTags.NIL) {
-                    joiner.add(bType.toString());
-                    numberOfNotNilTypes++;
-                }
-            }
             typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
         }
 
