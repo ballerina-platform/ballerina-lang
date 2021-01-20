@@ -36,11 +36,13 @@ public interface ObjectTypeSymbol extends TypeSymbol, Qualifiable {
     Map<String, ? extends ObjectFieldSymbol> fieldDescriptors();
 
     /**
-     * Get the list of methods.
+     * Get the symbols of the methods of the object type. The mapping is a set of method name and method symbol pairs.
+     * The returned map is ordered. The order in which the fields were specified in the source code is preserved when
+     * iterating the entries of the map.
      *
-     * @return {@link List} of object methods
+     * @return An ordered map containing the symbols of the methods
      */
-    List<MethodSymbol> methods();
+    Map<String, MethodSymbol> methods();
 
     /**
      * Gets a list of included types. An included type is always a subtype of object.

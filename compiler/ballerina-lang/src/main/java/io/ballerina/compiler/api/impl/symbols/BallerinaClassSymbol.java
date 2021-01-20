@@ -95,7 +95,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     }
 
     @Override
-    public List<MethodSymbol> methods() {
+    public Map<String, MethodSymbol> methods() {
         return this.typeDescriptor.methods();
     }
 

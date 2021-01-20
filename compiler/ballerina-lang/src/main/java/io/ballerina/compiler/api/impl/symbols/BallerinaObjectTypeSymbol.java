@@ -49,7 +49,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
 
     private List<Qualifier> qualifiers;
     private Map<String, ObjectFieldSymbol> objectFields;
-    private List<MethodSymbol> methods;
+    private Map<String, MethodSymbol> methods;
     private List<TypeSymbol> typeInclusions;
 
     public BallerinaObjectTypeSymbol(CompilerContext context, ModuleID moduleID, BObjectType objectType) {
@@ -93,23 +93,21 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         return this.objectFields;
     }
 
-    /**
-     * Get the list of methods.
-     *
-     * @return {@link List} of object methods
-     */
-    public List<MethodSymbol> methods() {
-        if (this.methods == null) {
-            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-            List<MethodSymbol> methods = new ArrayList<>();
-
-            for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) this.getBType().tsymbol).attachedFuncs) {
-                methods.add(symbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
-            }
-
-            this.methods = Collections.unmodifiableList(methods);
+    @Override
+    public Map<String, MethodSymbol> methods() {
+        if (this.methods != null) {
+            return this.methods;
         }
 
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        Map<String, MethodSymbol> methods = new LinkedHashMap<>();
+
+        for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) this.getBType().tsymbol).attachedFuncs) {
+            methods.put(attachedFunc.funcName.value,
+                        symbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
+        }
+
+        this.methods = Collections.unmodifiableMap(methods);
         return this.methods;
     }
 
@@ -154,7 +152,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
         this.fieldDescriptors().values().forEach(
                 objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()));
-        this.methods().forEach(method -> methodJoiner.add(method.signature()).add(";"));
+        this.methods().values().forEach(method -> methodJoiner.add(method.signature()).add(";"));
 
         return signature.append(fieldJoiner.toString())
                 .append(methodJoiner.toString())
