@@ -2765,7 +2765,8 @@ public class Types {
                 sourceIterator.remove();
                 continue;
             }
-            if (sMember.tag == TypeTags.XML && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
+            if (sMember.tag == TypeTags.XML &&
+                    isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
                 sourceIterator.remove();
                 continue;
             }
@@ -2816,16 +2817,11 @@ public class Types {
             boolean sourceTypeIsNotAssignableToAnyTargetType = true;
             var targetIterator = targetTypes.iterator();
 
-            boolean selfReferencedSource = (sourceMember != source) && isSelfReferencedStructuredType(source, sourceMember);
+            boolean selfReferencedSource = (sourceMember != source) &&
+                    isSelfReferencedStructuredType(source, sourceMember);
 
             while (targetIterator.hasNext()) {
                 BType targetMember = targetIterator.next();
-//                if (targetMember instanceof BUnionType && sourceIsAUnion) {
-//                    BUnionType targetMemberUnion = (BUnionType) targetMember;
-//                    if (isAssignable(source, targetMemberUnion, unresolvedTypes)) {
-//                        return true;
-//                    }
-//                }
 
                 boolean selfReferencedTarget = isSelfReferencedStructuredType(target, targetMember);
                 if (selfReferencedTarget && selfReferencedSource && (sourceMember.tag == targetMember.tag)) {
