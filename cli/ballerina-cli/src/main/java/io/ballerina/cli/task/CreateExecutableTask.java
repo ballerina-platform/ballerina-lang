@@ -37,7 +37,7 @@ import java.nio.file.Paths;
 import java.util.ServiceLoader;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.cli.utils.FileUtils.geFileNameWithoutExtension;
+import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 import static io.ballerina.projects.util.ProjectUtils.checkWritePermission;
@@ -130,7 +130,7 @@ public class CreateExecutableTask implements Task {
 
         // If the --output flag is not set, create the executable in the current directory
         if (this.output == null) {
-            return this.currentDir.resolve(geFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
+            return this.currentDir.resolve(getFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
         }
 
         if (!this.output.isAbsolute()) {
@@ -139,7 +139,7 @@ public class CreateExecutableTask implements Task {
 
         // If the --output is a directory create the executable in the given directory
         if (Files.isDirectory(this.output)) {
-            return output.resolve(geFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
+            return output.resolve(getFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
         }
 
         // If the --output does not have an extension, append the .jar extension
