@@ -199,7 +199,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OBJECT_MEMBER_WITHOUT_METADATA =
             { ParserRuleContext.OBJECT_FUNC_OR_FIELD, ParserRuleContext.CLOSE_BRACE };
 
-    private static final ParserRuleContext[] OBJECT_FUNC_OR_FIELD = { ParserRuleContext.OBJECT_MEMBER_QUALIFIER,
+    private static final ParserRuleContext[] OBJECT_FUNC_OR_FIELD = { ParserRuleContext.OBJECT_MEMBER_VISIBILITY_QUAL,
             ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY };
 
     private static final ParserRuleContext[] OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY =
@@ -1087,9 +1087,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case PARAMETERIZED_TYPE:
                     hasMatch = isParameterizedTypeToken(nextToken.kind);
                     break;
-                case TYPEDESC_TYPE_DESCRIPTOR:
-                    hasMatch = nextToken.kind == SyntaxKind.TYPEDESC_KEYWORD;
-                    break;
                 case LT:
                     hasMatch = nextToken.kind == SyntaxKind.LT_TOKEN;
                     break;
@@ -1207,7 +1204,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.ASCENDING_KEYWORD ||
                             nextToken.kind == SyntaxKind.DESCENDING_KEYWORD;
                     break;
-                case OBJECT_MEMBER_QUALIFIER:
+                case OBJECT_MEMBER_VISIBILITY_QUAL:
                     hasMatch = nextToken.kind == SyntaxKind.PRIVATE_KEYWORD ||
                             nextToken.kind == SyntaxKind.PUBLIC_KEYWORD;
                     break;
@@ -1376,6 +1373,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
             case CLASS_KEYWORD:
+            case TYPEDESC_KEYWORD:
                 return true;
             default:
                 return false;
@@ -1916,6 +1914,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MODULE_VAR_WITHOUT_SECOND_QUAL:
                 alternativeRules = MODULE_VAR_WITHOUT_SECOND_QUAL;
                 break;
+            case OBJECT_TYPE_WITHOUT_FIRST_QUALIFIER:
+                alternativeRules = OBJECT_TYPE_WITHOUT_FIRST_QUALIFIER;
+                break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
                         isEntryPoint);
@@ -2287,9 +2288,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case OBJECT_CONS_WITHOUT_FIRST_QUALIFIER:
                 alternativeRules = OBJECT_CONS_WITHOUT_FIRST_QUALIFIER;
-                break;
-            case OBJECT_TYPE_WITHOUT_FIRST_QUALIFIER:
-                alternativeRules = OBJECT_TYPE_WITHOUT_FIRST_QUALIFIER;
                 break;
             case EXPRESSION_RHS:
                 return seekMatchInExpressionRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint, false);
@@ -2968,8 +2966,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.FIELD_BINDING_PATTERN_END;
             case PARAMETERIZED_TYPE:
                 return ParserRuleContext.LT;
-            case TYPEDESC_TYPE_DESCRIPTOR:
-                return ParserRuleContext.TYPEDESC_TYPE_DESCRIPTOR_RHS;
             case LT:
                 return getNextRuleForLt();
             case GT:
@@ -3234,7 +3230,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.CLASS_NAME;
             case CLASS_NAME:
                 return ParserRuleContext.OPEN_BRACE;
-            case OBJECT_MEMBER_QUALIFIER:
+            case OBJECT_MEMBER_VISIBILITY_QUAL:
                 return ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
             case OBJECT_FIELD_START:
                 parentCtx = getParentContext();
@@ -3267,6 +3263,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.MODULE_VAR_WITHOUT_SECOND_QUAL;
             case MODULE_VAR_THIRD_QUAL:
                 return ParserRuleContext.VAR_DECL_STMT;
+            case TYPEDESC_TYPE_DESCRIPTOR:
+                return ParserRuleContext.TYPEDESC_KEYWORD;
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
         }
@@ -3511,6 +3509,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case OUTER_KEYWORD:
                 return ParserRuleContext.JOIN_KEYWORD;
+            case TYPEDESC_KEYWORD:
+                return ParserRuleContext.TYPEDESC_TYPE_DESCRIPTOR_RHS;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -5399,9 +5399,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.OUTER_KEYWORD;
             case CLASS_KEYWORD:
                 return SyntaxKind.CLASS_KEYWORD;
+            default:
+                return getExpectedQualifierKind(ctx);
+        }
+    }
 
-            // Ideally, optimal solution should not be an INSERT action on qualifiers.
-            // Therefore, qualifier ctxs are pointed to the end of qualifier parsing token to exit early.
+    protected SyntaxKind getExpectedQualifierKind(ParserRuleContext ctx) {
+        // Ideally, optimal solution should not be an INSERT action on qualifiers.
+        // Therefore, qualifier ctxs are pointed to the end of qualifier parsing token to exit early.
+        switch (ctx) {
             case FIRST_OBJECT_CONS_QUALIFIER:
             case SECOND_OBJECT_CONS_QUALIFIER:
             case FIRST_OBJECT_TYPE_QUALIFIER:
@@ -5424,7 +5430,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MODULE_VAR_FIRST_QUAL:
             case MODULE_VAR_SECOND_QUAL:
             case MODULE_VAR_THIRD_QUAL:
+            case OBJECT_MEMBER_VISIBILITY_QUAL:
                 return SyntaxKind.IDENTIFIER_TOKEN;
+            case SERVICE_DECL_QUALIFIER:
+                return SyntaxKind.SERVICE_KEYWORD;
             default:
                 return SyntaxKind.NONE;
         }

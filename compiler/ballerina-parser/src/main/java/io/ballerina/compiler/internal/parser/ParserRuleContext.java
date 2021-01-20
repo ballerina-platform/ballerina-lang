@@ -94,7 +94,7 @@ public enum ParserRuleContext {
     OBJECT_MEMBER_WITHOUT_METADATA("object-member-without-metadata"),
     OBJECT_FUNC_OR_FIELD("object-func-or-field"),
     OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY("object-func-or-field-without-visibility"),
-    OBJECT_MEMBER_QUALIFIER("object-member-qualifier"),
+    OBJECT_MEMBER_VISIBILITY_QUAL("object-member-visibility-qual"),
     OBJECT_METHOD_START("object-method-start"),
     OBJECT_METHOD_FIRST_QUALIFIER("object-method-first-qualifier"),
     OBJECT_METHOD_SECOND_QUALIFIER("object-method-second-qualifier"),
