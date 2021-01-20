@@ -35,7 +35,9 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 
 /**
@@ -46,7 +48,7 @@ import java.util.StringJoiner;
 public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements ObjectTypeSymbol {
 
     private List<Qualifier> qualifiers;
-    private List<ObjectFieldSymbol> objectFields;
+    private Map<String, ObjectFieldSymbol> objectFields;
     private List<MethodSymbol> methods;
     private List<TypeSymbol> typeInclusions;
 
@@ -75,14 +77,20 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     }
 
     @Override
-    public List<ObjectFieldSymbol> fieldDescriptors() {
-        if (this.objectFields == null) {
-            this.objectFields = new ArrayList<>();
-            for (BField field : ((BObjectType) this.getBType()).fields.values()) {
-                this.objectFields.add(new BallerinaObjectFieldSymbol(this.context, field));
-            }
+    public Map<String, ObjectFieldSymbol> fieldDescriptors() {
+        if (this.objectFields != null) {
+            return this.objectFields;
         }
-        return objectFields;
+
+        Map<String, ObjectFieldSymbol> fields = new LinkedHashMap<>();
+        BObjectType type = (BObjectType) this.getBType();
+
+        for (BField field : type.fields.values()) {
+            fields.put(field.name.value, new BallerinaObjectFieldSymbol(this.context, field));
+        }
+
+        this.objectFields = Collections.unmodifiableMap(fields);
+        return this.objectFields;
     }
 
     /**
@@ -144,7 +152,8 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
 
         // this.getObjectTypeReference()
         //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
-        this.fieldDescriptors().forEach(objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()));
+        this.fieldDescriptors().values().forEach(
+                objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()));
         this.methods().forEach(method -> methodJoiner.add(method.signature()).add(";"));
 
         return signature.append(fieldJoiner.toString())

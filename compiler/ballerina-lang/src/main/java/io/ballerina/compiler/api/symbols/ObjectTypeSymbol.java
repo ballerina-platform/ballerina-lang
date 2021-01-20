@@ -17,6 +17,7 @@
 package io.ballerina.compiler.api.symbols;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents an object type descriptor.
@@ -26,11 +27,13 @@ import java.util.List;
 public interface ObjectTypeSymbol extends TypeSymbol, Qualifiable {
 
     /**
-     * Get the object fields.
+     * Get the symbols of the fields of the object type. The mapping is a set of field name and field symbol pairs. The
+     * returned map is ordered. The order in which the fields were specified in the source code is preserved when
+     * iterating the entries of the map.
      *
-     * @return {@link List} of object fields
+     * @return An ordered map containing the symbols of the fields
      */
-    List<ObjectFieldSymbol> fieldDescriptors();
+    Map<String, ? extends ObjectFieldSymbol> fieldDescriptors();
 
     /**
      * Get the list of methods.
