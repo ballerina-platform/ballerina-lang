@@ -6,14 +6,17 @@ Imports should be done with prefixes and the modules
 should be available in the classpath.
 To see available imports use /imports.
 
-Following command are the in-built commands.
+Following commands are the in-built commands.
 
-/exit       - Exit the terminal shell.
-/debug      - Toggle debug mode. You will see debug messages.
-/reset      - Reset REPL state.
-              All previous code snippets will be removed from REPL memory.
-/imports    - List the available imports.
-/vars       - List the declared variables and their values.
-/dclns      - List the user defined module level declarations.
-/help       - Get this message.
-/help TOPIC - Get help on TOPIC.
+/exit           - Exit the terminal shell.
+/debug          - Toggle debug mode. You will see debug messages.
+/reset          - Reset REPL state.
+                  All previous code snippets will be removed from REPL memory.
+/imports        - List the available imports.
+/vars           - List the declared variables and their values.
+/dclns          - List the user defined module level declarations.
+/help           - Get this message.
+/help <TOPIC>   - Get help on <TOPIC>. You may type in a topic to search for
+                  in place of <TOPIC>. This will fetch information from
+                  ballerina-by-example site.
+                    eg: /help var
