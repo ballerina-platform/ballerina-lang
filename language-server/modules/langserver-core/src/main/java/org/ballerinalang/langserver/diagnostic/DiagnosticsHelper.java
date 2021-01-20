@@ -15,8 +15,7 @@
  */
 package org.ballerinalang.langserver.diagnostic;
 
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleCompilation;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
@@ -78,7 +77,7 @@ public class DiagnosticsHelper {
         if (project.isEmpty()) {
             return;
         }
-        Map<String, List<Diagnostic>> diagnosticMap = getBallerinaDiagnostics(context);
+        Map<String, List<Diagnostic>> diagnosticMap = getLatestDiagnostics(context);
 
         // If the client is null, returns
         if (client == null) {
@@ -99,7 +98,7 @@ public class DiagnosticsHelper {
         lastDiagnosticMap = diagnosticMap;
     }
 
-    public Map<String, List<Diagnostic>> getBallerinaDiagnostics(DocumentServiceContext context) {
+    public Map<String, List<Diagnostic>> getLatestDiagnostics(DocumentServiceContext context) {
         WorkspaceManager workspace = context.workspace();
         Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
 
@@ -110,27 +109,16 @@ public class DiagnosticsHelper {
         // NOTE: We are not using `project.sourceRoot()` since it provides the single file project uses a temp path and
         // IDE requires the original path.
         Path projectRoot = workspace.projectRoot(context.filePath());
-        for (Module module : project.get().currentPackage().modules()) {
-            Path modulePath;
-            if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                modulePath = projectRoot.getParent();
-            } else {
-                String moduleNamePart = module.moduleName().moduleNamePart();
-                modulePath = (moduleNamePart == null) ? projectRoot
-                        : projectRoot.resolve("modules").resolve(moduleNamePart);
-            }
-            Optional<ModuleCompilation> modCompilation = workspace.waitAndGetModuleCompilation(module);
-            if (modCompilation.isEmpty()) {
-                continue;
-            }
-            diagnosticMap.putAll(toDiagnosticsMap(modCompilation.get().diagnostics().diagnostics(), modulePath));
+        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            projectRoot = projectRoot.getParent();
         }
-
+        PackageCompilation compilation = workspace.waitAndGetPackageCompilation(context.filePath()).orElseThrow();
+        diagnosticMap.putAll(toDiagnosticsMap(compilation.diagnosticResult().diagnostics(), projectRoot));
         return diagnosticMap;
     }
 
     private Map<String, List<Diagnostic>> toDiagnosticsMap(Collection<io.ballerina.tools.diagnostics.Diagnostic> diags,
-                                                           Path modulePath) {
+                                                           Path projectRoot) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
         for (io.ballerina.tools.diagnostics.Diagnostic diag : diags) {
             LineRange lineRange = diag.location().lineRange();
@@ -163,7 +151,7 @@ public class DiagnosticsHelper {
                     break;
             }
 
-            String fileURI = modulePath.resolve(lineRange.filePath()).toUri().toString();
+            String fileURI = projectRoot.resolve(lineRange.filePath()).toUri().toString();
             List<Diagnostic> clientDiagnostics = diagnosticsMap.computeIfAbsent(fileURI, s -> new ArrayList<>());
             clientDiagnostics.add(diagnostic);
         }

@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.CompilerBackend.TargetPlatform;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -34,12 +35,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.TAINT_CHECK;
 
 /**
  * Compilation at package level by resolving all the dependencies.
@@ -78,6 +81,8 @@ public class PackageCompilation {
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, compilationOptions.getBirDumpFile());
+        options.put(CLOUD, compilationOptions.getCloud());
+        options.put(TAINT_CHECK, Boolean.toString(compilationOptions.getTaintCheck()));
     }
 
     static PackageCompilation from(PackageContext rootPackageContext) {
@@ -134,7 +139,8 @@ public class PackageCompilation {
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
             moduleContext.compile(compilerContext);
-            diagnostics.addAll(moduleContext.diagnostics());
+            moduleContext.diagnostics().forEach(diagnostic ->
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
 
         addOtherDiagnostics(diagnostics);

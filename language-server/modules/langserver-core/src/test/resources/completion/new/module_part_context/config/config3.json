@@ -142,6 +142,29 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "service/http",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "insertText": "service /${1} on new http:Listener(8080) {\n\tresource function ${2:methodName} ${3:resourceName}(http:Caller ${4:caller}, http:Request ${5:req}) {\n\t\t\n\t}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
       "label": "annotation",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -206,11 +229,27 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "type TypeName table<>;",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "insertText": "type ${1:TypeName} table<${2}>;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type TypeName table<> key",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "insertText": "type ${1:TypeName} table<${2}> key${3}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error",
       "kind": "Event",
       "detail": "Error",
       "documentation": {
-        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to anydata or readonly type."
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
       },
       "sortText": "B",
       "insertText": "error",

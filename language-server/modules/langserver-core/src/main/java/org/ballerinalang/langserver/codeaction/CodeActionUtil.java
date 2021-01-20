@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -44,6 +44,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -98,6 +99,7 @@ public class CodeActionUtil {
             case SERVICE_DECLARATION:
                 return CodeActionNodeType.SERVICE;
             case FUNCTION_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
                 if (node.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
                     return CodeActionNodeType.RESOURCE;
                 } else {
@@ -220,7 +222,7 @@ public class CodeActionUtil {
             // Map
             TypeSymbol prevType = null;
             boolean isConstrainedMap = true;
-            for (FieldSymbol recordField : recordLiteral.fieldDescriptors()) {
+            for (RecordFieldSymbol recordField : recordLiteral.fieldDescriptors()) {
                 TypeDescKind typeDescKind = recordField.typeDescriptor().typeKind();
                 if (prevType != null && typeDescKind != prevType.typeKind()) {
                     isConstrainedMap = false;
@@ -311,11 +313,11 @@ public class CodeActionUtil {
                                                          CodeActionContext context) {
         // Find Cursor node
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
-        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
+        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
 
         Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode, range,
-                semanticModel, relPath);
+                                                                                        semanticModel, srcFile);
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
         Optional<TypeSymbol> matchedExprTypeSymbol;
@@ -326,7 +328,7 @@ public class CodeActionUtil {
             matchedNode = cursorNode;
             matchedSymbol = null;
         }
-        matchedExprTypeSymbol = semanticModel.type(relPath, largestExpressionNode(cursorNode, range).lineRange());
+        matchedExprTypeSymbol = semanticModel.type(largestExpressionNode(cursorNode, range).lineRange());
         return CodeActionPositionDetails.from(matchedNode, matchedSymbol, matchedExprTypeSymbol.orElse(null));
     }
 
@@ -398,10 +400,10 @@ public class CodeActionUtil {
 
         List<TextEdit> edits = new ArrayList<>();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        String relativePath = context.workspace().relativePath(context.filePath()).orElseThrow();
-        Optional<Symbol> optEnclosedFuncSymbol = semanticModel.symbol(relativePath,
-                enclosedFunc.get().functionName().lineRange()
-                        .startLine());
+        Document document = context.workspace().document(context.filePath()).orElseThrow();
+        Optional<Symbol> optEnclosedFuncSymbol =
+                semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
+
         String returnText = "";
         Range returnRange = null;
         if (optEnclosedFuncSymbol.isPresent() && optEnclosedFuncSymbol.get().kind() == SymbolKind.FUNCTION) {
@@ -503,7 +505,8 @@ public class CodeActionUtil {
                     // Cursor within the service
                     ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) member;
                     for (Node memberNode : serviceDeclrNode.members()) {
-                        if (memberNode.kind() == SyntaxKind.FUNCTION_DEFINITION
+                        if ((memberNode.kind() == SyntaxKind.FUNCTION_DEFINITION ||
+                                memberNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION)
                                 && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
                             // Cursor on the resource function
                             return Optional.of((NonTerminalNode) memberNode);
@@ -580,6 +583,7 @@ public class CodeActionUtil {
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
             case OBJECT_METHOD_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
                 TextRange functionBodyTextRange = ((FunctionDefinitionNode) node).functionBody().textRange();
                 return isWithinRange(positionOffset, functionBodyTextRange.startOffset(),
                         functionBodyTextRange.endOffset());
@@ -641,6 +645,7 @@ public class CodeActionUtil {
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
             case OBJECT_METHOD_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
                 FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
                 Optional<MetadataNode> functionMetadata = functionDefinitionNode.metadata();
                 int functionStartOffset = functionMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
@@ -699,7 +704,7 @@ public class CodeActionUtil {
     private static Optional<Pair<NonTerminalNode, Symbol>> getMatchedNodeAndSymbol(NonTerminalNode cursorNode,
                                                                                    Range range,
                                                                                    SemanticModel semanticModel,
-                                                                                   String relPath) {
+                                                                                   Document srcFile) {
         // Find invocation position
         ScopedSymbolFinder scopedSymbolFinder = new ScopedSymbolFinder(range);
         scopedSymbolFinder.visit(cursorNode);
@@ -709,7 +714,7 @@ public class CodeActionUtil {
         // Get Symbol of the position
         LinePosition position = scopedSymbolFinder.nodeIdentifierPos().get();
         LinePosition matchedNodePos = LinePosition.from(position.line(), position.offset() + 1);
-        Optional<Symbol> optMatchedSymbol = semanticModel.symbol(relPath, matchedNodePos);
+        Optional<Symbol> optMatchedSymbol = semanticModel.symbol(srcFile, matchedNodePos);
         if (optMatchedSymbol.isEmpty()) {
             return Optional.empty();
         }

@@ -162,11 +162,11 @@ function testStreamReturnTypeImplicit() returns boolean {
 
 // ------------------- Error Related Tests -------------------
 
-type CustomErrorData record {
+type CustomErrorData record {|
     string message?;
     error cause?;
     int accountID?;
-};
+|};
 
 type CustomError distinct error<CustomErrorData>;
 

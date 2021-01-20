@@ -1184,6 +1184,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclPkg.globalVars.add(birVarDcl);
 
         this.globalVarMap.put(varNode.symbol, birVarDcl);
+        env.enclPkg.isListenerAvailable |= Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER);
     }
 
     @Override

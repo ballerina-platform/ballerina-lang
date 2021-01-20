@@ -22,9 +22,9 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
-import io.ballerina.projects.directory.SingleFileProject;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -221,14 +221,15 @@ public class TestUnknownTypeProject {
     }
     @Test (description = "tests loading a valid standalone Ballerina file")
     public void testLoadSingleFile() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         Project project = null;
         try {
             project = ProjectLoader.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
-        Assert.assertTrue(project instanceof SingleFileProject);
+        Assert.assertTrue(project.kind() == ProjectKind.SINGLE_FILE_PROJECT);
+        project.documentId(projectPath);
         // 2) Load the package
         Package currentPackage = project.currentPackage();
         // 3) Load the default module

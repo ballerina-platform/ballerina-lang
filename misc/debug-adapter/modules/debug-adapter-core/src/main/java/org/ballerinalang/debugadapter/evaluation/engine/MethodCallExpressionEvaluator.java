@@ -189,7 +189,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
     private Optional<ClassSymbol> findClassDefWithinModule(String className) {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
-        return semanticContext.moduleLevelSymbols()
+        return semanticContext.moduleSymbols()
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.CLASS && modifyName(symbol.name()).equals(className))
                 .findFirst()

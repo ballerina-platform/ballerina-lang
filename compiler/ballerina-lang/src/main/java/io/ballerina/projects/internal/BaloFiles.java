@@ -38,6 +38,7 @@ import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -141,21 +142,35 @@ public class BaloFiles {
     }
 
     public static PackageManifest createPackageManifest(Path balrPath) {
-        URI zipURI = URI.create("jar:" + balrPath.toAbsolutePath().toUri().toString());
-        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-            Path packageJsonPath = zipFileSystem.getPath(PACKAGE_JSON);
-            if (Files.notExists(packageJsonPath)) {
-                throw new ProjectException("package.json does not exists in '" + balrPath + "'");
-            }
-
-            // Load `package.json`
-            PackageJson packageJson = readPackageJson(balrPath, packageJsonPath);
-            validatePackageJson(packageJson, balrPath);
-            extractPlatformLibraries(zipFileSystem, packageJson, balrPath);
-            return getPackageManifest(packageJson);
+        try {
+            return createManifest(balrPath);
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
         }
+    }
+
+    public static PackageManifest createManifest(Path balrPath) throws IOException {
+        URI zipURI = URI.create("jar:" + balrPath.toAbsolutePath().toUri().toString());
+        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+            return readFromArchive(zipFileSystem, balrPath);
+        } catch (FileAlreadyExistsException e) {
+            try (FileSystem zipFileSystem = FileSystems.getFileSystem(zipURI)) {
+                return readFromArchive(zipFileSystem, balrPath);
+            }
+        }
+    }
+
+    private static PackageManifest readFromArchive(FileSystem zipFileSystem, Path balrPath) {
+        Path packageJsonPath = zipFileSystem.getPath(PACKAGE_JSON);
+        if (Files.notExists(packageJsonPath)) {
+            throw new ProjectException("package.json does not exists in '" + balrPath + "'");
+        }
+
+        // Load `package.json`
+        PackageJson packageJson = readPackageJson(balrPath, packageJsonPath);
+        validatePackageJson(packageJson, balrPath);
+        extractPlatformLibraries(zipFileSystem, packageJson, balrPath);
+        return getPackageManifest(packageJson);
     }
 
     static DependencyGraphResult createPackageDependencyGraph(Path balrPath, String packageName) {

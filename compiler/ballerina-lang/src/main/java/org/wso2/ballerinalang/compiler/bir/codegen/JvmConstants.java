@@ -204,6 +204,7 @@ public class JvmConstants {
     public static final String HASH_MAP = "java/util/HashMap";
     public static final String PATH = "java/nio/file/Path";
     public static final String PATHS = "java/nio/file/Paths";
+    public static final String SYSTEM = "java/lang/System";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
@@ -222,6 +223,10 @@ public class JvmConstants {
     public static final String TRAP_ERROR_METHOD = "trapError";
     public static final String BLOCKED_ON_EXTERN_FIELD = "blockedOnExtern";
     public static final String IS_BLOCKED_ON_EXTERN_FIELD = "isBlockedOnExtern";
+
+    // union related constants
+    public static final String SET_MEMBERS_METHOD = "setMemberTypes";
+    public static final String SET_CYCLIC_METHOD = "setCyclic";
 
     // Immutable type related constants.
     public static final String SET_IMMUTABLE_TYPE_METHOD = "setImmutableType";
@@ -280,7 +285,6 @@ public class JvmConstants {
     public static final String CONFIGURE_INIT = "$configureInit";
     public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$populateConfigurationData";
-
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";

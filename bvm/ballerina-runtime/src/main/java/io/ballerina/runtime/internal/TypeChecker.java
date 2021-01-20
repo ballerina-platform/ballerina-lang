@@ -842,8 +842,18 @@ public class TypeChecker {
     }
 
     private static boolean checkIsUnionType(Type sourceType, BUnionType targetType, List<TypePair> unresolvedTypes) {
+        // If we encounter two types that we are still resolving, then skip it.
+        // This is done to avoid recursive checking of the same type.
+        TypePair pair = new TypePair(sourceType, targetType);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+
         switch (sourceType.getTag()) {
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
+            case TypeTags.ANYDATA_TAG:
                 return isUnionTypeMatch((BUnionType) sourceType, targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
@@ -1527,6 +1537,8 @@ public class TypeChecker {
             case TypeTags.ERROR_TAG:
                 return false;
             case TypeTags.UNION_TAG:
+            case TypeTags.ANYDATA_TAG:
+            case TypeTags.JSON_TAG:
                 for (Type memberType : ((BUnionType) sourceType).getMemberTypes()) {
                     if (!checkIsAnyType(memberType)) {
                         return false;
@@ -1902,6 +1914,7 @@ public class TypeChecker {
                     if (isInherentlyImmutableType(memberType) ||
                             isSelectivelyImmutableType(memberType, unresolvedTypes)) {
                         readonlyIntersectionExists = true;
+                        break;
                     }
                 }
                 return readonlyIntersectionExists;
@@ -2862,13 +2875,18 @@ public class TypeChecker {
                 BTupleType tupleType = (BTupleType) type;
                 return tupleType.getTupleTypes().stream().allMatch(TypeChecker::hasFillerValue);
             case TypeTags.UNION_TAG:
-                return checkFillerValue((BUnionType) type);
+                return checkFillerValue((BUnionType) type, unanalyzedTypes);
             default:
                 return false;
         }
     }
 
-    private static boolean checkFillerValue(BUnionType type) {
+    private static boolean checkFillerValue(BUnionType type,  List<Type> unAnalyzedTypes) {
+        if (unAnalyzedTypes.contains(type)) {
+            return true;
+        }
+        unAnalyzedTypes.add(type);
+
         // NIL is a member.
         if (type.isNullable()) {
             return true;

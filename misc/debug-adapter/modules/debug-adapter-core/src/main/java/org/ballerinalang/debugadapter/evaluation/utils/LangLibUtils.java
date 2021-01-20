@@ -89,7 +89,7 @@ public class LangLibUtils {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
         LinePosition position = LinePosition.from(context.getLineNumber(), 0);
 
-        return semanticContext.visibleSymbols(context.getFileNameWithExt().get(), position)
+        return semanticContext.visibleSymbols(context.getDocument(), position)
                 .stream()
                 .filter(symbol -> symbol.kind() == MODULE
                         && symbol.moduleID().orgName().equals(LANG_LIB_ORG)

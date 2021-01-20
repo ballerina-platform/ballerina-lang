@@ -705,6 +705,42 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Table Type Descriptor Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getTableTypeDescSnippet() {
+        String snippet = "type ${1:TypeName} table<${2}>;";
+
+        return new SnippetBlock(ItemResolverConstants.TABLE_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get Table Type Descriptor Snippet Block with key.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getTableWithKeyTypeDescSnippet() {
+        String snippet = "type ${1:TypeName} table<${2}> key${3}";
+
+        return new SnippetBlock(ItemResolverConstants.TABLE_WITH_KEY_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get stream definition Snippet Block with key.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStreamDefSnippet() {
+        String snippet = "stream<${1}> ${2:streamName} = new;";
+
+        return new SnippetBlock(ItemResolverConstants.TABLE_WITH_KEY_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
      * Get Closed Record Type Descriptor Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1003,10 +1039,10 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getServiceDefSnippet() {
         ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
-        String snippet = "service ${1:serviceName} on new http:Listener(8080) {"
-                + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:newResource}(http:Caller ${3:caller}, "
-                + "http:Request ${5:request}) {" + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR +
-                "\t}" + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "service /${1} on new http:Listener(8080) {"
+                + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:methodName} ${3:resourceName}"
+                + "(http:Caller ${4:caller}, " + "http:Request ${5:req}) {" + CommonUtil.LINE_SEPARATOR
+                + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE_HTTP, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET, httpImport);
     }
@@ -1136,6 +1172,26 @@ public class SnippetGenerator {
         String snippet = "object {" + CommonUtil.LINE_SEPARATOR + "\t" + CommonUtil.LINE_SEPARATOR + "};";
         return new SnippetBlock("object constructor", snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
+    }
+
+    /**
+     * Get Base16 literal Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBase16LiteralSnippet() {
+        String snippet = "base16 `${1}`";
+        return new SnippetBlock("base16", snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Base64 literal Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBase64LiteralSnippet() {
+        String snippet = "base64 `${1}`";
+        return new SnippetBlock("base64", snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
     /**
@@ -1572,5 +1628,15 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getMapTypeSnippet() {
         return new SnippetBlock("map", "map", ItemResolverConstants.TYPE, Kind.TYPE);
+    }
+
+    /**
+     * Get Keyword Snippet Block.
+     *
+     * @param keyword keyword to be added
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getKeywordSnippet(String keyword) {
+        return new SnippetBlock(keyword, keyword, ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
     }
 }

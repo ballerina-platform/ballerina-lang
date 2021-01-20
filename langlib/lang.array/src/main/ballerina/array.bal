@@ -199,15 +199,8 @@ public enum SortDirection {
    DESCENDING = "descending"
 }
 
-# A type parameter that is a subtype of `()|boolean|int|float|decimal|string`.
-type BasicType ()|boolean|int|float|decimal|string;
-
 # Any ordered type is a subtype of this.
-type OrderedType BasicType|BasicType[];
-
-// TO DO: Add this when cyclic type reference in union type definitions is supported
-//# Any ordered type is a subtype of this.
-//public type OrderedType ()|boolean|int|float|decimal|string|OrderedType[];
+public type OrderedType ()|boolean|int|float|decimal|string|OrderedType[];
 
 # Sorts an array.
 # If the member type of the array is not sorted, then the `key` function

@@ -1,10 +1,10 @@
 NAME
-       The Ballerina build tool
+       The bal build tool
 
 SYNOPSIS
-       ballerina <-v | --version>
-       ballerina [command] <-h | --help>
-       ballerina <command> [<args>]
+       bal <-v | --version>
+       bal [command] <-h | --help>
+       bal <command> [<args>]
 
 
 DESCRIPTION

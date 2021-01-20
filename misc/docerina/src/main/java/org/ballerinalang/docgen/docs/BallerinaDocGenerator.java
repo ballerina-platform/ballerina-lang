@@ -121,12 +121,14 @@ public class BallerinaDocGenerator {
                                 "<html>\n" +
                                 "<head>\n" +
                                 "\t<meta http-equiv=\"refresh\" content=\"0; URL=../index.html#/" +
+                                jsonPackageLib.packages.get(0).orgName + "/" +
                                 jsonPackageLib.packages.get(0).name +
-                                "\" />\n" +
+                                "/latest\" />\n" +
                                 "</head>\n" +
                                 "<body>\n" +
                                 "\t<h1>If you are not redirected please click this <a href=\"../index.html#/" +
-                                jsonPackageLib.packages.get(0).name + "\">link</a> </h1>\n" +
+                                jsonPackageLib.packages.get(0).orgName + "/" +
+                                jsonPackageLib.packages.get(0).name + "/latest\">link</a> </h1>\n" +
                                 "</body>\n" +
                                 "</html>";
                         FileUtils.write(newIndex, htmlData, StandardCharsets.UTF_8, false);
@@ -495,12 +497,23 @@ public class BallerinaDocGenerator {
             // Loop through bal files
             for (Map.Entry<String, SyntaxTree> syntaxTreeMapEntry : moduleDoc.getValue().syntaxTreeMap.entrySet()) {
                 boolean hasPublicConstructsTemp = Generator.setModuleFromSyntaxTree(module,
-                        syntaxTreeMapEntry.getValue(), model, syntaxTreeMapEntry.getKey());
+                        syntaxTreeMapEntry.getValue(), model);
                 if (hasPublicConstructsTemp) {
                     hasPublicConstructs = true;
                 }
             }
             if (hasPublicConstructs) {
+                module.records.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.functions.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.classes.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.clients.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.listeners.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.abstractObjects.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.enums.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.types.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.constants.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.annotations.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.errors.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
                 moduleDocs.add(module);
             }
         }

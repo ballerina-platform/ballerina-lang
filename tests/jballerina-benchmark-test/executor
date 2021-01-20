@@ -20,7 +20,7 @@ set -e
 warmupIterations=$1
 benchmarkIterations=$2
 BAL_HOME=$3
-chmod +x ${BAL_HOME}/bin/ballerina
+chmod +x ${BAL_HOME}/bin/bal
 export PATH=${BAL_HOME}/bin:$PATH
 sourceDir=$4
 resultsDir=$5
@@ -43,7 +43,7 @@ fi
 echo "Function Name,Total Time (ms),Throughput (operations/second),GC Throughput (%),Freed Memory By GC (M),Freed Memory By FullGC (M),Freed Memory (M), Max Pause (s)" > ${resultsFile}
 
 cd ${sourceDir}
-ballerina build
+bal build
 for functionName in $(<${rootDir}/benchmarkFunctions.txt)
     do
         export _JAVA_OPTIONS="-Xlog:gc*:file=${gcLogsDir}/gc_${functionName}.log"

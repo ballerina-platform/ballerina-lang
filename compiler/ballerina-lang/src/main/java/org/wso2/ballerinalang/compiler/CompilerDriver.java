@@ -145,10 +145,14 @@ public class CompilerDriver {
         // This logic interested in loading lang modules from source. For others we can load from balo.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
+            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langJavaModuleSymbol = pkgLoader.loadPackageSymbol(JAVA, null, null);
             symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
-            symResolver.reloadErrorAndDependentTypes();
-            symResolver.reloadIntRangeType();
+            symResolver.bootstrapJsonType();
+            symResolver.bootstrapAnydataType();
+            symResolver.boostrapErrorType();
+            symResolver.bootstrapCloneableType();
+            symResolver.defineOperators();
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
             symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
@@ -162,7 +166,6 @@ public class CompilerDriver {
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langTypedescModuleSymbol = pkgLoader.loadPackageSymbol(TYPEDESC, null, null);
-            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
@@ -184,8 +187,11 @@ public class CompilerDriver {
 
         // Other lang modules requires annotation module. Hence loading it first.
         symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
-
-        symResolver.reloadErrorAndDependentTypes();
+        symResolver.bootstrapJsonType();
+        symResolver.bootstrapAnydataType();
+        symResolver.boostrapErrorType();
+        symResolver.bootstrapCloneableType();
+        symResolver.defineOperators();
 
         if (langLib.equals(JAVA)) {
             symbolTable.langJavaModuleSymbol = getLangModuleFromSource(JAVA);
@@ -225,7 +231,11 @@ public class CompilerDriver {
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
         }
 
-        symResolver.reloadIntRangeType();
+        if (langLib.equals(ERROR)) {
+            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
+        }
+        symResolver.bootstrapCloneableType();
+        symResolver.bootstrapIntRangeType();
 
         // Now load each module.
         getLangModuleFromSource(langLib);

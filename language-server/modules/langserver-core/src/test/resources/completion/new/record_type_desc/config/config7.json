@@ -412,6 +412,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "base16",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "base16 `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "base64",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "base64 `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "STRING_VAL_TWO",
       "kind": "Variable",
       "detail": "string value two",
@@ -448,13 +462,6 @@
         }
       },
       "insertText": "STRING_VAL",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "field0",
-      "kind": "Variable",
-      "detail": "string",
-      "insertText": "field0",
       "insertTextFormat": "Snippet"
     },
     {

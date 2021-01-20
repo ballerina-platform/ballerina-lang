@@ -2,7 +2,7 @@ NAME
        ballerina-push - Push packages to Ballerina Central
 
 SYNOPSIS
-       ballerina push
+       bal push
 
 
 DESCRIPTION
@@ -29,4 +29,4 @@ DESCRIPTION
 EXAMPLES
        Push the package of the current package to Ballerina Central after
        building it.
-          $ ballerina push
+          $ bal push
