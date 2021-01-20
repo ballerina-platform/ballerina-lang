@@ -309,10 +309,10 @@ public class TypedescriptorTest {
     @DataProvider(name = "UnionWithNilPos")
     public Object[][] getUnionWithNilPos() {
         return new Object[][]{
-                {198, 11, "int?"},
-                {199, 17, "int|float|()"},
-                {200, 11, "A?"},
-//                {201, 15, "A|B|()"}, TODO: Disabled due to /ballerina-lang/issues/27957
+                {204, 11, "int?"},
+                {205, 17, "int|float|()"},
+                {206, 11, "A?"},
+//                {207, 15, "A|B|()"}, TODO: Disabled due to /ballerina-lang/issues/27957
         };
     }
 
