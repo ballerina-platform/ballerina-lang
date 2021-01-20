@@ -145,9 +145,11 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
         switch (rawType.typeKind()) {
             case OBJECT:
-                return lookupTypedescOfObjectField(((ObjectTypeSymbol) rawType).fieldDescriptors(), fieldName);
+                ObjectFieldSymbol objField = ((ObjectTypeSymbol) rawType).fieldDescriptors().get(fieldName);
+                return objField != null ? Optional.of(objField.typeDescriptor()) : Optional.empty();
             case RECORD:
-                return lookupTypedescOfRecordField(((RecordTypeSymbol) rawType).fieldDescriptors(), fieldName);
+                RecordFieldSymbol recField = ((RecordTypeSymbol) rawType).fieldDescriptors().get(fieldName);
+                return recField != null ? Optional.of(recField.typeDescriptor()) : Optional.empty();
             default:
                 return Optional.empty();
         }
@@ -197,7 +199,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         TypeSymbol rawType = CommonUtil.getRawType(fieldTypeDesc.get());
         List<FunctionSymbol> visibleMethods = rawType.langLibMethods();
         if (rawType.typeKind() == TypeDescKind.OBJECT) {
-            visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods());
+            visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods().values());
         }
         Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
@@ -227,24 +229,25 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor);
         switch (rawType.typeKind()) {
             case RECORD:
-                ((RecordTypeSymbol) rawType).fieldDescriptors().forEach(fieldDescriptor -> {
+                ((RecordTypeSymbol) rawType).fieldDescriptors().forEach((name, fieldDescriptor) -> {
                     CompletionItem completionItem = new CompletionItem();
-                    completionItem.setLabel(fieldDescriptor.name());
-                    completionItem.setInsertText(fieldDescriptor.name());
+                    completionItem.setLabel(name);
+                    completionItem.setInsertText(name);
                     completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
                     completionItems.add(new RecordFieldCompletionItem(context, fieldDescriptor, completionItem));
                 });
                 break;
             case OBJECT:
                 ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) rawType;
-                objTypeDesc.fieldDescriptors().forEach(fieldDescriptor -> {
+                objTypeDesc.fieldDescriptors().forEach((name, fieldDescriptor) -> {
                     CompletionItem completionItem = new CompletionItem();
-                    completionItem.setLabel(fieldDescriptor.name());
-                    completionItem.setInsertText(fieldDescriptor.name());
+                    completionItem.setLabel(name);
+                    completionItem.setInsertText(name);
                     completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
                     completionItems.add(new ObjectFieldCompletionItem(context, fieldDescriptor, completionItem));
                 });
-                completionItems.addAll(this.getCompletionItemList(objTypeDesc.methods(), context));
+                completionItems.addAll(
+                        this.getCompletionItemList(new ArrayList<>(objTypeDesc.methods().values()), context));
                 break;
             case UNION:
                 UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rawType;
@@ -261,25 +264,5 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         completionItems.addAll(this.getCompletionItemList(typeDescriptor.langLibMethods(), context));
 
         return completionItems;
-    }
-
-    private Optional<TypeSymbol> lookupTypedescOfObjectField(List<ObjectFieldSymbol> fields, String fieldName) {
-        for (ObjectFieldSymbol fieldDescriptor : fields) {
-            if (fieldDescriptor.name().equals(fieldName)) {
-                TypeSymbol typeDescriptor = fieldDescriptor.typeDescriptor();
-                return Optional.of(typeDescriptor);
-            }
-        }
-        return Optional.empty();
-    }
-
-    private Optional<TypeSymbol> lookupTypedescOfRecordField(List<RecordFieldSymbol> fields, String fieldName) {
-        for (RecordFieldSymbol fieldDescriptor : fields) {
-            if (fieldDescriptor.name().equals(fieldName)) {
-                TypeSymbol typeDescriptor = fieldDescriptor.typeDescriptor();
-                return Optional.of(typeDescriptor);
-            }
-        }
-        return Optional.empty();
     }
 }

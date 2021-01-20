@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -29,9 +30,8 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Carries a set of utilities to check the types of the symbols.
@@ -195,16 +195,15 @@ public class SymbolUtil {
      */
     public static boolean isListener(Symbol symbol) {
         Optional<? extends TypeSymbol> symbolTypeDesc = getTypeDescriptor(symbol);
-        
+
         if (symbolTypeDesc.isEmpty() || CommonUtil.getRawType(symbolTypeDesc.get()).kind() != SymbolKind.CLASS) {
             return false;
         }
-        List<String> attachedMethods = ((ClassSymbol) CommonUtil.getRawType(symbolTypeDesc.get())).methods()
-                .stream()
-                .map(Symbol::name)
-                .collect(Collectors.toList());
-        return attachedMethods.contains("start") && attachedMethods.contains("immediateStop")
-                && attachedMethods.contains("immediateStop") && attachedMethods.contains("attach");
+
+        Map<String, MethodSymbol> attachedMethods =
+                ((ClassSymbol) CommonUtil.getRawType(symbolTypeDesc.get())).methods();
+        return attachedMethods.containsKey("start") && attachedMethods.containsKey("immediateStop")
+                && attachedMethods.containsKey("immediateStop") && attachedMethods.containsKey("attach");
     }
 
     /**

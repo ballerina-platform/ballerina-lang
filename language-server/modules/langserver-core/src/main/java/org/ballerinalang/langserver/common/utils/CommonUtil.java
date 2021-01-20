@@ -280,18 +280,18 @@ public class CommonUtil {
      * Get completion items list for struct fields.
      *
      * @param context Language server operation context
-     * @param fields  List of field descriptors
+     * @param fields  Map of field descriptors
      * @return {@link List}     List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
-                                                                       List<RecordFieldSymbol> fields) {
+                                                                       Map<String, RecordFieldSymbol> fields) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        fields.forEach(field -> {
+        fields.forEach((name, field) -> {
             String insertText = getRecordFieldCompletionInsertText(field, 0);
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText);
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            fieldItem.setLabel(field.name());
+            fieldItem.setLabel(name);
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
@@ -305,16 +305,17 @@ public class CommonUtil {
      * Get the completion item to fill all the struct fields.
      *
      * @param context Language Server Operation Context
-     * @param fields  List of fields
+     * @param fields  Map of fields
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
     public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
-                                                              List<RecordFieldSymbol> fields) {
+                                                              Map<String, RecordFieldSymbol> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
-        for (RecordFieldSymbol fieldSymbol : fields) {
-            String defaultFieldEntry = fieldSymbol.name()
-                    + PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(fieldSymbol.typeDescriptor());
+        for (Map.Entry<String, RecordFieldSymbol> fieldSymbolEntry : fields.entrySet()) {
+            String defaultFieldEntry = fieldSymbolEntry.getKey()
+                    + PKG_DELIMITER_KEYWORD + " "
+                    + getDefaultValueForType(fieldSymbolEntry.getValue().typeDescriptor());
             fieldEntries.add(defaultFieldEntry);
         }
 
@@ -503,7 +504,7 @@ public class CommonUtil {
      * @return {@link List} of required fields captured
      */
     public static List<RecordFieldSymbol> getMandatoryRecordFields(RecordTypeSymbol recordType) {
-        return recordType.fieldDescriptors().stream()
+        return recordType.fieldDescriptors().values().stream()
                 .filter(field -> !field.hasDefaultValue() && !field.isOptional())
                 .collect(Collectors.toList());
     }
