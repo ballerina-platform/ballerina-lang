@@ -24,6 +24,7 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.function.Function;
 
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
@@ -137,18 +139,22 @@ public class PackageCompilation {
             moduleContext.diagnostics().forEach(diagnostic ->
                     diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
-
-        //addOtherDiagnostics(diagnostics);
+        runPluginCodeAnalysis(diagnostics);
+        addOtherDiagnostics(diagnostics);
         diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         compiled = true;
     }
 
-//    private void addOtherDiagnostics(List<Diagnostic> diagnostics) {
-//        Optional<TomlDocumentContext> ballerinaToml = rootPackageContext.ballerinaTomlContext();
-////        if (ballerinaToml.isPresent()) {
-////            // todo fix me
-////            // BallerinaToml ballerinaToml = ballerinaTomlOptional.get();
-////            // diagnostics.addAll(ballerinaToml.diagnostics().allDiagnostics);
-////        }
-//    }
+    private void runPluginCodeAnalysis(List<Diagnostic> diagnostics) {
+        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+        for (CompilerPlugin plugin : processorServiceLoader) {
+            List<Diagnostic> pluginDiagnostics = plugin.codeAnalyze(rootPackageContext.project());
+            diagnostics.addAll(pluginDiagnostics);
+        }
+    }
+
+    private void addOtherDiagnostics(List<Diagnostic> diagnostics) {
+        DiagnosticResult diagnosticResult = packageContext().manifest().diagnostics();
+        diagnostics.addAll(diagnosticResult.allDiagnostics);
+    }
 }
