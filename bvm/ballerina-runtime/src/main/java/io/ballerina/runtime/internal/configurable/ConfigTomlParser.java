@@ -78,6 +78,10 @@ public class ConfigTomlParser {
         }
         for (Map.Entry<Module, VariableKey[]> moduleEntry : configurationData.entrySet()) {
             TomlTableNode moduleNode = retrieveModuleNode(tomlNode, moduleEntry.getKey());
+            if (moduleNode == null) {
+                //Module could contain optional configurable variable
+                continue;
+            }
             for (VariableKey key : moduleEntry.getValue()) {
                 if (!moduleNode.entries().containsKey(key.variable)) {
                     //It is an optional configurable variable
@@ -97,10 +101,6 @@ public class ConfigTomlParser {
         }
         TomlTableNode moduleNode = moduleName.equals(DEFAULT_MODULE) ? tomlNode : extractModuleNode(tomlNode,
                 moduleName);
-        if (moduleNode == null) {
-            throw new TomlException(INVALID_TOML_FILE + "Module '" + moduleName + "' from organization '" + orgName
-                    + "' not found.");
-        }
         return moduleNode;
     }
 

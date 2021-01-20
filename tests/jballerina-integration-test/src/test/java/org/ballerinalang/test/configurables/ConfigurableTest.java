@@ -139,7 +139,7 @@ public class ConfigurableTest extends BaseTest {
     public void testInvalidOrganizationName() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "InvalidOrgName").toAbsolutePath();
         LogLeecher errorLeecher =
-                new LogLeecher(errorMsg + "Module 'main' from organization 'testOrg' not found.", ERROR);
+                new LogLeecher("Value not provided for required configurable variable 'booleanVar'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
