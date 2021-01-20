@@ -3975,28 +3975,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangBlockStmt tempBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         tempBlockStmt.addStatement(successResult);
-        if (mappingBindingPattern.restBindingPattern != null) {
-            BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;
-            Location restPatternPos = restBindingPattern.pos;
-            List<String> keysToRemove = getKeysToRemove(mappingBindingPattern);
-            BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(symTable.stringType,
-                    ((BMapType) restBindingPattern.type).constraint)), null);
-            BLangInvocation entriesInvocation = generateMapEntriesInvocation(tempCastVarRef, entriesType);
-            BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
-                    restPatternPos);
-            tempBlockStmt.addStatement(entriesVarDef);
-            BLangLambdaFunction filteringFunction = createFuncToFilterOutRestParam(keysToRemove, restPatternPos);
-            BLangInvocation filterInvocation = generateMapFilterInvocation(pos, entriesVarDef.var, filteringFunction);
-            BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
-                    restPatternPos);
-            tempBlockStmt.addStatement(filtersVarDef);
-            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
-            BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
-                    backToMapLambda);
-            BLangSimpleVarRef restMatchPatternVarRef =
-                    declaredVarDef.get(restBindingPattern.getIdentifier().getValue());
-            tempBlockStmt.addStatement(ASTBuilderUtil.createAssignmentStmt(pos, restMatchPatternVarRef, mapInvocation));
-        }
+        createRestBindingPatternCondition(mappingBindingPattern, tempBlockStmt, tempCastVarRef);
         BLangIf ifStmtForMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBlockStmt, null);
         blockStmt.addStatement(ifStmtForMatchPatterns);
 
@@ -4005,6 +3984,36 @@ public class Desugar extends BLangNodeVisitor {
         statementExpression.type = symTable.booleanType;
         addAsRecordTypeDefinition(bindingPatternType, pos);
         return statementExpression;
+    }
+
+    private void createRestBindingPatternCondition(BLangMappingBindingPattern mappingBindingPattern,
+                                                   BLangBlockStmt blockStmt, BLangSimpleVarRef varRef) {
+        BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;
+        if (restBindingPattern == null) {
+            return;
+        }
+
+        Location restPatternPos = restBindingPattern.pos;
+        List<String> keysToRemove = getKeysToRemove(mappingBindingPattern);
+        BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(symTable.stringType,
+                ((BMapType) restBindingPattern.type).constraint)), null);
+        BLangInvocation entriesInvocation = generateMapEntriesInvocation(varRef, entriesType);
+        BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
+                restPatternPos);
+        blockStmt.addStatement(entriesVarDef);
+        BLangLambdaFunction filteringFunction = createFuncToFilterOutRestParam(keysToRemove, restPatternPos);
+        BLangInvocation filterInvocation = generateMapFilterInvocation(restPatternPos, entriesVarDef.var,
+                filteringFunction);
+        BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
+                restPatternPos);
+        blockStmt.addStatement(filtersVarDef);
+        BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+        BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
+                backToMapLambda);
+        BLangSimpleVarRef restMatchPatternVarRef =
+                declaredVarDef.get(restBindingPattern.getIdentifier().getValue());
+        blockStmt.addStatement(ASTBuilderUtil.createAssignmentStmt(restPatternPos, restMatchPatternVarRef,
+                mapInvocation));
     }
 
     private BLangExpression createVarCheckConditionForListMatchPattern(BLangListMatchPattern listMatchPattern,
