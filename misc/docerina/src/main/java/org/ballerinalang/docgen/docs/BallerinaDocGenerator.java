@@ -23,6 +23,8 @@ import com.google.gson.GsonBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.PackageMd;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.docgen.Generator;
@@ -150,7 +152,7 @@ public class BallerinaDocGenerator {
      *  @param project Ballerina project
      *  @param output Output path as a string
      */
-    public static void generateAPIDocs(io.ballerina.projects.Project project, String output)
+    public static void generateAPIDocs(Project project, String output)
             throws IOException {
         Map<String, ModuleDoc> moduleDocMap = generateModuleDocMap(project);
         DocPackage docPackage = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
@@ -158,16 +160,12 @@ public class BallerinaDocGenerator {
         docPackage.name = project.currentPackage().descriptor().name().toString();
         docPackage.orgName = project.currentPackage().packageOrg().toString();
         docPackage.version = project.currentPackage().packageVersion().toString();
-        Path packageMdPath = project.sourceRoot().resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-        Path defModuleMdPath = project.sourceRoot().resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-        Path mdContent = null;
-        if (packageMdPath.toFile().exists()) {
-            mdContent = packageMdPath;
-        } else if (defModuleMdPath.toFile().exists()) {
-            mdContent = defModuleMdPath;
+        Optional<PackageMd> packageMdPath = project.currentPackage().packageMd();
+        char[] mdContent = null;
+        if (packageMdPath.isPresent()) {
+            mdContent = packageMdPath.get().mdDocumentContext().textDocument().toCharArray();
         }
-        docPackage.description = mdContent != null ?
-                new String(Files.readAllBytes(mdContent), "UTF-8") : "";
+        docPackage.description = mdContent != null ? new String(mdContent) : "";
         docPackage.summary = mdContent != null ? BallerinaDocUtils.getSummary(mdContent) : "";
         if (!docPackage.modules.isEmpty()) {
             PackageLibrary packageLib = new PackageLibrary();
