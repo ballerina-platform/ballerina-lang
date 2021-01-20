@@ -3605,6 +3605,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) testType, expressionType) !=
                         symTable.semanticError;
         }
+
+        // any and readonly has a intersection
+        if (expressionType.tag == TypeTags.ANY && testType.tag == TypeTags.READONLY) {
+            return true;
+        }
         return false;
     }
 
