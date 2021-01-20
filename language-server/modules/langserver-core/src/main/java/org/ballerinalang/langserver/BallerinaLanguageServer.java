@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService;
@@ -98,10 +99,11 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
         WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
+        DiagnosticsHelper diagnosticsHelper = new DiagnosticsHelper();
 
         this.textService = new BallerinaTextDocumentService(lsGlobalContext, workspaceManager);
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager);
-        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(this, workspaceManager);
+        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(this, workspaceManager, diagnosticsHelper);
         this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(workspaceManager, lsGlobalContext);
         this.ballerinaProjectService = new BallerinaProjectServiceImpl();
         this.ballerinaExampleService = new BallerinaExampleServiceImpl();
