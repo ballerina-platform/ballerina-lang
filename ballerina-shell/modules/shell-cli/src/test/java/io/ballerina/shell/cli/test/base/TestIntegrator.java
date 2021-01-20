@@ -43,21 +43,20 @@ import static io.ballerina.shell.cli.PropertiesLoader.REPL_PROMPT;
 public class TestIntegrator extends Thread {
     private final InputStream inputStream;
     private final OutputStream outputStream;
+    private final ByteArrayOutputStream stdoutStream;
     private final List<TestCase> testCases;
 
     public TestIntegrator(InputStream inputStream, OutputStream outputStream,
-                          List<TestCase> testCases) {
+                          ByteArrayOutputStream stdoutStream, List<TestCase> testCases) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
+        this.stdoutStream = stdoutStream;
         this.testCases = testCases;
     }
 
     @Override
     public void run() {
-        PrintStream origOut = System.out;
         try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(out, true, Charset.defaultCharset()));
             String shellPrompt = PropertiesLoader.getProperty(REPL_PROMPT);
             PrintStream testPrint = new PrintStream(outputStream, true, Charset.defaultCharset());
             InputStreamReader inStreamReader = new InputStreamReader(inputStream, Charset.defaultCharset());
@@ -102,12 +101,11 @@ public class TestIntegrator extends Thread {
                 String expectedOutput = Objects.requireNonNullElse(testCase.getExpr(), "");
                 Assert.assertEquals(shellOutput.trim(), expectedOutput.trim(), testCase.getDescription());
 
-                Assert.assertEquals(out.toString().trim(), testCase.getStdout().trim(), testCase.getDescription());
-                out.reset();
+                Assert.assertEquals(stdoutStream.toString().trim(), testCase.getStdout().trim(),
+                        testCase.getDescription());
+                stdoutStream.reset();
             }
         } catch (IOException ignored) {
-        } finally {
-            System.setOut(origOut);
         }
     }
 

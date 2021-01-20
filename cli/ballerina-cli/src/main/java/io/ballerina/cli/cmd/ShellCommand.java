@@ -29,7 +29,7 @@ import static io.ballerina.cli.cmd.Constants.SHELL_COMMAND;
 /**
  * This class represents the "ballerina add" command.
  *
- * @since slp8
+ * @since 2.0.0
  */
 @CommandLine.Command(name = SHELL_COMMAND, description = "Run ballerina interactive REPL")
 public class ShellCommand implements BLauncherCmd {

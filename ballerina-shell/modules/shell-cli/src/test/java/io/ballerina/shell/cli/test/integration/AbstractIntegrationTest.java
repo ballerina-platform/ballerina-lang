@@ -26,8 +26,11 @@ import io.ballerina.shell.cli.test.base.TestCases;
 import io.ballerina.shell.cli.test.base.TestIntegrator;
 import org.jline.reader.EndOfFileException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.util.List;
 
 /**
@@ -44,17 +47,27 @@ public class AbstractIntegrationTest {
         PipedOutputStream shellOut = new PipedOutputStream();
         PipedInputStream testIn = new PipedInputStream(shellOut);
 
-        TestIntegrator testIntegrator = new TestIntegrator(testIn, testOut, testCases);
-        testIntegrator.start();
-
+        PrintStream origOut = System.out;
         try {
-            BShellConfiguration configuration = new BShellConfiguration.Builder()
-                    .setInputStream(shellIn).setOutputStream(shellOut)
-                    .setDumb(true).setTreeParsingTimeoutMs(10000).build();
-            ReplShellApplication.execute(configuration);
-        } catch (EndOfFileException ignored) {
-        }
+            ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+            PrintStream interceptedOutStream = new PrintStream(stdOut, true, Charset.defaultCharset());
+            System.setOut(interceptedOutStream);
 
-        testIntegrator.interrupt();
+            TestIntegrator testIntegrator = new TestIntegrator(testIn, testOut, stdOut, testCases);
+            testIntegrator.start();
+
+            try {
+                BShellConfiguration configuration = new BShellConfiguration.Builder()
+                        .setInputStream(shellIn).setOutputStream(shellOut)
+                        .setDumb(true).setTreeParsingTimeoutMs(10000).build();
+                ReplShellApplication.execute(configuration);
+            } catch (EndOfFileException ignored) {
+            }
+
+            testIntegrator.interrupt();
+            testIntegrator.join();
+        } finally {
+            System.setOut(origOut);
+        }
     }
 }

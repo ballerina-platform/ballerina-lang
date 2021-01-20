@@ -39,7 +39,7 @@ import java.util.Objects;
 /**
  * Shell command tests.
  *
- * @since slp8
+ * @since 2.0.0
  */
 public class ShellCommandTest extends BaseCommandTest {
     public static final String BALLERINA_HOME = "ballerina.home";
@@ -126,6 +126,7 @@ public class ShellCommandTest extends BaseCommandTest {
         }
 
         testIntegratorThread.interrupt();
+        testIntegratorThread.join();
     }
 
     private String filteredString(String rawString) {
