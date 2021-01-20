@@ -133,7 +133,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
-    private static final String buildCmd = "bal build [-o <output>] [--offline] [--skip-tests]\n" +
+    private static final String buildCmd = "bal build [-o <output>] [--offline] [--skip-tests] [--taint-check]\n" +
             "                    [<ballerina-file | package-path>] [(--key=value)...]";
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
@@ -148,6 +148,9 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
+
+    @CommandLine.Option(names = "--taint-check", description = "perform taint flow analysis")
+    private Boolean taintCheck;
 
     public void execute() {
         if (this.helpFlag) {
@@ -257,6 +260,7 @@ public class BuildCommand implements BLauncherCmd {
                 .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
                 .cloud(cloud)
+                .taintCheck(taintCheck)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
                 .build();
@@ -283,7 +287,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal build [-o <output-file>] [--offline] [--skip-tests] [--skip-lock] " +
+        out.append("  bal build [-o <output-file>] [--offline] [--skip-tests] [--skip-lock]  [--taint-check]" +
                    "{<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]\n");
     }
 

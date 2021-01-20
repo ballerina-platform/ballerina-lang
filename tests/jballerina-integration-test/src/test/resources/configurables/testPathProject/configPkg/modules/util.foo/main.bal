@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,12 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function main(string... args) returns error? {
-    string key = "static-value";
-    boolean b = contains(key);
-    return;
+configurable int intVar = ?;
+configurable float floatVar = 9.5;
+configurable string stringVar = "hello";
+configurable boolean booleanVar = ?;
+
+public function getAverage() returns float {
+    return <float>(intVar + floatVar) / 2;
 }
 
-public function contains(@untainted any key) returns boolean {
-    return false;
+public function getString() returns string {
+    return stringVar;
+}
+
+public function getBoolean() returns boolean {
+    return booleanVar;
 }

@@ -74,24 +74,6 @@ public class ObservabilityConstants {
     public static final String TAG_TRUE_VALUE = "true";
     public static final String STATUS_CODE_GROUP_SUFFIX = "xx";
 
-    // TOML Configs
-    public static final String CONFIG_TABLE_OBSERVABILITY = "b7a.observability";
-    public static final String CONFIG_TABLE_METRICS = CONFIG_TABLE_OBSERVABILITY + ".metrics";
-    public static final String CONFIG_TABLE_TRACING = CONFIG_TABLE_OBSERVABILITY + ".tracing";
-
-    // Observability Configs
-    public static final String CONFIG_OBSERVABILITY_ENABLED = CONFIG_TABLE_OBSERVABILITY + ".enabled";
-    public static final String CONFIG_OBSERVABILITY_PROVIDER = CONFIG_TABLE_OBSERVABILITY + ".provider";
-
-    // Metrics Configs
-    public static final String CONFIG_METRICS_ENABLED = CONFIG_TABLE_METRICS + ".enabled";
-    public static final String CONFIG_OBSERVABILITY_METRICS_PROVIDER = CONFIG_TABLE_METRICS + ".provider";
-    public static final String CONFIG_OBSERVABILITY_METRICS_REPORTER = CONFIG_TABLE_METRICS + ".reporter";
-
-    // Tracing Configs
-    public static final String CONFIG_TRACING_ENABLED = CONFIG_TABLE_TRACING + ".enabled";
-    public static final String CONFIG_OBSERVABILITY_TRACING_PROVIDER = CONFIG_TABLE_TRACING + ".provider";
-
     // Checkpoint Configs
     public static final String CHECKPOINT_EVENT_NAME = "CHECKPOINT";
 }

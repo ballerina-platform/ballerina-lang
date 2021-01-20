@@ -83,6 +83,7 @@ public class BallerinaTomlTests {
         Assert.assertFalse(ballerinaToml.buildOptions().skipTests());
         Assert.assertFalse(ballerinaToml.buildOptions().codeCoverage());
         Assert.assertEquals(ballerinaToml.buildOptions().compilationOptions().getCloud(), "k8s");
+        Assert.assertTrue(ballerinaToml.buildOptions().compilationOptions().getTaintCheck());
     }
 
     @Test
