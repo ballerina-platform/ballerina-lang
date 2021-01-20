@@ -31,7 +31,7 @@ public interface RecordTypeSymbol extends TypeSymbol {
      *
      * @return {@link List} of ballerina field
      */
-    List<FieldSymbol> fieldDescriptors();
+    List<RecordFieldSymbol> fieldDescriptors();
 
     /**
      * Get the rest type descriptor.

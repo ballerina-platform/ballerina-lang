@@ -34,7 +34,7 @@ public class FileUtils {
      * @param filePath Path of the file.
      * @return File name without extension.
      */
-    public static String geFileNameWithoutExtension(Path filePath) {
+    public static String getFileNameWithoutExtension(Path filePath) {
         Path fileName = filePath.getFileName();
         if (null != fileName) {
             int index = indexOfExtension(fileName.toString());

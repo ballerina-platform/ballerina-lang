@@ -18,9 +18,9 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -85,7 +85,7 @@ public class SymbolFlagToQualifierMappingTest {
                 {19, 20, Set.of(PUBLIC)},
                 {35, 19, Set.of(READONLY)},
                 {49, 20, Set.of(ISOLATED)},
-                {52, 22, Set.of(READONLY, PUBLIC)},
+                {52, 22, Set.of(READONLY)},
                 {56, 16, Set.of(CLIENT)},
                 {57, 22, Set.of(REMOTE)},
                 {65, 17, Set.of(LISTENER, FINAL)},
@@ -115,7 +115,7 @@ public class SymbolFlagToQualifierMappingTest {
         Optional<Symbol> optionalSymbol = model.symbol(srcFile, LinePosition.from(51, 5));
         TypeDefinitionSymbol person = (TypeDefinitionSymbol) optionalSymbol.get();
         RecordTypeSymbol type = (RecordTypeSymbol) person.typeDescriptor();
-        FieldSymbol field = type.fieldDescriptors().get(1);
+        RecordFieldSymbol field = type.fieldDescriptors().get(1);
         assertTrue(field.isOptional());
         assertFalse(field.hasDefaultValue());
     }

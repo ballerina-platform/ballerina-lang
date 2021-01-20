@@ -358,7 +358,7 @@ public class TestBuildProject {
             Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
         }
 
-        projectPath = RESOURCE_DIRECTORY.resolve("single-file");
+        projectPath = RESOURCE_DIRECTORY.resolve("single_file");
         try {
             BuildProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
