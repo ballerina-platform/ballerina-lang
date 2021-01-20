@@ -221,7 +221,7 @@ public class TestUnknownTypeProject {
     }
     @Test (description = "tests loading a valid standalone Ballerina file")
     public void testLoadSingleFile() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         Project project = null;
         try {
             project = ProjectLoader.loadProject(projectPath);
