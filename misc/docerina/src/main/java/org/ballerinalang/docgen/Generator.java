@@ -130,7 +130,8 @@ public class Generator {
                             hasPublicConstructs = true;
                             Type firstType = Type.fromNode(((UnionTypeDescriptorNode) (typeDefinition.typeDescriptor()))
                                     .leftTypeDesc(), semanticModel);
-                            if (firstType.category.equals("errors")) {
+                            if (firstType.category.equals("errors") ||
+                                    (firstType.category.equals("builtin") && firstType.name.equals("error"))) {
                                 module.errors.add(new Error(typeDefinition.typeName().text(),
                                         getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
                                         .metadata()), Type.fromNode(typeDefinition.typeDescriptor(), semanticModel)));
