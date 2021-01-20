@@ -330,6 +330,13 @@ public enum ParserRuleContext {
     ON_FA("on_fail_clause"),
     TYPEDESC_TYPE_DESCRIPTOR("typedesc-type-descriptor"),
     TYPEDESC_TYPE_DESCRIPTOR_RHS("typedesc-type-descriptor-rhs"),
+    MODULE_VAR_DECL("module-var-decl"),
+    MODULE_VAR_FIRST_QUAL("module-var-first-qual"),
+    MODULE_VAR_SECOND_QUAL("module-var-second-qual"),
+    MODULE_VAR_THIRD_QUAL("module-var-third-qual"),
+    MODULE_VAR_DECL_START("module-var-decl-start"),
+    MODULE_VAR_WITHOUT_FIRST_QUAL("module-var-without-first-qual"),
+    MODULE_VAR_WITHOUT_SECOND_QUAL("module-var-without-second-qual"),
 
     // Statements
     STATEMENT("statement"),
