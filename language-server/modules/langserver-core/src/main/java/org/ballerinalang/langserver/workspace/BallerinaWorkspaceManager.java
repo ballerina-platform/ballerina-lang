@@ -307,7 +307,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             Optional<BallerinaToml> ballerinaToml = projectPair.project().currentPackage().ballerinaToml();
             // Get toml
             if (ballerinaToml.isEmpty()) {
-                throw new WorkspaceDocumentException("Ballerina.toml does is not available");
+                throw new WorkspaceDocumentException("Ballerina.toml does not exists!");
             }
             // Update toml
             BallerinaToml updatedToml = ballerinaToml.get().modify().withContent(content).apply();
@@ -349,7 +349,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // Get toml
             if (kubernetesToml.isEmpty() && !createIfNotExists) {
                 //TODO: Create the Kubernetes.toml if not available
-                throw new WorkspaceDocumentException("Kubernetes.toml is not available");
+                throw new WorkspaceDocumentException("Kubernetes.toml does not exists!");
             }
             // Update toml
             KubernetesToml updatedToml = kubernetesToml.get().modify().withContent(content).apply();
