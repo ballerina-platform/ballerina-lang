@@ -338,6 +338,9 @@ public class BallerinaToml extends TomlDocument {
             cloud = getStringFromTomlTableNode(topLevelNode,
                     CompilerOptionName.CLOUD.toString(), "[build-options]");
         }
+        boolean taintCheck =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.TAINT_CHECK.toString());
+
         return buildOptionsBuilder
                 .skipTests(skipTests)
                 .offline(offline)
@@ -345,6 +348,7 @@ public class BallerinaToml extends TomlDocument {
                 .testReport(testReport)
                 .codeCoverage(codeCoverage)
                 .cloud(cloud)
+                .taintCheck(taintCheck)
                 .build();
     }
 

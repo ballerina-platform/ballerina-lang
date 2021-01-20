@@ -149,6 +149,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
 
+    @CommandLine.Option(names = "--taint-check", description = "perform taint flow analysis")
+    private Boolean taintCheck;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -257,6 +260,7 @@ public class BuildCommand implements BLauncherCmd {
                 .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
                 .cloud(cloud)
+                .taintCheck(taintCheck)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
                 .build();

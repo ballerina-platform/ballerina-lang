@@ -83,6 +83,7 @@ public class BallerinaTomlTests {
         Assert.assertFalse(ballerinaToml.buildOptions().skipTests());
         Assert.assertFalse(ballerinaToml.buildOptions().codeCoverage());
         Assert.assertEquals(ballerinaToml.buildOptions().compilationOptions().getCloud(), "k8s");
+        Assert.assertTrue(ballerinaToml.buildOptions().compilationOptions().getTaintCheck());
     }
 
     @Test
@@ -95,6 +96,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.name().value(), "lang.annotations");
         Assert.assertEquals(descriptor.org().value(), "ballerina");
         Assert.assertEquals(descriptor.version().value().toString(), "1.0.0");
+        Assert.assertFalse(ballerinaToml.buildOptions().compilationOptions().getTaintCheck());
     }
 
     @Test
