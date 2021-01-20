@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
+import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
@@ -72,6 +73,10 @@ public class StringTemplateEvaluator extends Evaluator {
                 }
             }
             Value result = EvaluationUtils.concatBStrings(context, templateMemberValues.toArray(new Value[0]));
+            // Converts the result into a BString, if the result is a java string reference.
+            if (result instanceof StringReference) {
+                result = EvaluationUtils.getAsBString(context, (StringReference) result);
+            }
             return new BExpressionValue(context, result);
         } catch (EvaluationException e) {
             throw e;
