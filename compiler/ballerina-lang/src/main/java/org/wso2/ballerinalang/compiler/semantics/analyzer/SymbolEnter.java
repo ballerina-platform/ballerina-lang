@@ -2607,7 +2607,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (nodeKind != NodeKind.RECORD_TYPE || !(((BRecordType) structureType).sealed)) {
+            if (nodeKind != NodeKind.RECORD_TYPE) {
+                continue;
+            }
+
+            BRecordType recordType = (BRecordType) structureType;
+            if (!recordType.sealed && recordType.restFieldType.tag != TypeTags.NEVER) {
                 continue;
             }
 
