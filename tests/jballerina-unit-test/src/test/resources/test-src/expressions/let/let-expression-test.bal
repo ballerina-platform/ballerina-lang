@@ -316,6 +316,15 @@ function getRecordConstrainedError() returns FooError {
     return e;
 }
 
+public function testAnonymousRecordWithLetExpression() {
+    record {
+        int i;
+        int j?;
+    } rec = let int v = 1 in {i: v};
+    
+    assertTrue(rec.i == 1, "rec.i == 1");
+}
+
 //// Util functions
 
 function assert(anydata expected, anydata actual) {
