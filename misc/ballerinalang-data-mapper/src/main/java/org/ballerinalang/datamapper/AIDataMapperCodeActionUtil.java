@@ -51,6 +51,7 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -251,10 +252,10 @@ class AIDataMapperCodeActionUtil {
 
         // Schema 1
         Symbol rightSymbol = findSymbol(foundTypeRight, fileContentSymbols);
-        List<RecordFieldSymbol> rightSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(rightSymbol)
+        Map<String, RecordFieldSymbol> rightSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(rightSymbol)
                 .fieldDescriptors();
 
-        JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
+        JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields.values());
 
         rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
         rightRecordJSON.addProperty(ID, "dummy_id");
@@ -262,7 +263,7 @@ class AIDataMapperCodeActionUtil {
         rightRecordJSON.add(PROPERTIES, rightSchema);
 
         // Schema 2
-        List<RecordFieldSymbol> leftSchemaFields;
+        Map<String, RecordFieldSymbol> leftSchemaFields;
         if (positionDetails.matchedSymbol() == null) {
             Symbol leftSymbol = findSymbol(foundTypeLeft, fileContentSymbols);
             leftSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(leftSymbol).fieldDescriptors();
@@ -271,7 +272,7 @@ class AIDataMapperCodeActionUtil {
                     fieldDescriptors();
         }
 
-        JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields);
+        JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields.values());
 
         leftRecordJSON.addProperty(SCHEMA, foundTypeLeft);
         leftRecordJSON.addProperty(ID, "dummy_id");
@@ -311,16 +312,16 @@ class AIDataMapperCodeActionUtil {
      * @param schemaFields {@link List<RecordFieldSymbol>}
      * @return Field symbol properties
      */
-    private static JsonElement recordToJSON(List<RecordFieldSymbol> schemaFields) {
+    private static JsonElement recordToJSON(Collection<RecordFieldSymbol> schemaFields) {
         JsonObject properties = new JsonObject();
         for (RecordFieldSymbol attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
             fieldDetails.addProperty(ID, "dummy_id");
             TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
             if (attributeType.typeKind() == TypeDescKind.RECORD) {
-                List<RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
+                Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
                 fieldDetails.addProperty(TYPE, "ballerina_type");
-                fieldDetails.add(PROPERTIES, recordToJSON(recordFields));
+                fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
             } else {
                 fieldDetails.addProperty(TYPE, attributeType.typeKind().toString());
             }
