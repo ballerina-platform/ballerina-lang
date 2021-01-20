@@ -437,9 +437,11 @@ public class SignatureHelpUtil {
         TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
         switch (rawType.typeKind()) {
             case OBJECT:
-                return lookupTypedescOfObjectField(((ObjectTypeSymbol) rawType).fieldDescriptors(), fieldName);
+                ObjectFieldSymbol objField = ((ObjectTypeSymbol) rawType).fieldDescriptors().get(fieldName);
+                return objField != null ? Optional.of(objField.typeDescriptor()) : Optional.empty();
             case RECORD:
-                return lookupTypedescOfRecordField(((RecordTypeSymbol) rawType).fieldDescriptors(), fieldName);
+                RecordFieldSymbol recField = ((RecordTypeSymbol) rawType).fieldDescriptors().get(fieldName);
+                return recField != null ? Optional.of(recField.typeDescriptor()) : Optional.empty();
             default:
                 return Optional.empty();
         }
@@ -511,25 +513,5 @@ public class SignatureHelpUtil {
         functionSymbols.addAll(typeDescriptor.langLibMethods());
 
         return functionSymbols;
-    }
-
-    private static Optional<TypeSymbol> lookupTypedescOfObjectField(List<ObjectFieldSymbol> fields, String fieldName) {
-        for (ObjectFieldSymbol fieldDescriptor : fields) {
-            if (fieldDescriptor.name().equals(fieldName)) {
-                TypeSymbol typeDescriptor = fieldDescriptor.typeDescriptor();
-                return Optional.of(typeDescriptor);
-            }
-        }
-        return Optional.empty();
-    }
-
-    private static Optional<TypeSymbol> lookupTypedescOfRecordField(List<RecordFieldSymbol> fields, String fieldName) {
-        for (RecordFieldSymbol fieldDescriptor : fields) {
-            if (fieldDescriptor.name().equals(fieldName)) {
-                TypeSymbol typeDescriptor = fieldDescriptor.typeDescriptor();
-                return Optional.of(typeDescriptor);
-            }
-        }
-        return Optional.empty();
     }
 }

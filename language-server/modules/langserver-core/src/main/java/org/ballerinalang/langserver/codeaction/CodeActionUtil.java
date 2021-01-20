@@ -222,7 +222,7 @@ public class CodeActionUtil {
             // Map
             TypeSymbol prevType = null;
             boolean isConstrainedMap = true;
-            for (RecordFieldSymbol recordField : recordLiteral.fieldDescriptors()) {
+            for (RecordFieldSymbol recordField : recordLiteral.fieldDescriptors().values()) {
                 TypeDescKind typeDescKind = recordField.typeDescriptor().typeKind();
                 if (prevType != null && typeDescKind != prevType.typeKind()) {
                     isConstrainedMap = false;

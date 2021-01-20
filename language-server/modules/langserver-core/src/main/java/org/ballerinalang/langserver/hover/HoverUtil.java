@@ -106,12 +106,11 @@ public class HoverUtil {
             List<String> params = new ArrayList<>();
             params.add(header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
 
-            params.addAll(classSymbol.fieldDescriptors().stream()
-                    .map(field -> {
-                        String paramName = field.name();
-                        String desc = paramsMap.get(paramName);
-                        return quotedString(field.typeDescriptor().signature()) + " "
-                                + italicString(boldString(paramName)) + " : " + desc;
+            params.addAll(classSymbol.fieldDescriptors().entrySet().stream()
+                    .map(fieldEntry -> {
+                        String desc = paramsMap.get(fieldEntry.getKey());
+                        return quotedString(fieldEntry.getValue().typeDescriptor().signature()) + " "
+                                + italicString(boldString(fieldEntry.getKey())) + " : " + desc;
                     }).collect(Collectors.toList()));
 
             hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
@@ -181,12 +180,11 @@ public class HoverUtil {
             List<String> params = new ArrayList<>();
             params.add(header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
 
-            params.addAll(recordType.fieldDescriptors().stream()
-                    .map(field -> {
-                        String paramName = field.name();
-                        String desc = paramsMap.get(paramName);
-                        return quotedString(field.typeDescriptor().signature()) + " "
-                                + italicString(boldString(paramName)) + " : " + desc;
+            params.addAll(recordType.fieldDescriptors().entrySet().stream()
+                    .map(fieldEntry -> {
+                        String desc = paramsMap.get(fieldEntry.getKey());
+                        return quotedString(fieldEntry.getValue().typeDescriptor().signature()) + " "
+                                + italicString(boldString(fieldEntry.getKey())) + " : " + desc;
                     }).collect(Collectors.toList()));
             Optional<TypeSymbol> restTypeDesc = recordType.restTypeDescriptor();
             restTypeDesc.ifPresent(typeSymbol -> params.add(quotedString(typeSymbol.signature() + "...")));
