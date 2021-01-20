@@ -366,6 +366,10 @@ public class Types {
                     .anyMatch(this::containsErrorType);
         }
 
+        if (type.tag == TypeTags.READONLY) {
+            return true;
+        }
+
         return type.tag == TypeTags.ERROR;
     }
 
@@ -787,8 +791,16 @@ public class Types {
             }
         }
 
-        if (targetTag == TypeTags.READONLY &&
-                (isInherentlyImmutableType(source) || Symbols.isFlagOn(source.flags, Flags.READONLY))) {
+        if (targetTag == TypeTags.READONLY) {
+            if ((isInherentlyImmutableType(source) || Symbols.isFlagOn(source.flags, Flags.READONLY))) {
+                return true;
+            }
+            if (isAssignable(symTable.anyAndReadonlyOrError, source, unresolvedTypes)) {
+                return true;
+            }
+        }
+
+        if (sourceTag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, target)) {
             return true;
         }
 
@@ -2744,30 +2756,40 @@ public class Types {
         // check if all the value types are assignable between two unions
         var sourceIterator = sourceTypes.iterator();
         while (sourceIterator.hasNext()) {
-            BType s = sourceIterator.next();
-            if (s.tag == TypeTags.NEVER) {
+            BType sMember = sourceIterator.next();
+            if (sMember.tag == TypeTags.NEVER) {
                 sourceIterator.remove();
                 continue;
             }
-            if (s.tag == TypeTags.FINITE && isAssignable(s, target, unresolvedTypes)) {
+            if (sMember.tag == TypeTags.FINITE && isAssignable(sMember, target, unresolvedTypes)) {
                 sourceIterator.remove();
                 continue;
             }
-            if (s.tag == TypeTags.XML && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
+            if (sMember.tag == TypeTags.XML && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
                 sourceIterator.remove();
                 continue;
             }
 
-            if (!isValueType(s)) {
+            if (!isValueType(sMember)) {
+                if (!targetIsAUnion) {
+                    continue;
+                }
+                BUnionType targetUnion = (BUnionType) target;
                 // prevent cyclic unions being compared as individual items
-                if (s instanceof BUnionType && targetIsAUnion) {
-                    BUnionType sUnion = (BUnionType) s;
-                    BUnionType targetUnion = (BUnionType) target;
+                if (sMember instanceof BUnionType) {
+                    BUnionType sUnion = (BUnionType) sMember;
                     if (sUnion.isCyclic && targetUnion.isCyclic) {
                          if (isAssignable(sUnion, targetUnion, unresolvedTypes)) {
                              sourceIterator.remove();
                              continue;
                          }
+                    }
+                }
+                // readonly can match to a union similar to any|error
+                if (sMember.tag == TypeTags.READONLY) {
+                    if (isAssignable(sMember, targetUnion, unresolvedTypes)) {
+                        sourceIterator.remove();
+                        continue;
                     }
                 }
                 continue;
@@ -2777,7 +2799,7 @@ public class Types {
             var targetIterator = targetTypes.iterator();
             while (targetIterator.hasNext()) {
                 BType t = targetIterator.next();
-                if (isAssignable(s, t, unresolvedTypes)) {
+                if (isAssignable(sMember, t, unresolvedTypes)) {
                     sourceTypeIsNotAssignableToAnyTargetType = false;
                     break;
                 }
@@ -2790,26 +2812,28 @@ public class Types {
         // check the structural values for similarity
         sourceIterator = sourceTypes.iterator();
         while (sourceIterator.hasNext()) {
-            BType s = sourceIterator.next();
+            BType sourceMember = sourceIterator.next();
             boolean sourceTypeIsNotAssignableToAnyTargetType = true;
             var targetIterator = targetTypes.iterator();
 
-            boolean selfReferencedSource = (s != source) && isSelfReferencedStructuredType(source, s);
+            boolean selfReferencedSource = (sourceMember != source) && isSelfReferencedStructuredType(source, sourceMember);
 
             while (targetIterator.hasNext()) {
-                BType t = targetIterator.next();
+                BType targetMember = targetIterator.next();
+//                if (targetMember instanceof BUnionType && sourceIsAUnion) {
+//                    BUnionType targetMemberUnion = (BUnionType) targetMember;
+//                    if (isAssignable(source, targetMemberUnion, unresolvedTypes)) {
+//                        return true;
+//                    }
+//                }
 
-                boolean selfReferencedTarget = isSelfReferencedStructuredType(target, t);
-                if (selfReferencedTarget) {
-                    if (selfReferencedSource) {
-                        if (s.tag == t.tag) {
-                            sourceTypeIsNotAssignableToAnyTargetType = false;
-                            break;
-                        }
-                    }
+                boolean selfReferencedTarget = isSelfReferencedStructuredType(target, targetMember);
+                if (selfReferencedTarget && selfReferencedSource && (sourceMember.tag == targetMember.tag)) {
+                    sourceTypeIsNotAssignableToAnyTargetType = false;
+                    break;
                 }
 
-                if (isAssignable(s, t, unresolvedTypes)) {
+                if (isAssignable(sourceMember, targetMember, unresolvedTypes)) {
                     sourceTypeIsNotAssignableToAnyTargetType = false;
                     break;
                 }
@@ -3587,9 +3611,20 @@ public class Types {
                 return getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove));
             case TypeTags.FINITE:
                 return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove));
+            case TypeTags.READONLY:
+                return getRemainingType((BReadonlyType) originalType, typeToRemove);
             default:
                 return originalType;
         }
+    }
+
+    // TODO: now only works for error. Probably we need to properly define readonly types here.
+    private BType getRemainingType(BReadonlyType originalType, BType removeType) {
+        if (removeType.tag == TypeTags.ERROR) {
+            return symTable.anyAndReadonly;
+        }
+
+        return  originalType;
     }
 
     BType getTypeIntersection(BType lhsType, BType rhsType, SymbolEnv env) {
@@ -3841,9 +3876,35 @@ public class Types {
         return symTable.semanticError;
     }
 
+    private void removeErrorFromCompoundTypes(List<BType> remainingTypes) {
+        Iterator<BType> remainingIterator = remainingTypes.listIterator();
+        boolean needToAddAnyAndReadonly = false;
+        while (remainingIterator.hasNext()) {
+            BType remainingType = remainingIterator.next();
+            if (remainingType.tag != TypeTags.READONLY) {
+                continue;
+            }
+            remainingIterator.remove();
+            needToAddAnyAndReadonly = true;
+        }
+        if (needToAddAnyAndReadonly) {
+            remainingTypes.add(symTable.anyAndReadonly);
+        }
+    }
+
     private BType getRemainingType(BUnionType originalType, List<BType> removeTypes) {
         List<BType> remainingTypes = getAllTypes(originalType);
-        removeTypes.forEach(removeType -> remainingTypes.removeIf(type -> isAssignable(type, removeType)));
+        boolean hasErrorToRemove = false;
+        for (BType removeType : removeTypes) {
+            remainingTypes.removeIf(type -> isAssignable(type, removeType));
+            if (!hasErrorToRemove && removeType.tag == TypeTags.ERROR) {
+                hasErrorToRemove = true;
+            }
+        }
+
+        if (hasErrorToRemove) {
+            removeErrorFromCompoundTypes(remainingTypes);
+        }
 
         List<BType> finiteTypesToRemove = new ArrayList<>();
         List<BType> finiteTypesToAdd = new ArrayList<>();
