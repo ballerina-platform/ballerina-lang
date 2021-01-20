@@ -77,11 +77,11 @@ public class BaloFiles {
             // Load default module
             String pkgName = packageManifest.name().toString();
             Path defaultModulePathInBalo = zipFileSystem.getPath(MODULES_ROOT, pkgName);
-            ModuleData defaultModule = loadModule(defaultModulePathInBalo);
+            ModuleData defaultModule = loadModule(pkgName, defaultModulePathInBalo);
 
             // load other modules
             Path modulesPathInBalo = zipFileSystem.getPath(MODULES_ROOT);
-            List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo, defaultModulePathInBalo);
+            List<ModuleData> otherModules = loadOtherModules(pkgName, modulesPathInBalo, defaultModulePathInBalo);
             return PackageData.from(balrPath, defaultModule, otherModules);
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
@@ -100,16 +100,16 @@ public class BaloFiles {
         }
     }
 
-    private static ModuleData loadModule(Path modulePath) {
+    private static ModuleData loadModule(String pkgName, Path modulePath) {
         // check module path exists
         if (Files.notExists(modulePath)) {
             throw new ProjectException("The 'modules' directory does not exists in '" + modulePath + "'");
         }
 
         String moduleName = String.valueOf(modulePath.getFileName());
-        if (moduleName.contains(".")) { // not default module
-            moduleName = moduleName.split("\\.")[1];
-            moduleName = moduleName.replace("/", "");
+        if (!moduleName.equals(pkgName)) {
+            // not default module
+            moduleName = moduleName.substring(pkgName.length() + 1);
         }
 
         // validate moduleName
@@ -126,7 +126,8 @@ public class BaloFiles {
         return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs);
     }
 
-    private static List<ModuleData> loadOtherModules(Path modulesDirPath,
+    private static List<ModuleData> loadOtherModules(String pkgName,
+                                                     Path modulesDirPath,
                                                      Path defaultModulePath) {
         try (Stream<Path> pathStream = Files.walk(modulesDirPath, 1)) {
             return pathStream
@@ -134,7 +135,7 @@ public class BaloFiles {
                     .filter(path -> path.getFileName() != null
                             && !path.getFileName().equals(defaultModulePath.getFileName()))
                     .filter(Files::isDirectory)
-                    .map(BaloFiles::loadModule)
+                    .map(modulePath -> loadModule(pkgName, modulePath))
                     .collect(Collectors.toList());
         } catch (IOException e) {
             throw new ProjectException("Failed to read modules from directory: " + modulesDirPath, e);
