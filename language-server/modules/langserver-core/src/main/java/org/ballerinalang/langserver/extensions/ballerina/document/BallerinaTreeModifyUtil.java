@@ -34,7 +34,6 @@ import org.ballerinalang.diagramutil.JSONGenerationException;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedSymbolsVisitor;
 
 import java.nio.file.Path;
@@ -271,11 +270,6 @@ public class BallerinaTreeModifyUtil {
         Document updatedDoc = document.get().modify().withContent(content).apply();
         // Update project instance
         return updatedDoc.module().getCompilation().getSemanticModel();
-    }
-
-    private static boolean importExist(UnusedNodeVisitor unusedNodeVisitor, ASTModification astModification) {
-        String importValue = BallerinaTreeModifyUtil.getImport(astModification.getConfig());
-        return importValue != null && unusedNodeVisitor.usedImports().contains(importValue);
     }
 
     private static boolean importExist(UnusedSymbolsVisitor unusedSymbolsVisitor, ASTModification astModification) {
