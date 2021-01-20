@@ -145,7 +145,7 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public List<Symbol> moduleLevelSymbols() {
+    public List<Symbol> moduleSymbols() {
         List<Symbol> compiledSymbols = new ArrayList<>();
 
         for (Map.Entry<Name, Scope.ScopeEntry> e : bLangPackage.symbol.scope.entries.entrySet()) {

@@ -16,10 +16,11 @@
 package org.ballerinalang.langserver.signature;
 
 import io.ballerina.compiler.api.symbols.Documentation;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -433,20 +434,15 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
 
-        List<FieldSymbol> fieldSymbols = new ArrayList<>();
-
-        if (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.OBJECT) {
-            fieldSymbols.addAll(((ObjectTypeSymbol) CommonUtil
-                    .getRawType(typeDescriptor.get())).fieldDescriptors());
-        } else if (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.RECORD) {
-            fieldSymbols.addAll(((RecordTypeSymbol) CommonUtil
-                    .getRawType(typeDescriptor.get())).fieldDescriptors());
+        TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
+        switch (rawType.typeKind()) {
+            case OBJECT:
+                return lookupTypedescOfObjectField(((ObjectTypeSymbol) rawType).fieldDescriptors(), fieldName);
+            case RECORD:
+                return lookupTypedescOfRecordField(((RecordTypeSymbol) rawType).fieldDescriptors(), fieldName);
+            default:
+                return Optional.empty();
         }
-
-        return fieldSymbols.stream()
-                .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
-                .map(FieldSymbol::typeDescriptor)
-                .findAny();
     }
 
     private static Optional<? extends TypeSymbol> getTypeDescForNameRef(SignatureContext context,
@@ -515,5 +511,25 @@ public class SignatureHelpUtil {
         functionSymbols.addAll(typeDescriptor.langLibMethods());
 
         return functionSymbols;
+    }
+
+    private static Optional<TypeSymbol> lookupTypedescOfObjectField(List<ObjectFieldSymbol> fields, String fieldName) {
+        for (ObjectFieldSymbol fieldDescriptor : fields) {
+            if (fieldDescriptor.name().equals(fieldName)) {
+                TypeSymbol typeDescriptor = fieldDescriptor.typeDescriptor();
+                return Optional.of(typeDescriptor);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<TypeSymbol> lookupTypedescOfRecordField(List<RecordFieldSymbol> fields, String fieldName) {
+        for (RecordFieldSymbol fieldDescriptor : fields) {
+            if (fieldDescriptor.name().equals(fieldName)) {
+                TypeSymbol typeDescriptor = fieldDescriptor.typeDescriptor();
+                return Optional.of(typeDescriptor);
+            }
+        }
+        return Optional.empty();
     }
 }

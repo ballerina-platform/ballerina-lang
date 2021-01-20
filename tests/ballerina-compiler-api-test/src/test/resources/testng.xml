@@ -26,6 +26,7 @@
             <class name="io.ballerina.semantic.api.test.DiagnosticsTest" />
             <class name="io.ballerina.semantic.api.test.DocumentationTest" />
             <class name="io.ballerina.semantic.api.test.ExpressionTypeTest" />
+            <class name="io.ballerina.semantic.api.test.FieldSymbolTest" />
             <class name="io.ballerina.semantic.api.test.LangLibFunctionTest" />
             <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest" />
             <class name="io.ballerina.semantic.api.test.SymbolBIRTest" />

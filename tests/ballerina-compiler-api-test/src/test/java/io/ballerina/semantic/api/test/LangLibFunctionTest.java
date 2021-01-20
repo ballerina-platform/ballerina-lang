@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -129,7 +130,7 @@ public class LangLibFunctionTest {
     @Test
     public void testStringLangLib() {
         Symbol symbol = getSymbol(19, 11);
-        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        TypeSymbol type = ((RecordFieldSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), STRING);
 
         List<String> expFunctions = List.of("length", "iterator", "getCodePoint", "substring", "codePointCompare",
@@ -265,7 +266,7 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), TYPEDESC);
 
-        List<String> expFunctions = List.of("toString", "toBalString", "ensureType", "clone");
+        List<String> expFunctions = List.of("toString", "toBalString", "ensureType", "clone", "cloneReadOnly");
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
 
@@ -289,7 +290,7 @@ public class LangLibFunctionTest {
         assertEquals(type.typeKind(), ERROR);
 
         List<String> expFunctions = List.of("message", "cause", "detail", "stackTrace", "toString", "toBalString",
-                                            "ensureType", "clone");
+                                            "ensureType", "clone", "cloneReadOnly");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }

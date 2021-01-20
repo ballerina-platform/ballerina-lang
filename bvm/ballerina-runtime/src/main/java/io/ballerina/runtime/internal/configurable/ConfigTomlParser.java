@@ -62,8 +62,7 @@ public class ConfigTomlParser {
     private static TomlTableNode getConfigurationData(Path filePath) throws TomlException {
         Path configFilePath = filePath.resolve(CONFIG_FILE_NAME);
         if (!Files.exists(configFilePath)) {
-            throw new TomlException("Configuration toml file `" + CONFIG_FILE_NAME + "` is not found in directory '" +
-                    filePath.toString() + "'");
+            return null;
         }
         ConfigToml configToml = new ConfigToml(configFilePath);
         return configToml.tomlAstNode();
@@ -75,7 +74,7 @@ public class ConfigTomlParser {
             return;
         }
         TomlTableNode tomlNode = getConfigurationData(filePath);
-        if (tomlNode.entries().isEmpty()) {
+        if (tomlNode == null || tomlNode.entries().isEmpty()) {
             //No values provided at toml file
             return;
         }

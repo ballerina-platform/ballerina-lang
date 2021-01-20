@@ -1,7 +1,7 @@
 
 type Foo distinct error;
 type Fee distinct Foo;
-type Bar distinct error<record { int code; }>;
+type Bar distinct error<record {| int code; |}>;
 
 function testFooError() returns Foo {
     //Foo foo = Foo("error message");

@@ -1,0 +1,56 @@
+{
+    "line": 16,
+    "character": 30,
+    "expected": [
+        {
+            "title": "Document this",
+            "command": "ADD_DOC",
+            "arguments": [
+                {
+                    "argumentK": "node.line",
+                    "argumentV": "16"
+                }
+            ]
+        },
+        {
+            "title": "Document all",
+            "command": "ADD_ALL_DOC"
+        },
+        {
+            "title": "Add as liveness probe",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 5,
+                            "character": 0
+                        },
+                        "end": {
+                            "line": 5,
+                            "character": 0
+                        }
+                    },
+                    "newText": "\n[cloud.deployment.probes.liveness]\nport \u003d 9090\npath \u003d \"/helloWorld/readyz\"\n"
+                }
+            ]
+        },
+        {
+            "title": "Add as readiness probe",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 5,
+                            "character": 0
+                        },
+                        "end": {
+                            "line": 5,
+                            "character": 0
+                        }
+                    },
+                    "newText": "\n[cloud.deployment.probes.readiness]\nport \u003d 9090\npath \u003d \"/helloWorld/readyz\"\n"
+                }
+            ]
+        }
+    ]
+}

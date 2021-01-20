@@ -37,4 +37,6 @@ public abstract class AbstractSchema {
     void setType(Type type) {
         this.type = type;
     }
+
+    public abstract void accept(SchemaVisitor visitor);
 }

@@ -100,7 +100,7 @@ public enum Snippet {
 //
 //    DEF_RESOURCE_WEBSUB_NOTIFY(SnippetGenerator.getWebSubResourceOnNotificationSnippet()),
 
-//    DEF_SERVICE(SnippetGenerator.getServiceDefSnippet()),
+    DEF_SERVICE(SnippetGenerator.getServiceDefSnippet()),
 
 //    DEF_SERVICE_VAR(SnippetGenerator.getServiceVarSnippet()),
 

@@ -33,12 +33,12 @@ function getSampleError() returns SampleError {
     return e;
 }
 
-type Foo record {
+type Foo record {|
     string message?;
     error cause?;
     string detailMsg;
     boolean isFatal;
-};
+|};
 
 function getRecordConstrainedError() returns error<Foo> {
     error<Foo> e = <error<Foo>> error("Some Error", detailMsg = "Failed Message", isFatal = true);

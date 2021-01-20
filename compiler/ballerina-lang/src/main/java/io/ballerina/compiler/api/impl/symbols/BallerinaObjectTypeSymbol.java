@@ -18,8 +18,8 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -46,7 +46,7 @@ import java.util.StringJoiner;
 public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements ObjectTypeSymbol {
 
     private List<Qualifier> qualifiers;
-    private List<FieldSymbol> objectFields;
+    private List<ObjectFieldSymbol> objectFields;
     private List<MethodSymbol> methods;
     private List<TypeSymbol> typeInclusions;
 
@@ -75,11 +75,11 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     }
 
     @Override
-    public List<FieldSymbol> fieldDescriptors() {
+    public List<ObjectFieldSymbol> fieldDescriptors() {
         if (this.objectFields == null) {
             this.objectFields = new ArrayList<>();
             for (BField field : ((BObjectType) this.getBType()).fields.values()) {
-                this.objectFields.add(new BallerinaFieldSymbol(this.context, field));
+                this.objectFields.add(new BallerinaObjectFieldSymbol(this.context, field));
             }
         }
         return objectFields;

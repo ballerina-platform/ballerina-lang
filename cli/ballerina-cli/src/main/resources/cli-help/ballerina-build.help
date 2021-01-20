@@ -56,6 +56,9 @@ OPTIONS
        --observability-included
            Package observability in the executable JAR file(s).
 
+       --cloud
+           Enable cloud artifact generation for cloud providers such as kubernetes.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set the Ballerina environment parameters as key/value pairs.

@@ -29,7 +29,6 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
@@ -685,12 +684,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         String entryFilePath = clientArgs.get("script").toString();
         project = ProjectLoader.loadProject(Paths.get(entryFilePath));
         context.setSourceProject(project);
-        if (project instanceof BuildProject) {
-            projectRoot = project.sourceRoot().toAbsolutePath().toString();
-        } else {
-            // Todo - Refactor after SingleFileProject source root is fixed.
-            projectRoot = entryFilePath;
-        }
+        projectRoot = project.sourceRoot().toAbsolutePath().toString();
     }
 
     /**
