@@ -647,6 +647,29 @@ function testAccessOnNilableRecordMapUnion() returns boolean {
     return true;
 }
 
+type RecordWithRecordTypedRestDesc record {|
+    boolean b;
+    IntAndStringRecord...;
+|};
+
+function testNestedAccessOnNilableUnion() returns boolean {
+    RecordWithRecordTypedRestDesc rec = {
+        b: true,
+        "rec1": {x: 2, "s1": "str1", "s2": "str2"},
+        "rec2": {x: 3, "s3": "str3", "s4": "str4"}
+    };
+
+    string? v1 = rec["rec2"]["s4"];
+    assertEquality("str4", v1);
+
+    string? v2 = rec["not_present"]["s4"];
+    assertEquality((), v2);
+
+    string? v3 = rec["rec2"]["not_present"];
+    assertEquality((), v3);
+    return true;
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

@@ -218,7 +218,8 @@ public class MemberAccessTest {
             { "testRecordMemberAccessForNonExistingKey" },
             { "testRestFieldAccessOnNilableRecordUnion" },
             { "testAccessOnNilableMapUnion" },
-            { "testAccessOnNilableRecordMapUnion" }
+            { "testAccessOnNilableRecordMapUnion" },
+            { "testNestedAccessOnNilableUnion" }
         };
     }
 
