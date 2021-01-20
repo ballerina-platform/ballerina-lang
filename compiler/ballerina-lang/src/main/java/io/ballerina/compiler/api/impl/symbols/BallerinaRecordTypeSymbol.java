@@ -17,7 +17,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -39,7 +39,7 @@ import java.util.StringJoiner;
  */
 public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements RecordTypeSymbol {
 
-    private List<FieldSymbol> fieldSymbols;
+    private List<RecordFieldSymbol> fieldSymbols;
     private final boolean isInclusive;
     private TypeSymbol restTypeDesc;
     private List<TypeSymbol> typeInclusions;
@@ -55,11 +55,11 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
      * @return {@link List} of ballerina field
      */
     @Override
-    public List<FieldSymbol> fieldDescriptors() {
+    public List<RecordFieldSymbol> fieldDescriptors() {
         if (this.fieldSymbols == null) {
             this.fieldSymbols = new ArrayList<>();
             for (BField field : ((BRecordType) this.getBType()).fields.values()) {
-                this.fieldSymbols.add(new BallerinaFieldSymbol(this.context, field));
+                this.fieldSymbols.add(new BallerinaRecordFieldSymbol(this.context, field));
             }
         }
 
@@ -107,7 +107,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
         } else {
             joiner = new StringJoiner(" ", "{| ", " |}");
         }
-        for (FieldSymbol fieldSymbol : this.fieldDescriptors()) {
+        for (RecordFieldSymbol fieldSymbol : this.fieldDescriptors()) {
             String ballerinaFieldSignature = fieldSymbol.signature() + ";";
             joiner.add(ballerinaFieldSignature);
         }

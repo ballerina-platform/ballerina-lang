@@ -19,13 +19,16 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaClassFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaClassSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaEnumSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.impl.symbols.BallerinaObjectFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaParameterSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaRecordFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
@@ -52,12 +55,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
@@ -119,6 +125,15 @@ public class SymbolFactory {
             }
             if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
                 return createWorkerSymbol((BVarSymbol) symbol, name);
+            }
+            if (symbol.owner instanceof BRecordTypeSymbol) {
+                return createRecordFieldSymbol((BVarSymbol) symbol);
+            }
+            if (symbol.owner instanceof BClassSymbol) {
+                return createClassFieldSymbol((BVarSymbol) symbol);
+            }
+            if (symbol.owner instanceof BObjectTypeSymbol) {
+                return createObjectFieldSymbol((BVarSymbol) symbol);
             }
 
             // return the variable symbol
@@ -257,6 +272,18 @@ public class SymbolFactory {
         return symbolBuilder
                 .withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.type))
                 .build();
+    }
+
+    public BallerinaRecordFieldSymbol createRecordFieldSymbol(BVarSymbol symbol) {
+        return new BallerinaRecordFieldSymbol(this.context, getBField(symbol));
+    }
+
+    public BallerinaObjectFieldSymbol createObjectFieldSymbol(BVarSymbol symbol) {
+        return new BallerinaObjectFieldSymbol(this.context, getBField(symbol));
+    }
+
+    public BallerinaClassFieldSymbol createClassFieldSymbol(BVarSymbol symbol) {
+        return new BallerinaClassFieldSymbol(this.context, getBField(symbol));
     }
 
     public BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol, String name) {
@@ -460,5 +487,11 @@ public class SymbolFactory {
         if (Symbols.isFlagOn(mask, flag)) {
             symbolBuilder.withQualifier(qualifier);
         }
+    }
+
+    private BField getBField(BVarSymbol symbol) {
+        String fieldName = symbol.name.value;
+        BStructureType type = (BStructureType) symbol.owner.type;
+        return type.fields.get(fieldName);
     }
 }

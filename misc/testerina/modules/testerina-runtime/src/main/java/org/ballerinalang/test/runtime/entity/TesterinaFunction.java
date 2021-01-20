@@ -91,7 +91,7 @@ public class TesterinaFunction {
             return method.invoke(null, args);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new BallerinaTestException("Failed to invoke the function '" +
-                                                     funcName + " due to " + e.getMessage());
+                                             funcName + " due to " + e.getMessage(), e);
         }
     }
 

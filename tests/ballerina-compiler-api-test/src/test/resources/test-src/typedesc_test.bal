@@ -192,3 +192,9 @@ function testBasicTypes() {
     string s = "foo";
     byte byt = 100;
 }
+
+public type CancelledError distinct error;
+public type UnKnownError distinct error;
+
+public type Error CancelledError |
+UnKnownError;

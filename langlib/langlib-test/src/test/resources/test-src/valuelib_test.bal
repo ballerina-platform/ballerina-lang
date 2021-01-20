@@ -1028,6 +1028,14 @@ type Boo record {|
     string str;
 |};
 
+type RetEmployee record {
+    readonly string id;
+    string name;
+    float salary;
+};
+
+type PersonTable table<RetEmployee> key(id);
+
 function testToJsonWithTable() {
     table<Boo> tb = table [
             {id: 12, str: "abc"},
@@ -1035,6 +1043,20 @@ function testToJsonWithTable() {
     ];
     json j = tb.toJson();
     assert(j.toJsonString(), "[{\"id\":12, \"str\":\"abc\"}, {\"id\":34, \"str\":\"def\"}]");
+
+    PersonTable tbPerson = table [
+                {id: "AA", name: "John", salary: 300.50},
+                {id: "BB", name: "Bella", salary: 500.50},
+                {id: "CC", name: "Peter", salary: 750.0}
+            ];
+
+    json sourceJson = [
+                        {id: "AA", name: "John", salary: 300.50},
+                        {id: "BB", name: "Bella", salary: 500.50},
+                        {id: "CC", name: "Peter", salary: 750.0}
+            ];
+
+    assertEquality(sourceJson, tbPerson.toJson());
 
     table<map<anydata>> tab1 = table [
           {id: 12, name: "abc"},
