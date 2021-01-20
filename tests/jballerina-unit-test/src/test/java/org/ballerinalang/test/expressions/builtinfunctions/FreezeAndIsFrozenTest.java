@@ -442,7 +442,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testFreezeAndIsFrozenSemanticsNegativeCases() {
-        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 21);
+        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 22);
         int index = 0;
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'Cloneable', found 'PersonObj'", 19, 19);
@@ -481,6 +481,8 @@ public class FreezeAndIsFrozenTest {
                 "incompatible types: expected 'any', found 'error'", 71, 9);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'Cloneable', found 'map<(string|PersonObj)>'", 81, 39);
+        validateError(semanticsNegativeResult, index++,
+                "incompatible types: expected 'Cloneable', found '(string|stream<int>|float)?[]'", 92, 47);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'Cloneable', found 'FreezeAllowedDepartment2'", 100, 42);
         validateError(semanticsNegativeResult, index++,
