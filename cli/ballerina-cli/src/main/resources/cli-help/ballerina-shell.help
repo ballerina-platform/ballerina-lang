@@ -6,20 +6,20 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Shell runs a REPL instance of ballerina to enable users to run small
-       snippets to code to check their outputs. Please not that this is an
+       Shell runs a REPL instance of Ballerina to enable users to run small
+       snippets of code and check the output. Please note that this is an
        experimental feature.
 
-       Debug messages can be enabled via -d parameter.
+       Debug messages can be enabled using the '-d' option.
 
 OPTIONS
-       -d
-           Enable debug mode from the beginning. Not enabled by default.
-       -f
-           Force dumb terminal mode. Not dumb by default.
-       -t <time-out-duration>
-           Change tree parsing timeout. Default is 100ms. Value should be
-           given in milliseconds. Increase in slow devices.
+       -d, --debug
+           Enable debug mode from the beginning.
+       -f, --force-dumb
+           Force dumb terminal mode.
+       -t, --time-out
+           Set tree parsing timeout. Default is 100ms. Value should be
+           given in milliseconds.
 
 
 EXAMPLES
