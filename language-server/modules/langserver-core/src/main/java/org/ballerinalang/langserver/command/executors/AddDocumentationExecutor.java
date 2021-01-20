@@ -78,7 +78,7 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
 
         SyntaxTree syntaxTree = ctx.workspace().syntaxTree(filePath.get()).orElseThrow();
         NonTerminalNode node = CommonUtil.findNode(nodeRange, syntaxTree);
-        Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(node);
+        Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(node, syntaxTree);
         if (docAttachmentInfo.isPresent()) {
             DocAttachmentInfo docs = docAttachmentInfo.get();
             Range range = new Range(docs.getDocStartPos(), docs.getDocStartPos());

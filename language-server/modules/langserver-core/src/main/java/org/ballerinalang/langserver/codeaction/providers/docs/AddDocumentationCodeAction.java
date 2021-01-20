@@ -52,6 +52,11 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
                 CodeActionNodeType.CLASS_FUNCTION));
     }
 
+    @Override
+    public int priority() {
+        return 999;
+    }
+
     /**
      * {@inheritDoc}
      */
