@@ -307,7 +307,7 @@ public class Package {
 
         private void updateManifest() {
             ManifestBuilder manifestBuilder = ManifestBuilder.from(this.ballerinaTomlContext.tomlDocument(),
-                    this.dependenciesTomlContext.tomlDocument());
+                    this.dependenciesTomlContext.tomlDocument(), this.project.sourceRoot());
             this.packageManifest = manifestBuilder.packageManifest();
         }
     }

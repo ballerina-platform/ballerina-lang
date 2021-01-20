@@ -64,7 +64,7 @@ public class PackageConfigCreator {
                 .map(d -> TomlDocument.from(ProjectConstants.BALLERINA_TOML, d.content())).orElse(null);
         TomlDocument dependenciesToml = packageData.dependenciesToml()
                 .map(d -> TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML, d.content())).orElse(null);
-        ManifestBuilder manifestBuilder = ManifestBuilder.from(ballerinaToml, dependenciesToml);
+        ManifestBuilder manifestBuilder = ManifestBuilder.from(ballerinaToml, dependenciesToml, projectDirPath);
         PackageManifest packageManifest = manifestBuilder.packageManifest();
 
         return createPackageConfig(packageData, packageManifest);

@@ -34,6 +34,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static io.ballerina.projects.util.ProjectConstants.INTERNAL_VERSION;
+import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
+
 /**
  * Test BallerinaToml.
  */
@@ -44,7 +47,8 @@ public class BallerinaTomlTests {
 
     @Test
     public void testValidBallerinaToml() throws IOException {
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"));
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"),
+                                                             BAL_TOML_REPO.resolve("valid-dependencies.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
         PackageDescriptor descriptor = packageManifest.descriptor();
@@ -99,11 +103,15 @@ public class BallerinaTomlTests {
 
     @Test
     public void testEmptyBallerinaToml() throws IOException {
+        System.setProperty(USER_NAME, "john");
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("empty-ballerina.toml"));
-        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
-        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 1);
-        Assert.assertEquals(packageManifest.diagnostics().errors().iterator().next().message(),
-                            "invalid Ballerina.toml file: cannot find [package]");
+        PackageDescriptor descriptor = packageManifest.descriptor();
+        // Package name is the root directory name
+        Assert.assertEquals(descriptor.name().value(), "ballerina_toml");
+        // Org is user name
+        Assert.assertEquals(descriptor.org().value(), "john");
+        // Version is 0.1.0
+        Assert.assertEquals(descriptor.version().value().toString(), INTERNAL_VERSION);
     }
 
     @Test
@@ -209,6 +217,16 @@ public class BallerinaTomlTests {
     private PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
-        return ManifestBuilder.from(ballerinaToml, null).packageManifest();
+        return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();
+    }
+
+    private PackageManifest getPackageManifest(Path ballerinaTomlPath, Path dependenciesTomlPath) throws IOException {
+        String ballerinaTomlContent = Files.readString(ballerinaTomlPath);
+        String dependenciesTomlContent = Files.readString(dependenciesTomlPath);
+
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, ballerinaTomlContent);
+        TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML, dependenciesTomlContent);
+
+        return ManifestBuilder.from(ballerinaToml, dependenciesToml, ballerinaTomlPath.getParent()).packageManifest();
     }
 }
