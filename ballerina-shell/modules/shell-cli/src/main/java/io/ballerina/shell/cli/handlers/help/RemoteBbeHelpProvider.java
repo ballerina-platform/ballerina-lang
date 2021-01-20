@@ -23,10 +23,12 @@ import io.ballerina.shell.cli.utils.FileUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 import static io.ballerina.shell.cli.PropertiesLoader.DESCRIPTION_URL_TEMPLATE;
 import static io.ballerina.shell.cli.PropertiesLoader.EXAMPLE_URL_TEMPLATE;
 import static io.ballerina.shell.cli.PropertiesLoader.HELP_EXAMPLE_POSTFIX;
+import static io.ballerina.shell.cli.PropertiesLoader.TOPICS_FILE;
 
 /**
  * Help provider that will fetch data from the BBE.
@@ -39,6 +41,7 @@ public class RemoteBbeHelpProvider implements HelpProvider {
     private static final char HYPHEN = '-';
     private static final char UNDERSCORE = '_';
     private static final String NEWLINE = "\n";
+    private static final String TOPICS = "topics";
 
     @Override
     public void getTopic(String[] args, StringBuilder output) throws HelpProviderException {
@@ -48,6 +51,16 @@ public class RemoteBbeHelpProvider implements HelpProvider {
 
         if (!topic.matches("^[a-zA-Z-_]+$")) {
             throw new HelpProviderException("Not a valid topic name.");
+        }
+
+        if (topic.trim().equals(TOPICS)) {
+            // If command is 'help topics' output all available topics.
+            List<String> topicsKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(TOPICS_FILE));
+            output.append("Following are all available topics.");
+            for (String keyword : topicsKeywords) {
+                output.append(keyword).append(NEWLINE);
+            }
+            return;
         }
 
         try {
