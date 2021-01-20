@@ -78,8 +78,17 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
+    public void testAPIConfigFilePathOverRiding() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "testPathProject").toAbsolutePath();
+        LogLeecher runLeecher = new LogLeecher("4 passing");
+        bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
+                new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
     public void testEnvironmentVariableBasedConfigFile() throws BallerinaTestException {
-        String configFilePath = Paths.get(testFileLocation, "ConfigFiles").toString();
+        String configFilePath = Paths.get(testFileLocation, "ConfigFiles", "Config.toml").toString();
         Path projectPath = Paths.get(testFileLocation).toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("Tests passed");
         bMainInstance.runMain("run", new String[]{"envVarPkg"}, addEnvVariables(configFilePath),
