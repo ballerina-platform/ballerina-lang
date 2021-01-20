@@ -337,7 +337,7 @@ class JvmObservabilityGen {
                     desugaredFunc.requiredParams.add(new BIRParameter(asyncCallIns.pos, argName, 0));
                     desugaredFunc.argsCount++;
                 }
-                funcParamOperands.add(new BIRArgument(ArgumentState.PROVIDED, new BIROperand(funcParam)));
+                funcParamOperands.add(new BIRArgument(ArgumentState.PROVIDED, funcParam));
             }
 
             // Generating function body
@@ -353,8 +353,8 @@ class JvmObservabilityGen {
             asyncCallIns.calleePkg = currentPkgId;
             asyncCallIns.isVirtual = attachedTypeDef != null;
             if (attachedTypeDef != null) {
-                asyncCallIns.args.add(0, new BIRArgument(ArgumentState.PROVIDED, new BIROperand(new BIRVariableDcl(
-                                      attachedTypeDef.type, selfArgName, VarScope.FUNCTION, VarKind.SELF))));
+                asyncCallIns.args.add(0, new BIRArgument(ArgumentState.PROVIDED, new BIRVariableDcl(
+                                      attachedTypeDef.type, selfArgName, VarScope.FUNCTION, VarKind.SELF)));
             }
         }
     }

@@ -27,13 +27,13 @@ public class BIRArgument extends BIROperand {
     public ArgumentState argState;
     public BIROperand userProvidedCondition;
 
-    public BIRArgument(ArgumentState argState, BIROperand argVar) {
-        super(argVar.variableDcl);
+    public BIRArgument(ArgumentState argState, BIRVariableDcl argVar) {
+        super(argVar);
         this.argState = argState;
     }
 
-    public BIRArgument(ArgumentState argState, BIROperand argVar, BIROperand userProvidedCondition) {
-        super(argVar.variableDcl);
+    public BIRArgument(ArgumentState argState, BIRVariableDcl argVar, BIROperand userProvidedCondition) {
+        super(argVar);
         this.argState = argState;
         this.userProvidedCondition = userProvidedCondition;
     }

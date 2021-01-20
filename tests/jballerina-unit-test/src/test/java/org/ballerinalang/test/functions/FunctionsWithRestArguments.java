@@ -33,7 +33,6 @@ import org.testng.annotations.Test;
  */
 public class FunctionsWithRestArguments {
 
-
     private CompileResult result;
 
     @BeforeClass

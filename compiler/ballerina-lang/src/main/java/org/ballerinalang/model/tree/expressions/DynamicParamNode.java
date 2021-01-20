@@ -19,6 +19,7 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
+ * Represent named arguments.
  *
  * @since 2.0.0
  */

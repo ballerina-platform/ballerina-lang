@@ -1385,15 +1385,15 @@ public class BIRGen extends BLangNodeVisitor {
                 BIROperand conditionalArg = this.env.targetOperand;
                 ((BLangDynamicParamExpr) requiredArg).condition.accept(this);
                 BIROperand condition = this.env.targetOperand;
-                args.add(new BIRArgument(ArgumentState.CONDITIONALLY_PROVIDED, conditionalArg, condition));
+                args.add(new BIRArgument(ArgumentState.CONDITIONALLY_PROVIDED, conditionalArg.variableDcl, condition));
             } else if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
                 requiredArg.accept(this);
-                args.add(new BIRArgument(ArgumentState.PROVIDED, this.env.targetOperand));
+                args.add(new BIRArgument(ArgumentState.PROVIDED, this.env.targetOperand.variableDcl));
             } else {
                 BIRVariableDcl birVariableDcl =
                         new BIRVariableDcl(requiredArg.type, new Name("_"), VarScope.FUNCTION, VarKind.ARG);
                 birVariableDcl.ignoreVariable = true;
-                args.add(new BIRArgument(ArgumentState.NOT_PROVIDED, new BIROperand(birVariableDcl)));
+                args.add(new BIRArgument(ArgumentState.NOT_PROVIDED, birVariableDcl));
             }
         }
 
@@ -1401,12 +1401,12 @@ public class BIRGen extends BLangNodeVisitor {
         for (BLangExpression arg : restArgs) {
             if (arg.getKind() != NodeKind.IGNORE_EXPR) {
                 arg.accept(this);
-                args.add(new BIRArgument(ArgumentState.PROVIDED, this.env.targetOperand));
+                args.add(new BIRArgument(ArgumentState.PROVIDED, this.env.targetOperand.variableDcl));
             } else {
                 BIRVariableDcl birVariableDcl =
                         new BIRVariableDcl(arg.type, new Name("_"), VarScope.FUNCTION, VarKind.ARG);
                 birVariableDcl.ignoreVariable = true;
-                args.add(new BIRArgument(ArgumentState.NOT_PROVIDED, new BIROperand(birVariableDcl)));
+                args.add(new BIRArgument(ArgumentState.NOT_PROVIDED, birVariableDcl));
             }
         }
 
