@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 import bcintegrationtest/bee;
 
 function system_out() returns handle = @java:FieldGet {

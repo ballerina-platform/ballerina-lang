@@ -19,16 +19,15 @@ package org.ballerinalang.langlib.java;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BHandle;
-import io.ballerina.runtime.api.values.BString;
 
 /**
- * This class contains the implementation of the "fromString" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "createNull" ballerina function in ballerina/jballerina.java module.
  *
  * @since 1.0.0
  */
-public class FromString {
+public class CreateNull {
 
-    public static BHandle fromString(BString strValue) {
-        return ValueCreator.createHandleValue(strValue == null ? null : strValue.getValue());
+    public static BHandle createNull() {
+        return ValueCreator.createHandleValue(null);
     }
 }

@@ -34,15 +34,15 @@ import static io.ballerina.runtime.api.creators.ValueCreator.createHandleValue;
 import static io.ballerina.runtime.api.creators.ValueCreator.createObjectValue;
 
 /**
- * This class contains the implementation of the "cast" Ballerina function in ballerina/java module.
+ * This class contains the implementation of the "cast" Ballerina function in ballerina/jballerina.java module.
  *
  * @since 1.2.5
  */
 public class Cast {
 
-    private static final String moduleName = "{ballerina/java}";
+    private static final String moduleName = "{ballerina/jballerina.java}";
     private static final String annotationName = "@java:Binding";
-    private static final String annotationType = "ballerina/java:0.9.0:Binding";
+    private static final String annotationType = "ballerina/jballerina.java:0.9.0:Binding";
     private static final String classAttribute = "class";
     private static final String jObjField = "jObj";
 

@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 configurable int number = getConfigurableVal(5);
 configurable float fraction = ?;

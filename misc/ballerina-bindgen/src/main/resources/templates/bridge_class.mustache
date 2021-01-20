@@ -7,7 +7,7 @@
 // E.g. $ ballerina bindgen {{className}}
 
 {{/unless}}
-import ballerina/java;{{#if importJavaArraysModule}}
+import ballerina/jballerina.java;{{#if importJavaArraysModule}}
 import ballerina/jarrays;{{/if}}
 {{#importedPackages}}
 import {{balPackageName}}.{{#escapeReservedWord this ""}}{{/escapeReservedWord}} as {{#replace this "." ""}}{{/replace}};{{/importedPackages}}

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 int totalNoOfStrandsForTest = 14;
 int errorCount = 0;

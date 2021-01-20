@@ -1,5 +1,5 @@
-import ballerina/java;
-import ballerina/java;
+import ballerina/jballerina.java;
+import ballerina/jballerina.java;
 
 function systemOut() returns handle = @java:FieldGet {
     name: "out",

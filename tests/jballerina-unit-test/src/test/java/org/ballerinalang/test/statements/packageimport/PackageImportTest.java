@@ -38,7 +38,7 @@ public class PackageImportTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BAssertUtil.validateError(result, 0, "redeclared import module 'ballerina/java'", 2, 1);
+        BAssertUtil.validateError(result, 0, "redeclared import module 'ballerina/jballerina.java'", 2, 1);
     }
 
     @Test
@@ -89,8 +89,8 @@ public class PackageImportTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/unused-imports-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/java'", 1, 1);
-        BAssertUtil.validateError(result, i, "unused import module 'ballerina/java as otherJAVA'", 2, 1);
+        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/jballerina.java'", 1, 1);
+        BAssertUtil.validateError(result, i, "unused import module 'ballerina/jballerina.java as otherJAVA'", 2, 1);
     }
 
     @Test(enabled = false)

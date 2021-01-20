@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 // Interop function that returns a Ballerina int for a Java byte
 function testReturningBIntJByte(handle receiver) returns int {
