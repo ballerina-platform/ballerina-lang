@@ -968,6 +968,9 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
+        if (userDefinedType.type == null || userDefinedType.type.tsymbol == null) {
+            return;
+        }
         if (!userDefinedType.pkgAlias.value.isEmpty()) {
             addIfSameSymbol(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
         }
