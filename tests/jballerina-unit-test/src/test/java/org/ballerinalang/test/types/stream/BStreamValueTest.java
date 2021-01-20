@@ -114,6 +114,12 @@ public class BStreamValueTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
+    @Test(description = "Test passing union of stream to a function which takes a stream as a argument")
+    public void testUnionOfStreamsAsFunctionParams() {
+        BValue[] values = BRunUtil.invoke(result, "testUnionOfStreamsAsFunctionParams", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
     @Test(description = "Test negative test scenarios of stream type")
     public void testStreamTypeNegative() {
         int i = 0;

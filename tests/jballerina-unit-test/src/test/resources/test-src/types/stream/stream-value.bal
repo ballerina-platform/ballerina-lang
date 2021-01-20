@@ -406,3 +406,31 @@ function testEmptyStreamConstructs() returns boolean {
     testPassed = testPassed && (emptyStream9.next() == ());
     return testPassed;
 }
+
+type Foo record {|
+    string v;
+|};
+
+type Bar record {|
+    int v;
+|};
+
+function testUnionOfStreamsAsFunctionParams() returns boolean {
+    boolean testPassed = false;
+    Foo[] fooArr = [{v: "foo1"}, {v: "foo2"}];
+    stream<Foo>|stream<Bar> fooBarStream = fooArr.toStream();
+    record {|Foo|Bar value;|}|error? res = fooBarStream.next();
+    if (res is record {|Foo value;|}) {
+        testPassed = (res.value == {v: "foo1"});
+    }
+    testPassed = testPassed && functionWithStreamArgs(fooBarStream);
+    return testPassed;
+}
+
+function functionWithStreamArgs(stream<any|error> str) returns boolean {
+    record {|any|error value;|}? res = str.next();
+    if (res is record {|Foo value;|}) {
+        return res.value == {v: "foo2"};
+    }
+    return false;
+}
