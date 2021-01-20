@@ -178,7 +178,8 @@ public class CoverageReport {
         List<Path> filteredPathList = new ArrayList<>();
 
         for (Path path : pathCollection) {
-            if (path.toString().contains(this.module.project().sourceRoot().toString())) {
+            if (path.toString().contains(this.module.project().sourceRoot().toString()) &&
+                    path.toString().contains(target.cachesPath().toString())) {
                 filteredPathList.add(path);
             }
         }
