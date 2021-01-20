@@ -66,8 +66,8 @@ public class ObservabilityBaseTest extends BaseTest {
         String sourcesDir = Paths.get("src", "test", "resources", "observability", testProject).toFile()
                 .getAbsolutePath();
 
-        String configFile = Paths.get("src", "test", "resources", "observability", testProject).toFile()
-                .getAbsolutePath();
+        String configFile = Paths.get("src", "test", "resources", "observability", testProject,
+                "Config.toml").toFile().getAbsolutePath();
         Map<String, String> env = new HashMap<>();
         env.put("BALCONFIGFILE", configFile);
 
