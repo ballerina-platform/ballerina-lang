@@ -139,8 +139,8 @@ public class BTestRunner {
                 for (String dependsOnFn : test.getDependsOnTestFunctions()) {
                     int idx = testNames.indexOf(dependsOnFn);
                     if (idx == -1) {
-                        String message = String.format("Test [%s] depends on function [%s], but it couldn't be found" +
-                                ".", test, dependsOnFn);
+                        String message = String.format("Test [%s] depends on function [%s], but it is either " +
+                                "disabled or not included.", test, dependsOnFn);
                         throw new BallerinaTestException(message);
                     }
                     dependencyMatrix[i].add(idx);
