@@ -220,7 +220,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BStreamType originalType, BType newType) {
         BType newConstraint = originalType.constraint.accept(this, null);
-        BType newError = originalType.error != null ? originalType.error.accept(this, null) : null;
+        BType newError = originalType.error.accept(this, null);
 
         if (newConstraint == originalType.constraint && newError == originalType.error) {
             return originalType;

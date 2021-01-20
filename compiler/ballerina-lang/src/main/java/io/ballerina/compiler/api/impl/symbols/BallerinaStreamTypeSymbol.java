@@ -55,11 +55,8 @@ public class BallerinaStreamTypeSymbol extends AbstractTypeSymbol implements Str
     public Optional<TypeSymbol> completionValueTypeParameter() {
         if (this.completionValueTypeParameter == null) {
             BType completionType = ((BStreamType) this.getBType()).error;
-
-            if (completionType != null) {
-                TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-                this.completionValueTypeParameter = typesFactory.getTypeDescriptor(completionType);
-            }
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.completionValueTypeParameter = typesFactory.getTypeDescriptor(completionType);
         }
 
         return Optional.ofNullable(this.completionValueTypeParameter);

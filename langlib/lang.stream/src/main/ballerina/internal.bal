@@ -15,6 +15,10 @@
 // under the License.
 import ballerina/lang.__internal as internal;
 
+type _Iterator object {
+    public isolated function next() returns record {|Type value;|}|ErrorType?;
+};
+
 class FilterSupport {
     public stream<Type, ErrorType> strm;
     public any func;

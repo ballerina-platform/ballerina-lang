@@ -22,7 +22,7 @@ import ballerina/java;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-public type ErrorType error?;
+public type ErrorType error|never;
 
 @typeParam
 public type Type any|error;
@@ -64,7 +64,8 @@ public isolated function construct(typedesc<Type> td, object { public isolated f
 #
 # + td - An array or stream type desc.
 # + return - The typedesc of the element, constraint type.
-public isolated function getElementType(typedesc<Type[]> | typedesc<stream<Type>> td) returns typedesc<Type> = @java:Method {
+public isolated function getElementType(typedesc<Type[]> | typedesc<stream<Type, ErrorType>> td)
+returns typedesc<Type> = @java:Method {
     'class: "org.ballerinalang.langlib.internal.GetElementType",
     name: "getElementType"
 } external;

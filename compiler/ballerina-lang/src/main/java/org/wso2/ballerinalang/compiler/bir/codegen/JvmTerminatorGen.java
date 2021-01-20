@@ -233,6 +233,7 @@ public class JvmTerminatorGen {
             case TypeTags.HANDLE:
             case TypeTags.TYPEDESC:
             case TypeTags.READONLY:
+            case TypeTags.STREAM:
                 mv.visitInsn(ACONST_NULL);
                 break;
             case JTypeTags.JTYPE:

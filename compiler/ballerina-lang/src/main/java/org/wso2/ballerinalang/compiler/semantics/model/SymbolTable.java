@@ -145,7 +145,7 @@ public class SymbolTable {
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
     public final BUnionType anydataOrReadOnlyType = BUnionType.create(null, anydataType, readonlyType);
 
-    public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
+    public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, neverType, null);
     public BType tableType = new BTableType(TypeTags.TABLE, anydataType, null);
     public BMapType detailType = new BMapType(TypeTags.MAP, anydataOrReadonly, null);
     public BErrorType errorType = new BErrorType(null, detailType);

@@ -62,7 +62,8 @@ public isolated function next(stream<Type, ErrorType> strm) returns record {| Ty
     } else if (val is error) {
         return val;
     } else {
-        return internal:setNarrowType(internal:getElementType(typeof strm), {value : val.value});
+        var td = internal:getElementType(typeof strm);
+        return internal:setNarrowType(td, {value : val.value});
     }
 }
 
@@ -72,8 +73,8 @@ public isolated function next(stream<Type, ErrorType> strm) returns record {| Ty
 # + func - a function to apply to each member
 # + return - new stream containing result of applying `func` to each member of `stm` in order
 public isolated function 'map(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns Type1 func)
-   returns stream<Type1,ErrorType> {
-    MapSupport  iteratorObj = new(stm, func);
+        returns stream<Type1,ErrorType> {
+    MapSupport iteratorObj = new(stm, func);
     return internal:construct(internal:getReturnType(func), iteratorObj);
 }
 

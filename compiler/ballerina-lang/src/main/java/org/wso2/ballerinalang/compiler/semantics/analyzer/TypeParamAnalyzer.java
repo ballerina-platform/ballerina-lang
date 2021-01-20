@@ -450,8 +450,7 @@ public class TypeParamAnalyzer {
     private void findTypeParamInStream(Location loc, BStreamType expType, BStreamType actualType,
                                        SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         findTypeParam(loc, expType.constraint, actualType.constraint, env, resolvedTypes, result);
-        findTypeParam(loc, expType.error, (actualType.error != null) ? actualType.error : symTable.nilType, env,
-                      resolvedTypes, result);
+        findTypeParam(loc, expType.error, actualType.error, env, resolvedTypes, result);
     }
 
     private void findTypeParamInStreamForUnion(Location loc, BStreamType expType, BUnionType actualType,
@@ -461,7 +460,7 @@ public class TypeParamAnalyzer {
         for (BType type : actualType.getMemberTypes()) {
             if (type.tag == TypeTags.STREAM) {
                 constraints.add(((BStreamType) type).constraint);
-                if (((BStreamType) type).error != null) {
+                if (((BStreamType) type).error.tag != TypeTags.NEVER) {
                     errors.add(((BStreamType) type).error);
                 }
             }
@@ -473,7 +472,7 @@ public class TypeParamAnalyzer {
             BUnionType eUnionType = BUnionType.create(null, errors);
             findTypeParam(loc, expType.error, eUnionType, env, resolvedTypes, result);
         } else {
-            findTypeParam(loc, expType.error, symTable.nilType, env, resolvedTypes, result);
+            findTypeParam(loc, expType.error, symTable.neverType, env, resolvedTypes, result);
         }
     }
 
@@ -661,8 +660,9 @@ public class TypeParamAnalyzer {
                         symTable.mapType.tsymbol);
             case TypeTags.STREAM:
                 BType streamConstraint = getMatchingBoundType(((BStreamType) expType).constraint, env, resolvedTypes);
-                BType streamError = (((BStreamType) expType).error != null) ? getMatchingOptionalBoundType((BUnionType)
-                        ((BStreamType) expType).error, env, resolvedTypes) : null;
+                BType streamError = (((BStreamType) expType).error.tag != TypeTags.NEVER)
+                        ? getMatchingOptionalBoundType((BUnionType) ((BStreamType) expType).error, env, resolvedTypes)
+                        : symTable.neverType;
                 return new BStreamType(TypeTags.STREAM, streamConstraint, streamError, symTable.streamType.tsymbol);
             case TypeTags.TABLE:
                 BType tableConstraint = getMatchingBoundType(((BTableType) expType).constraint, env, resolvedTypes);

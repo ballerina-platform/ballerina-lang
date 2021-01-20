@@ -37,7 +37,7 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
     public BStreamType(int tag, BType constraint, BType error, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
-        this.error = error;
+        this.error = error != null ? error : new BNeverType();
     }
 
     @Override
@@ -61,7 +61,7 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
             return super.toString();
         }
 
-        return super.toString() + "<" + constraint + ((this.error == null) ? ">" : "," + this.error + ">");
+        return super.toString() + "<" + constraint + ((error.tag == TypeTags.NEVER) ? ">" : "," + error + ">");
     }
 
     @Override
