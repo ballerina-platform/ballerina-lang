@@ -85,13 +85,6 @@ public class MapToRecordAssignabilityTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: 'Bar' cannot be " +
-                  "cast to 'Baz'.*")
-    public void testComplexSubtyping() {
-        BRunUtil.invoke(compileResult, "testComplexSubtyping");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
                   "expected value of type 'Bar', found '\\$anonType\\$_30'.*")
     public void testComplexSubtyping2() {
