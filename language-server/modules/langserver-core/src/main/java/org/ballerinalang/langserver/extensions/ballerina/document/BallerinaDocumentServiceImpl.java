@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.directory.ProjectLoader;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
@@ -149,14 +150,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 if (filePath.isEmpty()) {
                     return ballerinaProject;
                 }
-                Optional<Project> project = this.workspaceManager.project(filePath.get());
-                if (project.isEmpty()) {
-                    return ballerinaProject;
-                }
-                ballerinaProject.setPath(project.get().sourceRoot().toString());
-                ProjectKind projectKind = project.get().kind();
+                Project project = ProjectLoader.loadProject(filePath.get());
+                ballerinaProject.setPath(project.sourceRoot().toString());
+                ProjectKind projectKind = project.kind();
                 if (projectKind != ProjectKind.SINGLE_FILE_PROJECT) {
-                    ballerinaProject.setPackageName(project.get().currentPackage().packageName().value());
+                    ballerinaProject.setPackageName(project.currentPackage().packageName().value());
                 }
                 ballerinaProject.setKind(projectKind.name());
             } catch (Throwable e) {
