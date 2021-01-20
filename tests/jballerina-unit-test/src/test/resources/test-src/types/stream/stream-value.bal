@@ -404,6 +404,13 @@ function testEmptyStreamConstructs() returns boolean {
     testPassed = testPassed && (emptyStream7.next() == ());
     testPassed = testPassed && (emptyStream8.next() == ());
     testPassed = testPassed && (emptyStream9.next() == ());
+
+    // test the assignability of stream<int> and stream<int, never>
+    emptyStream1 = emptyStream5;
+    emptyStream2 = emptyStream5;
+    emptyStream7 = emptyStream8;
+    emptyStream7 = emptyStream5;
+
     return testPassed;
 }
 

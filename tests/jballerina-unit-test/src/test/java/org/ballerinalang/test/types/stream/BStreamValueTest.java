@@ -229,9 +229,23 @@ public class BStreamValueTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
                 "public isolated function next() returns (record {| int value; |}|error)?; public isolated function " +
                 "close() returns error?; }', but found 'IteratorWithNonIsolatedNextAndIsolatedClose'", 351, 42);
-        BAssertUtil.validateError(negativeResult, i, "invalid stream constructor. expected a subtype of 'object { " +
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
                 "public isolated function next() returns (record {| int value; |}|error)?; public isolated function " +
                 "close() returns error?; }', but found 'IteratorWithIsolatedNextAndNonIsolatedClose'", 352, 42);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 371, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 372, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 373, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', found " +
+                "'stream<int>'", 374, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 375, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 376, 20);
+        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 377, 20);
     }
 
     @AfterClass
