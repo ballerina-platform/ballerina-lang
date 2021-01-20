@@ -2696,10 +2696,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     listMatchPattern.type = patternType;
                     return;
                 }
+                if (patternType.tag == TypeTags.ARRAY) {
+                    BArrayType arrayType = (BArrayType) patternType;
+                    for (BLangMatchPattern memberPattern : listMatchPattern.matchPatterns) {
+                        assignTypesToMemberPatterns(memberPattern, arrayType.eType);
+                    }
+                    if (listMatchPattern.restMatchPattern == null) {
+                        return;
+                    }
+                    BLangRestMatchPattern restMatchPattern = listMatchPattern.restMatchPattern;
+                    BType restType = ((BArrayType) restMatchPattern.type).eType;
+                    restType = types.mergeTypes(restType, arrayType.eType);
+                    ((BArrayType) restMatchPattern.type).eType = restType;
+                    return;
+                }
                 if (patternType.tag != TypeTags.TUPLE) {
                     return;
                 }
-                List<BType> types = ((BTupleType) patternType).tupleTypes;
+                BTupleType patternTupleType = (BTupleType) patternType;
+                List<BType> types = patternTupleType.tupleTypes;
                 List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
                 List<BType> memberTypes = new ArrayList<>();
                 for (int i = 0; i < matchPatterns.size(); i++) {
@@ -2715,6 +2730,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BType restType = ((BArrayType) listMatchPattern.restMatchPattern.type).eType;
                 for (int i = matchPatterns.size(); i < types.size(); i++) {
                     restType = this.types.mergeTypes(restType, types.get(i));
+                }
+                if (patternTupleType.restType != null) {
+                    restType = this.types.mergeTypes(restType, patternTupleType.restType);
                 }
                 ((BArrayType) listMatchPattern.restMatchPattern.type).eType = restType;
                 tupleType.restType = restType;
@@ -3009,10 +3027,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     listBindingPattern.type = bindingPatternType;
                     return;
                 }
+                if (bindingPatternType.tag == TypeTags.ARRAY) {
+                    BArrayType arrayType = (BArrayType) bindingPatternType;
+                    for (BLangBindingPattern memberBindingPattern : listBindingPattern.bindingPatterns) {
+                        assignTypesToMemberPatterns(memberBindingPattern, arrayType.eType);
+                    }
+                    if (listBindingPattern.restBindingPattern == null) {
+                        return;
+                    }
+                    BLangRestBindingPattern restBindingPattern = listBindingPattern.restBindingPattern;
+                    BType restType = ((BArrayType) restBindingPattern.type).eType;
+                    restType = types.mergeTypes(restType, arrayType.eType);
+                    ((BArrayType) restBindingPattern.type).eType = restType;
+                    return;
+                }
                 if (bindingPatternType.tag != TypeTags.TUPLE) {
                     return;
                 }
-                List<BType> types = ((BTupleType) bindingPatternType).getTupleTypes();
+                BTupleType bindingPatternTupleType = (BTupleType) bindingPatternType;
+                List<BType> types = bindingPatternTupleType.getTupleTypes();
                 List<BLangBindingPattern> bindingPatterns = listBindingPattern.bindingPatterns;
                 List<BType> memberTypes = new ArrayList<>();
                 for (int i = 0; i < bindingPatterns.size(); i++) {
@@ -3029,9 +3062,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 for (int i = bindingPatterns.size(); i < types.size(); i++) {
                     restType = this.types.mergeTypes(restType, types.get(i));
                 }
+                if (bindingPatternTupleType.restType != null) {
+                    restType = this.types.mergeTypes(restType, bindingPatternTupleType.restType);
+                }
                 ((BArrayType) listBindingPattern.restBindingPattern.type).eType = restType;
                 tupleType.restType = restType;
                 bindingPattern.type = tupleType;
+                return;
+            default:
         }
     }
 

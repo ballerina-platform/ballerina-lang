@@ -3637,6 +3637,16 @@ public class Types {
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
+            } else if (type.tag == TypeTags.ARRAY && lhsType.tag == TypeTags.TUPLE) {
+                BType intersectionType = createArrayAndTupleIntersection((BArrayType) type, (BTupleType) lhsType, env);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (type.tag == TypeTags.TUPLE && lhsType.tag == TypeTags.ARRAY) {
+                BType intersectionType = createArrayAndTupleIntersection((BArrayType) lhsType, (BTupleType) type, env);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
             }
             return null;
         }).filter(type -> type != null).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -3655,6 +3665,23 @@ public class Types {
         } else {
             return BUnionType.create(null, intersection);
         }
+    }
+
+    private BType createArrayAndTupleIntersection(BArrayType arrayType, BTupleType tupleType, SymbolEnv env) {
+        List<BType> tupleMemberTypes = new ArrayList<>();
+        for (BType memberType : tupleType.tupleTypes) {
+            BType intersectionType = getTypeIntersection(memberType, arrayType.eType, env);
+            if (intersectionType == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+            tupleMemberTypes.add(intersectionType);
+        }
+
+        BType restIntersectionType = getTypeIntersection(tupleType.restType, arrayType.eType, env);
+        if (restIntersectionType == symTable.semanticError) {
+            return new BTupleType(null, tupleMemberTypes);
+        }
+        return new BTupleType(null, tupleMemberTypes, restIntersectionType, 0);
     }
 
     private BType getIntersectionForErrorTypes(BType lhsType, BType rhsType, SymbolEnv env) {

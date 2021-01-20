@@ -396,6 +396,44 @@ function testListBindingPattern15() {
     assertEquals("i: 1 s: [\"A\",1.1]", listBindingPattern15());
 }
 
+function listBindingPattern16(int[] v) returns int {
+    match v {
+        var [a, b, ...c] => {
+            return a + b + c[0];
+        }
+    }
+    return -1;
+}
+
+function testListBindingPattern16() {
+    assertEquals(6, listBindingPattern16([1, 2, 3, 4, 5]));
+}
+
+function listBindingPattern17(int[5] v) returns int {
+    match v {
+        var [a, b, ...c] => {
+            return a + b + c[1];
+        }
+    }
+}
+
+function testListBindingPattern17() {
+    assertEquals(7, listBindingPattern17([1, 2, 3, 4, 5]));
+}
+
+function listBindingPattern18(any[] v) returns string {
+    match v {
+        var [a, b, ...c] => {
+            return a.toString();
+        }
+    }
+    return "No Match";
+}
+
+function testListBindingPattern18() {
+    assertEquals("1", listBindingPattern18([1, 2, 3, 4, 5]));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
