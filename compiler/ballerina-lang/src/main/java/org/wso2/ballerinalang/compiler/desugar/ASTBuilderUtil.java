@@ -931,10 +931,10 @@ public class ASTBuilderUtil {
 
     public static BLangDynamicArgExpr createDynamicParamExpression(BLangExpression condition,
                                                                    BLangExpression conditionalArg) {
-        BLangDynamicArgExpr dymaicExpression = new BLangDynamicArgExpr();
-        dymaicExpression.condition = condition;
-        dymaicExpression.conditionalArgument = conditionalArg;
-        return dymaicExpression;
+        BLangDynamicArgExpr dynamicExpression = new BLangDynamicArgExpr();
+        dynamicExpression.condition = condition;
+        dynamicExpression.conditionalArgument = conditionalArg;
+        return dynamicExpression;
     }
 
     public static BLangTernaryExpr createTernaryExprNode(BType type, BLangExpression expr, BLangExpression thenExpr,

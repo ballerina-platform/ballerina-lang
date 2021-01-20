@@ -44,11 +44,6 @@ public class BIRArgument extends BIROperand {
     }
 
     @Override
-    public void  accept(BIRVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
     public String toString() {
         return variableDcl.toString();
     }

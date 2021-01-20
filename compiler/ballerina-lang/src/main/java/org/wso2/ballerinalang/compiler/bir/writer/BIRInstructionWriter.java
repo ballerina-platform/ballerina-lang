@@ -423,24 +423,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRArgument birArgument) {
-        if (birArgument.variableDcl.ignoreVariable) {
-            buf.writeBoolean(true);
-            writeType(birArgument.variableDcl.type);
-            return;
-        }
-
-        buf.writeBoolean(false);
-        buf.writeByte(birArgument.variableDcl.kind.getValue());
-        buf.writeByte(birArgument.variableDcl.scope.getValue());
-
-        addCpAndWriteString(birArgument.variableDcl.name.value);
-
-        if (birArgument.variableDcl.kind == VarKind.GLOBAL || birArgument.variableDcl.kind == VarKind.CONSTANT) {
-            int pkgIndex = addPkgCPEntry(((BIRGlobalVariableDcl) birArgument.variableDcl).pkgId);
-            buf.writeInt(pkgIndex);
-
-            writeType(birArgument.variableDcl.type);
-        }
+        birArgument.accept(this);
     }
 
     public void visit(BIRNonTerminator.NewError birNewError) {
