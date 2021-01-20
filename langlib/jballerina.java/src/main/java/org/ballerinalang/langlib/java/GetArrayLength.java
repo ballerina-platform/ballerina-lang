@@ -17,17 +17,22 @@
  */
 package org.ballerinalang.langlib.java;
 
-import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BHandle;
 
 /**
- * This class contains the implementation of the "createNull" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "getArrayLength" ballerina function in
+ * ballerina/jballerina.java module.
  *
  * @since 1.0.0
  */
-public class CreateNull {
 
-    public static BHandle createNull() {
-        return ValueCreator.createHandleValue(null);
+public class GetArrayLength {
+
+    public static long getArrayLength(BHandle bHandle) {
+        Object[] arr = (Object[]) bHandle.getValue();
+        if (arr == null) {
+            throw JValues.getJavaNullReferenceError();
+        }
+        return arr.length;
     }
 }

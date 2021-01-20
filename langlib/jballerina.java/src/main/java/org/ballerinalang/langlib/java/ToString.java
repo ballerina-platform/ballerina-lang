@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BString;
 
 /**
- * This class contains the implementation of the "toString" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "toString" ballerina function in ballerina/jballerina.java module.
  *
  * @since 1.0.0
  */

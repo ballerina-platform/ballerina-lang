@@ -1,5 +1,5 @@
 import ballerina/test;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public function getString() returns handle = @java:Method {
     'class:"org.wso2.test.StaticMethods"

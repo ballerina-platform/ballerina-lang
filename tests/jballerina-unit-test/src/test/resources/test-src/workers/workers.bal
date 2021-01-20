@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 function workerReturnTest() returns int{
     @strand{thread:"any"}

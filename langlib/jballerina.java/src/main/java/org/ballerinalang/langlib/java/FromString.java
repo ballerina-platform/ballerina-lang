@@ -17,22 +17,18 @@
  */
 package org.ballerinalang.langlib.java;
 
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BHandle;
-import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.api.values.BString;
 
 /**
- * This class contains the implementation of the "setArrayElement" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "fromString" ballerina function in ballerina/jballerina.java module.
  *
  * @since 1.0.0
  */
-public class SetArrayElement {
+public class FromString {
 
-    public static void setArrayElement(Strand strand, BHandle bHandle, long index, BHandle value) {
-        Object[] arr = (Object[]) bHandle.getValue();
-        if (arr == null) {
-            throw JValues.getJavaNullReferenceError();
-        }
-        JValues.rangeCheck(index, arr);
-        arr[(int) index] = value.getValue();
+    public static BHandle fromString(BString strValue) {
+        return ValueCreator.createHandleValue(strValue == null ? null : strValue.getValue());
     }
 }

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 import ballerina/lang.'array as lang_array;
 import ballerina/lang.'value as lang_value;
 

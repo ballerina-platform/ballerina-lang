@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 import toml/toml4j;
 
 public function main() {

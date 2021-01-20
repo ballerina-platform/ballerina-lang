@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
 /**
- * This class contains various utility functions required to provide the 'ballerina/java' module API.
+ * This class contains various utility functions required to provide the 'ballerina/jballerina.java' module API.
  *
  * @since 1.0.0
  */

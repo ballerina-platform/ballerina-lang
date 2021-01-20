@@ -20,18 +20,13 @@ package org.ballerinalang.langlib.java;
 import io.ballerina.runtime.api.values.BHandle;
 
 /**
- * This class contains the implementation of the "getArrayLength" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "isNull" ballerina function in ballerina/jballerina.java module.
  *
  * @since 1.0.0
  */
+public class IsNull {
 
-public class GetArrayLength {
-
-    public static long getArrayLength(BHandle bHandle) {
-        Object[] arr = (Object[]) bHandle.getValue();
-        if (arr == null) {
-            throw JValues.getJavaNullReferenceError();
-        }
-        return arr.length;
+    public static boolean isNull(BHandle value) {
+        return value.getValue() == null;
     }
 }

@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.test;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public function simpleAddition() {
     int a = 3;
