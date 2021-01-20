@@ -202,8 +202,9 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         qualifierJoiner.add("object {");
         signature.append(qualifierJoiner.toString());
 
-        symbol.fieldDescriptors().stream().map(this::transformField).forEach(fieldJoiner::add);
-        symbol.methods().stream().map(this::transformMethod).forEach(method -> methodJoiner.add(method).add(";"));
+        symbol.fieldDescriptors().values().stream().map(this::transformField).forEach(fieldJoiner::add);
+        symbol.methods().values().stream().map(this::transformMethod)
+                .forEach(method -> methodJoiner.add(method).add(";"));
 
         String stringRepr = signature.append(fieldJoiner.toString())
                 .append(methodJoiner.toString()).append("}").toString();
@@ -219,10 +220,10 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         boolean isRecordInclusive = !symbol.signature().endsWith("|}");
         if (isRecordInclusive) {
             joiner = new StringJoiner(" ", "{ ", " }");
-            symbol.fieldDescriptors().stream().map(fd -> transformField(fd) + ";").forEach(joiner::add);
+            symbol.fieldDescriptors().values().stream().map(fd -> transformField(fd) + ";").forEach(joiner::add);
         } else {
             joiner = new StringJoiner(" ", "{| ", " |}");
-            symbol.fieldDescriptors().stream().map(fd -> transformField(fd) + ";").forEach(joiner::add);
+            symbol.fieldDescriptors().values().stream().map(fd -> transformField(fd) + ";").forEach(joiner::add);
             symbol.restTypeDescriptor().ifPresent(typeDescriptor -> joiner.add(transformType(typeDescriptor) + "...;"));
         }
         this.setState("record " + joiner.toString());
