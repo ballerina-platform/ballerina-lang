@@ -7383,12 +7383,11 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 // If a vararg is provided, no parameter defaults are added and no named args are specified.
                 // Thus, any missing args should come from the vararg.
-                BLangExpression indexExpr;
                 if (varargRef.type.tag == TypeTags.RECORD) {
                     if (param.defaultableParam) {
                         BLangInvocation hasKeyInvocation = createLangLibInvocationNode(HAS_KEY, varargRef,
                                 List.of(createStringLiteral(param.pos, param.name.value)), null, varargRef.pos);
-                        indexExpr = rewriteExpr(createStringLiteral(param.pos, param.name.value));
+                        BLangExpression indexExpr = rewriteExpr(createStringLiteral(param.pos, param.name.value));
                         BLangIndexBasedAccess memberAccessExpr =
                                 ASTBuilderUtil.createMemberAccessExprNode(param.type, varargRef, indexExpr);
                         BLangExpression ignoreExpr = ASTBuilderUtil.createIgnoreExprNode(param.type);
@@ -7403,7 +7402,7 @@ public class Desugar extends BLangNodeVisitor {
                         args.add(fieldBasedAccessExpression);
                     }
                 } else {
-                    indexExpr = rewriteExpr(createIntLiteral(varargIndex));
+                    BLangExpression indexExpr = rewriteExpr(createIntLiteral(varargIndex));
                     BType memberAccessExprType = tupleTypedVararg ?
                             ((BTupleType) varargType).tupleTypes.get(varargIndex) : ((BArrayType) varargType).eType;
                     args.add(addConversionExprIfRequired(ASTBuilderUtil.createMemberAccessExprNode(memberAccessExprType,
