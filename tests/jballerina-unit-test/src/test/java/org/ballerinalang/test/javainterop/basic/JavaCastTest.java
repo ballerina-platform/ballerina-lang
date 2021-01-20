@@ -51,56 +51,63 @@ public class JavaCastTest {
     public void testIncorrectJavaCast() {
         BValue[] returns = BRunUtil.invoke(result, "testIncorrectJavaCast");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Cannot cast `String1` to `ArrayList1`"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Cannot cast `String1` " +
+                "to `ArrayList1`"));
     }
 
-    @Test(description = "Test java:cast function in ballerina/jballerina.java for a typedesc without a handle argument in `init`")
+    @Test(description = "Test java:cast function in ballerina/jballerina.java for a typedesc without a handle " +
+            "argument in `init`")
     public void testJavaCastForInvalidTypedesc3() {
         BValue[] returns = BRunUtil.invoke(result, "testJavaCastForInvalidTypedesc3");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Error while initializing the new " +
-               "object from `String4` type: java.lang.ClassCastException: class io.ballerina.runtime.internal.values." +
-                "HandleValue cannot be cast to class io.ballerina.runtime.api.values.BString"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Error while initializing " +
+                "the new object from `String4` type: java.lang.ClassCastException: class io.ballerina.runtime." +
+                "internal.values.HandleValue cannot be cast to class io.ballerina.runtime.api.values.BString"));
     }
 
-    @Test(description = "Test java:cast function in ballerina/jballerina.java for incorrect class in typedesc object annotation")
+    @Test(description = "Test java:cast function in ballerina/jballerina.java for incorrect class in typedesc " +
+            "object annotation")
     public void testJavaCastForInvalidClass1() {
         BValue[] returns = BRunUtil.invoke(result, "testJavaCastForInvalidClass1");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Error while casting `Object1` object " +
-                "to the typedesc provided: java.lang.ClassNotFoundException: java.lang.Str"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Error while casting " +
+                "`Object1` object to the typedesc provided: java.lang.ClassNotFoundException: java.lang.Str"));
     }
 
-    @Test(description = "Test java:cast function in ballerina/jballerina.java for incorrect class in parameter object annotation")
+    @Test(description = "Test java:cast function in ballerina/jballerina.java for incorrect class in parameter " +
+            "object annotation")
     public void testJavaCastForInvalidClass2() {
         BValue[] returns = BRunUtil.invoke(result, "testJavaCastForInvalidClass2");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Error while casting `Object3` object " +
-                "to the typedesc provided: java.lang.ClassNotFoundException: java.lang.Objecte"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Error while casting " +
+                "`Object3` object to the typedesc provided: java.lang.ClassNotFoundException: java.lang.Objecte"));
     }
 
-    @Test(description = "Test java:cast function in ballerina/jballerina.java for an empty `jObj` value in parameter object")
+    @Test(description = "Test java:cast function in ballerina/jballerina.java for an empty `jObj` value in " +
+            "parameter object")
     public void testJavaCastFunctionNulljObj() {
         BValue[] returns = BRunUtil.invoke(result, "testJavaCastFunctionNulljObj");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Empty handle reference found for " +
-                "`jObj` field in `Object1`"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Empty handle reference " +
+                "found for `jObj` field in `Object1`"));
     }
 
-    @Test(description = "Test java:cast function in ballerina/jballerina.java for missing `@java:Binding` annotation in typedesc")
+    @Test(description = "Test java:cast function in ballerina/jballerina.java for missing `@java:Binding` " +
+            "annotation in typedesc")
     public void testJavaCastMissingAnnotation1() {
         BValue[] returns = BRunUtil.invoke(result, "testJavaCastMissingAnnotation1");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Error while retrieving details of " +
-                "the `@java:Binding` annotation from `String2` typedesc: java.lang.NullPointerException"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Error while retrieving " +
+                "details of the `@java:Binding` annotation from `String2` typedesc: java.lang.NullPointerException"));
     }
 
-    @Test(description = "Test java:cast function in ballerina/jballerina.java for missing `@java:Binding` annotation in parameter")
+    @Test(description = "Test java:cast function in ballerina/jballerina.java for missing `@java:Binding` " +
+            "annotation in parameter")
     public void testJavaCastMissingAnnotation2() {
         BValue[] returns = BRunUtil.invoke(result, "testJavaCastMissingAnnotation2");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Error while retrieving details of " +
-                "the `@java:Binding` annotation from `Object2` object: java.lang.NullPointerException"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerina/jballerina.java} Error while retrieving " +
+                "details of the `@java:Binding` annotation from `Object2` object: java.lang.NullPointerException"));
     }
 
     @AfterClass

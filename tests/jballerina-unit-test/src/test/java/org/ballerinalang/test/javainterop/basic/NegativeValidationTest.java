@@ -49,8 +49,8 @@ public class NegativeValidationTest {
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}CLASS_NOT_FOUND 'org.ballerinalang.nativeimpl.jvm.tests.PublicStaticMethods'",
-                "class_not_found.bal", 25, 1);
+                "{ballerina/jballerina.java}CLASS_NOT_FOUND 'org.ballerinalang.nativeimpl.jvm." +
+                        "tests.PublicStaticMethods'", "class_not_found.bal", 25, 1);
     }
 
     @Test
@@ -62,9 +62,9 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method 'acceptStringOrErrorReturn' found in " +
-                        "class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
-                "method_not_found1.bal", 8, 1);
+                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method " +
+                        "'acceptStringOrErrorReturn' found in class 'class org.ballerinalang.nativeimpl." +
+                        "jvm.tests.StaticMethods''method_not_found1.bal", 8, 1);
     }
 
     @Test
@@ -77,9 +77,9 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method 'acceptObjectAndObjectReturn' with " +
-                        "'3' " + "parameter(s) found in class 'class org.ballerinalang.nativeimpl.jvm.tests" +
-                        ".StaticMethods''",
+                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method " +
+                        "'acceptObjectAndObjectReturn' with '3' " + "parameter(s) found in class 'class " +
+                        "org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
                 "method_not_found2.bal", 22, 1);
     }
 
@@ -93,9 +93,9 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method 'acceptRecordAndRecordReturn' with " +
-                        "'3' " + "parameter(s) found in class 'class org.ballerinalang.nativeimpl.jvm.tests" +
-                        ".StaticMethods''",
+                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method " +
+                        "'acceptRecordAndRecordReturn' with '3' " + "parameter(s) found in class " +
+                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
                 "method_not_found3.bal", 21, 1);
     }
 
@@ -109,9 +109,9 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method 'acceptIntAndUnionReturn' found in class " +
-                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
-                "method_not_found4.bal", 23, 1);
+                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method " +
+                        "'acceptIntAndUnionReturn' found in class 'class org.ballerinalang.nativeimpl.jvm." +
+                        "tests.StaticMethods''method_not_found4.bal", 23, 1);
     }
 
     @Test
@@ -124,9 +124,9 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method 'acceptIntStringAndUnionReturn' found in " +
-                        "class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
-                "method_not_found5.bal", 23, 1);
+                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method " +
+                        "'acceptIntStringAndUnionReturn' found in class 'class org.ballerinalang.nativeimpl." +
+                        "jvm.tests.StaticMethods''method_not_found5.bal", 23, 1);
     }
 
     @Test
@@ -266,10 +266,9 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param type for method 'split' in " +
-                        "class 'java.lang.String': Java type 'java.lang.String' will not be matched to ballerina " +
-                        "type 'string''",
-                "method_sig_not_match7.bal", 3, 1);
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param " +
+                        "type for method 'split' in class 'java.lang.String': Java type 'java.lang.String' will " +
+                        "not be matched to ballerina type 'string''", "method_sig_not_match7.bal", 3, 1);
     }
 
     @Test
@@ -282,8 +281,8 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Parameter count does not match with Java method " +
-                        "'split' found in class 'java.lang.String''",
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Parameter count does " +
+                        "not match with Java method 'split' found in class 'java.lang.String''",
                 "method_sig_not_match8.bal", 3, 1);
     }
 
@@ -297,8 +296,8 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param type for method " +
-                        "'decimalParamAsObjectAndReturn' in class " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param " +
+                        "type for method 'decimalParamAsObjectAndReturn' in class " +
                         "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': Java type 'java.lang.Object' " +
                         "will not be matched to ballerina type 'decimal''",
                 "method_sig_not_match9.bal", 3, 1);
@@ -314,8 +313,8 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible return type for method " +
-                        "'decimalParamAndReturnAsObject' in class " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible return " +
+                        "type for method 'decimalParamAndReturnAsObject' in class " +
                         "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': Java type 'java.lang.Object' " +
                         "will not be matched to ballerina type 'decimal''",
                 "method_sig_not_match10.bal", 3, 1);
@@ -330,8 +329,8 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible return type for method " +
-                        "'returnStringForBUnionFromJava' in class " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible return " +
+                        "type for method 'returnStringForBUnionFromJava' in class " +
                         "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': Java type 'java.lang.String' " +
                         "will not be matched to ballerina type '(int|float|string)''",
                 "method_sig_not_match11.bal", 3, 1);
@@ -346,9 +345,9 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param type for method " +
-                        "'getIntFromJsonInt' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
-                        "Java type 'int' will not be matched to ballerina type 'json''",
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param " +
+                        "type for method 'getIntFromJsonInt' in class 'org.ballerinalang.nativeimpl.jvm." +
+                        "tests.StaticMethods': Java type 'int' will not be matched to ballerina type 'json''",
                 "method_sig_not_match12.bal", 3, 1);
     }
 
@@ -361,9 +360,9 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param type for method " +
-                        "'getIntFromJsonInt' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
-                        "Java type 'int' will not be matched to ballerina type '(int|string)''",
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible param " +
+                        "type for method 'getIntFromJsonInt' in class 'org.ballerinalang.nativeimpl.jvm.tests." +
+                        "StaticMethods': Java type 'int' will not be matched to ballerina type '(int|string)''",
                 "method_sig_not_match13.bal", 3, 1);
     }
 
@@ -391,13 +390,15 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 2);
         BAssertUtil.validateError(compileResult, 0,
-                                  "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods cannot be differentiated. " +
-                                          "Please specify the parameterTypes for each parameter in 'paramTypes' field" +
-                                          " in the annotation'", "method_resolve_error.bal", 19, 1);
+                                  "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
+                                          "cannot be differentiated. Please specify the parameterTypes for each " +
+                                          "parameter in 'paramTypes' field in the annotation'",
+                                  "method_resolve_error.bal", 19, 1);
         BAssertUtil.validateError(compileResult, 1,
-                                  "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods cannot be differentiated. " +
-                                          "Please specify the parameterTypes for each parameter in 'paramTypes' field" +
-                                          " in the annotation'", "method_resolve_error.bal", 24, 1);
+                                  "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
+                                          "cannot be differentiated. Please specify the parameterTypes for each " +
+                                          "parameter in 'paramTypes' field in the annotation'",
+                                  "method_resolve_error.bal", 24, 1);
 
     }
 }
