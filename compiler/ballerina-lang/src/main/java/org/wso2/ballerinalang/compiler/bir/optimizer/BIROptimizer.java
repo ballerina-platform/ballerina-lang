@@ -542,7 +542,7 @@ public class BIROptimizer {
             if (realVar != null) {
                 birArgument.variableDcl = realVar;
             }
-            this.optimizeNode(birArgument.userProvidedCondition, this.env);
+            this.optimizeNode(birArgument.condition, this.env);
         }
     }
 

@@ -97,7 +97,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicParamExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
@@ -1381,9 +1381,9 @@ public class BIRGen extends BLangNodeVisitor {
 
         for (BLangExpression requiredArg : requiredArgs) {
             if (requiredArg.getKind() == NodeKind.DYNAMIC_PARAM_EXPR) {
-                ((BLangDynamicParamExpr) requiredArg).conditionalArgument.accept(this);
+                ((BLangDynamicArgExpr) requiredArg).conditionalArgument.accept(this);
                 BIROperand conditionalArg = this.env.targetOperand;
-                ((BLangDynamicParamExpr) requiredArg).condition.accept(this);
+                ((BLangDynamicArgExpr) requiredArg).condition.accept(this);
                 BIROperand condition = this.env.targetOperand;
                 args.add(new BIRArgument(ArgumentState.CONDITIONALLY_PROVIDED, conditionalArg.variableDcl, condition));
             } else if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
@@ -1837,7 +1837,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangDynamicParamExpr dynamicParamExpr) {
+    public void visit(BLangDynamicArgExpr dynamicParamExpr) {
         dynamicParamExpr.condition.accept(this);
         dynamicParamExpr.conditionalArgument.accept(this);
     }

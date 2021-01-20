@@ -821,7 +821,7 @@ public class JvmTerminatorGen {
                 this.mv.visitInsn(ICONST_0);
                 break;
             case CONDITIONALLY_PROVIDED:
-                this.loadVar(arg.userProvidedCondition.variableDcl);
+                this.loadVar(arg.condition.variableDcl);
                 break;
         }
     }

@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.DynamicParamNode;
+import org.ballerinalang.model.tree.expressions.DynamicArgNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  *
  * @since 2.0.0
  */
-public class BLangDynamicParamExpr extends BLangExpression implements DynamicParamNode {
+public class BLangDynamicArgExpr extends BLangExpression implements DynamicArgNode {
 
     public BLangExpression condition;
     public BLangExpression conditionalArgument;

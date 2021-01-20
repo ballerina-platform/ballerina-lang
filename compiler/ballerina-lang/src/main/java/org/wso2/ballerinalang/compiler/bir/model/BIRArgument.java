@@ -25,26 +25,22 @@ package org.wso2.ballerinalang.compiler.bir.model;
 public class BIRArgument extends BIROperand {
 
     public ArgumentState argState;
-    public BIROperand userProvidedCondition;
+    public BIROperand condition;
 
     public BIRArgument(ArgumentState argState, BIRVariableDcl argVar) {
         super(argVar);
         this.argState = argState;
     }
 
-    public BIRArgument(ArgumentState argState, BIRVariableDcl argVar, BIROperand userProvidedCondition) {
+    public BIRArgument(ArgumentState argState, BIRVariableDcl argVar, BIROperand condition) {
         super(argVar);
         this.argState = argState;
-        this.userProvidedCondition = userProvidedCondition;
+        this.condition = condition;
     }
 
     @Override
     public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        } else {
-            return false;
-        }
+        return this == other;
     }
 
     @Override

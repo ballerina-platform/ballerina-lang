@@ -117,7 +117,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicParamExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -6740,7 +6740,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangDynamicParamExpr dynamicParamExpr) {
+    public void visit(BLangDynamicArgExpr dynamicParamExpr) {
         dynamicParamExpr.conditionalArgument = rewriteExpr(dynamicParamExpr.conditionalArgument);
         dynamicParamExpr.condition = rewriteExpr(dynamicParamExpr.condition);
         result = dynamicParamExpr;
@@ -7389,15 +7389,16 @@ public class Desugar extends BLangNodeVisitor {
                         BLangInvocation hasKeyInvocation = createLangLibInvocationNode(HAS_KEY, varargRef,
                                 List.of(createStringLiteral(param.pos, param.name.value)), null, varargRef.pos);
                         indexExpr = rewriteExpr(createStringLiteral(param.pos, param.name.value));
-                        BLangIndexBasedAccess memberAccessExpr = createMemberAccessExprNode(param.type,
-                                varargRef, indexExpr, varargRef.pos);
-                        BLangExpression ignoreExpr = createIgnoreExprNode(param.type);
-                        BLangTernaryExpr ternaryExpr = createTernaryExprNode(param.type, hasKeyInvocation,
-                                memberAccessExpr, ignoreExpr, varargRef.pos);
-                        args.add(createDynamicParamExpression(hasKeyInvocation, ternaryExpr));
+                        BLangIndexBasedAccess memberAccessExpr =
+                                ASTBuilderUtil.createMemberAccessExprNode(param.type, varargRef, indexExpr);
+                        BLangExpression ignoreExpr = ASTBuilderUtil.createIgnoreExprNode(param.type);
+                        BLangTernaryExpr ternaryExpr = ASTBuilderUtil.createTernaryExprNode(param.type,
+                                                                        hasKeyInvocation, memberAccessExpr, ignoreExpr);
+                        args.add(ASTBuilderUtil.createDynamicParamExpression(hasKeyInvocation, ternaryExpr));
                     } else {
-                        BLangFieldBasedAccess fieldBasedAccessExpression = ASTBuilderUtil.createFieldAccessExpr(
-                                varargRef, ASTBuilderUtil.createIdentifier(param.pos, param.name.value));
+                        BLangFieldBasedAccess fieldBasedAccessExpression =
+                                ASTBuilderUtil.createFieldAccessExpr((BLangAccessibleExpression) varargRef,
+                                                          ASTBuilderUtil.createIdentifier(param.pos, param.name.value));
                         fieldBasedAccessExpression.type = param.type;
                         args.add(fieldBasedAccessExpression);
                     }
@@ -7405,8 +7406,8 @@ public class Desugar extends BLangNodeVisitor {
                     indexExpr = rewriteExpr(createIntLiteral(varargIndex));
                     BType memberAccessExprType = tupleTypedVararg ?
                             ((BTupleType) varargType).tupleTypes.get(varargIndex) : ((BArrayType) varargType).eType;
-                    args.add(addConversionExprIfRequired(createMemberAccessExprNode(memberAccessExprType, varargRef,
-                            indexExpr, varargRef.pos), param.type));
+                    args.add(addConversionExprIfRequired(ASTBuilderUtil.createMemberAccessExprNode(memberAccessExprType,
+                             varargRef, indexExpr), param.type));
                     varargIndex++;
                 }
             }
@@ -7415,41 +7416,6 @@ public class Desugar extends BLangNodeVisitor {
             setFieldsForIncRecordLiterals(namedArgs, incRecordLiterals, incRecordParamAllowAdditionalFields);
         }
         iExpr.requiredArgs = args;
-    }
-
-    private BLangDynamicParamExpr createDynamicParamExpression(BLangExpression condition,
-                                                               BLangExpression conditionalArg) {
-        BLangDynamicParamExpr dymaicExpression = new BLangDynamicParamExpr();
-        dymaicExpression.condition = condition;
-        dymaicExpression.conditionalArgument = conditionalArg;
-        return dymaicExpression;
-    }
-
-    private BLangTernaryExpr createTernaryExprNode(BType type, BLangExpression expr, BLangExpression thenExpr,
-                                                   BLangExpression elseExpr, Location pos) {
-        BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) TreeBuilder.createTernaryExpressionNode();
-        ternaryExpr.pos = pos;
-        ternaryExpr.elseExpr = elseExpr;
-        ternaryExpr.thenExpr = thenExpr;
-        ternaryExpr.expr = expr;
-        ternaryExpr.type = type;
-        return ternaryExpr;
-    }
-
-    private BLangIndexBasedAccess createMemberAccessExprNode(BType type, BLangExpression expr,
-                                                             BLangExpression indexExpr, Location pos) {
-        BLangIndexBasedAccess memberAccessExpr = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
-        memberAccessExpr.pos = pos;
-        memberAccessExpr.expr = expr;
-        memberAccessExpr.indexExpr = indexExpr;
-        memberAccessExpr.type = type;
-        return memberAccessExpr;
-    }
-
-    private BLangExpression createIgnoreExprNode(BType type) {
-        BLangExpression ignoreExpr = new BLangIgnoreExpr();
-        ignoreExpr.type = type;
-        return ignoreExpr;
     }
 
     private void setFieldsForIncRecordLiterals(Map<String, BLangExpression> namedArgs,

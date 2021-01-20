@@ -19,9 +19,10 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
- * Represent named arguments.
+ * Represents named arguments that should evaluate at runtime(Whether
+ * value for named argument given or not).
  *
  * @since 2.0.0
  */
-public interface DynamicParamNode extends ExpressionNode {
+public interface DynamicArgNode extends ExpressionNode {
 }

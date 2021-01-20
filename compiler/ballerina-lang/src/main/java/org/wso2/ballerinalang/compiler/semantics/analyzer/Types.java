@@ -2652,11 +2652,10 @@ public class Types {
 
             // If LHS field is required, there should be a corresponding RHS field
             if (rhsField == null) {
-                if (Symbols.isOptional(lhsField.symbol)) {
-                    continue;
-                } else {
+                if (!Symbols.isOptional(lhsField.symbol)) {
                     return false;
                 }
+                continue;
             }
             if (hasIncompatibleReadOnlyFlags(lhsField.symbol.flags, rhsField.symbol.flags)) {
                 return false;
