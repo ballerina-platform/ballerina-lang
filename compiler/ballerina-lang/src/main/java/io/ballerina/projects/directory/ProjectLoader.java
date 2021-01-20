@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -35,7 +37,15 @@ import java.util.Optional;
 public class ProjectLoader {
 
     public static Project loadProject(Path path) {
-        return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder());
+        return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder(), new BuildOptionsBuilder().build());
+    }
+
+    public static Project loadProject(Path path, BuildOptions buildOptions) {
+        return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder(), buildOptions);
+    }
+
+    public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder) {
+        return loadProject(path, projectEnvironmentBuilder, new BuildOptionsBuilder().build());
     }
 
     /**
@@ -44,7 +54,8 @@ public class ProjectLoader {
      * @param path ballerina project or standalone file path
      * @return project of applicable type
      */
-    public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder) {
+    public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder,
+                                      BuildOptions buildOptions) {
         Path absFilePath = Optional.of(path.toAbsolutePath()).get();
         Path projectRoot;
         if (!Files.exists(path)) {
@@ -57,7 +68,7 @@ public class ProjectLoader {
             } else {
                 projectRoot = absFilePath;
             }
-            return BuildProject.load(projectEnvironmentBuilder, projectRoot);
+            return BuildProject.load(projectEnvironmentBuilder, projectRoot, buildOptions);
         }
 
         if (!ProjectPaths.isBalFile(absFilePath)) {
@@ -66,9 +77,9 @@ public class ProjectLoader {
 
         try {
             projectRoot = ProjectPaths.packageRoot(absFilePath);
-            return BuildProject.load(projectEnvironmentBuilder, projectRoot);
+            return BuildProject.load(projectEnvironmentBuilder, projectRoot, buildOptions);
         } catch (ProjectException e) {
-            return SingleFileProject.load(projectEnvironmentBuilder, path);
+            return SingleFileProject.load(projectEnvironmentBuilder, path, buildOptions);
         }
     }
 }

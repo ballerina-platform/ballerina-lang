@@ -42,9 +42,15 @@ public class SingleFileProject extends Project {
      * @return single file project
      */
     public static SingleFileProject load(ProjectEnvironmentBuilder environmentBuilder, Path filePath) {
+        final BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        return load(environmentBuilder, filePath, buildOptionsBuilder.build());
+    }
+
+    public static SingleFileProject load(ProjectEnvironmentBuilder environmentBuilder, Path filePath,
+                                          BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(filePath);
         SingleFileProject singleFileProject = new SingleFileProject(
-                environmentBuilder, filePath, new BuildOptionsBuilder().build());
+                environmentBuilder, filePath, buildOptions);
         singleFileProject.addPackage(packageConfig);
         return singleFileProject;
     }

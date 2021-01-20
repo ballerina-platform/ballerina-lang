@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test;
 
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.NullBackend;
@@ -57,7 +58,9 @@ public class BCompileUtil {
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        return ProjectLoader.loadProject(projectPath);
+
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        return ProjectLoader.loadProject(projectPath, buildOptionsBuilder.taintCheck(Boolean.TRUE).build());
     }
 
     public static CompileResult compile(String sourceFilePath) {
