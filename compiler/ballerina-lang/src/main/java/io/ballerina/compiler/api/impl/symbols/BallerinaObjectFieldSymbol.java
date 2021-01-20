@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -20,7 +20,7 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -34,53 +34,44 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
+
+import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
+import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 
 /**
- * Represents a field with a name and type.
+ * Represents a field in an object type descriptor.
  *
  * @since 2.0.0
  */
-public class BallerinaFieldSymbol extends BallerinaSymbol implements FieldSymbol {
+public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements ObjectFieldSymbol {
 
+    protected final BField bField;
+    protected List<Qualifier> qualifiers;
     private final Documentation docAttachment;
-    private final BField bField;
     private final CompilerContext context;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
+    private String signature;
     private boolean deprecated;
 
-    public BallerinaFieldSymbol(CompilerContext context, BField bField) {
-        super(bField.name.value, bField.symbol.pkgID, SymbolKind.FIELD, bField.symbol);
+    public BallerinaObjectFieldSymbol(CompilerContext context, BField bField, SymbolKind kind) {
+        super(bField.name.value, bField.symbol.pkgID, kind, bField.symbol);
         this.context = context;
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
         this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    public BallerinaObjectFieldSymbol(CompilerContext context, BField bField) {
+        this(context, bField, OBJECT_FIELD);
+    }
+
     @Override
     public String name() {
         return this.bField.getName().getValue();
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isOptional() {
-        return (this.bField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
-    }
 
-    @Override
-    public boolean hasDefaultValue() {
-        return !isOptional() && (this.bField.symbol.flags & Flags.REQUIRED) != Flags.REQUIRED;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public TypeSymbol typeDescriptor() {
         if (this.typeDescriptor == null) {
@@ -112,38 +103,39 @@ public class BallerinaFieldSymbol extends BallerinaSymbol implements FieldSymbol
         return this.deprecated;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Optional<Documentation> documentation() {
         return Optional.ofNullable(docAttachment);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Optional<Qualifier> qualifier() {
-        if ((this.bField.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            return Optional.of(Qualifier.PUBLIC);
-        } else if ((this.bField.symbol.flags & Flags.PRIVATE) == Flags.PRIVATE) {
-            return Optional.of(Qualifier.PRIVATE);
+    public List<Qualifier> qualifiers() {
+        if (this.qualifiers != null) {
+            return this.qualifiers;
         }
 
-        return Optional.empty();
+        List<Qualifier> quals = new ArrayList<>();
+        if (Symbols.isFlagOn(this.bField.symbol.flags, Flags.PUBLIC)) {
+            quals.add(PUBLIC);
+        }
+
+        this.qualifiers = Collections.unmodifiableList(quals);
+        return this.qualifiers;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String signature() {
-        StringBuilder signature = new StringBuilder(this.typeDescriptor().signature() + " " + this.name());
-        if (this.isOptional()) {
-            signature.append("?");
+        if (this.signature != null) {
+            return this.signature;
         }
 
-        return signature.toString();
+        StringJoiner joiner = new StringJoiner(" ");
+
+        for (Qualifier qualifier : this.qualifiers()) {
+            joiner.add(qualifier.getValue());
+        }
+
+        this.signature = joiner.add(this.typeDescriptor().signature()).add(this.name()).toString();
+        return this.signature;
     }
 }

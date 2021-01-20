@@ -35,10 +35,12 @@ import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
+import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
@@ -81,14 +83,14 @@ public class AnnotationsTest {
         return new Object[][]{
                 {46, 6, CONSTANT, of("v1")},
 //                {52, 12, TYPE_DEFINITION, of("v1")}, // TODO: Uncomment after fixing #27461
-                {53, 15, VARIABLE, of("v5")},
+                {53, 15, RECORD_FIELD, of("v5")},
                 {65, 6, CLASS, of("v1", "v2", "v2")},
-                {66, 15, VARIABLE, of("v5")},
+                {66, 15, CLASS_FIELD, of("v5")},
                 {71, 20, METHOD, of("v3")},
                 {71, 69, VARIABLE, of("v4")},
                 {81, 16, FUNCTION, of("v3")},
                 {86, 11, ANNOTATION, of("v1")},
-                {98, 18, VARIABLE, of("v5")},
+                {98, 18, CLASS_FIELD, of("v5")},
                 {103, 22, METHOD, of("v3")},
 //                {112, 11, WORKER, of("v1")} // TODO: Uncomment after fixing #27461
                 {121, 5, ENUM, of("v1", "v5")},
