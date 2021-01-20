@@ -567,6 +567,33 @@ function testMemberAccessOnQueryExperssion() {
     assertEquality(30, emp["age"]);
 }
 
+type StringRecord record {|
+    string...;
+|};
+
+type IntRecord record {|
+    int...;
+|};
+
+function testRestFieldAccessOnNilableUnion() returns boolean {
+    StringRecord? f = {"x": "abc", "y": "def"};
+    var v1 = f["x"];
+    assertEquality("abc", v1);
+    var v2 = f["z"];
+    assertEquality((), v2);
+
+    StringRecord|IntRecord? fb1 = {"x": 100, "y": 200};
+    int|string? v3 = fb1["z"];
+    assertEquality((), v3);
+    int|string? v4 = fb1["y"];
+    assertEquality(200, v4);
+
+    StringRecord|IntRecord? fb2 = ();
+    var v5 = fb2["x"];
+    assertEquality((), v5);
+    return true;
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

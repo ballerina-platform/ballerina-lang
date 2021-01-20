@@ -8203,7 +8203,8 @@ public class Desugar extends BLangNodeVisitor {
 
         if (isAllTypesRecords) {
             for (BType memberType : memTypes) {
-                if (((BRecordType) memberType).fields.containsKey(field.value)) {
+                BRecordType recordType = (BRecordType) memberType;
+                if (recordType.fields.containsKey(field.value) || !recordType.sealed) {
                     successPattern = getSuccessPattern(memberType, accessExpr, tempResultVar,
                             accessExpr.errorSafeNavigation);
                     matchStmt.patternClauses.add(successPattern);
