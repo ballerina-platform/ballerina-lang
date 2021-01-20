@@ -56,7 +56,7 @@ public class RemoteBbeHelpProvider implements HelpProvider {
         if (topic.trim().equals(TOPICS)) {
             // If command is 'help topics' output all available topics.
             List<String> topicsKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(TOPICS_FILE));
-            output.append("Following are all available topics.");
+            output.append("Following are all available topics.\n\n");
             for (String keyword : topicsKeywords) {
                 output.append(keyword).append(NEWLINE);
             }
