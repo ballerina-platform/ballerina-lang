@@ -127,7 +127,7 @@ public class BindgenMvnResolver {
         }
         try (FileWriterWithEncoding fileWriter = new FileWriterWithEncoding(tomlFile, StandardCharsets.UTF_8, true)) {
             TomlDocument tomlDocument = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
-            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null).packageManifest();
+            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, projectRoot).packageManifest();
             // todo handle toml file with errors
 
             PackageManifest.Platform platform = packageManifest.platform("java11");

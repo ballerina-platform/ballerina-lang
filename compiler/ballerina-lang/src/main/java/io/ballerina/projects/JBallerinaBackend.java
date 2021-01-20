@@ -137,6 +137,9 @@ public class JBallerinaBackend extends CompilerBackend {
                     diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
 
+        // add ballerina toml diagnostics
+        diagnostics.addAll(this.packageContext.manifest().diagnostics().diagnostics());
+
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
     }
