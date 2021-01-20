@@ -60,7 +60,7 @@ public class BShellConfiguration {
                     .treeParser(TrialTreeParser.defaultParser(treeParsingTimeout))
                     .build();
         }
-        throw new RuntimeException("Unknown mode given.");
+        throw new RuntimeException("Unknown mode given: " + mode.name());
     }
 
     /**
