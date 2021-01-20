@@ -217,6 +217,28 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
+    public Optional<TypeSymbol> type(Node node) {
+        Optional<Location> nodeIdentifierLocation = node.apply(new SyntaxNodeToLocationMapper());
+
+        if (nodeIdentifierLocation.isEmpty()) {
+            return Optional.empty();
+        }
+
+        BLangCompilationUnit compilationUnit = getCompilationUnit(node.location().lineRange().filePath());
+        NodeFinder nodeFinder = new NodeFinder();
+        BLangNode astNode = nodeFinder.lookup(compilationUnit, node.location().lineRange());
+
+        if (astNode == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(typesFactory.getTypeDescriptor(astNode.type));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public List<Diagnostic> diagnostics(LineRange range) {
         List<Diagnostic> allDiagnostics = this.bLangPackage.getDiagnostics();
         List<Diagnostic> filteredDiagnostics = new ArrayList<>();
