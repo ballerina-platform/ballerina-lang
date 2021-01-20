@@ -10,7 +10,7 @@ The Ballerina-shell tool is an interactive tool for learning the Ballerina progr
 
 ## Modules
 
-The project is implemented in two base modules.
+The project is implemented in three base modules.
 
 - **shell-rt** - Module including runtime dependencies for ballerina programs generated. You may find the source code for this
   module [here](shell-rt).
@@ -42,11 +42,11 @@ The project is implemented in two base modules.
   EN variable = "english"  // <- Error
   ```
 
-- **Support with external libraries not tested completely** - Even though it is possible to run this against external libraries, this is not fully tested. Some issues, especially relating to invincible types, may occur. For an example following is a possible problematic scenario.
+- **Support with external libraries not tested completely** - Even though it is possible to run this against external libraries, this is not fully tested. Some issues, especially relating to types that are not visible outside the library, may occur. For an example following is a possible problematic scenario.
 
   ```ballerina
   import abc/pqr
-  // If pqr:call() returns a value of which the type is private, following will fail.
+  // If pqr:call() returns a value of which the type is not public, following will fail.
   var r = pqr:call()
   ```
 
@@ -78,16 +78,12 @@ The project is implemented in two base modules.
   Please file an issue if you come across any wrong categorization of a snippet. The parser is also relatively slow
   compared to the compilation phase, acting as a bottle-neck. So a timeout is employed to stop invalid statement parsing
   from taking too much time. However, this might cause issues in some old hardware where the execution might be slower
-  than expected (where even valid executions might exceed the timeout).
+  than expected (where even valid executions might exceed the timeout). You can use `--time-out` parameter while running
+  the shell to set the timeout manually. (currently set to 100ms by default)
 
 - **Type guards for global variables do not work** - Since all the variables defined in REPL top level act as global
   variables, type guards won't work. To remedy this you can explicitly cast the variable to the required type. However,
-  note that this is the expected behavior and not a bug. This will be fixed once the language supports global type
-  guards.
-
-- **Using var with types that are not visible to the public** - When using var, if a exported type that is not visible
-  to the REPL is used, REPL will try to use any/error combination that will not cause an error. A warning will be also
-  given.
+  note that this is the expected behavior and not a bug.
 
 - **Cyclic dependencies of module level types not possible** - Obviously, because a REPL is run line by line, you may
   not use a type that would be defined later. As a result, cyclic dependencies nt possible in module level declarations.
