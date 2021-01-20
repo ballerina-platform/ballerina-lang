@@ -1,5 +1,8 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
+
 /**
  * Represents the 'Kubernetes.toml' file in a package.
  *
@@ -18,11 +21,68 @@ public class KubernetesToml {
         return new KubernetesToml(pkg, kubernetesTomlContext);
     }
 
-    public TomlDocumentContext kubernetesTomlContext() {
+    TomlDocumentContext kubernetesTomlContext() {
         return kubernetesTomlContext;
     }
 
-    public Package getPackageInstance() {
+    public Package packageInstance() {
         return packageInstance;
+    }
+
+
+    public String name() {
+        return ProjectConstants.KUBERNETES_TOML;
+    }
+
+    public TomlTableNode tomlAstNode() {
+        return tomlDocument().tomlAstNode();
+    }
+
+    public TomlDocument tomlDocument() {
+        return this.kubernetesTomlContext.tomlDocument();
+    }
+
+    /** Returns an instance of the Document.Modifier.
+     *
+     * @return  module modifier
+     */
+    public KubernetesToml.Modifier modify() {
+        return new KubernetesToml.Modifier(this);
+    }
+
+    /**
+     * Inner class that handles Document modifications.
+     */
+    public static class Modifier {
+        private TomlDocument tomlDocument;
+        private Package oldPackage;
+
+        private Modifier(KubernetesToml oldDocument) {
+            this.tomlDocument = oldDocument.tomlDocument();
+            this.oldPackage = oldDocument.packageInstance();
+        }
+
+        /**
+         * Sets the content to be changed.
+         *
+         * @param content content to change with
+         * @return Document.Modifier that holds the content to be changed
+         */
+        public Modifier withContent(String content) {
+            this.tomlDocument = TomlDocument.from(ProjectConstants.KUBERNETES_TOML, content);
+            return this;
+        }
+
+        /**
+         * Returns a new document with updated content.
+         *
+         * @return document with updated content
+         */
+        public KubernetesToml apply() {
+            KubernetesToml kubernetesToml = KubernetesToml.from(TomlDocumentContext.from(this.tomlDocument),
+                    oldPackage);
+            Package newPackage = oldPackage.modify().updateKubernetesToml(kubernetesToml).apply();
+            return newPackage.kubernetesToml().get();
+        }
     }
 }

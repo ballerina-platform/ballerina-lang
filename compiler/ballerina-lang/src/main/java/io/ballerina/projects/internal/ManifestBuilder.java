@@ -154,8 +154,14 @@ public class ManifestBuilder {
                 PackageName.from(name),
                 PackageVersion.from(version));
 
-        Map<String, TopLevelNode> otherEntries = tomlTableNode.entries();
-        otherEntries.remove("package");
+        // Do not mutate toml tree
+        Map<String, TopLevelNode> otherEntries = new HashMap<>();
+        for (Map.Entry<String, TopLevelNode> entry : ballerinaToml.tomlAstNode().entries().entrySet()) {
+            if (entry.getKey().equals("package")) {
+                continue;
+            }
+            otherEntries.put(entry.getKey(), entry.getValue());
+        }
 
         // TODO add package properties which is not available in the `PackageDescriptor` to `otherEntries`
         // TODO we need to fix this properly later

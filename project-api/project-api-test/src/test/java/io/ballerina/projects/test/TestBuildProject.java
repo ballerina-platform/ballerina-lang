@@ -19,35 +19,16 @@ package io.ballerina.projects.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.projects.BallerinaToml;
-import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
-import io.ballerina.projects.DependencyGraph;
-import io.ballerina.projects.DiagnosticResult;
-import io.ballerina.projects.Document;
-import io.ballerina.projects.DocumentConfig;
-import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleCompilation;
-import io.ballerina.projects.ModuleConfig;
-import io.ballerina.projects.ModuleDescriptor;
-import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageManifest;
-import io.ballerina.projects.PackageResolution;
-import io.ballerina.projects.PlatformLibrary;
-import io.ballerina.projects.PlatformLibraryScope;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -827,9 +808,66 @@ public class TestBuildProject {
         Module storage = currentPackage
                 .module(ModuleName.from(currentPackage.packageName(), "storage"));
         Assert.assertTrue(storage.moduleMd().isEmpty());
+
+        // Test the content
+        TomlTableNode ballerinaToml = currentPackage.ballerinaToml().get().tomlAstNode();
+        Assert.assertEquals(ballerinaToml.entries().size(), 1);
+
+        TomlTableNode dependenciesToml = currentPackage.dependenciesToml().get().tomlAstNode();
+        Assert.assertEquals(dependenciesToml.entries().size(), 1);
+
+        TomlTableNode kubernetesToml = currentPackage.kubernetesToml().get().tomlAstNode();
+        Assert.assertEquals(kubernetesToml.entries().size(), 1);
     }
 
+    @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md", enabled = true)
+    public void testOtherDocumentEdit() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Check editing files
+        Package currentPackage = project.currentPackage();
+
+        BallerinaToml newBallerinaToml = currentPackage.ballerinaToml().get().modify().withContent("" +
+                "[package]\n" +
+                "org = \"sameera\"\n" +
+                "name = \"yourproject\"\n" +
+                "version = \"0.1.0\"\n" +
+                "[sample]\n" +
+                "test = \"attribute\"").apply();
+        TomlTableNode ballerinaToml = newBallerinaToml.tomlAstNode();
+        Assert.assertEquals(ballerinaToml.entries().size(), 2);
+        Package newPackage = newBallerinaToml.packageInstance();
+        Assert.assertEquals(newPackage.packageName().toString(),"yourproject");
+        PackageCompilation compilation = newPackage.getCompilation();
+
+        DependenciesToml newDependenciesToml = currentPackage.dependenciesToml().get().modify().withContent("" +
+                "[[dependency]]\n" +
+                "org = \"samjs\"\n" +
+                "name = \"package_k\"\n" +
+                "version = \"1.1.0-alpha\"\n" +
+                "[[dependency]]\n" +
+                "org = \"samjs\"\n" +
+                "name = \"package_p\"\n" +
+                "version = \"1.1.0-alpha\"").apply();
+        TomlTableNode dependenciesToml = newDependenciesToml.tomlAstNode();
+        Assert.assertEquals(((TomlTableArrayNode)dependenciesToml.entries().get("dependency")).children().size(), 2);
+
+        KubernetesToml newKubernetesToml = currentPackage.kubernetesToml().get().modify().withContent("" +
+                "[test]\n" +
+                "attribute = \"value\"\n" +
+                "[test2]\n" +
+                "attribute = \"value2\"").apply();
+        TomlTableNode kubernetesToml = newKubernetesToml.tomlAstNode();
+        Assert.assertEquals(kubernetesToml.entries().size(), 2);
+
+    }
 
     @AfterClass (alwaysRun = true)
     public void reset() {

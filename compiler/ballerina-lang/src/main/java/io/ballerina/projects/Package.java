@@ -1,5 +1,7 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.ManifestBuilder;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -260,6 +262,22 @@ public class Package {
             return this;
         }
 
+        Modifier updateBallerinaToml(BallerinaToml ballerinaToml) {
+            this.ballerinaTomlContext = ballerinaToml.ballerinaTomlContext();
+            updateManifest();
+            return this;
+        }
+
+        Modifier updateDependenciesToml(DependenciesToml dependenciesToml) {
+            this.dependenciesTomlContext = dependenciesToml.dependenciesTomlContext();
+            updateManifest();
+            return this;
+        }
+
+        public Modifier updateKubernetesToml(KubernetesToml kubernetesToml) {
+            this.kubernetesTomlContext = kubernetesToml.kubernetesTomlContext();
+            return this;
+        }
         /**
          * Returns the updated package created by a module add/remove/update operation.
          *
@@ -285,6 +303,12 @@ public class Package {
                     this.pkgDescDependencyGraph);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
+        }
+
+        private void updateManifest() {
+            ManifestBuilder manifestBuilder = ManifestBuilder.from(this.ballerinaTomlContext.tomlDocument(),
+                    this.dependenciesTomlContext.tomlDocument());
+            this.packageManifest = manifestBuilder.packageManifest();
         }
     }
 }
