@@ -18,9 +18,10 @@
 
 package io.ballerina.shell.invoker.classload.visitors;
 
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 
 /**
@@ -49,7 +50,13 @@ public abstract class TypeSymbolTransformer<T> extends TypeSymbolVisitor {
         return state;
     }
 
-    protected T transformField(FieldSymbol fieldSymbol) {
+    protected T transformField(ObjectFieldSymbol fieldSymbol) {
+        resetState();
+        visitField(fieldSymbol);
+        return state;
+    }
+
+    protected T transformField(RecordFieldSymbol fieldSymbol) {
         resetState();
         visitField(fieldSymbol);
         return state;

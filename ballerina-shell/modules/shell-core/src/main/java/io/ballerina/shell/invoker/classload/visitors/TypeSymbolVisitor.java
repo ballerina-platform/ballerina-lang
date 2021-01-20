@@ -29,7 +29,6 @@ import io.ballerina.compiler.api.symbols.CompilationErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.DecimalTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FloatTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
@@ -47,9 +46,11 @@ import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.NeverTypeSymbol;
 import io.ballerina.compiler.api.symbols.NilTypeSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.ReadonlyTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
@@ -356,11 +357,20 @@ public abstract class TypeSymbolVisitor {
     }
 
     /**
-     * Visit a field (object/record) symbol.
+     * Visit a object field symbol.
      *
      * @param symbol Field symbol to visit.
      */
-    protected void visitField(FieldSymbol symbol) {
+    protected void visitField(ObjectFieldSymbol symbol) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visit a object field symbol.
+     *
+     * @param symbol Field symbol to visit.
+     */
+    protected void visitField(RecordFieldSymbol symbol) {
         throw new UnsupportedOperationException();
     }
 

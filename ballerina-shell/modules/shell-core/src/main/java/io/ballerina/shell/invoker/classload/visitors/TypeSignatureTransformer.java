@@ -20,16 +20,17 @@ package io.ballerina.shell.invoker.classload.visitors;
 
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
@@ -102,13 +103,25 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
     }
 
     @Override
-    protected void visitField(FieldSymbol fieldSymbol) {
-        String fieldTypeRepr = transformType(fieldSymbol.typeDescriptor()) + " " + fieldSymbol.name();
-        StringBuilder signature = new StringBuilder(fieldTypeRepr);
+    protected void visitField(ObjectFieldSymbol fieldSymbol) {
+        StringJoiner joiner = new StringJoiner(" ");
+        fieldSymbol.qualifiers().forEach(qualifier -> joiner.add(qualifier.getValue()));
+        String signature = joiner.add(transformType(fieldSymbol.typeDescriptor()))
+                .add(fieldSymbol.name()).toString();
+        this.setState(signature);
+    }
+
+    @Override
+    protected void visitField(RecordFieldSymbol fieldSymbol) {
+        StringJoiner joiner = new StringJoiner(" ");
+        fieldSymbol.qualifiers().forEach(qualifier -> joiner.add(qualifier.getValue()));
+
+        String signature = joiner.add(transformType(fieldSymbol.typeDescriptor()))
+                .add(fieldSymbol.name()).toString();
         if (fieldSymbol.isOptional()) {
-            signature.append("?");
+            signature += "?";
         }
-        this.setState(signature.toString());
+        this.setState(signature);
     }
 
     @Override
