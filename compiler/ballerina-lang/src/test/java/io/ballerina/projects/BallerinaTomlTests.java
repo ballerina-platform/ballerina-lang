@@ -96,7 +96,6 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.name().value(), "lang.annotations");
         Assert.assertEquals(descriptor.org().value(), "ballerina");
         Assert.assertEquals(descriptor.version().value().toString(), "1.0.0");
-        Assert.assertFalse(ballerinaToml.buildOptions().compilationOptions().getTaintCheck());
     }
 
     @Test
