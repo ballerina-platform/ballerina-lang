@@ -630,10 +630,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             BRecordType recordType = (BRecordType) type;
             fields = recordType.fields;
-            allReadOnlyFields = recordType.sealed;
+            allReadOnlyFields = recordType.sealed || recordType.restFieldType.tag == TypeTags.NEVER;
         }
 
-        for (BLangSimpleVariable field : recordTypeNode.fields) {
+        List<BLangSimpleVariable> recordFields = new ArrayList<>(recordTypeNode.fields);
+        recordFields.addAll(recordTypeNode.referencedFields);
+
+        for (BLangSimpleVariable field : recordFields) {
             if (field.flagSet.contains(Flag.READONLY)) {
                 handleReadOnlyField(isRecordType, fields, field);
             } else {
