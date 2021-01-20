@@ -295,10 +295,7 @@ public class DocumentationGenerator {
             paramName.ifPresent(token -> parameters.put(token.text(), "Parameter Description"));
         });
         String returnDesc = signatureNode.returnTypeDesc().isPresent() ? "Return Value Description" : null;
-//        String deprecated = null;
-//        if (hasDeprecated) {
-//            deprecated = "This function is deprecated.";
-//        }
+        //TODO: Handle deprecated documentation blocks, currently Documentation interface does not support it
         return new DocAttachmentInfo(desc, parameters, returnDesc, docStart,
                                      getPadding(signatureNode.parent(), syntaxTree));
     }
@@ -310,10 +307,6 @@ public class DocumentationGenerator {
         int lineStartIndex = textDocument.textPositionFrom(LinePosition.from(position.line(), 0));
         String sourceCode = syntaxTree.toSourceCode();
         String padding = sourceCode.substring(lineStartIndex, prevCharIndex);
-        if (padding.isBlank()) {
-            return padding;
-        } else {
-            return " ";
-        }
+        return padding.isBlank() ? padding : " ";
     }
 }
