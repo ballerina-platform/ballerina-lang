@@ -66,6 +66,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
@@ -278,6 +279,8 @@ public class TypedescriptorTest {
         assertEquals(members.get(0).typeKind(), INT);
         assertEquals(members.get(1).typeKind(), STRING);
         assertEquals(members.get(2).typeKind(), FLOAT);
+
+        assertEquals(type.signature(), "int|string|float");
     }
 
     @Test(enabled = false)
@@ -295,6 +298,24 @@ public class TypedescriptorTest {
         assertEquals(members.get(2).typeKind(), DECIMAL);
     }
 
+    @Test(dataProvider = "UnionWithNilPos")
+    public void testUnionTypeWithNil(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), UNION);
+        assertEquals(type.signature(), signature);
+    }
+
+    @DataProvider(name = "UnionWithNilPos")
+    public Object[][] getUnionWithNilPos() {
+        return new Object[][]{
+                {204, 11, "int?"},
+                {205, 17, "int|float|()"},
+                {206, 11, "A?"},
+//                {207, 15, "A|B|()"}, TODO: Disabled due to /ballerina-lang/issues/27957
+        };
+    }
+
     @Test(dataProvider = "FiniteTypeDataProvider")
     public void testFiniteType(int line, int column, List<String> expSignatures) {
         Symbol symbol = getSymbol(line, column);
@@ -307,6 +328,9 @@ public class TypedescriptorTest {
             assertEquals(member.typeKind(), SINGLETON);
             assertEquals(member.signature(), expSignatures.get(i));
         }
+
+        String expSignature = members.stream().map(TypeSymbol::signature).collect(Collectors.joining("|"));
+        assertEquals(union.signature(), expSignature);
     }
 
     @DataProvider(name = "FiniteTypeDataProvider")

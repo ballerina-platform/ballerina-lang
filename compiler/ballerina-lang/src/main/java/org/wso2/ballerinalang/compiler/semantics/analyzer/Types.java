@@ -728,7 +728,7 @@ public class Types {
 
         if (!Symbols.isFlagOn(source.flags, Flags.PARAMETERIZED) &&
                 !isInherentlyImmutableType(target) && Symbols.isFlagOn(target.flags, Flags.READONLY) &&
-                !isInherentlyImmutableType(source) && !Symbols.isFlagOn(source.flags, Flags.READONLY)) {
+                !isInherentlyImmutableType(source) && isMutable(source)) {
             return false;
         }
 
@@ -887,6 +887,27 @@ public class Types {
 
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
                 isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
+    }
+
+    private boolean isMutable(BType type) {
+        if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+            return false;
+        }
+
+        if (type.tag != TypeTags.UNION) {
+            return true;
+        }
+
+        BUnionType unionType = (BUnionType) type;
+        for (BType memberType : unionType.getMemberTypes()) {
+            if (!Symbols.isFlagOn(memberType.flags, Flags.READONLY)) {
+                return true;
+            }
+        }
+
+        unionType.flags |= Flags.READONLY;
+        unionType.tsymbol.flags |= Flags.READONLY;
+        return false;
     }
 
     private boolean isParameterizedTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {

@@ -101,7 +101,7 @@ public abstract class AbstractInvalidResourceCodeAction extends ProbeBasedDiagno
         }
         return "    resource function get " + serviceResourcePath +
                 " (http:Caller caller) returns error? {" + CommonUtil.LINE_SEPARATOR +
-                "        check caller->ok(\"Resource is Ready\");" + CommonUtil.LINE_SEPARATOR +
+                "        check caller->respond(\"Resource is Ready\");" + CommonUtil.LINE_SEPARATOR +
                 "    }" + CommonUtil.LINE_SEPARATOR;
     }
 
