@@ -35,8 +35,7 @@ public type TestConfig record {
 # + moduleName - Name of the module of the function to be mocked
 # + functionName - Name of the function to be mocked
 public type MockConfig record {
-    string moduleName = ".";
-    string functionName = "";
+    function((any|error)...) returns (any|error) mockFunction;
 };
 
 public type AfterSuiteConfig record {

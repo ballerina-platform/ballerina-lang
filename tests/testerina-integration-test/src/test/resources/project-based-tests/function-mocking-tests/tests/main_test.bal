@@ -25,28 +25,27 @@ int counter = 0;
 //
 
 @test:Mock {
-    functionName : "intAdd"
+    mockFunction : intAdd
 }
 test:MockFunction mock_intAdd = new();
 
 @test:Mock {
-    functionName : "stringAdd"
+    mockFunction : stringAdd
 }
 test:MockFunction mock_stringAdd = new();
 
 @test:Mock {
-    functionName: "floatAdd"
+    mockFunction: floatAdd
 }
 test:MockFunction mock_floatAdd = new();
 
 @test:Mock {
-    moduleName : "intg_tests/function_mocking.mock2",
-    functionName : "intAdd2"
+    mockFunction : mock2:intAdd2
 }
 test:MockFunction mock2_intAdd = new();
 
 @test:Mock {
-    functionName : "intAdd3"
+    mockFunction : intAdd3
 }
 test:MockFunction mock_intAdd3 = new();
 
