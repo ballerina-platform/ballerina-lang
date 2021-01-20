@@ -37,7 +37,6 @@ import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -99,12 +98,9 @@ public class CodeActionUtil {
             case SERVICE_DECLARATION:
                 return CodeActionNodeType.SERVICE;
             case FUNCTION_DEFINITION:
+                return CodeActionNodeType.FUNCTION;
             case RESOURCE_ACCESSOR_DEFINITION:
-                if (node.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
-                    return CodeActionNodeType.RESOURCE;
-                } else {
-                    return CodeActionNodeType.FUNCTION;
-                }
+                return CodeActionNodeType.RESOURCE;
             case TYPE_DEFINITION:
                 Node typeDesc = ((TypeDefinitionNode) node).typeDescriptor();
                 if (typeDesc.kind() == SyntaxKind.RECORD_TYPE_DESC) {
@@ -497,48 +493,24 @@ public class CodeActionUtil {
                 continue;
             }
 
-            if (member.kind() == SyntaxKind.SERVICE_DECLARATION) {
-                if (isWithinStartSegment) {
-                    // Cursor on the service
-                    return Optional.of(member);
-                } else {
-                    // Cursor within the service
-                    ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) member;
-                    for (Node memberNode : serviceDeclrNode.members()) {
-                        if ((memberNode.kind() == SyntaxKind.FUNCTION_DEFINITION ||
-                                memberNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION)
-                                && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
-                            // Cursor on the resource function
-                            return Optional.of((NonTerminalNode) memberNode);
-                        }
-                    }
-                    return Optional.of(member);
-                }
+            if (member.kind() == SyntaxKind.SERVICE_DECLARATION && isWithinStartSegment) {
+                return Optional.of(member);
+            } else if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION && isWithinStartSegment) {
+                return Optional.of(member);
             } else if (isWithinStartSegment && member.kind() == SyntaxKind.FUNCTION_DEFINITION) {
                 return Optional.of(member);
             } else if (isWithinBody &&
                     (member.kind() == SyntaxKind.LOCAL_VAR_DECL || member.kind() == SyntaxKind.MODULE_VAR_DECL)) {
                 return Optional.of(member);
-            } else if (member.kind() == SyntaxKind.TYPE_DEFINITION) {
+            } else if (member.kind() == SyntaxKind.TYPE_DEFINITION && isWithinStartSegment) {
                 TypeDefinitionNode definitionNode = (TypeDefinitionNode) member;
                 Node typeDesc = definitionNode.typeDescriptor();
-                if (isWithinStartSegment) {
-                    if (typeDesc.kind() == SyntaxKind.RECORD_TYPE_DESC ||
-                            typeDesc.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-                        return Optional.of(member);
-                    }
-                } else if (typeDesc.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-                    ObjectTypeDescriptorNode objectTypeDescNode = (ObjectTypeDescriptorNode) typeDesc;
-                    for (Node memberNode : objectTypeDescNode.members()) {
-                        if (memberNode.kind() == SyntaxKind.METHOD_DECLARATION
-                                && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
-                            // Cursor on the object function
-                            return Optional.of((NonTerminalNode) memberNode);
-                        }
-                    }
+                if (typeDesc.kind() == SyntaxKind.RECORD_TYPE_DESC || typeDesc.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
                     return Optional.of(member);
                 }
                 return Optional.empty();
+            } else if (member.kind() == SyntaxKind.METHOD_DECLARATION && isWithinStartSegment) {
+                return Optional.of(member);
             } else if (member.kind() == SyntaxKind.CLASS_DEFINITION) {
                 if (isWithinStartSegment) {
                     // Cursor on the class
@@ -582,8 +554,8 @@ public class CodeActionUtil {
 
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
-            case OBJECT_METHOD_DEFINITION:
             case RESOURCE_ACCESSOR_DEFINITION:
+            case OBJECT_METHOD_DEFINITION:
                 TextRange functionBodyTextRange = ((FunctionDefinitionNode) node).functionBody().textRange();
                 return isWithinRange(positionOffset, functionBodyTextRange.startOffset(),
                         functionBodyTextRange.endOffset());
@@ -644,8 +616,8 @@ public class CodeActionUtil {
 
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
-            case OBJECT_METHOD_DEFINITION:
             case RESOURCE_ACCESSOR_DEFINITION:
+            case OBJECT_METHOD_DEFINITION:
                 FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
                 Optional<MetadataNode> functionMetadata = functionDefinitionNode.metadata();
                 int functionStartOffset = functionMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
