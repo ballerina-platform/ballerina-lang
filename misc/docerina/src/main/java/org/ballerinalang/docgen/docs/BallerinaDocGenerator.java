@@ -161,12 +161,11 @@ public class BallerinaDocGenerator {
         docPackage.orgName = project.currentPackage().packageOrg().toString();
         docPackage.version = project.currentPackage().packageVersion().toString();
         Optional<PackageMd> packageMdPath = project.currentPackage().packageMd();
-        char[] mdContent = null;
-        if (packageMdPath.isPresent()) {
-            mdContent = packageMdPath.get().mdDocumentContext().textDocument().toCharArray();
-        }
-        docPackage.description = mdContent != null ? new String(mdContent) : "";
-        docPackage.summary = mdContent != null ? BallerinaDocUtils.getSummary(mdContent) : "";
+        docPackage.description = packageMdPath
+                .map(packageMd -> new String(packageMd.mdDocumentContext().textDocument().toCharArray()))
+                .orElse("");
+        docPackage.summary = !docPackage.description.equals("") ?
+                             BallerinaDocUtils.getSummary(docPackage.description) : "";
         if (!docPackage.modules.isEmpty()) {
             PackageLibrary packageLib = new PackageLibrary();
             packageLib.packages.add(docPackage);

@@ -141,10 +141,9 @@ public class BallerinaDocUtils {
         return debugEnabled;
     }
 
-    public static String getSummary(char[] description) {
+    public static String getSummary(String description) {
         if (description != null) {
-            String mdContent = new String(description);
-            Node document = BallerinaDocUtils.parseMD(mdContent);
+            Node document = BallerinaDocUtils.parseMD(description);
             ModuleDoc.SummaryVisitor summaryVisitor = new ModuleDoc.SummaryVisitor();
             document.accept(summaryVisitor);
             return summaryVisitor.getSummary();
