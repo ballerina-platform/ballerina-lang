@@ -51,7 +51,6 @@ import io.ballerina.shell.invoker.classload.context.StatementContext;
 import io.ballerina.shell.invoker.classload.context.VariableContext;
 import io.ballerina.shell.invoker.classload.visitors.ElevatedTypeTransformer;
 import io.ballerina.shell.invoker.classload.visitors.TypeSignatureTransformer;
-import io.ballerina.shell.invoker.classload.visitors.TypeVisibilityVisitor;
 import io.ballerina.shell.rt.InvokerMemory;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.types.ExecutableSnippet;
@@ -361,22 +360,12 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                         ? ((VariableSymbol) symbol).typeDescriptor()
                         : ((FunctionSymbol) symbol).typeDescriptor();
 
-                TypeVisibilityVisitor visibilityVisitor = new TypeVisibilityVisitor();
                 ElevatedTypeTransformer elevatedTypeTransformer = new ElevatedTypeTransformer();
                 ElevatedType elevatedType = elevatedTypeTransformer.transformType(typeSymbol);
-                visibilityVisitor.visitType(typeSymbol);
 
-                String variableType;
-                if (visibilityVisitor.isVisible()) {
-                    TypeSignatureTransformer signatureTransformer = new TypeSignatureTransformer(this);
-                    variableType = signatureTransformer.transformType(typeSymbol);
-                    this.newImplicitImports.addAll(signatureTransformer.getImplicitImportPrefixes());
-                } else {
-                    variableType = elevatedType.toString();
-                    addDiagnostic(Diagnostic.warn("" +
-                            "Export types " + visibilityVisitor.getInvisibleTypes() + " are not visible for the REPL." +
-                            "\nWarning. Exported type not visible. Using '" + variableType + "' instead."));
-                }
+                TypeSignatureTransformer signatureTransformer = new TypeSignatureTransformer(this);
+                String variableType = signatureTransformer.transformType(typeSymbol);
+                this.newImplicitImports.addAll(signatureTransformer.getImplicitImportPrefixes());
 
                 foundVariables.add(new GlobalVariable(variableType, variableName, elevatedType));
                 this.newSymbols.add(hashedSymbol);
