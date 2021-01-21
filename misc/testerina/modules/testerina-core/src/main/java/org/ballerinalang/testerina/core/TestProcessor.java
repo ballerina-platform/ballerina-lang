@@ -421,7 +421,7 @@ public class TestProcessor {
                                 if (SyntaxKind.BOOLEAN_LITERAL == valueExpr.kind()) {
                                     if (getStringValue(valueExpr).startsWith(Boolean.FALSE.toString())) {
                                         shouldSkip.set(true);
-                                        continue;
+                                        break;
                                     }
                                 }
                             }
