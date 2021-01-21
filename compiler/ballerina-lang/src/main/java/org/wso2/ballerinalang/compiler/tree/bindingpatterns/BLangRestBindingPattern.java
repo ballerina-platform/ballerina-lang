@@ -19,18 +19,29 @@ package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.RestBindingPatternNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
+ * Represent rest-binding-pattern.
+ *
  * @since 2.0.0
  */
-public class BLangCaptureBindingPattern extends BLangBindingPattern implements CaptureBindingPatternNode {
-
-    BLangIdentifier identifier;
+public class BLangRestBindingPattern extends BLangBindingPattern implements RestBindingPatternNode {
+    public BLangIdentifier variableName;
     public BVarSymbol symbol;
+
+    @Override
+    public IdentifierNode getIdentifier() {
+        return variableName;
+    }
+
+    @Override
+    public void setIdentifier(IdentifierNode variableName) {
+        this.variableName = (BLangIdentifier) variableName;
+    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -39,16 +50,6 @@ public class BLangCaptureBindingPattern extends BLangBindingPattern implements C
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.CAPTURE_BINDING_PATTERN;
-    }
-
-    @Override
-    public IdentifierNode getIdentifier() {
-        return identifier;
-    }
-
-    @Override
-    public void setIdentifier(IdentifierNode identifier) {
-        this.identifier = (BLangIdentifier) identifier;
+        return NodeKind.REST_BINDING_PATTERN;
     }
 }
