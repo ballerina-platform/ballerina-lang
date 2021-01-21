@@ -111,7 +111,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         // Re-create imports list text
         StringJoiner editText = new StringJoiner("");
         sortImports(fileImports).forEach(importNode -> {
-            MinutiaeList leadingMinutiae = NodeFactory.createMinutiaeList(new ArrayList<>());
+            MinutiaeList leadingMinutiae = NodeFactory.createEmptyMinutiaeList();
             MinutiaeList trailingMinutiae = importNode.importKeyword().trailingMinutiae();
             Token modifiedImportKeyword = importNode.importKeyword().modify(leadingMinutiae, trailingMinutiae);
 
