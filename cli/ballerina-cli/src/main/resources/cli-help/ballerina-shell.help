@@ -1,0 +1,32 @@
+NAME
+       ballerina-shell - Run ballerina interactive REPL
+
+SYNOPSIS
+       bal shell [-d|--debug] [-f|--force-dumb]  [-t|--time-out]
+
+
+DESCRIPTION
+       Shell runs a REPL instance of Ballerina to enable users to run small
+       snippets of code. Please note that this is an experimental feature.
+
+       Debug messages can be enabled using the '-d' option.
+
+OPTIONS
+       -d, --debug
+           Enable debug mode from the beginning.
+       -f, --force-dumb
+           Force dumb terminal mode.
+       -t <time-out-duration>, --time-out <time-out-duration>
+           Set tree parsing timeout. Default is 100ms. Value should be
+           given in milliseconds.
+
+
+EXAMPLES
+       Run ballerina shell.
+          $ bal shell
+
+       Run ballerina shell in debug mode.
+          $ bal shell -d
+
+       Run ballerina shell with 1s time out.
+          $ bal shell -t 1000

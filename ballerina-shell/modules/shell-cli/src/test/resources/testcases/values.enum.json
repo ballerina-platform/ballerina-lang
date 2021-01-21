@@ -1,0 +1,51 @@
+[
+  {
+    "description": "An enum is defined using a module enum declaration.",
+    "code": "enum Color { RED, GREEN, BLUE}"
+  },
+  {
+    "description": "Helper function to concat 2 strings.",
+    "code": "function concat(string str1, string str2) returns string {return str1 + \" and \" + str2; }"
+  },
+  {
+    "description": "An enum member can explicitly specify an associated expression.",
+    "code": "enum Language {EN=\"english\", TA=\"tamil\", SI=\"sinhala\"}"
+  },
+  {
+    "description": "An enum declaration can consist of a combination of members.",
+    "code": "enum Bands { QUEEN, PF = \"Pink \" + \"Floyd\"}"
+  },
+  {
+    "description": "An enum member can be used in the same way as a string constant.",
+    "code": "string skyColor = BLUE; skyColor",
+    "expr": "BLUE"
+  },
+  {
+    "description": "Enums can be treated as strings.",
+    "code": "string concatenated = concat(QUEEN, PF); concatenated",
+    "expr": "QUEEN and Pink Floyd"
+  },
+  {
+    "description": "Helper function to get the enum value.",
+    "code": "function getLanguage(string symbol) returns Language { match symbol { \"e\" => { return EN; } \"t\" => { return TA; } } return SI; }"
+  },
+  {
+    "description": "Enum type can be used as a type.",
+    "code": "Language language = getLanguage(\"e\"); language",
+    "expr": "english"
+  },
+  {
+    "description": "Enum value can be used as a type assigned by a string.",
+    "code": "Language sinhala = \"sinhala\"; sinhala",
+    "expr": "sinhala"
+  },
+  {
+    "description": "Enum value can be used as a type.",
+    "code": "Language english = \"english\"; english",
+    "expr": "english"
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]
