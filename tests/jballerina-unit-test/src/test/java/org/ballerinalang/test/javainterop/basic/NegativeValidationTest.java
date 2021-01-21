@@ -64,7 +64,7 @@ public class NegativeValidationTest {
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method " +
                         "'acceptStringOrErrorReturn' found in class 'class org.ballerinalang.nativeimpl." +
-                        "jvm.tests.StaticMethods''method_not_found1.bal", 8, 1);
+                        "jvm.tests.StaticMethods''", "method_not_found1.bal", 8, 1);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class NegativeValidationTest {
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method " +
                         "'acceptIntAndUnionReturn' found in class 'class org.ballerinalang.nativeimpl.jvm." +
-                        "tests.StaticMethods''method_not_found4.bal", 23, 1);
+                        "tests.StaticMethods''", "method_not_found4.bal", 23, 1);
     }
 
     @Test
@@ -126,7 +126,7 @@ public class NegativeValidationTest {
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method " +
                         "'acceptIntStringAndUnionReturn' found in class 'class org.ballerinalang.nativeimpl." +
-                        "jvm.tests.StaticMethods''method_not_found5.bal", 23, 1);
+                        "jvm.tests.StaticMethods''", "method_not_found5.bal", 23, 1);
     }
 
     @Test
