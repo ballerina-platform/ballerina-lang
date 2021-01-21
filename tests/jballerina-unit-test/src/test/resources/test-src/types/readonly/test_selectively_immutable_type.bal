@@ -1023,6 +1023,14 @@ function testValidInitializationOfNonReadOnlyClassIntersectionWithReadOnly() {
     assertEquality(1, v2.i);
 }
 
+function testFunctionWithReturnTypeAnyToReadonly() {
+    any a = foo;
+    assertFalse(a is function () returns any);
+    assertTrue(a is function () returns any|error);
+}
+
+function foo() returns readonly => 1;
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
