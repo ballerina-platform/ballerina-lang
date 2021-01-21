@@ -34,7 +34,7 @@ function testXmlComment() {
 
     assertTrue(a is 'xml:Comment & readonly);
     assertTrue(a.isReadOnly());
-    readonly r1 = <readonly> <any> a;
+    readonly r1 = <readonly> <any|error> a;
     assertTrue(r1 is 'xml:Comment & readonly);
     assertEquality(<'xml:Comment> xml `<!--I'm a comment-->`, r1);
 
@@ -48,7 +48,7 @@ function testXmlPI() {
 
     assertTrue(a is 'xml:ProcessingInstruction & readonly);
     assertTrue(a.isReadOnly());
-    readonly r1 = <readonly> <any> a;
+    readonly r1 = <readonly> <any|error> a;
     assertTrue(r1 is 'xml:ProcessingInstruction & readonly);
     assertEquality(<'xml:ProcessingInstruction> xml `<?pi a="1234" bc="def"?>`, r1);
 
@@ -62,7 +62,7 @@ function testXmlElements() {
 
     assertTrue(a is 'xml:Element & readonly);
     assertTrue(a.isReadOnly());
-    readonly r1 = <readonly> <any> a;
+    readonly r1 = <readonly> <any|error> a;
     assertTrue(r1 is 'xml:Element & readonly);
     assertEquality(<'xml:Element> xml `<Student><name>Emma</name><id>6040</id></Student>`, r1);
 
@@ -78,7 +78,7 @@ function testImmutableLists() {
     assertTrue(a is int[2] & readonly);
     anydata ad = <anydata> a;
     assertTrue(ad.isReadOnly());
-    readonly r1 = <readonly> a;
+    readonly r1 = <readonly> <any|error> a;
     assertTrue(r1 is int[] & readonly);
     assertEquality(<int[]> [1, 2], r1);
 
@@ -100,7 +100,7 @@ function testImmutableLists() {
     assertTrue(c is se:Employee[2]  & readonly);
     ad = <anydata> c;
     assertTrue(ad.isReadOnly());
-    readonly r2 = <readonly> c;
+    readonly r2 = <readonly> <any|error> c;
     assertTrue(r2 is se:Employee[] & readonly);
     assertEquality(<se:Employee[]> [emp, {details: {name: "Jo", id: 5678}, department: "IT"}], r2);
 
@@ -116,7 +116,7 @@ function testImmutableMappings() {
     [any, any, any, any, any] [a, b, c, d, e] = se:getSelectivelyImmutableMappingTypes();
 
     assertTrue(a is map<boolean> & readonly);
-    readonly r1 = <readonly> a;
+    readonly r1 = <readonly> <any|error> a;
     anydata ad = <anydata> a;
     assertTrue(ad.isReadOnly());
     assertTrue(a is map<boolean>);
@@ -137,14 +137,14 @@ function testImmutableMappings() {
     };
 
     assertTrue(c is se:Employee & readonly);
-    readonly r2 = <readonly> c;
+    readonly r2 = <readonly> <any|error> c;
 
     assertEquality(emp, r2);
     var val = r2;
     if (val is error) {
         assertTrue(false);
     } else {
-        se:Employee rec = <se:Employee> val;
+        se:Employee rec = <se:Employee & readonly> val;
         assertTrue(rec is se:Employee & readonly);
         assertTrue(rec.isReadOnly());
 
@@ -165,28 +165,25 @@ function testImmutableMappings() {
 
         assertEquality(emp2, d);
     }
-    val = d;
-    if (val is error) {
-        assertTrue(false);
-    } else {
-        rec = <se:Employee> val;
-        assertFalse(rec is se:Employee & readonly);
-        assertFalse(rec.isReadOnly());
+    any val2 = d;
+    se:Employee rec = <se:Employee> val2;
+    //assertFalse(rec is se:Employee & readonly);
+    assertFalse(rec.isReadOnly());
 
-        det = rec.details;
-        assertFalse(det is se:Details & readonly);
-        assertFalse(det.isReadOnly());
+    se:Details det = rec.details;
+    assertFalse(det is se:Details & readonly);
+    assertFalse(det.isReadOnly());
 
-        assertTrue(e is se:Student & readonly);
-        readonly r3 = <readonly> e;
-        assertTrue(r3 is se:Student & readonly);
-    }
+    assertTrue(e is se:Student & readonly);
+    readonly r3 = <readonly> e;
+    assertTrue(r3 is se:Student & readonly);
 
+    r3 = <readonly> e;
     val = r3;
     if (val is error) {
         assertTrue(false);
     } else {
-        se:Student stVal = <se:Student> val;
+        se:Student stVal = <se:Student & readonly> val;
         assertTrue(stVal.isReadOnly());
         assertTrue(stVal.details.isReadOnly());
         assertEquality(<se:Details> {name: "Jo", id: 4567}, stVal.details);

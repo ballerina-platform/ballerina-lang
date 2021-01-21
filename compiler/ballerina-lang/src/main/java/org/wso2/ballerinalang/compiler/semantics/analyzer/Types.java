@@ -796,12 +796,12 @@ public class Types {
                 return true;
             }
             // TODO: check this will make `any|error is readonly` always true
-//            if (isAssignable(symTable.anyAndReadonlyOrError, source, unresolvedTypes)) {
-//                return true;
-//            }
+            if (isAssignable(source, symTable.anyAndReadonlyOrError, unresolvedTypes)) {
+                return true;
+            }
         }
 
-        if (sourceTag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, target)) {
+        if (sourceTag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, target, unresolvedTypes)) {
             return true;
         }
 
@@ -2208,9 +2208,14 @@ public class Types {
             return true;
         }
 
+
+        if (sourceType.tag == TypeTags.ANY && targetType.tag == TypeTags.READONLY) {
+            return true;
+        }
         boolean validTypeCast = false;
 
-        if (sourceType.tag == TypeTags.UNION) {
+        // support anydata and json
+        if (sourceType instanceof BUnionType) {
             if (getTypeForUnionTypeMembersAssignableToType((BUnionType) sourceType, targetType, null)
                     != symTable.semanticError) {
                 // string|typedesc v1 = "hello world";
@@ -2219,7 +2224,8 @@ public class Types {
             }
         }
 
-        if (targetType.tag == TypeTags.UNION) {
+        // support anydata and json
+        if (targetType instanceof BUnionType) {
             if (getTypeForUnionTypeMembersAssignableToType((BUnionType) targetType, sourceType, null)
                     != symTable.semanticError) {
                 // string|int v1 = "hello world";
