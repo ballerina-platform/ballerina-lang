@@ -15,22 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
+package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPatternNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.ballerinalang.model.tree.expressions.DynamicArgNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
+ * Represents named arguments that should evaluate at runtime.
+ *
  * @since 2.0.0
  */
-public class BLangCaptureBindingPattern extends BLangBindingPattern implements CaptureBindingPatternNode {
+public class BLangDynamicArgExpr extends BLangExpression implements DynamicArgNode {
 
-    BLangIdentifier identifier;
-    public BVarSymbol symbol;
+    public BLangExpression condition;
+    public BLangExpression conditionalArgument;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -39,16 +38,11 @@ public class BLangCaptureBindingPattern extends BLangBindingPattern implements C
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.CAPTURE_BINDING_PATTERN;
+        return NodeKind.DYNAMIC_PARAM_EXPR;
     }
 
     @Override
-    public IdentifierNode getIdentifier() {
-        return identifier;
-    }
-
-    @Override
-    public void setIdentifier(IdentifierNode identifier) {
-        this.identifier = (BLangIdentifier) identifier;
+    public String toString() {
+        return "{{" + String.valueOf(condition) + "," + String.valueOf(conditionalArgument) + "}}";
     }
 }
