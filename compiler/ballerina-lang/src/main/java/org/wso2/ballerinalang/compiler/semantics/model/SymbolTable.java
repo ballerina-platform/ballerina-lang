@@ -271,6 +271,8 @@ public class SymbolTable {
         trueLiteral.type = this.booleanType;
         trueLiteral.value = Boolean.TRUE;
 
+        defineCyclicUnionBasedInternalTypes();
+
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                                                                 names.fromString("$anonType$TRUE"),
                                                                 rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
@@ -281,14 +283,12 @@ public class SymbolTable {
         this.anyAndReadonly =
                 ImmutableTypeCloner.getImmutableIntersectionType((SelectivelyImmutableReferenceType) this.anyType,
                         this, names);
-
         initializeType(this.anyAndReadonly, this.anyAndReadonly.effectiveType.name.getValue(), BUILTIN);
 
-        defineCyclicUnionBasedInternalTypes();
-        defineReadonlyCompundType();
+        defineReadonlyCompoundType();
     }
 
-    private void defineReadonlyCompundType() {
+    private void defineReadonlyCompoundType() {
         anyAndReadonlyOrError = BUnionType.create(null, anyAndReadonly, errorType);
     }
 
