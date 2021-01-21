@@ -32,6 +32,7 @@ import io.ballerina.toml.syntax.tree.ValueNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CodeAction;
@@ -58,6 +59,11 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
 
     public AddConfigsToK8sCodeAction() {
         super(Collections.singletonList(CodeActionNodeType.MODULE_VARIABLE));
+    }
+
+    @Override
+    public boolean isEnabled(LanguageServerContext serverContext) {
+        return false;
     }
 
     /**
