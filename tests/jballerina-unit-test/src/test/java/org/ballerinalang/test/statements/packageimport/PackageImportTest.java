@@ -33,7 +33,8 @@ import java.io.PrintStream;
 @Test
 public class PackageImportTest {
 
-    @Test()
+    // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/28050
+    @Test(enabled = false)
     public void testDuplicatePackageImports() {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
@@ -89,7 +90,7 @@ public class PackageImportTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/unused-imports-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/jballerina.java'", 1, 1);
+        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/jballerina.java as java'", 1, 1);
         BAssertUtil.validateError(result, i, "unused import module 'ballerina/jballerina.java as otherJAVA'", 2, 1);
     }
 
