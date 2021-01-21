@@ -42,7 +42,7 @@ public class PullCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(actual.contains("ballerina: no package given"));
-        Assert.assertTrue(actual.contains("ballerina pull <package-name>"));
+        Assert.assertTrue(actual.contains("bal pull <package-name>"));
     }
 
     @Test(description = "Pull package with too many args")
@@ -54,7 +54,7 @@ public class PullCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(actual.contains("ballerina: too many arguments"));
-        Assert.assertTrue(actual.contains("ballerina pull <package-name>"));
+        Assert.assertTrue(actual.contains("bal pull <package-name>"));
     }
 
     @Test(description = "Pull package with invalid package name")
@@ -68,7 +68,7 @@ public class PullCommandTest extends BaseCommandTest {
         Assert.assertTrue(
                 actual.contains("ballerina: invalid package name. Provide the package name with the org name"));
         Assert.assertTrue(
-                actual.contains("ballerina pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}"));
+                actual.contains("bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}"));
     }
 
     @Test(description = "Test pull command with argument and a help")

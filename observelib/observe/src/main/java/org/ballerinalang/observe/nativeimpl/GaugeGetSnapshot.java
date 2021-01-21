@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.observability.metrics.Gauge;
 import io.ballerina.runtime.observability.metrics.Snapshot;
@@ -29,9 +30,9 @@ import io.ballerina.runtime.observability.metrics.Snapshot;
 
 public class GaugeGetSnapshot {
 
-    public static Object getSnapshot(BObject guageObj) {
+    public static Object getSnapshot(Environment env, BObject guageObj) {
         Gauge gauge = (Gauge) guageObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         Snapshot[] snapshots = gauge.getSnapshots();
-        return Utils.createBSnapshots(snapshots);
+        return Utils.createBSnapshots(env, snapshots);
     }
 }

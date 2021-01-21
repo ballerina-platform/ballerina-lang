@@ -29,6 +29,8 @@ public class ProjectConstants {
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
+    public static final String KUBERNETES_TOML = "Kubernetes.toml";
+    public static final String CONFIGURATION_TOML = "configuration.toml";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
     public static final String GITIGNORE_FILE_NAME = ".gitignore";
     public static final String MODULE_MD_FILE_NAME = "Module.md";
@@ -109,5 +111,4 @@ public class ProjectConstants {
 
     public static final String BALLERINA_OFFLINE_FLAG = "ballerina.offline.flag";
     public static final String BALO_DOCS_DIR = "docs";
-    public static final String KUBERNETES_TOML = "Kubernetes.toml";
 }

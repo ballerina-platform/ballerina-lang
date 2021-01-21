@@ -99,6 +99,7 @@ public class JMethod {
                 if (!this.getClass().getClassLoader().loadClass(RuntimeException.class.getCanonicalName())
                         .isAssignableFrom(exceptionType)) {
                     JError jError = new JError(exceptionType);
+                    importedPackages.add(exceptionType.getPackageName());
                     exceptionName = jError.getShortExceptionName();
                     exceptionConstName = jError.getExceptionConstName();
                     if (BindingsGenerator.getModulesFlag()) {

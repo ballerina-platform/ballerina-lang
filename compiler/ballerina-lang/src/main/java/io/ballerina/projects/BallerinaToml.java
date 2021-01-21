@@ -33,7 +33,6 @@ public class BallerinaToml {
     private BallerinaToml(Package aPackage, TomlDocumentContext ballerinaTomlContext) {
         this.packageInstance = aPackage;
         this.ballerinaTomlContext = ballerinaTomlContext;
-
     }
 
     public static BallerinaToml from(TomlDocumentContext ballerinaTomlContext, Package pkg) {

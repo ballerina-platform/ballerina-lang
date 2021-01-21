@@ -44,8 +44,8 @@ public class MarkUntaintedTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"markUntaintedCodeAction1.json", "taintedVariable.bal"},
-                {"markUntaintedCodeAction2.json", "taintedVariable.bal"},
+//                {"markUntaintedCodeAction1.json", "taintedVariable.bal"},
+//                {"markUntaintedCodeAction2.json", "taintedVariable.bal"},
         };
     }
 }

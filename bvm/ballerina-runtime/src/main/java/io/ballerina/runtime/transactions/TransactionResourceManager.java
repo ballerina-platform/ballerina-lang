@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,7 @@ public class TransactionResourceManager {
             TRANSACTION_PACKAGE_VERSION, "onRollback");
     private static final String ATOMIKOS_LOG_BASE_PROPERTY = "com.atomikos.icatch.log_base_dir";
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
+    private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
     private static final String CONFIG_TRANSACTION_MANAGER_ENABLED = "b7a.transaction.manager.enabled";
     private static final String CONFIG_TRANSACTION_LOG_BASE = "b7a.transaction.log.base";
 
@@ -126,20 +128,27 @@ public class TransactionResourceManager {
      *
      */
     private void setLogProperties() {
-        final Path projectRoot = findProjectRoot(Paths.get(System.getProperty("user.dir")));
+        final Path projectRoot = Paths.get(RuntimeUtils.USER_DIR);
         if (projectRoot != null) {
             String logDir = getTransactionLogDirectory();
-            String logPath = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
-            Path transactionLogDirectory = Paths.get(logPath);
+            Path logDirPath = Paths.get(logDir);
+            Path transactionLogDirectory;
+            if (!logDirPath.isAbsolute()) {
+                logDir = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
+                transactionLogDirectory = Paths.get(logDir);
+            } else {
+                transactionLogDirectory = logDirPath;
+            }
             if (!Files.exists(transactionLogDirectory)) {
                 try {
                     Files.createDirectory(transactionLogDirectory);
                 } catch (IOException e) {
-                    stderr.println("error: failed to create '" + logDir + "' transaction log directory");
+                    stderr.println("error: failed to create transaction log directory in " + logDir);
                 }
             }
-            System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logPath);
+            System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logDir);
             System.setProperty(ATOMIKOS_LOG_NAME_PROPERTY, "transaction_recovery");
+            System.setProperty(ATOMIKOS_REGISTERED_PROPERTY, "not-registered");
         }
     }
 
@@ -225,6 +234,7 @@ public class TransactionResourceManager {
      */
     //TODO:Comment for now, might need it for distributed transactions.
     public boolean prepare(String transactionId, String transactionBlockId) {
+        endXATransaction(transactionId, transactionBlockId);
         if (transactionManagerEnabled) {
             return true;
         }
@@ -264,7 +274,6 @@ public class TransactionResourceManager {
      */
     public boolean notifyCommit(String transactionId, String transactionBlockId) {
         Strand strand = Scheduler.getStrand();
-        endXATransaction(transactionId, transactionBlockId);
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean commitSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -522,7 +531,6 @@ public class TransactionResourceManager {
     }
 
     void rollbackTransaction(String transactionId, String transactionBlockId, Object error) {
-        endXATransaction(transactionId, transactionBlockId);
         notifyAbort(transactionId, transactionBlockId, error);
     }
 
@@ -575,23 +583,5 @@ public class TransactionResourceManager {
         if (participantBlockIds != null && participantBlockIds.contains(blockId)) {
             failedLocalParticipantSet.add(gTransactionId);
         }
-    }
-
-    /**
-     * Find the project root by recursively up to the root.
-     *
-     * @param projectDir project path
-     * @return project root
-     */
-    private static Path findProjectRoot(Path projectDir) {
-        Path path = projectDir.resolve("Ballerina.toml");
-        if (Files.exists(path)) {
-            return projectDir;
-        }
-        Path parentsParent = projectDir.getParent();
-        if (null != parentsParent) {
-            return findProjectRoot(parentsParent);
-        }
-        return null;
     }
 }

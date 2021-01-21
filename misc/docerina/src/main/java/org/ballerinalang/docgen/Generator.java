@@ -350,6 +350,8 @@ public class Generator {
         String name = classDefinitionNode.className().text();
         String description = getDocFromMetadata(classDefinitionNode.metadata());
         boolean isDeprecated = isDeprecated(classDefinitionNode.metadata());
+        boolean isReadOnly = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.READONLY_KEYWORD);
+        boolean isIsolated = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.ISOLATED_KEYWORD);
 
         List<DefaultableVariable> fields = getDefaultableVariableList(classDefinitionNode.members(),
                 classDefinitionNode.metadata(), semanticModel);
@@ -376,12 +378,12 @@ public class Generator {
         }
 
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
-            return new Client(name, description, isDeprecated, fields, functions);
+            return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
                 || name.equals("Listener")) {
-            return new Listener(name, description, isDeprecated, fields, functions);
+            return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
         } else {
-            return new BClass(name, description, isDeprecated, fields, functions);
+            return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
         }
     }
 
@@ -442,12 +444,13 @@ public class Generator {
         return new BAbstractObject(name, description, isDeprecated, fields, functions);
     }
 
+    // TODO: Revisit this. This probably can be written in a much simpler way.
     private static List<Function> getInclusionFunctions(TypeSymbol typeSymbol, Type originType,
                                                         NodeList<Node> members) {
         List<Function> functions = new ArrayList<>();
         if (typeSymbol instanceof ObjectTypeSymbol) {
             ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) typeSymbol;
-            objectTypeSymbol.methods().forEach(methodSymbol -> {
+            objectTypeSymbol.methods().values().forEach(methodSymbol -> {
                 String methodName = methodSymbol.name();
                 // Check if the inclusion function is overridden
                 if (members.stream().anyMatch(node -> {
@@ -562,6 +565,7 @@ public class Generator {
                 }
                 String defaultValue = recordField.expression().toString();
                 Type type = Type.fromNode(recordField.typeName(), semanticModel);
+                type.isReadOnly = recordField.readonlyKeyword().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
                         defaultValue);
                 variables.add(defaultableVariable);
@@ -574,6 +578,7 @@ public class Generator {
                 }
                 Type type = Type.fromNode(recordField.typeName(), semanticModel);
                 type.isNullable = recordField.questionMarkToken().isPresent();
+                type.isReadOnly = recordField.readonlyKeyword().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
                         "");
                 variables.add(defaultableVariable);
@@ -594,32 +599,32 @@ public class Generator {
                 }
                 if (typeSymbol instanceof RecordTypeSymbol) {
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeSymbol;
-                    recordTypeSymbol.fieldDescriptors().forEach(field -> {
-                        Type type = new Type(field.name());
+                    recordTypeSymbol.fieldDescriptors().forEach((name, field) -> {
+                        Type type = new Type(name);
                         Type elemType;
-                        String name;
+                        String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            name = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().name();
                         } else {
-                            name = field.typeDescriptor().signature();
+                            typeName = field.typeDescriptor().signature();
                         }
-                        elemType = new Type(name);
+                        elemType = new Type(typeName);
                         Type.resolveSymbol(elemType, field.typeDescriptor());
                         type.elementType = elemType;
                         originType.memberTypes.add(type);
                     });
                 } else if (typeSymbol instanceof ObjectTypeSymbol) {
                     ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) typeSymbol;
-                    objectTypeSymbol.fieldDescriptors().forEach(field -> {
-                        Type type = new Type(field.name());
+                    objectTypeSymbol.fieldDescriptors().forEach((name, field) -> {
+                        Type type = new Type(name);
                         Type elemType;
-                        String name;
+                        String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            name = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().name();
                         } else {
-                            name = field.typeDescriptor().signature();
+                            typeName = field.typeDescriptor().signature();
                         }
-                        elemType = new Type(name);
+                        elemType = new Type(typeName);
                         Type.resolveSymbol(elemType, field.typeDescriptor());
                         type.elementType = elemType;
                         originType.memberTypes.add(type);

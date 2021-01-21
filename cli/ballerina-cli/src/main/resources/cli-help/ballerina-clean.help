@@ -2,7 +2,7 @@ NAME
        ballerina-clean - Clean artifacts created during the build
 
 SYNOPSIS
-       ballerina clean
+       bal clean
 
 
 DESCRIPTION

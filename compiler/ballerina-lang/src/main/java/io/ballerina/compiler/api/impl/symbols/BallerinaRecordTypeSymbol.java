@@ -17,7 +17,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -28,7 +28,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -39,7 +41,7 @@ import java.util.StringJoiner;
  */
 public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements RecordTypeSymbol {
 
-    private List<FieldSymbol> fieldSymbols;
+    private Map<String, RecordFieldSymbol> fieldSymbols;
     private final boolean isInclusive;
     private TypeSymbol restTypeDesc;
     private List<TypeSymbol> typeInclusions;
@@ -49,20 +51,20 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
         this.isInclusive = !recordType.sealed;
     }
 
-    /**
-     * Get the list of field descriptors.
-     *
-     * @return {@link List} of ballerina field
-     */
     @Override
-    public List<FieldSymbol> fieldDescriptors() {
-        if (this.fieldSymbols == null) {
-            this.fieldSymbols = new ArrayList<>();
-            for (BField field : ((BRecordType) this.getBType()).fields.values()) {
-                this.fieldSymbols.add(new BallerinaFieldSymbol(this.context, field));
-            }
+    public Map<String, RecordFieldSymbol> fieldDescriptors() {
+        if (this.fieldSymbols != null) {
+            return this.fieldSymbols;
         }
 
+        Map<String, RecordFieldSymbol> fields = new LinkedHashMap<>();
+        BRecordType type = (BRecordType) this.getBType();
+
+        for (BField field : type.fields.values()) {
+            fields.put(field.name.value, new BallerinaRecordFieldSymbol(this.context, field));
+        }
+
+        this.fieldSymbols = Collections.unmodifiableMap(fields);
         return this.fieldSymbols;
     }
 
@@ -107,7 +109,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
         } else {
             joiner = new StringJoiner(" ", "{| ", " |}");
         }
-        for (FieldSymbol fieldSymbol : this.fieldDescriptors()) {
+        for (RecordFieldSymbol fieldSymbol : this.fieldDescriptors().values()) {
             String ballerinaFieldSignature = fieldSymbol.signature() + ";";
             joiner.add(ballerinaFieldSignature);
         }

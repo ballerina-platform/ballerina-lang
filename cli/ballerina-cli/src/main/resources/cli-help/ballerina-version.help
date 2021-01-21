@@ -2,17 +2,17 @@ NAME
        ballerina-version - Print the Ballerina version
 
 SYNOPSIS
-       ballerina version
+       bal version
 
 
 DESCRIPTION
        Version prints the Ballerina distribution version and the supported
        language specification version.
 
-       Note that 'ballerina -v' and 'ballerina --version' are
-       identical to 'ballerina version'.
+       Note that 'bal -v' and 'bal --version' are
+       identical to 'bal version'.
 
 
 OPTIONS
        -v, -version
-           Shorthand syntax for 'ballerina version'.
+           Shorthand syntax for 'bal version'.

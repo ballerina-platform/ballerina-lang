@@ -46,19 +46,19 @@ function errorTrapTest(int i) returns string|error {
     return val;
 }
 
-type TrxErrorData record {
+type TrxErrorData record {|
     string message = "";
     error cause?;
     string data = "";
-};
+|};
 
 type TrxError error<TrxErrorData>;
 
-type TrxErrorData2 record {
+type TrxErrorData2 record {|
     string message = "";
     error cause?;
     map<string> data = {};
-};
+|};
 
 public function testCustomErrorDetails() returns error {
     TrxError err = error TrxError("trxErr", data = "test");
@@ -280,8 +280,8 @@ public function testStackTraceInNative() {
 const C1 = "x";
 const C2 = "y";
 
-type C1E error<record { string message?; error cause?; }>;
-type C2E error<record { string message?; error cause?; int code; }>;
+type C1E error<record {| string message?; error cause?; |}>;
+type C2E error<record {| string message?; error cause?; int code; |}>;
 
 public function testPanicOnErrorUnion(int i) returns string {
     var res = testFunc(i);

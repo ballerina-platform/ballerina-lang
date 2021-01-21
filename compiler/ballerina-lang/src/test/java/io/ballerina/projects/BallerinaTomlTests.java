@@ -84,10 +84,12 @@ public class BallerinaTomlTests {
         Assert.assertEquals(packageManifest.keywords(), Arrays.asList("toml", "ballerina"));
         Assert.assertEquals(packageManifest.repository(), "https://github.com/ballerina-platform/ballerina-lang");
 
-//        Assert.assertTrue(packageManifest.buildOptions().observabilityIncluded());
-//        Assert.assertTrue(packageManifest.buildOptions().offlineBuild());
-//        Assert.assertFalse(packageManifest.buildOptions().skipTests());
-//        Assert.assertFalse(packageManifest.buildOptions().codeCoverage());
+//        Assert.assertTrue(ballerinaToml.buildOptions().observabilityIncluded());
+//        Assert.assertTrue(ballerinaToml.buildOptions().offlineBuild());
+//        Assert.assertFalse(ballerinaToml.buildOptions().skipTests());
+//        Assert.assertFalse(ballerinaToml.buildOptions().codeCoverage());
+//        Assert.assertEquals(ballerinaToml.buildOptions().compilationOptions().getCloud(), "k8s");
+//        Assert.assertTrue(ballerinaToml.buildOptions().compilationOptions().getTaintCheck());
     }
 
     @Test

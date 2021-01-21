@@ -150,11 +150,20 @@ public class PackageResolution {
 
         // TODO: Move to compiler extension once new Compiler Extension model is introduced
         if (compilationOptions.observabilityIncluded()) {
-            PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
-            ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
-                    PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), packageName, ModuleName.from(packageName),
-                    null, PackageDependencyScope.DEFAULT);
-            allModuleLoadRequests.add(observeModuleLoadReq);
+            {
+                PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
+                ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
+                        PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), packageName, ModuleName.from(packageName),
+                        null, PackageDependencyScope.DEFAULT);
+                allModuleLoadRequests.add(observeModuleLoadReq);
+            }
+            {
+                PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
+                ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
+                        PackageOrg.from(Names.BALLERINA_ORG.value), packageName, ModuleName.from(packageName),
+                        null, PackageDependencyScope.DEFAULT);
+                allModuleLoadRequests.add(observeModuleLoadReq);
+            }
         }
 
         return getPackageLoadRequestsOfDirectDependencies(allModuleLoadRequests);

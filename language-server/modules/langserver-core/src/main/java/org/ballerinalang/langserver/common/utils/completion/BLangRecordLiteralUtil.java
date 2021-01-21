@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.langserver.common.utils.completion;
 
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -109,8 +109,8 @@ public class BLangRecordLiteralUtil {
             }
             return Collections.singletonList(memberType.get());
         } else if (typeDesc.typeKind() == TypeDescKind.RECORD) {
-            return ((RecordTypeSymbol) typeDesc).fieldDescriptors().stream()
-                    .map(FieldSymbol::typeDescriptor)
+            return ((RecordTypeSymbol) typeDesc).fieldDescriptors().values().stream()
+                    .map(RecordFieldSymbol::typeDescriptor)
                     .collect(Collectors.toList());
         }
 

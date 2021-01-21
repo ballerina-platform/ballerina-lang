@@ -29,8 +29,8 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
-import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -59,15 +59,15 @@ public class SymbolByRecordTest extends SymbolByNodeTest {
 
             @Override
             public void visit(RecordFieldNode recordFieldNode) {
-                assertSymbol(recordFieldNode, model, VARIABLE, recordFieldNode.fieldName().text());
-                assertSymbol(recordFieldNode.fieldName(), model, VARIABLE, recordFieldNode.fieldName().text());
+                assertSymbol(recordFieldNode, model, RECORD_FIELD, recordFieldNode.fieldName().text());
+                assertSymbol(recordFieldNode.fieldName(), model, RECORD_FIELD, recordFieldNode.fieldName().text());
             }
 
             @Override
             public void visit(RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
-                assertSymbol(recordFieldWithDefaultValueNode, model, VARIABLE,
+                assertSymbol(recordFieldWithDefaultValueNode, model, RECORD_FIELD,
                              recordFieldWithDefaultValueNode.fieldName().text());
-                assertSymbol(recordFieldWithDefaultValueNode.fieldName(), model, VARIABLE,
+                assertSymbol(recordFieldWithDefaultValueNode.fieldName(), model, RECORD_FIELD,
                              recordFieldWithDefaultValueNode.fieldName().text());
             }
         };

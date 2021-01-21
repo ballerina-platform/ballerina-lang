@@ -37,8 +37,8 @@ import java.util.Map;
 public class Schema extends ObjectSchema {
 
     @SerializedName("$schema")
-    private String schema;
-    private String title;
+    private final String schema;
+    private final String title;
 
     public Schema(String description, boolean additionalProperties,
                   Map<String, AbstractSchema> properties, String schema, String title, List<String> required) {
@@ -75,5 +75,18 @@ public class Schema extends ObjectSchema {
         Schema rootSchema = gson.fromJson(jsonContent, Schema.class);
         rootSchema.setType(Type.OBJECT);
         return rootSchema;
+    }
+
+    @Override
+    public void accept(SchemaVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    public String title() {
+        return title;
+    }
+
+    public String schema() {
+        return schema;
     }
 }

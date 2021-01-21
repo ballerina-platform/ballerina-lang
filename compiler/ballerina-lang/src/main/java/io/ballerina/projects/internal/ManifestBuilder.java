@@ -150,7 +150,8 @@ public class ManifestBuilder {
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
         // set defaults
         PackageOrg defaultOrg = PackageOrg.from(guessOrgName());
-        PackageName defaultName = PackageName.from(guessPkgName(this.projectPath.getFileName().toString()));
+        PackageName defaultName = PackageName.from(guessPkgName(Optional.ofNullable(this.projectPath.getFileName())
+                .map(n -> n.toString()).orElse("")));
         PackageVersion defaultVersion = PackageVersion.from(ProjectConstants.INTERNAL_VERSION);
 
         if (tomlTableNode.entries().isEmpty()) {
@@ -344,12 +345,23 @@ public class ManifestBuilder {
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.TEST_REPORT.toString());
         boolean codeCoverage =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.CODE_COVERAGE.toString());
+        final TopLevelNode topLevelNode = tableNode.entries().get(CompilerOptionName.CLOUD.toString());
+        String cloud = "";
+        if (topLevelNode != null) {
+            cloud = getStringFromTomlTableNode(topLevelNode,
+                    CompilerOptionName.CLOUD.toString(), "[build-options]");
+        }
+        boolean taintCheck =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.TAINT_CHECK.toString());
+
         return buildOptionsBuilder
                 .skipTests(skipTests)
                 .offline(offline)
                 .observabilityIncluded(observabilityIncluded)
                 .testReport(testReport)
                 .codeCoverage(codeCoverage)
+                .cloud(cloud)
+                .taintCheck(taintCheck)
                 .build();
     }
 

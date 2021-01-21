@@ -106,11 +106,11 @@ class Iterable5 {
 }
 
 // ------------------- Error Related Tests -------------------
-type CustomErrorData record {
+type CustomErrorData record {|
     string message?;
     error cause?;
     int errorID?;
-};
+|};
 
 type CustomError error<CustomErrorData>;
 

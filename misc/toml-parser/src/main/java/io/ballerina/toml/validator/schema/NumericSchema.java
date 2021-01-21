@@ -46,4 +46,9 @@ public class NumericSchema extends AbstractSchema {
     public Optional<Double> maximum() {
         return Optional.ofNullable(maximum);
     }
+
+    @Override
+    public void accept(SchemaVisitor visitor) {
+        visitor.visit(this);
+    }
 }
