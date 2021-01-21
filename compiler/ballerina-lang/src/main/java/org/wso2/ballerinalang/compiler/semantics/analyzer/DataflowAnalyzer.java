@@ -1712,21 +1712,49 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.currDependentSymbol.pop();
             return;
         } else {
-            bLangRecordVariable.variableList.forEach(memberKeyValue -> {
-                analyzeNode(memberKeyValue.valueBindingPattern, env);
-            });
+            for (BLangRecordVariable.BLangRecordVariableKeyValue memberKeyValue: bLangRecordVariable.variableList) {
+                BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
+                if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
+                    addUninitializedVar(valueBindingPattern);
+                    continue;
+                }
+                analyzeNode(valueBindingPattern, env);
+            }
         }
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        BLangVariable var = bLangRecordVariableDef.var;
-        analyzeNode(var, env);
+        analyzeNode(bLangRecordVariableDef.var, env);
     }
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
         analyzeNode(bLangErrorVariable.typeNode, env);
+        if (bLangErrorVariable.expr != null) {
+            this.currDependentSymbol.push(bLangErrorVariable.symbol);
+            analyzeNode(bLangErrorVariable.expr, env);
+            this.currDependentSymbol.pop();
+        } else {
+            BLangSimpleVariable message = bLangErrorVariable.message;
+            if (message != null) {
+                addUninitializedVar(message);
+            }
+
+            BLangVariable cause = bLangErrorVariable.cause;
+            if (cause != null) {
+                analyzeNode(cause, env);
+            }
+
+            for (BLangErrorVariable.BLangErrorDetailEntry memberKeyValue: bLangErrorVariable.detail) {
+                BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
+                if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
+                    addUninitializedVar(valueBindingPattern);
+                    continue;
+                }
+                analyzeNode(valueBindingPattern, env);
+            }
+        }
     }
 
     @Override

@@ -50,6 +50,60 @@ function testTupleVarInsideErrorVar() {
     assertEquality("myErrorList", otherDetails);
 }
 
+type myRecord record {
+    int firstValue;
+    string secondValue;
+};
+
+type userDefinedError2 error<userDefinedErrorDetail2>;
+type userDefinedErrorDetail2 record {
+    myRecord recordVar?;
+    userDefinedError errorVar?;
+    int errorNo?;
+};
+
+userDefinedError2 error (message4, recordVar = {firstValue, secondValue}) = error userDefinedError2(
+                                        "error message four", recordVar = {firstValue:5, secondValue:"Second value"});
+
+function testRecordVarInsideErrorVar() {
+    assertEquality("error message four", message4);
+    assertEquality(5, firstValue);
+    assertEquality("Second value", secondValue);
+}
+
+userDefinedError2 error (message5, errorVar = error (message6, basicErrorNo = detail6)) =
+                            error userDefinedError2("error message five", errorVar = error userDefinedError("error message six",
+                            basicErrorNo = 7));
+
+function testErrorVarInsideErrorVar() {
+    assertEquality("error message five", message5);
+    assertEquality("error message six", message6);
+    assertEquality(7, detail6);
+}
+
+const annotation annot on source var;
+@annot
+userDefinedError2 error(message7) = error userDefinedError2("error message seven");
+
+function testErrorVarWithAnnotations() {
+    assertEquality("error message seven", message7);
+}
+
+userDefinedError2 error(message9, errorNo = errorNo2) = error userDefinedError2(message8, errorNo = <int> errorNo1);
+userDefinedError2 error(message8, errorNo = errorNo1) = error userDefinedError2("error message nine", errorNo = 1);
+
+function testVariableForwardReferencing() {
+    assertEquality("error message nine", message9);
+    assertEquality(1, errorNo2);
+}
+
+userDefinedError error(message10, ...otherDetails2) = error userDefinedError("error message ten", time = 2.21, riskLevel = "High");
+
+function testErrorVarWithRestVariable() {
+    assertEquality(2.21, otherDetails2["time"]);
+    assertEquality("High", otherDetails2["riskLevel"]);
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

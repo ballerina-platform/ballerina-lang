@@ -1778,18 +1778,21 @@ public class Desugar extends BLangNodeVisitor {
                     .map(detail -> detail.key.getValue())
                     .collect(Collectors.toList());
 
+            final BLangBlockStmt restblockStmt = ASTBuilderUtil.createBlockStmt(parentErrorVariable.pos);
             BLangSimpleVariable filteredDetail = generateRestFilter(detailVarRef, parentErrorVariable.pos, keysToRemove,
-                    parentErrorVariable.restDetail.type, parentBlockStmt);
+                    parentErrorVariable.restDetail.type, restblockStmt);
+            parentBlockStmt.addStatement(restblockStmt);
+
             BLangSimpleVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
             variableDefStmt.var = ASTBuilderUtil.createVariable(pos,
                     parentErrorVariable.restDetail.name.value,
                     filteredDetail.type,
                     ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol),
                     parentErrorVariable.restDetail.symbol);
-            BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos,
-                    ASTBuilderUtil.createVariableRef(pos, parentErrorVariable.restDetail.symbol),
-                    ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol));
-            parentBlockStmt.addStatement(assignmentStmt);
+//            BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos,
+//                    ASTBuilderUtil.createVariableRef(pos, parentErrorVariable.restDetail.symbol),
+//                    ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol));
+//            parentBlockStmt.addStatement(assignmentStmt);
         }
         rewrite(parentBlockStmt, env);
     }
@@ -1965,26 +1968,28 @@ public class Desugar extends BLangNodeVisitor {
     private void createAndAddBoundVariableDef(BLangBlockStmt parentBlockStmt,
                                               BLangErrorVariable.BLangErrorDetailEntry detailEntry,
                                               BLangExpression detailEntryVar) {
-        if (detailEntry.valueBindingPattern.getKind() == NodeKind.VARIABLE) {
-            BLangSimpleVariableDef errorDetailVar = createVarDef(
-                    ((BLangSimpleVariable) detailEntry.valueBindingPattern).name.value,
-                    detailEntry.valueBindingPattern.type,
-                    detailEntryVar,
-                    detailEntry.valueBindingPattern.pos);
+        BLangVariable valueBindingPattern = detailEntry.valueBindingPattern;
+        NodeKind valueBindingPatternKind = valueBindingPattern.getKind();
+
+        if (valueBindingPatternKind == NodeKind.VARIABLE) {
+            BLangSimpleVariableDef errorDetailVar = createVarDef(((BLangSimpleVariable) valueBindingPattern).name.value,
+                    valueBindingPattern.type, detailEntryVar, valueBindingPattern.pos);
             parentBlockStmt.addStatement(errorDetailVar);
-
-        } else if (detailEntry.valueBindingPattern.getKind() == NodeKind.RECORD_VARIABLE) {
-            BLangRecordVariableDef recordVariableDef = ASTBuilderUtil.createRecordVariableDef(
-                    detailEntry.valueBindingPattern.pos,
-                    (BLangRecordVariable) detailEntry.valueBindingPattern);
-            recordVariableDef.var.expr = detailEntryVar;
-            recordVariableDef.type = symTable.recordType;
-            parentBlockStmt.addStatement(recordVariableDef);
-
-        } else if (detailEntry.valueBindingPattern.getKind() == NodeKind.TUPLE_VARIABLE) {
-            BLangTupleVariableDef tupleVariableDef = ASTBuilderUtil.createTupleVariableDef(
-                    detailEntry.valueBindingPattern.pos, (BLangTupleVariable) detailEntry.valueBindingPattern);
-            parentBlockStmt.addStatement(tupleVariableDef);
+        } else {
+            valueBindingPattern.expr = detailEntryVar;
+            BLangNode blockStatementNode = rewrite(valueBindingPattern, env);
+            List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
+            for (int i = 0; i < statements.size(); i++) {
+                BLangStatement bLangStatement = statements.get(i);
+                if (i == 0) {
+                    // Wrap first virtual var def for init expression with a block statement to add it directly to
+                    // init function in module var case
+                    BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(bLangStatement.pos);
+                    blockStmt.addStatement(bLangStatement);
+                    parentBlockStmt.addStatement(blockStmt);
+                }
+                parentBlockStmt.addStatement(bLangStatement);
+            }
         }
     }
 

@@ -50,7 +50,12 @@ public class ModuleErrorVariableTest {
         return new Object[]{
                 "testBasic",
                 "testWithErrorCause",
-//                "testTupleVarInsideErrorVar",
+                "testTupleVarInsideErrorVar",
+                "testRecordVarInsideErrorVar",
+                "testErrorVarInsideErrorVar",
+                "testErrorVarWithAnnotations",
+                "testVariableForwardReferencing",
+                "testErrorVarWithRestVariable",
         };
     }
 

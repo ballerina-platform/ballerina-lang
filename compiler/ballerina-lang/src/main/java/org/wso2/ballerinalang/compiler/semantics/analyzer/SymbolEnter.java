@@ -2524,8 +2524,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean validateErrorVariable(BLangErrorVariable errorVariable, BErrorType errorType, SymbolEnv env) {
-        errorVariable.message.type = symTable.stringType;
-        if (errorVariable.symbol == null) {
+        if (errorVariable.message.symbol == null) {
+            errorVariable.message.type = symTable.stringType;
             defineNode(errorVariable.message, env);
         }
 
