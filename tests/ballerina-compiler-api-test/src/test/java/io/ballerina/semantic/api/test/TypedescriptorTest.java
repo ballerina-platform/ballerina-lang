@@ -437,7 +437,7 @@ public class TypedescriptorTest {
 
         StreamTypeSymbol streamType = (StreamTypeSymbol) type;
         assertEquals(streamType.typeParameter().typeKind(), typeParamKind);
-        assertEquals(streamType.completionValueTypeParameter().get().typeKind(), completionValueTypeKind);
+        assertEquals(streamType.completionValueTypeParameter().typeKind(), completionValueTypeKind);
     }
 
     @DataProvider(name = "StreamTypePosProvider")
