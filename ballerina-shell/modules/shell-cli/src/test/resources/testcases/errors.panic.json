@@ -1,0 +1,29 @@
+[
+  {
+    "description": "Define record.",
+    "code": "type Record record { int id; string name; };"
+  },
+  {
+    "description": "Define function.",
+    "code": "function readRecord(Record? value) { if (value is Record) { println(\"Record ID: \", value.id, \", value: \", value.name); } else { panic error(\"Record is nil\"); } }"
+  },
+  {
+    "description": "Successful pass.",
+    "code": "Record r1 = { id: 1, name: \"record1\" }; readRecord(r1);",
+    "stdout": "Record ID: 1, value: record1\n"
+  },
+  {
+    "description": "Nil record.",
+    "code": "Record? r2 = ();"
+  },
+  {
+    "description": "View error.",
+    "code": "readRecord(r2);",
+    "stdout": "Exception occurred: error(\"Record is nil\")\n",
+    "error": "InvokerException"
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

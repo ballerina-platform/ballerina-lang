@@ -138,6 +138,7 @@ public class DocumentationLexer extends AbstractLexer {
             int nextChar = reader.peek();
             if (isIdentifierFollowingChar(nextChar)) {
                 reader.advance();
+                initialEscape = false;
                 continue;
             }
 

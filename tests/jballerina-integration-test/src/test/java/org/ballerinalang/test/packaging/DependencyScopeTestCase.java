@@ -140,7 +140,7 @@ public class DependencyScopeTestCase extends BaseTest {
         // Define the scope as testOnly for a dependency jar which is needed for compiling module
         copy(tempTestResources.resolve("testOnly").resolve(MANIFEST_FILE_NAME),
                 projectResources.resolve("TestProject1").resolve(MANIFEST_FILE_NAME));
-        String errorMsg = "error: wso2/utils:0.1.0::main.bal:4:1: {ballerina/java}CLASS_NOT_FOUND" +
+        String errorMsg = "error: wso2/utils:0.1.0::main.bal:4:1: {ballerina/jballerina.java}CLASS_NOT_FOUND" +
                 " 'org.wso2.test.StaticMethods'";
         LogLeecher utilsCompileLeecher = new LogLeecher(errorMsg, LogLeecher.LeecherType.ERROR);
         balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},

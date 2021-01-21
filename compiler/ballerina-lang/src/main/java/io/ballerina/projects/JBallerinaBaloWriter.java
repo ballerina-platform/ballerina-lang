@@ -97,7 +97,7 @@ public class JBallerinaBaloWriter extends BaloWriter {
                 .getDirectDependencies(resolvedPackageDependency);
         for (ResolvedPackageDependency dependency : resolvedPackageDependencies) {
             if (dependency.packageInstance().packageOrg().value().equals("ballerina")
-                    && dependency.packageInstance().packageName().value().equals("java")) {
+                    && dependency.packageInstance().packageName().value().equals("jballerina.java")) {
                 return this.backend.targetPlatform();
             }
         }

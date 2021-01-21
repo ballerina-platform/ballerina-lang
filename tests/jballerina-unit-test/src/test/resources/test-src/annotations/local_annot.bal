@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 annotation map<int> t1 on service;
 annotation map<string> t2 on object function;

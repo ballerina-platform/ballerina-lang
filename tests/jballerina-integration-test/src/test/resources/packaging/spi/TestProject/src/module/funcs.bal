@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public function main() {
     string result = <string>java:toString(getDriversAsString());
