@@ -820,7 +820,6 @@ public class Types {
             if ((isInherentlyImmutableType(source) || Symbols.isFlagOn(source.flags, Flags.READONLY))) {
                 return true;
             }
-            // TODO: check this will make `any|error is readonly` always true
             if (isAssignable(source, symTable.anyAndReadonlyOrError, unresolvedTypes)) {
                 return true;
             }
@@ -921,10 +920,6 @@ public class Types {
 
         if (sourceTag == TypeTags.INVOKABLE && targetTag == TypeTags.INVOKABLE) {
             return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
-        }
-
-        if (sourceTag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, target)) {
-            return true;
         }
 
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
@@ -2232,14 +2227,13 @@ public class Types {
         if (isNumericConversionPossible(expr, sourceType, targetType)) {
             return true;
         }
-
-
         if (sourceType.tag == TypeTags.ANY && targetType.tag == TypeTags.READONLY) {
             return true;
         }
+
         boolean validTypeCast = false;
 
-        // support anydata and json
+        // Use instanceof to check for anydata and json.
         if (sourceType instanceof BUnionType) {
             if (getTypeForUnionTypeMembersAssignableToType((BUnionType) sourceType, targetType, null)
                     != symTable.semanticError) {
@@ -2249,7 +2243,7 @@ public class Types {
             }
         }
 
-        // support anydata and json
+        // Use instanceof to check for anydata and json.
         if (targetType instanceof BUnionType) {
             if (getTypeForUnionTypeMembersAssignableToType((BUnionType) targetType, sourceType, null)
                     != symTable.semanticError) {
@@ -3939,18 +3933,18 @@ public class Types {
         return symTable.semanticError;
     }
 
-    private void removeErrorFromCompoundTypes(List<BType> remainingTypes) {
+    private void removeErrorFromReadonlyType(List<BType> remainingTypes) {
         Iterator<BType> remainingIterator = remainingTypes.listIterator();
-        boolean needToAddAnyAndReadonly = false;
+        boolean addAnyAndReadOnly = false;
         while (remainingIterator.hasNext()) {
             BType remainingType = remainingIterator.next();
             if (remainingType.tag != TypeTags.READONLY) {
                 continue;
             }
             remainingIterator.remove();
-            needToAddAnyAndReadonly = true;
+            addAnyAndReadOnly = true;
         }
-        if (needToAddAnyAndReadonly) {
+        if (addAnyAndReadOnly) {
             remainingTypes.add(symTable.anyAndReadonly);
         }
     }
@@ -3966,7 +3960,7 @@ public class Types {
         }
 
         if (hasErrorToRemove) {
-            removeErrorFromCompoundTypes(remainingTypes);
+            removeErrorFromReadonlyType(remainingTypes);
         }
 
         List<BType> finiteTypesToRemove = new ArrayList<>();
