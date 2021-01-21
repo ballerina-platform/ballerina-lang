@@ -1,19 +1,19 @@
 [
   {
     "description": "Import Java lib.",
-    "code": "import ballerina/java as 'java"
+    "code": "import ballerina/jballerina.java as 'java"
   },
   {
     "description": "Import Java lib II.",
-    "code": "import ballerina/java as java"
+    "code": "import ballerina/jballerina.java as java"
   },
   {
     "description": "Import Java lib III.",
-    "code": "import ballerina/java as java"
+    "code": "import ballerina/jballerina.java as java"
   },
   {
     "description": "Import Java lib III.",
-    "code": "import ballerina/java"
+    "code": "import ballerina/jballerina.java"
   },
   {
     "description": "Use java lib I.",
