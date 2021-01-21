@@ -140,49 +140,61 @@ function testImmutableMappings() {
     readonly r2 = <readonly> c;
 
     assertEquality(emp, r2);
-    any val = r2;
-    se:Employee rec = <se:Employee> val;
-    assertTrue(rec is se:Employee & readonly);
-    assertTrue(rec.isReadOnly());
+    var val = r2;
+    if (val is error) {
+        assertTrue(false);
+    } else {
+        se:Employee rec = <se:Employee> val;
+        assertTrue(rec is se:Employee & readonly);
+        assertTrue(rec.isReadOnly());
 
-    se:Details det = rec.details;
-    assertTrue(det is se:Details & readonly);
-    assertTrue(det.isReadOnly());
+        se:Details det = rec.details;
+        assertTrue(det is se:Details & readonly);
+        assertTrue(det.isReadOnly());
 
-    se:Employee & readonly emp2 = {
-        details: {
-            name: "Mary",
-            id: 4567
-        },
-        department: "IT"
-    };
+        se:Employee & readonly emp2 = {
+            details: {
+                name: "Mary",
+                id: 4567
+            },
+            department: "IT"
+        };
 
-    assertFalse(d is se:Employee & readonly);
-    assertTrue(d is se:Employee);
+        assertFalse(d is se:Employee & readonly);
+        assertTrue(d is se:Employee);
 
-    assertEquality(emp2, d);
+        assertEquality(emp2, d);
+    }
     val = d;
-    rec = <se:Employee> val;
-    assertFalse(rec is se:Employee & readonly);
-    assertFalse(rec.isReadOnly());
+    if (val is error) {
+        assertTrue(false);
+    } else {
+        rec = <se:Employee> val;
+        assertFalse(rec is se:Employee & readonly);
+        assertFalse(rec.isReadOnly());
 
-    det = rec.details;
-    assertFalse(det is se:Details & readonly);
-    assertFalse(det.isReadOnly());
+        det = rec.details;
+        assertFalse(det is se:Details & readonly);
+        assertFalse(det.isReadOnly());
 
-    assertTrue(e is se:Student & readonly);
-    readonly r3 = <readonly> e;
-    assertTrue(r3 is se:Student & readonly);
+        assertTrue(e is se:Student & readonly);
+        readonly r3 = <readonly> e;
+        assertTrue(r3 is se:Student & readonly);
+    }
 
     val = r3;
-    se:Student stVal = <se:Student> val;
-    assertTrue(stVal.isReadOnly());
-    assertTrue(stVal.details.isReadOnly());
-    assertEquality(<se:Details> {name: "Jo", id: 4567}, stVal.details);
+    if (val is error) {
+        assertTrue(false);
+    } else {
+        se:Student stVal = <se:Student> val;
+        assertTrue(stVal.isReadOnly());
+        assertTrue(stVal.details.isReadOnly());
+        assertEquality(<se:Details> {name: "Jo", id: 4567}, stVal.details);
 
-    assertTrue(stVal["math"] is [se:RESULT, int] & readonly);
-    assertTrue(stVal["math"].isReadOnly());
-    assertEquality(<[se:RESULT, int]> ["P", 75], stVal["math"]);
+        assertTrue(stVal["math"] is [se:RESULT, int] & readonly);
+        assertTrue(stVal["math"].isReadOnly());
+        assertEquality(<[se:RESULT, int]> ["P", 75], stVal["math"]);
+    }
 }
 
 function testMutability() {
