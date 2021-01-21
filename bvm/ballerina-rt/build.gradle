@@ -32,7 +32,7 @@ dependencies {
     
     // Lang lib Bir
     dist project(path: ':ballerina-lang:internal', configuration: 'distributionBirJar')
-    dist project(path: ':ballerina-lang:java', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:array', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:decimal', configuration: 'distributionBirJar')
@@ -75,7 +75,7 @@ dependencies {
     dist project(':ballerina-lang:runtime')
     dist project(':ballerina-lang:query')
     dist project(':ballerina-lang:transaction')
-    dist project(':ballerina-lang:java')
+    dist project(':ballerina-lang:jballerina.java')
     dist project(':ballerina-observability')
     dist project(':ballerina-observability-internal')
 

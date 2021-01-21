@@ -144,7 +144,7 @@ dependencies {
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
     // ballerinax module cache
-    balxBir project(path: ':ballerina-lang:java', configuration: 'bir')
+    balxBir project(path: ':ballerina-lang:jballerina.java', configuration: 'bir')
 
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
     balDoc project(path: ':ballerina-observability-internal', configuration: 'balDoc')
@@ -153,7 +153,7 @@ dependencies {
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:annotations', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-lang:java', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:jballerina.java', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:array', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:decimal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:error', configuration: 'balDoc')
@@ -174,7 +174,7 @@ dependencies {
     balDoc project(path: ':ballerina-lang:transaction', configuration: 'balDoc')
 
     // ballerinax modules
-    balDoc project(path: ':ballerina-lang:java', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:jballerina.java', configuration: 'balDoc')
 
     // testerina modules
     balDoc project(path: ':testerina:testerina-core', configuration: 'balDoc')
@@ -184,7 +184,7 @@ dependencies {
 
     distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:runtime', configuration: 'distributionBalo')

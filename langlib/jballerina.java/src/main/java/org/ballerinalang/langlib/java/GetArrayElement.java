@@ -21,7 +21,8 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BHandle;
 
 /**
- * This class contains the implementation of the "getArrayElement" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "getArrayElement" ballerina function in
+ * ballerina/jballerina.java module.
  *
  * @since 1.0.0
  */

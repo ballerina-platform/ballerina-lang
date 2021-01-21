@@ -18,15 +18,22 @@
 package org.ballerinalang.langlib.java;
 
 import io.ballerina.runtime.api.values.BHandle;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 /**
- * This class contains the implementation of the "isNull" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "setArrayElement" ballerina function in
+ * ballerina/jballerina.java module.
  *
  * @since 1.0.0
  */
-public class IsNull {
+public class SetArrayElement {
 
-    public static boolean isNull(BHandle value) {
-        return value.getValue() == null;
+    public static void setArrayElement(Strand strand, BHandle bHandle, long index, BHandle value) {
+        Object[] arr = (Object[]) bHandle.getValue();
+        if (arr == null) {
+            throw JValues.getJavaNullReferenceError();
+        }
+        JValues.rangeCheck(index, arr);
+        arr[(int) index] = value.getValue();
     }
 }

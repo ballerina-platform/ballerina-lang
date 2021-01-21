@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # This object contains information on a process being created from Ballerina.
 # This is returned from the `exec` function in the `system` module.

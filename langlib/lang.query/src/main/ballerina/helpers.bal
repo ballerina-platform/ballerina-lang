@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'xml;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 function createPipeline(
         (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,

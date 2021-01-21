@@ -23,7 +23,7 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 /**
- * Contains utility methods required to implement Java related Ballerina functions in ballerina/java module.
+ * Contains utility methods required to implement Java related Ballerina functions in ballerina/jballerina.java module.
  *
  * @since 1.0.0
  */
