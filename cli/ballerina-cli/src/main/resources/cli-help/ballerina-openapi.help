@@ -57,7 +57,7 @@ OPTIONS
             of the OpenAPI to Ballerina file generation.
 
 DEFAULT BEHAVIOR
-       If no options is provided, the help text for the OpenAPI Tool is shown.
+       If no options are provided, the help text for the OpenAPI Tool is shown.
 
 EXAMPLES
        Print usage details for the OpenAPI command.
