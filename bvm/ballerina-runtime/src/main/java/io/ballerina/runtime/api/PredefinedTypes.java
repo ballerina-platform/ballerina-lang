@@ -185,8 +185,7 @@ public class PredefinedTypes {
     public static final RecordType XML_ITR_NEXT_RETURN_PI_TYPE =
             IteratorUtils.createIteratorNextReturnType(TYPE_PROCESSING_INSTRUCTION);
 
-    public static final Type ANY_AND_READONLY_TYPE =
-            ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(new BUnionType(Arrays.asList(TYPE_READONLY, TYPE_ANY)));
+    public static final Type ANY_AND_READONLY_TYPE = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_ANY);
     public static final Type ANY_AND_READONLY_OR_ERROR_TYPE;
 
     // type anydata =  ()|boolean|int|float|decimal|string|xml|anydata[]|map<anydata>|table<map<anydata>>
