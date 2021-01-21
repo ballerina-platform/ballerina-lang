@@ -48,7 +48,8 @@ public class PackageManifest {
     private PackageManifest(PackageDescriptor packageDesc,
                             List<Dependency> dependencies,
                             Map<String, Platform> platforms,
-                            Map<String, TopLevelNode> otherEntries, DiagnosticResult diagnostics) {
+                            Map<String, TopLevelNode> otherEntries,
+                            DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.platforms = Collections.unmodifiableMap(platforms);
