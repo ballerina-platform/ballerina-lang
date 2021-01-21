@@ -271,6 +271,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private final SymbolResolver symResolver;
     private int loopCount;
+    private boolean loopAlterNotAllowed;
     private int transactionCount;
     private boolean statementReturns;
     private boolean failureHandled;
@@ -529,6 +530,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockFunctionBody body) {
         boolean prevWithinTxScope = withinTransactionScope;
+        boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
+        loopAlterNotAllowed = loopCount > 0;
         if (!transactionalFuncCheckStack.empty() && !withinTransactionScope) {
             withinTransactionScope = transactionalFuncCheckStack.peek();
         }
@@ -540,6 +543,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
             withinTransactionScope = prevWithinTxScope;
         }
+        loopAlterNotAllowed = prevLoopAlterNotAllowed;
     }
 
     @Override
@@ -2041,6 +2045,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(continueNode.pos, DiagnosticErrorCode.CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
+        if (loopAlterNotAllowed) {
+            this.dlog.error(continueNode.pos, DiagnosticErrorCode.CONTINUE_NOT_ALLOWED);
+            return;
+        }
         this.lastStatement = true;
     }
 
@@ -2388,6 +2396,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         if (checkNextBreakValidityInTransaction()) {
             this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            return;
+        }
+        if (loopAlterNotAllowed) {
+            this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_NOT_ALLOWED);
             return;
         }
         this.lastStatement = true;
