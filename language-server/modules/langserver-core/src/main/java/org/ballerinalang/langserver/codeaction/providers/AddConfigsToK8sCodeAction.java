@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.KubernetesToml;
 import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.KeyValueNode;
@@ -70,12 +71,15 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
         }
 
         Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve(TomlSyntaxTreeUtil.KUBERNETES_TOML);
-        Optional<SyntaxTree> parseSyntaxTree = TomlSyntaxTreeUtil.getTomlSyntaxTree(k8sPath);
-        if (parseSyntaxTree.isEmpty()) {
+
+        Optional<KubernetesToml> kubernetesToml =
+                context.workspace().project(context.filePath()).orElseThrow().currentPackage().kubernetesToml();
+
+        if (kubernetesToml.isEmpty()) {
             return Collections.emptyList();
         }
 
-        SyntaxTree tomlSyntaxTree = parseSyntaxTree.get();
+        SyntaxTree tomlSyntaxTree = kubernetesToml.get().tomlDocument().syntaxTree();
         DocumentNode documentNode = tomlSyntaxTree.rootNode();
 
         List<CodeAction> codeActionList = new ArrayList<>();
