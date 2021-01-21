@@ -172,17 +172,14 @@ function testSimpleInitializationForSelectivelyImmutableMappingTypes() {
 
     assertEquality(emp, r2);
     any|error val = r2;
-    if (val is error) {
-        assertTrue(false);
-    } else {
-        Employee rec = <Employee> val;
-        assertTrue(rec is Employee & readonly);
-        assertTrue(rec.isReadOnly());
+    assertFalse(val is error);
+    Employee rec = <Employee> checkpanic val;
+    assertTrue(rec is Employee & readonly);
+    assertTrue(rec.isReadOnly());
 
-        Details det = rec.details;
-        assertTrue(det is Details & readonly);
-        assertTrue(det.isReadOnly());
-    }
+    Details det = rec.details;
+    assertTrue(det is Details & readonly);
+    assertTrue(det.isReadOnly());
 
     Student & readonly st = {
         details: {
@@ -196,22 +193,19 @@ function testSimpleInitializationForSelectivelyImmutableMappingTypes() {
     assertTrue(r3 is Student & readonly);
 
     val = r3;
-    if (val is error) {
-        assertTrue(false);
-    } else {
-        Student stVal = <Student> val;
-        assertTrue(stVal.isReadOnly());
-        assertTrue(stVal.details.isReadOnly());
-        assertEquality(<Details> {name: "Jo", id: 4567}, stVal.details);
+    assertFalse(val is error);
+    Student stVal = <Student> checkpanic val;
+    assertTrue(stVal.isReadOnly());
+    assertTrue(stVal.details.isReadOnly());
+    assertEquality(<Details> {name: "Jo", id: 4567}, stVal.details);
 
-        assertTrue(stVal["math"] is [RESULT, int] & readonly);
-        assertTrue(stVal["math"].isReadOnly());
-        assertEquality(<[RESULT, int]> ["P", 75], stVal["math"]);
+    assertTrue(stVal["math"] is [RESULT, int] & readonly);
+    assertTrue(stVal["math"].isReadOnly());
+    assertEquality(<[RESULT, int]> ["P", 75], stVal["math"]);
 
-        assertTrue(stVal["science"] is [RESULT, int] & readonly);
-        assertTrue(stVal["science"].isReadOnly());
-        assertEquality(<[RESULT, int]> ["P", 65], stVal["science"]);
-    }
+    assertTrue(stVal["science"] is [RESULT, int] & readonly);
+    assertTrue(stVal["science"].isReadOnly());
+    assertEquality(<[RESULT, int]> ["P", 65], stVal["science"]);
 }
 
 type Identifier record {|
