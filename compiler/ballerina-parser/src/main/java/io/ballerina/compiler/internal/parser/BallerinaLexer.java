@@ -1124,8 +1124,7 @@ public class BallerinaLexer extends AbstractLexer {
                             }
                             continue;
                         default:
-                            String escapeSequence = String.valueOf((char) this.reader.peek(2));
-                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
+                            reportInvalidEscapeSequence(this.reader.peek(2));
                             this.reader.advance();
                             continue;
                     }
@@ -1398,6 +1397,10 @@ public class BallerinaLexer extends AbstractLexer {
             int nextChar = reader.peek();
             if (isIdentifierFollowingChar(nextChar)) {
                 reader.advance();
+                if (initialEscape) {
+                    reportInvalidEscapeSequence((char) nextChar);
+                    initialEscape = false;
+                }
                 continue;
             }
 
@@ -1427,8 +1430,7 @@ public class BallerinaLexer extends AbstractLexer {
                     continue;
                 default:
                     if (!isValidQuotedIdentifierEscapeChar(nextChar)) {
-                        String escapeSequence = String.valueOf((char) nextChar);
-                        reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
+                        reportInvalidEscapeSequence((char) nextChar);
                     }
 
                     reader.advance(k + 1);
@@ -1436,6 +1438,11 @@ public class BallerinaLexer extends AbstractLexer {
             }
             break;
         }
+    }
+
+    private void reportInvalidEscapeSequence(char nextChar) {
+        String escapeSequence = String.valueOf(nextChar);
+        reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
     }
 
     private boolean isValidQuotedIdentifierEscapeChar(int nextChar) {
