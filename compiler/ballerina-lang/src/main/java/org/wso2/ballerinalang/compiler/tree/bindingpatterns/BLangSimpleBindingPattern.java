@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPattern;
+import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.SimpleBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.WildCardBindingPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -34,12 +34,12 @@ public class BLangSimpleBindingPattern extends BLangBindingPattern implements Si
     public BLangWildCardBindingPattern wildCardBindingPattern;
 
     @Override
-    public CaptureBindingPattern getCaptureBindingPattern() {
+    public CaptureBindingPatternNode getCaptureBindingPattern() {
         return captureBindingPattern;
     }
 
     @Override
-    public void setCaptureBindingPattern(CaptureBindingPattern captureBindingPattern) {
+    public void setCaptureBindingPattern(CaptureBindingPatternNode captureBindingPattern) {
         this.captureBindingPattern = (BLangCaptureBindingPattern) captureBindingPattern;
     }
 

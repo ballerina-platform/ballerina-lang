@@ -52,15 +52,15 @@ import org.ballerinalang.model.tree.TableKeySpecifierNode;
 import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPattern;
+import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.ErrorBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.ErrorCauseBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.ErrorFieldBindingPatternsNode;
 import org.ballerinalang.model.tree.bindingpattern.ErrorMessageBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.FieldBindingPatternNode;
-import org.ballerinalang.model.tree.bindingpattern.ListBindingPattern;
 import org.ballerinalang.model.tree.bindingpattern.ListBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.MappingBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.ListBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.NamedArgBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.RestBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.SimpleBindingPatternNode;
@@ -849,16 +849,16 @@ public class TreeBuilder {
         return new BLangRestBindingPattern();
     }
 
+    public static ListBindingPatternNode createListBindingPattern() {
+        return new BLangListBindingPattern();
+    }
+
     public static MappingBindingPatternNode createMappingBindingPattern() {
         return new BLangMappingBindingPattern();
     }
 
     public static FieldBindingPatternNode createFieldBindingPattern() {
         return new BLangFieldBindingPattern();
-    }
-
-    public static ListBindingPattern createListBindingPattern() {
-        return new BLangListBindingPattern();
     }
 
     public static ErrorBindingPatternNode createErrorBindingPattern() {

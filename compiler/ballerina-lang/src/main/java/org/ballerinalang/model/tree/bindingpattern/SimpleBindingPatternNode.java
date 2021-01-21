@@ -26,9 +26,9 @@ import org.ballerinalang.model.tree.Node;
  */
 public interface SimpleBindingPatternNode extends Node {
 
-    CaptureBindingPattern getCaptureBindingPattern();
+    CaptureBindingPatternNode getCaptureBindingPattern();
 
-    void setCaptureBindingPattern(CaptureBindingPattern captureBindingPattern);
+    void setCaptureBindingPattern(CaptureBindingPatternNode captureBindingPattern);
 
     WildCardBindingPatternNode getWildCardBindingPatternNode();
 

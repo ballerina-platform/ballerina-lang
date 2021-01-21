@@ -447,14 +447,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangRestBindingPattern restBindingPattern) {
-        throw  new AssertionError();
-    }
-
     public void visit(BLangNamedArgMatchPattern namedArgMatchPattern) {
         throw new AssertionError();
     }

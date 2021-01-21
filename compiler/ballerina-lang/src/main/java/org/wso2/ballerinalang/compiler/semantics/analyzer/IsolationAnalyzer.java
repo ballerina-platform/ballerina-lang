@@ -647,20 +647,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRestBindingPattern restBindingPattern) {
-    }
-
-    @Override
     public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
     }
 
     @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         analyzeNode(varBindingPattern.getBindingPattern(), env);
-    }
-
-    @Override
-    public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
     }
 
     @Override

@@ -3395,20 +3395,6 @@ public class Desugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
     }
 
-    private BLangExpression createVarCheckCondition(BLangBindingPattern bindingPattern, BLangSimpleVarRef varRef) {
-        NodeKind patternKind = bindingPattern.getKind();
-        switch (patternKind) {
-            case WILDCARD_BINDING_PATTERN:
-                return createConditionForWildCardBindingPattern(true, bindingPattern.pos);
-            case CAPTURE_BINDING_PATTERN:
-                return createConditionForCaptureBindingPattern((BLangCaptureBindingPattern) bindingPattern, varRef);
-            case ERROR_BINDING_PATTERN:
-                return createConditionForErrorBindingPattern((BLangErrorBindingPattern) bindingPattern, varRef);
-            default:
-                return null;
-        }
-    }
-
     private BLangExpression createConditionForMatchPattern(BLangMatchPattern matchPattern,
                                                            BLangSimpleVarRef matchExprVarRef) {
         NodeKind patternKind = matchPattern.getKind();
@@ -3547,6 +3533,8 @@ public class Desugar extends BLangNodeVisitor {
             case MAPPING_BINDING_PATTERN:
                 return createVarCheckConditionForMappingBindingPattern((BLangMappingBindingPattern) bindingPattern,
                         varRef);
+            case ERROR_BINDING_PATTERN:
+                return createConditionForErrorBindingPattern((BLangErrorBindingPattern) bindingPattern, varRef);
             default:
                 // If some patterns are not implemented, those should be detected before this phase
                 // TODO : Remove this after all patterns are implemented
