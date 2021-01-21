@@ -35,7 +35,7 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 
 /**
- * Test generating API docs for a balo
+ * Test generating API docs for a balo.
  */
 public class GenDocsForBaloTest {
     private final Path resourceDir = Paths.get("src", "test", "resources");
