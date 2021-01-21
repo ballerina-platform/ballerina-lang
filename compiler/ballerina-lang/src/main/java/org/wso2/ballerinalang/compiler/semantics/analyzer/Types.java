@@ -2780,6 +2780,7 @@ public class Types {
                 if (sMember instanceof BUnionType) {
                     BUnionType sUnion = (BUnionType) sMember;
                     if (sUnion.isCyclic && targetUnion.isCyclic) {
+                        unresolvedTypes.add(new TypePair(sUnion, targetUnion));
                          if (isAssignable(sUnion, targetUnion, unresolvedTypes)) {
                              sourceIterator.remove();
                              continue;
@@ -2788,6 +2789,7 @@ public class Types {
                 }
                 // readonly can match to a union similar to any|error
                 if (sMember.tag == TypeTags.READONLY) {
+                    unresolvedTypes.add(new TypePair(sMember, targetUnion));
                     if (isAssignable(sMember, targetUnion, unresolvedTypes)) {
                         sourceIterator.remove();
                         continue;
