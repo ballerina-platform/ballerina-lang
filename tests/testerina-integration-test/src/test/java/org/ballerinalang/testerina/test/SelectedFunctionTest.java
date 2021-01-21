@@ -87,7 +87,7 @@ public class SelectedFunctionTest extends BaseTestCase {
     @Test
     public void testDependentDisabledFunctionExecution() throws BallerinaTestException {
         String errMsg = "error: Test [testDependentDisabledFunc] depends on function [testDisabledFunc], " +
-                "but it couldn't be found.";
+                "but it is either disabled or not included.";
         LogLeecher clientLeecher = new LogLeecher(errMsg, ERROR);
         balClient.runMain("test", new String[]{"--tests", "testDependentDisabledFunc",
                         "single-test-execution.bal"}, null, new String[]{}, new LogLeecher[]{clientLeecher},
