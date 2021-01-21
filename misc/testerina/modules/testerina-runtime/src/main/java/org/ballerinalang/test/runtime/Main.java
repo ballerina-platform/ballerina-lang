@@ -50,9 +50,17 @@ public class Main {
             //convert the json string back to object
             Gson gson = new Gson();
             TestSuite response = gson.fromJson(br, TestSuite.class);
-            response.setModuleName(args[args.length - 1]);
+            response.setModuleName(filterModuleName(args[args.length - 1]));
             startTestSuit(Paths.get(response.getSourceRootPath()), response, jsonTmpSummaryPath);
         }
+    }
+
+    private static String filterModuleName(String argument) {
+        //Empty string needs to be passed for default module
+        if (argument.startsWith("\"") && argument.endsWith("\"") && argument.length() == 2) {
+            return "";
+        }
+        return argument;
     }
 
     private static void startTestSuit(Path sourceRootPath, TestSuite testSuite, Path jsonTmpSummaryPath)
