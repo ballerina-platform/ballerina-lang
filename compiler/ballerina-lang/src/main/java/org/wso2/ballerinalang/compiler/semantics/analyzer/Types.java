@@ -2696,11 +2696,13 @@ public class Types {
         for (BField lhsField : lhsType.fields.values()) {
             BField rhsField = rhsFields.get(lhsField.name.value);
 
-            // There should be a corresponding RHS field
+            // If LHS field is required, there should be a corresponding RHS field
             if (rhsField == null) {
-                return false;
+                if (!Symbols.isOptional(lhsField.symbol)) {
+                    return false;
+                }
+                continue;
             }
-
             if (hasIncompatibleReadOnlyFlags(lhsField.symbol.flags, rhsField.symbol.flags)) {
                 return false;
             }
