@@ -795,9 +795,10 @@ public class Types {
             if ((isInherentlyImmutableType(source) || Symbols.isFlagOn(source.flags, Flags.READONLY))) {
                 return true;
             }
-            if (isAssignable(symTable.anyAndReadonlyOrError, source, unresolvedTypes)) {
-                return true;
-            }
+            // TODO: check this will make `any|error is readonly` always true
+//            if (isAssignable(symTable.anyAndReadonlyOrError, source, unresolvedTypes)) {
+//                return true;
+//            }
         }
 
         if (sourceTag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, target)) {
@@ -895,6 +896,10 @@ public class Types {
 
         if (sourceTag == TypeTags.INVOKABLE && targetTag == TypeTags.INVOKABLE) {
             return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
+        }
+
+        if (sourceTag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, target)) {
+            return true;
         }
 
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
