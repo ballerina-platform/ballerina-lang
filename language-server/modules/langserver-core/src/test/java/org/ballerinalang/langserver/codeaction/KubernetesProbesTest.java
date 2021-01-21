@@ -18,6 +18,9 @@
 package org.ballerinalang.langserver.codeaction;
 
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 /**
  * Test cases for adding ballerina service as a liveness or readiness probe to Kuberentes.toml.
@@ -25,6 +28,12 @@ import org.testng.annotations.DataProvider;
  * @since 2.0.0
  */
 public class KubernetesProbesTest extends AbstractCodeActionTest {
+
+    @Test(dataProvider = "codeaction-data-provider", enabled = false)
+    @Override
+    public void test(String config, String source) throws IOException {
+        super.test(config, source);
+    }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override

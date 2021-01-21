@@ -21,13 +21,9 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CodeActionExtension;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -40,13 +36,15 @@ public class K8sCodeActionExtension implements CodeActionExtension {
 
     @Override
     public boolean validate(CodeActionParams inputParams) {
-        String uri = inputParams.getTextDocument().getUri();
-        Path fileNamePath = Paths.get(URI.create(uri)).getFileName();
-        if (fileNamePath == null) {
-            return false;
-        }
-        String fileName = fileNamePath.toString();
-        return fileName.equals(TomlSyntaxTreeUtil.KUBERNETES_TOML);
+        //TODO: Disabled due to #28056
+        return false;
+//        String uri = inputParams.getTextDocument().getUri();
+//        Path fileNamePath = Paths.get(URI.create(uri)).getFileName();
+//        if (fileNamePath == null) {
+//            return false;
+//        }
+//        String fileName = fileNamePath.toString();
+//        return fileName.equals(TomlSyntaxTreeUtil.KUBERNETES_TOML);
     }
 
     @Override
