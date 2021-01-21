@@ -26,6 +26,7 @@ import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.KubernetesToml;
 import io.ballerina.projects.Module;
@@ -307,9 +308,20 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         try {
             Optional<DependenciesToml> dependenciesToml = projectPair.project().currentPackage().dependenciesToml();
             // Get toml
-            if (dependenciesToml.isEmpty() && !createIfNotExists) {
-                //TODO: Create the Dependencies.toml if not available
-                throw new WorkspaceDocumentException("Dependencies.toml does not exists!");
+            if (dependenciesToml.isEmpty()) {
+                if (createIfNotExists) {
+                    DocumentConfig documentConfig = DocumentConfig.from(
+                            DocumentId.create(ProjectConstants.DEPENDENCIES_TOML, null), content,
+                            ProjectConstants.DEPENDENCIES_TOML
+                    );
+                    Package pkg = projectPair.project().currentPackage().modify()
+                            .addDependenciesToml(documentConfig)
+                            .apply();
+                    // Update project instance
+                    projectPair.setProject(pkg.project());
+                    return;
+                }
+                throw new WorkspaceDocumentException(ProjectConstants.DEPENDENCIES_TOML + " does not exists!");
             }
             // Update toml
             DependenciesToml updatedToml = dependenciesToml.get().modify().withContent(content).apply();
@@ -328,9 +340,20 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         try {
             Optional<KubernetesToml> kubernetesToml = projectPair.project().currentPackage().kubernetesToml();
             // Get toml
-            if (kubernetesToml.isEmpty() && !createIfNotExists) {
-                //TODO: Create the Kubernetes.toml if not available
-                throw new WorkspaceDocumentException("Kubernetes.toml does not exists!");
+            if (kubernetesToml.isEmpty()) {
+                if (createIfNotExists) {
+                    DocumentConfig documentConfig = DocumentConfig.from(
+                            DocumentId.create(ProjectConstants.KUBERNETES_TOML, null), content,
+                            ProjectConstants.KUBERNETES_TOML
+                    );
+                    Package pkg = projectPair.project().currentPackage().modify()
+                            .addKubernetesToml(documentConfig)
+                            .apply();
+                    // Update project instance
+                    projectPair.setProject(pkg.project());
+                    return;
+                }
+                throw new WorkspaceDocumentException(ProjectConstants.KUBERNETES_TOML + " does not exists!");
             }
             // Update toml
             KubernetesToml updatedToml = kubernetesToml.get().modify().withContent(content).apply();
@@ -351,6 +374,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             Optional<Document> document = document(filePath, projectPair.project());
             if (document.isEmpty()) {
                 if (createIfNotExists) {
+                    //TODO: Need to create document here
                     // Reload the project
                     projectPair.setProject(createProject(filePath).project());
                 } else {
