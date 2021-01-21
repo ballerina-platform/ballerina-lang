@@ -19,16 +19,39 @@ package io.ballerina.projects.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.projects.*;
+import io.ballerina.projects.BallerinaToml;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.DependenciesToml;
+import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentConfig;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.KubernetesToml;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleCompilation;
+import io.ballerina.projects.ModuleConfig;
+import io.ballerina.projects.ModuleDescriptor;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageResolution;
+import io.ballerina.projects.PlatformLibrary;
+import io.ballerina.projects.PlatformLibraryScope;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
-import io.ballerina.toml.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -844,7 +867,7 @@ public class TestBuildProject {
         TomlTableNode ballerinaToml = newBallerinaToml.tomlAstNode();
         Assert.assertEquals(ballerinaToml.entries().size(), 2);
         Package newPackage = newBallerinaToml.packageInstance();
-        Assert.assertEquals(newPackage.packageName().toString(),"yourproject");
+        Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
         PackageCompilation compilation = newPackage.getCompilation();
 
         DependenciesToml newDependenciesToml = currentPackage.dependenciesToml().get().modify().withContent("" +
@@ -857,7 +880,7 @@ public class TestBuildProject {
                 "name = \"package_p\"\n" +
                 "version = \"1.1.0-alpha\"").apply();
         TomlTableNode dependenciesToml = newDependenciesToml.tomlAstNode();
-        Assert.assertEquals(((TomlTableArrayNode)dependenciesToml.entries().get("dependency")).children().size(), 2);
+        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("dependency")).children().size(), 2);
 
         KubernetesToml newKubernetesToml = currentPackage.kubernetesToml().get().modify().withContent("" +
                 "[test]\n" +
@@ -866,6 +889,58 @@ public class TestBuildProject {
                 "attribute = \"value2\"").apply();
         TomlTableNode kubernetesToml = newKubernetesToml.tomlAstNode();
         Assert.assertEquals(kubernetesToml.entries().size(), 2);
+
+    }
+
+    @Test(description = "tests adding Dependencies.toml, Package.md", enabled = true)
+    public void testOtherDocumentAdd() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_without_k8s");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Check editing files
+        Package currentPackage = project.currentPackage();
+
+        Assert.assertTrue(currentPackage.dependenciesToml().isEmpty());
+        Assert.assertTrue(currentPackage.kubernetesToml().isEmpty());
+        // Assert.assertTrue(currentPackage.packageMd().isEmpty());
+
+        DocumentConfig dependenciesToml = DocumentConfig.from(
+                DocumentId.create(ProjectConstants.DEPENDENCIES_TOML, null),
+                        "[[dependency]]\n" +
+                        "org = \"samjs\"\n" +
+                        "name = \"package_k\"\n" +
+                        "version = \"1.1.0-alpha\"\n" +
+                        "[[dependency]]\n" +
+                        "org = \"samjs\"\n" +
+                        "name = \"package_p\"\n" +
+                        "version = \"1.1.0-alpha\"",
+                    ProjectConstants.DEPENDENCIES_TOML
+                );
+
+        currentPackage = currentPackage.modify().addDependenciesToml(dependenciesToml).apply();
+        TomlTableNode dependenciesTomlTable = currentPackage.dependenciesToml().get().tomlAstNode();
+        Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
+                .get("dependency")).children().size(), 2);
+
+        DocumentConfig kubernetesToml = DocumentConfig.from(
+                DocumentId.create(ProjectConstants.KUBERNETES_TOML, null),
+                "[test]\n" +
+                  "attribute = \"value\"\n" +
+                  "[test2]\n" +
+                  "attribute = \"value2\"",
+                ProjectConstants.KUBERNETES_TOML
+        );
+
+        currentPackage = currentPackage.modify().addKubernetesToml(kubernetesToml).apply();
+        TomlTableNode kubernetesTomlTable = currentPackage.kubernetesToml().get().tomlAstNode();
+        Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
+                .get("dependency")).children().size(), 2);
 
     }
 

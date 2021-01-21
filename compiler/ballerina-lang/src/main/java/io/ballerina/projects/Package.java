@@ -262,6 +262,44 @@ public class Package {
             return this;
         }
 
+        /**
+         * Adds a Dependencies toml.
+         *
+         * @param documentConfig configuration of the toml document
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier addDependenciesToml(DocumentConfig documentConfig) {
+            TomlDocumentContext tomlDocumentContext = TomlDocumentContext.from(documentConfig);
+            this.dependenciesTomlContext = tomlDocumentContext;
+            return this;
+        }
+
+        /**
+         * Adds a Kubernetes toml.
+         *
+         * @param documentConfig configuration of the toml document
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier addKubernetesToml(DocumentConfig documentConfig) {
+            TomlDocumentContext tomlDocumentContext = TomlDocumentContext.from(documentConfig);
+            this.kubernetesTomlContext = tomlDocumentContext;
+            updateManifest();
+            return this;
+        }
+
+        /**
+         * Adds a package md.
+         *
+         * @param documentConfig configuration of the toml document
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier addPackageMd(DocumentConfig documentConfig) {
+            MdDocumentContext tomlDocumentContext = MdDocumentContext.from(documentConfig);
+            this.packageMdContext = tomlDocumentContext;
+            return this;
+        }
+
+
         Modifier updateBallerinaToml(BallerinaToml ballerinaToml) {
             this.ballerinaTomlContext = ballerinaToml.ballerinaTomlContext();
             updateManifest();
@@ -274,10 +312,11 @@ public class Package {
             return this;
         }
 
-        public Modifier updateKubernetesToml(KubernetesToml kubernetesToml) {
+        Modifier updateKubernetesToml(KubernetesToml kubernetesToml) {
             this.kubernetesTomlContext = kubernetesToml.kubernetesTomlContext();
             return this;
         }
+
         /**
          * Returns the updated package created by a module add/remove/update operation.
          *

@@ -20,7 +20,6 @@ package io.ballerina.projects;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.CompilerBackend.TargetPlatform;
-import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
