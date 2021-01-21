@@ -31,10 +31,10 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -133,7 +133,7 @@ public class LambdaGen {
     private void handleLambdaVirtual(BIRTerminator.AsyncCall ins, LambdaDetails lambdaDetails, MethodVisitor mv) {
         boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(lambdaDetails.packageID.orgName.getValue(),
                                                                           lambdaDetails.packageID.name.getValue());
-        List<BIROperand> paramTypes = ins.args;
+        List<BIRArgument> paramTypes = ins.args;
         genLoadDataForObjectAttachedLambdas(ins, mv, lambdaDetails.closureMapsCount, paramTypes,
                                             isBuiltinModule);
         int paramIndex = 2;
@@ -151,13 +151,13 @@ public class LambdaGen {
     }
 
     private void genLoadDataForObjectAttachedLambdas(BIRTerminator.AsyncCall ins, MethodVisitor mv,
-                                                     int closureMapsCount, List<BIROperand> paramTypes,
+                                                     int closureMapsCount, List<BIRArgument> paramTypes,
                                                      boolean isBuiltinModule) {
 
         mv.visitInsn(POP);
         mv.visitVarInsn(ALOAD, closureMapsCount);
         mv.visitInsn(ICONST_1);
-        BIROperand ref = ins.args.get(0);
+        BIRArgument ref = ins.args.get(0);
         mv.visitInsn(AALOAD);
         jvmCastGen.addUnboxInsn(mv, ref.variableDcl.type);
         mv.visitVarInsn(ALOAD, closureMapsCount);

@@ -17,17 +17,14 @@
  */
 package org.ballerinalang.model.tree.bindingpattern;
 
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.Node;
 
-import java.util.List;
-
 /**
- * The interface with the APIs to implement the list-binding-pattern.
- *
  * @since 2.0.0
  */
-public interface ListBindingPattern extends Node {
-    List<? extends BindingPatternNode> getBindingPatterns();
+public interface RestBindingPatternNode extends Node {
+    IdentifierNode getIdentifier();
 
-    void addBindingPattern(BindingPatternNode bindingPattern);
+    void setIdentifier(IdentifierNode variableName);
 }
