@@ -106,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
@@ -3403,10 +3404,6 @@ public class Desugar extends BLangNodeVisitor {
         return createBinaryExpression(constPattern.pos, matchExprVarRef, constPattern.expr);
     }
 
-    private BLangExpression createConditionForWildCardBindingPattern(boolean matchesAll, Location pos) {
-        return ASTBuilderUtil.createLiteral(pos, symTable.booleanType, matchesAll);
-    }
-
     private BLangExpression createConditionForCaptureBindingPattern(BLangCaptureBindingPattern captureBindingPattern,
                                                                     BLangSimpleVarRef matchExprVarRef) {
         Location pos = captureBindingPattern.pos;
@@ -3508,6 +3505,9 @@ public class Desugar extends BLangNodeVisitor {
                 return createConditionForCaptureBindingPattern((BLangCaptureBindingPattern) bindingPattern, varRef);
             case LIST_BINDING_PATTERN:
                 return createVarCheckConditionForListBindingPattern((BLangListBindingPattern) bindingPattern, varRef);
+            case MAPPING_BINDING_PATTERN:
+                return createVarCheckConditionForMappingBindingPattern((BLangMappingBindingPattern) bindingPattern,
+                        varRef);
             default:
                 // If some patterns are not implemented, those should be detected before this phase
                 // TODO : Remove this after all patterns are implemented
@@ -3920,25 +3920,6 @@ public class Desugar extends BLangNodeVisitor {
                 return createVarCheckConditionForMappingMatchPattern((BLangMappingMatchPattern) matchPattern, varRef);
             case ERROR_MATCH_PATTERN:
                 return createConditionForErrorMatchPattern((BLangErrorMatchPattern) matchPattern, varRef);
-            default:
-                // If some patterns are not implemented, those should be detected before this phase
-                // TODO : Remove this after all patterns are implemented
-                return null;
-        }
-    }
-
-    private BLangExpression createVarCheckCondition(BLangBindingPattern bindingPattern, BLangSimpleVarRef varRef) {
-        NodeKind bindingPatternKind = bindingPattern.getKind();
-        Location pos = bindingPattern.pos;
-        switch (bindingPatternKind) {
-            case WILDCARD_BINDING_PATTERN:
-                return createConditionForWildCardBindingPattern(true, pos);
-            case CAPTURE_BINDING_PATTERN:
-                return createConditionForCaptureBindingPattern((BLangCaptureBindingPattern) bindingPattern, varRef,
-                        pos);
-            case MAPPING_BINDING_PATTERN:
-                return createVarCheckConditionForMappingBindingPattern((BLangMappingBindingPattern) bindingPattern,
-                        varRef);
             default:
                 // If some patterns are not implemented, those should be detected before this phase
                 // TODO : Remove this after all patterns are implemented

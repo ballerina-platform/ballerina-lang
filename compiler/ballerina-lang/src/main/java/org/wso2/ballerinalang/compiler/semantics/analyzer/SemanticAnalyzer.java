@@ -2780,54 +2780,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void assignTypesToMemberPatterns(BLangBindingPattern bindingPattern, BType bindingPatternType) {
-        NodeKind patternKind = bindingPattern.getKind();
-        switch (patternKind) {
-            case WILDCARD_BINDING_PATTERN:
-                return;
-            case CAPTURE_BINDING_PATTERN:
-                BLangCaptureBindingPattern captureBindingPattern = (BLangCaptureBindingPattern) bindingPattern;
-                BVarSymbol captureBindingPatternSymbol =
-                        captureBindingPattern.declaredVars.get(
-                                captureBindingPattern.getIdentifier().getValue());
-                captureBindingPatternSymbol.type = this.types.mergeTypes(captureBindingPatternSymbol.type,
-                        bindingPatternType);
-                captureBindingPattern.type = captureBindingPatternSymbol.type;
-                return;
-            case MAPPING_BINDING_PATTERN:
-                BLangMappingBindingPattern mappingBindingPattern = (BLangMappingBindingPattern) bindingPattern;
-                if (bindingPatternType.tag == TypeTags.UNION) {
-                    for (BType type : ((BUnionType) bindingPatternType).getMemberTypes()) {
-                        assignTypesToMemberPatterns(mappingBindingPattern, type);
-                    }
-                    return;
-                }
-                if (bindingPatternType.tag != TypeTags.RECORD) {
-                    return;
-                }
-                BRecordType recordType = (BRecordType) bindingPatternType;
-                LinkedHashMap<String, BField> fields = recordType.fields;
-                for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
-                    assignTypesToMemberPatterns(fieldBindingPattern.bindingPattern,
-                            fields.get(fieldBindingPattern.fieldName.value).type);
-                }
-
-                if (mappingBindingPattern.restBindingPattern == null) {
-                    return;
-                }
-                BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;
-                BMapType restPatternMapType = (BMapType) restBindingPattern.type;
-                BVarSymbol restVarSymbol =
-                        restBindingPattern.declaredVars.get(restBindingPattern.getIdentifier().getValue());
-                BMapType restVarSymbolMapType = (BMapType) restVarSymbol.type;
-                restPatternMapType.constraint = restVarSymbolMapType.constraint =
-                        this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
-                return;
-            default:
-                return;
-        }
-    }
-
     @Override
     public void visit(BLangFieldMatchPattern fieldMatchPattern) {
         BLangMatchPattern matchPattern = fieldMatchPattern.matchPattern;
@@ -2863,6 +2815,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 listBindingPattern.type = types.resolvePatternTypeFromMatchExpr(listBindingPattern, varBindingPattern,
                         this.env);
                 assignTypesToMemberPatterns(listBindingPattern, listBindingPattern.type);
+                break;
             case MAPPING_BINDING_PATTERN:
                 BLangMappingBindingPattern mappingBindingPattern = (BLangMappingBindingPattern) bindingPattern;
                 analyzeNode(mappingBindingPattern, env);
@@ -3053,19 +3006,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRestBindingPattern restBindingPattern) {
-        Name name = new Name(restBindingPattern.variableName.value);
-        BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, name);
-        if (symbol == symTable.notFoundSymbol) {
-            symbol = new BVarSymbol(0, name, env.enclPkg.packageID, restBindingPattern.type, env.scope.owner,
-                    restBindingPattern.pos, SOURCE);
-            symbolEnter.defineSymbol(restBindingPattern.pos, symbol, env);
-        }
-        restBindingPattern.symbol = (BVarSymbol) symbol;
-        restBindingPattern.declaredVars.put(name.value, restBindingPattern.symbol);
-    }
-
-    @Override
     public void visit(BLangConstPattern constMatchPattern) {
         BLangExpression constPatternExpr = constMatchPattern.expr;
         typeChecker.checkExpr(constPatternExpr, env);
@@ -3186,6 +3126,35 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 ((BArrayType) listBindingPattern.restBindingPattern.type).eType = restType;
                 tupleType.restType = restType;
                 bindingPattern.type = tupleType;
+                return;
+            case MAPPING_BINDING_PATTERN:
+                BLangMappingBindingPattern mappingBindingPattern = (BLangMappingBindingPattern) bindingPattern;
+                if (bindingPatternType.tag == TypeTags.UNION) {
+                    for (BType type : ((BUnionType) bindingPatternType).getMemberTypes()) {
+                        assignTypesToMemberPatterns(mappingBindingPattern, type);
+                    }
+                    return;
+                }
+                if (bindingPatternType.tag != TypeTags.RECORD) {
+                    return;
+                }
+                BRecordType recordType = (BRecordType) bindingPatternType;
+                LinkedHashMap<String, BField> fields = recordType.fields;
+                for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
+                    assignTypesToMemberPatterns(fieldBindingPattern.bindingPattern,
+                            fields.get(fieldBindingPattern.fieldName.value).type);
+                }
+
+                if (mappingBindingPattern.restBindingPattern == null) {
+                    return;
+                }
+                BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;
+                BMapType restPatternMapType = (BMapType) restBindingPattern.type;
+                BVarSymbol restVarSymbol =
+                        restBindingPattern.declaredVars.get(restBindingPattern.getIdentifier().getValue());
+                BMapType restVarSymbolMapType = (BMapType) restVarSymbol.type;
+                restPatternMapType.constraint = restVarSymbolMapType.constraint =
+                        this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
                 return;
             default:
         }

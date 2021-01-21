@@ -52,9 +52,9 @@ import org.ballerinalang.model.tree.TableKeySpecifierNode;
 import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPattern;
+import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.FieldBindingPatternNode;
-import org.ballerinalang.model.tree.bindingpattern.ListBindingPattern;
+import org.ballerinalang.model.tree.bindingpattern.ListBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.MappingBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.RestBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.WildCardBindingPatternNode;
@@ -824,7 +824,7 @@ public class TreeBuilder {
         return new BLangMatchGuard();
     }
 
-    public static WildCardBindingPatternNode createWilCardBindingPattern() {
+    public static WildCardBindingPatternNode createWildCardBindingPattern() {
         return new BLangWildCardBindingPattern();
     }
 
