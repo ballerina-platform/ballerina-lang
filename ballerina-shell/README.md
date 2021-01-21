@@ -25,6 +25,7 @@ The project is implemented in three base modules.
 - **Assignments to global variables in closures or class methods will not work** - Assignments done to global variables
   in closures will not be reflected after the execution. The changes will be visible only for the scope belonging to the
   snippet where the closure was defined.
+  [#28036](https://github.com/ballerina-platform/ballerina-lang/issues/28036)
 
   ```ballerina
   int x = 10
@@ -35,6 +36,7 @@ The project is implemented in three base modules.
 
 - **Enum definition with explicit expression is not fully supported** - Enum declarations with explicit expressions are
   not supported fully. Some functionalities may not work properly. Following is an example.
+  [#28037](https://github.com/ballerina-platform/ballerina-lang/issues/28037)
 
   ```ballerina
   // This will not work due to type EN converting to english
@@ -42,8 +44,11 @@ The project is implemented in three base modules.
   EN variable = "english"  // <- Error
   ```
 
-- **Support with external libraries not tested completely** - Even though it is possible to run this against external libraries, this is not fully tested. Some issues, especially relating to types that are not visible outside the library, may occur. For an example following is a possible problematic scenario.
-
+- **Support with external libraries not tested completely** - Even though it is possible to run this against external libraries, 
+  this is not fully tested. Some issues, especially relating to types that are not visible outside the library, may occur. 
+  For an example following is a possible problematic scenario.
+  [#28038](https://github.com/ballerina-platform/ballerina-lang/issues/28038)
+  
   ```ballerina
   import abc/pqr
   // If pqr:call() returns a value of which the type is not public, following will fail.
@@ -54,6 +59,7 @@ The project is implemented in three base modules.
 
 - **Enum type signature should be the type symbol name** - If an enum is defined with expression values, enum elements'
   type signature would be the expression. However, this should instead be the original enum name.
+  [#28039](https://github.com/ballerina-platform/ballerina-lang/issues/28039)
 
   ```ballerina
   enum Language {EN="english", TA="tamil", SI="sinhala"}
@@ -64,6 +70,7 @@ The project is implemented in three base modules.
 - **Type signature of arrays with a fixed length should reflect the length** - Any array definition with a fixed length
   should have the type signature that reflects the length. But this is not the case, as a result, array bindings are not
   possible.
+  [#28042](https://github.com/ballerina-platform/ballerina-lang/issues/28042)
 
   ```ballerina
   int[3] variable = [1, 2, 3]
