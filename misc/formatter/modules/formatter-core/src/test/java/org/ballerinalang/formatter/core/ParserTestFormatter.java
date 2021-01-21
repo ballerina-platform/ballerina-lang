@@ -61,6 +61,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "minutiae_test_05_with_no_newlines.bal",
                 "doc_source_15.bal",
                 "doc_source_06.bal",
+                "module_var_decl_source_16.bal",
 
                 // the following tests need to be enabled in the future
                 "ambiguity_source_11.bal", // parser issue for indexed expressions #26420
