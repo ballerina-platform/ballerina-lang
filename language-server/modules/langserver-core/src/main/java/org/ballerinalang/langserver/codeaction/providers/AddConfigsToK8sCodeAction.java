@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.KubernetesToml;
 import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.KeyValueNode;
@@ -31,6 +32,7 @@ import io.ballerina.toml.syntax.tree.ValueNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CodeAction;
@@ -59,6 +61,11 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
         super(Collections.singletonList(CodeActionNodeType.MODULE_VARIABLE));
     }
 
+    @Override
+    public boolean isEnabled(LanguageServerContext serverContext) {
+        return false;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -70,12 +77,15 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
         }
 
         Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve(TomlSyntaxTreeUtil.KUBERNETES_TOML);
-        Optional<SyntaxTree> parseSyntaxTree = TomlSyntaxTreeUtil.getTomlSyntaxTree(k8sPath);
-        if (parseSyntaxTree.isEmpty()) {
+
+        Optional<KubernetesToml> kubernetesToml =
+                context.workspace().project(context.filePath()).orElseThrow().currentPackage().kubernetesToml();
+
+        if (kubernetesToml.isEmpty()) {
             return Collections.emptyList();
         }
 
-        SyntaxTree tomlSyntaxTree = parseSyntaxTree.get();
+        SyntaxTree tomlSyntaxTree = kubernetesToml.get().tomlDocument().syntaxTree();
         DocumentNode documentNode = tomlSyntaxTree.rootNode();
 
         List<CodeAction> codeActionList = new ArrayList<>();

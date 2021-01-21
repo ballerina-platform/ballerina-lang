@@ -71,7 +71,6 @@ public class KubernetesTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
         String response = unifyNewlines(getResponse(configJsonObject));
-        //TOOD handle newline in windows
         JsonObject json = parser.parse(response).getAsJsonObject();
         Type collectionType = new TypeToken<List<CompletionItem>>() {
         }.getType();
