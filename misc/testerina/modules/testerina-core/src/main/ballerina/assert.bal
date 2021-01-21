@@ -93,6 +93,10 @@ public isolated function assertNotEquals(anydata|error actual, anydata|error exp
 isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
     if (actual is anydata && expected is anydata) {
         return (actual == expected);
+    } else if (actual is error && expected is error) {
+        return actual.message() == expected.message() &&
+            isEqual(actual.cause(), expected.cause()) &&
+            isEqual(actual.detail(), expected.detail());
     } else {
         return (actual === expected);
     }
