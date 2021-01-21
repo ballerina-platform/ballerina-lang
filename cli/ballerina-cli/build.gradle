@@ -42,6 +42,8 @@ dependencies {
     implementation project(':testerina:testerina-core')
     implementation project(':testerina:testerina-runtime')
     implementation project(':maven-resolver')
+    implementation project(':ballerina-shell:shell-cli')
+
     testCompile 'org.testng:testng'
     testCompile 'org.mockito:mockito-all'
     testImplementation 'org.powermock:powermock-mockito-release-full'

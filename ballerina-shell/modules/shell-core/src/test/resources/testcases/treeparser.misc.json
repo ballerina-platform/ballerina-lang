@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Named worker",
+    "input": "@strand { thread:\"any\" } worker w1 { }",
+    "expected": [
+      "NamedWorkerDeclarator"]
+  }
+]

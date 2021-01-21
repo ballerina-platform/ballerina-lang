@@ -1,0 +1,44 @@
+[
+  {
+    "description": "Define required base types.",
+    "code": "type Person record {|readonly int id;string name;int age;\n|}; type Employee record {readonly int id;string name;float salary;};"
+  },
+  {
+    "description": "Create a table type.",
+    "code": "type EmployeeTable table<Employee> key(id);"
+  },
+  {
+    "description": "Create a table type of map type.",
+    "code": "type CustomerTable table<map<any>>;"
+  },
+  {
+    "description": "Create a table with data.",
+    "code": "EmployeeTable employeeTab = table [ {id: 1, name: \"John\", salary: 300.50}, {id: 2, name: \"Bella\", salary: 500.50}, {id: 3, name: \"Peter\", salary: 750.0} ]; employeeTab.keys()",
+    "expr": "[1,2,3]"
+  },
+  {
+    "description": "Add a new table entry.",
+    "code": "Employee emp = {id: 4, name: \"Max\", salary: 900.0}; employeeTab.add(emp);  employeeTab[4]",
+    "expr": "{\"id\":4,\"name\":\"Max\",\"salary\":900.0}"
+  },
+  {
+    "description": "Remove a table entry.",
+    "code": "employeeTab.remove(2)",
+    "expr": "{\"id\":2,\"name\":\"Bella\",\"salary\":500.5}"
+  },
+  {
+    "description": "Convert table to an array.",
+    "code": "employeeTab.toArray()",
+    "expr": "[{\"id\":1,\"name\":\"John\",\"salary\":300.5},{\"id\":3,\"name\":\"Peter\",\"salary\":750.0},{\"id\":4,\"name\":\"Max\",\"salary\":900.0}]"
+  },
+  {
+    "description": "Remove a table entry.",
+    "code": "string filtered = \"\"; employeeTab.forEach(function (Employee employee) {if (employee.salary < 400.0) {filtered += employee.name;filtered += \" \";} }); filtered",
+    "expr": "John "
+  },
+  {
+    "description": "Creating table with map constrained members.",
+    "code": "table<map<any>> customerTab = table [{id: 13 , fname: \"Dan\", lname: \"Bing\"}]; customerTab.toArray()",
+    "expr": "[{\"id\":13,\"fname\":\"Dan\",\"lname\":\"Bing\"}]"
+  }
+]

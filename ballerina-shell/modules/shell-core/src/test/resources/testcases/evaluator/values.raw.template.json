@@ -1,0 +1,51 @@
+[
+  {
+    "description": "Import object module.",
+    "code": "import ballerina/lang.'object;"
+  },
+  {
+    "description": "Helper record type.",
+    "code": "type Person record {| string name; int age;\n|};"
+  },
+  {
+    "description": "Helper query object type.",
+    "code": "type Query object { public string[3] & readonly strings; public [string, int] insertions; };"
+  },
+  {
+    "description": "Create a raw template with the `name` variable interpolated.",
+    "code": "string name = \"Ballerina\"; 'object:RawTemplate template = `Hello ${name}!!!`; template",
+    "expr": "{strings:[\"Hello \",\"!!!\"], insertions:[\"Ballerina\"]}"
+  },
+  {
+    "description": "The string literal portions of the raw template.",
+    "code": "template.strings",
+    "expr": "[\"Hello \",\"!!!\"]"
+  },
+  {
+    "description": "The `insertions` field holds the values obtained by evaluating the expressions",
+    "code": "template.insertions[0]",
+    "expr": "Ballerina"
+  },
+  {
+    "description": "Helpers variables definition.",
+    "code": "Person[] people = [ {name: \"John Doe\", age: 25}, {name: \"Jane Doe\", age: 20} ]; Query[] queries = []; int i = 0;"
+  },
+  {
+    "description": "Create query list.",
+    "code": "foreach var p in people { queries[i] = `INSERT INTO Details VALUES (${p.name}, ${p.age})`; i += 1;}"
+  },
+  {
+    "description": "Helper function to build a query.",
+    "code": "function buildQuery(Query qu) returns string {  return sprintf(\"%s%s%s%s%s\", qu.strings[0], qu.insertions[0], qu.strings[1], qu.insertions[1], qu.strings[2]); }"
+  },
+  {
+    "description": "Test building query 1.",
+    "code": "buildQuery(queries[0])",
+    "expr": "INSERT INTO Details VALUES (John Doe, 25)"
+  },
+  {
+    "description": "Test building query 2.",
+    "code": "buildQuery(queries[1])",
+    "expr": "INSERT INTO Details VALUES (Jane Doe, 20)"
+  }
+]

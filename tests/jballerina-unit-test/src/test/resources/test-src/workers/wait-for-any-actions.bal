@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 function waitTest1() returns int {
     future<int> f1 = @strand{thread:"any"} start add_1(5, 2);
