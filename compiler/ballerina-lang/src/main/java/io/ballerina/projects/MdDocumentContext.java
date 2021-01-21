@@ -8,7 +8,7 @@ import io.ballerina.tools.text.TextDocuments;
  *
  * @since 2.0.0
  */
-class MdDocumentContext {
+public class MdDocumentContext {
     private TextDocument textDocument;
     private DocumentId documentId;
     private String name;
@@ -32,7 +32,7 @@ class MdDocumentContext {
         return this.name;
     }
 
-    TextDocument textDocument() {
+    public TextDocument textDocument() {
         if (this.textDocument == null) {
             this.textDocument = TextDocuments.from(this.content);
         }

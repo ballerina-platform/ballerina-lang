@@ -87,7 +87,7 @@ public class BaloFiles {
             // load other modules
             Path modulesPathInBalo = zipFileSystem.getPath(MODULES_ROOT);
             List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo, defaultModulePathInBalo);
-            return PackageData.from(balrPath, defaultModule, otherModules, packageMd, null, null, null);
+            return PackageData.from(balrPath, defaultModule, otherModules, null, null, null, packageMd);
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
         }
