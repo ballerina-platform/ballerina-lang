@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.CompilerBackend.TargetPlatform;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
@@ -150,10 +151,13 @@ public class PackageCompilation {
     }
 
     private void runPluginCodeAnalysis(List<Diagnostic> diagnostics) {
-        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-        for (CompilerPlugin plugin : processorServiceLoader) {
-            List<Diagnostic> pluginDiagnostics = plugin.codeAnalyze(rootPackageContext.project());
-            diagnostics.addAll(pluginDiagnostics);
+        // only run plugins for build projects
+        if (rootPackageContext.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+            ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+            for (CompilerPlugin plugin : processorServiceLoader) {
+                List<Diagnostic> pluginDiagnostics = plugin.codeAnalyze(rootPackageContext.project());
+                diagnostics.addAll(pluginDiagnostics);
+            }
         }
     }
 
