@@ -32,7 +32,7 @@ function assert(boolean|error expected, boolean|error actual) {
 
         return;
     }
-    if (expected != actual) {
+    if (checkpanic expected != checkpanic actual) {
         typedesc<anydata|error> expT = typeof expected;
         typedesc<anydata|error> actT = typeof actual;
 

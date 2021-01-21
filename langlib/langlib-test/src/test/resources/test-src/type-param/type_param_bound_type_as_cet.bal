@@ -184,7 +184,7 @@ function assertTrue(any|error actual) {
 }
 
 function assertValueEquality(anydata|error expected, anydata|error actual) {
-    if expected == actual {
+    if isEqual(expected, actual) {
         return;
     }
 
@@ -192,4 +192,12 @@ function assertValueEquality(anydata|error expected, anydata|error actual) {
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
+    if (actual is anydata && expected is anydata) {
+        return (actual == expected);
+    } else {
+        return (actual === expected);
+    }
 }
