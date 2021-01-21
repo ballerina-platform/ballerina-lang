@@ -148,7 +148,7 @@ function testMapFromBalString() {
     }
 
     if (result2 is map<anydata>) {
-        assert(result2.keys(), ["1","2","3","4","5"]);
+        assert(result2.keys(), ["1","2","3","4"]);
         assert(result2.get("1"), mapVal2.get("1"));
         assert(result2.get("2"), mapVal2.get("2"));
         assert(result2.get("3"), mapVal2.get("3"));
@@ -214,7 +214,7 @@ function testArrayFromBalString() {
         assert(result[4], arr7[4]);
         assert(result[5], arr7[5]);
         assert(result[6], arr7[6]);
-        assert(result[8], arr7[8]);
+        assert(result[7], arr7[8]);
     }
 }
 
@@ -310,6 +310,10 @@ function assert(anydata|error actual, anydata|error expected) {
 isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
     if (actual is anydata && expected is anydata) {
         return (actual == expected);
+    } else if (actual is error && expected is error) {
+        return actual.message() == expected.message() &&
+            isEqual(actual.cause(), expected.cause()) &&
+            isEqual(actual.detail(), expected.detail());
     } else {
         return (actual === expected);
     }

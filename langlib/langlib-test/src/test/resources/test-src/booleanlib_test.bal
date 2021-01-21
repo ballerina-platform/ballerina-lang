@@ -23,24 +23,30 @@ function testFromString(string s, boolean|error expected) {
 // Util functions
 
 function assert(boolean|error expected, boolean|error actual) {
-    if (expected is boolean && actual is boolean) {
-        if (expected != actual) {
-            string reason = "expected [" + expected.toString() + "] , but found [" + actual.toString() + "]";
-            error e = error(reason);
-            panic e;
-        }
-
+    if (isEqual(actual, expected)) {
         return;
     }
-    if (checkpanic expected != checkpanic actual) {
-        typedesc<anydata|error> expT = typeof expected;
-        typedesc<anydata|error> actT = typeof actual;
 
-        string expectedValAsString = expected is error ? expected.toString() : expected.toString();
-        string actualValAsString = actual is error ? actual.toString() : actual.toString();
-        string reason = "expected [" + expectedValAsString + "] of type [" + expT.toString()
-                            + "], but found [" + actualValAsString + "] of type [" + actT.toString() + "]";
-        error e = error(reason);
-        panic e;
+    typedesc<anydata|error> expT = typeof expected;
+    typedesc<anydata|error> actT = typeof actual;
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    string reason = "expected [" + expectedValAsString + "] of type [" + expT.toString()
+                        + "], but found [" + actualValAsString + "] of type [" + actT.toString() + "]";
+    error e = error(reason);
+    panic e;
+}
+
+isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
+    if (actual is anydata && expected is anydata) {
+        return (actual == expected);
+    } else if (actual is error && expected is error) {
+        return actual.message() == expected.message() &&
+            isEqual(actual.cause(), expected.cause()) &&
+            isEqual(actual.detail(), expected.detail());
+    } else {
+        return (actual === expected);
     }
 }
+
