@@ -56,9 +56,9 @@ public class Main {
     }
 
     private static String filterModuleName(String argument) {
-        //Empty string needs to be passed for default module
-        if (argument.startsWith("\"") && argument.endsWith("\"") && argument.length() == 2) {
-            return "";
+        //The module argument is always wrapped with a `\"` at start and end
+        if (argument.startsWith("\"") && argument.endsWith("\"") && argument.length() >= 2) {
+            return argument.substring(1, argument.length() - 1);
         }
         return argument;
     }
