@@ -217,7 +217,7 @@ public class TestSingleFileProject {
         resetPermissions(projectPath);
     }
 
-    @Test (description = "tests diagnostics of a single file")
+    @Test (description = "tests diagnostics of a single file", enabled = false)
     public void testDiagnostics() {
 
         Path filePath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main_with_error.bal");
