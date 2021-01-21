@@ -41,7 +41,11 @@ public class HashedImports {
                     NodeFactory.createToken(SyntaxKind.IMPORT_KEYWORD),
                     NodeFactory.createImportOrgNameNode(NodeFactory.createIdentifierToken("ballerina"),
                             NodeFactory.createToken(SyntaxKind.SLASH_TOKEN)),
-                    NodeFactory.createSeparatedNodeList(NodeFactory.createIdentifierToken("java")),
+                    NodeFactory.createSeparatedNodeList(
+                            NodeFactory.createIdentifierToken("jballerina"),
+                            NodeFactory.createToken(SyntaxKind.DOT_TOKEN),
+                            NodeFactory.createIdentifierToken("java")
+                    ),
                     null, NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN)));
 
     /**
