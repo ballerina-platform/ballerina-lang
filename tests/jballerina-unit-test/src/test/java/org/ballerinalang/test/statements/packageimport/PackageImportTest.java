@@ -33,13 +33,12 @@ import java.io.PrintStream;
 @Test
 public class PackageImportTest {
 
-    // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/28050
-    @Test(enabled = false)
+    @Test
     public void testDuplicatePackageImports() {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BAssertUtil.validateError(result, 0, "redeclared import module 'ballerina/jballerina.java'", 2, 1);
+        BAssertUtil.validateError(result, 0, "redeclared import module 'ballerina/test'", 2, 1);
     }
 
     @Test
