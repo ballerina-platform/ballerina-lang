@@ -93,7 +93,7 @@ public class TestBaloWriter {
         Assert.assertTrue(emitResult.successful());
 
         // unzip balo
-        TestUtils.unzip(String.valueOf(baloPath.resolve("foo-winery-java11-0.1.0.balo")), String.valueOf(BALO_PATH));
+        TestUtils.unzip(String.valueOf(baloPath.resolve("foo-winery-any-0.1.0.balo")), String.valueOf(BALO_PATH));
 
         // balo.json
         Path baloJsonPath = BALO_PATH.resolve("balo.json");
@@ -134,7 +134,7 @@ public class TestBaloWriter {
 //            Assert.assertEquals(packageJson.getExported().get(0), "winery");
 //            Assert.assertEquals(packageJson.getExported().get(1), "service");
 
-            Assert.assertEquals(packageJson.getPlatform(), "java11");
+            Assert.assertEquals(packageJson.getPlatform(), "any");
             Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
         }
 
@@ -173,7 +173,7 @@ public class TestBaloWriter {
         Assert.assertFalse(storageModuleSrcPath.resolve("Module.md").toFile().exists());
 
         // Check if platform dependencies exists
-        Path platformDependancy = BALO_PATH.resolve("platform").resolve("java11")
+        Path platformDependancy = BALO_PATH.resolve("platform").resolve("any")
                 .resolve("ballerina-io-1.0.0-java.txt");
         Assert.assertTrue(platformDependancy.toFile().exists());
 
@@ -203,7 +203,7 @@ public class TestBaloWriter {
             }
 
             Assert.assertEquals(javaDependency.getOrg(), "ballerina");
-            Assert.assertEquals(javaDependency.getName(), "java");
+            Assert.assertEquals(javaDependency.getName(), "jballerina.java");
 
             Assert.assertEquals(fooDependency.getOrg(), "foo");
             Assert.assertEquals(fooDependency.getName(), "winery");
@@ -213,7 +213,7 @@ public class TestBaloWriter {
             List<Dependency> fooDependencies = fooDependency.getDependencies();
             Assert.assertEquals(fooDependencies.size(), 1);
             Assert.assertEquals(fooDependencies.get(0).getOrg(), "ballerina");
-            Assert.assertEquals(fooDependencies.get(0).getName(), "java");
+            Assert.assertEquals(fooDependencies.get(0).getName(), "jballerina.java");
 
 
             List<ModuleDependency> moduleDependencyGraph = dependencyGraphJson.getModuleDependencies();
