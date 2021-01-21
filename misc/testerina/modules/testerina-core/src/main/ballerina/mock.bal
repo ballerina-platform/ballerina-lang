@@ -39,6 +39,8 @@ public type InvalidMemberFieldError distinct error;
 public const FUNCTION_CALL_ERROR = "FunctionCallError";
 public type FunctionCallError distinct error;
 
+type AnydataOrError anydata|error;
+
 # Represents mocking related errors
 public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMismatchError|InvalidMemberFieldError|FunctionCallError;
 
@@ -107,7 +109,7 @@ public class MockObject {
 public class MemberFunctionStub {
     object {} mockObject;
     string functionName = "";
-    anydata|error args = [];
+    AnydataOrError[] args = [];
     any|error returnValue = ();
     any|error returnValueSeq = [];
 
@@ -154,7 +156,7 @@ public class MemberFunctionStub {
              error err = error("function to mock is not specified.");
              panic err;
         }
-        if (self.args != []) {
+        if (self.args.length() != 0) {
             error err = error("'withArguments' function cannot be specified with a return sequence");
             panic err;
         }
@@ -237,7 +239,7 @@ public class MockFunction {
 public class FunctionStub {
     MockFunction mockFuncObj;
     any|error returnValue = ();
-    anydata|error args = [];
+    AnydataOrError[] args = [];
 
 
     # Gets invoked during the stub registration

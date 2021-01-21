@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/lang.'xml;
+import ballerina/lang.value;
 
 public type Person record {|
     int id;
@@ -384,25 +385,22 @@ public function testCloneArrayWithError() returns boolean {
 
 public function testCloneMapWithError() returns boolean {
     map<error> errMap = {
-        e1: err1,
-        e2: err2,
-        e3: err3,
-        e4: err4
+        e1: error("h")
     };
 
-    map<anydata> ma = {
+    map<value:Cloneable> ma = {
         one: 1,
         two: "two",
         errMap: errMap
     };
-    map<error> errMapFromValue = <map<error>> ma["errMap"];
+    map<error> errMapFromValue = <map<error>> check ma["errMap"];
 
-    map<anydata> clonedMap = <map<anydata>> ma.clone();
+    map<value:Cloneable> clonedMap = <map<value:Cloneable>> ma.clone();
 
-    boolean cloneSuccessful = ma !== clonedMap && <int> ma["one"] == <int> clonedMap["one"] &&
-                                <string> ma["two"] == <string> clonedMap["two"];
+    boolean cloneSuccessful = ma !== clonedMap && <int> check ma["one"] == <int> check clonedMap["one"] &&
+                                <string> check ma["two"] == <string> check clonedMap["two"];
 
-    map<error> clonedErrorMap = <map<error>> clonedMap["errMap"];
+    map<error> clonedErrorMap = <map<error>> check clonedMap["errMap"];
     foreach [string, error] [x, y] in errMapFromValue.entries() {
         cloneSuccessful = cloneSuccessful && y === clonedErrorMap[x];
     }

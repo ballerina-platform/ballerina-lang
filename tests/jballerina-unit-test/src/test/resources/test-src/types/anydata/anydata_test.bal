@@ -650,75 +650,61 @@ function testAnydataToUnion() returns ValueType?[] {
     return vt;
 }
 
-//function testAnydataToUnion2(){
-//    anydata ad;
-//    DataType[] dt = [];
-//    int i = 0;
-//
-//    json j = { name: "apple", color: "red", price: 40 };
-//    ad = j;
-//    if (ad is DataType) {
-//        dt[i] = ad;
-//        i += 1;
-//    }
-//
-//    xml x = xml `<book>The Lost World</book>`;
-//    ad = x;
-//    if (ad is DataType) {
-//        dt[i] = ad;
-//        i += 1;
-//    }
-//
-//    table<Employee> t = table key(id) [
-//        { id: 1, name: "Mary", salary: 300.5 },
-//        { id: 2, name: "John", salary: 200.5 },
-//        { id: 3, name: "Jim", salary: 330.5 }
-//    ];
-//
-//    ad = t;
-//    if (ad is DataType) {
-//        dt[i] = ad;
-//        i += 1;
-//    }
-//
-//    Foo foo = {a: 15};
-//    ad = foo;
-//    if (ad is DataType) {
-//        dt[i] = ad;
-//        i += 1;
-//    }
-//
-//    ClosedFoo cfoo = {ca: 15};
-//    ad = cfoo;
-//    if (ad is DataType) {
-//        dt[i] = ad;
-//        i += 1;
-//    }
-//
-//    map<anydata> m = {};
-//    m["foo"] = foo;
-//    ad = m;
-//    if (ad is DataType) {
-//        dt[i] = ad;
-//        i += 1;
-//    }
-//
-//    anydata[] adr = [];
-//    adr[0] = foo;
-//    ad = adr;
-//    if (ad is DataType) {
-//        dt[i] = ad;
-//        i += 1;
-//    }
-//
-//    assertEquality(j, dt[0]);
-//    assertEquality(x, dt[1]);
-//    assertEquality(t, dt[2]);
-//    assertEquality(foo, dt[3]);
-//    assertEquality(cfoo, dt[4]);
-//    assertEquality(m, dt[5]);
-//    assertEquality(adr, dt[6]);
-//}
+function testAnydataToUnion2(){
+    anydata ad;
+    DataType[] dt = [];
+    int i = 0;
+
+    json j = { name: "apple", color: "red", price: 40 };
+    ad = j;
+    dt[i] = ad;
+    i += 1;
+
+    xml x = xml `<book>The Lost World</book>`;
+    ad = x;
+    dt[i] = ad;
+    i += 1;
+
+    table<Employee> t = table key(id) [
+        { id: 1, name: "Mary", salary: 300.5 },
+        { id: 2, name: "John", salary: 200.5 },
+        { id: 3, name: "Jim", salary: 330.5 }
+    ];
+
+    ad = t;
+    dt[i] = ad;
+    i += 1;
+
+    Foo foo = {a: 15};
+    ad = foo;
+    dt[i] = ad;
+    i += 1;
+
+    ClosedFoo cfoo = {ca: 15};
+    ad = cfoo;
+    dt[i] = ad;
+    i += 1;
+
+    map<anydata> m = {};
+    m["foo"] = foo;
+    ad = m;
+    dt[i] = ad;
+    i += 1;
+
+    anydata[] adr = [];
+    adr[0] = foo;
+    ad = adr;
+    dt[i] = ad;
+    i += 1;
+
+    assertEquality(j, dt[0]);
+    assertEquality(x, dt[1]);
+    assertEquality(t, dt[2]);
+    assertEquality(foo, dt[3]);
+    assertEquality(cfoo, dt[4]);
+    assertEquality(m, dt[5]);
+    assertEquality(adr, dt[6]);
+}
 
 function testAnydataToTuple() returns [int, float, boolean, string, byte]? {
     anydata ad;
@@ -886,69 +872,6 @@ type MyErrorDetail record {|
 error e1 = error("err reason");
 error e2 = error("err reason 2", str = "string value", e1=e1);
 MyError e3 = error MyError("err reason 3", e1 = e1, e2 = e2);
-
-function testArraysWithErrorsAsAnydata() returns boolean {
-    error?[] a1 = [e1, e2];
-    (anydata|error)[3] a2 = [e3, "hello", e1];
-
-    anydata ad1 = a1;
-    anydata ad2 = <anydata> a2;
-
-    error?[] a3 = <error?[]> ad1;
-    (anydata|error)[] a4 = <(anydata|error)[]> ad2;
-
-    return a3[0] === e1 && a3[1] === e2 && a4[0] === e3 && a4[2] === e1 && a3 === a1 && a4 === a2;
-}
-
-function testTuplesWithErrorsAsAnydata() returns boolean {
-    [error, MyError] a1 = [e1, e3];
-    [anydata, error, string] a2 = [a1, e1, "hello"];
-
-    anydata ad1 = <anydata> a1;
-    anydata ad2 = a2;
-
-    [error, MyError] a3 = <[error, MyError]> ad1;
-    [anydata, error, string] a4 = <[anydata, error, string]> ad2;
-
-    return a3[0] === e1 && a3[1] === e3 && a4[0] === a1 && a4[1] === e1 && a3 === a1 && a4 === a2;
-}
-
-function testMapsWithErrorsAsAnydata() returns boolean {
-    map<error> a1 = { e1: e1, e3: e3 };
-    map<string|error> a2 = { e1: e1, e2: e2, e3: e3 };
-
-    anydata ad1 = a1;
-    anydata ad2 = <anydata> a2;
-
-    map<error> a3 = <map<error>> ad1;
-    map<string|error> a4 = <map<string|error>> ad2;
-
-    return a3.get("e1") === e1 && a3.get("e3") === e3 && a4.get("e1") === e1 && 
-            a4.get("e2") === e2 && a4.get("e3") === e3 && a3 === a1 && a4 === a2;
-}
-
-type MyRecord record {|
-    string name;
-    anydata|error...;
-|};
-
-type MyRecordTwo record {|
-    int id;
-    error...;
-|};
-
-function testRecordsWithErrorsAsAnydata() returns boolean {
-    MyRecord m1 = { name: "Anne", "err": e1 };
-    MyRecordTwo m2 = { id: 100, "err": e3 };
-
-    anydata a1 = m1;
-    anydata a2 = <anydata> m2;
-
-    MyRecord m3 = <MyRecord> a1;
-    MyRecordTwo m4 = <MyRecordTwo> a2;
-
-    return m3["err"] === e1 && m4["err"] === e3 && m3 === a1 && m2 === m4;
-}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

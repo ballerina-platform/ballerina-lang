@@ -141,10 +141,10 @@ function testLetExprInUnion() {
 
 function testLetExprInJSON() returns error? {
     json j = {fname:"Jhon", lname:"Doe", age:let int x = 4 in 2 * x * globalVar};
-    assertTrue(j.age == 16, "j.age == 16");
+    assertTrue(j.age === 16, "j.age == 16");
 
     json k = {fname:"Jhon", lname:"Doe", age:check let json x = {age: 16} in x.age};
-    assertTrue(k.age == 16, "k.age == 16");
+    assertTrue(k.age === 16, "k.age == 16");
 }
 
 function testLetExpresionInArrays() {

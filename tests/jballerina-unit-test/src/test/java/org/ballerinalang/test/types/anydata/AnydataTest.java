@@ -235,10 +235,10 @@ public class AnydataTest {
         assertEquals(((BByte) returns[4]).intValue(), 255);
     }
 
-//    @Test(description = "Test anydata to union conversion for complex types")
-//    public void testAnydataToUnion2() {
-//        BRunUtil.invoke(result, "testAnydataToUnion2");
-//    }
+    @Test(description = "Test anydata to union conversion for complex types")
+    public void testAnydataToUnion2() {
+        BRunUtil.invoke(result, "testAnydataToUnion2");
+    }
 
     @Test(description = "Test anydata to tuple conversion")
     public void testAnydataToTuple() {
@@ -294,29 +294,5 @@ public class AnydataTest {
         assertEquals(rets.getRefValue(5).stringValue(), "<book>The Lost World</book>");
         assertEquals(rets.getRefValue(6).stringValue(), "{a:15}");
         assertEquals(rets.getRefValue(7).stringValue(), "{ca:15}");
-    }
-
-    @Test
-    public void testArraysWithErrorsAsAnydata() {
-        BValue[] returns = BRunUtil.invoke(result, "testArraysWithErrorsAsAnydata");
-        assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testTuplesWithErrorsAsAnydata() {
-        BValue[] returns = BRunUtil.invoke(result, "testTuplesWithErrorsAsAnydata");
-        assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testMapsWithErrorsAsAnydata() {
-        BValue[] returns = BRunUtil.invoke(result, "testMapsWithErrorsAsAnydata");
-        assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testRecordsWithErrorsAsAnydata() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordsWithErrorsAsAnydata");
-        assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

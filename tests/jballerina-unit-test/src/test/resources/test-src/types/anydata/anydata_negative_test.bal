@@ -146,3 +146,8 @@ function testErrorAsAnydata() {
     error e = error("test err");
     anydata ad = e;
 }
+
+function testErrorAsAMemberOfAnydata() {
+     (anydata|error)[] x = [error("")];
+     anydata y = x;
+}
