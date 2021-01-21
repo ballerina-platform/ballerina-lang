@@ -1,5 +1,5 @@
 import ballerina/lang.'int as ints;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 int lockWithinLockInt1 = 0;
 

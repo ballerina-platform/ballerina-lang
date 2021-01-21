@@ -266,17 +266,38 @@ class ModuleContext {
             for (ModuleLoadRequest modLoadRequest : moduleLoadRequests) {
                 PackageOrg packageOrg;
                 if (modLoadRequest.orgName().isEmpty()) {
+                    if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                        // This is an invalid import in a single file project.
+                        continue;
+                    }
                     packageOrg = descriptor().org();
                 } else {
                     packageOrg = modLoadRequest.orgName().get();
                 }
 
-                addModuleDependency(packageOrg, modLoadRequest.packageName(), modLoadRequest.moduleName(),
+                addModuleDependency(packageOrg, modLoadRequest.moduleName(),
                         modLoadRequest.scope(), moduleDependencies, dependencyResolution);
             }
         }
 
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
+    }
+
+    private void addModuleDependency(PackageOrg org,
+                                     ModuleName moduleName,
+                                     PackageDependencyScope scope,
+                                     Set<ModuleDependency> moduleDependencies,
+                                     DependencyResolution dependencyResolution) {
+        Optional<ModuleContext> resolvedModuleOptional = dependencyResolution.getModule(org, moduleName.toString());
+        if (resolvedModuleOptional.isEmpty()) {
+            return;
+        }
+
+        ModuleContext resolvedModule = resolvedModuleOptional.get();
+        ModuleDependency moduleDependency = new ModuleDependency(
+                new PackageDependency(resolvedModule.moduleId().packageId(), scope),
+                resolvedModule.moduleId());
+        moduleDependencies.add(moduleDependency);
     }
 
     private void addModuleDependency(PackageOrg org,

@@ -15,7 +15,7 @@
 // under the License.
 
 
-import ballerina/java;
+import ballerina/jballerina.java;
 import ballerina/lang.'value;
 
 function getValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {

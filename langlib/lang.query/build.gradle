@@ -31,7 +31,7 @@ dependencies {
     distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBalo')
 
     implementation 'org.slf4j:slf4j-api'
 }

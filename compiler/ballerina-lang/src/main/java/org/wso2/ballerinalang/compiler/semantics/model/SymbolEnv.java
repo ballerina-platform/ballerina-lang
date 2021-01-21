@@ -232,21 +232,6 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv createBlockEnv(BLangBlockStmt block, SymbolEnv env) {
-        // Create a scope for the block node if one doesn't exists
-        Scope scope = block.scope;
-        if (scope == null) {
-            scope = new Scope(env.scope.owner);
-            block.scope = scope;
-        }
-
-        SymbolEnv symbolEnv = new SymbolEnv(block, scope);
-        env.copyTo(symbolEnv);
-        symbolEnv.envCount = env.envCount + 1;
-        symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
-        return symbolEnv;
-    }
-
     public static SymbolEnv createPatternEnv(BLangMatchPattern pattern, SymbolEnv env) {
         // Create a scope for the block node if one doesn't exists
         Scope scope = pattern.scope;
@@ -256,6 +241,21 @@ public class SymbolEnv {
         }
 
         SymbolEnv symbolEnv = new SymbolEnv(pattern, scope);
+        env.copyTo(symbolEnv);
+        symbolEnv.envCount = env.envCount + 1;
+        symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createBlockEnv(BLangBlockStmt block, SymbolEnv env) {
+        // Create a scope for the block node if one doesn't exists
+        Scope scope = block.scope;
+        if (scope == null) {
+            scope = new Scope(env.scope.owner);
+            block.scope = scope;
+        }
+
+        SymbolEnv symbolEnv = new SymbolEnv(block, scope);
         env.copyTo(symbolEnv);
         symbolEnv.envCount = env.envCount + 1;
         symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;

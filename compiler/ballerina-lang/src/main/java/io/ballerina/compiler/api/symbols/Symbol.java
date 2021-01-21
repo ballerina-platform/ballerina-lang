@@ -39,9 +39,12 @@ public interface Symbol {
 
     /**
      * Get the moduleID of the symbol.
-     * 
+     *
      * @return {@link ModuleID} of the symbol
+     * @deprecated This method will be removed in a later version and be replaced with a new method which will return
+     * the module symbol instead.
      */
+    @Deprecated
     ModuleID moduleID();
 
     /**

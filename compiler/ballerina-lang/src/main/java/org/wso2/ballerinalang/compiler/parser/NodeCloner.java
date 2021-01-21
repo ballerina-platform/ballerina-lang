@@ -58,6 +58,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -777,6 +779,12 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangWildCardBindingPattern source) {
+        BLangWildCardBindingPattern clone = new BLangWildCardBindingPattern();
+        source.cloneRef = clone;
+    }
+
+    @Override
     public void visit(BLangErrorMatchPattern source) {
         BLangErrorMatchPattern clone = new BLangErrorMatchPattern();
         source.cloneRef = clone;
@@ -833,6 +841,13 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.matchPattern = clone(source.matchPattern);
         clone.fieldName = source.fieldName;
+    }
+
+    @Override
+    public void visit(BLangListBindingPattern source) {
+        BLangListBindingPattern clone = new BLangListBindingPattern();
+        source.cloneRef = clone;
+        clone.bindingPatterns = cloneList(source.bindingPatterns);
     }
 
     @Override

@@ -206,7 +206,7 @@ public class ManifestBuilder {
         }
 
         // check that the package name is valid
-        boolean isValidPkg = ProjectUtils.validatePkgName(name);
+        boolean isValidPkg = ProjectUtils.validatePackageName(name);
         if (!isValidPkg) {
             addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
                           "invalid Ballerina.toml file: Invalid 'name' under [package]: '" + name + "' :\n"

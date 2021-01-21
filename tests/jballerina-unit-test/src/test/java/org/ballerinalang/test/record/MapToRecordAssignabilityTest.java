@@ -55,8 +55,6 @@ public class MapToRecordAssignabilityTest {
         validateError(result, indx++,
                       "incompatible types: expected 'record {| string a; string...; |}', found 'map<string>'", 29, 12);
         validateError(result, indx++, "incompatible types: expected 'record {| Bar...; |}', found 'map<Foo>'", 52, 13);
-        validateError(result, indx++, "incompatible types: expected 'record {| Baz x?; Foo...; |}', found 'map<Bar>'",
-                      58, 13);
         assertEquals(result.getErrorCount(), indx);
     }
 
@@ -84,13 +82,6 @@ public class MapToRecordAssignabilityTest {
                   "not found in record type 'Bar'.*")
     public void testSubtyping() {
         BRunUtil.invoke(compileResult, "testSubtyping");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: 'Bar' cannot be " +
-                  "cast to 'Baz'.*")
-    public void testComplexSubtyping() {
-        BRunUtil.invoke(compileResult, "testComplexSubtyping");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
