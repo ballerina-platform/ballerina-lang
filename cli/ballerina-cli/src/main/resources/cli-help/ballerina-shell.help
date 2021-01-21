@@ -7,8 +7,7 @@ SYNOPSIS
 
 DESCRIPTION
        Shell runs a REPL instance of Ballerina to enable users to run small
-       snippets of code and check the output. Please note that this is an
-       experimental feature.
+       snippets of code. Please note that this is an experimental feature.
 
        Debug messages can be enabled using the '-d' option.
 
