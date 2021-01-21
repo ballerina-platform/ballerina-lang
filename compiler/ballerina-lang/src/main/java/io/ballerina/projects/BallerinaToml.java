@@ -55,17 +55,16 @@ import java.util.Set;
  */
 public class BallerinaToml extends TomlDocument {
 
-    private DiagnosticResult diagnostics;
-    private List<Diagnostic> diagnosticList;
-    private PackageManifest packageManifest;
-    private BuildOptions buildOptions;
-    private Path filePath;
-
     private static final String VERSION = "version";
     private static final String LICENSE = "license";
     private static final String AUTHORS = "authors";
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
+    private DiagnosticResult diagnostics;
+    private List<Diagnostic> diagnosticList;
+    private PackageManifest packageManifest;
+    private BuildOptions buildOptions;
+    private Path filePath;
 
     private BallerinaToml(Path filePath) {
         super(filePath);
@@ -126,21 +125,21 @@ public class BallerinaToml extends TomlDocument {
 
         if (tomlTableNode.entries().isEmpty()) {
             addDiagnostic(null, DiagnosticSeverity.ERROR, tomlTableNode,
-                          "invalid Ballerina.toml file: cannot find [package]");
+                    "invalid Ballerina.toml file: cannot find [package]");
             return null;
         }
 
         TomlTableNode pkgNode = (TomlTableNode) tomlTableNode.entries().get("package");
         if (pkgNode == null || pkgNode.kind() == TomlType.NONE) {
             addDiagnostic(null, DiagnosticSeverity.ERROR, tomlTableNode,
-                          "invalid Ballerina.toml file: cannot find [package]");
+                    "invalid Ballerina.toml file: cannot find [package]");
             return null;
         }
         if (pkgNode.entries().isEmpty()) {
             addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                          "invalid Ballerina.toml file: organization, name and the version of the "
-                                  + "package is missing. example: \n" + "[package]\n" + "org=\"my_org\"\n"
-                                  + "name=\"my_package\"\n" + "version=\"1.0.0\"\n");
+                    "invalid Ballerina.toml file: organization, name and the version of the "
+                            + "package is missing. example: \n" + "[package]\n" + "org=\"my_org\"\n"
+                            + "name=\"my_package\"\n" + "version=\"1.0.0\"\n");
             return null;
         }
 
@@ -156,8 +155,8 @@ public class BallerinaToml extends TomlDocument {
         }
 
         PackageDescriptor descriptor = PackageDescriptor.from(PackageOrg.from(org),
-                                                              PackageName.from(name),
-                                                              PackageVersion.from(version));
+                PackageName.from(name),
+                PackageVersion.from(version));
 
         Map<String, TopLevelNode> otherEntries = tomlTableNode.entries();
         otherEntries.remove("package");
@@ -191,18 +190,18 @@ public class BallerinaToml extends TomlDocument {
         boolean isValidOrg = ProjectUtils.validateOrgName(org);
         if (!isValidOrg) {
             addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                          "invalid Ballerina.toml file: Invalid 'org' under [package]: '" + org + "' :\n"
-                                  + "'org' can only contain alphanumerics, underscores and periods "
-                                  + "and the maximum length is 256 characters");
+                    "invalid Ballerina.toml file: Invalid 'org' under [package]: '" + org + "' :\n"
+                            + "'org' can only contain alphanumerics, underscores and periods "
+                            + "and the maximum length is 256 characters");
         }
 
         // check that the package name is valid
         boolean isValidPkg = ProjectUtils.validatePkgName(name);
         if (!isValidPkg) {
             addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                          "invalid Ballerina.toml file: Invalid 'name' under [package]: '" + name + "' :\n"
-                                  + "'name' can only contain alphanumerics, underscores "
-                                  + "and the maximum length is 256 characters");
+                    "invalid Ballerina.toml file: Invalid 'name' under [package]: '" + name + "' :\n"
+                            + "'name' can only contain alphanumerics, underscores "
+                            + "and the maximum length is 256 characters");
         }
 
         // check version is compatible with semver
@@ -211,7 +210,7 @@ public class BallerinaToml extends TomlDocument {
             semanticVersion = SemanticVersion.from(version);
         } catch (ProjectException e) {
             addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                          "invalid package version in Ballerina.toml. " + e.getMessage());
+                    "invalid package version in Ballerina.toml. " + e.getMessage());
         }
 
         return isValidOrg && isValidPkg && semanticVersion != null;
@@ -237,7 +236,7 @@ public class BallerinaToml extends TomlDocument {
 
         } else {
             addDiagnostic(null, DiagnosticSeverity.ERROR, dependencyEntries,
-                          "invalid Ballerina.toml file: 'dependency' should be a table array");
+                    "invalid Ballerina.toml file: 'dependency' should be a table array");
         }
         return dependencies;
     }
@@ -253,7 +252,7 @@ public class BallerinaToml extends TomlDocument {
                 Set<String> platformCodes = platformTable.entries().keySet();
                 if (platformCodes.size() != 1) {
                     addDiagnostic(null, DiagnosticSeverity.ERROR, platformTable,
-                                  "invalid Ballerina.toml file: cannot find platform code under 'platform'");
+                            "invalid Ballerina.toml file: cannot find platform code under 'platform'");
                 }
 
                 String platformCode = platformCodes.stream().findFirst().get();
@@ -265,7 +264,7 @@ public class BallerinaToml extends TomlDocument {
 
                     if (dependencyNode.kind() == TomlType.NONE) {
                         addDiagnostic(null, DiagnosticSeverity.ERROR, dependencyNode,
-                                      "invalid Ballerina.toml file: cannot find 'dependency' under 'platform'");
+                                "invalid Ballerina.toml file: cannot find 'dependency' under 'platform'");
                     }
 
                     if (dependencyNode.kind() == TomlType.TABLE_ARRAY) {
@@ -279,20 +278,20 @@ public class BallerinaToml extends TomlDocument {
                                 if (!platformEntryTable.entries().isEmpty()) {
                                     Map<String, Object> platformEntryMap = new HashMap<>();
                                     platformEntryMap.put("path",
-                                                         getStringValueFromPlatformEntry(platformEntryTable,
-                                                                                         "path"));
+                                            getStringValueFromPlatformEntry(platformEntryTable,
+                                                    "path"));
                                     platformEntryMap.put("groupId",
-                                                         getStringValueFromPlatformEntry(platformEntryTable,
-                                                                                         "groupId"));
+                                            getStringValueFromPlatformEntry(platformEntryTable,
+                                                    "groupId"));
                                     platformEntryMap.put("artifactId",
-                                                         getStringValueFromPlatformEntry(platformEntryTable,
-                                                                                         "artifactId"));
+                                            getStringValueFromPlatformEntry(platformEntryTable,
+                                                    "artifactId"));
                                     platformEntryMap.put(VERSION,
-                                                         getStringValueFromPlatformEntry(platformEntryTable,
-                                                                                         VERSION));
+                                            getStringValueFromPlatformEntry(platformEntryTable,
+                                                    VERSION));
                                     platformEntryMap.put("scope",
-                                                         getStringValueFromPlatformEntry(platformEntryTable,
-                                                                                         "scope"));
+                                            getStringValueFromPlatformEntry(platformEntryTable,
+                                                    "scope"));
                                     platformEntry.add(platformEntryMap);
                                 }
                             }
@@ -306,11 +305,11 @@ public class BallerinaToml extends TomlDocument {
                     }
                 } else {
                     addDiagnostic(null, DiagnosticSeverity.ERROR, platformCodeNode,
-                                  "invalid Ballerina.toml file: platform code under 'platform' should be a table");
+                            "invalid Ballerina.toml file: platform code under 'platform' should be a table");
                 }
             } else {
                 addDiagnostic(null, DiagnosticSeverity.ERROR, platformNode,
-                              "invalid Ballerina.toml file: 'platform' should be a table");
+                        "invalid Ballerina.toml file: 'platform' should be a table");
             }
         }
 
@@ -333,12 +332,23 @@ public class BallerinaToml extends TomlDocument {
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.TEST_REPORT.toString());
         boolean codeCoverage =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.CODE_COVERAGE.toString());
+        final TopLevelNode topLevelNode = tableNode.entries().get(CompilerOptionName.CLOUD.toString());
+        String cloud = "";
+        if (topLevelNode != null) {
+            cloud = getStringFromTomlTableNode(topLevelNode,
+                    CompilerOptionName.CLOUD.toString(), "[build-options]");
+        }
+        boolean taintCheck =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.TAINT_CHECK.toString());
+
         return buildOptionsBuilder
                 .skipTests(skipTests)
                 .offline(offline)
                 .observabilityIncluded(observabilityIncluded)
                 .testReport(testReport)
                 .codeCoverage(codeCoverage)
+                .cloud(cloud)
+                .taintCheck(taintCheck)
                 .build();
     }
 
@@ -357,7 +367,7 @@ public class BallerinaToml extends TomlDocument {
             }
         }
         addDiagnostic(null, DiagnosticSeverity.ERROR, topLevelNode,
-                      "invalid Ballerina.toml file: at '" + key + "' under [build-options]");
+                "invalid Ballerina.toml file: at '" + key + "' under [build-options]");
         return false;
     }
 
@@ -365,7 +375,7 @@ public class BallerinaToml extends TomlDocument {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
             addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                          "invalid Ballerina.toml file: cannot find '" + key + "' under [package]");
+                    "invalid Ballerina.toml file: cannot find '" + key + "' under [package]");
             return null;
         }
         return getStringFromTomlTableNode(topLevelNode, key, "[[package]]");
@@ -375,7 +385,7 @@ public class BallerinaToml extends TomlDocument {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
             addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                          "invalid Ballerina.toml file: cannot find '" + key + "' under [[dependency]]");
+                    "invalid Ballerina.toml file: cannot find '" + key + "' under [[dependency]]");
             return null;
         }
         return getStringFromTomlTableNode(topLevelNode, key, "[[dependency]]");
@@ -399,7 +409,7 @@ public class BallerinaToml extends TomlDocument {
             }
         }
         addDiagnostic(null, DiagnosticSeverity.ERROR, topLevelNode,
-                      "invalid Ballerina.toml file: cannot find '" + key + "' under " + tableNodeName);
+                "invalid Ballerina.toml file: cannot find '" + key + "' under " + tableNodeName);
         return null;
     }
 
@@ -422,14 +432,14 @@ public class BallerinaToml extends TomlDocument {
                     for (TomlValueNode value : array.elements()) {
                         if (value.kind() != TomlType.STRING) {
                             addDiagnostic(null, DiagnosticSeverity.ERROR, topLevelArrayNode,
-                                          "invalid Ballerina.toml file: '" + key + "' should have string elements");
+                                    "invalid Ballerina.toml file: '" + key + "' should have string elements");
                         }
                     }
                     return;
                 }
             }
             addDiagnostic(null, DiagnosticSeverity.ERROR, topLevelArrayNode,
-                          "invalid Ballerina.toml file: at '" + key + "'");
+                    "invalid Ballerina.toml file: at '" + key + "'");
         }
     }
 
@@ -443,7 +453,7 @@ public class BallerinaToml extends TomlDocument {
                 }
             }
             addDiagnostic(null, DiagnosticSeverity.ERROR, topLevelStringNode,
-                          "invalid Ballerina.toml file: at '" + key + "'");
+                    "invalid Ballerina.toml file: at '" + key + "'");
         }
     }
 
@@ -451,7 +461,7 @@ public class BallerinaToml extends TomlDocument {
         DiagnosticInfo diagInfo;
         if (diagnosticCode != null) {
             diagInfo = new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.messageKey(),
-                                          diagnosticCode.severity());
+                    diagnosticCode.severity());
         } else {
             diagInfo = new DiagnosticInfo(null, message, severity);
         }
@@ -461,8 +471,8 @@ public class BallerinaToml extends TomlDocument {
             tomlNodeLocation = new TomlNodeLocation(node.location().lineRange(), node.location().textRange());
         } else {
             LineRange lineRange = LineRange.from(String.valueOf(this.filePath),
-                                                 LinePosition.from(0, 0),
-                                                 LinePosition.from(0, 0));
+                    LinePosition.from(0, 0),
+                    LinePosition.from(0, 0));
             TextRange textRange = TextRange.from(0, 0);
             tomlNodeLocation = new TomlNodeLocation(lineRange, textRange);
         }

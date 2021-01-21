@@ -104,6 +104,11 @@ public class DocumentationTest extends AbstractMiscTest {
         testFile("documentation/doc_source_17.bal", "documentation/doc_assert_17.json");
     }
 
+    @Test
+    public void testDocumentingSpecialIdentifiers() {
+        testFile("documentation/doc_source_19.bal", "documentation/doc_assert_19.json");
+    }
+
     // Invalid Syntax
 
     @Test
@@ -111,7 +116,7 @@ public class DocumentationTest extends AbstractMiscTest {
         testFile("documentation/doc_source_13.bal", "documentation/doc_assert_13.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testDocWithInitialDiagnostics() {
         testFile("documentation/doc_source_18.bal", "documentation/doc_assert_18.json");
     }

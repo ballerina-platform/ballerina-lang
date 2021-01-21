@@ -19,6 +19,7 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -77,11 +78,11 @@ public class ServiceSemanticAPITest {
                                           "$get$foo$*", "$get$foo$*$**");
         assertList(symbol.methods(), expMethods);
 
-        MethodSymbol method = symbol.methods().get(0);
+        MethodSymbol method = symbol.methods().get("foo");
         assertEquals(method.qualifiers().size(), 1);
         assertTrue(method.qualifiers().contains(Qualifier.REMOTE));
 
-        method = symbol.methods().get(1);
+        method = symbol.methods().get("$get$barPath");
         assertEquals(method.qualifiers().size(), 1);
         assertTrue(method.qualifiers().contains(Qualifier.RESOURCE));
     }
@@ -107,7 +108,7 @@ public class ServiceSemanticAPITest {
 
     @Test
     public void testServiceDeclField() {
-        VariableSymbol symbol = (VariableSymbol) model.symbol(srcFile, from(68, 18)).get();
+        ClassFieldSymbol symbol = (ClassFieldSymbol) model.symbol(srcFile, from(68, 18)).get();
         assertEquals(symbol.name(), "magic");
         assertEquals(symbol.typeDescriptor().typeKind(), STRING);
         assertEquals(symbol.qualifiers().size(), 1);

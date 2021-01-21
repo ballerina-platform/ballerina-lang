@@ -30,8 +30,8 @@ import org.testng.annotations.Test;
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
-import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -62,8 +62,8 @@ public class SymbolByObjectTest extends SymbolByNodeTest {
 
             @Override
             public void visit(ObjectFieldNode objectFieldNode) {
-                assertSymbol(objectFieldNode, model, VARIABLE, objectFieldNode.fieldName().text());
-                assertSymbol(objectFieldNode.fieldName(), model, VARIABLE, objectFieldNode.fieldName().text());
+                assertSymbol(objectFieldNode, model, OBJECT_FIELD, objectFieldNode.fieldName().text());
+                assertSymbol(objectFieldNode.fieldName(), model, OBJECT_FIELD, objectFieldNode.fieldName().text());
             }
 
             @Override

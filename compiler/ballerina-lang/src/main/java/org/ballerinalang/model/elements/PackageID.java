@@ -40,6 +40,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.JAVA_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.MAP_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.OBJECT_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.OBSERVE_INTERNAL_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.OBSERVE_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.QUERY_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.RUNTIME_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.STREAM_VERSION;
@@ -113,6 +114,8 @@ public class PackageID {
                                                                        TRANSACTION_INTERNAL_VERSION);
     public static final PackageID OBSERVE_INTERNAL = new PackageID(Names.BALLERINA_INTERNAL_ORG,
             Lists.of(Names.OBSERVE), OBSERVE_INTERNAL_VERSION);
+    public static final PackageID OBSERVE = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.OBSERVE), OBSERVE_VERSION);
 
     public Name orgName;
     public Name name;

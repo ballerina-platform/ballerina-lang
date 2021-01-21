@@ -104,7 +104,7 @@ public class SemanticAPITestUtils {
         assertList(symbols, expectedValues);
     }
 
-    public static void assertList(Map<String, Symbol> actualValues, List<String> expectedValues) {
+    public static void assertList(Map<String, ? extends Symbol> actualValues, List<String> expectedValues) {
         assertEquals(actualValues.size(), expectedValues.size());
 
         for (String val : expectedValues) {

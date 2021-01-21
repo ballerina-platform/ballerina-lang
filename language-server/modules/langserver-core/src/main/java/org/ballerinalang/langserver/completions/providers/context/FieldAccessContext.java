@@ -16,9 +16,10 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -38,7 +39,8 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.FieldCompletionItem;
+import org.ballerinalang.langserver.completions.ObjectFieldCompletionItem;
+import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -140,18 +142,17 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             return Optional.empty();
         }
 
-        List<FieldSymbol> fieldSymbols = new ArrayList<>();
         TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
-        if (rawType.typeKind() == TypeDescKind.OBJECT) {
-            fieldSymbols.addAll(((ObjectTypeSymbol) rawType).fieldDescriptors());
-        } else if (rawType.typeKind() == TypeDescKind.RECORD) {
-            fieldSymbols.addAll(((RecordTypeSymbol) rawType).fieldDescriptors());
+        switch (rawType.typeKind()) {
+            case OBJECT:
+                ObjectFieldSymbol objField = ((ObjectTypeSymbol) rawType).fieldDescriptors().get(fieldName);
+                return objField != null ? Optional.of(objField.typeDescriptor()) : Optional.empty();
+            case RECORD:
+                RecordFieldSymbol recField = ((RecordTypeSymbol) rawType).fieldDescriptors().get(fieldName);
+                return recField != null ? Optional.of(recField.typeDescriptor()) : Optional.empty();
+            default:
+                return Optional.empty();
         }
-
-        return fieldSymbols.stream()
-                .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
-                .map(FieldSymbol::typeDescriptor)
-                .findAny();
     }
 
     private Optional<? extends TypeSymbol> getTypeDescForNameRef(BallerinaCompletionContext context,
@@ -198,7 +199,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         TypeSymbol rawType = CommonUtil.getRawType(fieldTypeDesc.get());
         List<FunctionSymbol> visibleMethods = rawType.langLibMethods();
         if (rawType.typeKind() == TypeDescKind.OBJECT) {
-            visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods());
+            visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods().values());
         }
         Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
@@ -228,24 +229,25 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor);
         switch (rawType.typeKind()) {
             case RECORD:
-                ((RecordTypeSymbol) rawType).fieldDescriptors().forEach(fieldDescriptor -> {
+                ((RecordTypeSymbol) rawType).fieldDescriptors().forEach((name, fieldDescriptor) -> {
                     CompletionItem completionItem = new CompletionItem();
-                    completionItem.setLabel(fieldDescriptor.name());
-                    completionItem.setInsertText(fieldDescriptor.name());
+                    completionItem.setLabel(name);
+                    completionItem.setInsertText(name);
                     completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
-                    completionItems.add(new FieldCompletionItem(context, fieldDescriptor, completionItem));
+                    completionItems.add(new RecordFieldCompletionItem(context, fieldDescriptor, completionItem));
                 });
                 break;
             case OBJECT:
                 ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) rawType;
-                objTypeDesc.fieldDescriptors().forEach(fieldDescriptor -> {
+                objTypeDesc.fieldDescriptors().forEach((name, fieldDescriptor) -> {
                     CompletionItem completionItem = new CompletionItem();
-                    completionItem.setLabel(fieldDescriptor.name());
-                    completionItem.setInsertText(fieldDescriptor.name());
+                    completionItem.setLabel(name);
+                    completionItem.setInsertText(name);
                     completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
-                    completionItems.add(new FieldCompletionItem(context, fieldDescriptor, completionItem));
+                    completionItems.add(new ObjectFieldCompletionItem(context, fieldDescriptor, completionItem));
                 });
-                completionItems.addAll(this.getCompletionItemList(objTypeDesc.methods(), context));
+                completionItems.addAll(
+                        this.getCompletionItemList(new ArrayList<>(objTypeDesc.methods().values()), context));
                 break;
             case UNION:
                 UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rawType;

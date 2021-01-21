@@ -22,6 +22,7 @@ module io.ballerina.language.server.core {
     requires org.apache.commons.io;
     requires handlebars;
     requires io.ballerina.parser;
+    requires io.ballerina.toml;
     requires jsr305;
     requires toml4j;
     requires swagger.parser.v3;

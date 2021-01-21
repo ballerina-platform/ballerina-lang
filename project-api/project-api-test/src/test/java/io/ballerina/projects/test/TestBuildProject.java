@@ -358,7 +358,7 @@ public class TestBuildProject {
             Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
         }
 
-        projectPath = RESOURCE_DIRECTORY.resolve("single-file");
+        projectPath = RESOURCE_DIRECTORY.resolve("single_file");
         try {
             BuildProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
@@ -793,7 +793,7 @@ public class TestBuildProject {
         }
 
         // Test module level symbols
-        List<Symbol> symbols = semanticModel.moduleLevelSymbols();
+        List<Symbol> symbols = semanticModel.moduleSymbols();
         Assert.assertEquals(symbols.size(), 5);
 
         // Test symbol

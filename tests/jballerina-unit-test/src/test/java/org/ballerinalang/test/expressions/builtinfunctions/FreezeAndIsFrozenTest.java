@@ -442,58 +442,54 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testFreezeAndIsFrozenSemanticsNegativeCases() {
-        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 24);
+        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 22);
         int index = 0;
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'PersonObj', found 'anydata'", 19, 19);
+                "incompatible types: expected 'Cloneable', found 'PersonObj'", 19, 19);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 19, 19);
+                "incompatible types: expected 'Cloneable', found 'PersonObj'", 19, 19);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 19, 19);
+                "incompatible types: expected 'PersonObj', found 'Cloneable'", 19, 19);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'map<PersonObj>'", 24, 9);
+                "incompatible types: expected 'Cloneable', found 'map<PersonObj>'", 24, 9);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj[]'", 29, 9);
+                "incompatible types: expected 'Cloneable', found 'PersonObj[]'", 29, 9);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '(PersonObjTwo|PersonObj)?[]'", 32, 10);
+                      "incompatible types: expected 'Cloneable', found '(PersonObjTwo|PersonObj)?[]'", 32, 10);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '[(PersonObj|PersonObjTwo),PersonObjTwo]'", 39,
-                9);
+                      "incompatible types: expected 'Cloneable', found '[(PersonObj|PersonObjTwo),PersonObjTwo]'",
+                39, 9);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'Department'", 44, 9);
+                "incompatible types: expected 'Cloneable', found 'Department'", 44, 9);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found 'map<(string|PersonObj)>'", 49, 32);
+                      "incompatible types: expected 'Cloneable', found 'map<(string|PersonObj)>'", 49, 32);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'map<[(string|PersonObj)," +
+                "incompatible types: expected 'Cloneable', found 'map<[(string|PersonObj)," +
                         "(FreezeAllowedDepartment|float)]>'", 52, 26);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '(boolean|PersonObj|float)?[]'", 55, 39);
+                      "incompatible types: expected 'Cloneable', found '(boolean|PersonObj|float)?[]'", 55, 39);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '(boolean|PersonObj|float)?[]'", 57, 16);
+                      "incompatible types: expected 'Cloneable', found '(boolean|PersonObj|float)?[]'", 57, 16);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found '[(string|PersonObj),"
+                "incompatible types: expected 'Cloneable', found '[(string|PersonObj),"
                 + "(FreezeAllowedDepartment|float)]'", 60, 60);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found 'FreezeAllowedDepartment'", 63, 35);
+                "incompatible types: expected 'Cloneable', found 'FreezeAllowedDepartment'", 63, 35);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found '(string|PersonObj)'", 66, 27);
+                "incompatible types: expected 'Cloneable', found '(string|PersonObj)'", 66, 27);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'any', found 'error'", 71, 9);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'error'", 71, 9);
+                "incompatible types: expected 'Cloneable', found 'map<(string|PersonObj)>'", 81, 39);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found 'map<(string|PersonObj)>'", 81, 39);
+                "incompatible types: expected 'Cloneable', found '(string|stream<int>|float)?[]'", 92, 47);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '(string|typedesc<anydata>|float)?[]'", 92, 53);
+                "incompatible types: expected 'Cloneable', found 'FreezeAllowedDepartment2'", 100, 42);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found 'FreezeAllowedDepartment2'", 100, 42);
+                "incompatible types: expected 'Cloneable', found '[int,(string|PersonObj|float),boolean]'",
+                106, 21);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '[int,(string|PersonObj|float),boolean]'", 106,
-                      21);
-        validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '(int|Department|PersonObj)'", 113, 42);
-        validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found '(anydata|error)'", 120, 19);
+                "incompatible types: expected 'Cloneable', found '(int|Department|PersonObj)'", 113, 42);
         validateError(semanticsNegativeResult, index,
                 "incompatible types: expected 'anydata', found '(anydata|error)'", 120, 19);
     }

@@ -77,18 +77,18 @@ type Person record {
     string name;
 };
 
-public type MyErrorData record {
+public type MyErrorData record {|
     string message?;
     error cause?;
-};
+|};
 
 type MyError error<MyErrorData>;
 
-public type CustomErrorData record {
+public type CustomErrorData record {|
     string data;
     string message?;
     error cause?;
-};
+|};
 
 type CustomError error<CustomErrorData>;
 
