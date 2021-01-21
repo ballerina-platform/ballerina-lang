@@ -15,19 +15,26 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.bindingpattern;
+package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
 
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.bindingpattern.WildCardBindingPatternNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * The interface with the APIs to implement the capture-binding-pattern.
+ * Represent wildcard-binding-pattern.
  *
  * @since 2.0.0
  */
-public interface CaptureBindingPattern extends Node {
+public class BLangWildCardBindingPattern extends BLangBindingPattern implements WildCardBindingPatternNode {
 
-    IdentifierNode getIdentifier();
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 
-    void setIdentifier(IdentifierNode variableName);
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.WILDCARD_BINDING_PATTERN;
+    }
 }

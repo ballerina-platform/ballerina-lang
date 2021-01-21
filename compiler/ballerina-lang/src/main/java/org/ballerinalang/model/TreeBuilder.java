@@ -52,8 +52,10 @@ import org.ballerinalang.model.tree.TableKeySpecifierNode;
 import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPattern;
-import org.ballerinalang.model.tree.bindingpattern.ListBindingPattern;
+import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.ListBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.RestBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.WildCardBindingPatternNode;
 import org.ballerinalang.model.tree.expressions.AnnotAccessNode;
 import org.ballerinalang.model.tree.expressions.ArrowFunctionNode;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
@@ -197,6 +199,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -814,12 +818,20 @@ public class TreeBuilder {
         return new BLangMatchGuard();
     }
 
-    public static CaptureBindingPattern createCaptureBindingPattern() {
+    public static WildCardBindingPatternNode createWilCardBindingPattern() {
+        return new BLangWildCardBindingPattern();
+    }
+
+    public static CaptureBindingPatternNode createCaptureBindingPattern() {
         return new BLangCaptureBindingPattern();
     }
 
-    public static ListBindingPattern createListBindingPattern() {
+    public static ListBindingPatternNode createListBindingPattern() {
         return new BLangListBindingPattern();
+    }
+
+    public static RestBindingPatternNode createRestBindingPattern() {
+        return new BLangRestBindingPattern();
     }
 
     public static ErrorMatchPatternNode createErrorMatchPattern() {

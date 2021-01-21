@@ -19,17 +19,21 @@ package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.bindingpattern.BindingPatternNode;
-import org.ballerinalang.model.tree.bindingpattern.ListBindingPattern;
+import org.ballerinalang.model.tree.bindingpattern.ListBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.RestBindingPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Represent list-binding-pattern.
+ *
  * @since 2.0.0
  */
-public class BLangListBindingPattern extends BLangBindingPattern implements ListBindingPattern {
+public class BLangListBindingPattern extends BLangBindingPattern implements ListBindingPatternNode {
     public List<BLangBindingPattern> bindingPatterns = new ArrayList<>();
+    public BLangRestBindingPattern restBindingPattern;
 
     @Override
     public List<? extends BindingPatternNode> getBindingPatterns() {
@@ -42,8 +46,18 @@ public class BLangListBindingPattern extends BLangBindingPattern implements List
     }
 
     @Override
-    public void accept(BLangNodeVisitor visitor) {
+    public RestBindingPatternNode getRestBindingPattern() {
+        return restBindingPattern;
+    }
 
+    @Override
+    public void setRestBindingPattern(RestBindingPatternNode restBindingPattern) {
+        this.restBindingPattern = (BLangRestBindingPattern) restBindingPattern;
+    }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
