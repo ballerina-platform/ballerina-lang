@@ -148,14 +148,14 @@ class AIDataMapperCodeActionUtil {
                     boolean foundErrorRight = false;
 
                     // If the function is returning a record | error
-                    if (foundTypeLeft.equals("")) {
+                    if ("".equals(foundTypeLeft)) {
                         List<TypeSymbol> leftTypeSymbols = ((UnionTypeSymbol) lftTypeSymbol).memberTypeDescriptors();
                         lftTypeSymbol = findSymbol(leftTypeSymbols);
                         foundTypeLeft = lftTypeSymbol.name();
                         foundErrorLeft = true;
                     }
                     // If the check or checkpanic is used
-                    if (foundTypeRight.equals("")) {
+                    if ("".equals(foundTypeRight)) {
                         List<TypeSymbol> rightTypeSymbols = ((UnionTypeSymbol) rhsTypeSymbol).memberTypeDescriptors();
                         rhsTypeSymbol = findSymbol(rightTypeSymbols);
                         foundTypeRight = rhsTypeSymbol.name();
@@ -189,7 +189,9 @@ class AIDataMapperCodeActionUtil {
             // Insert function declaration at the bottom of the file
             String functionName = String.format("map%sTo%s", foundTypeRight, foundTypeLeft);
             boolean found = fileContentSymbols.stream().anyMatch(p -> p.name().contains(functionName));
-            if (!found) {
+            if (found) {
+                return fEdits;
+            } else {
                 // Get the last line of the file
                 TextDocument fileContentTextDocument = context.workspace().syntaxTree(context.filePath()).get().
                         textDocument();
@@ -224,10 +226,9 @@ class AIDataMapperCodeActionUtil {
                                 foundTypeLeft + "\\b", lftType);
                     }
                 }
-
                 fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
+                return fEdits;
             }
-            return fEdits;
         }
     }
 
@@ -239,7 +240,7 @@ class AIDataMapperCodeActionUtil {
      */
     public static Symbol findSymbol(List<TypeSymbol> fileContentSymbols) {
         for (Symbol symbol : fileContentSymbols) {
-            if (!symbol.name().equals("ERROR")) {
+            if (!"ERROR".equals(symbol.name())) {
                 return symbol;
             }
         }
@@ -265,7 +266,7 @@ class AIDataMapperCodeActionUtil {
 
         // Schema 1
         TypeSymbol rhsSymbol = ((TypeReferenceTypeSymbol) rhsTypeSymbol).typeDescriptor();
-        if (rhsSymbol.typeKind().name().equals("RECORD")) {
+        if ("RECORD".equals(rhsSymbol.typeKind().name())) {
             RecordTypeSymbol rightSymbol = (RecordTypeSymbol) rhsSymbol;
             Map<String, RecordFieldSymbol> rightSchemaFields = rightSymbol.fieldDescriptors();
             JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields.values());
@@ -278,7 +279,7 @@ class AIDataMapperCodeActionUtil {
 
         // Schema 2
         TypeSymbol lftSymbol = ((TypeReferenceTypeSymbol) lftTypeSymbol).typeDescriptor();
-        if (lftSymbol.typeKind().name().equals("RECORD")) {
+        if ("RECORD".equals(lftSymbol.typeKind().name())) {
             RecordTypeSymbol leftSymbol = (RecordTypeSymbol) lftSymbol;
             Map<String, RecordFieldSymbol> leftSchemaFields = leftSymbol.fieldDescriptors();
 
