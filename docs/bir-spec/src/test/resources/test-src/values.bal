@@ -239,6 +239,8 @@ function testMappingJsonWithIntersectionMergeFailure1() returns boolean {
                 detailString != "JSON Merge failed for key 'two'") {
             return false;
         }
+    } else {
+        return false;
     }
 
     error err = <error> mj;
@@ -265,6 +267,8 @@ function testMappingJsonWithIntersectionMergeFailure2() returns boolean {
         if (mj.message() != MERGE_JSON_ERROR_REASON || detailString != "JSON Merge failed for key 'one'") {
             return false;
         }
+    } else {
+        return false;
     }
 
     error err = <error> mj;
@@ -315,6 +319,8 @@ function testMergeJsonFailureForValuesWithIntersectingCyclicRefererences() retur
         if (detailMessage != "JSON Merge failed for key 'z'") {
             return false;
         }
+    } else {
+        return false;
     }
     if (result is json) {
         return false;
