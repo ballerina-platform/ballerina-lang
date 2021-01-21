@@ -126,17 +126,18 @@ public class BallerinaShell {
      * @param diagnostic Diagnostic to output.
      */
     protected void outputDiagnostic(Diagnostic diagnostic) {
-        if (diagnostic.getKind() == DiagnosticKind.DEBUG &&
-                !configuration.isDebug()) {
+        DiagnosticKind diagnosticKind = diagnostic.getKind();
+        if (diagnosticKind == DiagnosticKind.DEBUG) {
+            if (configuration.isDebug()) {
+                terminal.debug(diagnostic.toString());
+            }
             return;
         }
 
-        if (diagnostic.getKind() == DiagnosticKind.ERROR) {
+        if (diagnosticKind == DiagnosticKind.ERROR) {
             terminal.error(diagnostic.toString());
-        } else if (diagnostic.getKind() == DiagnosticKind.WARN) {
-            terminal.warn(diagnostic.toString());
         } else {
-            terminal.debug(diagnostic.toString());
+            terminal.warn(diagnostic.toString());
         }
     }
 
