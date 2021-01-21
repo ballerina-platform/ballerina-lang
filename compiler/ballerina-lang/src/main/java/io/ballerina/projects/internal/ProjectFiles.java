@@ -17,7 +17,12 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.*;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.MdDocument;
+import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
