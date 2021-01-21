@@ -119,7 +119,6 @@ public class ShellCommandTest extends BaseCommandTest {
         try {
             BShellConfiguration configuration = new BShellConfiguration.Builder()
                     .setDebug(false).setInputStream(shellIn).setOutputStream(shellOut)
-                    .setEvaluatorMode(BShellConfiguration.EvaluatorMode.DEFAULT)
                     .setTreeParsingTimeoutMs(10000).build();
             ReplShellApplication.execute(configuration);
         } catch (EndOfFileException ignored) {
