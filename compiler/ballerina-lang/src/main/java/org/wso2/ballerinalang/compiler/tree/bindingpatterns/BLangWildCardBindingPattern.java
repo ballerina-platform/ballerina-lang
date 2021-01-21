@@ -17,20 +17,16 @@
  */
 package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
 
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPatternNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.ballerinalang.model.tree.bindingpattern.WildCardBindingPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
+ * Represent wildcard-binding-pattern.
+ *
  * @since 2.0.0
  */
-public class BLangCaptureBindingPattern extends BLangBindingPattern implements CaptureBindingPatternNode {
-
-    BLangIdentifier identifier;
-    public BVarSymbol symbol;
+public class BLangWildCardBindingPattern extends BLangBindingPattern implements WildCardBindingPatternNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -39,16 +35,6 @@ public class BLangCaptureBindingPattern extends BLangBindingPattern implements C
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.CAPTURE_BINDING_PATTERN;
-    }
-
-    @Override
-    public IdentifierNode getIdentifier() {
-        return identifier;
-    }
-
-    @Override
-    public void setIdentifier(IdentifierNode identifier) {
-        this.identifier = (BLangIdentifier) identifier;
+        return NodeKind.WILDCARD_BINDING_PATTERN;
     }
 }

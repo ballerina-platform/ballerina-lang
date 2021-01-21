@@ -280,7 +280,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -4097,22 +4101,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangVarBindingPatternMatchPattern bLangVarBindingPattern =
                     (BLangVarBindingPatternMatchPattern) TreeBuilder.createVarBindingPattern();
             bLangVarBindingPattern.pos = matchPatternPos;
-
-            SyntaxKind patternKind = typedBindingPatternNode.bindingPattern().kind();
-            switch (patternKind) {
-                case CAPTURE_BINDING_PATTERN:
-                    // TODO : check whether why cant we call the existing transform method
-                    CaptureBindingPatternNode captureBindingPattern =
-                            (CaptureBindingPatternNode) typedBindingPatternNode.bindingPattern();
-                    BLangCaptureBindingPattern bLangCaptureBindingPattern =
-                            createCaptureBindingPattern(captureBindingPattern);
-                    bLangVarBindingPattern.setBindingPattern(bLangCaptureBindingPattern);
-                    break;
-                default:
-                    // TODO : Remove this after all binding patterns are implemented
-                    dlog.error(matchPatternPos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
-                    return null;
-            }
+            bLangVarBindingPattern.setBindingPattern(transformBindingPattern(typedBindingPatternNode.bindingPattern()));
             return bLangVarBindingPattern;
         }
 
@@ -4229,6 +4218,54 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // TODO : Remove this after all binding patterns are implemented
         dlog.error(matchPatternPos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
         return null;
+    }
+
+    private BLangBindingPattern transformBindingPattern(Node bindingPattern) {
+        Location pos = getPosition(bindingPattern);
+        SyntaxKind patternKind = bindingPattern.kind();
+        switch (patternKind) {
+            case WILDCARD_BINDING_PATTERN:
+                BLangWildCardBindingPattern bLangWildCardBindingPattern =
+                        (BLangWildCardBindingPattern) TreeBuilder.createWilCardBindingPattern();
+                bLangWildCardBindingPattern.pos = pos;
+                return bLangWildCardBindingPattern;
+            case CAPTURE_BINDING_PATTERN:
+                // TODO : check whether why cant we call the existing transform method
+                CaptureBindingPatternNode captureBindingPattern = (CaptureBindingPatternNode) bindingPattern;
+                BLangCaptureBindingPattern bLangCaptureBindingPattern =
+                        (BLangCaptureBindingPattern) TreeBuilder.createCaptureBindingPattern();
+                bLangCaptureBindingPattern.setIdentifier(createIdentifier(captureBindingPattern.variableName()));
+                bLangCaptureBindingPattern.pos = getPosition(captureBindingPattern);
+                return bLangCaptureBindingPattern;
+            case LIST_BINDING_PATTERN:
+                ListBindingPatternNode listBindingPatternNode = (ListBindingPatternNode) bindingPattern;
+                BLangListBindingPattern bLangListBindingPattern =
+                        (BLangListBindingPattern) TreeBuilder.createListBindingPattern();
+                bLangListBindingPattern.pos = pos;
+
+                for (Node listMemberBindingPattern : listBindingPatternNode.bindingPatterns()) {
+                    if (listMemberBindingPattern.kind() != SyntaxKind.REST_BINDING_PATTERN) {
+                        bLangListBindingPattern.addBindingPattern(transformBindingPattern(listMemberBindingPattern));
+                        continue;
+                    }
+                    bLangListBindingPattern.restBindingPattern =
+                            (BLangRestBindingPattern) transformBindingPattern(listMemberBindingPattern);
+                }
+                return bLangListBindingPattern;
+            case REST_BINDING_PATTERN:
+                RestBindingPatternNode restBindingPatternNode = (RestBindingPatternNode) bindingPattern;
+                BLangRestBindingPattern bLangRestBindingPattern =
+                        (BLangRestBindingPattern) TreeBuilder.createRestBindingPattern();
+                bLangRestBindingPattern.pos = pos;
+
+                SimpleNameReferenceNode variableName = restBindingPatternNode.variableName();
+                bLangRestBindingPattern.setIdentifier(createIdentifier(getPosition(variableName), variableName.name()));
+                return bLangRestBindingPattern;
+            default:
+                // TODO : Remove this after all binding patterns are implemented
+                dlog.error(pos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
+                return null;
+        }
     }
 
     private boolean isErrorFieldMatchPattern(Node node) {

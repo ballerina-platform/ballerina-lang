@@ -1,6 +1,6 @@
 {
-  "line": 4,
-  "character": 1,
+  "line": 14,
+  "character": 13,
   "expected": [
     {
       "title": "Optimize all imports",
@@ -13,12 +13,12 @@
               {
                 "range": {
                   "start": {
-                    "line": 3,
+                    "line": 14,
                     "character": 0
                   },
                   "end": {
-                    "line": 5,
-                    "character": 25
+                    "line": 15,
+                    "character": 24
                   }
                 },
                 "newText": ""
@@ -26,28 +26,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 7,
+                    "line": 14,
                     "character": 0
                   },
                   "end": {
-                    "line": 8,
-                    "character": 20
-                  }
-                },
-                "newText": ""
-              },
-              {
-                "range": {
-                  "start": {
-                    "line": 3,
-                    "character": 0
-                  },
-                  "end": {
-                    "line": 3,
+                    "line": 14,
                     "character": 0
                   }
                 },
-                "newText": "import ballerina/lang.'object;\nimport ballerina/module1;\nimport ballerina/lang.'int as i;\nimport ballerina/lang.'string as s;\nimport wso2/twitter;\n"
+                "newText": "import projectls.lsmod2;\nimport ballerina/xyz;\n"
               }
             ]
           }
