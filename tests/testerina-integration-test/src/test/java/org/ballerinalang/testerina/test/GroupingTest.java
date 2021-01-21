@@ -126,4 +126,13 @@ public class GroupingTest extends BaseTestCase {
         }
     }
 
+    @Test
+    public void afterGroupsWithDisabledTest() throws BallerinaTestException {
+        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"groups", "g1",
+                "after-groups-with-disabled-test.bal"}, new HashMap<>(), projectPath, true);
+        if (errorOutput.contains("[fail] afterSuiteFunc")) {
+            throw new BallerinaTestException("Test failed due to assertion failure in after suite function");
+        }
+    }
+
 }
