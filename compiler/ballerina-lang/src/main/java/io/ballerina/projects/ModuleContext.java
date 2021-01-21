@@ -262,6 +262,10 @@ class ModuleContext {
             for (ModuleLoadRequest modLoadRequest : moduleLoadRequests) {
                 PackageOrg packageOrg;
                 if (modLoadRequest.orgName().isEmpty()) {
+                    if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                        // This is an invalid import in a single file project.
+                        continue;
+                    }
                     packageOrg = descriptor().org();
                 } else {
                     packageOrg = modLoadRequest.orgName().get();
