@@ -15,19 +15,26 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.bindingpattern;
-
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.Node;
+package org.wso2.ballerinalang.compiler.bir.model;
 
 /**
- * The interface with the APIs to implement the capture-binding-pattern.
+ * {@code ArgumentState} represents state of an argument in an instruction.
  *
  * @since 2.0.0
  */
-public interface CaptureBindingPattern extends Node {
+public enum ArgumentState {
+    /**
+     * User has provided value for default parameter.
+     */
+    PROVIDED,
 
-    IdentifierNode getIdentifier();
-
-    void setIdentifier(IdentifierNode variableName);
+    /**
+     * User has not provided value for default parameter.
+     */
+    NOT_PROVIDED,
+    
+    /**
+     * User has provided value as a condition for default parameter.
+     */
+    CONDITIONALLY_PROVIDED
 }
