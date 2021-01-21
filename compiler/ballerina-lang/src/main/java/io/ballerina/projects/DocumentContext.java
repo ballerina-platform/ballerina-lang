@@ -101,7 +101,7 @@ class DocumentContext {
     BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID, SourceKind sourceKind) {
         nodeCloner = NodeCloner.getInstance(compilerContext);
         if (compilationUnit != null) {
-            return nodeCloner.clone(compilationUnit);
+            return nodeCloner.cloneCUnit(compilationUnit);
         }
         BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
 
@@ -110,7 +110,7 @@ class DocumentContext {
         BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(compilerContext, pkgID, this.name);
         compilationUnit = (BLangCompilationUnit) bLangNodeTransformer.accept(syntaxTree.rootNode()).get(0);
         compilationUnit.setSourceKind(sourceKind);
-        return nodeCloner.clone(compilationUnit);
+        return nodeCloner.cloneCUnit(compilationUnit);
     }
 
     Set<ModuleLoadRequest> moduleLoadRequests(ModuleId currentModuleId, PackageDependencyScope scope) {
