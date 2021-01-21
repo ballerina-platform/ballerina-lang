@@ -16,9 +16,12 @@
 package org.ballerinalang.langserver.codeaction.providers.imports;
 
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -106,8 +109,26 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         }
 
         // Re-create imports list text
-        StringJoiner editText = new StringJoiner(System.lineSeparator());
-        sortImports(fileImports).forEach(importNode -> editText.add(importNode.toSourceCode()));
+        StringJoiner editText = new StringJoiner("");
+        sortImports(fileImports).forEach(importNode -> {
+            MinutiaeList leadingMinutiae = NodeFactory.createEmptyMinutiaeList();
+            MinutiaeList trailingMinutiae = importNode.importKeyword().trailingMinutiae();
+            Token modifiedImportKeyword = importNode.importKeyword().modify(leadingMinutiae, trailingMinutiae);
+
+            ImportDeclarationNode.ImportDeclarationNodeModifier importModifier = importNode.modify();
+            importModifier.withImportKeyword(modifiedImportKeyword);
+            if (importNode.orgName().isPresent()) {
+                importModifier.withOrgName(importNode.orgName().get());
+            }
+            importModifier.withModuleName(importNode.moduleName());
+            if (importNode.prefix().isPresent()) {
+                importModifier.withPrefix(importNode.prefix().get());
+            }
+            importNode.semicolon();
+            importModifier.withSemicolon(importNode.semicolon());
+
+            editText.add(importModifier.apply().toSourceCode());
+        });
 
         Position position = new Position(importSLine, 0);
         List<TextEdit> edits = getImportsRemovalTextEdits(importLines);
@@ -143,7 +164,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         return allImports.stream()
                 .sorted(Comparator.comparing((Function<ImportDeclarationNode, String>) o -> o.orgName().isPresent() ?
                         o.orgName().get().orgName().text() : "")
-                                .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
+                        .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
                 .collect(Collectors.toList());
     }
 
