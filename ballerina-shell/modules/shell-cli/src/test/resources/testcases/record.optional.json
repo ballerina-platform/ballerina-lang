@@ -1,0 +1,33 @@
+[
+  {
+    "description": "Define Gender.",
+    "code": "type Gender \"male\"|\"female\";"
+  },
+  {
+    "description": "Define Person.",
+    "code": "type Person record { string fname; string lname = \"\"; Gender gender; int age?; };"
+  },
+  {
+    "description": "Define variables - john.",
+    "code": "Person john = {fname: \"John\", gender: \"male\"}; john",
+    "expr": "{\"fname\":\"John\",\"lname\":\"\",\"gender\":\"male\"}"
+  },
+  {
+    "description": "Access optional field.",
+    "code": "john?.age"
+  },
+  {
+    "description": "Set value and access optional field.",
+    "code": "john.age = 25; john?.age",
+    "expr": "25"
+  },
+  {
+    "description": "Define variables - jane.",
+    "code": "Person jane = {fname: \"Jane\", lname: \"Doe\", gender: \"female\"}; jane",
+    "expr": "{\"fname\":\"Jane\",\"lname\":\"Doe\",\"gender\":\"female\"}"
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]
