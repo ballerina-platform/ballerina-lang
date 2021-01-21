@@ -17,9 +17,7 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.MdDocument;
-import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.*;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
@@ -170,20 +168,19 @@ public class ProjectFiles {
         return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);
     }
 
-    public static BuildOptions createBuildOptions(Path projectPath, BuildOptions theirOptions) {
-        //Path ballerinaTomlFilePath = projectPath.resolve(ProjectConstants.BALLERINA_TOML);
-        // todo fix me
-//        BallerinaToml ballerinaToml = null;//BallerinaToml.from(ballerinaTomlFilePath);
-//        if (ballerinaToml.diagnostics().hasErrors()) {
-//            throw new BallerinaTomlException(ballerinaToml.getErrorMessage());
-//        }
-//
-//        BuildOptions defaultBuildOptions = ballerinaToml.buildOptions();
-//        if (defaultBuildOptions == null) {
-//            defaultBuildOptions = new BuildOptionsBuilder().build();
-//        }
-        // return defaultBuildOptions.acceptTheirs(theirOptions);
-        return theirOptions;
+    public static BuildOptions createBuildOptions(PackageConfig packageConfig, BuildOptions theirOptions,
+                                                  Path projectDirPath) {
+        // Todo figure out how to pass the build options without a performance hit
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML,
+                packageConfig.ballerinaToml().map(t -> t.content()).orElse(""));
+        TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML,
+                packageConfig.dependenciesToml().map(t -> t.content()).orElse(""));
+        ManifestBuilder manifestBuilder = ManifestBuilder.from(ballerinaToml, dependenciesToml, projectDirPath);
+        BuildOptions defaultBuildOptions = manifestBuilder.buildOptions();
+        if (defaultBuildOptions == null) {
+            defaultBuildOptions = new BuildOptionsBuilder().build();
+        }
+        return defaultBuildOptions.acceptTheirs(theirOptions);
     }
 
     public static void validateBuildProjectDirPath(Path projectDirPath) {
