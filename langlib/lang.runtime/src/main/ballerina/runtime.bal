@@ -41,14 +41,14 @@ type CallStackElement record {|
 # Register a listener object with a module.
 # + listener - the listener object to be registered. The listener becomes a module listener of the module from which
 #       this function is called.
-public function registerListener(DynamicListener 'listener) = @java:Method {
+public isolated function registerListener(DynamicListener 'listener) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
 } external;
 
 # Deregister a listener from a module.
 # + listener - the listener object to be unregistered. The `listener` ceases to be a module listener of the module from
 # which this function is called.
-public function deregisterListener(DynamicListener 'listener) = @java:Method {
+public isolated function deregisterListener(DynamicListener 'listener) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
 } external;
 
