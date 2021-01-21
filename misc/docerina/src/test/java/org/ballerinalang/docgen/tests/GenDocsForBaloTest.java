@@ -63,8 +63,7 @@ public class GenDocsForBaloTest {
         
         String apiSearchJsonAsString = Files.readString(
                 this.docsPath.resolve("sf").resolve("doc-search").resolve("search-data.json"));
-        Assert.assertTrue(apiSearchJsonAsString.contains("# Salesforce Package\\nConnecto Salesforce easily\\n"),
-                "Package.md content is missing");
+        Assert.assertTrue(apiSearchJsonAsString.contains("baz"), "baz function is missing");
     }
     
     @AfterMethod
