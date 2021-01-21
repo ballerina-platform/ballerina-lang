@@ -271,7 +271,7 @@ function testAnydataArray() returns anydata[] {
     return ad;
 }
 
-type ValueType int|float|string|boolean|byte;
+type ValueType int|float|string|boolean|byte|decimal;
 type DataType ValueType|table<map<any>>|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();
 
 function testUnionAssignment() returns anydata[] {
@@ -650,75 +650,75 @@ function testAnydataToUnion() returns ValueType?[] {
     return vt;
 }
 
-function testAnydataToUnion2(){
-    anydata ad;
-    DataType[] dt = [];
-    int i = 0;
-
-    json j = { name: "apple", color: "red", price: 40 };
-    ad = j;
-    if (ad is DataType) {
-        dt[i] = ad;
-        i += 1;
-    }
-
-    xml x = xml `<book>The Lost World</book>`;
-    ad = x;
-    if (ad is DataType) {
-        dt[i] = ad;
-        i += 1;
-    }
-
-    table<Employee> t = table key(id) [
-        { id: 1, name: "Mary", salary: 300.5 },
-        { id: 2, name: "John", salary: 200.5 },
-        { id: 3, name: "Jim", salary: 330.5 }
-    ];
-
-    ad = t;
-    if (ad is DataType) {
-        dt[i] = ad;
-        i += 1;
-    }
-
-    Foo foo = {a: 15};
-    ad = foo;
-    if (ad is DataType) {
-        dt[i] = ad;
-        i += 1;
-    }
-
-    ClosedFoo cfoo = {ca: 15};
-    ad = cfoo;
-    if (ad is DataType) {
-        dt[i] = ad;
-        i += 1;
-    }
-
-    map<anydata> m = {};
-    m["foo"] = foo;
-    ad = m;
-    if (ad is DataType) {
-        dt[i] = ad;
-        i += 1;
-    }
-
-    anydata[] adr = [];
-    adr[0] = foo;
-    ad = adr;
-    if (ad is DataType) {
-        dt[i] = ad;
-        i += 1;
-    }
-
-    assertEquality(j, dt[0]);
-    assertEquality(x, dt[1]);
-    assertEquality(t, dt[2]);
-    assertEquality(foo, dt[3]);
-    assertEquality(cfoo, dt[4]);
-    assertEquality(m, dt[5]);
-    assertEquality(adr, dt[6]);
-}
+//function testAnydataToUnion2(){
+//    anydata ad;
+//    DataType[] dt = [];
+//    int i = 0;
+//
+//    json j = { name: "apple", color: "red", price: 40 };
+//    ad = j;
+//    if (ad is DataType) {
+//        dt[i] = ad;
+//        i += 1;
+//    }
+//
+//    xml x = xml `<book>The Lost World</book>`;
+//    ad = x;
+//    if (ad is DataType) {
+//        dt[i] = ad;
+//        i += 1;
+//    }
+//
+//    table<Employee> t = table key(id) [
+//        { id: 1, name: "Mary", salary: 300.5 },
+//        { id: 2, name: "John", salary: 200.5 },
+//        { id: 3, name: "Jim", salary: 330.5 }
+//    ];
+//
+//    ad = t;
+//    if (ad is DataType) {
+//        dt[i] = ad;
+//        i += 1;
+//    }
+//
+//    Foo foo = {a: 15};
+//    ad = foo;
+//    if (ad is DataType) {
+//        dt[i] = ad;
+//        i += 1;
+//    }
+//
+//    ClosedFoo cfoo = {ca: 15};
+//    ad = cfoo;
+//    if (ad is DataType) {
+//        dt[i] = ad;
+//        i += 1;
+//    }
+//
+//    map<anydata> m = {};
+//    m["foo"] = foo;
+//    ad = m;
+//    if (ad is DataType) {
+//        dt[i] = ad;
+//        i += 1;
+//    }
+//
+//    anydata[] adr = [];
+//    adr[0] = foo;
+//    ad = adr;
+//    if (ad is DataType) {
+//        dt[i] = ad;
+//        i += 1;
+//    }
+//
+//    assertEquality(j, dt[0]);
+//    assertEquality(x, dt[1]);
+//    assertEquality(t, dt[2]);
+//    assertEquality(foo, dt[3]);
+//    assertEquality(cfoo, dt[4]);
+//    assertEquality(m, dt[5]);
+//    assertEquality(adr, dt[6]);
+//}
 
 function testAnydataToTuple() returns [int, float, boolean, string, byte]? {
     anydata ad;
@@ -885,7 +885,7 @@ type MyErrorDetail record {|
 
 error e1 = error("err reason");
 error e2 = error("err reason 2", str = "string value", e1=e1);
-MyError e3 = MyError("err reason 3", e1 = e1, e2 = e2);
+MyError e3 = error MyError("err reason 3", e1 = e1, e2 = e2);
 
 function testArraysWithErrorsAsAnydata() returns boolean {
     error?[] a1 = [e1, e2];
