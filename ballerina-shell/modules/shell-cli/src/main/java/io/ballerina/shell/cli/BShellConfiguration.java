@@ -31,7 +31,6 @@ import java.io.OutputStream;
  * @since 2.0.0
  */
 public class BShellConfiguration {
-    private final long treeParsingTimeout;
     private final Evaluator evaluator;
     private final InputStream inputStream;
     private final OutputStream outputStream;
@@ -39,28 +38,14 @@ public class BShellConfiguration {
     private boolean isDumb;
 
     private BShellConfiguration(boolean isDebug, boolean isDumb, long treeParsingTimeout,
-                                EvaluatorMode mode, InputStream inputStream, OutputStream outputStream) {
+                                InputStream inputStream, OutputStream outputStream) {
         this.isDebug = isDebug;
         this.isDumb = isDumb;
-        this.treeParsingTimeout = treeParsingTimeout;
-        this.evaluator = createEvaluator(mode);
+        this.evaluator = new EvaluatorBuilder()
+                .treeParser(TrialTreeParser.defaultParser(treeParsingTimeout))
+                .build();
         this.inputStream = inputStream;
         this.outputStream = outputStream;
-    }
-
-    /**
-     * Creates and returns an evaluator based on the config.
-     *
-     * @param mode Mode to create the evaluator on.
-     * @return Created evaluator.
-     */
-    private Evaluator createEvaluator(EvaluatorMode mode) {
-        if (mode == EvaluatorMode.DEFAULT) {
-            return new EvaluatorBuilder()
-                    .treeParser(TrialTreeParser.defaultParser(treeParsingTimeout))
-                    .build();
-        }
-        throw new RuntimeException("Unknown mode given: " + mode.name());
     }
 
     /**
@@ -109,21 +94,11 @@ public class BShellConfiguration {
     }
 
     /**
-     * Modes to create the evaluator.
-     *
-     * @since 2.0.0
-     */
-    public enum EvaluatorMode {
-        DEFAULT
-    }
-
-    /**
      * Builder to build the evaluator config.
      *
      * @since 2.0.0
      */
     public static class Builder {
-        private EvaluatorMode evaluatorMode;
         private InputStream inputStream;
         private OutputStream outputStream;
         private long treeParsingTimeoutMs;
@@ -131,21 +106,11 @@ public class BShellConfiguration {
         private boolean isDumb;
 
         public Builder() {
-            this.evaluatorMode = EvaluatorMode.DEFAULT;
             this.inputStream = System.in;
             this.outputStream = System.out;
             this.treeParsingTimeoutMs = 1000;
             this.isDebug = false;
             this.isDumb = false;
-        }
-
-        /**
-         * Evaluator mode to use.
-         * Evaluator will be built according to this setting.
-         */
-        public Builder setEvaluatorMode(EvaluatorMode evaluatorMode) {
-            this.evaluatorMode = evaluatorMode;
-            return this;
         }
 
         /**
@@ -201,7 +166,7 @@ public class BShellConfiguration {
          */
         public BShellConfiguration build() {
             return new BShellConfiguration(isDebug, isDumb, treeParsingTimeoutMs,
-                    evaluatorMode, inputStream, outputStream);
+                    inputStream, outputStream);
         }
     }
 }
