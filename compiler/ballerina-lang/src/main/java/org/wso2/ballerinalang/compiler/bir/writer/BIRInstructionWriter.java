@@ -22,6 +22,7 @@ import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
@@ -267,7 +268,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birCall.name.getValue()));
         buf.writeInt(birCall.args.size());
-        for (BIROperand arg : birCall.args) {
+        for (BIRArgument arg : birCall.args) {
             arg.accept(this);
         }
         if (birCall.lhsOp != null) {
@@ -281,7 +282,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRTerminator.FPCall fpCall) {
         fpCall.fp.accept(this);
         buf.writeInt(fpCall.args.size());
-        for (BIROperand arg : fpCall.args) {
+        for (BIRArgument arg : fpCall.args) {
             arg.accept(this);
         }
         if (fpCall.lhsOp != null) {
@@ -419,6 +420,10 @@ public class BIRInstructionWriter extends BIRVisitor {
 
             writeType(birOperand.variableDcl.type);
         }
+    }
+
+    public void visit(BIRArgument birArgument) {
+        birArgument.accept(this);
     }
 
     public void visit(BIRNonTerminator.NewError birNewError) {

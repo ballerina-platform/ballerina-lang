@@ -26,4 +26,5 @@ public interface ResourceMethodType extends MethodType {
     String[] getParamNames();
     String getAccessor();
     String[] getResourcePath();
+    Boolean[] getParamDefaultability();
 }

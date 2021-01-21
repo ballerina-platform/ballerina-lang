@@ -22,11 +22,14 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -42,6 +45,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
@@ -54,6 +58,8 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -70,10 +76,13 @@ public class LangLibFunctionTest {
                                                        "fromJsonString", "fromJsonFloatString", "fromJsonDecimalString",
                                                        "fromJsonWithType", "fromJsonStringWithType", "mergeJson");
     private SemanticModel model;
+    private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/langlib_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/langlib_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
 
     @Test
@@ -121,7 +130,7 @@ public class LangLibFunctionTest {
     @Test
     public void testStringLangLib() {
         Symbol symbol = getSymbol(19, 11);
-        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        TypeSymbol type = ((RecordFieldSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), STRING);
 
         List<String> expFunctions = List.of("length", "iterator", "getCodePoint", "substring", "codePointCompare",
@@ -130,7 +139,8 @@ public class LangLibFunctionTest {
                                             "toCodePointInts", "clone", "cloneReadOnly", "cloneWithType", "isReadOnly",
                                             "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
                                             "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
-                                            "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType");
+                                            "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
+                                            "includes");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -256,7 +266,7 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), TYPEDESC);
 
-        List<String> expFunctions = List.of("toString", "toBalString", "ensureType", "clone");
+        List<String> expFunctions = List.of("toString", "toBalString", "ensureType", "clone", "cloneReadOnly");
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
 
@@ -280,7 +290,7 @@ public class LangLibFunctionTest {
         assertEquals(type.typeKind(), ERROR);
 
         List<String> expFunctions = List.of("message", "cause", "detail", "stackTrace", "toString", "toBalString",
-                                            "ensureType", "clone");
+                                            "ensureType", "clone", "cloneReadOnly");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -319,8 +329,24 @@ public class LangLibFunctionTest {
         };
     }
 
+    @Test
+    public void testIntersectionType() {
+        Symbol symbol = getSymbol(70, 21);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), INTERSECTION);
+
+        List<String> expFunctions = List.of("reduce", "forEach", "shift", "length", "sort", "reverse", "toStream",
+                                            "remove", "push", "filter", "pop", "lastIndexOf", "iterator", "removeAll",
+                                            "setLength", "slice", "enumerate", "unshift", "map", "indexOf",
+                                            "cloneWithType", "cloneReadOnly", "toBalString", "toJson", "isReadOnly",
+                                            "fromJsonWithType", "mergeJson", "clone", "ensureType", "toString",
+                                            "toJsonString");
+
+        assertLangLibList(type.langLibMethods(), expFunctions);
+    }
+
     private Symbol getSymbol(int line, int column) {
-        return model.symbol("langlib_test.bal", from(line, column)).get();
+        return model.symbol(srcFile, from(line, column)).get();
     }
 
     private void assertLangLibList(List<FunctionSymbol> langLib, List<String> expFunctions) {

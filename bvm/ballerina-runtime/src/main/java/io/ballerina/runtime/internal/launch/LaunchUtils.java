@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.launch.LaunchListener;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.ConfigTomlParser;
+import io.ballerina.runtime.internal.configurable.ConfigurableConstants;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
@@ -49,12 +50,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_C
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_ENABLED;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_METRICS_REPORTER;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_PROVIDER;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_TRACING_PROVIDER;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIG_FILE_NAME;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.
@@ -125,34 +121,6 @@ public class LaunchUtils {
             if (logManager instanceof BLogManager) {
                 ((BLogManager) logManager).loadUserProvidedLogConfiguration();
             }
-
-            if (configRegistry.contains(CONFIG_OBSERVABILITY_ENABLED)) {
-                // Only try to inherit if "b7a.observability" config is provided
-                boolean observeFlag = configRegistry.getAsBoolean(CONFIG_OBSERVABILITY_ENABLED);
-                if (!configRegistry.contains(CONFIG_METRICS_ENABLED)) {
-                    // Only try to inherit if "b7a.observability.metrics" config is not provided
-                    configRegistry.addConfiguration(CONFIG_METRICS_ENABLED, observeFlag);
-                }
-                if (!configRegistry.contains(CONFIG_TRACING_ENABLED)) {
-                    // Only try to inherit if "b7a.observability.tracing" config is not provided
-                    configRegistry.addConfiguration(CONFIG_TRACING_ENABLED, observeFlag);
-                }
-            }
-            if (configRegistry.contains(CONFIG_OBSERVABILITY_PROVIDER)) {
-                // Only try to inherit if "b7a.observability" config is provided
-                String observabilityProvider = configRegistry.getAsString(CONFIG_OBSERVABILITY_PROVIDER);
-                if (!configRegistry.contains(CONFIG_OBSERVABILITY_METRICS_REPORTER)) {
-                    // Only try to inherit if "b7a.observability.metrics" config is not provided
-                    configRegistry.addConfiguration(CONFIG_OBSERVABILITY_METRICS_REPORTER,
-                            observabilityProvider);
-                }
-                if (!configRegistry.contains(CONFIG_OBSERVABILITY_TRACING_PROVIDER)) {
-                    // Only try to inherit if "b7a.observability.tracing" config is not provided
-                    configRegistry.addConfiguration(CONFIG_OBSERVABILITY_TRACING_PROVIDER,
-                            observabilityProvider);
-                }
-            }
-
         } catch (IOException e) {
             RuntimeUtils.handleUsageError("failed to read the specified configuration file: " +
                                                  configFilePath);
@@ -167,5 +135,11 @@ public class LaunchUtils {
         } catch (TomlException exception) {
             throw ErrorCreator.createError(StringUtils.fromString(exception.getMessage()));
         }
+    }
+
+    public static Path getConfigPath() {
+        Map<String, String> envVariables = System.getenv();
+        return Paths.get(envVariables.getOrDefault(ConfigurableConstants.CONFIG_ENV_VARIABLE,
+                Paths.get(RuntimeUtils.USER_DIR, CONFIG_FILE_NAME).toString()));
     }
 }

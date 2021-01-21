@@ -89,10 +89,9 @@ public class UpdateDocumentationExecutor implements LSCommandExecutor {
             node = ((ModulePartNode) node).members().get(0);
         }
         SemanticModel semanticModel = ctx.workspace().semanticModel(filePath.get()).orElseThrow();
-        Optional<Symbol> documentableSymbol = getDocumentableSymbol(node, semanticModel,
-                                                                    filePath.get().toFile().getName());
+        Optional<Symbol> documentableSymbol = getDocumentableSymbol(node, semanticModel);
 
-        Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(node);
+        Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(node, syntaxTree);
         if (docAttachmentInfo.isPresent() && documentableSymbol.isPresent()) {
             DocAttachmentInfo docs = docAttachmentInfo.get();
             Range range = getDocsRange(node).orElseThrow();

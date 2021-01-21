@@ -2,7 +2,7 @@ NAME
        ballerina-build - Build the Ballerina package and generate an executable
 
 SYNOPSIS
-       ballerina build [<options>]
+       bal build [<options>]
                        [<ballerina-file-path> | <ballerina-package-path>] [<config properties>]
 
 
@@ -56,6 +56,12 @@ OPTIONS
        --observability-included
            Package observability in the executable JAR file(s).
 
+       --cloud
+           Enable cloud artifact generation for cloud providers such as kubernetes.
+
+       --taint-check
+           Perform taint flow analysis.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set the Ballerina environment parameters as key/value pairs.
@@ -67,20 +73,20 @@ CONFIG PROPERTIES
 
 EXAMPLES
        Compile a Ballerina source file and create an executable JAR.
-          $ ballerina build hello.bal
+          $ bal build hello.bal
 
        Build the 'hello' package that has an entry point. This will generate a
         `hello.jar` file in the '<package-root>/target/bin' directory.
-          $ ballerina build
+          $ bal build
 
        Build the 'hello' package from a different directory location.
-          $ ballerina build `<hello-package-path>`
+          $ bal build `<hello-package-path>`
 
        Build the current package and generate the test report. This will generate an
        html test report in addition to the executable jar files.
-          $ ballerina build --test-report
+          $ bal build --test-report
 
        Build the current package and generate the test report with
        code coverage information. This will add an additional section
        to the test report for code coverage information.
-          $ ballerina build --code-coverage
+          $ bal build --code-coverage

@@ -56,7 +56,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
 
 /**
- * This class represents the "ballerina push" command.
+ * This class represents the "bal push" command.
  *
  * @since 2.0.0
  */
@@ -131,7 +131,7 @@ public class PushCommand implements BLauncherCmd {
                 return;
             }
         } else {
-            CommandUtil.printError(this.errStream, "too many arguments", "ballerina push ", false);
+            CommandUtil.printError(this.errStream, "too many arguments", "bal push ", false);
             return;
         }
 
@@ -151,7 +151,7 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina push \n");
+        out.append("  bal push \n");
     }
 
     @Override
@@ -175,13 +175,13 @@ public class PushCommand implements BLauncherCmd {
 
         if (Files.notExists(baloOutputDir)) {
             throw new ProjectException("cannot find balo file for the package: " + pkgName + ". Run "
-                    + "'ballerina build' to compile and generate the balo.");
+                    + "'bal build' to compile and generate the balo.");
         }
 
         Path packageBaloFile = findBaloFile(pkgName, orgName, baloOutputDir);
         if (null == packageBaloFile) {
             throw new ProjectException("cannot find balo file for the package: " + pkgName + ". Run "
-                    + "'ballerina build' to compile and generate the balo.");
+                    + "'bal build' to compile and generate the balo.");
         }
 
         // check if the package is already there in remote repository

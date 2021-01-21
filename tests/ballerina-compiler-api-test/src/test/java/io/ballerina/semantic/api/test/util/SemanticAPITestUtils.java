@@ -20,6 +20,9 @@ package io.ballerina.semantic.api.test.util;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
@@ -52,6 +55,30 @@ import static org.testng.Assert.assertTrue;
  */
 public class SemanticAPITestUtils {
 
+    public static Document getDocumentForSingleSource(Project project) {
+        Package currentPackage = project.currentPackage();
+        DocumentId id = currentPackage.getDefaultModule().documentIds().iterator().next();
+        return currentPackage.getDefaultModule().document(id);
+    }
+
+    public static Document getDocumentForSingleTestSource(Project project) {
+        Package currentPackage = project.currentPackage();
+        DocumentId id = currentPackage.getDefaultModule().testDocumentIds().iterator().next();
+        return currentPackage.getDefaultModule().document(id);
+    }
+
+    public static Module getModule(Project project, String moduleName) {
+        Package currentPackage = project.currentPackage();
+        ModuleName modName = ModuleName.from(currentPackage.packageName(), moduleName);
+        return currentPackage.module(modName);
+    }
+
+    public static SemanticModel getDefaultModulesSemanticModel(Project project) {
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        return currentPackage.getCompilation().getSemanticModel(defaultModuleId);
+    }
+
     public static SemanticModel getDefaultModulesSemanticModel(String sourceFilePath) {
         Project project = BCompileUtil.loadProject(sourceFilePath);
         Package currentPackage = project.currentPackage();
@@ -66,12 +93,18 @@ public class SemanticAPITestUtils {
         return currentPackage.module(modName).getCompilation().getSemanticModel();
     }
 
+    public static SemanticModel getSemanticModelOf(Project project, String moduleName) {
+        Package currentPackage = project.currentPackage();
+        ModuleName modName = ModuleName.from(currentPackage.packageName(), moduleName);
+        return currentPackage.module(modName).getCompilation().getSemanticModel();
+    }
+
     public static void assertList(List<? extends Symbol> actualValues, List<String> expectedValues) {
         Map<String, Symbol> symbols = actualValues.stream().collect(Collectors.toMap(Symbol::name, s -> s));
         assertList(symbols, expectedValues);
     }
 
-    public static void assertList(Map<String, Symbol> actualValues, List<String> expectedValues) {
+    public static void assertList(Map<String, ? extends Symbol> actualValues, List<String> expectedValues) {
         assertEquals(actualValues.size(), expectedValues.size());
 
         for (String val : expectedValues) {
@@ -79,7 +112,7 @@ public class SemanticAPITestUtils {
         }
     }
 
-    public static Map<String, Symbol> getSymbolsInFile(SemanticModel model, String srcFile, int line,
+    public static Map<String, Symbol> getSymbolsInFile(SemanticModel model, Document srcFile, int line,
                                                        int column, ModuleID moduleID) {
         List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(line, column));
         return allInScopeSymbols.stream()

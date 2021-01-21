@@ -19,11 +19,15 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -31,6 +35,9 @@ import org.testng.annotations.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -46,19 +53,25 @@ public class SymbolEquivalenceTest {
 
     private SemanticModel model;
     private SemanticModel typesModel;
-    private final String fileName = "symbol_at_cursor_basic_test.bal";
+    private Document srcFile;
+    private Document typesSrcFile;
     private final String typesFileName = "typedesc_test.bal";
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/symbol_at_cursor_basic_test.bal");
-        typesModel = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/typedesc_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_basic_test.bal");
+        srcFile = getDocumentForSingleSource(project);
+        model = getDefaultModulesSemanticModel(project);
+
+        project = BCompileUtil.loadProject("test-src/typedesc_test.bal");
+        typesSrcFile = getDocumentForSingleSource(project);
+        typesModel = getDefaultModulesSemanticModel(project);
     }
 
     @Test(dataProvider = "SymbolPosProvider")
     public void testSymbols(List<LinePosition> positions) {
         List<Symbol> symbols = positions.stream()
-                .map(pos -> model.symbol(fileName, pos).get())
+                .map(pos -> model.symbol(srcFile, pos).get())
                 .collect(Collectors.toList());
         assertSymbols(symbols);
     }
@@ -79,7 +92,7 @@ public class SymbolEquivalenceTest {
         List<LinePosition> positions = List.of(from(16, 7), from(17, 4), from(19, 9),
                                                from(20, 11), from(49, 5), from(40, 4));
         List<Symbol> symbols = positions.stream()
-                .map(pos -> model.symbol(fileName, pos).get())
+                .map(pos -> model.symbol(srcFile, pos).get())
                 .collect(Collectors.toList());
 
         for (int i = 0; i < symbols.size(); i++) {
@@ -99,7 +112,7 @@ public class SymbolEquivalenceTest {
                                                from(114, 5));
         SemanticModel typeRefModel = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/typedesc_test.bal");
         List<Symbol> symbols = positions.stream()
-                .map(pos -> typeRefModel.symbol("typedesc_test.bal", pos).get())
+                .map(pos -> typeRefModel.symbol(typesSrcFile, pos).get())
                 .collect(Collectors.toList());
 
         assertSymbols(symbols);
@@ -108,8 +121,9 @@ public class SymbolEquivalenceTest {
     @Test(dataProvider = "TypeSymbolPosProvider")
     public void testTypedescriptors(List<LinePosition> positions) {
         List<TypeSymbol> types = positions.stream()
-                .map(pos -> typesModel.symbol(typesFileName, pos).get())
-                .map(s -> ((VariableSymbol) s).typeDescriptor())
+                .map(pos -> typesModel.symbol(typesSrcFile, pos).get())
+                .map(s -> s.kind() == RECORD_FIELD ?
+                        ((RecordFieldSymbol) s).typeDescriptor() : ((VariableSymbol) s).typeDescriptor())
                 .collect(Collectors.toList());
         assertTypeSymbols(types);
     }
@@ -127,8 +141,9 @@ public class SymbolEquivalenceTest {
     public void testTypedescriptorsNegative() {
         List<LinePosition> positions = List.of(from(24, 17), from(19, 11), from(24, 26));
         List<TypeSymbol> types = positions.stream()
-                .map(pos -> typesModel.symbol(typesFileName, pos).get())
-                .map(s -> ((VariableSymbol) s).typeDescriptor())
+                .map(pos -> typesModel.symbol(typesSrcFile, pos).get())
+                .map(s -> s.kind() == RECORD_FIELD ?
+                        ((RecordFieldSymbol) s).typeDescriptor() : ((VariableSymbol) s).typeDescriptor())
                 .collect(Collectors.toList());
 
         for (int i = 0; i < types.size(); i++) {

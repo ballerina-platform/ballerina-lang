@@ -566,19 +566,19 @@ public class SymbolResolver extends BLangNodeVisitor {
         switch (type.tag) {
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
-                bSymbol = lookupLangLibMethodInModule(symTable.langArrayModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langArrayModuleSymbol, name, env);
                 break;
             case TypeTags.DECIMAL:
-                bSymbol = lookupLangLibMethodInModule(symTable.langDecimalModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langDecimalModuleSymbol, name, env);
                 break;
             case TypeTags.ERROR:
-                bSymbol = lookupLangLibMethodInModule(symTable.langErrorModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langErrorModuleSymbol, name, env);
                 break;
             case TypeTags.FLOAT:
-                bSymbol = lookupLangLibMethodInModule(symTable.langFloatModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langFloatModuleSymbol, name, env);
                 break;
             case TypeTags.FUTURE:
-                bSymbol = lookupLangLibMethodInModule(symTable.langFutureModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langFutureModuleSymbol, name, env);
                 break;
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
@@ -587,42 +587,42 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.UNSIGNED32_INT:
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED8_INT:
-                bSymbol = lookupLangLibMethodInModule(symTable.langIntModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langIntModuleSymbol, name, env);
                 break;
             case TypeTags.MAP:
             case TypeTags.RECORD:
-                bSymbol = lookupLangLibMethodInModule(symTable.langMapModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langMapModuleSymbol, name, env);
                 break;
             case TypeTags.OBJECT:
-                bSymbol = lookupLangLibMethodInModule(symTable.langObjectModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langObjectModuleSymbol, name, env);
                 break;
             case TypeTags.STREAM:
-                bSymbol = lookupLangLibMethodInModule(symTable.langStreamModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langStreamModuleSymbol, name, env);
                 break;
             case TypeTags.TABLE:
-                bSymbol = lookupLangLibMethodInModule(symTable.langTableModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langTableModuleSymbol, name, env);
                 break;
             case TypeTags.STRING:
             case TypeTags.CHAR_STRING:
-                bSymbol = lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langStringModuleSymbol, name, env);
                 break;
             case TypeTags.TYPEDESC:
-                bSymbol = lookupLangLibMethodInModule(symTable.langTypedescModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langTypedescModuleSymbol, name, env);
                 break;
             case TypeTags.XML:
             case TypeTags.XML_ELEMENT:
             case TypeTags.XML_COMMENT:
             case TypeTags.XML_PI:
-                bSymbol = lookupLangLibMethodInModule(symTable.langXmlModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langXmlModuleSymbol, name, env);
                 break;
             case TypeTags.XML_TEXT:
-                bSymbol = lookupLangLibMethodInModule(symTable.langXmlModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langXmlModuleSymbol, name, env);
                 if (bSymbol == symTable.notFoundSymbol) {
-                    bSymbol = lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
+                    bSymbol = lookupMethodInModule(symTable.langStringModuleSymbol, name, env);
                 }
                 break;
             case TypeTags.BOOLEAN:
-                bSymbol = lookupLangLibMethodInModule(symTable.langBooleanModuleSymbol, name);
+                bSymbol = lookupMethodInModule(symTable.langBooleanModuleSymbol, name, env);
                 break;
             case TypeTags.UNION:
                 Iterator<BType> itr = ((BUnionType) type).getMemberTypes().iterator();
@@ -643,19 +643,19 @@ public class SymbolResolver extends BLangNodeVisitor {
                 bSymbol = symTable.notFoundSymbol;
         }
         if (bSymbol == symTable.notFoundSymbol) {
-            bSymbol = lookupLangLibMethodInModule(symTable.langValueModuleSymbol, name);
+            bSymbol = lookupMethodInModule(symTable.langValueModuleSymbol, name, env);
         }
 
         if (bSymbol == symTable.notFoundSymbol) {
-            bSymbol = lookupLangLibMethodInModule(symTable.langInternalModuleSymbol, name);
+            bSymbol = lookupMethodInModule(symTable.langInternalModuleSymbol, name, env);
         }
 
         if (bSymbol == symTable.notFoundSymbol) {
-            bSymbol = lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol, name);
+            bSymbol = lookupMethodInModule(symTable.langTransactionModuleSymbol, name, env);
         }
 
         if (bSymbol == symTable.notFoundSymbol) {
-            bSymbol = lookupLangLibMethodInModule(symTable.langQueryModuleSymbol, name);
+            bSymbol = lookupMethodInModule(symTable.langQueryModuleSymbol, name, env);
         }
 
         return bSymbol;
@@ -773,7 +773,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, SymTag.CONSTRUCTOR);
     }
 
-    public BSymbol lookupLangLibMethodInModule(BPackageSymbol moduleSymbol, Name name) {
+    public BSymbol lookupMethodInModule(BPackageSymbol moduleSymbol, Name name, SymbolEnv env) {
 
         // What we get here is T.Name, this should convert to
         ScopeEntry entry = moduleSymbol.scope.lookup(name);

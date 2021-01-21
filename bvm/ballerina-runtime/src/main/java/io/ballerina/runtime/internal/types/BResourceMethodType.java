@@ -33,15 +33,18 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
     public final String accessor;
     public final String[] resourcePath;
     public final String[] paramNames;
+    public final Boolean[] paramDefaultability;
 
     public BResourceMethodType(String funcName, BObjectType parent, BFunctionType type, long flags,
-                               String accessor, String[] resourcePath, String[] paramNames) {
+                               String accessor, String[] resourcePath, String[] paramNames,
+                                 Boolean[] paramDefaultbility) {
         super(funcName, parent, type, flags);
         this.type = type;
         this.flags = flags;
         this.accessor = accessor;
         this.resourcePath = resourcePath;
         this.paramNames = paramNames;
+        this.paramDefaultability = paramDefaultbility;
     }
 
     @Override
@@ -77,6 +80,12 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
 
     @Override
     public <T extends MethodType> MethodType duplicate() {
-        return new BResourceMethodType(funcName, parentObjectType, type, flags, accessor, resourcePath, paramNames);
+        return new BResourceMethodType(funcName, parentObjectType, type, flags, accessor, resourcePath, paramNames,
+                paramDefaultability);
+    }
+
+    @Override
+    public Boolean[] getParamDefaultability() {
+        return paramDefaultability;
     }
 }

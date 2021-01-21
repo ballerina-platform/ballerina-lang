@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
+import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -71,7 +72,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                         functionName));
             }
 
-            String className = constructClassNameFrom(functionDef.get());
+            String className = constructQualifiedClassNameFrom(functionDef.get());
             GeneratedStaticMethod jvmMethod = EvaluationUtils.getGeneratedMethod(context, className, functionName);
             FunctionTypeSymbol functionTypeDesc = functionDef.get().typeDescriptor();
             Map<String, Value> argValueMap = generateNamedArgs(context, functionName, functionTypeDesc, argEvaluators);
@@ -88,7 +89,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
 
     private Optional<FunctionSymbol> findFunctionWithinModule() {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
-        List<Symbol> functionMatches = semanticContext.moduleLevelSymbols()
+        List<Symbol> functionMatches = semanticContext.moduleSymbols()
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
                         && modifyName(symbol.name()).equals(functionName))
@@ -100,10 +101,16 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         return Optional.ofNullable((FunctionSymbol) functionMatches.get(0));
     }
 
-    private String constructClassNameFrom(FunctionSymbol functionDef) {
+    private String constructQualifiedClassNameFrom(FunctionSymbol functionDef) {
         String className = functionDef.location().lineRange().filePath().replaceAll(BAL_FILE_EXT + "$", "");
+        // for ballerina single source files,
+        // qualified class name ::= <file_name>
+        if (context.getSourceType() == DebugSourceType.SINGLE_FILE) {
+            return className;
+        }
+        // for ballerina package source files,
+        // qualified class name ::= <package_name>.<module_name>.<package_version>.<file_name>
         ModuleID moduleMeta = functionDef.moduleID();
-
         return new StringJoiner(".")
                 .add(encodeModuleName(moduleMeta.orgName()))
                 .add(encodeModuleName(moduleMeta.moduleName()))

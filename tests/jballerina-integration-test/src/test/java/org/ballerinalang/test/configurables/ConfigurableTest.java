@@ -18,15 +18,18 @@
 
 package org.ballerinalang.test.configurables;
 
+import io.ballerina.runtime.internal.configurable.ConfigurableConstants;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.packaging.PackerinaTestUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
 
@@ -40,7 +43,7 @@ public class ConfigurableTest extends BaseTest {
     private static final String negativeTestFileLocation =
             Paths.get(testFileLocation, "NegativeTests").toAbsolutePath().toString();
     private BMainInstance bMainInstance;
-    private final String errorMsg = "error: Invalid `configuration.toml` file : ";
+    private final String errorMsg = "error: Invalid `Config.toml` file : ";
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
@@ -75,6 +78,25 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
+    public void testAPIConfigFilePathOverRiding() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "testPathProject").toAbsolutePath();
+        LogLeecher runLeecher = new LogLeecher("4 passing");
+        bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
+                new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testEnvironmentVariableBasedConfigFile() throws BallerinaTestException {
+        String configFilePath = Paths.get(testFileLocation, "ConfigFiles", "Config.toml").toString();
+        Path projectPath = Paths.get(testFileLocation).toAbsolutePath();
+        LogLeecher runLeecher = new LogLeecher("Tests passed");
+        bMainInstance.runMain("run", new String[]{"envVarPkg"}, addEnvVariables(configFilePath),
+                new String[]{}, new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
     public void testSingleBalFileWithConfigurables() throws BallerinaTestException {
         Path filePath = Paths.get(testFileLocation, "configTest.bal").toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("Tests passed");
@@ -87,7 +109,7 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testNoConfigFile() throws BallerinaTestException {
         Path filePath = Paths.get(negativeTestFileLocation, "noConfig.bal").toAbsolutePath();
-        LogLeecher errorLeecher = new LogLeecher("error: Configuration toml file `configuration.toml` is not found",
+        LogLeecher errorLeecher = new LogLeecher("error: Value not provided for required configurable variable 'name'",
                 ERROR);
         bMainInstance.runMain("run", new String[]{filePath.toString()}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, testFileLocation + "/NegativeTests");
@@ -97,9 +119,9 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testInvalidTomlFile() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "InvalidTomlFile").toAbsolutePath();
-        String tomlError1 = "missing identifier [configuration.toml:(0:9,0:9)]";
-        String tomlError2 = "missing identifier [configuration.toml:(0:20,0:20)]";
-        String tomlError3 = "missing identifier [configuration.toml:(0:21,0:21)]";
+        String tomlError1 = "missing identifier [Config.toml:(0:9,0:9)]";
+        String tomlError2 = "missing identifier [Config.toml:(0:20,0:20)]";
+        String tomlError3 = "missing identifier [Config.toml:(0:21,0:21)]";
         LogLeecher errorLeecher1 = new LogLeecher(errorMsg, ERROR);
         LogLeecher errorLeecher2 = new LogLeecher(tomlError1, ERROR);
         LogLeecher errorLeecher3 = new LogLeecher(tomlError2, ERROR);
@@ -116,7 +138,8 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testInvalidOrganizationName() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "InvalidOrgName").toAbsolutePath();
-        LogLeecher errorLeecher = new LogLeecher(errorMsg + "Organization name 'testOrg' not found.", ERROR);
+        LogLeecher errorLeecher =
+                new LogLeecher("Value not provided for required configurable variable 'booleanVar'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
@@ -140,6 +163,17 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
+    }
+
+    /**
+     * Get environment variables and add config file path as an env variable.
+     *
+     * @return env directory variable array
+     */
+    private Map<String, String> addEnvVariables(String configFilePath) {
+        Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
+        envVariables.put(ConfigurableConstants.CONFIG_ENV_VARIABLE, configFilePath);
+        return envVariables;
     }
 
 }

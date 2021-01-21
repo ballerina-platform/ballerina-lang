@@ -1,0 +1,107 @@
+{
+    "position": {
+        "line": 12,
+        "character": 0
+    },
+    "source": "main/source/Kubernetes.toml",
+    "items": [
+        {
+            "label": "external_accessible",
+            "kind": "Snippet",
+            "detail": "Boolean",
+            "sortText": "A",
+            "insertText": "external_accessible\u003d${1:}\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "min_memory",
+            "kind": "Snippet",
+            "detail": "String",
+            "sortText": "A",
+            "insertText": "min_memory\u003d\"${1:}\"\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.deployment.probes.readiness",
+            "kind": "Snippet",
+            "detail": "Table",
+            "sortText": "C",
+            "insertText": "[cloud.deployment.probes.readiness]\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.config.files",
+            "kind": "Snippet",
+            "detail": "Table Array",
+            "sortText": "C",
+            "insertText": "[[cloud.config.files]]\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "internal_domain_name",
+            "kind": "Snippet",
+            "detail": "String",
+            "sortText": "A",
+            "insertText": "internal_domain_name\u003d\"${1:}\"\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.config.secrets",
+            "kind": "Snippet",
+            "detail": "Table Array",
+            "sortText": "C",
+            "insertText": "[[cloud.config.secrets]]\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "max_memory",
+            "kind": "Snippet",
+            "detail": "String",
+            "sortText": "A",
+            "insertText": "max_memory\u003d\"${1:}\"\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.deployment.storage.volumes",
+            "kind": "Snippet",
+            "detail": "Table",
+            "sortText": "C",
+            "insertText": "[cloud.deployment.storage.volumes]\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.deployment.probes",
+            "kind": "Snippet",
+            "detail": "Table",
+            "sortText": "B",
+            "insertText": "[cloud.deployment.probes]\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.deployment.autoscaling",
+            "kind": "Snippet",
+            "detail": "Table",
+            "sortText": "B",
+            "insertText": "[cloud.deployment.autoscaling]\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.deployment.storage",
+            "kind": "Snippet",
+            "detail": "Table",
+            "sortText": "B",
+            "insertText": "[cloud.deployment.storage]\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.config.envs",
+            "kind": "Snippet",
+            "detail": "Table Array",
+            "sortText": "C",
+            "insertText": "[[cloud.config.envs]]\n",
+            "insertTextFormat": "Snippet"
+        }
+    ]
+}
+
+

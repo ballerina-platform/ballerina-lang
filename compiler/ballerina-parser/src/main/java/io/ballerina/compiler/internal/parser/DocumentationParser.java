@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.internal.parser;
 
+import io.ballerina.compiler.internal.diagnostics.DiagnosticWarningCode;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STToken;
@@ -157,11 +158,122 @@ public class DocumentationParser extends AbstractParser {
         }
 
         STNode startBacktick = parseBacktickToken();
-        STNode backtickContent = parseBacktickContent();
+        STNode backtickContent = parseBacktickContent(referenceType);
         STNode endBacktick = parseBacktickToken();
-
         return STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick, backtickContent,
                 endBacktick);
+    }
+
+    /**
+     * Represents the current position with respect to the head in a token-sequence-search.
+     */
+    private static class Lookahead {
+        private int offset = 1;
+    }
+
+    /**
+     * Genre of the reference that precedes the backtick block.
+     */
+    private enum ReferenceGenre {
+        NO_KEY, SPECIAL_KEY, FUNCTION_KEY
+    }
+
+    /**
+     * Look ahead and see if upcoming token sequence is valid.
+     *
+     * @param refGenre Genre of the backtick block reference
+     * @return <code>true</code> if content is valid<code>false</code> otherwise.
+     */
+    private boolean isValidBacktickContentSequence(ReferenceGenre refGenre) {
+        boolean hasMatch;
+        Lookahead lookahead = new Lookahead();
+        switch (refGenre) {
+            case SPECIAL_KEY:
+                // Look for x, m:x match
+                hasMatch = hasQualifiedIdentifier(lookahead);
+                break;
+            case FUNCTION_KEY:
+                // Look for x, m:x, x(), m:x(), T.y(), m:T.y() match
+                hasMatch = hasBacktickExpr(lookahead, true);
+                break;
+            case NO_KEY:
+                // Look for x(), m:x(), T.y(), m:T.y() match
+                hasMatch = hasBacktickExpr(lookahead, false);
+                break;
+            default:
+                throw new IllegalStateException("Unsupported backtick reference genre");
+        }
+
+        return hasMatch && peek(lookahead.offset).kind == SyntaxKind.BACKTICK_TOKEN;
+    }
+
+    private boolean hasBacktickExpr(Lookahead lookahead, boolean isFunctionKey) {
+        if (!hasQualifiedIdentifier(lookahead)) {
+            return false;
+        }
+
+        STToken nextToken = peek(lookahead.offset);
+        if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
+            return hasFuncSignature(lookahead);
+        } else if (nextToken.kind == SyntaxKind.DOT_TOKEN) {
+            lookahead.offset++;
+            if (!hasIdentifier(lookahead)) {
+                return false;
+            }
+            return hasFuncSignature(lookahead);
+        }
+
+        return isFunctionKey;
+    }
+
+    private boolean hasFuncSignature(Lookahead lookahead) {
+        if (!hasOpenParenthesis(lookahead)) {
+            return false;
+        }
+        return hasCloseParenthesis(lookahead);
+    }
+
+    private boolean hasOpenParenthesis(Lookahead lookahead) {
+        STToken nextToken = peek(lookahead.offset);
+        if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
+            lookahead.offset++;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean hasCloseParenthesis(Lookahead lookahead) {
+        STToken nextToken = peek(lookahead.offset);
+        if (nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+            lookahead.offset++;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean hasQualifiedIdentifier(Lookahead lookahead) {
+        if (!hasIdentifier(lookahead)) {
+            return false;
+        }
+
+        STToken nextToken = peek(lookahead.offset);
+        if (nextToken.kind == SyntaxKind.COLON_TOKEN) {
+            lookahead.offset++;
+            return hasIdentifier(lookahead);
+        }
+
+        return true;
+    }
+
+    private boolean hasIdentifier(Lookahead lookahead) {
+        STToken  nextToken = peek(lookahead.offset);
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            lookahead.offset++;
+            return true;
+        }
+        return false;
     }
 
     private boolean isDocumentReferenceType(SyntaxKind kind) {
@@ -266,10 +378,81 @@ public class DocumentationParser extends AbstractParser {
     }
 
     /**
-     * Parse back-tick content token.
+     * Parse back-tick content.
      *
+     * @param referenceType Node that precedes the backtick block
      * @return Parsed node
      */
+    private STNode parseBacktickContent(STNode referenceType) {
+        ReferenceGenre referenceGenre = getReferenceGenre(referenceType);
+        if (isValidBacktickContentSequence(referenceGenre)) {
+            return parseBacktickContent();
+        }
+
+        STNode contentToken = combineAndCreateBacktickContentToken();
+        if (referenceGenre != ReferenceGenre.NO_KEY) {
+            // Log warning for backtick block with a reference type, but content is invalid.
+            contentToken = SyntaxErrors.addDiagnostic(contentToken,
+                    DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_IDENTIFIER, ((STToken) contentToken).text());
+        }
+
+        return contentToken;
+    }
+
+    /**
+     * Get the genre of the reference type.
+     *
+     * @param referenceType Node that precedes the backtick block
+     * @return Enum representing the genre
+     */
+    private ReferenceGenre getReferenceGenre(STNode referenceType) {
+        if (referenceType == null) {
+            return ReferenceGenre.NO_KEY;
+        }
+
+        if (referenceType.kind == SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN) {
+            return ReferenceGenre.FUNCTION_KEY;
+        }
+
+        return ReferenceGenre.SPECIAL_KEY;
+    }
+
+    private STNode combineAndCreateBacktickContentToken() {
+        if (!isBacktickExprToken(peek().kind)) {
+            return STNodeFactory.createMissingToken(SyntaxKind.BACKTICK_CONTENT);
+        }
+
+        StringBuilder backtickContent = new StringBuilder();
+        STToken token;
+        while (isBacktickExprToken(peek(2).kind)) {
+            token = consume();
+            backtickContent.append(token.toString());
+        }
+        token = consume();
+        backtickContent.append(token.text());
+
+        // We do not capture leading minutiae in DOCUMENTATION_BACKTICK_EXPR lexer mode.
+        // Therefore, set only the trailing minutiae
+        STNode leadingMinutiae = STNodeFactory.createEmptyNodeList();
+        STNode trailingMinutiae = token.trailingMinutiae();
+        return STNodeFactory.createLiteralValueToken(SyntaxKind.BACKTICK_CONTENT, backtickContent.toString(),
+                leadingMinutiae, trailingMinutiae);
+    }
+
+    private boolean isBacktickExprToken(SyntaxKind kind) {
+        switch (kind) {
+            case DOT_TOKEN:
+            case COLON_TOKEN:
+            case OPEN_PAREN_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+            case IDENTIFIER_TOKEN:
+            case BACKTICK_CONTENT:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private STNode parseBacktickContent() {
         STToken token = peek();
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
@@ -309,8 +492,11 @@ public class DocumentationParser extends AbstractParser {
             case DOT_TOKEN:
                 STNode dotToken = consume();
                 return parseMethodCall(referenceName, dotToken);
-            default:
+            case OPEN_PAREN_TOKEN:
                 return parseFuncCall(referenceName);
+            default:
+                // Since we have validated the token sequence beforehand, code should not reach here.
+                throw new IllegalStateException("Unsupported token kind");
         }
     }
 

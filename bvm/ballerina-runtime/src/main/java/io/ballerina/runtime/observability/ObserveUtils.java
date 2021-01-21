@@ -21,12 +21,13 @@ package io.ballerina.runtime.observability;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.configurable.ConfigurableMap;
+import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.tracer.BSpan;
-import org.ballerinalang.config.ConfigRegistry;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,9 +36,8 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_MODULE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_POSITION;
@@ -65,13 +65,64 @@ public class ObserveUtils {
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
     private static final boolean enabled;
     private static final boolean metricsEnabled;
+    private static final BString metricsProvider;
+    private static final BString metricsReporter;
     private static final boolean tracingEnabled;
+    private static final BString tracingProvider;
 
     static {
-        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        tracingEnabled = configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED);
-        metricsEnabled = configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED);
+        // TODO: Move config initialization to ballerina level once checking config key is possible at ballerina level
+        Module observeModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0.9.0");
+        VariableKey enabledKey = new VariableKey(observeModule, "enabled");
+        VariableKey providerKey = new VariableKey(observeModule, "provider");
+        VariableKey metricsEnabledKey = new VariableKey(observeModule, "metricsEnabled");
+        VariableKey metricsProviderKey = new VariableKey(observeModule, "metricsProvider");
+        VariableKey metricsReporterKey = new VariableKey(observeModule, "metricsReporter");
+        VariableKey tracingEnabledKey = new VariableKey(observeModule, "tracingEnabled");
+        VariableKey tracingProviderKey = new VariableKey(observeModule, "tracingProvider");
+
+        metricsEnabled = readConfig(metricsEnabledKey, enabledKey, false);
+        metricsProvider = readConfig(metricsProviderKey, null, StringUtils.fromString("default"));
+        metricsReporter = readConfig(metricsReporterKey, providerKey, StringUtils.fromString("prometheus"));
+        tracingEnabled = readConfig(tracingEnabledKey, enabledKey, false);
+        tracingProvider = readConfig(tracingProviderKey, providerKey, StringUtils.fromString("jaeger"));
         enabled = metricsEnabled || tracingEnabled;
+    }
+
+    private static <T> T readConfig(VariableKey specificKey, VariableKey inheritedKey, T defaultValue) {
+        T value;
+        if (ConfigurableMap.containsKey(specificKey)) {
+            value = (T) ConfigurableMap.get(specificKey);
+        } else if (inheritedKey != null && ConfigurableMap.containsKey(inheritedKey)) {
+            value = (T) ConfigurableMap.get(inheritedKey);
+        } else {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    public static boolean isObservabilityEnabled() {
+        return enabled;
+    }
+
+    public static boolean isMetricsEnabled() {
+        return metricsEnabled;
+    }
+
+    public static BString getMetricsProvider() {
+        return metricsProvider;
+    }
+
+    public static BString getMetricsReporter() {
+        return metricsReporter;
+    }
+
+    public static boolean isTracingEnabled() {
+        return tracingEnabled;
+    }
+
+    public static BString getTracingProvider() {
+        return tracingProvider;
     }
 
     /**
@@ -185,9 +236,9 @@ public class ObserveUtils {
         eventAttributes.put(TAG_KEY_SRC_MODULE, pkg.getValue());
         eventAttributes.put(TAG_KEY_SRC_POSITION, position.getValue());
 
-        HashMap<String, Object> events = new HashMap<>(1);
-        events.put(CHECKPOINT_EVENT_NAME, eventAttributes);
-        span.log(events);
+        HashMap<String, Object> event = new HashMap<>(1);
+        event.put(CHECKPOINT_EVENT_NAME, eventAttributes);
+        span.addEvent(event);
     }
 
     /**
@@ -227,10 +278,8 @@ public class ObserveUtils {
         if (observerContext == null) {
             return;
         }
-        observers.forEach(observer -> {
-            observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, TAG_TRUE_VALUE);
-            observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, errorValue);
-        });
+        observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, TAG_TRUE_VALUE);
+        observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR_VALUE, errorValue);
     }
 
     /**
@@ -327,52 +376,7 @@ public class ObserveUtils {
     @Deprecated     // Discussion: https://groups.google.com/g/ballerina-dev/c/VMEk3t8boH0
     public static void logMessageToActiveSpan(String logLevel, Supplier<String> logMessage,
                                               boolean isError) {
-        if (!tracingEnabled) {
-            return;
-        }
-        Environment balEnv = new Environment(Scheduler.getStrand());
-        ObserverContext observerContext = (ObserverContext) balEnv.getStrandLocal(KEY_OBSERVER_CONTEXT);
-        if (observerContext == null) {
-            return;
-        }
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
-        if (span == null) {
-            return;
-        }
-        HashMap<String, Object> logs = new HashMap<>(1);
-        logs.put(logLevel, logMessage.get());
-        if (!isError) {
-            span.log(logs);
-        } else {
-            span.logError(logs);
-        }
-    }
-
-    /**
-     * Check if observability is enabled or not.
-     *
-     * @return true if observability is enabled else false
-     */
-    public static boolean isObservabilityEnabled() {
-        return enabled;
-    }
-
-    /**
-     * Check if metrics is enabled or not.
-     *
-     * @return true if metrics is enabled else false
-     */
-    public static boolean isMetricsEnabled() {
-        return metricsEnabled;
-    }
-
-    /**
-     * Check if tracing is enabled or not.
-     *
-     * @return true if tracing is enabled else false
-     */
-    public static boolean isTracingEnabled() {
-        return tracingEnabled;
+        // Do Nothing
     }
 
     /**

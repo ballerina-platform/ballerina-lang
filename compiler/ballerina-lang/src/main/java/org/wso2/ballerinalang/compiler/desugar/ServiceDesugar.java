@@ -33,7 +33,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -41,9 +43,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -54,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
@@ -159,7 +164,7 @@ public class ServiceDesugar {
             } else {
                 // Define anonymous listener variable.
                 BLangSimpleVariable listenerVar = ASTBuilderUtil
-                        .createVariable(pos, LISTENER + service.name.value + UNDERSCORE + count++, attachExpr.type,
+                        .createVariable(pos, generateServiceListenerVarName(service) + count, attachExpr.type,
                                 attachExpr,
                                 null);
                 ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
@@ -173,7 +178,7 @@ public class ServiceDesugar {
                         getListenerType(listenerVarRef.type));
                 listenerCheckExpr.equivalentErrorTypeList.add(symTable.errorType);
                 BLangSimpleVariable listenerWithoutErrors = ASTBuilderUtil.createVariable(pos,
-                        LISTENER + "$CheckTemp" + count,
+                        generateServiceListenerVarName(service)  + "$CheckTemp" + count++,
                         getListenerTypeWithoutError(listenerVarRef.type),
                         listenerCheckExpr,
                         null);
@@ -210,6 +215,10 @@ public class ServiceDesugar {
 
             addMethodInvocation(pos, listenerVarRef, methodRef, args, attachments);
         }
+    }
+
+    private String generateServiceListenerVarName(BLangService service) {
+        return LISTENER + service.name.value + UNDERSCORE;
     }
 
     private BType getListenerTypeWithoutError(BType type) {
@@ -267,17 +276,38 @@ public class ServiceDesugar {
     }
 
     void engageCustomServiceDesugar(BLangService service, SymbolEnv env) {
+        List<BType> expressionTypes = service.attachedExprs.stream().map(expression -> expression.type)
+                .collect(Collectors.toList());
         service.serviceClass.functions.stream().filter(fun -> Symbols.isFlagOn(fun.symbol.flags, Flags.RESOURCE))
-                .forEach(func -> engageCustomResourceDesugar(func, env));
+                .forEach(func -> engageCustomResourceDesugar(func, env, expressionTypes));
     }
 
-    private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env) {
+    private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env, List<BType> expressionTypes) {
         if (Symbols.isFlagOn(functionNode.symbol.flags, Flags.TRANSACTIONAL)) {
             BLangExpressionStmt stmt = new BLangExpressionStmt(transactionDesugar
                     .createBeginParticipantInvocation(functionNode.pos));
             ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
         }
-        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
-//        httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
+        if (httpFiltersDesugar.isHttpPackage(expressionTypes)) {
+            List<BLangStatement> statements = getFunctionBodyStatementList(functionNode);
+            httpFiltersDesugar.addFilterStatements((BLangResourceFunction) functionNode, env, statements);
+        }
+    }
+
+    private List<BLangStatement> getFunctionBodyStatementList(BLangFunction functionNode) {
+        List<BLangStatement> statements = null;
+        if (functionNode.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
+            BLangExprFunctionBody exprFunctionBody = (BLangExprFunctionBody) functionNode.body;
+            BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(functionNode.getPosition());
+            statements = blockStmt.stmts;
+
+            BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(
+                            blockStmt,
+                            exprFunctionBody.expr);
+            exprFunctionBody.expr = statementExpression;
+        } else {
+            statements = ((BLangBlockFunctionBody) functionNode.body).stmts;
+        }
+        return statements;
     }
 }

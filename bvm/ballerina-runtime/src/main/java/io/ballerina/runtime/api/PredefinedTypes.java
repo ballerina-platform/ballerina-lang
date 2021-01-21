@@ -201,9 +201,7 @@ public class PredefinedTypes {
         MapType internalAnydataMap = new BMapType(TypeConstants.MAP_TNAME, anydataType, EMPTY_MODULE);
         ArrayType internalAnydataArray = new BArrayType(anydataType);
         BTableType internalAnydataMapTable = new BTableType(internalAnydataMap, false);
-        members.add(internalAnydataArray);
-        members.add(internalAnydataMap);
-        members.add(internalAnydataMapTable);
+        anydataType.addMembers(internalAnydataArray, internalAnydataMap, internalAnydataMapTable);
         TYPE_ANYDATA = anydataType;
         TYPE_READONLY_ANYDATA = new BAnydataType(anydataType, TypeConstants.READONLY_ANYDATA_TNAME, true);
     }
@@ -222,8 +220,7 @@ public class PredefinedTypes {
         jsonType.isCyclic = true;
         MapType internalJsonMap = new BMapType(TypeConstants.MAP_TNAME, jsonType, EMPTY_MODULE);
         ArrayType internalJsonArray = new BArrayType(jsonType);
-        members.add(internalJsonArray);
-        members.add(internalJsonMap);
+        jsonType.addMembers(internalJsonArray, internalJsonMap);
         TYPE_JSON = jsonType;
         TYPE_JSON_ARRAY = new BArrayType(TYPE_JSON);
         TYPE_READONLY_JSON = new BJsonType(jsonType, TypeConstants.READONLY_JSON_TNAME, true);
@@ -240,9 +237,7 @@ public class PredefinedTypes {
         MapType internalCloneableMap = new BMapType(TypeConstants.MAP_TNAME, cloneable, valueModule);
         ArrayType internalCloneableArray = new BArrayType(cloneable);
         BTableType internalCloneableMapTable = new BTableType(internalCloneableMap, false);
-        members.add(internalCloneableMap);
-        members.add(internalCloneableArray);
-        members.add(internalCloneableMapTable);
+        cloneable.addMembers(internalCloneableMap, internalCloneableArray, internalCloneableMapTable);
         TYPE_CLONEABLE = cloneable;
         TYPE_DETAIL = new BMapType(TypeConstants.MAP_TNAME, TYPE_CLONEABLE, EMPTY_MODULE);
         TYPE_ERROR_DETAIL = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_DETAIL);

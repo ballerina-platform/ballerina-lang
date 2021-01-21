@@ -190,9 +190,11 @@
             <class name="org.ballerinalang.test.types.var.VarIgnoreTest"></class>
             <class name="org.ballerinalang.test.documentation.MultilineDocsTest"></class>
             <class name="org.ballerinalang.test.documentation.ObjectFieldDefaultValueTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtErrorMatchPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtConstPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementSyntaxErrorsTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.CaptureBindingPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.ListBindingPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtListMatchPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtMappingMatchPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtTypeNarrowingTest"></class>
@@ -233,24 +235,6 @@
             </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
             <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
-
-
-            <!-- Disabled tests related to ProjectAPI change -->
-            <!-- ########################## START ############################# -->
-            <class name="org.ballerinalang.test.taintchecking.TaintedStatusPropagationTest">
-                <methods>
-                    <exclude name="testParameterStatusWithNativeInvocations"/>
-                    <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.bir.BirVariableOptimizationTest">
-                <methods>
-                    <exclude name="testAttachedFunctions"/>
-                    <exclude name="testFunctions"/>
-                </methods>
-            </class>
-            <!-- ########################## END ############################# -->
-
         </classes>
     </test>
 </suite>

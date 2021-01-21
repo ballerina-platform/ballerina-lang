@@ -18,22 +18,30 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaBooleanTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaByteTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaDecimalTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaFloatTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaIntTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaNilTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaStringTypeSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -47,23 +55,29 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
@@ -99,6 +113,8 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_COMMENT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_PROCESSING_INSTRUCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_TEXT;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -113,10 +129,13 @@ import static org.testng.Assert.assertTrue;
 public class TypedescriptorTest {
 
     private SemanticModel model;
+    private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/typedesc_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/typedesc_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
 
     @Test
@@ -192,14 +211,14 @@ public class TypedescriptorTest {
         ClassSymbol clazz = (ClassSymbol) symbol;
         assertEquals(clazz.typeKind(), OBJECT);
 
-        List<FieldSymbol> fields = clazz.fieldDescriptors();
-        FieldSymbol field = fields.get(0);
+        Map<String, ClassFieldSymbol> fields = clazz.fieldDescriptors();
+        ObjectFieldSymbol field = fields.get("name");
         assertEquals(fields.size(), 1);
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
 
-        List<MethodSymbol> methods = clazz.methods();
-        MethodSymbol method = methods.get(0);
+        Map<String, MethodSymbol> methods = clazz.methods();
+        MethodSymbol method = methods.get("getName");
         assertEquals(fields.size(), 1);
         assertEquals(method.name(), "getName");
 
@@ -213,9 +232,11 @@ public class TypedescriptorTest {
         assertEquals(type.typeKind(), RECORD);
         assertFalse(type.restTypeDescriptor().isPresent());
 
-        List<FieldSymbol> fields = type.fieldDescriptors();
-        FieldSymbol field = fields.get(0);
+        Map<String, RecordFieldSymbol> fields = type.fieldDescriptors();
         assertEquals(fields.size(), 1);
+        assertTrue(fields.containsKey("path"));
+
+        RecordFieldSymbol field = fields.get("path");
         assertEquals(field.name(), "path");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
     }
@@ -262,6 +283,8 @@ public class TypedescriptorTest {
         assertEquals(members.get(0).typeKind(), INT);
         assertEquals(members.get(1).typeKind(), STRING);
         assertEquals(members.get(2).typeKind(), FLOAT);
+
+        assertEquals(type.signature(), "int|string|float");
     }
 
     @Test(enabled = false)
@@ -279,6 +302,24 @@ public class TypedescriptorTest {
         assertEquals(members.get(2).typeKind(), DECIMAL);
     }
 
+    @Test(dataProvider = "UnionWithNilPos")
+    public void testUnionTypeWithNil(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), UNION);
+        assertEquals(type.signature(), signature);
+    }
+
+    @DataProvider(name = "UnionWithNilPos")
+    public Object[][] getUnionWithNilPos() {
+        return new Object[][]{
+                {204, 11, "int?"},
+                {205, 17, "int|float|()"},
+                {206, 11, "A?"},
+//                {207, 15, "A|B|()"}, TODO: Disabled due to /ballerina-lang/issues/27957
+        };
+    }
+
     @Test(dataProvider = "FiniteTypeDataProvider")
     public void testFiniteType(int line, int column, List<String> expSignatures) {
         Symbol symbol = getSymbol(line, column);
@@ -291,6 +332,9 @@ public class TypedescriptorTest {
             assertEquals(member.typeKind(), SINGLETON);
             assertEquals(member.signature(), expSignatures.get(i));
         }
+
+        String expSignature = members.stream().map(TypeSymbol::signature).collect(Collectors.joining("|"));
+        assertEquals(union.signature(), expSignature);
     }
 
     @DataProvider(name = "FiniteTypeDataProvider")
@@ -459,8 +503,8 @@ public class TypedescriptorTest {
 
     @Test
     public void testEnumsAsTypes() {
-        Optional<TypeSymbol> type = model.type("typedesc_test.bal",
-                                               LineRange.from("typedesc_test.bal", from(160, 37), from(160, 38)));
+        Optional<TypeSymbol> type =
+                model.type(LineRange.from("typedesc_test.bal", from(160, 37), from(160, 38)));
         assertEquals(type.get().typeKind(), TYPE_REFERENCE);
         assertEquals(type.get().name(), "Colour");
 
@@ -526,7 +570,7 @@ public class TypedescriptorTest {
     @Test
     public void testCompileErrorType1() {
         LineRange range = LineRange.from("typedesc_test.bal", from(181, 12), from(181, 17));
-        Optional<TypeSymbol> type = model.type("typedesc_test.bal", range);
+        Optional<TypeSymbol> type = model.type(range);
         assertEquals(type.get().typeKind(), COMPILATION_ERROR);
     }
 
@@ -546,18 +590,26 @@ public class TypedescriptorTest {
     @DataProvider(name = "BasicTestPosProvider")
     public Object[][] getBasicTestPos() {
         return new Object[][]{
-//                {186, 8, INT, BallerinaIntTypeSymbol.class},
-//                {187, 10, FLOAT, BallerinaFloatTypeSymbol.class},
-//                {188, 12, DECIMAL, BallerinaDecimalTypeSymbol.class},
-//                {189, 12, BOOLEAN, BallerinaBooleanTypeSymbol.class},
-//                {190, 7, NIL, BallerinaNilTypeSymbol.class},
-//                {191, 11, STRING, BallerinaStringTypeSymbol.class},
+                {186, 8, INT, BallerinaIntTypeSymbol.class},
+                {187, 10, FLOAT, BallerinaFloatTypeSymbol.class},
+                {188, 12, DECIMAL, BallerinaDecimalTypeSymbol.class},
+                {189, 12, BOOLEAN, BallerinaBooleanTypeSymbol.class},
+                {190, 7, NIL, BallerinaNilTypeSymbol.class},
+                {191, 11, STRING, BallerinaStringTypeSymbol.class},
                 {192, 9, BYTE, BallerinaByteTypeSymbol.class},
         };
     }
 
+    @Test
+    public void testMultilineTypedefs() {
+        Symbol symbol = getSymbol(198, 18);
+        assertEquals(symbol.kind(), TYPE);
+        assertEquals(((TypeSymbol) symbol).typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) symbol).name(), "CancelledError");
+    }
+
     private Symbol getSymbol(int line, int column) {
-        return model.symbol("typedesc_test.bal", from(line, column)).get();
+        return model.symbol(srcFile, from(line, column)).get();
     }
 
     private void validateParam(ParameterSymbol param, String name, ParameterKind kind, TypeDescKind typeKind) {
