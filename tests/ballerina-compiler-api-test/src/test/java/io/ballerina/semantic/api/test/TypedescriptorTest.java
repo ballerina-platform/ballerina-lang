@@ -118,7 +118,6 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocume
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
