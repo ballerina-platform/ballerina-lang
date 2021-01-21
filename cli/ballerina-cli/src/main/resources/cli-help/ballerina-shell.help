@@ -17,7 +17,7 @@ OPTIONS
            Enable debug mode from the beginning.
        -f, --force-dumb
            Force dumb terminal mode.
-       -t, --time-out
+       -t <time-out-duration>, --time-out <time-out-duration>
            Set tree parsing timeout. Default is 100ms. Value should be
            given in milliseconds.
 
