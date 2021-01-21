@@ -93,7 +93,7 @@ public class TestBaloWriter {
         Assert.assertTrue(emitResult.successful());
 
         // unzip balo
-        TestUtils.unzip(String.valueOf(baloPath.resolve("foo-winery-any-0.1.0.balo")), String.valueOf(BALO_PATH));
+        TestUtils.unzip(String.valueOf(baloPath.resolve("foo-winery-java11-0.1.0.balo")), String.valueOf(BALO_PATH));
 
         // balo.json
         Path baloJsonPath = BALO_PATH.resolve("balo.json");
@@ -134,7 +134,7 @@ public class TestBaloWriter {
 //            Assert.assertEquals(packageJson.getExported().get(0), "winery");
 //            Assert.assertEquals(packageJson.getExported().get(1), "service");
 
-            Assert.assertEquals(packageJson.getPlatform(), "any");
+            Assert.assertEquals(packageJson.getPlatform(), "java11");
             Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
         }
 
@@ -173,7 +173,7 @@ public class TestBaloWriter {
         Assert.assertFalse(storageModuleSrcPath.resolve("Module.md").toFile().exists());
 
         // Check if platform dependencies exists
-        Path platformDependancy = BALO_PATH.resolve("platform").resolve("any")
+        Path platformDependancy = BALO_PATH.resolve("platform").resolve("java11")
                 .resolve("ballerina-io-1.0.0-java.txt");
         Assert.assertTrue(platformDependancy.toFile().exists());
 
