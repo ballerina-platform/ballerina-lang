@@ -820,7 +820,6 @@ public class Types {
             if ((isInherentlyImmutableType(source) || Symbols.isFlagOn(source.flags, Flags.READONLY))) {
                 return true;
             }
-            // TODO: check this will make `any|error is readonly` always true
             if (isAssignable(source, symTable.anyAndReadonlyOrError, unresolvedTypes)) {
                 return true;
             }
