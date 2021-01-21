@@ -231,6 +231,10 @@ public class PackageResolution {
             PackageOrg packageOrg;
             Optional<PackageOrg> optionalOrgName = moduleLoadRequest.orgName();
             if (optionalOrgName.isEmpty()) {
+                if (rootPackageContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                    // This is an invalid import in a single file project.
+                    continue;
+                }
                 // At the moment we don't check whether the requested module is available
                 // in the current package or not. This error will be reported during the SymbolEnter pass.
                 packageOrg = rootPackageContext.packageOrg();
