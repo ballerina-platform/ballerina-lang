@@ -105,7 +105,7 @@ public class RunCommandTest extends BaseCommandTest {
         Files.delete(tempFile);
     }
 
-    @Test(description = "Run a valid ballerina file that has an import having platform libs", enabled = false)
+    @Test(description = "Run a valid ballerina file that has an import having platform libs")
     public void testRunProjectContainingImportsWithPlatformLibs() {
         Path projectPath = this.testResources.resolve("validRunProjectImportsWithPlatformLibs");
         // set valid source root
