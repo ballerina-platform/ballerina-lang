@@ -684,7 +684,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3985", "multiple.receive.action.not.yet.supported"),
 
-    INVALID_READONLY_FIELD_TYPE("BCE3986", "invalid.readonly.field.type")
+    INVALID_READONLY_FIELD_TYPE("BCE3986", "invalid.readonly.field.type"),
+
+    CONTINUE_NOT_ALLOWED("BCE3987", "continue.not.allowed"),
+    BREAK_NOT_ALLOWED("BCE3988", "break.not.allowed")
     ;
 
     private String diagnosticId;
