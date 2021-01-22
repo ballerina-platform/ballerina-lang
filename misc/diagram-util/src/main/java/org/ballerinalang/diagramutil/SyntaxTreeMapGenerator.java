@@ -84,7 +84,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (syntaxDiagnostics!= null) {
             nodeJson.add("syntaxDiagnostics", DiagnosticUtil.getDiagnostics(syntaxDiagnostics));
         }
-        nodeJson.add("leadingMinutiae", detectMinutiae(node.leadingMinutiae()));
+        JsonArray response = evaluateLeadingMinutiae(node.leadingMinutiae());
+        nodeJson.add("leadingMinutiae", response.get(1));
         nodeJson.add("trailingMinutiae", detectMinutiae(node.trailingMinutiae()));
 
         if (node.lineRange() != null) {
@@ -322,10 +323,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             nodeInfo.addProperty("value", ((Token) node).text());
             nodeInfo.addProperty("isMissing", node.isMissing());
 
-            JsonArray response = evaluateLeadingMinutiae(node.leadingMinutiae());
-            nodeInfo.add("invalidNodes", response.get(0));
-            nodeInfo.add("leadingMinutiae", response.get(1));
-            nodeInfo.add("trailingMinutiae", detectMinutiae(node.trailingMinutiae()));
             if (node.lineRange() != null) {
                 LineRange lineRange = node.lineRange();
                 LinePosition startLine = lineRange.startLine();
@@ -343,6 +340,11 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeInfo.add(memberEntry.getKey(), memberEntry.getValue());
             });
         }
+
+        JsonArray response = evaluateLeadingMinutiae(node.leadingMinutiae());
+        nodeInfo.add("invalidNodes", response.get(0));
+        nodeInfo.add("leadingMinutiae", response.get(1));
+        nodeInfo.add("trailingMinutiae", detectMinutiae(node.trailingMinutiae()));
         return nodeInfo;
     }
 
