@@ -21,6 +21,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -45,9 +46,8 @@ public class ModuleExecutionTest extends BaseTestCase {
         String errorOutput = balClient.runMainAndReadStdOut("test",
                 new String[]{"--tests", "moduleExecution:*"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Tests for default module failed in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "default module test failure");
+
     }
 
     @Test()
@@ -87,9 +87,8 @@ public class ModuleExecutionTest extends BaseTestCase {
         String errorOutput = balClient.runMainAndReadStdOut("test",
                 new String[]{"--tests", "moduleExecution.Module1:*"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Tests for all modules in package failed in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "module wise test failure");
+
     }
 
     @Test()

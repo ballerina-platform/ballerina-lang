@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -42,8 +43,6 @@ public class DisableTestsTestCase extends BaseTestCase {
     public void testDisablingTests() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"disable-test.bal"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to disable test failure in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "disable test failure");
     }
 }

@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,8 +44,6 @@ public class ImportTest extends BaseTestCase {
     public void testImportTest() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"predeclared-import-tests"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to predeclared import test failure in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "predeclared import test failure");
     }
 }

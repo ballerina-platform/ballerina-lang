@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -44,9 +45,7 @@ public class PathVerificationTest extends BaseTestCase {
         String errorOutput = balClient.runMainAndReadStdOut("test",
                 new String[]{"path-verification"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Verification of tests specified outside path failed in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "outside path test failure");
     }
 
     @Test

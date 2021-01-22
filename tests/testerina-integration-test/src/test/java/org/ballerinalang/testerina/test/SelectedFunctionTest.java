@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -46,9 +47,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         String errorOutput = balClient.runMainAndReadStdOut("test",
                 new String[]{"--tests", "testFunc", "single-test-execution.bal"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test single function execution failed in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "single function execution failure");
     }
 
     @Test
@@ -56,9 +55,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         String errorOutput = balClient.runMainAndReadStdOut("test",
                 new String[]{"--tests", "testFunc2", "single-test-execution.bal"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test dependant function execution failed in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "dependant function execution failure");
     }
 
     @Test
@@ -66,9 +63,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         String errorOutput = balClient.runMainAndReadStdOut("test",
                 new String[]{"--tests", "testFunc,testFunc2", "single-test-execution.bal"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test multiple function execution failed in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "multiple function execution failure");
     }
 
     @Test
@@ -85,9 +80,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         String errorOutput = balClient.runMainAndReadStdOut("test",
                 new String[]{"--tests", "testDisabledFunc", "single-test-execution.bal"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test disabled function execution failed in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "disabled function execution failure");
     }
 
     @Test
