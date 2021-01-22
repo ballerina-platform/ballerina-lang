@@ -346,7 +346,8 @@ public class Package {
 
         private void updateManifest() {
             ManifestBuilder manifestBuilder = ManifestBuilder.from(this.ballerinaTomlContext.tomlDocument(),
-                    this.dependenciesTomlContext.tomlDocument(), this.project.sourceRoot());
+                    Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null),
+                    this.project.sourceRoot());
             this.packageManifest = manifestBuilder.packageManifest();
         }
     }

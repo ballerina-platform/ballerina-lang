@@ -96,9 +96,10 @@ class CompilationOptions {
         this.observabilityIncluded = Objects.requireNonNullElseGet(
                 theirOptions.observabilityIncluded, () -> toBooleanDefaultIfNull(this.observabilityIncluded));
         this.dumpBir = Objects.requireNonNullElseGet(theirOptions.dumpBir, () -> toBooleanDefaultIfNull(this.dumpBir));
-        this.cloud = Objects.requireNonNullElse(this.cloud, toStringDefaultIfNull(this.cloud));
+        this.cloud = Objects.requireNonNullElse(theirOptions.cloud, toStringDefaultIfNull(this.cloud));
         this.dumpBirFile = theirOptions.dumpBirFile;
-        this.taintCheck = Objects.requireNonNullElseGet(this.taintCheck, () -> toBooleanDefaultIfNull(this.dumpBir));
+        this.taintCheck = Objects.requireNonNullElseGet(theirOptions.taintCheck,
+                () -> toBooleanDefaultIfNull(this.taintCheck));
         return this;
     }
 
