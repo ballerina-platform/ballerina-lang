@@ -63,7 +63,7 @@ public class K8sCompletionRouter {
      * @return {@link List} List of resolved completion Items
      */
     public static List<CompletionItem> getCompletionItems(TomlCompletionContext ctx,
-                                                        LanguageServerContext serverContext) {
+                                                          LanguageServerContext serverContext) {
         fillNodeAtCursor(ctx);
         return getCompletionItemsBasedOnCursor(ctx, serverContext);
     }
@@ -74,7 +74,7 @@ public class K8sCompletionRouter {
      * @return completion items for the current context.
      */
     public static List<CompletionItem> getCompletionItemsBasedOnCursor(TomlCompletionContext ctx,
-                                                                 LanguageServerContext serverContext) {
+                                                                       LanguageServerContext serverContext) {
         Node node = ctx.getNodeAtCursor();
         if (node == null) {
             return Collections.emptyList();
@@ -124,7 +124,9 @@ public class K8sCompletionRouter {
      */
     public static void fillNodeAtCursor(TomlCompletionContext context) {
         Path tomlFilePath = context.filePath();
-        SyntaxTree st = TomlSyntaxTreeUtil.getTomlSyntaxTree(tomlFilePath).orElseThrow();
+        //Completion gets called only from Kubernetes.toml in a project.
+        SyntaxTree st = context.workspace().project(tomlFilePath).orElseThrow().currentPackage().kubernetesToml()
+                .orElseThrow().tomlDocument().syntaxTree();
         Position position = context.getCursorPosition();
         TextDocument textDocument = st.textDocument();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
@@ -139,7 +141,7 @@ public class K8sCompletionRouter {
     }
 
     private static Map<String, CompletionItem> getTableCompletions(TableNode tableNode,
-                                                            Map<Parent, Map<String, CompletionItem>> snippets) {
+                                                                   Map<Parent, Map<String, CompletionItem>> snippets) {
 
         String tableKey = TomlSyntaxTreeUtil.toDottedString(tableNode.identifier());
         Map<String, CompletionItem> completions = new HashMap<>(getChildFromDottedKey(snippets, tableKey));
@@ -157,7 +159,7 @@ public class K8sCompletionRouter {
     }
 
     private static Map<String, CompletionItem> addRooTablesToCompletions(Set<Parent> parents,
-                                                                  Map<String, CompletionItem> completions) {
+                                                                         Map<String, CompletionItem> completions) {
         for (Parent parent : parents) {
             String key = parent.getKey();
             if (completions.containsKey(key)) {
@@ -191,7 +193,7 @@ public class K8sCompletionRouter {
     }
 
     private static Map<String, CompletionItem> getChildFromDottedKey(Map<Parent, Map<String, CompletionItem>> snippets,
-                                                              String tableKey) {
+                                                                     String tableKey) {
         for (Map.Entry<Parent, Map<String, CompletionItem>> entry : snippets.entrySet()) {
             Parent key = entry.getKey();
             if (key.getKey().equals(tableKey)) {
@@ -207,13 +209,13 @@ public class K8sCompletionRouter {
     }
 
     private static List<String> findExistingChildEntries(TableArrayNode tableArrayNode,
-                                                  Map<String, CompletionItem> completions) {
+                                                         Map<String, CompletionItem> completions) {
         DocumentNode documentNode = (DocumentNode) tableArrayNode.parent();
         return findExistingChildEntriesInDocument(documentNode, completions);
     }
 
     private static List<String> findExistingChildEntriesInDocument(DocumentNode documentNode,
-                                                            Map<String, CompletionItem> completions) {
+                                                                   Map<String, CompletionItem> completions) {
         List<String> removal = new ArrayList<>();
         for (Map.Entry<String, CompletionItem> entry : completions.entrySet()) {
             String completionKey = entry.getKey();
@@ -239,7 +241,7 @@ public class K8sCompletionRouter {
     }
 
     private static Map<String, CompletionItem> removeExistingChildTables(Map<String, CompletionItem> completions,
-                                                                  List<String> removal) {
+                                                                         List<String> removal) {
         for (String key : removal) {
             completions.remove(key);
         }

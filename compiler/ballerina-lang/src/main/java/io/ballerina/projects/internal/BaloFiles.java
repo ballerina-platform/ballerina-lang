@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.MdDocument;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDescriptor;
@@ -34,10 +35,12 @@ import io.ballerina.projects.internal.balo.DependencyGraphJson;
 import io.ballerina.projects.internal.balo.ModuleDependency;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.PackageJson;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -49,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,11 +82,12 @@ public class BaloFiles {
             String pkgName = packageManifest.name().toString();
             Path defaultModulePathInBalo = zipFileSystem.getPath(MODULES_ROOT, pkgName);
             ModuleData defaultModule = loadModule(pkgName, defaultModulePathInBalo);
-
+            DocumentData packageMd = loadDocument(zipFileSystem.getPath(ProjectConstants.BALO_DOCS_DIR)
+                    .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
             // load other modules
             Path modulesPathInBalo = zipFileSystem.getPath(MODULES_ROOT);
             List<ModuleData> otherModules = loadOtherModules(pkgName, modulesPathInBalo, defaultModulePathInBalo);
-            return PackageData.from(balrPath, defaultModule, otherModules);
+            return PackageData.from(balrPath, defaultModule, otherModules, null, null, null, packageMd);
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
         }
@@ -97,6 +102,20 @@ public class BaloFiles {
         }
         if (packageJson.getVersion() == null || "".equals(packageJson.getVersion())) {
             throw new ProjectException("'version' does not exists in 'package.json': " + balrPath);
+        }
+    }
+
+    public static DocumentData loadDocument(Path documentFilePath) {
+        if (Files.notExists(documentFilePath)) {
+            return null;
+        } else {
+            String content;
+            try {
+                content = Files.readString(documentFilePath, Charset.defaultCharset());
+            } catch (IOException e) {
+                throw new ProjectException(e);
+            }
+            return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
         }
     }
 
@@ -121,9 +140,17 @@ public class BaloFiles {
 
         List<DocumentData> srcDocs = loadDocuments(modulePath);
         List<DocumentData> testSrcDocs = Collections.emptyList();
+        MdDocument moduleMd = loadModuleMd(modulePath);
 
-        // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
-        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs);
+        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd);
+    }
+
+    private static MdDocument loadModuleMd(Path modulePath) {
+        Path moduleMdPath = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+        if (Files.exists(moduleMdPath)) {
+            return new MdDocument(moduleMdPath);
+        }
+        return null;
     }
 
     private static List<ModuleData> loadOtherModules(String pkgName,
@@ -237,7 +264,7 @@ public class BaloFiles {
             platforms.put(packageJson.getPlatform(), platform);
         }
 
-        return PackageManifest.from(pkgDesc, dependencies, platforms, Collections.emptyMap());
+        return PackageManifest.from(pkgDesc, dependencies, platforms);
     }
 
     private static PackageJson readPackageJson(Path balrPath, Path packageJsonPath) {

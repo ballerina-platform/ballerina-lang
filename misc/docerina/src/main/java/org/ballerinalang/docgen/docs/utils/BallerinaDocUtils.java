@@ -141,10 +141,9 @@ public class BallerinaDocUtils {
         return debugEnabled;
     }
 
-    public static String getSummary(Path descriptionPath) throws IOException {
-        if (descriptionPath != null) {
-            String mdContent = new String(Files.readAllBytes(descriptionPath), "UTF-8");
-            Node document = BallerinaDocUtils.parseMD(mdContent);
+    public static String getSummary(String description) {
+        if (description != null) {
+            Node document = BallerinaDocUtils.parseMD(description);
             ModuleDoc.SummaryVisitor summaryVisitor = new ModuleDoc.SummaryVisitor();
             document.accept(summaryVisitor);
             return summaryVisitor.getSummary();
