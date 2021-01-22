@@ -29,12 +29,15 @@ class CompilationOptions {
     private Boolean offlineBuild;
     private Boolean experimental;
     private Boolean observabilityIncluded;
+    private Boolean taintCheck;
 
-    CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental, Boolean observabilityIncluded) {
+    CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental, Boolean observabilityIncluded,
+                       Boolean taintCheck) {
         this.skipTests = skipTests;
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
+        this.taintCheck = taintCheck;
     }
 
     boolean skipTests() {
@@ -53,6 +56,10 @@ class CompilationOptions {
         return toBooleanDefaultIfNull(observabilityIncluded);
     }
 
+    boolean getTaintCheck() {
+        return toBooleanDefaultIfNull(taintCheck);
+    }
+
     /**
      * Merge the given compilation options by favoring theirs if there are conflicts.
      *
@@ -69,6 +76,8 @@ class CompilationOptions {
                 theirOptions.experimental, () -> toBooleanDefaultIfNull(this.experimental));
         this.observabilityIncluded = Objects.requireNonNullElseGet(
                 theirOptions.observabilityIncluded, () -> toBooleanDefaultIfNull(this.observabilityIncluded));
+        this.taintCheck = Objects.requireNonNullElseGet(
+                theirOptions.taintCheck, () -> toBooleanDefaultIfNull(this.taintCheck));
 
         return this;
     }

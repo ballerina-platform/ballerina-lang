@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -177,6 +178,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -218,6 +220,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private SymbolTable symTable;
     private BLangDiagnosticLog dlog;
     private Types types;
+    private boolean emmitTaintErrors;
 
     private boolean overridingAnalysis = true;
     private boolean entryPointPreAnalysis;
@@ -263,12 +266,20 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         dlog = BLangDiagnosticLog.getInstance(context);
         symTable = SymbolTable.getInstance(context);
         types = Types.getInstance(context);
+        emmitTaintErrors = Boolean.parseBoolean(
+                CompilerOptions.getInstance(context).get(CompilerOptionName.TAINT_CHECK));
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
         dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
         return pkgNode;
+    }
+
+    private void logTaintError(Location pos, DiagnosticCode errorCode, Object... args) {
+        if (emmitTaintErrors) {
+            dlog.error(pos, errorCode, args);
+        }
     }
 
     @Override
@@ -311,7 +322,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         analyzeModuleLevelVariableDefinitions(topLevelNodeGroups.get(true));
 
         if (dlogSet.size() > 0) {
-            dlogSet.forEach(dlogEntry -> dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode,
+            dlogSet.forEach(dlogEntry -> logTaintError(dlogEntry.pos, dlogEntry.diagnosticCode,
                     dlogEntry.paramName.toArray()));
         }
         currPkgEnv = prevPkgEnv;
@@ -1964,7 +1975,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
 
                 if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
-                    this.dlog.error(param.pos, DiagnosticErrorCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED,
+                    logTaintError(param.pos, DiagnosticErrorCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED,
                             param.name.value);
                     return true;
                 }
@@ -2102,7 +2113,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (taintRecord.returnTaintedStatus == TaintedStatus.TAINTED
                 && !hasAnnotation(invokableNode.returnTypeAnnAttachments, ANNOTATION_TAINTED)
                 && !invokableNode.flagSet.contains(Flag.LAMBDA)) {
-            dlog.error(invokableNode.returnTypeNode.pos, DiagnosticErrorCode.TAINTED_RETURN_NOT_ANNOTATED_TAINTED,
+            logTaintError(invokableNode.returnTypeNode.pos, DiagnosticErrorCode.TAINTED_RETURN_NOT_ANNOTATED_TAINTED,
                     invokableNode.name.getValue());
             stopAnalysis = true;
         }
@@ -2120,7 +2131,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
                 if (!hasAnnotation(param, ANNOTATION_TAINTED)) {
-                    dlog.error(param.pos, DiagnosticErrorCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED, param.name,
+                    logTaintError(param.pos, DiagnosticErrorCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED, param.name,
                             invokableNode.name);
                     stopAnalysis = true;
                 }

@@ -43,6 +43,9 @@ OPTIONS
            Package observability in the executable when run is used
            with a source file or a package.
 
+       --taint-check
+           Perform taint flow analysis.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set the Ballerina environment parameters as key/value pairs.

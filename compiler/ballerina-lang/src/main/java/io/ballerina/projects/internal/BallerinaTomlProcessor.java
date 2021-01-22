@@ -229,12 +229,14 @@ public class BallerinaTomlProcessor {
         boolean observabilityIncluded = table.getBoolean(CompilerOptionName.OBSERVABILITY_INCLUDED.toString(), false);
         boolean testReport = table.getBoolean(BuildOptions.OptionName.TEST_REPORT.toString(), false);
         boolean codeCoverage = table.getBoolean(BuildOptions.OptionName.CODE_COVERAGE.toString(), false);
+        boolean taintCheck = table.getBoolean(CompilerOptionName.TAINT_CHECK.toString(), false);
         return buildOptionsBuilder
                 .skipTests(skipTests)
                 .offline(offline)
                 .observabilityIncluded(observabilityIncluded)
                 .testReport(testReport)
                 .codeCoverage(codeCoverage)
+                .taintCheck(taintCheck)
                 .build();
     }
 
