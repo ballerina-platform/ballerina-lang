@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test;
 
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Package;
@@ -53,7 +54,7 @@ public class BCompileUtil {
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        return ProjectLoader.loadProject(projectPath);
+        return ProjectLoader.loadProject(projectPath, new BuildOptionsBuilder().taintCheck(true).build());
     }
 
     public static CompileResult compile(String sourceFilePath) {
@@ -88,7 +89,8 @@ public class BCompileUtil {
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        Project project = ProjectLoader.loadProject(projectPath, getTestProjectEnvironmentBuilder());
+        Project project = ProjectLoader.loadProject(projectPath, getTestProjectEnvironmentBuilder(),
+                new BuildOptionsBuilder().taintCheck(true).build());
 
         if (isSingleFileProject(project)) {
             throw new RuntimeException("single file project is given for compilation at " + project.sourceRoot());

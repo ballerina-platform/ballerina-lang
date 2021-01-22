@@ -47,9 +47,13 @@ public class BuildProject extends Project {
      * @return build project
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+        return load(environmentBuilder, projectPath, new BuildOptionsBuilder().build());
+    }
+
+    public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
+                                    BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
-        BuildProject buildProject = new BuildProject(
-                environmentBuilder, projectPath, new BuildOptionsBuilder().build());
+        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, buildOptions);
         buildProject.addPackage(packageConfig);
         return buildProject;
     }

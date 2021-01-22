@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
@@ -38,13 +40,22 @@ public class ProjectLoader {
         return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder());
     }
 
+    public static Project loadProject(Path path, BuildOptions buildOptions) {
+        return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder(), buildOptions);
+    }
+
+    public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder) {
+        return loadProject(path, projectEnvironmentBuilder, new BuildOptionsBuilder().build());
+    }
+
     /**
      * Returns a project by deriving the type from the path provided.
      *
      * @param path ballerina project or standalone file path
      * @return project of applicable type
      */
-    public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder) {
+    public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder,
+                                      BuildOptions buildOptions) {
         Path absProjectPath = Optional.of(path.toAbsolutePath()).get();
         Path projectRoot;
         if (absProjectPath.toFile().isDirectory()) {
@@ -81,10 +92,10 @@ public class ProjectLoader {
         projectRoot = modulesRoot.getParent();
 
         if (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
-            return BuildProject.load(projectEnvironmentBuilder, projectRoot);
+            return BuildProject.load(projectEnvironmentBuilder, projectRoot, buildOptions);
         }
 
-        return SingleFileProject.load(projectEnvironmentBuilder, absProjectPath);
+        return SingleFileProject.load(absProjectPath, projectEnvironmentBuilder, buildOptions);
     }
 
     /**

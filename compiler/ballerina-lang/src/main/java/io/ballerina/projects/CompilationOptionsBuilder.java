@@ -29,6 +29,7 @@ class CompilationOptionsBuilder {
     private Boolean buildOffline;
     private Boolean experimental;
     private Boolean observabilityIncluded;
+    private Boolean taintCheck;
 
     public CompilationOptionsBuilder() {
     }
@@ -53,7 +54,12 @@ class CompilationOptionsBuilder {
         return this;
     }
 
+    public CompilationOptionsBuilder taintCheck(Boolean value) {
+        taintCheck = value;
+        return this;
+    }
+
     public CompilationOptions build() {
-        return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded);
+        return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, taintCheck);
     }
 }

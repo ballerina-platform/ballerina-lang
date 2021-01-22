@@ -55,11 +55,15 @@ public class SingleFileProject extends Project {
     }
 
     public static SingleFileProject load(Path filePath, BuildOptions buildOptions) {
+        return load(filePath, ProjectEnvironmentBuilder.getDefaultBuilder(), buildOptions);
+    }
+
+    public static SingleFileProject load(Path filePath, ProjectEnvironmentBuilder environmentBuilder,
+                                         BuildOptions buildOptions) {
         // todo this is an ugly hack to get the offline build working we need to refactor this later
         System.setProperty(ProjectConstants.BALLERINA_OFFLINE_FLAG, String.valueOf(buildOptions.offlineBuild()));
 
         PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(filePath);
-        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         SingleFileProject singleFileProject = new SingleFileProject(environmentBuilder, filePath, buildOptions);
         singleFileProject.addPackage(packageConfig);
         return singleFileProject;
