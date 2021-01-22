@@ -166,7 +166,7 @@ public class BallerinaDocGenerator {
                 .orElse("");
         if (!docPackage.description.equals("")) {
             docPackage.summary = BallerinaDocUtils.getSummary(docPackage.description);
-        } else if (moduleDocMap.get(docPackage.name) != null){
+        } else if (moduleDocMap.get(docPackage.name) != null) {
             // Use summary of the default module
             docPackage.summary = moduleDocMap.get(docPackage.name).summary;
         }
