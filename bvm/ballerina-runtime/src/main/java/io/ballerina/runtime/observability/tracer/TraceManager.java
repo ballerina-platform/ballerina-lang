@@ -23,9 +23,7 @@ import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
-import io.opentracing.propagation.TextMapInjectAdapter;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -61,32 +59,6 @@ public class TraceManager {
 
             activeBSpan.setSpan(span);
         }
-    }
-
-    public void finishSpan(BSpan bSpan) {
-        bSpan.getSpan().finish();
-    }
-
-    public void addEvent(BSpan bSpan, Map<String, Object> fields) {
-        bSpan.getSpan().log(fields);
-    }
-
-    public void addTags(BSpan bSpan, Map<String, String> tags) {
-        tags.forEach((key, value) -> bSpan.getSpan().setTag(key, String.valueOf(value)));
-    }
-
-    public void addTag(BSpan bSpan, String tagKey, String tagValue) {
-        bSpan.getSpan().setTag(tagKey, tagValue);
-    }
-
-    public Map<String, String> extractTraceContext(Span span, String serviceName) {
-        Map<String, String> carrierMap = new HashMap<>();
-        Tracer tracer = tracerStore.getTracer(serviceName);
-        if (tracer != null && span != null) {
-            TextMapInjectAdapter requestInjector = new TextMapInjectAdapter(carrierMap);
-            tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
-        }
-        return carrierMap;
     }
 
     private Span startSpan(String spanName, Object spanContextMap,

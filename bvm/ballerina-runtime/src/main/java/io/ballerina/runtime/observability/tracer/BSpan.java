@@ -15,11 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package io.ballerina.runtime.observability.tracer;
 
 import io.ballerina.runtime.observability.ObserverContext;
 import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapInjectAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +37,7 @@ import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
  */
 public class BSpan {
 
+    private static final TracersStore tracerStore = TracersStore.getInstance();
     private static final TraceManager manager = TraceManager.getInstance();
 
     /**
@@ -77,34 +80,32 @@ public class BSpan {
     }
 
     public void finishSpan() {
-        manager.finishSpan(this);
+        span.finish();
     }
 
     public void addEvent(Map<String, Object> fields) {
-        manager.addEvent(this, fields);
+        span.log(fields);
     }
 
     public void addTags(Map<String, String> tags) {
         if (span != null) {
-            //span has started, therefore add tags to the span.
-            manager.addTags(this, tags);
+            // Span has started, therefore add tags to the span.
+            tags.forEach((key, value) -> span.setTag(key, value));
         } else {
             //otherwise keep the tags in a map, and add it once
             //the span get created.
             this.tags.putAll(tags);
         }
-
     }
 
     public void addTag(String tagKey, String tagValue) {
         if (span != null) {
             // Span has started, therefore add tags to the span.
-            manager.addTag(this, tagKey, tagValue);
+            span.setTag(tagKey, tagValue);
         } else {
             // Otherwise keep the tags in a map, and add it once the span get created.
             this.tags.put(tagKey, tagValue);
         }
-
     }
 
     public String getServiceName() {
@@ -153,7 +154,13 @@ public class BSpan {
     }
 
     public Map<String, String> getTraceContext() {
-        return manager.extractTraceContext(span, serviceName);
+        Map<String, String> carrierMap = new HashMap<>();
+        Tracer tracer = tracerStore.getTracer(serviceName);
+        if (span != null) {
+            TextMapInjectAdapter requestInjector = new TextMapInjectAdapter(carrierMap);
+            tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
+        }
+        return carrierMap;
     }
 
     private BSpan getParentBSpan() {
