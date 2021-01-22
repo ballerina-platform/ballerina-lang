@@ -140,7 +140,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private final Map<Long, BCompoundVariable> loadedVariables = new HashMap<>();
     private final Map<Long, Long> variableToStackFrameMap = new HashMap<>();
     private final Map<Long, Long> scopeIdToFrameIdMap = new HashMap<>();
-    private static int systemExit = 1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String DEBUGGER_TERMINATED = "Debugger is terminated";
@@ -491,13 +490,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (launchedProcess != null) {
             launchedProcess.destroy();
         }
-        systemExit = 0;
         new java.lang.Thread(() -> {
             try {
                 java.lang.Thread.sleep(100);
             } catch (InterruptedException ignored) {
             }
-            System.exit(systemExit);
+            System.exit(0);
         }).start();
     }
 
