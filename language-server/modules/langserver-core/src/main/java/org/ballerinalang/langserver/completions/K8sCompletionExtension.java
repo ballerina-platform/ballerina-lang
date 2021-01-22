@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.langserver.completions;
 
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.CompletionExtension;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.completions.util.K8sCompletionRouter;
 import org.ballerinalang.langserver.contexts.K8sCompletionContextImpl;
-import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionParams;
 
@@ -48,7 +48,7 @@ public class K8sCompletionExtension implements CompletionExtension {
             return false;
         }
         String fileName = fileNamePath.toString();
-        return fileName.equals(TomlSyntaxTreeUtil.KUBERNETES_TOML);
+        return fileName.equals(ProjectConstants.KUBERNETES_TOML);
     }
 
     @Override

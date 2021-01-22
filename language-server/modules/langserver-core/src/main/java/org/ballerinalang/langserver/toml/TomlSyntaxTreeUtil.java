@@ -34,7 +34,6 @@ import org.eclipse.lsp4j.Position;
  * @since 2.0.0
  */
 public class TomlSyntaxTreeUtil {
-    public static final String KUBERNETES_TOML = "Kubernetes.toml";
 
     public static final String NUMBER = "Number";
     public static final String STRING = "String";

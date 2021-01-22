@@ -17,11 +17,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import java.io.IOException;
 
 /**
  * Test cases for adding ballerina config values as envs to Kuberentes.toml.
@@ -29,12 +25,6 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class KubernetesEnvTest extends AbstractCodeActionTest {
-
-    @Test(dataProvider = "codeaction-data-provider", enabled = false)
-    @Override
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
-    }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
