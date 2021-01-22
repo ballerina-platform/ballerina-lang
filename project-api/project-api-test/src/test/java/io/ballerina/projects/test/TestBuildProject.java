@@ -60,11 +60,7 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
@@ -941,6 +937,41 @@ public class TestBuildProject {
         TomlTableNode kubernetesTomlTable = currentPackage.kubernetesToml().get().tomlAstNode();
         Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
                 .get("dependency")).children().size(), 2);
+
+    }
+
+    @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md", enabled = true)
+    public void testOtherMinimalistProjectEdit() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject_minimalist");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Check editing files
+        Package currentPackage = project.currentPackage();
+
+        List<String> data = new ArrayList<>();
+        data.add("[package]");
+        data.add("[package]" +
+                "name");
+        data.add("[package]" +
+                "name=");
+        data.add("[package]" +
+                "name=\"te");
+        data.add("[package]" +
+                "name=\"test");
+
+        for (String dataItem: data) {
+            BallerinaToml newBallerinaToml = currentPackage.ballerinaToml().get().modify().withContent("" +
+                    dataItem).apply();
+            TomlTableNode ballerinaToml = newBallerinaToml.tomlAstNode();
+            Package newPackage = newBallerinaToml.packageInstance();
+            PackageCompilation compilation = newPackage.getCompilation();
+        }
 
     }
 
