@@ -107,8 +107,9 @@ public interface WorkspaceManager {
      *
      * @param filePath {@link Path} of the document
      * @param params   {@link DidOpenTextDocumentParams}
+     * @throws WorkspaceDocumentException when project or document not found
      */
-    void didOpen(Path filePath, DidOpenTextDocumentParams params);
+    void didOpen(Path filePath, DidOpenTextDocumentParams params) throws WorkspaceDocumentException;
 
     /**
      * The document change notification is sent from the client to the server to signal changes to a text document.
