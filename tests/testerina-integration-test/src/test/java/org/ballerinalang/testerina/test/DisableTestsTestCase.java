@@ -19,9 +19,10 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
 
 /**
  * Test class containing tests related to disabling test.
@@ -39,10 +40,10 @@ public class DisableTestsTestCase extends BaseTestCase {
 
     @Test
     public void testDisablingTests() throws BallerinaTestException {
-        String msg = "2 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"disable-test.bal"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"disable-test.bal"},
+                new HashMap<>(), projectPath, true);
+        if (errorOutput.contains("error: there are test failures")) {
+            throw new BallerinaTestException("Test failed due to disable test failure in test framework");
+        }
     }
 }

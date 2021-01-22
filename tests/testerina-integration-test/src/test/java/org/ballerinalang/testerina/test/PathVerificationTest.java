@@ -23,6 +23,8 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
+
 /**
  * Test class containing tests related to test path verification.
  */
@@ -39,12 +41,12 @@ public class PathVerificationTest extends BaseTestCase {
 
     @Test
     public void verifyTestsOutsidePath() throws BallerinaTestException {
-        LogLeecher passingLeecher = new LogLeecher("3 passing");
-        LogLeecher failingLeecher = new LogLeecher("0 failing");
-        balClient.runMain("test", new String[]{"path-verification"}, null, new String[0],
-                new LogLeecher[]{passingLeecher, failingLeecher}, projectPath);
-        passingLeecher.waitForText(20000);
-        failingLeecher.waitForText(20000);
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"path-verification"},
+                new HashMap<>(), projectPath, true);
+        if (errorOutput.contains("error: there are test failures")) {
+            throw new BallerinaTestException("Verification of tests specified outside path failed in test framework");
+        }
     }
 
     @Test
