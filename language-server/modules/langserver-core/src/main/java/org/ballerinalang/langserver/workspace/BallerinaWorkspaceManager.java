@@ -243,8 +243,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // update .bal document, if not exists reload project instance
             //TODO: Remove this call with workspace events
             updateDocument(filePath, params.getTextDocument().getText(), projectPair, true);
-        } else {
-            throw new WorkspaceDocumentException("Unsupported file operation");
         }
     }
 
