@@ -38,7 +38,7 @@ public class TestCase {
     }
 
     public String getExpr() {
-        return expr;
+        return expr == null ? "" : String.format("%s%n", expr);
     }
 
     public void setExpr(String expr) {

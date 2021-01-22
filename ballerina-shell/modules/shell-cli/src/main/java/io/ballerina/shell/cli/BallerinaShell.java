@@ -52,8 +52,6 @@ import static io.ballerina.shell.cli.PropertiesLoader.REPL_PROMPT;
  * @since 2.0.0
  */
 public class BallerinaShell {
-    private static final int INIT_WARNING_THRESH_S = 2;
-
     protected final BShellConfiguration configuration;
     protected final TerminalAdapter terminal;
     protected final Evaluator evaluator;
@@ -88,10 +86,6 @@ public class BallerinaShell {
         }
 
         Instant end = Instant.now();
-        // Output a warning if initialization took too long.
-        if (Duration.between(start, end).getSeconds() > INIT_WARNING_THRESH_S) {
-            terminal.warn("Compiler initialization took longer than expected.");
-        }
 
         while (isRunning) {
             Duration previousDuration = Duration.between(start, end);
