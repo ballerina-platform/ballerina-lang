@@ -231,18 +231,20 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
 
         Project project = projectPair.project();
-        if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.BALLERINA_TOML))) {
-            // create or update Ballerina.toml
-            updateBallerinaToml(params.getTextDocument().getText(), projectPair);
-        } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.DEPENDENCIES_TOML))) {
+        if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.DEPENDENCIES_TOML))) {
             // create or update Dependencies.toml
+            //TODO: Remove this call with workspace events
             updateDependenciesToml(params.getTextDocument().getText(), projectPair, true);
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.KUBERNETES_TOML))) {
             // create or update Kubernetes.toml
+            //TODO: Remove this call with workspace events
             updateKubernetesToml(params.getTextDocument().getText(), projectPair, true);
-        } else {
+        } else if (ProjectPaths.isBalFile(filePath)) {
             // update .bal document, if not exists reload project instance
+            //TODO: Remove this call with workspace events
             updateDocument(filePath, params.getTextDocument().getText(), projectPair, true);
+        } else {
+            throw new WorkspaceDocumentException("Unsupported file operation");
         }
     }
 
@@ -271,9 +273,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.KUBERNETES_TOML))) {
             // create or update Kubernetes.toml
             updateKubernetesToml(params.getContentChanges().get(0).getText(), projectPair.get(), false);
-        } else {
+        } else if (ProjectPaths.isBalFile(filePath)) {
             // update .bal document
             updateDocument(filePath, params.getContentChanges().get(0).getText(), projectPair.get(), false);
+        } else {
+            throw new WorkspaceDocumentException("Unsupported file update");
         }
     }
 
@@ -284,7 +288,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             Optional<BallerinaToml> ballerinaToml = projectPair.project().currentPackage().ballerinaToml();
             // Get toml
             if (ballerinaToml.isEmpty()) {
-                throw new WorkspaceDocumentException("Ballerina.toml does not exists!");
+                throw new WorkspaceDocumentException(ProjectConstants.BALLERINA_TOML + " does not exists!");
             }
             // Update toml
             BallerinaToml updatedToml = ballerinaToml.get().modify().withContent(content).apply();
@@ -369,7 +373,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             Optional<Document> document = document(filePath, projectPair.project());
             if (document.isEmpty()) {
                 if (createIfNotExists) {
-                    //TODO: Need to create document here
+                    //TODO: Need to create document here, Need to address with workspace events
                     // Reload the project
                     projectPair.setProject(createProject(filePath).project());
                 } else {

@@ -73,6 +73,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
 //    todo that, we would have to move PackageContext class into an internal package.
 public class JBallerinaBackend extends CompilerBackend {
+
     private static final String JAR_FILE_EXTENSION = ".jar";
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
@@ -137,6 +138,8 @@ public class JBallerinaBackend extends CompilerBackend {
                     diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
 
+        // add plugin diagnostics
+        diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
         // add ballerina toml diagnostics
         diagnostics.addAll(this.packageContext.manifest().diagnostics().diagnostics());
 
@@ -483,7 +486,6 @@ public class JBallerinaBackend extends CompilerBackend {
             this.value = value;
         }
     }
-
 
     JvmTarget jdkVersion() {
         return jdkVersion;
