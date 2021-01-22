@@ -24,7 +24,9 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.directory.ProjectLoader;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -32,8 +34,11 @@ import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
+import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -41,11 +46,13 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 
@@ -59,11 +66,13 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceManager workspaceManager;
     public static final LSContext.Key<String> UPDATED_SOURCE = new LSContext.Key<>();
+    private final DiagnosticsHelper diagnosticsHelper;
 
     public BallerinaDocumentServiceImpl(BallerinaLanguageServer ballerinaLanguageServer,
-                                        WorkspaceManager workspaceManager) {
+                                        WorkspaceManager workspaceManager, DiagnosticsHelper diagnosticsHelper) {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
         this.workspaceManager = workspaceManager;
+        this.diagnosticsHelper = diagnosticsHelper;
     }
 
     @Override
@@ -259,6 +268,25 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 logError(msg, e, params.getDocumentIdentifier(), (Position) null);
             }
             return project;
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<PublishDiagnosticsParams>> diagnostics(BallerinaProjectParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            String fileUri = params.getDocumentIdentifier().getUri();
+            try {
+                DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
+                        this.workspaceManager,
+                        LSContextOperation.DOC_DIAGNOSTICS);
+                return diagnosticsHelper.getBallerinaDiagnostics(context).entrySet().stream()
+                        .map((entry) -> new PublishDiagnosticsParams(entry.getKey(), entry.getValue()))
+                        .collect(Collectors.toList());
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaDocument/diagnostics' failed!";
+                logError(msg, e, params.getDocumentIdentifier(), (Position) null);
+                return Collections.emptyList();
+            }
         });
     }
 

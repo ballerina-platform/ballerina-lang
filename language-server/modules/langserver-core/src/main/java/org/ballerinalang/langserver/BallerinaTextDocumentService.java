@@ -108,7 +108,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     BallerinaTextDocumentService(LSGlobalContext globalContext, WorkspaceManager workspaceManager) {
         this.workspaceManager = workspaceManager;
         this.languageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
-        this.diagnosticsHelper = globalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
+        this.diagnosticsHelper = new DiagnosticsHelper();
     }
 
     /**

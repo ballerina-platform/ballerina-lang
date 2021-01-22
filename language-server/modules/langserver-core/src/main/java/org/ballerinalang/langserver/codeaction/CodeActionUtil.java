@@ -535,6 +535,7 @@ public class CodeActionUtil {
                     }
                     return Optional.of(member);
                 }
+                return Optional.empty();
             } else if (member.kind() == SyntaxKind.CLASS_DEFINITION) {
                 if (isWithinStartSegment) {
                     // Cursor on the class

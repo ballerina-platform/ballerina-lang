@@ -98,12 +98,12 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         LSGlobalContext lsGlobalContext = new LSGlobalContext(LSContextOperation.LS_INIT);
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
-        lsGlobalContext.put(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY, DiagnosticsHelper.getInstance());
         WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
+        DiagnosticsHelper diagnosticsHelper = new DiagnosticsHelper();
 
         this.textService = new BallerinaTextDocumentService(lsGlobalContext, workspaceManager);
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager);
-        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(this, workspaceManager);
+        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(this, workspaceManager, diagnosticsHelper);
         this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(workspaceManager, lsGlobalContext);
         this.ballerinaProjectService = new BallerinaProjectServiceImpl();
         this.ballerinaExampleService = new BallerinaExampleServiceImpl();

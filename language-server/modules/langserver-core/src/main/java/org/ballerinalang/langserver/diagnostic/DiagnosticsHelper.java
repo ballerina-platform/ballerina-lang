@@ -43,18 +43,14 @@ import java.util.Optional;
  * @since 0.983.0
  */
 public class DiagnosticsHelper {
-    private static final List<Diagnostic> EMPTY_DIAGNOSTIC_LIST = new ArrayList<>(0);
-    private static final DiagnosticsHelper INSTANCE = new DiagnosticsHelper();
+    private final List<Diagnostic> emptyDiagnosticList = new ArrayList<>(0);
+
     /**
      * Holds last sent diagnostics for the purpose of clear-off when publishing new diagnostics.
      */
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
 
-    public static DiagnosticsHelper getInstance() {
-        return INSTANCE;
-    }
-
-    private DiagnosticsHelper() {
+    public DiagnosticsHelper() {
         this.lastDiagnosticMap = new HashMap<>();
     }
 
@@ -77,8 +73,12 @@ public class DiagnosticsHelper {
             return;
         }
 
-        // Replace old entries with an empty list
-        lastDiagnosticMap.keySet().forEach((key) -> diagnosticMap.computeIfAbsent(key, value -> EMPTY_DIAGNOSTIC_LIST));
+        // Clear old entries with an empty list
+        lastDiagnosticMap.forEach((key, value) -> {
+            if (!diagnosticMap.containsKey(key)) {
+                client.publishDiagnostics(new PublishDiagnosticsParams(key, emptyDiagnosticList));
+            }
+        });
 
         // Publish diagnostics
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
