@@ -43,7 +43,7 @@ import java.util.Optional;
  * @since 0.983.0
  */
 public class DiagnosticsHelper {
-    private final List<Diagnostic> EMPTY_DIAGNOSTIC_LIST = new ArrayList<>(0);
+    private final List<Diagnostic> emptyDiagnosticList = new ArrayList<>(0);
 
     /**
      * Holds last sent diagnostics for the purpose of clear-off when publishing new diagnostics.
@@ -76,7 +76,7 @@ public class DiagnosticsHelper {
         // Clear old entries with an empty list
         lastDiagnosticMap.forEach((key, value) -> {
             if (!diagnosticMap.containsKey(key)) {
-                client.publishDiagnostics(new PublishDiagnosticsParams(key, EMPTY_DIAGNOSTIC_LIST));
+                client.publishDiagnostics(new PublishDiagnosticsParams(key, emptyDiagnosticList));
             }
         });
 
