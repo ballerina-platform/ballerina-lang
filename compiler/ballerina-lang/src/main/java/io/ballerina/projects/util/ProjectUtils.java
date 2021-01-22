@@ -469,4 +469,22 @@ public class ProjectUtils {
 
         return null;
     }
+
+    public static void checkWritePermission(Path path) {
+        if (!path.toFile().canWrite()) {
+            throw new ProjectException("'" + path + "' does not have write permissions");
+        }
+    }
+
+    public static void checkReadPermission(Path path) {
+        if (!path.toFile().canRead()) {
+            throw new ProjectException("'" + path + "' does not have read permissions");
+        }
+    }
+
+    public static void checkExecutePermission(Path path) {
+        if (!path.toFile().canRead()) {
+            throw new ProjectException("'" + path + "' does not have execute permissions");
+        }
+    }
 }

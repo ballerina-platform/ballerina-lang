@@ -27,6 +27,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.testsuite.TestSuite;
@@ -125,6 +126,12 @@ public class RunTestsTask implements Task {
 
     @Override
     public void execute(Project project) {
+        try {
+            ProjectUtils.checkExecutePermission(project.sourceRoot());
+        } catch (ProjectException e) {
+            throw createLauncherException(e.getMessage());
+        }
+
         filterTestGroups();
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
