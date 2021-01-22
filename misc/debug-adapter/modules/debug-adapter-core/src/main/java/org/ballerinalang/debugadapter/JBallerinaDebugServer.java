@@ -153,7 +153,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String WORKER_LAMBDA_REGEX = "(\\$lambda\\$)\\b(.*)\\b(\\$lambda)(.*)";
 
     public JBallerinaDebugServer() {
-        context = new DebugContext();
+        context = new DebugContext(this);
     }
 
     private IDebugProtocolClient getClient() {
@@ -482,7 +482,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return thread;
     }
 
-    private void exit(boolean terminateDebuggee) {
+    void exit(boolean terminateDebuggee) {
         if (terminateDebuggee) {
             new TerminatorFactory().getTerminator(OSUtils.getOperatingSystem()).terminate();
         }
