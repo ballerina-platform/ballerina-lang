@@ -21,13 +21,21 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
@@ -38,7 +46,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -46,9 +53,11 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 /**
@@ -59,6 +68,8 @@ class AIDataMapperCodeActionUtil {
     private static final int HTTP_422_UN_PROCESSABLE_ENTITY = 422;
     private static final int HTTP_500_INTERNAL_SERVER_ERROR = 500;
     private static final int MAXIMUM_CACHE_SIZE = 100;
+    private static final int RIGHT_SYMBOL_INDEX = 1;
+    private static final int LEFT_SYMBOL_INDEX = 0;
     private static Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
 
@@ -86,91 +97,199 @@ class AIDataMapperCodeActionUtil {
             return fEdits;
         }
 
-        String foundTypeLeft = matcher.group(1);
-        String foundTypeRight = matcher.group(2);
-
-        // Get the semantic model
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-
-        // To restrict the code action from appearing for handled cases.
-        List<Symbol> fileContentSymbols = semanticModel.moduleLevelSymbols();
-        boolean foundLeft = fileContentSymbols.stream().anyMatch(p -> p.name().contains(foundTypeLeft));
-        boolean foundRight = fileContentSymbols.stream().anyMatch(p -> p.name().contains(foundTypeRight));
-
-        if (!(foundRight && foundLeft)) {
+        Optional<Document> srcFile = context.workspace().document(context.filePath());
+        if (srcFile.isEmpty()) {
             return fEdits;
         }
 
-        // Insert function call in the code where error is found
-        Range newTextRange = CommonUtil.toRange(diagnostic.location().lineRange());
+        List<DiagnosticProperty<?>> props = diagnostic.properties();
+        if (props.size() != 2 || props.get(RIGHT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC ||
+                props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC) {
+            return fEdits;
+        } else {
+            Symbol lftTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
+            Symbol rhsTypeSymbol = (Symbol) props.get(RIGHT_SYMBOL_INDEX).value();
 
-        String filePath = context.filePath().getFileName().toString();
-        LinePosition linePosition = LinePosition.from(context.cursorPosition().getLine(), context.cursorPosition().
-                getCharacter());
-        String symbolAtCursor = semanticModel.symbol(filePath, linePosition).get().name();
+            String foundTypeLeft = lftTypeSymbol.name();
+            String foundTypeRight = rhsTypeSymbol.name();
 
-        String generatedFunctionName =
-                String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursor);
-        fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
+            // Get the semantic model
+            SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
+            List<Symbol> fileContentSymbols = semanticModel.moduleSymbols();
 
-        // Insert function declaration at the bottom of the file
-        String functionName = String.format("map%sTo%s", foundTypeRight, foundTypeLeft);
+            // Find the location to insert function call in the code where error is found
+            Range newTextRange = CommonUtil.toRange(diagnostic.location().lineRange());
+            LinePosition linePosition = diagnostic.location().lineRange().startLine();
 
-        boolean found = fileContentSymbols.stream().anyMatch(p -> p.name().contains(functionName));
-        if (!found) {
-            TextDocument fileContentTextDocument = context.workspace().syntaxTree(context.filePath()).get().
-                    textDocument();
-            int numberOfLinesInFile = fileContentTextDocument.toString().split("\n").length;
-            Position startPosOfLastLine = new Position(numberOfLinesInFile + 2, 0);
-            Position endPosOfLastLine = new Position(numberOfLinesInFile + 2, 1);
-            Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
-            String generatedRecordMappingFunction =
-                    getGeneratedRecordMappingFunction(context.positionDetails(), context, foundTypeLeft,
-                            foundTypeRight);
-            fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
+            // get the symbol at cursor type
+            Symbol symbolAtCursor = semanticModel.symbol(srcFile.get(), linePosition).get();
+            String symbolAtCursorName = symbolAtCursor.name();
+            String symbolAtCursorType = "";
+            // Check if function return a record type in multi-module project
+            if (SymbolUtil.getTypeDescriptor(symbolAtCursor).isEmpty()) {
+                symbolAtCursorType = symbolAtCursor.kind().name();
+            } else {
+                symbolAtCursorType = SymbolUtil.getTypeDescriptor(symbolAtCursor).get().typeKind().toString();
+            }
+
+            // Generate the function name
+            String generatedFunctionName;
+            switch (symbolAtCursorType) {
+                case "RECORD":
+                case "TYPE_REFERENCE":
+                    generatedFunctionName =
+                            String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
+                    fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
+                    break;
+
+                case "FUNCTION":
+                case "MODULE":
+                    boolean foundErrorLeft = false;
+                    boolean foundErrorRight = false;
+
+                    // If the function is returning a record | error
+                    if ("".equals(foundTypeLeft)) {
+                        List<TypeSymbol> leftTypeSymbols = ((UnionTypeSymbol) lftTypeSymbol).memberTypeDescriptors();
+                        lftTypeSymbol = findSymbol(leftTypeSymbols);
+                        foundTypeLeft = lftTypeSymbol.name();
+                        foundErrorLeft = true;
+                    }
+                    // If the check or checkpanic is used
+                    if ("".equals(foundTypeRight)) {
+                        List<TypeSymbol> rightTypeSymbols = ((UnionTypeSymbol) rhsTypeSymbol).memberTypeDescriptors();
+                        rhsTypeSymbol = findSymbol(rightTypeSymbols);
+                        foundTypeRight = rhsTypeSymbol.name();
+                        foundErrorRight = true;
+                    }
+
+
+                    String functionCall = context.positionDetails().matchedNode().toString();
+                    if (foundErrorRight && !foundErrorLeft) {
+                        symbolAtCursorName = functionCall.split("[=;]")[1].trim();
+                        generatedFunctionName =
+                                String.format("map%sTo%s(check %s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
+                        fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
+                    } else if (foundErrorLeft && foundErrorRight) {
+                        // get the information about the line positions
+                        newTextRange = CommonUtil.toRange(context.positionDetails().matchedNode().lineRange());
+                        generatedFunctionName =
+                                String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, functionCall);
+                        fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
+                    } else {
+                        symbolAtCursorName = functionCall.split("[=;]")[1].trim();
+                        generatedFunctionName =
+                                String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
+                        fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
+                    }
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + symbolAtCursorType);
+            }
+
+            // Insert function declaration at the bottom of the file
+            String functionName = String.format("map%sTo%s", foundTypeRight, foundTypeLeft);
+            boolean found = fileContentSymbols.stream().anyMatch(p -> p.name().contains(functionName));
+            if (found) {
+                return fEdits;
+            } else {
+                // Get the last line of the file
+                TextDocument fileContentTextDocument = context.workspace().syntaxTree(context.filePath()).get().
+                        textDocument();
+                int numberOfLinesInFile = fileContentTextDocument.toString().split("\n").length;
+                Position startPosOfLastLine = new Position(numberOfLinesInFile + 2, 0);
+                Position endPosOfLastLine = new Position(numberOfLinesInFile + 2, 1);
+                Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
+
+                // Get the generated record mapping function
+                String generatedRecordMappingFunction =
+                        getGeneratedRecordMappingFunction(context, foundTypeLeft,
+                                foundTypeRight, lftTypeSymbol, rhsTypeSymbol);
+
+
+                // Hack for the multi-module projects
+                // Needs to removed when the fix is applied from the data-mapper service
+                Optional<Project> project = context.workspace().project(context.filePath());
+                if (project.get().kind() == ProjectKind.BUILD_PROJECT) {
+                    String moduleName = srcFile.get().module().moduleId().moduleName();
+
+                    ModuleID rhsModule = rhsTypeSymbol.moduleID();
+                    ModuleID lftModule = lftTypeSymbol.moduleID();
+
+                    if (!moduleName.equals(rhsModule.moduleName())) {
+                        String rhsType = rhsModule.modulePrefix() + ":" + foundTypeRight;
+                        generatedRecordMappingFunction = generatedRecordMappingFunction.replaceAll("\\b" +
+                                foundTypeRight + "\\b", rhsType);
+                    }
+                    if (!moduleName.equals(lftModule.moduleName())) {
+                        String lftType = lftModule.modulePrefix() + ":" + foundTypeLeft;
+                        generatedRecordMappingFunction = generatedRecordMappingFunction.replaceAll("\\b" +
+                                foundTypeLeft + "\\b", lftType);
+                    }
+                }
+                fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
+                return fEdits;
+            }
         }
-        return fEdits;
+    }
+
+    /**
+     * Check if a symbol is in the module level, and if so return the symbol.
+     *
+     * @param fileContentSymbols {@link List}
+     * @return return the symbol
+     */
+    public static Symbol findSymbol(List<TypeSymbol> fileContentSymbols) {
+        for (Symbol symbol : fileContentSymbols) {
+            if (!"ERROR".equals(symbol.name())) {
+                return symbol;
+            }
+        }
+        return null;
     }
 
     /**
      * Given two record types, this returns a function with mapped schemas.
      *
-     * @param positionDetails {@link PositionDetails}
-     * @param context         {@link CodeActionContext}
+     * @param context
      * @param foundTypeLeft   {@link String}
      * @param foundTypeRight  {@link String}
      * @return function string with mapped schemas
      * @throws IOException throws if error occurred when getting mapped function
      */
-    private static String getGeneratedRecordMappingFunction(PositionDetails positionDetails,
-                                                            CodeActionContext context,
-                                                            String foundTypeLeft, String foundTypeRight)
+    private static String getGeneratedRecordMappingFunction(CodeActionContext context, String foundTypeLeft,
+                                                            String foundTypeRight,
+                                                            Symbol lftTypeSymbol, Symbol rhsTypeSymbol)
+
             throws IOException {
         JsonObject rightRecordJSON = new JsonObject();
         JsonObject leftRecordJSON = new JsonObject();
 
-
         // Schema 1
-        List<FieldSymbol> rightSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(context.workspace().
-                semanticModel(context.filePath()).get().symbol(context.filePath().getFileName().toString(),
-                LinePosition.from(context.cursorPosition().getLine(), context.cursorPosition().getCharacter())).
-                get()).fieldDescriptors();
-        JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
+        TypeSymbol rhsSymbol = ((TypeReferenceTypeSymbol) rhsTypeSymbol).typeDescriptor();
+        if ("RECORD".equals(rhsSymbol.typeKind().name())) {
+            RecordTypeSymbol rightSymbol = (RecordTypeSymbol) rhsSymbol;
+            Map<String, RecordFieldSymbol> rightSchemaFields = rightSymbol.fieldDescriptors();
+            JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields.values());
 
-        rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
-        rightRecordJSON.addProperty(ID, "dummy_id");
-        rightRecordJSON.addProperty(TYPE, "object");
-        rightRecordJSON.add(PROPERTIES, rightSchema);
+            rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
+            rightRecordJSON.addProperty(ID, "dummy_id");
+            rightRecordJSON.addProperty(TYPE, "object");
+            rightRecordJSON.add(PROPERTIES, rightSchema);
+        }
 
         // Schema 2
-        List<FieldSymbol> leftSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(positionDetails.matchedSymbol()).
-                fieldDescriptors();
-        JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields);
+        TypeSymbol lftSymbol = ((TypeReferenceTypeSymbol) lftTypeSymbol).typeDescriptor();
+        if ("RECORD".equals(lftSymbol.typeKind().name())) {
+            RecordTypeSymbol leftSymbol = (RecordTypeSymbol) lftSymbol;
+            Map<String, RecordFieldSymbol> leftSchemaFields = leftSymbol.fieldDescriptors();
 
-        leftRecordJSON.addProperty(SCHEMA, foundTypeLeft);
-        leftRecordJSON.addProperty(ID, "dummy_id");
-        leftRecordJSON.addProperty(TYPE, "object");
-        leftRecordJSON.add(PROPERTIES, leftSchema);
+            JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields.values());
+            leftRecordJSON.addProperty(SCHEMA, foundTypeLeft);
+            leftRecordJSON.addProperty(ID, "dummy_id");
+            leftRecordJSON.addProperty(TYPE, "object");
+            leftRecordJSON.add(PROPERTIES, leftSchema);
+        }
+
 
         JsonArray schemas = new JsonArray();
         schemas.add(leftRecordJSON);
@@ -202,19 +321,19 @@ class AIDataMapperCodeActionUtil {
     /**
      * Convert record type symbols to json objects.
      *
-     * @param schemaFields {@link List<FieldSymbol>}
+     * @param schemaFields {@link List<RecordFieldSymbol>}
      * @return Field symbol properties
      */
-    private static JsonElement recordToJSON(List<FieldSymbol> schemaFields) {
+    private static JsonElement recordToJSON(Collection<RecordFieldSymbol> schemaFields) {
         JsonObject properties = new JsonObject();
-        for (FieldSymbol attribute : schemaFields) {
+        for (RecordFieldSymbol attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
             fieldDetails.addProperty(ID, "dummy_id");
             TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
             if (attributeType.typeKind() == TypeDescKind.RECORD) {
-                List<FieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
+                Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
                 fieldDetails.addProperty(TYPE, "ballerina_type");
-                fieldDetails.add(PROPERTIES, recordToJSON(recordFields));
+                fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
             } else {
                 fieldDetails.addProperty(TYPE, attributeType.typeKind().toString());
             }
@@ -255,3 +374,4 @@ class AIDataMapperCodeActionUtil {
         }
     }
 }
+

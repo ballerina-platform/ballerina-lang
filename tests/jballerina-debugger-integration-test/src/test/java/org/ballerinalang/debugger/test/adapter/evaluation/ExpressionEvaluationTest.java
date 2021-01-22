@@ -492,8 +492,17 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, String.format("%s + %s", FLOAT_VAR, DECIMAL_VAR), "-6.5", "decimal");
         // decimal + float
         debugTestRunner.assertExpression(context, String.format("%s + %s", DECIMAL_VAR, FLOAT_VAR), "-6.5", "decimal");
+
         // string + string
         debugTestRunner.assertExpression(context, String.format("%s + %s", STRING_VAR, STRING_VAR), "foofoo", "string");
+        // string with leading and trailing whitespaces
+        debugTestRunner.assertExpression(context, "\" one \" + \" two \" + \" three \"", " one  two  three ", "string");
+        // string template concatenation
+        String bStringTemplateExpr = String.format("string `name: ${%s}, age: ${%s}`", STRING_VAR, INT_VAR);
+        debugTestRunner.assertExpression(context, String.format("%s + %s + %s", bStringTemplateExpr,
+                bStringTemplateExpr, bStringTemplateExpr), "name: foo, age: 20name: foo, age: 20name: foo, age: 20",
+                "string");
+
         // xml + xml
         debugTestRunner.assertExpression(context, String.format("%s + %s", XML_VAR, XML_VAR),
             "<person gender=\"male\">" +

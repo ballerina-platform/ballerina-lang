@@ -2,7 +2,7 @@ NAME
        ballerina-new - Create a new Ballerina package
 
 SYNOPSIS
-       ballerina new <package-path>
+       bal new <package-path>
 
 
 DESCRIPTION
@@ -24,7 +24,7 @@ DESCRIPTION
        The package root directory also is the default module directory.
 
        The 'modules' directory contains other non-default Ballerina modules. Use
-       'ballerina add <module-name>' command to create modules.
+       'bal add <module-name>' command to create modules.
 
        The 'target' directory is created during the build process.
        The 'target' is the output directory that contains the build artifacts.
@@ -44,11 +44,11 @@ DESCRIPTION
 
        EXAMPLES
             Create a package with a 'main' template.
-               $ ballerina new <package-name>
+               $ bal new <package-name>
 
             Create a package with a Ballerina service.
-               $ ballerina new <package-name> -t service
+               $ bal new <package-name> -t service
 
             Create a package with a Ballerina service.
-               $ ballerina new <package-name> -t lib
+               $ bal new <package-name> -t lib
 

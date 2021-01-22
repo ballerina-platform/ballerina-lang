@@ -78,7 +78,9 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
      */
     private static Optional<CodeAction> getAIDataMapperCommand(Diagnostic diagnostic, CodeActionContext context) {
         try {
-            if (CommonUtil.getRawType(context.positionDetails().matchedExprType()).typeKind() == TypeDescKind.RECORD) {
+            TypeDescKind typeDescriptor = CommonUtil.getRawType(context.positionDetails().matchedExprType()).typeKind();
+
+            if (typeDescriptor == TypeDescKind.RECORD || typeDescriptor == TypeDescKind.COMPILATION_ERROR) {
                 CodeAction action = new CodeAction("Generate mapping function");
                 action.setKind(CodeActionKind.QuickFix);
 

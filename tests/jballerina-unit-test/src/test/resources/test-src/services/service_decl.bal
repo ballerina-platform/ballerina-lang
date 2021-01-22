@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public class Listener {
     boolean initialized = false;
@@ -37,9 +37,31 @@ public class Listener {
         return externAttach(s, name);
     }
 
-    public function init() {
+    public function init() returns error? {
         var x = externLInit(self);
         self.initialized = true;
+    }
+}
+
+
+public class EmptyListener {
+
+    public isolated function 'start() returns error? {
+    }
+
+    public isolated function gracefulStop() returns error? {
+    }
+
+    public isolated function immediateStop() returns error? {
+    }
+
+    public isolated function detach(service object {} s) returns error? {
+    }
+
+    public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
+    }
+
+    isolated function register(service object {} s, string[]|string? name) returns error? {
     }
 }
 
@@ -95,7 +117,8 @@ function getResourceAnnot(service object {} obj, string methodName, string[] pat
 } external;
 
 
-listener Listener lsn = new Listener();
+type LE EmptyListener|Listener;
+listener LE lsn = new Listener();
 
 type S service object {
 };
@@ -142,11 +165,11 @@ type MagicField object { public string magic; };
 
 function testServiceDecl() {
     Listener l = <Listener> getListener(); // get the listener
-    assertEquality(true, l.initialized);
-    assertEquality(true, l.started);
+    assertEquality(l.initialized, true);
+    assertEquality(l.started, true);
 
     MagicField o = <MagicField> getService(); // get service attached to the listener
-    assertEquality("The Somebody Else's Problem field", o.magic);
+    assertEquality(o.magic, "The Somebody Else's Problem field");
 
     // Validate resource function annotation
     any val = getResourceAnnotation("get", ["processRequest"], "RAnnot");

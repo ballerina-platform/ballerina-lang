@@ -82,14 +82,14 @@ function testInvalidComplexMapFreeze() {
 }
 
 function testInvalidComplexArrayFreeze()  {
-    (string|typedesc<anydata>|float)?[] a1 = [];
-    typedesc<anydata> p = int;
-
+    (string|stream<int>|float)?[] a1 = [];
+    int[] intList = [10, 20, 30, 40, 50];
+    stream<int> p = intList.toStream();
     a1[0] = 2.0;
     a1[1] = "hello world";
     a1[2] = p;
 
-    (string|typedesc<anydata>|float)?[]|error res = a1.cloneReadOnly();
+    (string|stream<int>|float)?[]|error res = a1.cloneReadOnly();
 }
 
 function testInvalidComplexRecordFreeze() {

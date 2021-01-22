@@ -1,0 +1,53 @@
+[
+  {
+    "description": "Define helper types.",
+    "code": "type Employee record { readonly int id; string name; float salary; }; type EmployeeTable table<Employee> key(id);"
+  },
+  {
+    "description": "Iterating a string array.",
+    "code": " string[] fruits = [\"apple\", \"banana\", \"cherry\"]; foreach var fruit in fruits { println(\"Fruit: \", fruit); }",
+    "stdout": "Fruit: apple\nFruit: banana\nFruit: cherry\n"
+  },
+  {
+    "description": "Helper variables for iterating a map.",
+    "code": "map<string> countryCapitals = { \"USA\": \"Washington, D.C.\", \"Sri Lanka\": \"Colombo\", \"England\": \"London\" };"
+  },
+  {
+    "description": "Iterating a map values.",
+    "code": "foreach var capital in countryCapitals { println(\"Capital: \", capital); }",
+    "stdout": "Capital: Washington, D.C.\nCapital: Colombo\nCapital: London\n"
+  },
+  {
+    "description": "Iterating a map entries.",
+    "code": "foreach var [country, capital] in countryCapitals.entries() { println(\"Country: \", country, \", Capital: \", capital); }",
+    "stdout": "Country: USA, Capital: Washington, D.C.\nCountry: Sri Lanka, Capital: Colombo\nCountry: England, Capital: London\n"
+  },
+  {
+    "description": "Iterating a JSON object.",
+    "code": "json apple = { name: \"apple\", colors: [\"red\", \"green\"], price: 5 }; map<json> mapValue = <map<json>> apple; foreach var [key, value] in mapValue.entries() { println(\"Key: \", key, \" Value: \", value); }",
+    "stdout": "Key: name Value: apple\nKey: colors Value: [\"red\",\"green\"]\nKey: price Value: 5\n"
+  },
+  {
+    "description": "Iterating a JSON array.",
+    "code": "json[] colors = <json[]> checkpanic apple.colors; foreach var color in colors { println(\"Color: \", color); }",
+    "stdout": "Color: red\nColor: green\n"
+  },
+  {
+    "description": "Helper variables for iterating an XML.",
+    "code": "xml books = xml `<books> <book> <name>Sherlock Holmes</name> <author>Sir Arthur Conan Doyle</author> </book> <book> <name>Harry Potter</name> <author>J.K. Rowling</author> </book> </books>`;"
+  },
+  {
+    "description": "Iterating an XML.",
+    "code": "foreach var book in books/<*> { println(\"Book: \\t\\t\\t\", book); }",
+    "stdout": "Book: \t\t\t<book> <name>Sherlock Holmes</name> <author>Sir Arthur Conan Doyle</author> </book>\nBook: \t\t\t<book> <name>Harry Potter</name> <author>J.K. Rowling</author> </book>\n"
+  },
+  {
+    "description": "Helper variables for iterating a table.",
+    "code": "EmployeeTable employeeTab = table [ {id: 1, name: \"John\", salary: 300.50}, {id: 2, name: \"Bella\", salary: 500.50}, {id: 3, name: \"Peter\", salary: 750.0} ];"
+  },
+  {
+    "description": "Iterating a table.",
+    "code": "foreach var employee in employeeTab { println(\"Employee: \", employee); }",
+    "stdout": "Employee: {\"id\":1,\"name\":\"John\",\"salary\":300.5}\nEmployee: {\"id\":2,\"name\":\"Bella\",\"salary\":500.5}\nEmployee: {\"id\":3,\"name\":\"Peter\",\"salary\":750.0}\n"
+  }
+]

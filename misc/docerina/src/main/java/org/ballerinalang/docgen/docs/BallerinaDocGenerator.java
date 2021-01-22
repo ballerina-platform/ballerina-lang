@@ -23,6 +23,8 @@ import com.google.gson.GsonBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.PackageMd;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.docgen.Generator;
@@ -121,12 +123,14 @@ public class BallerinaDocGenerator {
                                 "<html>\n" +
                                 "<head>\n" +
                                 "\t<meta http-equiv=\"refresh\" content=\"0; URL=../index.html#/" +
+                                jsonPackageLib.packages.get(0).orgName + "/" +
                                 jsonPackageLib.packages.get(0).name +
-                                "\" />\n" +
+                                "/latest\" />\n" +
                                 "</head>\n" +
                                 "<body>\n" +
                                 "\t<h1>If you are not redirected please click this <a href=\"../index.html#/" +
-                                jsonPackageLib.packages.get(0).name + "\">link</a> </h1>\n" +
+                                jsonPackageLib.packages.get(0).orgName + "/" +
+                                jsonPackageLib.packages.get(0).name + "/latest\">link</a> </h1>\n" +
                                 "</body>\n" +
                                 "</html>";
                         FileUtils.write(newIndex, htmlData, StandardCharsets.UTF_8, false);
@@ -148,7 +152,7 @@ public class BallerinaDocGenerator {
      *  @param project Ballerina project
      *  @param output Output path as a string
      */
-    public static void generateAPIDocs(io.ballerina.projects.Project project, String output)
+    public static void generateAPIDocs(Project project, String output)
             throws IOException {
         Map<String, ModuleDoc> moduleDocMap = generateModuleDocMap(project);
         DocPackage docPackage = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
@@ -156,17 +160,12 @@ public class BallerinaDocGenerator {
         docPackage.name = project.currentPackage().descriptor().name().toString();
         docPackage.orgName = project.currentPackage().packageOrg().toString();
         docPackage.version = project.currentPackage().packageVersion().toString();
-        Path packageMdPath = project.sourceRoot().resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-        Path defModuleMdPath = project.sourceRoot().resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-        Path mdContent = null;
-        if (packageMdPath.toFile().exists()) {
-            mdContent = packageMdPath;
-        } else if (defModuleMdPath.toFile().exists()) {
-            mdContent = defModuleMdPath;
-        }
-        docPackage.description = mdContent != null ?
-                new String(Files.readAllBytes(mdContent), "UTF-8") : "";
-        docPackage.summary = mdContent != null ? BallerinaDocUtils.getSummary(mdContent) : "";
+        Optional<PackageMd> packageMdPath = project.currentPackage().packageMd();
+        docPackage.description = packageMdPath
+                .map(packageMd -> new String(packageMd.mdDocumentContext().textDocument().toCharArray()))
+                .orElse("");
+        docPackage.summary = !docPackage.description.equals("") ?
+                             BallerinaDocUtils.getSummary(docPackage.description) : "";
         if (!docPackage.modules.isEmpty()) {
             PackageLibrary packageLib = new PackageLibrary();
             packageLib.packages.add(docPackage);
@@ -495,12 +494,23 @@ public class BallerinaDocGenerator {
             // Loop through bal files
             for (Map.Entry<String, SyntaxTree> syntaxTreeMapEntry : moduleDoc.getValue().syntaxTreeMap.entrySet()) {
                 boolean hasPublicConstructsTemp = Generator.setModuleFromSyntaxTree(module,
-                        syntaxTreeMapEntry.getValue(), model, syntaxTreeMapEntry.getKey());
+                        syntaxTreeMapEntry.getValue(), model);
                 if (hasPublicConstructsTemp) {
                     hasPublicConstructs = true;
                 }
             }
             if (hasPublicConstructs) {
+                module.records.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.functions.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.classes.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.clients.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.listeners.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.abstractObjects.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.enums.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.types.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.constants.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.annotations.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.errors.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
                 moduleDocs.add(module);
             }
         }

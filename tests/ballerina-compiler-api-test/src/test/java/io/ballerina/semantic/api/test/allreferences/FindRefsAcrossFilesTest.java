@@ -18,12 +18,18 @@
 
 package io.ballerina.semantic.api.test.allreferences;
 
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.Project;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
+
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getModule;
 
 /**
  * Test cases for the finding all references of a symbol across multiple files in the module.
@@ -35,7 +41,10 @@ public class FindRefsAcrossFilesTest extends FindAllReferencesTest {
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getSemanticModelOf("test-src/test-project", "baz");
+        Project project = BCompileUtil.loadProject(getTestSourcePath());
+        Module baz = getModule(project, "baz");
+        model = baz.getCompilation().getSemanticModel();
+        srcFile = getDocument(baz);
     }
 
     @DataProvider(name = "PositionProvider")
@@ -54,12 +63,18 @@ public class FindRefsAcrossFilesTest extends FindAllReferencesTest {
     }
 
     @Override
-    public String getFileName() {
-        return "functions.bal";
-    }
-
-    @Override
     public String getTestSourcePath() {
         return "test-src/test-project";
+    }
+
+    private Document getDocument(Module module) {
+        for (DocumentId id : module.documentIds()) {
+            Document doc = module.document(id);
+            if ("functions.bal".equals(doc.name())) {
+                return doc;
+            }
+        }
+
+        throw new IllegalStateException("Source file 'functions.bal' not found");
     }
 }

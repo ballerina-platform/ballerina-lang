@@ -1292,7 +1292,12 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatNode(moduleVariableDeclarationNode.typedBindingPattern(),
                         moduleVariableDeclarationNode.equalsToken().isPresent() ? 1 : 0, 0);
         Token equalsToken = formatToken(moduleVariableDeclarationNode.equalsToken().orElse(null), 1, 0);
+
+        boolean prevInLineAnnotation = env.inLineAnnotation;
+        setInLineAnnotation(true);
         ExpressionNode initializer = formatNode(moduleVariableDeclarationNode.initializer().orElse(null), 0, 0);
+        setInLineAnnotation(prevInLineAnnotation);
+
         Token semicolonToken = formatToken(moduleVariableDeclarationNode.semicolonToken(),
                 env.trailingWS, env.trailingNL);
 

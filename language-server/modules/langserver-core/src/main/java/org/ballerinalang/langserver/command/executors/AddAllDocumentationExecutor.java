@@ -72,17 +72,13 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
         if (filePath.isEmpty()) {
             return Collections.emptyList();
         }
-        Optional<SyntaxTree> syntaxTree = context.workspace().syntaxTree(filePath.get());
-
-        if (syntaxTree.isEmpty()) {
-            return Collections.emptyList();
-        }
+        SyntaxTree syntaxTree = context.workspace().syntaxTree(filePath.get()).orElseThrow();
 
         List<TextEdit> textEdits = new ArrayList<>();
-        ((ModulePartNode) syntaxTree.get().rootNode()).members()
+        ((ModulePartNode) syntaxTree.rootNode()).members()
                 .stream().filter(node -> !hasDocs(node))
                 .forEach(member ->
-                                 getDocumentationEditForNode(member)
+                                 getDocumentationEditForNode(member, syntaxTree)
                                          .ifPresent(docs -> textEdits.add(getTextEdit(docs))));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
         LanguageClient languageClient = context.getLanguageClient();

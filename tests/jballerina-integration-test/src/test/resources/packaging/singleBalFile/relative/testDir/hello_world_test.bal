@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 function system_out() returns handle = @java:FieldGet {
     name: "out",

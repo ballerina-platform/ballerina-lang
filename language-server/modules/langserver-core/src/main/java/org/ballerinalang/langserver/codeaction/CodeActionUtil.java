@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -38,12 +38,14 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -98,11 +100,9 @@ public class CodeActionUtil {
             case SERVICE_DECLARATION:
                 return CodeActionNodeType.SERVICE;
             case FUNCTION_DEFINITION:
-                if (node.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
-                    return CodeActionNodeType.RESOURCE;
-                } else {
-                    return CodeActionNodeType.FUNCTION;
-                }
+                return CodeActionNodeType.FUNCTION;
+            case RESOURCE_ACCESSOR_DEFINITION:
+                return CodeActionNodeType.RESOURCE;
             case TYPE_DEFINITION:
                 Node typeDesc = ((TypeDefinitionNode) node).typeDescriptor();
                 if (typeDesc.kind() == SyntaxKind.RECORD_TYPE_DESC) {
@@ -220,7 +220,7 @@ public class CodeActionUtil {
             // Map
             TypeSymbol prevType = null;
             boolean isConstrainedMap = true;
-            for (FieldSymbol recordField : recordLiteral.fieldDescriptors()) {
+            for (RecordFieldSymbol recordField : recordLiteral.fieldDescriptors().values()) {
                 TypeDescKind typeDescKind = recordField.typeDescriptor().typeKind();
                 if (prevType != null && typeDescKind != prevType.typeKind()) {
                     isConstrainedMap = false;
@@ -311,11 +311,11 @@ public class CodeActionUtil {
                                                          CodeActionContext context) {
         // Find Cursor node
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
-        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
+        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
 
         Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode, range,
-                semanticModel, relPath);
+                                                                                        semanticModel, srcFile);
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
         Optional<TypeSymbol> matchedExprTypeSymbol;
@@ -326,7 +326,7 @@ public class CodeActionUtil {
             matchedNode = cursorNode;
             matchedSymbol = null;
         }
-        matchedExprTypeSymbol = semanticModel.type(relPath, largestExpressionNode(cursorNode, range).lineRange());
+        matchedExprTypeSymbol = semanticModel.type(largestExpressionNode(cursorNode, range).lineRange());
         return CodeActionPositionDetails.from(matchedNode, matchedSymbol, matchedExprTypeSymbol.orElse(null));
     }
 
@@ -398,10 +398,10 @@ public class CodeActionUtil {
 
         List<TextEdit> edits = new ArrayList<>();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        String relativePath = context.workspace().relativePath(context.filePath()).orElseThrow();
-        Optional<Symbol> optEnclosedFuncSymbol = semanticModel.symbol(relativePath,
-                enclosedFunc.get().functionName().lineRange()
-                        .startLine());
+        Document document = context.workspace().document(context.filePath()).orElseThrow();
+        Optional<Symbol> optEnclosedFuncSymbol =
+                semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
+
         String returnText = "";
         Range returnRange = null;
         if (optEnclosedFuncSymbol.isPresent() && optEnclosedFuncSymbol.get().kind() == SymbolKind.FUNCTION) {
@@ -503,7 +503,8 @@ public class CodeActionUtil {
                     // Cursor within the service
                     ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) member;
                     for (Node memberNode : serviceDeclrNode.members()) {
-                        if (memberNode.kind() == SyntaxKind.FUNCTION_DEFINITION
+                        if ((memberNode.kind() == SyntaxKind.FUNCTION_DEFINITION ||
+                                memberNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION)
                                 && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
                             // Cursor on the resource function
                             return Optional.of((NonTerminalNode) memberNode);
@@ -511,7 +512,9 @@ public class CodeActionUtil {
                     }
                     return Optional.of(member);
                 }
-            } else if (isWithinStartSegment && member.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+            } else if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION && isWithinStartSegment) {
+                return Optional.of(member);
+            } else if (member.kind() == SyntaxKind.FUNCTION_DEFINITION && isWithinStartSegment) {
                 return Optional.of(member);
             } else if (isWithinBody &&
                     (member.kind() == SyntaxKind.LOCAL_VAR_DECL || member.kind() == SyntaxKind.MODULE_VAR_DECL)) {
@@ -536,6 +539,12 @@ public class CodeActionUtil {
                     return Optional.of(member);
                 }
                 return Optional.empty();
+            } else if (member.kind() == SyntaxKind.RECORD_TYPE_DESC && isWithinBody) {
+                return Optional.of(member);
+            } else if (member.kind() == SyntaxKind.OBJECT_TYPE_DESC && isWithinStartSegment) {
+                return Optional.of(member);
+            } else if (member.kind() == SyntaxKind.METHOD_DECLARATION && isWithinStartSegment) {
+                return Optional.of(member);
             } else if (member.kind() == SyntaxKind.CLASS_DEFINITION) {
                 if (isWithinStartSegment) {
                     // Cursor on the class
@@ -552,6 +561,8 @@ public class CodeActionUtil {
                     }
                     return Optional.of(member);
                 }
+            } else if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION && isWithinStartSegment) {
+                return Optional.of(member);
             } else if (isWithinBody && member.kind() == SyntaxKind.IMPORT_DECLARATION) {
                 return Optional.of(member);
             } else if (isWithinBody && member.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
@@ -579,6 +590,7 @@ public class CodeActionUtil {
 
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
             case OBJECT_METHOD_DEFINITION:
                 TextRange functionBodyTextRange = ((FunctionDefinitionNode) node).functionBody().textRange();
                 return isWithinRange(positionOffset, functionBodyTextRange.startOffset(),
@@ -586,26 +598,30 @@ public class CodeActionUtil {
             case SERVICE_DECLARATION:
                 ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) node;
                 return isWithinRange(positionOffset, serviceDeclarationNode.openBraceToken().textRange().startOffset(),
-                        serviceDeclarationNode.closeBraceToken().textRange().endOffset());
+                                     serviceDeclarationNode.closeBraceToken().textRange().endOffset());
             case CLASS_DEFINITION:
                 ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
                 return isWithinRange(positionOffset, classDefinitionNode.openBrace().textRange().startOffset(),
-                        classDefinitionNode.closeBrace().textRange().endOffset());
+                                     classDefinitionNode.closeBrace().textRange().endOffset());
             case TYPE_DEFINITION:
                 TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node;
                 return isWithinRange(positionOffset,
-                        typeDefinitionNode.typeDescriptor().textRange().startOffset(),
-                        typeDefinitionNode.semicolonToken().textRange().startOffset());
+                                     typeDefinitionNode.typeDescriptor().textRange().startOffset(),
+                                     typeDefinitionNode.semicolonToken().textRange().startOffset());
+            case RECORD_TYPE_DESC:
+                RecordTypeDescriptorNode recordTypeDescNode = (RecordTypeDescriptorNode) node;
+                return isWithinRange(positionOffset, recordTypeDescNode.bodyStartDelimiter().textRange().startOffset(),
+                                     recordTypeDescNode.bodyEndDelimiter().textRange().endOffset());
             case IMPORT_DECLARATION:
                 ImportDeclarationNode importDeclarationNode = (ImportDeclarationNode) node;
                 return isWithinRange(positionOffset,
-                        importDeclarationNode.textRange().startOffset(),
-                        importDeclarationNode.semicolon().textRange().startOffset());
+                                     importDeclarationNode.textRange().startOffset(),
+                                     importDeclarationNode.semicolon().textRange().startOffset());
             case LOCAL_VAR_DECL:
                 VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
                 return isWithinRange(positionOffset,
-                        variableDeclarationNode.textRange().startOffset(),
-                        variableDeclarationNode.semicolonToken().textRange().startOffset());
+                                     variableDeclarationNode.textRange().startOffset(),
+                                     variableDeclarationNode.semicolonToken().textRange().startOffset());
             case MODULE_VAR_DECL:
                 ModuleVariableDeclarationNode moduleVariableDeclarationNode = (ModuleVariableDeclarationNode) node;
                 return isWithinRange(positionOffset,
@@ -640,6 +656,7 @@ public class CodeActionUtil {
 
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
             case OBJECT_METHOD_DEFINITION:
                 FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
                 Optional<MetadataNode> functionMetadata = functionDefinitionNode.metadata();
@@ -660,21 +677,25 @@ public class CodeActionUtil {
                 int methodStartOffset = methodMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
                         .orElseGet(() -> methodDeclarationNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, methodStartOffset,
-                        methodDeclarationNode.semicolon().textRange().endOffset());
+                                     methodDeclarationNode.semicolon().textRange().endOffset());
             case CLASS_DEFINITION:
                 ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
                 Optional<MetadataNode> classMetadata = classDefinitionNode.metadata();
                 int classStartOffset = classMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
                         .orElseGet(() -> classDefinitionNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, classStartOffset,
-                        classDefinitionNode.openBrace().textRange().endOffset());
+                                     classDefinitionNode.openBrace().textRange().endOffset());
+            case OBJECT_TYPE_DESC:
+                ObjectTypeDescriptorNode objectTypeDescNode = (ObjectTypeDescriptorNode) node;
+                return isWithinRange(positionOffset, objectTypeDescNode.textRange().startOffset() - 1,
+                                     objectTypeDescNode.openBrace().textRange().endOffset());
             case TYPE_DEFINITION:
                 TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node;
                 Optional<MetadataNode> typeMetadata = typeDefinitionNode.metadata();
                 int typeStartOffset = typeMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
                         .orElseGet(() -> typeDefinitionNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, typeStartOffset,
-                        typeDefinitionNode.typeDescriptor().textRange().startOffset());
+                                     typeDefinitionNode.typeDescriptor().textRange().startOffset());
             case IMPORT_DECLARATION:
             case LOCAL_VAR_DECL:
             case MODULE_VAR_DECL:
@@ -699,7 +720,7 @@ public class CodeActionUtil {
     private static Optional<Pair<NonTerminalNode, Symbol>> getMatchedNodeAndSymbol(NonTerminalNode cursorNode,
                                                                                    Range range,
                                                                                    SemanticModel semanticModel,
-                                                                                   String relPath) {
+                                                                                   Document srcFile) {
         // Find invocation position
         ScopedSymbolFinder scopedSymbolFinder = new ScopedSymbolFinder(range);
         scopedSymbolFinder.visit(cursorNode);
@@ -709,7 +730,7 @@ public class CodeActionUtil {
         // Get Symbol of the position
         LinePosition position = scopedSymbolFinder.nodeIdentifierPos().get();
         LinePosition matchedNodePos = LinePosition.from(position.line(), position.offset() + 1);
-        Optional<Symbol> optMatchedSymbol = semanticModel.symbol(relPath, matchedNodePos);
+        Optional<Symbol> optMatchedSymbol = semanticModel.symbol(srcFile, matchedNodePos);
         if (optMatchedSymbol.isEmpty()) {
             return Optional.empty();
         }

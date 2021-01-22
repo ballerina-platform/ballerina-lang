@@ -67,6 +67,11 @@ public class ObjectSchema extends AbstractSchema {
         return properties;
     }
 
+    @Override
+    public void accept(SchemaVisitor visitor) {
+        visitor.visit(this);
+    }
+
     public List<String> required() {
         return required;
     }

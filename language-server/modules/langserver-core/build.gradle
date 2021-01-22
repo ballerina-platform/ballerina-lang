@@ -44,6 +44,7 @@ dependencies {
     implementation project(':formatter:formatter-core')
     implementation project(':diagram-util')
     implementation project(':language-server:language-server-commons')
+    implementation project(':toml-parser')
 
     // Standard libs
     implementation project(':ballerina-lang:annotations')

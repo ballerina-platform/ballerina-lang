@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.test;
 
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.NullBackend;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
@@ -28,6 +30,9 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,7 +58,9 @@ public class BCompileUtil {
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        return ProjectLoader.loadProject(projectPath);
+
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        return ProjectLoader.loadProject(projectPath, buildOptionsBuilder.taintCheck(Boolean.TRUE).build());
     }
 
     public static CompileResult compile(String sourceFilePath) {
@@ -68,6 +75,27 @@ public class BCompileUtil {
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
+    }
+
+    public static BIRCompileResult generateBIR(String sourceFilePath) {
+        Project project = loadProject(sourceFilePath);
+        NullBackend nullBackend = NullBackend.from(project.currentPackage().getCompilation());
+        Package currentPackage = project.currentPackage();
+        if (currentPackage.getCompilation().diagnosticResult().hasErrors() || nullBackend.hasErrors()) {
+            return null;
+        }
+
+        BPackageSymbol bPackageSymbol = currentPackage.getCompilation().defaultModuleBLangPackage().symbol;
+        if (bPackageSymbol == null) {
+            return null;
+        }
+
+        CompiledBinaryFile.BIRPackageFile birPackageFile = bPackageSymbol.birPackageFile;
+        if (birPackageFile == null) {
+            return null;
+        }
+
+        return new BIRCompileResult(bPackageSymbol.bir, birPackageFile.pkgBirBinaryContent);
     }
 
     public static CompileResult compileWithoutInitInvocation(String sourceFilePath) {
@@ -183,6 +211,28 @@ public class BCompileUtil {
         private static TestCompilationCache from(Project project) {
             Path testCompilationCachePath = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
             return new TestCompilationCache(project, testCompilationCachePath);
+        }
+    }
+
+    /**
+     * Class to hold both expected and actual compile result of BIR.
+     */
+    public static class BIRCompileResult {
+
+        private BIRNode.BIRPackage expectedBIR;
+        private byte[] actualBIRBinary;
+
+        BIRCompileResult(BIRNode.BIRPackage expectedBIR, byte[] actualBIRBinary) {
+            this.expectedBIR = expectedBIR;
+            this.actualBIRBinary = actualBIRBinary;
+        }
+
+        public BIRNode.BIRPackage getExpectedBIR() {
+            return expectedBIR;
+        }
+
+        public byte[] getActualBIR() {
+            return actualBIRBinary;
         }
     }
 }

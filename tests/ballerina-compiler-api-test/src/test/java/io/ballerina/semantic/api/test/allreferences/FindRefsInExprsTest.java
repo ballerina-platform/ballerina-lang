@@ -105,11 +105,6 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
     }
 
     @Override
-    public String getFileName() {
-        return "find_var_ref_in_exprs.bal";
-    }
-
-    @Override
     public String getTestSourcePath() {
         return "test-src/find-all-ref/find_var_ref_in_exprs.bal";
     }

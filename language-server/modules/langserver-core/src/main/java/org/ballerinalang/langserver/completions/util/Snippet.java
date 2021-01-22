@@ -100,7 +100,7 @@ public enum Snippet {
 //
 //    DEF_RESOURCE_WEBSUB_NOTIFY(SnippetGenerator.getWebSubResourceOnNotificationSnippet()),
 
-//    DEF_SERVICE(SnippetGenerator.getServiceDefSnippet()),
+    DEF_SERVICE(SnippetGenerator.getServiceDefSnippet()),
 
 //    DEF_SERVICE_VAR(SnippetGenerator.getServiceVarSnippet()),
 
@@ -141,6 +141,10 @@ public enum Snippet {
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),
 
     EXPR_OBJECT_CONSTRUCTOR(SnippetGenerator.getObjectConstructorSnippet()),
+
+    EXPR_BASE16_LITERAL(SnippetGenerator.getBase16LiteralSnippet()),
+
+    EXPR_BASE64_LITERAL(SnippetGenerator.getBase64LiteralSnippet()),
 
 
     // Keyword Snippets

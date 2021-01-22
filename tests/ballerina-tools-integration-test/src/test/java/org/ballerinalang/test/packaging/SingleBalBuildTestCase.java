@@ -73,7 +73,7 @@ public class SingleBalBuildTestCase extends BaseTest {
 
     @Test(description = "Test building a bal file by giving the path from the current directory")
     public void testBuildingSourceWithCurrentDir() throws Exception {
-        // Test ballerina build
+        // Test bal build
         String[] clientArgs = {Paths.get("sourcePkg", "main.bal").toString()};
         balClient.runMain("build", clientArgs, envVariables, new String[]{},
                 new LogLeecher[]{}, tempProjectDirectory.toString());
@@ -86,7 +86,7 @@ public class SingleBalBuildTestCase extends BaseTest {
         Path targetDirPath = tempProjectDirectory.resolve("target");
         Files.createDirectories(targetDirPath);
 
-        // Test ballerina build
+        // Test bal build
         String[] clientArgs = {"-o", targetDirPath.resolve("main.bal").toString(), balFilePath.toString()};
         balClient.runMain("build", clientArgs, envVariables, new String[]{},
                 new LogLeecher[]{}, tempProjectDirectory.toString());

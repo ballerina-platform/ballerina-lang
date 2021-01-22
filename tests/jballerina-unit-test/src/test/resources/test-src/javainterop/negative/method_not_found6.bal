@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 function getFuture(typedesc<anydata> td, future<anydata> f) returns future<anydata> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.StaticMethods",

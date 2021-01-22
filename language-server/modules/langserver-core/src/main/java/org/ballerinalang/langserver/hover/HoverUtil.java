@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -56,15 +57,15 @@ public class HoverUtil {
      * @return {@link Hover} Hover content
      */
     public static Hover getHover(HoverContext context) {
+        Optional<Document> srcFile = context.workspace().document(context.filePath());
         Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
-        if (semanticModel.isEmpty()) {
+        if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }
 
         Position cursorPosition = context.getCursorPosition();
         LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
-        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
-        Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(relPath, linePosition);
+        Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(), linePosition);
         if (symbolAtCursor.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }
@@ -86,7 +87,7 @@ public class HoverUtil {
             case TYPE:
                 if (((TypeSymbol) symbolAtCursor.get()).typeKind() == TypeDescKind.TYPE_REFERENCE) {
                     return getTypeRefHoverMarkupContent((TypeReferenceTypeSymbol) symbolAtCursor.get(),
-                                                        semanticModel.get(), relPath);
+                                                        semanticModel.get(), srcFile.get());
                 }
                 return getDefaultHoverObject();
             default:
@@ -105,19 +106,18 @@ public class HoverUtil {
             List<String> params = new ArrayList<>();
             params.add(header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
 
-            params.addAll(classSymbol.fieldDescriptors().stream()
-                    .map(field -> {
-                        String paramName = field.name();
-                        String desc = paramsMap.get(paramName);
-                        return quotedString(field.typeDescriptor().signature()) + " "
-                                + italicString(boldString(paramName)) + " : " + desc;
+            params.addAll(classSymbol.fieldDescriptors().entrySet().stream()
+                    .map(fieldEntry -> {
+                        String desc = paramsMap.get(fieldEntry.getKey());
+                        return quotedString(fieldEntry.getValue().typeDescriptor().signature()) + " "
+                                + italicString(boldString(fieldEntry.getKey())) + " : " + desc;
                     }).collect(Collectors.toList()));
 
             hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
         }
 
         List<String> methods = new ArrayList<>();
-        classSymbol.methods().forEach(method -> {
+        classSymbol.methods().forEach((name, method) -> {
             StringBuilder methodInfo = new StringBuilder();
             Optional<Documentation> methodDoc = method.documentation();
             methodInfo.append(quotedString(method.typeDescriptor().signature()));
@@ -180,12 +180,11 @@ public class HoverUtil {
             List<String> params = new ArrayList<>();
             params.add(header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
 
-            params.addAll(recordType.fieldDescriptors().stream()
-                    .map(field -> {
-                        String paramName = field.name();
-                        String desc = paramsMap.get(paramName);
-                        return quotedString(field.typeDescriptor().signature()) + " "
-                                + italicString(boldString(paramName)) + " : " + desc;
+            params.addAll(recordType.fieldDescriptors().entrySet().stream()
+                    .map(fieldEntry -> {
+                        String desc = paramsMap.get(fieldEntry.getKey());
+                        return quotedString(fieldEntry.getValue().typeDescriptor().signature()) + " "
+                                + italicString(boldString(fieldEntry.getKey())) + " : " + desc;
                     }).collect(Collectors.toList()));
             Optional<TypeSymbol> restTypeDesc = recordType.restTypeDescriptor();
             restTypeDesc.ifPresent(typeSymbol -> params.add(quotedString(typeSymbol.signature() + "...")));
@@ -203,8 +202,8 @@ public class HoverUtil {
     }
 
     private static Hover getTypeRefHoverMarkupContent(TypeReferenceTypeSymbol typeSymbol, SemanticModel model,
-                                                      String fileName) {
-        Optional<Symbol> associatedDef = model.symbol(fileName, typeSymbol.location().lineRange().startLine());
+                                                      Document srcFile) {
+        Optional<Symbol> associatedDef = model.symbol(srcFile, typeSymbol.location().lineRange().startLine());
 
         if (associatedDef.isEmpty()) {
             return getDefaultHoverObject();

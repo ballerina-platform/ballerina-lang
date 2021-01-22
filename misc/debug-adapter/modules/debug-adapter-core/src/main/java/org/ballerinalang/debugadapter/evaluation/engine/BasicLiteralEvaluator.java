@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.NilLiteralNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -36,16 +37,22 @@ public class BasicLiteralEvaluator extends Evaluator {
     private final Node syntaxNode;
     private final String literalString;
 
-    public BasicLiteralEvaluator(SuspendedContext context, Node node) {
-        super(context);
-        this.syntaxNode = node;
-        this.literalString = node.toSourceCode();
+    public BasicLiteralEvaluator(SuspendedContext context, BasicLiteralNode node) {
+        this(context, node, node.literalToken().text());
     }
 
     public BasicLiteralEvaluator(SuspendedContext context, NilLiteralNode node) {
+        this(context, node, node.toSourceCode().trim());
+    }
+
+    public BasicLiteralEvaluator(SuspendedContext context, Token node) {
+        this(context, node, node.text());
+    }
+
+    private BasicLiteralEvaluator(SuspendedContext context, Node node, String literalString) {
         super(context);
         this.syntaxNode = node;
-        this.literalString = node.toSourceCode().trim();
+        this.literalString = literalString;
     }
 
     @Override

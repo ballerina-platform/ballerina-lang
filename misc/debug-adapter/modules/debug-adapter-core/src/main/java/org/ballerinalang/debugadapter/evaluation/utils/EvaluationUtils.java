@@ -21,6 +21,7 @@ import com.sun.jdi.ClassType;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -273,6 +274,32 @@ public class EvaluationUtils {
         args.add(null);
         runtimeMethod.setArgValues(args);
         return runtimeMethod.invoke();
+    }
+
+    /**
+     * Converts the user given string literal into an {@link io.ballerina.runtime.api.values.BString} instance.
+     *
+     * @param context suspended debug context
+     * @param val     string value
+     * @return {@link io.ballerina.runtime.api.values.BString} instance
+     */
+    public static Value getAsBString(SuspendedContext context, String val) throws EvaluationException {
+        return getAsBString(context, context.getAttachedVm().mirrorOf(val));
+    }
+
+    /**
+     * Converts the user given string literal into an {@link io.ballerina.runtime.api.values.BString} instance.
+     *
+     * @param context   suspended debug context
+     * @param stringRef JDI value reference of the string
+     * @return {@link io.ballerina.runtime.api.values.BString} instance
+     */
+    public static Value getAsBString(SuspendedContext context, StringReference stringRef) throws EvaluationException {
+        List<String> argTypeNames = Collections.singletonList(JAVA_STRING_CLASS);
+        RuntimeStaticMethod fromStringMethod = getRuntimeMethod(context, B_STRING_UTILS_CLASS, FROM_STRING_METHOD,
+                argTypeNames);
+        fromStringMethod.setArgValues(Collections.singletonList(stringRef));
+        return fromStringMethod.invoke();
     }
 
     private static boolean compare(List<String> list1, List<String> list2) {

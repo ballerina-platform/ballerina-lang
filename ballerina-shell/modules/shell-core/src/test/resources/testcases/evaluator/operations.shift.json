@@ -1,0 +1,40 @@
+[
+  {
+    "description": "Import int module.",
+    "code": "import ballerina/lang.'int;"
+  },
+  {
+    "description": "Define variables.",
+    "code": "int a = 1; 'int:Unsigned8 b = 128; 'int:Signed16 c = -32700; 'int:Unsigned8 d = 255; int e = 4; 'int:Signed32 f = 123167; 'int:Unsigned16 g = 32001;"
+  },
+  {
+    "description": "Left shift I.",
+    "code": "a << 2",
+    "expr": "4"
+  },
+  {
+    "description": "Left shift II.",
+    "code": "b << 3",
+    "expr": "1024"
+  },
+  {
+    "description": "Right shift I.",
+    "code": "c >> 2",
+    "expr": "-8175"
+  },
+  {
+    "description": "Right shift II.",
+    "code": "d >> e",
+    "expr": "15"
+  },
+  {
+    "description": "Right shift III.",
+    "code": "f >>> 3",
+    "expr": "15395"
+  },
+  {
+    "description": "Left shift III.",
+    "code": "g >> 2",
+    "expr": "8000"
+  }
+]

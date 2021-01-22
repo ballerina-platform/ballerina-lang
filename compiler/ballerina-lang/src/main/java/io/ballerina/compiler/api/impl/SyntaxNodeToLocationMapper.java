@@ -48,6 +48,8 @@ import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
+import io.ballerina.compiler.syntax.tree.TypeReferenceTypeDescNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
@@ -236,6 +238,16 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
         }
 
         return moduleXMLNamespaceDeclarationNode.namespacePrefix().get().apply(this);
+    }
+
+    @Override
+    public Optional<Location> transform(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+        return typeReferenceTypeDescNode.typeRef().apply(this);
+    }
+
+    @Override
+    public Optional<Location> transform(TypeReferenceNode typeReferenceNode) {
+        return typeReferenceNode.typeName().apply(this);
     }
 
     @Override

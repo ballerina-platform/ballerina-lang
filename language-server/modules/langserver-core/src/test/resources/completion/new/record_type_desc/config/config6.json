@@ -143,7 +143,7 @@
       ]
     },
     {
-      "label": "ballerina/java",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "insertText": "java",
@@ -160,7 +160,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/java;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -412,6 +412,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "base16",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "base16 `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "base64",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "base64 `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "STRING_VAL_TWO",
       "kind": "Variable",
       "detail": "string value two",
@@ -435,13 +449,6 @@
         }
       },
       "insertText": "helloFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c",
-      "kind": "Variable",
-      "detail": "ballerina/module1:0.1.0:Client",
-      "insertText": "c",
       "insertTextFormat": "Snippet"
     },
     {

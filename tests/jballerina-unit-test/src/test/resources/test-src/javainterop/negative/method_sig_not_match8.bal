@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 function splitExternal(handle receiver, string delimeter, boolean extraParam) returns handle = @java:Method {
     name: "split",

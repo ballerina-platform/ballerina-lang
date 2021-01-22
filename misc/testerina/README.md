@@ -6,7 +6,7 @@ Developers and testers can cover multiple levels of the test pyramid including u
 
 The test framework is designed for testing microservices and container native programs implemented in Ballerina.
 
-Testerina will be a part of ```ballerina-tools-<release-version>.zip``` distribution and it provides ```ballerina test``` command.  
+Testerina will be a part of ```ballerina-tools-<release-version>.zip``` distribution and it provides ```bal test``` command.  
 
 
 ## Testerina provides following functions.
@@ -122,7 +122,7 @@ Note: You can also use `--disable-groups` flag to exclude groups from executing.
 
 You can also list available groups with the `--list-groups` flag.
 ````
-e.g : ballerina test --list-groups
+e.g : bal test --list-groups
 ````
  
 ## Writing ballerina tests
@@ -139,4 +139,4 @@ e.g : ballerina test --list-groups
 
 Tests can be execute as shown below
 
-```./ballerina test <module_name> [FLAGS]``` Execute tests within a given module
+```./bal test <module_name> [FLAGS]``` Execute tests within a given module
