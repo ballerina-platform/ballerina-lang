@@ -3941,12 +3941,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             LinkedHashSet<BType> errTypes = new LinkedHashSet<>();
             Set<BType> memTypes = ((BUnionType) bType).getMemberTypes();
             for (BType memType : memTypes) {
-                if (memType.tag == TypeTags.ERROR) {
-                    errTypes.add(memType);
+                BType memErrType = getErrorTypes(memType);
+
+                if (memErrType != symTable.semanticError) {
+                    errTypes.add(memErrType);
                 }
             }
 
-            errorType = errTypes.size() == 1 ? errTypes.iterator().next() : BUnionType.create(null, errTypes);
+            if (!errTypes.isEmpty()) {
+                errorType = errTypes.size() == 1 ? errTypes.iterator().next() : BUnionType.create(null, errTypes);
+            }
         }
 
         return errorType;
