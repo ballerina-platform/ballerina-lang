@@ -51,10 +51,12 @@ import static org.ballerinalang.compiler.CompilerOptionName.TAINT_CHECK;
  * @since 2.0.0
  */
 public class PackageCompilation {
+
     private final PackageContext rootPackageContext;
     private final PackageResolution packageResolution;
     private final CompilerContext compilerContext;
     private final Map<TargetPlatform, CompilerBackend> compilerBackends;
+    private final List<Diagnostic> pluginDiagnostics;
 
     private DiagnosticResult diagnosticResult;
     private boolean compiled;
@@ -72,6 +74,7 @@ public class PackageCompilation {
 
         // We have only the jvm backend for now.
         this.compilerBackends = new HashMap<>(1);
+        this.pluginDiagnostics = new ArrayList<>();
     }
 
     private void setCompilerOptions(CompilationOptions compilationOptions) {
@@ -156,6 +159,7 @@ public class PackageCompilation {
             for (CompilerPlugin plugin : processorServiceLoader) {
                 List<Diagnostic> pluginDiagnostics = plugin.codeAnalyze(rootPackageContext.project());
                 diagnostics.addAll(pluginDiagnostics);
+                this.pluginDiagnostics.addAll(pluginDiagnostics);
             }
         }
     }
@@ -163,5 +167,9 @@ public class PackageCompilation {
     private void addOtherDiagnostics(List<Diagnostic> diagnostics) {
         DiagnosticResult diagnosticResult = packageContext().manifest().diagnostics();
         diagnostics.addAll(diagnosticResult.allDiagnostics);
+    }
+
+    public List<Diagnostic> pluginDiagnostics() {
+        return pluginDiagnostics;
     }
 }
