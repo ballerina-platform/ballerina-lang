@@ -292,7 +292,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             nodeInfo.addProperty("isToken", true);
             nodeInfo.addProperty("value", ((Token) node).text());
             nodeInfo.addProperty("isMissing", node.isMissing());
-
             if (node.lineRange() != null) {
                 LineRange lineRange = node.lineRange();
                 LinePosition startLine = lineRange.startLine();
