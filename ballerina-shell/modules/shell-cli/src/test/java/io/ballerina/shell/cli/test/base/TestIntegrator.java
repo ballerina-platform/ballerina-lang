@@ -72,8 +72,8 @@ public class TestIntegrator extends Thread {
             String headerText = FileUtils.readResource(PropertiesLoader.getProperty(HEADER_FILE));
             sendRequest(testPrint, "");
             String response = readResponse(testReader);
-            String expectedResponse = String.format("%n%n%s%n%s%n", headerText, shellPrompt);
-            Assert.assertEquals(response, expectedResponse);
+            response = response.substring(0, response.indexOf(shellPrompt));
+            Assert.assertEquals(response.trim(), headerText.trim(), "Welcome text should be same");
 
             readResponse(testReader);
 
