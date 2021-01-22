@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
@@ -34,6 +35,7 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
@@ -92,11 +94,22 @@ public class TypeByConstructorExprTest extends TypeByNodeTest {
                 assertEquals(((TypeReferenceTypeSymbol) type.get()).name(), "PersonObj");
                 assertEquals(((TypeReferenceTypeSymbol) type.get()).typeDescriptor().typeKind(), OBJECT);
             }
+
+            @Override
+            public void visit(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+                if (errorConstructorExpressionNode.typeReference().isEmpty()) {
+                    assertType(errorConstructorExpressionNode, model, ERROR);
+                } else {
+                    Optional<TypeSymbol> type = assertType(errorConstructorExpressionNode, model, TYPE_REFERENCE);
+                    assertEquals(((TypeReferenceTypeSymbol) type.get()).name(), "TimeOutError");
+                    assertEquals(((TypeReferenceTypeSymbol) type.get()).typeDescriptor().typeKind(), ERROR);
+                }
+            }
         };
     }
 
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 6);
+        assertEquals(getAssertCount(), 8);
     }
 
     private Optional<TypeSymbol> assertType(Node node, SemanticModel model, TypeDescKind typeKind) {

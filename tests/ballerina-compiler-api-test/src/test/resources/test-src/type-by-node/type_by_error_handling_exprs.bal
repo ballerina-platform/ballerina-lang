@@ -14,40 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function test() {
-    [int, string, float] tup = [10, "foo", 12.34];
-
-    record {|
-        string name;
-        int age;
-    |} person = {name: "John Doe", age: 20};
-
-    var tab = table [{"name":"John Doe", age:24}];
-
-    object {
-        string name;
-        function getName() returns string;
-    } person = object {
-        string name = "Anon";
-
-        function getName() returns string => self.name;
-    };
-
-    PersonObj p1 = new("Pubudu");
-    PersonObj p2 = new PersonObj("Pubudu");
-
-    error err1 = error("IOError");
-    TimeOutError err2 = error TimeOutError("TimeOutError", url = "https://ballerina.io");
+function test() returns error {
+    var x = check foo();
+    var y = checkpanic foo();
+    var z = trap bar();
 }
 
-class PersonObj {
-    string name;
+function foo() returns int|error => 10;
 
-    function init(string name) {
-        self.name = name;
-    }
-
-    function getName() returns string => self.name;
+function bar() {
+    TimeOutError terr = error TimeOutError("TimeOutError", url = "https://ballerina.io");
+    panic terr;
 }
 
 type TimeOutErrorData record {|
