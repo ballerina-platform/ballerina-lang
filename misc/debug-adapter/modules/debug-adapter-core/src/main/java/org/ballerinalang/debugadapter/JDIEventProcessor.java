@@ -152,11 +152,7 @@ public class JDIEventProcessor {
 
         // Filter thread references which are at breakpoint, suspended and whose thread status is running.
         for (ThreadReference threadReference : threadReferences) {
-            if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
-                    && !threadReference.name().equals("Reference Handler")
-                    && !threadReference.name().equals("Signal Dispatcher")
-                    && threadReference.isSuspended()
-            ) {
+            if (threadReference.name().equals("jbal-strand-exec-0")) {
                 breakPointThreads.put(threadReference.uniqueID(), threadReference);
             }
         }
