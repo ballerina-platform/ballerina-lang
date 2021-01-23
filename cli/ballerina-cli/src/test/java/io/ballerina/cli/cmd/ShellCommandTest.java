@@ -102,7 +102,7 @@ public class ShellCommandTest extends BaseCommandTest {
                     // Expected format: [PROMPT][INPUT]\n\n[OUTPUT]\n\n[PROMPT]\n
                     String expectedExprResponse = String.format("%s%s%n%n%s%n%s%n",
                             shellPrompt, testCase[0], testCase[1], shellPrompt);
-                    Assert.assertEquals(exprResponse, expectedExprResponse);
+                    Assert.assertEquals(filteredString(exprResponse), filteredString(expectedExprResponse));
                 }
             } catch (IOException | InterruptedException ignored) {
             }
@@ -128,7 +128,7 @@ public class ShellCommandTest extends BaseCommandTest {
             line = Objects.requireNonNull(stream.readLine());
             data.append(line).append(System.lineSeparator());
         }
-        return filteredString(data.toString());
+        return data.toString();
     }
 
     private void sendRequest(PrintStream stream, String string) throws InterruptedException {

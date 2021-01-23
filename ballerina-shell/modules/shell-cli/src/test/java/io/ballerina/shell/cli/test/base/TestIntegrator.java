@@ -45,7 +45,7 @@ import static io.ballerina.shell.cli.PropertiesLoader.REPL_PROMPT;
  * @since 2.0.0
  */
 public class TestIntegrator extends Thread {
-    private static final String[] SPECIAL_CONTROL_STRINGS = {"\\x1B>", "\\x1B=", "\\x08"};
+    private static final String[] SPECIAL_CONTROL_STRINGS = {"\\x1B>", "\\x1B=", "\\x08", "\r"};
     private final InputStream inputStream;
     private final OutputStream outputStream;
     private final ByteArrayOutputStream stdoutStream;
@@ -72,21 +72,31 @@ public class TestIntegrator extends Thread {
             String headerText = FileUtils.readResource(PropertiesLoader.getProperty(HEADER_FILE));
             sendRequest(testPrint, "");
             String response = readResponse(testReader);
+            // Ignore after first shell prompt
             response = response.substring(0, response.indexOf(shellPrompt));
-            Assert.assertEquals(response.trim(), headerText.trim(), "Welcome text should be same");
+            Assert.assertEquals(filteredString(response).trim(), filteredString(headerText).trim(),
+                    "Welcome text should be same");
 
             readResponse(testReader);
 
             for (TestCase testCase : testCases) {
                 sendRequest(testPrint, testCase.getCode());
-                String exprResponse = stripTillPrompt(readResponse(testReader));
+
+                // Read input (ignore till first shell prompt)
+                String exprResponse = readResponse(testReader);
+                exprResponse = exprResponse.substring(exprResponse.indexOf(shellPrompt));
+
                 // Expected format: [PROMPT][INPUT]\n\n[OUTPUT]\n\n[PROMPT]\n
                 String expectedExprResponse = String.format("%s%s%n%n%s%n%s%n",
                         shellPrompt, testCase.getCode(), testCase.getExpr(), shellPrompt);
 
-                Assert.assertEquals(replaceNewLine(exprResponse), replaceNewLine(expectedExprResponse),
+                // Remove special sequences
+                exprResponse = filteredString(exprResponse);
+                expectedExprResponse = filteredString(expectedExprResponse);
+
+                Assert.assertEquals(exprResponse, expectedExprResponse,
                         errorMessage(exprResponse, expectedExprResponse, testCase.getDescription()));
-                Assert.assertEquals(replaceNewLine(stdoutStream.toString()), replaceNewLine(testCase.getStdout()),
+                Assert.assertEquals(stdoutStream.toString(), testCase.getStdout(),
                         testCase.getDescription());
                 stdoutStream.reset();
             }
@@ -104,7 +114,7 @@ public class TestIntegrator extends Thread {
             line = Objects.requireNonNull(stream.readLine());
             data.append(line).append(System.lineSeparator());
         }
-        return filteredString(data.toString());
+        return data.toString();
     }
 
     /**
@@ -135,24 +145,9 @@ public class TestIntegrator extends Thread {
         return string;
     }
 
-    /**
-     * Strip string till the first appearance of prompt.
-     */
-    private String stripTillPrompt(String string) {
-        return string.substring(string.indexOf(shellPrompt));
-    }
-
-    /**
-     * Replace new line with escaped newline.
-     */
-    private String replaceNewLine(String string) {
-        return string.replace("\r\n", "\n")
-                .replace("\n", "\\n");
-    }
-
     private String errorMessage(String original, String expected, String description) {
         return description + " failed because " +
-                Arrays.toString(replaceNewLine(original).getBytes(StandardCharsets.UTF_8)) + "!=" +
-                Arrays.toString(replaceNewLine(expected).getBytes(StandardCharsets.UTF_8));
+                Arrays.toString(original.getBytes(StandardCharsets.UTF_8)) + "!=" +
+                Arrays.toString(expected.getBytes(StandardCharsets.UTF_8));
     }
 }
