@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # Checks whether the given key is in the configuration registry.
 # ```ballerina

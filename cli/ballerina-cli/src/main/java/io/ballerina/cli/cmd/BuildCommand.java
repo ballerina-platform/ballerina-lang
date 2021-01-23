@@ -23,7 +23,6 @@ import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBaloTask;
 import io.ballerina.cli.task.CreateExecutableTask;
-import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
@@ -48,11 +47,11 @@ import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
- * This class represents the "ballerina build" command.
+ * This class represents the "bal build" command.
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = BUILD_COMMAND, description = "Ballerina build - Build Ballerina module(s) and generate " +
+@CommandLine.Command(name = BUILD_COMMAND, description = "bal build - Build Ballerina module(s) and generate " +
                                                          "executable output.")
 public class BuildCommand implements BLauncherCmd {
 
@@ -134,7 +133,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
-    private static final String buildCmd = "ballerina build [-o <output>] [--offline] [--skip-tests]\n" +
+    private static final String buildCmd = "bal build [-o <output>] [--offline] [--skip-tests] [--taint-check]\n" +
             "                    [<ballerina-file | package-path>] [(--key=value)...]";
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
@@ -146,6 +145,12 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
             "JAR file(s).")
     private Boolean observabilityIncluded;
+
+    @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
+    private String cloud;
+
+    @CommandLine.Option(names = "--taint-check", description = "perform taint flow analysis")
+    private Boolean taintCheck;
 
     public void execute() {
         if (this.helpFlag) {
@@ -209,7 +214,7 @@ public class BuildCommand implements BLauncherCmd {
                 CommandUtil.printError(this.errStream,
                         "'-o' and '--output' are only supported when building a single Ballerina " +
                                 "file.",
-                        "ballerina build -o <output-file> <ballerina-file> ",
+                        "bal build -o <output-file> <ballerina-file> ",
                         true);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -230,7 +235,6 @@ public class BuildCommand implements BLauncherCmd {
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
-                .addTask(new CreateTargetDirTask()) // create target directory
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
@@ -239,7 +243,6 @@ public class BuildCommand implements BLauncherCmd {
                     // run tests (projects only)
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
                 .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
-                .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();
 
         taskExecutor.executeTasks(project);
@@ -256,6 +259,8 @@ public class BuildCommand implements BLauncherCmd {
                 .skipTests(skipTests)
                 .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
+                .cloud(cloud)
+                .taintCheck(taintCheck)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
                 .build();
@@ -282,7 +287,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina build [-o <output-file>] [--offline] [--skip-tests] [--skip-lock] " +
+        out.append("  bal build [-o <output-file>] [--offline] [--skip-tests] [--skip-lock]  [--taint-check]" +
                    "{<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]\n");
     }
 

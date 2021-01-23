@@ -14,13 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ timeWindow: 600000, buckets: 5,
     percentiles: [0.33, 0.5, 0.66, 0.75, 0.95, 0.99, 0.999] }];
 
 final map<string> DEFAULT_TAGS = {};
-
 
 # Start a span with no parent span.
 #
@@ -89,14 +88,6 @@ public function getAllMetrics() returns Metric[] = @java:Method {
 public function lookupMetric(string name, map<string>? tags = ()) returns Counter|Gauge? = @java:Method {
     'class: "org.ballerinalang.observe.nativeimpl.LookupMetric",
     name: "lookupMetric"
-} external;
-
-# Checks of either metrics or tracing had been enabled.
-#
-# + return - True if observability had been enabled.
-public isolated function isObservabilityEnabled() returns boolean = @java:Method {
-    name: "isObservabilityEnabled",
-    'class: "io.ballerina.runtime.observability.ObserveUtils"
 } external;
 
 # This represents the metric type - counter, that can be only increased by an integer number.

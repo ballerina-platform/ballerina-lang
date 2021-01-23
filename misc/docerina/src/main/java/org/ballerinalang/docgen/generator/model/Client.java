@@ -29,8 +29,8 @@ public class Client extends BClass {
     public List<Function> remoteMethods;
 
     public Client(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-            List<Function> methods) {
-        super(name, description, isDeprecated, fields, methods);
+            List<Function> methods, boolean isReadOnly, boolean isIsolated) {
+        super(name, description, isDeprecated, fields, methods, isReadOnly, isIsolated);
         this.remoteMethods = getRemoteMethods();
         this.otherMethods = getOtherMethods(methods);
     }

@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.eclipse.lsp4j.ClientCapabilities;
@@ -485,7 +486,7 @@ public class TestUtil {
     public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath,
                                                             WorkspaceManager workspaceManager,
                                                             LanguageServerContext serverContext)
-            throws IOException {
+            throws IOException, WorkspaceDocumentException {
         List<Diagnostic> diagnostics = new ArrayList<>();
 
         DocumentServiceContext context = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),

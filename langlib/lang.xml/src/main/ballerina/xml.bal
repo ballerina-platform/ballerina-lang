@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # The namespace URI bound to the `xml` prefix.
 public const string XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";

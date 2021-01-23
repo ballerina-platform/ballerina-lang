@@ -387,6 +387,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     EXPRESSION_DOES_NOT_SUPPORT_INDEX_ACCESS("BCE2649", "expression.does.not.support.index.access"),
     EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2650", "expression.does.not.support.field.access"),
+    CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES(
+            "BCE2651", "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -671,14 +673,21 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE3978", "invalid.read.only.class.inclusion.in.object.type.descriptor"),
     INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS("BCE3979", "invalid.inclusion.with.mismatched.qualifiers"),
     INVALID_REFERENCE_WITH_MISMATCHED_QUALIFIERS("BCE3980", "invalid.reference.with.mismatched.qualifiers"),
+    INVALID_READ_ONLY_TYPEDESC_INCLUSION_IN_OBJECT_TYPEDESC(
+            "BCE3981", "invalid.read.only.typedesc.inclusion.in.object.typedesc"),
+    INVALID_READ_ONLY_TYPEDESC_INCLUSION_IN_NON_READ_ONLY_CLASS(
+            "BCE3982", "invalid.read.only.typedesc.inclusion.in.non.read.only.class"),
     INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS(
-            "BCE3981", "invalid.read.only.class.inclusion.in.non.read.only.class"),
+            "BCE3983", "invalid.read.only.class.inclusion.in.non.read.only.class"),
     INVALID_FIELD_IN_OBJECT_CONSTUCTOR_EXPR_WITH_READONLY_REFERENCE(
-            "BCE3982", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
+            "BCE3984", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
 
-    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3983", "multiple.receive.action.not.yet.supported"),
+    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3985", "multiple.receive.action.not.yet.supported"),
 
-    INVALID_READONLY_FIELD_TYPE("BCE3984", "invalid.readonly.field.type")
+    INVALID_READONLY_FIELD_TYPE("BCE3986", "invalid.readonly.field.type"),
+
+    CONTINUE_NOT_ALLOWED("BCE3987", "continue.not.allowed"),
+    BREAK_NOT_ALLOWED("BCE3988", "break.not.allowed")
     ;
 
     private String diagnosticId;

@@ -6,6 +6,7 @@ module io.ballerina.runtime {
     requires java.logging;
     requires java.management;
     requires opentracing.api;
+    requires opentracing.noop;
     requires java.transaction.xa;
     requires slf4j.api;
     requires axiom.impl;

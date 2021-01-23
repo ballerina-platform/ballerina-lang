@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -121,6 +122,10 @@ public class Module {
         return moduleContext;
     }
 
+    public Optional<MdDocument> moduleMd() {
+        return this.moduleContext.moduleMd();
+    }
+
     private static class DocumentIterable implements Iterable {
         private final Collection<Document> documentList;
 
@@ -151,6 +156,7 @@ public class Module {
         private final List<ModuleDescriptor> dependencies;
         private Package packageInstance;
         private Project project;
+        private Optional<MdDocument> moduleMd;
 
 
         private Modifier(Module oldModule) {
@@ -162,6 +168,7 @@ public class Module {
             dependencies = oldModule.moduleContext().moduleDescDependencies();
             packageInstance = oldModule.packageInstance;
             project = oldModule.project();
+            moduleMd = oldModule.moduleMd();
         }
 
         Modifier updateDocument(DocumentContext newDocContext) {
@@ -242,7 +249,7 @@ public class Module {
                 DocumentContext> testDocContextMap) {
             ModuleContext newModuleContext = new ModuleContext(this.project,
                     this.moduleId, this.moduleDescriptor, this.isDefaultModule, srcDocContextMap,
-                    testDocContextMap, this.dependencies);
+                    testDocContextMap, this.moduleMd.orElse(null), this.dependencies);
             Package newPackage = this.packageInstance.modify().updateModule(newModuleContext).apply();
             return newPackage.module(this.moduleId);
         }

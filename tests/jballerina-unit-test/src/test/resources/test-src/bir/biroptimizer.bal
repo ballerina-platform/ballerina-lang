@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/lang.test;
-import ballerina/java;
 
 public function simpleAddition() {
     int a = 3;
@@ -77,4 +76,3 @@ function mapInits() returns [string?, int?] {
     emp["jack"] = jack;
     return [emp["jack"]["name"], emp["jack"]["age"]];
 }
-

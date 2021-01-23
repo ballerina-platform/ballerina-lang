@@ -71,6 +71,13 @@ public class ClosedRecordTypeReferenceTest {
         BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 72, 6);
         BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 76, 6);
         BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 81, 6);
+        BAssertUtil.validateError(negative, index++, "cannot use type inclusion with more than one open record with " +
+                "different rest descriptor types", 99, 20);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'float'", 135, 60);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'error'", 136, 50);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'anydata', found 'error'", 137, 50);
+        BAssertUtil.validateError(negative, index++, "cannot use type inclusion with more than one open record with " +
+                "different rest descriptor types", 158, 10);
         assertEquals(negative.getErrorCount(), index);
     }
 
@@ -167,6 +174,11 @@ public class ClosedRecordTypeReferenceTest {
         assertEquals(manager.get("adr").stringValue(), "{city:\"\", country:\"\"}");
         assertEquals(manager.get("company").stringValue(), "");
         assertEquals(manager.get("dept").stringValue(), "");
+    }
+
+    @Test
+    public void testRestTypeOverriding() {
+        BRunUtil.invoke(compileResult, "testRestTypeOverriding");
     }
 
     @AfterClass

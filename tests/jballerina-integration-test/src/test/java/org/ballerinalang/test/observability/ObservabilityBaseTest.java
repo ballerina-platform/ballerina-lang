@@ -29,6 +29,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -64,13 +66,14 @@ public class ObservabilityBaseTest extends BaseTest {
         String sourcesDir = Paths.get("src", "test", "resources", "observability", testProject).toFile()
                 .getAbsolutePath();
 
-        String configFile = Paths.get("src", "test", "resources", "observability", testProject, "ballerina.conf")
-                .toFile().getAbsolutePath();
-        String[] args = new String[] { "--b7a.config.file=" + configFile };
+        String configFile = Paths.get("src", "test", "resources", "observability", testProject,
+                "Config.toml").toFile().getAbsolutePath();
+        Map<String, String> env = new HashMap<>();
+        env.put("BALCONFIGFILE", configFile);
 
         // Don't use 9898 port here. It is used in metrics test cases.
         servicesServerInstance = new BServerInstance(balServer);
-        servicesServerInstance.startServer(sourcesDir, packageName, null, args, requiredPorts);
+        servicesServerInstance.startServer(sourcesDir, packageName, null, null, env, requiredPorts);
     }
 
     protected void cleanupServer() throws BallerinaTestException {

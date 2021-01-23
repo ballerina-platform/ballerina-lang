@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -69,7 +70,7 @@ public abstract class AbstractCodeActionTest {
     }
 
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException {
+    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
         String configJsonPath =
                 "codeaction" + File.separator + getResourceDir() + File.separator + "config" + File.separator + config;
         Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(source);

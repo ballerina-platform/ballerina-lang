@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public function '\.\<init\>() returns string {
     return "this is a user defined function";

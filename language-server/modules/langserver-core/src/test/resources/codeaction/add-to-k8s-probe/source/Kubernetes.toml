@@ -1,0 +1,5 @@
+[container.image]
+name = "hello"
+repository = "local"
+tag = "v1.0.0"
+base = "openjdk:slim"

@@ -58,7 +58,7 @@ dependencies {
 
     // Lang Libs
     balSource project(path: ':ballerina-lang:internal', configuration: 'balSource')
-    balSource project(path: ':ballerina-lang:java', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:jballerina.java', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:annotations', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:array', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:decimal', configuration: 'balSource')

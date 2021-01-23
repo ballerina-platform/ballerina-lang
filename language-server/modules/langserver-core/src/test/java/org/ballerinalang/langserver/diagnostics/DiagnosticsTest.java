@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -31,6 +32,9 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -40,6 +44,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
@@ -71,7 +76,7 @@ public class DiagnosticsTest {
     }
 
     @Test(dataProvider = "completion-data-provider")
-    public void test(String config) throws IOException {
+    public void test(String config) throws IOException, WorkspaceDocumentException {
         String configDir = "configs";
         String configJsonPath = "diagnostics" + File.separator + configDir + File.separator + config + ".json";
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -97,13 +102,25 @@ public class DiagnosticsTest {
         }
     }
 
-    String getResponse(JsonObject configJsonObject) {
+    String getResponse(JsonObject configJsonObject) throws IOException, WorkspaceDocumentException {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         DocumentServiceContext serviceContext = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
-                this.workspaceManager, LSContextOperation.TXT_DID_OPEN, this.serverContext);
-        workspaceManager.didOpen(sourcePath, null);
-        Map<String, List<Diagnostic>> diagnostics = DiagnosticsHelper.getInstance(serverContext)
-                .getBallerinaDiagnostics(serviceContext);
+                                                                                this.workspaceManager,
+                                                                                LSContextOperation.TXT_DID_OPEN,
+                                                                                this.serverContext);
+        DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
+        TextDocumentItem textDocumentItem = new TextDocumentItem();
+        TextDocumentIdentifier identifier = new TextDocumentIdentifier();
+
+        byte[] encodedContent = Files.readAllBytes(sourcePath);
+        identifier.setUri(sourcePath.toUri().toString());
+        textDocumentItem.setUri(identifier.getUri());
+        textDocumentItem.setText(new String(encodedContent));
+        documentParams.setTextDocument(textDocumentItem);
+
+        workspaceManager.didOpen(sourcePath, documentParams);
+        DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(serverContext);
+        Map<String, List<Diagnostic>> diagnostics = diagnosticsHelper.getLatestDiagnostics(serviceContext);
 
         return gson.toJson(diagnostics).replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
