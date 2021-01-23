@@ -171,56 +171,65 @@ public class ManifestBuilder {
         PackageName defaultName = PackageName.from(guessPkgName(Optional.ofNullable(this.projectPath.getFileName())
                 .map(n -> n.toString()).orElse("")));
         PackageVersion defaultVersion = PackageVersion.from(ProjectConstants.INTERNAL_VERSION);
-
-        if (tomlTableNode.entries().isEmpty()) {
-            return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
-        }
-
-        TomlTableNode pkgNode = (TomlTableNode) tomlTableNode.entries().get(PACKAGE);
-        if (pkgNode == null || pkgNode.kind() == TomlType.NONE) {
-            addDiagnostic(null, DiagnosticSeverity.ERROR, tomlTableNode,
-                          "invalid Ballerina.toml file: cannot find [package]");
-            return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
-        }
-
-        if (pkgNode.entries().isEmpty()) {
-            addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                          "invalid Ballerina.toml file: organization, name and the version of the "
-                                  + "package is missing. example: \n" + "[package]\n" + "org=\"my_org\"\n"
-                                  + "name=\"my_package\"\n" + "version=\"1.0.0\"\n");
-            return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
-        }
-
-        String org = getStringValueFromPackageNode(pkgNode, "org", defaultOrg.value());
-        String name = getStringValueFromPackageNode(pkgNode, "name", defaultName.value());
-        String version = getStringValueFromPackageNode(pkgNode, VERSION, defaultVersion.value().toString());
-
-        // check org is valid identifier
-        boolean isValidOrg = ProjectUtils.validateOrgName(org);
-        if (!isValidOrg) {
-            addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                          "invalid Ballerina.toml file: Invalid 'org' under [package]: '" + org + "' :\n"
-                                  + "'org' can only contain alphanumerics, underscores and periods "
-                                  + "and the maximum length is 256 characters");
-            org = defaultOrg.value();
-        }
-
-        // check that the package name is valid
-        boolean isValidPkg = ProjectUtils.validatePackageName(name);
-        if (!isValidPkg) {
-            addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                          "invalid Ballerina.toml file: Invalid 'name' under [package]: '" + name + "' :\n"
-                                  + "'name' can only contain alphanumerics, underscores "
-                                  + "and the maximum length is 256 characters");
-            name = defaultName.value();
-        }
-
-        // check version is compatible with semver
+        String org;
+        String name;
+        String version;
         try {
-            SemanticVersion.from(version);
-        } catch (ProjectException e) {
-            addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                          "invalid package version in Ballerina.toml. " + e.getMessage());
+            if (tomlTableNode.entries().isEmpty()) {
+                return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
+            }
+
+            TomlTableNode pkgNode = (TomlTableNode) tomlTableNode.entries().get(PACKAGE);
+            if (pkgNode == null || pkgNode.kind() == TomlType.NONE) {
+                addDiagnostic(null, DiagnosticSeverity.ERROR, tomlTableNode,
+                        "invalid Ballerina.toml file: cannot find [package]");
+                return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
+            }
+
+            if (pkgNode.entries().isEmpty()) {
+                addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
+                        "invalid Ballerina.toml file: organization, name and the version of the "
+                                + "package is missing. example: \n" + "[package]\n" + "org=\"my_org\"\n"
+                                + "name=\"my_package\"\n" + "version=\"1.0.0\"\n");
+                return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
+            }
+
+            org = getStringValueFromPackageNode(pkgNode, "org", defaultOrg.value());
+            name = getStringValueFromPackageNode(pkgNode, "name", defaultName.value());
+            version = getStringValueFromPackageNode(pkgNode, VERSION, defaultVersion.value().toString());
+
+            // check org is valid identifier
+            boolean isValidOrg = ProjectUtils.validateOrgName(org);
+            if (!isValidOrg) {
+                addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
+                        "invalid Ballerina.toml file: Invalid 'org' under [package]: '" + org + "' :\n"
+                                + "'org' can only contain alphanumerics, underscores and periods "
+                                + "and the maximum length is 256 characters");
+                org = defaultOrg.value();
+            }
+
+            // check that the package name is valid
+            boolean isValidPkg = ProjectUtils.validatePackageName(name);
+            if (!isValidPkg) {
+                addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
+                        "invalid Ballerina.toml file: Invalid 'name' under [package]: '" + name + "' :\n"
+                                + "'name' can only contain alphanumerics, underscores "
+                                + "and the maximum length is 256 characters");
+                name = defaultName.value();
+            }
+
+            // check version is compatible with semver
+            try {
+                SemanticVersion.from(version);
+            } catch (ProjectException e) {
+                addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
+                        "invalid package version in Ballerina.toml. " + e.getMessage());
+                version = defaultVersion.value().toString();
+            }
+        } catch (RuntimeException e) {
+            // This was put in as a temporary fix to prevent update breaking from possible errors
+            org = defaultOrg.value();
+            name = defaultName.value();
             version = defaultVersion.value().toString();
         }
 
