@@ -17,18 +17,16 @@
  */
 package io.ballerina.runtime.observability.tracer;
 
-import io.ballerina.runtime.observability.ObserverContext;
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import static io.ballerina.runtime.observability.tracer.TraceConstants.DEFAULT_OPERATION_NAME;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.DEFAULT_SERVICE_NAME;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
 
 /**
  * {@code BSpan} holds the trace of the current context.
@@ -36,47 +34,70 @@ import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
  * @since 0.964.1
  */
 public class BSpan {
+    private final Tracer tracer;
+    private final Span span;
 
-    private static final TracersStore tracerStore = TracersStore.getInstance();
-    private static final TraceManager manager = TraceManager.getInstance();
-
-    /**
-     * {@link Map} of properties, which used to represent
-     * the span contexts of each tracer.
-     */
-    private final Map<String, String> properties;
-    /**
-     * {@link Map} of tags, which will get injected to span.
-     */
-    private final Map<String, String> tags;
-    /**
-     * Name of the service.
-     */
-    private String serviceName = DEFAULT_SERVICE_NAME;
-    /**
-     * Name of the operation.
-     */
-    private String operationName = DEFAULT_OPERATION_NAME;
-    /**
-     * Active Ballerina {@link ObserverContext}.
-     */
-    private final ObserverContext observerContext;
-    /**
-     * Open tracer specific span.
-     */
-    private Span span;
-
-    public BSpan(ObserverContext observerContext, boolean isClientContext) {
-        this.properties = new HashMap<>();
-        this.tags = new HashMap<>();
-        this.observerContext = observerContext;
-        this.tags.put(TraceConstants.TAG_KEY_SPAN_KIND, isClientContext
-                ? TraceConstants.TAG_SPAN_KIND_CLIENT
-                : TraceConstants.TAG_SPAN_KIND_SERVER);
+    private BSpan(SpanContext parentSpanContext, String serviceName, String operationName, boolean isClientContext) {
+        tracer = TracersStore.getInstance().getTracer(serviceName);
+        span = tracer.buildSpan(operationName)
+                .asChildOf(parentSpanContext)
+                .withTag(TraceConstants.TAG_KEY_SPAN_KIND, isClientContext
+                        ? TraceConstants.TAG_SPAN_KIND_CLIENT
+                        : TraceConstants.TAG_SPAN_KIND_SERVER)
+                .start();
     }
 
-    public void startSpan() {
-        manager.startSpan(getParentBSpan(), this);
+    private <C> BSpan(Format<C> format, C carrier, String serviceName, String operationName, boolean isClientContext) {
+        tracer = TracersStore.getInstance().getTracer(serviceName);
+        SpanContext parentSpanContext = tracer.extract(format, carrier);
+        span = tracer.buildSpan(operationName)
+                .asChildOf(parentSpanContext)
+                .withTag(TraceConstants.TAG_KEY_SPAN_KIND, isClientContext
+                        ? TraceConstants.TAG_SPAN_KIND_CLIENT
+                        : TraceConstants.TAG_SPAN_KIND_SERVER)
+                .start();
+    }
+
+    /**
+     * Start a new span without a parent. The started span will be a root span.
+     *
+     * @param serviceName   The name of the service the span belongs to
+     * @param operationName The name of the operation the span corresponds to
+     * @param isClient      True if this is a client span
+     * @return The new span
+     */
+    public static BSpan start(String serviceName, String operationName, boolean isClient) {
+        return new BSpan(null, serviceName, operationName, isClient);
+    }
+
+    /**
+     * Start a new with a parent using parent span.
+     *
+     * @param parentSpan    The parent span of the new span
+     * @param serviceName   The name of the service the span belongs to
+     * @param operationName The name of the operation the span corresponds to
+     * @param isClient      True if this is a client span
+     * @return The new span
+     */
+    public static BSpan start(BSpan parentSpan, String serviceName, String operationName, boolean isClient) {
+        return new BSpan(parentSpan.span.context(), serviceName, operationName, isClient);
+    }
+
+    /**
+     * Start a new with a parent using parent trace context.
+     * The started span is part of a trace which had spanned across multiple services and the parent is in the service
+     * which called the current service.
+     *
+     * @param parentTraceContext The parent trace context
+     * @param serviceName        The name of the service the span belongs to
+     * @param operationName      The name of the operation the span corresponds to
+     * @param isClient           True if this is a client span
+     * @return The new span
+     */
+    public static BSpan start(Map<String, String> parentTraceContext, String serviceName, String operationName,
+                              boolean isClient) {
+        return new BSpan(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(parentTraceContext), serviceName,
+                operationName, isClient);
     }
 
     public void finishSpan() {
@@ -88,85 +109,22 @@ public class BSpan {
     }
 
     public void addTags(Map<String, String> tags) {
-        if (span != null) {
-            // Span has started, therefore add tags to the span.
-            tags.forEach((key, value) -> span.setTag(key, value));
-        } else {
-            //otherwise keep the tags in a map, and add it once
-            //the span get created.
-            this.tags.putAll(tags);
-        }
+        tags.forEach(span::setTag);
     }
 
     public void addTag(String tagKey, String tagValue) {
-        if (span != null) {
-            // Span has started, therefore add tags to the span.
-            span.setTag(tagKey, tagValue);
-        } else {
-            // Otherwise keep the tags in a map, and add it once the span get created.
-            this.tags.put(tagKey, tagValue);
-        }
-    }
-
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
-
-    public String getOperationName() {
-        return operationName;
-    }
-
-    public void setOperationName(String operationName) {
-        this.operationName = operationName;
-    }
-
-    public Map<String, String> getProperties() {
-        return properties;
-    }
-
-    public void addProperty(String key, String value) {
-        if (properties != null) {
-            properties.put(key, value);
-        }
-    }
-
-    public String getProperty(String key) {
-        if (properties != null) {
-            return properties.get(key);
-        }
-        return null;
-    }
-
-    public Map<String, String> getTags() {
-        return tags;
-    }
-
-    public Span getSpan() {
-        return span;
-    }
-
-    public void setSpan(Span span) {
-        this.span = span;
+        span.setTag(tagKey, tagValue);
     }
 
     public Map<String, String> getTraceContext() {
-        Map<String, String> carrierMap = new HashMap<>();
-        Tracer tracer = tracerStore.getTracer(serviceName);
+        Map<String, String> carrierMap;
         if (span != null) {
+            carrierMap = new HashMap<>();
             TextMapInjectAdapter requestInjector = new TextMapInjectAdapter(carrierMap);
             tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
+        } else {
+            carrierMap = Collections.emptyMap();
         }
         return carrierMap;
-    }
-
-    private BSpan getParentBSpan() {
-        if (observerContext.getParent() != null) {
-            return (BSpan) observerContext.getParent().getProperty(KEY_SPAN);
-        }
-        return null;
     }
 }
