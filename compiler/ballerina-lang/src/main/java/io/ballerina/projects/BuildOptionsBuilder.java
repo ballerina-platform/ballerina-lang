@@ -63,6 +63,11 @@ public class BuildOptionsBuilder {
         return this;
     }
 
+    public BuildOptionsBuilder cloud(String value) {
+        compilationOptionsBuilder.cloud(value);
+        return this;
+    }
+
     public BuildOptionsBuilder dumpBir(Boolean value) {
         compilationOptionsBuilder.dumpBir(value);
         return this;
@@ -70,6 +75,11 @@ public class BuildOptionsBuilder {
 
     public BuildOptionsBuilder dumpBirFile(String value) {
         compilationOptionsBuilder.dumpBirFile(value);
+        return this;
+    }
+
+    public BuildOptionsBuilder taintCheck(Boolean value) {
+        compilationOptionsBuilder.taintCheck(value);
         return this;
     }
 

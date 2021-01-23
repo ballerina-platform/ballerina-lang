@@ -17,9 +17,10 @@
  */
 package org.ballerinalang.bindgen.utils;
 
-import io.ballerina.projects.BallerinaToml;
-import io.ballerina.projects.BallerinaTomlException;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.ManifestBuilder;
+import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.maven.Dependency;
@@ -30,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -117,13 +119,18 @@ public class BindgenMvnResolver {
 
     private static void populateBallerinaToml(String groupId, String artifactId, String version, File tomlFile,
                                               Path projectRoot, String parent) throws BindgenException {
+        String tomlContent;
+        try {
+            tomlContent = Files.readString(tomlFile.toPath());
+        } catch (IOException io) {
+            throw new BindgenException("Error while reading the Ballerina.toml file.", io);
+        }
         try (FileWriterWithEncoding fileWriter = new FileWriterWithEncoding(tomlFile, StandardCharsets.UTF_8, true)) {
-            BallerinaToml ballerinaToml = BallerinaToml.from(tomlFile.toPath());
-            if (ballerinaToml.diagnostics().hasErrors()) {
-                throw new BallerinaTomlException(ballerinaToml.getErrorMessage());
-            }
+            TomlDocument tomlDocument = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
+            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, projectRoot).packageManifest();
+            // todo handle toml file with errors
 
-            PackageManifest.Platform platform = ballerinaToml.packageManifest().platform("java11");
+            PackageManifest.Platform platform = packageManifest.platform("java11");
             if (platform != null && platform.dependencies() != null) {
                 for (Map<String, Object> library : platform.dependencies()) {
                     if (library.get("path") == null &&

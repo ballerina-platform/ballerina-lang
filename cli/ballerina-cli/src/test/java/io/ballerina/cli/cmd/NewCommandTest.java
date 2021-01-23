@@ -40,7 +40,7 @@ public class NewCommandTest extends BaseCommandTest {
     public Object[][] provideInvalidProjectNames() {
         return new Object[][] {
                 { "hello-app" },
-                { "my.project" }
+                { "my$project" }
         };
     }
 

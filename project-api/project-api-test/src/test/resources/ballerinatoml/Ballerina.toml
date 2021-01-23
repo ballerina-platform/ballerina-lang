@@ -1,31 +1,18 @@
 [package]
-name = "winery"
 org = "foo"
+name = "winery"
 version = "0.1.0"
-
-[[dependency]]
-org = "wso2"
-name = "twitter"
-version = "2.3.4"
-
-[[dependency]]
-org = "wso2"
-name = "github"
-version = "1.2.3"
-
 [[platform.java11.dependency]]
 path = "/user/sameera/libs/toml4j.jar"
+
+groupId = "com.moandjiezana.toml"
 artifactId = "toml4j"
 version = "0.7.2"
-groupId = "com.moandjiezana.toml"
 
 [[platform.java11.dependency]]
 path = "path/to/swagger.jar"
+groupId = "swagger.io"
 artifactId = "swagger"
 version = "0.7.2"
-groupId = "swagger.io"
-
 [build-options]
 observability-included = true
-
-

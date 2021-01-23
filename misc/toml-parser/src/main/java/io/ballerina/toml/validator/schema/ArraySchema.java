@@ -38,4 +38,9 @@ public class ArraySchema extends AbstractSchema {
     public AbstractSchema items() {
         return items;
     }
+
+    @Override
+    public void accept(SchemaVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -35,7 +36,7 @@ public class OptimizeImportsTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException {
+    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
         super.test(config, source);
     }
 
@@ -43,7 +44,8 @@ public class OptimizeImportsTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-//                {"optimizeImports.json", "optimizeImports.bal"},
+                {"optimizeImports.json", "optimizeImports.bal"},
+                {"optimizeImports1.json", "optimizeImports1.bal"},
         };
     }
 }

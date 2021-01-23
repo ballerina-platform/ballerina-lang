@@ -30,11 +30,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "java",
+      "label": "jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "java",
+      "insertText": "jballerina.java",
       "insertTextFormat": "Snippet"
     },
     {

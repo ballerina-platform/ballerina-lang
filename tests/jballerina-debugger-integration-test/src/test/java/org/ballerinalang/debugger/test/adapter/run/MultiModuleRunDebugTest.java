@@ -64,8 +64,7 @@ public class MultiModuleRunDebugTest extends BaseTestCase {
         // Test for step over
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(),
-        new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 23));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 23));
 
         // Test for break point hit
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
@@ -94,8 +93,7 @@ public class MultiModuleRunDebugTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_IN);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        // Todo - enable
-        // Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(filePath2, 22));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(filePath2, 22));
 
         // Test for step out between different file, between different module
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OUT);

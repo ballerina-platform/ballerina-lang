@@ -26,32 +26,41 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 public class DebugContext {
 
     private Process launchedProcess;
-    private VirtualMachine debuggee;
     private IDebugProtocolClient client;
+    private final JBallerinaDebugServer adapter;
+    private VirtualMachine debuggee;
     private Project sourceProject;
 
-    public void setLaunchedProcess(Process launchedProcess) {
-        this.launchedProcess = launchedProcess;
+    DebugContext(JBallerinaDebugServer adapter) {
+        this.adapter = adapter;
     }
 
     public Process getLaunchedProcess() {
         return launchedProcess;
     }
 
-    public void setDebuggee(VirtualMachine debuggee) {
-        this.debuggee = debuggee;
+    public void setLaunchedProcess(Process launchedProcess) {
+        this.launchedProcess = launchedProcess;
     }
 
-    public VirtualMachine getDebuggee() {
-        return debuggee;
+    public IDebugProtocolClient getClient() {
+        return client;
     }
 
     public void setClient(IDebugProtocolClient client) {
         this.client = client;
     }
 
-    public IDebugProtocolClient getClient() {
-        return client;
+    public JBallerinaDebugServer getAdapter() {
+        return adapter;
+    }
+
+    public VirtualMachine getDebuggee() {
+        return debuggee;
+    }
+
+    public void setDebuggee(VirtualMachine debuggee) {
+        this.debuggee = debuggee;
     }
 
     public Project getSourceProject() {

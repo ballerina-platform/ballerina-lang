@@ -38,6 +38,7 @@ public class ObservabilityDesugar {
     private static final CompilerContext.Key<ObservabilityDesugar> OBSERVE_DESUGAR_KEY = new CompilerContext.Key<>();
     private final boolean observabilityIncluded;
     private final BPackageSymbol internalObserveModuleSymbol;
+    private final BPackageSymbol observeModuleSymbol;
 
     public static ObservabilityDesugar getInstance(CompilerContext context) {
         ObservabilityDesugar desugar = context.get(OBSERVE_DESUGAR_KEY);
@@ -51,7 +52,9 @@ public class ObservabilityDesugar {
         context.put(OBSERVE_DESUGAR_KEY, this);
         observabilityIncluded = Boolean.parseBoolean(CompilerOptions.getInstance(context)
                 .get(CompilerOptionName.OBSERVABILITY_INCLUDED));
+        // TODO: Merge both modules into one user facing module
         internalObserveModuleSymbol = PackageCache.getInstance(context).getSymbol(PackageID.OBSERVE_INTERNAL);
+        observeModuleSymbol = PackageCache.getInstance(context).getSymbol(PackageID.OBSERVE);
     }
 
     void addObserveInternalModuleImport(BLangPackage pkgNode) {
@@ -65,6 +68,22 @@ public class ObservabilityDesugar {
             importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
             importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
             importDcl.symbol = internalObserveModuleSymbol;
+            pkgNode.imports.add(importDcl);
+            pkgNode.symbol.imports.add(importDcl.symbol);
+        }
+    }
+
+    void addObserveModuleImport(BLangPackage pkgNode) {
+        if (observabilityIncluded) {
+            BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
+            List<BLangIdentifier> pkgNameComps = new ArrayList<>();
+            pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.OBSERVE.value));
+            importDcl.pkgNameComps = pkgNameComps;
+            importDcl.pos = pkgNode.symbol.pos;
+            importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_ORG.value);
+            importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
+            importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
+            importDcl.symbol = observeModuleSymbol;
             pkgNode.imports.add(importDcl);
             pkgNode.symbol.imports.add(importDcl.symbol);
         }

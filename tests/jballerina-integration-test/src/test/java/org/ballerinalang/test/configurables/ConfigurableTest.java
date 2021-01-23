@@ -78,8 +78,17 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
+    public void testAPIConfigFilePathOverRiding() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "testPathProject").toAbsolutePath();
+        LogLeecher runLeecher = new LogLeecher("4 passing");
+        bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
+                new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
     public void testEnvironmentVariableBasedConfigFile() throws BallerinaTestException {
-        String configFilePath = Paths.get(testFileLocation, "ConfigFiles").toString();
+        String configFilePath = Paths.get(testFileLocation, "ConfigFiles", "Config.toml").toString();
         Path projectPath = Paths.get(testFileLocation).toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("Tests passed");
         bMainInstance.runMain("run", new String[]{"envVarPkg"}, addEnvVariables(configFilePath),
@@ -100,7 +109,7 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testNoConfigFile() throws BallerinaTestException {
         Path filePath = Paths.get(negativeTestFileLocation, "noConfig.bal").toAbsolutePath();
-        LogLeecher errorLeecher = new LogLeecher("error: Configuration toml file `Config.toml` is not found",
+        LogLeecher errorLeecher = new LogLeecher("error: Value not provided for required configurable variable 'name'",
                 ERROR);
         bMainInstance.runMain("run", new String[]{filePath.toString()}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, testFileLocation + "/NegativeTests");
@@ -130,7 +139,7 @@ public class ConfigurableTest extends BaseTest {
     public void testInvalidOrganizationName() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "InvalidOrgName").toAbsolutePath();
         LogLeecher errorLeecher =
-                new LogLeecher(errorMsg + "Module 'main' from organization 'testOrg' not found.", ERROR);
+                new LogLeecher("Value not provided for required configurable variable 'booleanVar'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);

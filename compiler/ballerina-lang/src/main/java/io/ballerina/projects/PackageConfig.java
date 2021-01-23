@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * {@code PackageConfig} contains necessary configuration elements required to
@@ -32,42 +33,57 @@ public class PackageConfig {
     // This class should contain Specific project-agnostic information
     private final PackageId packageId;
     private final PackageManifest packageManifest;
-    private final BallerinaToml ballerinaToml;
+    private final DocumentConfig ballerinaToml;
+    private final DocumentConfig dependenciesToml;
+    private final DocumentConfig kubernetesToml;
     private final Path packagePath;
     private final DependencyGraph<PackageDescriptor> packageDescDependencyGraph;
     private final Collection<ModuleConfig> otherModules;
+    private final DocumentConfig packageMd;
 
     private PackageConfig(PackageId packageId,
                           Path packagePath,
                           PackageManifest packageManifest,
-                          BallerinaToml ballerinaToml,
+                          DocumentConfig ballerinaToml,
+                          DocumentConfig dependenciesToml,
+                          DocumentConfig kubernetesToml,
                           Collection<ModuleConfig> moduleConfigs,
-                          DependencyGraph<PackageDescriptor> packageDescDependencyGraph) {
+                          DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
+                          DocumentConfig packageMd) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.packageManifest = packageManifest;
         this.ballerinaToml = ballerinaToml;
+        this.dependenciesToml = dependenciesToml;
+        this.kubernetesToml = kubernetesToml;
         this.otherModules = moduleConfigs;
         this.packageDescDependencyGraph = packageDescDependencyGraph;
+        this.packageMd = packageMd;
     }
 
     public static PackageConfig from(PackageId packageId,
                                      Path packagePath,
                                      PackageManifest packageManifest,
-                                     BallerinaToml ballerinaToml,
+                                     DocumentConfig ballerinaToml,
+                                     DocumentConfig dependenciesToml,
+                                     DocumentConfig kubernetesToml,
+                                     DocumentConfig packageMd,
                                      Collection<ModuleConfig> moduleConfigs) {
-        return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml,
-                moduleConfigs, DependencyGraph.emptyGraph());
+        return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml, dependenciesToml,
+                kubernetesToml, moduleConfigs, DependencyGraph.emptyGraph(), packageMd);
     }
 
     public static PackageConfig from(PackageId packageId,
                                      Path packagePath,
                                      PackageManifest packageManifest,
-                                     BallerinaToml ballerinaToml,
+                                     DocumentConfig ballerinaToml,
+                                     DocumentConfig dependenciesToml,
+                                     DocumentConfig kubernetesToml,
+                                     DocumentConfig packageMd,
                                      Collection<ModuleConfig> moduleConfigs,
                                      DependencyGraph<PackageDescriptor> packageDescDependencyGraph) {
-        return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml,
-                moduleConfigs, packageDescDependencyGraph);
+        return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml, dependenciesToml,
+                kubernetesToml, moduleConfigs, packageDescDependencyGraph, packageMd);
     }
 
     public PackageId packageId() {
@@ -90,8 +106,12 @@ public class PackageConfig {
         return packageManifest;
     }
 
-    public BallerinaToml ballerinaToml() {
-        return ballerinaToml;
+    public Optional<DocumentConfig> ballerinaToml() {
+        return Optional.ofNullable(ballerinaToml);
+    }
+
+    public Optional<DocumentConfig> kubernetesToml() {
+        return Optional.ofNullable(kubernetesToml);
     }
 
     public CompilationOptions compilationOptions() {
@@ -110,5 +130,13 @@ public class PackageConfig {
 
     public Collection<ModuleConfig> otherModules() {
         return otherModules;
+    }
+
+    public Optional<DocumentConfig> packageMd() {
+        return Optional.ofNullable(packageMd);
+    }
+
+    public Optional<DocumentConfig> dependenciesToml() {
+        return Optional.ofNullable(this.dependenciesToml);
     }
 }

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration

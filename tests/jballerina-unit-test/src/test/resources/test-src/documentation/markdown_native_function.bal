@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # Gets a access parameter value (`true` or `false`) for a given key. Please note that `foo` will always be bigger than `bar`.
 # Example:
