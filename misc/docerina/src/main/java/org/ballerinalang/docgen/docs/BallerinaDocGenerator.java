@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.MdDocument;
 import io.ballerina.projects.PackageMd;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;
@@ -164,8 +165,12 @@ public class BallerinaDocGenerator {
         docPackage.description = packageMdPath
                 .map(packageMd -> new String(packageMd.mdDocumentContext().textDocument().toCharArray()))
                 .orElse("");
-        docPackage.summary = !docPackage.description.equals("") ?
-                             BallerinaDocUtils.getSummary(docPackage.description) : "";
+        if (!docPackage.description.equals("")) {
+            docPackage.summary = BallerinaDocUtils.getSummary(docPackage.description);
+        } else if (moduleDocMap.get(docPackage.name) != null) {
+            // Use summary of the default module
+            docPackage.summary = moduleDocMap.get(docPackage.name).summary;
+        }
         if (!docPackage.modules.isEmpty()) {
             PackageLibrary packageLib = new PackageLibrary();
             packageLib.packages.add(docPackage);
@@ -428,6 +433,7 @@ public class BallerinaDocGenerator {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
         for (io.ballerina.projects.Module module : project.currentPackage().modules()) {
             String moduleName;
+            MdDocument moduleMd = module.moduleMd().isPresent() ? module.moduleMd().get() : null;
             Path modulePath;
             if (module.isDefaultModule()) {
                 moduleName = module.moduleName().packageName().toString();
@@ -437,11 +443,6 @@ public class BallerinaDocGenerator {
                 modulePath = project.sourceRoot().resolve(ProjectConstants.MODULES_ROOT).resolve(module.moduleName()
                         .moduleNamePart());
             }
-            // find the Module.md file
-            Path moduleMd = getModuleDocPath(modulePath, ProjectConstants.MODULE_MD_FILE_NAME);
-            if (moduleMd == null && module.isDefaultModule()) {
-                moduleMd = getModuleDocPath(modulePath, ProjectConstants.PACKAGE_MD_FILE_NAME);
-            }
             // find the resources of the package
             List<Path> resources = getResourcePaths(modulePath);
             Map<String, SyntaxTree> syntaxTreeMap = new HashMap<>();
@@ -449,7 +450,8 @@ public class BallerinaDocGenerator {
                 Document document = module.document(documentId);
                 syntaxTreeMap.put(document.name(), document.syntaxTree());
             });
-            ModuleDoc moduleDoc = new ModuleDoc(moduleMd == null ? null : moduleMd.toAbsolutePath(), resources,
+            ModuleDoc moduleDoc = new ModuleDoc(moduleMd == null ? null
+                    : new String(moduleMd.textDocument().toCharArray()), resources,
                     syntaxTreeMap, module.getCompilation().getSemanticModel());
             moduleDocMap.put(moduleName, moduleDoc);
         }

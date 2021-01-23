@@ -201,16 +201,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (projectPair.isEmpty()) {
             return Optional.empty();
         }
-        Optional<Document> document = document(filePath, projectPair.get().project());
-        if (document.isEmpty()) {
-            return Optional.empty();
-        }
-        // Get Package
-        Package packageInstance = document.get().module().packageInstance();
+
         // Lock Project Instance
         projectPair.get().locker().lock();
         try {
-            return Optional.of(packageInstance.getCompilation());
+            return Optional.of(projectPair.get().project().currentPackage().getCompilation());
         } finally {
             // Unlock Project Instance
             projectPair.get().locker().unlock();
@@ -248,8 +243,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // update .bal document, if not exists reload project instance
             //TODO: Remove this call with workspace events
             updateDocument(filePath, params.getTextDocument().getText(), projectPair, true);
-        } else {
-            throw new WorkspaceDocumentException("Unsupported file operation");
         }
     }
 
