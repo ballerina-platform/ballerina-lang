@@ -19,7 +19,6 @@
 package io.ballerina.shell.cli.test.base;
 
 import io.ballerina.shell.cli.PropertiesLoader;
-import io.ballerina.shell.cli.utils.FileUtils;
 import org.testng.Assert;
 
 import java.io.BufferedReader;
@@ -35,7 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static io.ballerina.shell.cli.PropertiesLoader.HEADER_FILE;
 import static io.ballerina.shell.cli.PropertiesLoader.REPL_PROMPT;
 
 /**
@@ -68,15 +66,8 @@ public class TestIntegrator extends Thread {
             InputStreamReader inStreamReader = new InputStreamReader(inputStream, Charset.defaultCharset());
             BufferedReader testReader = new BufferedReader(inStreamReader);
 
-            // Assert welcome text
-            String headerText = FileUtils.readResource(PropertiesLoader.getProperty(HEADER_FILE));
             sendRequest(testPrint, "");
-            String response = readResponse(testReader);
-            // Ignore after first shell prompt
-            response = response.substring(0, response.indexOf(shellPrompt));
-            Assert.assertEquals(filteredString(response).trim(), filteredString(headerText).trim(),
-                    "Welcome text should be same");
-
+            readResponse(testReader);
             readResponse(testReader);
 
             for (TestCase testCase : testCases) {
