@@ -16,8 +16,8 @@
 
 package org.ballerinalang.debugadapter;
 
-import com.sun.jdi.VirtualMachine;
 import io.ballerina.projects.Project;
+import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
 /**
@@ -28,7 +28,7 @@ public class DebugContext {
     private Process launchedProcess;
     private IDebugProtocolClient client;
     private final JBallerinaDebugServer adapter;
-    private VirtualMachine debuggee;
+    private VirtualMachineProxyImpl debuggee;
     private Project sourceProject;
 
     DebugContext(JBallerinaDebugServer adapter) {
@@ -55,11 +55,11 @@ public class DebugContext {
         return adapter;
     }
 
-    public VirtualMachine getDebuggee() {
+    public VirtualMachineProxyImpl getDebuggee() {
         return debuggee;
     }
 
-    public void setDebuggee(VirtualMachine debuggee) {
+    public void setDebuggee(VirtualMachineProxyImpl debuggee) {
         this.debuggee = debuggee;
     }
 
