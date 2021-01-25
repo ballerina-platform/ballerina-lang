@@ -79,6 +79,7 @@ public class Scheduler {
 
     private Semaphore mainBlockSem;
     private ListenerRegistry listenerRegistry;
+    public static final String JBAL_STRAND_PREFIX = "jbal-strand-exec-";
 
     public Scheduler(boolean immortal) {
         try {
@@ -251,7 +252,7 @@ public class Scheduler {
     public void start() {
         this.mainBlockSem = new Semaphore(-(numThreads - 1));
         for (int i = 0; i < numThreads - 1; i++) {
-            new Thread(this::runSafely, "jbal-strand-exec-" + i).start();
+            new Thread(this::runSafely, JBAL_STRAND_PREFIX + i).start();
         }
         this.runSafely();
         try {

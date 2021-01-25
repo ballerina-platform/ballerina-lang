@@ -50,6 +50,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static io.ballerina.runtime.internal.scheduling.Scheduler.JBAL_STRAND_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
 /**
@@ -63,7 +64,6 @@ public class JDIEventProcessor {
     private final AtomicInteger nextVariableReference = new AtomicInteger();
     private final List<EventRequest> stepEventRequests = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
-    private static final String JBAL_STRAND_PREFIX = "jbal-strand-exec";
 
     JDIEventProcessor(DebugContext context) {
         this.context = context;
@@ -150,9 +150,9 @@ public class JDIEventProcessor {
         List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
         Map<Long, ThreadReference> breakPointThreads = new HashMap<>();
 
-        // Filter thread references which are at breakpoint, suspended and whose thread status is running.
+        // Filter thread reference which is equivalent to main strand.
         for (ThreadReference threadReference : threadReferences) {
-            if (threadReference.name().equals("jbal-strand-exec-0")) {
+            if (threadReference.name().equals(JBAL_STRAND_PREFIX + "0")) {
                 breakPointThreads.put(threadReference.uniqueID(), threadReference);
             }
         }
