@@ -36,10 +36,11 @@ const annotation annot on source function;
 @annot
 userDefinedError error (message5) = error userDefinedError("error message five");
 
-//Person {name:name6, married:married6} = {name:name7, married:n};
-//var {name:name7} = getVarValues();
-//boolean n = false;
-//
-//function getVarValues() returns record {string name;} {
-//    return {name:"Sam"};
-//}
+userDefinedError error(message7, basicErrorNo = errorNo2, ...otherDetails) = error userDefinedError(
+                                                                    message6, basicErrorNo = errorNo1, recoverable = n);
+var error(message6, basicErrorNo = errorNo1) = getError();
+boolean n = false;
+
+function getError() returns userDefinedError {
+    return error userDefinedError("error message one", basicErrorNo = 1);
+}

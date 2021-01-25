@@ -1905,10 +1905,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (int i = 0; i < memberVariables.size(); i++) {
                 BLangVariable memberVar = memberVariables.get(i);
                 memberVar.isDeclaredWithVar = true;
-                if (memberVar.getKind() == NodeKind.VARIABLE &&
-                        names.fromIdNode(((BLangSimpleVariable) memberVar).name) == Names.IGNORE) {
-                    continue;
-                }
                 defineNode(memberVar, env);
             }
             return;
@@ -2041,13 +2037,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     continue;
                 }
             }
-            var.type = type;
-            int ownerSymTag = env.scope.owner.tag;
-            if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE && varNode.isDeclaredWithVar) {
-                var.symbol.type = type;
-                continue;
-            }
-            defineNode(var, env);
+            defineMemberNode(var, env, type);
         }
 
         if (!varNode.memberVariables.isEmpty() && ignoredCount == varNode.memberVariables.size()
@@ -2065,10 +2055,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
                 BLangVariable value = variable.getValue();
                 value.isDeclaredWithVar = true;
-                if (value.getKind() == NodeKind.VARIABLE &&
-                        names.fromIdNode(((BLangSimpleVariable) value).name) == Names.IGNORE) {
-                    continue;
-                }
                 defineNode(value, env);
             }
             if (recordVar.restParam != null) {
@@ -2185,10 +2171,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         boolean validRecord = true;
         int ignoredCount = 0;
-        boolean isModuleRecordDeclaredWithVar = false;
-        if ((env.scope.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE && recordVar.isDeclaredWithVar) {
-            isModuleRecordDeclaredWithVar = true;
-        }
         for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
@@ -2227,22 +2209,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                     } else {
                         restType = BUnionType.create(null, recordVarType.restFieldType, symTable.nilType);
                     }
-                    value.type = restType;
-                    if (isModuleRecordDeclaredWithVar) {
-                        value.symbol.type = restType;
-                        continue;
-                    }
-                    defineNode(value, env);
+                    defineMemberNode(value, env, restType);
                 }
                 continue;
             }
-            value.type = recordVarTypeFields.get((variable.getKey().getValue())).type;
-
-            if (isModuleRecordDeclaredWithVar) {
-                value.symbol.type = value.type;
-                continue;
-            }
-            defineNode(value, env);
+            defineMemberNode(value, env, recordVarTypeFields.get((variable.getKey().getValue())).type);
         }
 
         if (!recordVar.variableList.isEmpty() && ignoredCount == recordVar.variableList.size()
@@ -2252,13 +2223,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (recordVar.restParam != null) {
-            BMapType restType = getRestParamType(recordVarType);
-            ((BLangVariable) recordVar.restParam).type = restType;
-            if (isModuleRecordDeclaredWithVar) {
-                ((BLangSimpleVariable) recordVar.restParam).symbol.type = restType;
-                return validRecord;
-            }
-            defineNode((BLangNode) recordVar.restParam, env);
+            defineMemberNode(((BLangSimpleVariable) recordVar.restParam), env, getRestParamType(recordVarType));
         }
 
         return validRecord;
@@ -2432,7 +2397,31 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariable errorVar) {
         if (errorVar.isDeclaredWithVar) {
-            // TODO: Handle declared with var
+            // Symbol enter each member with type other.
+            BLangSimpleVariable errorMsg = errorVar.message;
+            if (errorMsg != null) {
+                errorMsg.isDeclaredWithVar = true;
+                defineNode(errorMsg, env);
+            }
+
+            BLangVariable cause = errorVar.cause;
+            if (cause != null) {
+                cause.isDeclaredWithVar = true;
+                defineNode(cause, env);
+            }
+
+            for (BLangErrorVariable.BLangErrorDetailEntry detailEntry: errorVar.detail) {
+                BLangVariable value = detailEntry.getValue();
+                value.isDeclaredWithVar = true;
+                defineNode(value, env);
+            }
+
+            BLangSimpleVariable restDetail = errorVar.restDetail;
+            if (restDetail != null) {
+                restDetail.isDeclaredWithVar = true;
+                defineNode(restDetail, env);
+            }
+
             return;
         }
         if (errorVar.type == null) {
@@ -2491,12 +2480,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         errorVariable.type = errorType;
 
         if (!errorVariable.isInMatchStmt) {
-            errorVariable.message.type = symTable.stringType;
-            defineNode(errorVariable.message, env);
+            BLangSimpleVariable errorMsg = errorVariable.message;
+            if (errorMsg != null) {
+                defineMemberNode(errorVariable.message, env, symTable.stringType);
+            }
 
-            if (errorVariable.cause != null) {
-                errorVariable.cause.type = symTable.errorOrNilType;
-                defineNode(errorVariable.cause, env);
+            BLangVariable cause = errorVariable.cause;
+            if (cause != null) {
+                defineMemberNode(errorVariable.cause, env, symTable.errorOrNilType);
             }
         }
 
@@ -2517,16 +2508,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (isRestDetailBindingAvailable(errorVariable)) {
-            errorVariable.restDetail.type = symTable.detailType;
-            defineNode(errorVariable.restDetail, env);
+            defineMemberNode(errorVariable.restDetail, env, symTable.detailType);
         }
         return true;
     }
 
     private boolean validateErrorVariable(BLangErrorVariable errorVariable, BErrorType errorType, SymbolEnv env) {
         if (errorVariable.message.symbol == null) {
-            errorVariable.message.type = symTable.stringType;
-            defineNode(errorVariable.message, env);
+            defineMemberNode(errorVariable.message, env, symTable.stringType);
         }
 
         BRecordType recordType = getDetailAsARecordType(errorType);
@@ -2558,7 +2547,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             boolean isIgnoredVar = boundVar.getKind() == NodeKind.VARIABLE
                     && ((BLangSimpleVariable) boundVar).name.value.equals(Names.IGNORE.value);
             if (!isIgnoredVar) {
-                defineNode(boundVar, env);
+                defineMemberNode(boundVar, env, boundVar.type);
             }
         }
 
@@ -2570,7 +2559,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BMapType restType = new BMapType(TypeTags.MAP, constraint, typeSymbol);
             typeSymbol.type = restType;
             errorVariable.restDetail.type = restType;
-            defineNode(errorVariable.restDetail, env);
+            defineMemberNode(errorVariable.restDetail, env, restType);
         }
         return true;
     }
@@ -2653,6 +2642,16 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BTypeSymbol createTypeSymbol(int type, SymbolEnv env) {
         return new BTypeSymbol(type, Flags.PUBLIC, Names.EMPTY, env.enclPkg.packageID,
                 null, env.scope.owner, symTable.builtinPos, VIRTUAL);
+    }
+
+    private void defineMemberNode(BLangVariable memberVar, SymbolEnv env, BType type) {
+        memberVar.type = type;
+        // Module level variables declared with `var` already defined
+        if ((env.scope.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE && memberVar.isDeclaredWithVar) {
+            memberVar.symbol.type = type;
+            return;
+        }
+        defineNode(memberVar, env);
     }
 
     public void visit(BLangXMLAttribute bLangXMLAttribute) {

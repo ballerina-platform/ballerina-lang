@@ -56,6 +56,7 @@ public class ModuleErrorVariableTest {
                 "testErrorVarWithAnnotations",
                 "testVariableForwardReferencing",
                 "testErrorVarWithRestVariable",
+                "testErrorVarDeclaredWithVar"
         };
     }
 
@@ -72,10 +73,12 @@ public class ModuleErrorVariableTest {
                 "only simple variables are allowed to be configurable", 32, 1);
         validateError(compileResultNegetive, index++,
                 "annotation 'annot' is not allowed on var", 36, 1);
-//        validateError(compileResultNegetive, index++,
-//                "missing non-defaultable required record field 'married'", 42, 23);
-//        validateError(compileResultNegetive, index++,
-//                "incompatible types: expected 'string', found 'other'", 44, 47);
+        validateError(compileResultNegetive, index++,
+                "invalid arg type in error detail field 'basicErrorNo', expected 'int', found 'other'", 39, 78);
+        validateError(compileResultNegetive, index++,
+                "invalid error constructor, error details does not match", 39, 78);
+        validateError(compileResultNegetive, index++,
+                "incompatible types: expected 'string', found 'other'", 40, 69);
         assertEquals(compileResultNegetive.getErrorCount(), index);
     }
 
