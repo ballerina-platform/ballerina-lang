@@ -369,7 +369,7 @@ public class MarkdownDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 43);
+        Assert.assertEquals(compileResult.getWarnCount(), 46);
 
         int index = 0;
 
@@ -430,8 +430,12 @@ public class MarkdownDocumentationTest {
                 "invalid usage of parameter reference outside of function definition 'invalidParameter'", 116, 5);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'a'", 119, 5);
         BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 120, 1);
-        BAssertUtil.validateWarning(compileResult, index,
+        BAssertUtil.validateWarning(compileResult, index++,
                 "invalid usage of parameter reference outside of function definition 'invalidParameter'", 121, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'message'", 124, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 125, 1);
+        BAssertUtil.validateWarning(compileResult, index,
+                "invalid usage of parameter reference outside of function definition 'invalidParameter'", 126, 3);
     }
 
     @Test(description = "Test doc service")

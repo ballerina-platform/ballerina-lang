@@ -1689,12 +1689,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.currDependentSymbol.pop();
             return;
         }
+
         for (BLangVariable member: bLangTupleVariable.memberVariables) {
             if (member.getKind() == NodeKind.VARIABLE) {
                 addUninitializedVar(member);
                 continue;
             }
             analyzeNode(member, env);
+        }
+
+        BLangSimpleVariable restVar = (BLangSimpleVariable) bLangTupleVariable.restVariable;
+        if(restVar != null) {
+            addUninitializedVar(restVar);
         }
     }
 
@@ -1719,6 +1725,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
                 analyzeNode(valueBindingPattern, env);
+            }
+
+            BLangSimpleVariable restParam = (BLangSimpleVariable) bLangRecordVariable.restParam;
+            if (restParam != null) {
+                addUninitializedVar(restParam);
             }
         }
     }
@@ -1754,15 +1765,17 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 }
                 analyzeNode(valueBindingPattern, env);
             }
+
+            BLangSimpleVariable restDetail = bLangErrorVariable.restDetail;
+            if (restDetail != null) {
+                addUninitializedVar(restDetail);
+            }
         }
     }
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
-        BLangVariable var = bLangErrorVariableDef.errorVariable;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-        }
+        analyzeNode(bLangErrorVariableDef.errorVariable, env);
     }
 
     @Override

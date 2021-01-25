@@ -15,7 +15,34 @@
  // under the License.
 
 function testUninitializedTupleVar() {
-    [int, int] [a, b];
+    [int, int, anydata...] [a, b, ...restVar];
     int c = a;
     int d = b;
+    any[] restData = restVar;
+}
+
+type myRecord record {|
+    int id;
+    string name;
+    anydata...;
+|};
+
+function testUninitializedRecordVar() {
+    myRecord {id:studentId, name:studentName, ...otherData};
+    int a = studentId;
+    string b = studentName;
+    map<anydata> other = otherData;
+}
+
+type errorDetail record {|
+    int errorNo?;
+    anydata...;
+|};
+type outOfResourceError error<errorDetail>;
+
+function testUninitializedErrorVar() {
+    outOfResourceError error(message, errorNo = errorNumber, ...otherErrorDetails);
+    string a = message;
+    int b = <int> errorNumber;
+    map<anydata> c = otherErrorDetails;
 }
