@@ -94,7 +94,9 @@ public abstract class AbstractInvalidResourceCodeAction extends ProbeBasedDiagno
         String tomlPath = TomlSyntaxTreeUtil.trimResourcePath(probe.getPath().getValue());
         String serviceName = TomlSyntaxTreeUtil.trimResourcePath(service.getServiceName());
         String serviceResourcePath;
-        if (tomlPath.startsWith(serviceName)) {
+        if (tomlPath.equals(serviceName)) {
+            serviceResourcePath = ".";
+        } else if (tomlPath.startsWith(serviceName)) {
             serviceResourcePath = tomlPath.substring(serviceName.length() + 1);
         } else {
             serviceResourcePath = tomlPath;
