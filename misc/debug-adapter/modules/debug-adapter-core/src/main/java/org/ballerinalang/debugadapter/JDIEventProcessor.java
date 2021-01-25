@@ -152,8 +152,33 @@ public class JDIEventProcessor {
 
         // Filter thread references which are at breakpoint, suspended and whose thread status is running.
         for (ThreadReference threadReference : threadReferences) {
-            if ((threadReference.name().equals("jbal-strand-exec-0"))) {
                 breakPointThreads.put(threadReference.uniqueID(), threadReference);
+        }
+        return breakPointThreads;
+    }
+
+    Map<Long, ThreadReference> getThreadsMap1() {
+        if (context.getDebuggee() == null) {
+            return null;
+        }
+        List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
+        Map<Long, ThreadReference> breakPointThreads = new HashMap<>();
+
+        // Filter thread references which are at breakpoint, suspended and whose thread status is running.
+        for (ThreadReference threadReference : threadReferences) {
+            try {
+                if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
+                    && !threadReference.name().equals("Reference Handler")
+                    && !threadReference.name().equals("Signal Dispatcher")
+                    && threadReference.isSuspended()
+                    && (threadReference.name().equals("jbal-strand-exec-0")
+                    || threadReference.frames().get(0).location().sourceName().endsWith(".bal")
+                )
+                ) {
+                    breakPointThreads.put(threadReference.uniqueID(), threadReference);
+                }
+            } catch (AbsentInformationException | IncompatibleThreadStateException e) {
+                LOGGER.error(e.getMessage());
             }
         }
         return breakPointThreads;
