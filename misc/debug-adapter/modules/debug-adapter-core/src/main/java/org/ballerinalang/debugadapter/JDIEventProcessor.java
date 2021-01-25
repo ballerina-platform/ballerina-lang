@@ -50,7 +50,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.ballerina.runtime.internal.scheduling.Scheduler.JBAL_STRAND_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
 /**
@@ -64,6 +63,7 @@ public class JDIEventProcessor {
     private final AtomicInteger nextVariableReference = new AtomicInteger();
     private final List<EventRequest> stepEventRequests = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
+    private static final String JBAL_STRAND_PREFIX = "jbal-strand-exec";
 
     JDIEventProcessor(DebugContext context) {
         this.context = context;
@@ -150,10 +150,18 @@ public class JDIEventProcessor {
         List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
         Map<Long, ThreadReference> breakPointThreads = new HashMap<>();
 
-        // Filter thread reference which is equivalent to main strand.
+        // Filter thread references which are at breakpoint, suspended and whose thread status is running.
         for (ThreadReference threadReference : threadReferences) {
-            if (threadReference.name().equals(JBAL_STRAND_PREFIX + "0")) {
-                breakPointThreads.put(threadReference.uniqueID(), threadReference);
+            try {
+                if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
+                    && !threadReference.name().equals("Reference Handler")
+                    && !threadReference.name().equals("Signal Dispatcher")
+                    && threadReference.isSuspended()
+                    && threadReference.frames().get(0).location().sourceName().endsWith(".bal")) {
+                    breakPointThreads.put(threadReference.uniqueID(), threadReference);
+                }
+            } catch (AbsentInformationException | IncompatibleThreadStateException e) {
+                LOGGER.error(e.getMessage());
             }
         }
         return breakPointThreads;
