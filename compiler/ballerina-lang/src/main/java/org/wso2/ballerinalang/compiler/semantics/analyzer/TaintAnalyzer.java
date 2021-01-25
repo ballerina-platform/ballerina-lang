@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -80,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -114,7 +116,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
@@ -177,6 +178,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -218,6 +220,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private SymbolTable symTable;
     private BLangDiagnosticLog dlog;
     private Types types;
+    private boolean emmitTaintErrors;
 
     private boolean overridingAnalysis = true;
     private boolean entryPointPreAnalysis;
@@ -263,6 +266,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         dlog = BLangDiagnosticLog.getInstance(context);
         symTable = SymbolTable.getInstance(context);
         types = Types.getInstance(context);
+        emmitTaintErrors = Boolean.parseBoolean(
+                CompilerOptions.getInstance(context).get(CompilerOptionName.TAINT_CHECK));
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -311,7 +316,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         analyzeModuleLevelVariableDefinitions(topLevelNodeGroups.get(true));
 
         if (dlogSet.size() > 0) {
-            dlogSet.forEach(dlogEntry -> dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode,
+            dlogSet.forEach(dlogEntry -> logTaintError(dlogEntry.pos, dlogEntry.diagnosticCode,
                     dlogEntry.paramName.toArray()));
         }
         currPkgEnv = prevPkgEnv;
@@ -664,8 +669,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         if (varTaintedStatus != TaintedStatus.IGNORED) {
             // Generate error if a global variable has been assigned with a tainted value.
-            if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangVariableReference) {
-                BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
+            if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangAccessExpression) {
+                BLangAccessExpression varRef = (BLangAccessExpression) varRefExpr;
                 if (isMutableVariable(varRef) && isGlobalVarOrServiceVar(varRef) && !isMarkedTainted(varRef)) {
                     if (varRef.symbol != null && varRef.symbol.type.tag == TypeTags.OBJECT) {
                         addTaintError(location, getVariableName(varRef),
@@ -714,21 +719,21 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 updatedVarRefTaintedState(((BLangXMLAttributeAccess) varRefExpr).expr, varTaintedStatus);
                 overridingAnalysis = true;
             } else if (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                setTaintedStatus((BLangVariableReference) varRefExpr, varTaintedStatus);
+                setTaintedStatus((BLangAccessExpression) varRefExpr, varTaintedStatus);
             }
         }
     }
 
-    private String getVariableName(BLangVariableReference varRef) {
+    private String getVariableName(BLangAccessExpression varRef) {
         if (isStructuredAccessOnVariableReference(varRef)) {
-            return getVariableName((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+            return getVariableName((BLangAccessExpression) varRef.expr);
         }
         return varRef.symbol.name.value;
     }
 
-    private boolean isMutableVariable(BLangVariableReference varRef) {
+    private boolean isMutableVariable(BLangAccessExpression varRef) {
         if (isStructuredAccessOnVariableReference(varRef)) {
-            return isMutableVariable((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+            return isMutableVariable((BLangAccessExpression) varRef.expr);
         }
         if (varRef.symbol.getKind() == SymbolKind.CONSTANT || (varRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
             return false;
@@ -736,33 +741,33 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean notInSameScope(BLangVariableReference varRefExpr, SymbolEnv env) {
+    private boolean notInSameScope(BLangAccessExpression varRefExpr, SymbolEnv env) {
         return !varRefExpr.symbol.owner.equals(env.scope.owner);
     }
 
-    private boolean isMarkedTainted(BLangVariableReference varRef) {
+    private boolean isMarkedTainted(BLangAccessExpression varRef) {
         if (isStructuredAccessOnVariableReference(varRef)) {
-            return isMarkedTainted((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+            return isMarkedTainted((BLangAccessExpression) varRef.expr);
         }
         return ((BVarSymbol) varRef.symbol).taintabilityAllowance == BVarSymbol.TaintabilityAllowance.TAINTED;
     }
 
-    private boolean isStructuredAccessOnVariableReference(BLangVariableReference variableReference) {
+    private boolean isStructuredAccessOnVariableReference(BLangAccessExpression variableReference) {
         return (variableReference.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
                 || variableReference.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
                 || variableReference.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR);
     }
 
-    private boolean isMarkedUntainted(BLangVariableReference varRef) {
+    private boolean isMarkedUntainted(BLangAccessExpression varRef) {
         if (isStructuredAccessOnVariableReference(varRef)) {
-            return isMarkedUntainted((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+            return isMarkedUntainted((BLangAccessExpression) varRef.expr);
         }
         return ((BVarSymbol) varRef.symbol).taintabilityAllowance == BVarSymbol.TaintabilityAllowance.UNTAINTED;
     }
 
-    private boolean isGlobalVarOrServiceVar(BLangVariableReference varRef) {
+    private boolean isGlobalVarOrServiceVar(BLangAccessExpression varRef) {
         if (isStructuredAccessOnVariableReference(varRef)) {
-            return isGlobalVarOrServiceVar((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+            return isGlobalVarOrServiceVar((BLangAccessExpression) varRef.expr);
         }
         return varRef.symbol != null && varRef.symbol.owner != null
                 && (isModuleVariable(varRef.symbol)
@@ -771,7 +776,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void updatedVarRefTaintedState(BLangExpression varRef, TaintedStatus taintedState) {
         if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            setTaintedStatus((BLangVariableReference) varRef, taintedState);
+            setTaintedStatus((BLangAccessExpression) varRef, taintedState);
         } else if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
                 || varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
             BLangAccessExpression accessExpr = (BLangAccessExpression) varRef;
@@ -1160,7 +1165,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         // handle error constructor invocation
-        if (isErrorConstructorInvocation(invocationExpr) || isExternalLangLibFunction(invocationExpr)) {
+        if (isExternalLangLibFunction(invocationExpr)) {
             ((BInvokableSymbol) invocationExpr.symbol).taintTable = createIdentityTaintTable(invocationExpr);
         }
 
@@ -1196,12 +1201,28 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
-        this.visit((BLangInvocation) actionInvocation);
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        TaintedStatus isTainted = TaintedStatus.UNTAINTED;
+        for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
+            positionalArg.accept(this);
+            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                isTainted = TaintedStatus.TAINTED;
+            }
+        }
+        getCurrentAnalysisState().taintedStatus = isTainted;
+
+        for (BLangNamedArgsExpression namedArgExpr : errorConstructorExpr.namedArgs) {
+            namedArgExpr.accept(this);
+            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                isTainted = TaintedStatus.TAINTED;
+            }
+        }
+        getCurrentAnalysisState().taintedStatus = isTainted;
     }
 
-    private boolean isErrorConstructorInvocation(BLangInvocation invocationExpr) {
-        return invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR;
+    @Override
+    public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        this.visit((BLangInvocation) actionInvocation);
     }
 
     private void analyzeLangLibFunctionInvocation(BLangInvocation invocationExpr) {
@@ -1887,7 +1908,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      * @param varNode       Variable node to be updated.
      * @param taintedStatus Tainted status.
      */
-    private void setTaintedStatus(BLangVariableReference varNode, TaintedStatus taintedStatus) {
+    private void setTaintedStatus(BLangAccessExpression varNode, TaintedStatus taintedStatus) {
         if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || (varNode.symbol != null
                 && !varNode.symbol.tainted))) {
             setTaintedStatus(varNode.symbol, taintedStatus);
@@ -1964,7 +1985,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
 
                 if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
-                    this.dlog.error(param.pos, DiagnosticErrorCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED,
+                    logTaintError(param.pos, DiagnosticErrorCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED,
                             param.name.value);
                     return true;
                 }
@@ -2102,7 +2123,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (taintRecord.returnTaintedStatus == TaintedStatus.TAINTED
                 && !hasAnnotation(invokableNode.returnTypeAnnAttachments, ANNOTATION_TAINTED)
                 && !invokableNode.flagSet.contains(Flag.LAMBDA)) {
-            dlog.error(invokableNode.returnTypeNode.pos, DiagnosticErrorCode.TAINTED_RETURN_NOT_ANNOTATED_TAINTED,
+            logTaintError(invokableNode.returnTypeNode.pos, DiagnosticErrorCode.TAINTED_RETURN_NOT_ANNOTATED_TAINTED,
                     invokableNode.name.getValue());
             stopAnalysis = true;
         }
@@ -2120,11 +2141,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
                 if (!hasAnnotation(param, ANNOTATION_TAINTED)) {
-                    dlog.error(param.pos, DiagnosticErrorCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED, param.name,
-                            invokableNode.name);
+                    logTaintError(param.pos, DiagnosticErrorCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED,
+                            param.name, invokableNode.name);
                     stopAnalysis = true;
                 }
             }
+        }
+    }
+
+    private void logTaintError(Location pos, DiagnosticCode errorCode, Object... args) {
+        if (emmitTaintErrors) {
+            dlog.error(pos, errorCode, args);
         }
     }
 

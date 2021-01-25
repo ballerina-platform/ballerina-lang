@@ -59,7 +59,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -810,6 +812,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        rewriteExprs(errorConstructorExpr.positionalArgs);
+        rewriteExprs(errorConstructorExpr.namedArgs);
+        result = errorConstructorExpr;
+    }
+
+    @Override
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
         List<BLangExpression> exprList = new ArrayList<>();
         tableMultiKeyExpr.multiKeyIndexExprs.forEach(expression -> exprList.add(rewriteExpr(expression)));
@@ -1071,6 +1080,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangIgnoreExpr ignoreExpr) {
         result = ignoreExpr;
+    }
+
+    @Override
+    public void visit(BLangDynamicArgExpr dynamicParamExpr) {
+        dynamicParamExpr.condition = rewriteExpr(dynamicParamExpr.condition);
+        dynamicParamExpr.conditionalArgument = rewriteExpr(dynamicParamExpr.conditionalArgument);
+        result = dynamicParamExpr;
     }
 
     /**

@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 type SType service object {
     string message;
@@ -41,6 +41,10 @@ service class SClass {
         return result;
     }
 
+    resource function get foo/zee(int q, int i = 0, string k = "", json j = {}) {
+
+    }
+
     function init() {
         self.message = "returned from `barPath`";
     }
@@ -65,6 +69,10 @@ function testServiceObjectValue() {
     any[] ar = ["hey", ["hello", " ", "world", "!"]];
     var rParamVal1 = wait callMethodWithParams(s, "$get$foo$*$**", ar);
     assertEquality(rParamVal1, "hey, hello world!");
+
+    boolean[] paramDefaultability = <boolean[]> getParamDefaultability(s, "$get$foo$zee");
+    boolean[] d = [false, true, true, true];
+    assertEquality(paramDefaultability, d);
 }
 
 
@@ -78,6 +86,11 @@ public function callMethodWithParams(service object {} s, string name, (any|erro
     name:"callMethodWithParams"
 } external;
 
+public function getParamDefaultability(service object {} s, string name) returns boolean[]  = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name:"getParamDefaultability"
+} external;
+
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
@@ -87,6 +100,8 @@ function assertEquality(any|error actual, any|error expected) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error("AssertionError",
-            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public class Listener {
     public isolated function 'start() returns error? {
@@ -29,7 +29,7 @@ public class Listener {
         return externAttach(s, name);
     }
 
-    public function init() {
+    public function init() returns error? {
     }
 }
 
@@ -49,13 +49,10 @@ function getServicePath() returns string[] = @java:Method {
     name: "getServicePath"
 } external;
 
-listener Listener lsn = new();
-
 type S service object {
-    resource function get processRequest() returns json;
 };
 
-service S "service-name" on lsn {
+service S "service-name" on new Listener() {
 
     resource function get processRequest() returns json {
         return { output: "Hello" };
@@ -81,6 +78,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error("AssertionError",
-            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

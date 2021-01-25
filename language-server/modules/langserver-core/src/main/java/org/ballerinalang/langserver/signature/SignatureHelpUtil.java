@@ -16,10 +16,11 @@
 package org.ballerinalang.langserver.signature;
 
 import io.ballerina.compiler.api.symbols.Documentation;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -32,6 +33,7 @@ import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -41,6 +43,7 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.ParameterInformation;
@@ -55,6 +58,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
@@ -131,7 +136,7 @@ public class SignatureHelpUtil {
         Map<String, String> paramToDesc = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
-        Optional<Documentation> documentation = functionSymbol.docAttachment();
+        Optional<Documentation> documentation = functionSymbol.documentation();
         List<Parameter> parameters = new ArrayList<>();
         // TODO: Handle the error constructor in the next phase
         // Handle error constructors
@@ -309,8 +314,7 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
         TextDocument textDocument = document.get().textDocument();
-
-        Position position = context.getPosition();
+        Position position = context.getCursorPosition();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         context.setCursorPositionInTree(txtPos);
         TextRange range = TextRange.from(txtPos, 0);
@@ -344,12 +348,24 @@ public class SignatureHelpUtil {
         }
 
         if (tokenAtCursor.get().kind() == SyntaxKind.FUNCTION_CALL) {
-            String funcName = ((SimpleNameReferenceNode) ((FunctionCallExpressionNode) tokenAtCursor.get())
-                    .functionName()).name().text();
-            List<Symbol> visibleSymbols = context.visibleSymbols(context.getPosition());
-            return visibleSymbols.stream().filter(symbol -> symbol.kind() == FUNCTION && symbol.name().equals(funcName))
-                    .map(symbol -> (FunctionSymbol) symbol)
-                    .findAny();
+            NameReferenceNode nameReferenceNode = ((FunctionCallExpressionNode) tokenAtCursor.get()).functionName();
+            String funcName;
+            Predicate<Symbol> symbolPredicate = symbol -> symbol.kind() == FUNCTION;
+            List<Symbol> filteredContent;
+            if (nameReferenceNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                funcName = ((QualifiedNameReferenceNode) nameReferenceNode).identifier().text();
+                filteredContent = QNameReferenceUtil.getModuleContent(context,
+                        (QualifiedNameReferenceNode) nameReferenceNode,
+                        symbolPredicate.and(symbol -> symbol.name().equals(funcName)));
+            } else {
+                funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
+                List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+                filteredContent = visibleSymbols.stream()
+                        .filter(symbolPredicate.and(symbol -> symbol.name().equals(funcName)))
+                        .collect(Collectors.toList());
+            }
+
+            return filteredContent.stream().map(symbol -> (FunctionSymbol) symbol).findAny();
         }
         Optional<? extends TypeSymbol> typeDesc;
         String methodName;
@@ -418,20 +434,17 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
 
-        List<FieldSymbol> fieldSymbols = new ArrayList<>();
-
-        if (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.OBJECT) {
-            fieldSymbols.addAll(((ObjectTypeSymbol) CommonUtil
-                    .getRawType(typeDescriptor.get())).fieldDescriptors());
-        } else if (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.RECORD) {
-            fieldSymbols.addAll(((RecordTypeSymbol) CommonUtil
-                    .getRawType(typeDescriptor.get())).fieldDescriptors());
+        TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
+        switch (rawType.typeKind()) {
+            case OBJECT:
+                ObjectFieldSymbol objField = ((ObjectTypeSymbol) rawType).fieldDescriptors().get(fieldName);
+                return objField != null ? Optional.of(objField.typeDescriptor()) : Optional.empty();
+            case RECORD:
+                RecordFieldSymbol recField = ((RecordTypeSymbol) rawType).fieldDescriptors().get(fieldName);
+                return recField != null ? Optional.of(recField.typeDescriptor()) : Optional.empty();
+            default:
+                return Optional.empty();
         }
-
-        return fieldSymbols.stream()
-                .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
-                .map(FieldSymbol::typeDescriptor)
-                .findAny();
     }
 
     private static Optional<? extends TypeSymbol> getTypeDescForNameRef(SignatureContext context,
@@ -440,7 +453,7 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
         String name = ((SimpleNameReferenceNode) referenceNode).name().text();
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<Symbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(name))
                 .findFirst();
@@ -454,7 +467,7 @@ public class SignatureHelpUtil {
     private static Optional<? extends TypeSymbol> getTypeDescForFunctionCall(
             SignatureContext context, FunctionCallExpressionNode expr) {
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
                 .map(symbol -> (FunctionSymbol) symbol)
@@ -478,7 +491,7 @@ public class SignatureHelpUtil {
 
         List<FunctionSymbol> visibleMethods = fieldTypeDesc.get().langLibMethods();
         if (CommonUtil.getRawType(fieldTypeDesc.get()).typeKind() == TypeDescKind.OBJECT) {
-            visibleMethods.addAll(((ObjectTypeSymbol) CommonUtil.getRawType(fieldTypeDesc.get())).methods());
+            visibleMethods.addAll(((ObjectTypeSymbol) CommonUtil.getRawType(fieldTypeDesc.get())).methods().values());
         }
         Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
@@ -495,7 +508,7 @@ public class SignatureHelpUtil {
         List<FunctionSymbol> functionSymbols = new ArrayList<>();
         if (CommonUtil.getRawType(typeDescriptor).typeKind() == TypeDescKind.OBJECT) {
             ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) CommonUtil.getRawType(typeDescriptor);
-            functionSymbols.addAll(objTypeDesc.methods());
+            functionSymbols.addAll(objTypeDesc.methods().values());
         }
         functionSymbols.addAll(typeDescriptor.langLibMethods());
 

@@ -29,7 +29,6 @@ import io.ballerina.runtime.observability.tracer.BSpan;
 import io.ballerina.runtime.observability.tracer.TraceConstants;
 import io.ballerina.runtime.observability.tracer.TracersStore;
 import io.opentracing.Tracer;
-import org.ballerinalang.config.ConfigRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,14 +36,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 
 /**
  * This class wraps opentracing apis and exposes extern functions to use within ballerina.
  */
 public class OpenTracerBallerinaWrapper {
-    private static Logger log = LoggerFactory.getLogger(OpenTracerBallerinaWrapper.class);
+    private static final Logger log = LoggerFactory.getLogger(OpenTracerBallerinaWrapper.class);
 
     private static final OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
     private final TracersStore tracerStore;
@@ -56,7 +54,7 @@ public class OpenTracerBallerinaWrapper {
     static final int ROOT_SPAN_INDICATOR = -2;
 
     private OpenTracerBallerinaWrapper() {
-        enabled = ConfigRegistry.getInstance().getAsBoolean(CONFIG_TRACING_ENABLED);
+        enabled = ObserveUtils.isTracingEnabled();
         tracerStore = TracersStore.getInstance();
     }
 

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # Represents the placeholder to be given for object or record type arguments
 public const ANY = "__ANY__";
@@ -226,6 +226,7 @@ public isolated function when(MockFunction mockFunction) returns FunctionStub {
 public class MockFunction {
     string functionToMock = "";
     string functionToMockPackage = "";
+    string[] mockFunctionClasses = [];
 }
 
 # Represents an object that allows stubbing function invocations

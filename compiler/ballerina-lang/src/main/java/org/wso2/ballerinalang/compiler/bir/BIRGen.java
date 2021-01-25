@@ -21,13 +21,14 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.bir.model.ArgumentState;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -56,6 +57,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -95,9 +97,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
@@ -494,12 +499,15 @@ public class BIRGen extends BLangNodeVisitor {
 
         for (BAttachedFunction func : ((BObjectTypeSymbol) classDefinition.symbol).referencedFunctions) {
             BInvokableSymbol funcSymbol = func.symbol;
+            if (Symbols.isResource(funcSymbol) && Symbols.isFunctionDeclaration(funcSymbol)) {
+                // Service classes are not required to implement reference resource functions.
+                continue;
+            }
             BIRFunction birFunc = new BIRFunction(classDefinition.pos, func.funcName, funcSymbol.flags, func.type,
                     names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable(), funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
-                birFunc.receiver = getSelf(funcSymbol.receiverSymbol
-                );
+                birFunc.receiver = getSelf(funcSymbol.receiverSymbol);
             }
 
             birFunc.setMarkdownDocAttachment(funcSymbol.markdownDocumentation);
@@ -1180,6 +1188,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclPkg.globalVars.add(birVarDcl);
 
         this.globalVarMap.put(varNode.symbol, birVarDcl);
+        env.enclPkg.isListenerAvailable |= Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER);
     }
 
     @Override
@@ -1198,10 +1207,6 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
-            createErrorConstructorInvocation(invocationExpr);
-            return;
-        }
         createCall(invocationExpr, false);
     }
 
@@ -1343,27 +1348,27 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = thenBB;
     }
 
-    private void createErrorConstructorInvocation(BLangInvocation invocationExpr) {
-        // Create a temporary variable to store the error.
-        BIRVariableDcl tempVarError = new BIRVariableDcl(invocationExpr.type,
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        BIRVariableDcl tempVarError = new BIRVariableDcl(errorConstructorExpr.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
 
         this.env.enclFunc.localVars.add(tempVarError);
         BIROperand lhsOp = new BIROperand(tempVarError);
 
-        // visit message, cause and detail expressions
         this.env.targetOperand = lhsOp;
-        invocationExpr.requiredArgs.get(0).accept(this);
+        List<BLangExpression> positionalArgs = errorConstructorExpr.positionalArgs;
+        positionalArgs.get(0).accept(this);
         BIROperand messageOp = this.env.targetOperand;
 
-        invocationExpr.requiredArgs.get(1).accept(this);
+        positionalArgs.get(1).accept(this);
         BIROperand causeOp = this.env.targetOperand;
 
-        invocationExpr.requiredArgs.get(2).accept(this);
+        errorConstructorExpr.errorDetail.accept(this);
         BIROperand detailsOp = this.env.targetOperand;
 
-        BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(invocationExpr.pos, invocationExpr.type,
-                lhsOp, messageOp, causeOp, detailsOp);
+        BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(errorConstructorExpr.pos,
+                errorConstructorExpr.type, lhsOp, messageOp, causeOp, detailsOp);
         setScopeAndEmit(newError);
         this.env.targetOperand = lhsOp;
     }
@@ -1371,24 +1376,38 @@ public class BIRGen extends BLangNodeVisitor {
     private void createCall(BLangInvocation invocationExpr, boolean isVirtual) {
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         List<BLangExpression> restArgs = invocationExpr.restArgs;
-        List<BIROperand> args = new ArrayList<>();
+        List<BIRArgument> args = new ArrayList<>();
+        boolean transactional = Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.TRANSACTIONAL);
 
         for (BLangExpression requiredArg : requiredArgs) {
-            if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
+            if (requiredArg.getKind() == NodeKind.DYNAMIC_PARAM_EXPR) {
+                ((BLangDynamicArgExpr) requiredArg).conditionalArgument.accept(this);
+                BIROperand conditionalArg = this.env.targetOperand;
+                ((BLangDynamicArgExpr) requiredArg).condition.accept(this);
+                BIROperand condition = this.env.targetOperand;
+                args.add(new BIRArgument(ArgumentState.CONDITIONALLY_PROVIDED, conditionalArg.variableDcl, condition));
+            } else if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
                 requiredArg.accept(this);
-                args.add(this.env.targetOperand);
+                args.add(new BIRArgument(ArgumentState.PROVIDED, this.env.targetOperand.variableDcl));
             } else {
                 BIRVariableDcl birVariableDcl =
                         new BIRVariableDcl(requiredArg.type, new Name("_"), VarScope.FUNCTION, VarKind.ARG);
                 birVariableDcl.ignoreVariable = true;
-                args.add(new BIROperand(birVariableDcl));
+                args.add(new BIRArgument(ArgumentState.NOT_PROVIDED, birVariableDcl));
             }
         }
 
         // seems like restArgs.size() is always 1 or 0, but lets iterate just in case
         for (BLangExpression arg : restArgs) {
-            arg.accept(this);
-            args.add(this.env.targetOperand);
+            if (arg.getKind() != NodeKind.IGNORE_EXPR) {
+                arg.accept(this);
+                args.add(new BIRArgument(ArgumentState.PROVIDED, this.env.targetOperand.variableDcl));
+            } else {
+                BIRVariableDcl birVariableDcl =
+                        new BIRVariableDcl(arg.type, new Name("_"), VarScope.FUNCTION, VarKind.ARG);
+                birVariableDcl.ignoreVariable = true;
+                args.add(new BIRArgument(ArgumentState.NOT_PROVIDED, birVariableDcl));
+            }
         }
 
         BIROperand fp = null;
@@ -1413,7 +1432,7 @@ public class BIRGen extends BLangNodeVisitor {
         // TODO: make vCall a new instruction to avoid package id in vCall
         if (invocationExpr.functionPointerInvocation) {
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
-                    fp, args, lhsOp, invocationExpr.async, thenBB);
+                    fp, args, lhsOp, invocationExpr.async, transactional, thenBB);
         } else if (invocationExpr.async) {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             List<BIRAnnotationAttachment> calleeAnnots = getStatementAnnotations(bInvokableSymbol.annAttachments,
@@ -1532,9 +1551,18 @@ public class BIRGen extends BLangNodeVisitor {
 
             // If a terminator statement has not been set for the else-block then just add it.
             if (this.env.enclBB.terminator == null) {
-                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB);
+                if (astIfStmt.elseStmt.pos != null) {
+                    Location newLocation = new BLangDiagnosticLocation(
+                            astIfStmt.elseStmt.pos.lineRange().filePath(),
+                            astIfStmt.elseStmt.pos.lineRange().endLine().line(),
+                            astIfStmt.elseStmt.pos.lineRange().endLine().line(),
+                            astIfStmt.elseStmt.pos.lineRange().endLine().offset(),
+                            astIfStmt.elseStmt.pos.lineRange().endLine().offset());
+                    this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, nextBB);
+                } else {
+                    this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB);
+                }
             }
-
         } else {
             branchIns.falseBB = nextBB;
         }
@@ -1596,6 +1624,13 @@ public class BIRGen extends BLangNodeVisitor {
 
 
     // Expressions
+
+    @Override
+    public void visit(BLangIgnoreExpr ignoreExpr) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(ignoreExpr.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+    }
 
     @Override
     public void visit(BLangLiteral astLiteralExpr) {
@@ -1799,6 +1834,12 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         generateMappingAccess(astJSONFieldAccessExpr, astJSONFieldAccessExpr.optionalFieldAccess);
+    }
+
+    @Override
+    public void visit(BLangDynamicArgExpr dynamicParamExpr) {
+        dynamicParamExpr.condition.accept(this);
+        dynamicParamExpr.conditionalArgument.accept(this);
     }
 
     @Override

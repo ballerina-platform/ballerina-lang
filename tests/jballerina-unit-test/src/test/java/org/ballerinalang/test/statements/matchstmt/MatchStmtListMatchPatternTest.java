@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -143,6 +144,26 @@ public class MatchStmtListMatchPatternTest {
     }
 
     @Test
+    public void testListMatchPattern20() {
+        BRunUtil.invoke(result, "testListMatchPattern20");
+    }
+
+    @Test
+    public void testListMatchPattern21() {
+        BRunUtil.invoke(result, "testListMatchPattern21");
+    }
+
+    @Test
+    public void testListMatchPattern22() {
+        BRunUtil.invoke(result, "testListMatchPattern22");
+    }
+
+    @Test
+    public void testListMatchPattern23() {
+        BRunUtil.invoke(result, "testListMatchPattern23");
+    }
+
+    @Test
     public void testRestMatchPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest1");
     }
@@ -169,8 +190,6 @@ public class MatchStmtListMatchPatternTest {
 
     @Test(description = "invalid match patterns")
     public void testListMatchPatternNegative() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 26);
-
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 23, 9);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
@@ -187,6 +206,7 @@ public class MatchStmtListMatchPatternTest {
                 71, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 71, 39);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 71, 39);
+        BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 78, 5);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 86, 22);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 90, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 92, 18);
@@ -201,16 +221,27 @@ public class MatchStmtListMatchPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 152, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 164, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 184, 9);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 
     @Test(description = "test negative semantics")
     public void testNegativeSemantics() {
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 2);
-
         int i = -1;
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "same variable cannot repeat in a match pattern", 20,
                 17);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 20, 21);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "same variable cannot repeat in a match pattern", 21,
                 17);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 21, 22);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
+        resultSemanticsNegative = null;
+        restMatchPatternResult = null;
     }
 }

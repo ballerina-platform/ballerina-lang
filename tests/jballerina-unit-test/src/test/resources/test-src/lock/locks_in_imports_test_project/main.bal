@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 import locks_in_imports_test_project.mod1;
 
 function testLockWithInvokableChainsAccessingGlobal() {

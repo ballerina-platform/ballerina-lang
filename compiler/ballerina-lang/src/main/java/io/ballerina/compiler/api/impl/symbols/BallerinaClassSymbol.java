@@ -19,8 +19,9 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -33,13 +34,17 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -55,7 +60,9 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     private final boolean deprecated;
     private final BClassSymbol internalSymbol;
     private final CompilerContext context;
+    private final Documentation docAttachment;
     private MethodSymbol initMethod;
+    private Map<String, ClassFieldSymbol> classFields;
 
     protected BallerinaClassSymbol(CompilerContext context, String name, PackageID moduleID, List<Qualifier> qualifiers,
                                    List<AnnotationSymbol> annots, ObjectTypeSymbol typeDescriptor,
@@ -63,6 +70,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
         super(name, moduleID, SymbolKind.CLASS, classSymbol);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
+        this.docAttachment = getDocAttachment(classSymbol);
         this.typeDescriptor = typeDescriptor;
         this.deprecated = Symbols.isFlagOn(classSymbol.flags, Flags.DEPRECATED);
         this.internalSymbol = classSymbol;
@@ -70,12 +78,24 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     }
 
     @Override
-    public List<FieldSymbol> fieldDescriptors() {
-        return this.typeDescriptor.fieldDescriptors();
+    public Map<String, ClassFieldSymbol> fieldDescriptors() {
+        if (this.classFields != null) {
+            return classFields;
+        }
+
+        Map<String, ClassFieldSymbol> fields = new LinkedHashMap<>();
+        BObjectType type = (BObjectType) this.getBType();
+
+        for (BField field : type.fields.values()) {
+            fields.put(field.name.value, new BallerinaClassFieldSymbol(this.context, field));
+        }
+
+        this.classFields = Collections.unmodifiableMap(fields);
+        return classFields;
     }
 
     @Override
-    public List<MethodSymbol> methods() {
+    public Map<String, MethodSymbol> methods() {
         return this.typeDescriptor.methods();
     }
 
@@ -85,7 +105,6 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
             SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
             this.initMethod = symbolFactory.createMethodSymbol(internalSymbol.initializerFunc.symbol,
                                                                internalSymbol.initializerFunc.funcName.value);
-
         }
 
         return Optional.ofNullable(this.initMethod);
@@ -99,6 +118,11 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     @Override
     public List<AnnotationSymbol> annotations() {
         return this.annots;
+    }
+
+    @Override
+    public Optional<Documentation> documentation() {
+        return Optional.ofNullable(this.docAttachment);
     }
 
     @Override

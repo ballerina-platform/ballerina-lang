@@ -41,58 +41,45 @@ import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
  */
 public class BindgenTestCase extends BaseTest {
 
-    private Path tempProjectsDirectory;
-    private Path projectPath;
+    private Path tempProjectsDir;
     private BMainInstance balClient;
 
     @BeforeClass()
     public void setUp() throws IOException, BallerinaTestException {
-        tempProjectsDirectory = Files.createTempDirectory("bal-test-integration-bindgen-");
+        tempProjectsDir = Files.createTempDirectory("bal-test-integration-bindgen-");
         // copy TestProject to a temp
-        Path originalTestProj1 = Paths.get("src", "test", "resources", "bindgen", "TestProject")
+        Path testProject = Paths.get("src", "test", "resources", "bindgen")
                 .toAbsolutePath();
-        projectPath = tempProjectsDirectory.resolve("module1");
-        copyFolder(originalTestProj1, projectPath);
+        copyFolder(testProject, tempProjectsDir);
         balClient = new BMainInstance(balServer);
     }
 
     /**
-     * Generate Ballerina bindings covering multiple scenarios and build the project.
+     * Generate Ballerina bindings for a simple scenario and build the project.
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Test the bindgen command functionality.")
     public void bindgenTest() throws BallerinaTestException {
-        String buildMsg = "target/bin/module1.jar";
+        String buildMsg = "target/bin/bindgen.jar";
         LogLeecher buildLeecher = new LogLeecher(buildMsg);
 
         String bindgenMsg = "class could not be generated.";
         LogLeecher bindgenLeecher = new LogLeecher(bindgenMsg, ERROR);
 
-        String runMsg1 = "Array util tests successful.";
-        String runMsg2 = "Exception handling tests successful.";
-        LogLeecher runLeecher1 = new LogLeecher(runMsg1);
-        LogLeecher runLeecher2 = new LogLeecher(runMsg2);
-
-        String[] args = {"-mvn=org.yaml:snakeyaml:1.25", "-o=./src/module1", "org.yaml.snakeyaml.Yaml",
-                "java.lang.Object", "java.lang.String", "java.lang.Class", "java.lang.StringBuffer",
-                "java.lang.ArithmeticException", "java.lang.AssertionError", "java.lang.StackTraceElement",
-                "java.lang.Character$Subset", "java.lang.Character", "java.io.File", "java.lang.Short",
-                "java.io.FileInputStream", "java.io.OutputStream", "java.io.FileOutputStream", "java.util.HashSet",
-                "java.util.Set", "java.util.Iterator", "java.awt.Window$Type", "java.util.ArrayList"};
+        String[] args = {"-mvn=org.yaml:snakeyaml:1.25", "-o=.", "org.yaml.snakeyaml.Yaml"};
         try {
             balClient.runMain("bindgen", args, null, new String[]{},
-                    new LogLeecher[]{bindgenLeecher}, projectPath.toString());
+                    new LogLeecher[]{bindgenLeecher}, tempProjectsDir.toString());
             throw new BallerinaTestException("Contains classes not generated.");
         } catch (BallerinaTestException e) {
             if (bindgenLeecher.isTextFound()) {
                 throw new BallerinaTestException("Contains classes not generated.", e);
             }
         }
-        balClient.runMain("build", new String[]{"-a"}, null, new String[]{},
-                new LogLeecher[]{buildLeecher}, projectPath.toString());
-        balClient.runMain("run", new String[]{"target/bin/module1.jar"}, null, new String[]{},
-                new LogLeecher[]{runLeecher1, runLeecher2}, projectPath.toString());
+
+        balClient.runMain("build", new String[]{}, null, new String[]{},
+                new LogLeecher[]{buildLeecher}, tempProjectsDir.toString());
         buildLeecher.waitForText(5000);
     }
 
@@ -110,6 +97,6 @@ public class BindgenTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        deleteFiles(this.tempProjectsDirectory);
+        deleteFiles(this.tempProjectsDir);
     }
 }

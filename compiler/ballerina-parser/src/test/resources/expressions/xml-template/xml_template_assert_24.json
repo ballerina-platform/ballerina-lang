@@ -644,6 +644,10 @@
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_INCOMPLETE_QUOTED_IDENTIFIER"
+                              ],
                               "value": "\u0027"
                             },
                             {

@@ -39,9 +39,9 @@ dependencies {
     implementation 'io.netty:netty-codec-http'
     implementation 'io.opentracing:opentracing-mock'
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-lang:java')
+    implementation project(':ballerina-lang:jballerina.java')
 
-    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBalo')
 
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'

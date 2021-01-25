@@ -14,7 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
+
+# The type of value to which `clone` and `cloneReadOnly` can be applied.
+public type Cloneable readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>;
+
+# A type parameter that is a subtype of `Cloneable`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+@typeParam
+type CloneableType Cloneable|never;
 
 # A type parameter that is a subtype of `anydata`.
 # Has the special semantic that when used in a declaration
@@ -30,7 +39,7 @@ type AnydataType anydata;
 #
 # + v - source value
 # + return - clone of `v`
-public isolated function clone(AnydataType v) returns AnydataType = @java:Method {
+public isolated function clone(CloneableType v) returns CloneableType = @java:Method {
     'class: "org.ballerinalang.langlib.value.Clone",
     name: "clone"
 } external;
@@ -41,7 +50,7 @@ public isolated function clone(AnydataType v) returns AnydataType = @java:Method
 #
 # + v - source value
 # + return - immutable clone of `v`
-public isolated function cloneReadOnly(AnydataType v) returns AnydataType = @java:Method {
+public isolated function cloneReadOnly(CloneableType  v) returns CloneableType = @java:Method {
     'class: "org.ballerinalang.langlib.value.CloneReadOnly",
     name: "cloneReadOnly"
 } external;
@@ -96,7 +105,7 @@ public isolated function isReadOnly(anydata v) returns boolean = @java:Method {
 #
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the direct style.
-public isolated function toString((any|error) v) returns string = @java:Method {
+public isolated function toString((any) v) returns string = @java:Method {
     'class: "org.ballerinalang.langlib.value.ToString",
     name: "toString",
     paramTypes: ["java.lang.Object"]
@@ -112,7 +121,7 @@ public isolated function toString((any|error) v) returns string = @java:Method {
 #
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the expression style.
-public isolated function toBalString(any|error v) returns string = @java:Method {
+public isolated function toBalString(any v) returns string = @java:Method {
   'class: "org.ballerinalang.langlib.value.ToBalString",
   name: "toBalString"
 } external;

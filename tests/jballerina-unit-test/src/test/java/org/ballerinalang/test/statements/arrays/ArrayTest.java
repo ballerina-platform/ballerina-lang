@@ -33,6 +33,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -118,20 +119,20 @@ public class ArrayTest {
 
     @Test
     public void testArrayToString() {
-        String[] strArray = { "aaa", "bbb", "ccc" };
-        ArrayValue bStringArray = new ArrayValueImpl(strArray);
+        String[] strArray = {"aaa", "bbb", "ccc"};
+        ArrayValue bStringArray = new ArrayValueImpl(strArray, false);
         Assert.assertEquals(bStringArray.stringValue(null), "[\"aaa\",\"bbb\",\"ccc\"]");
 
         long[] longArray = { 6, 3, 8, 4 };
-        ArrayValue bIntArray = new ArrayValueImpl(longArray);
+        ArrayValue bIntArray = new ArrayValueImpl(longArray, false);
         Assert.assertEquals(bIntArray.stringValue(null), "[6,3,8,4]");
 
         double[] doubleArray = { 6.4, 3.7, 8.8, 7.4 };
-        ArrayValue bFloatArray = new ArrayValueImpl(doubleArray);
+        ArrayValue bFloatArray = new ArrayValueImpl(doubleArray, false);
         Assert.assertEquals(bFloatArray.stringValue(null), "[6.4,3.7,8.8,7.4]");
 
         boolean[] boolArray = { true, true, false };
-        ArrayValue bBooleanArray = new ArrayValueImpl(boolArray);
+        ArrayValue bBooleanArray = new ArrayValueImpl(boolArray, false);
         Assert.assertEquals(bBooleanArray.stringValue(null), "[true,true,false]");
 
         BXml[] xmlArray = { XmlFactory.parse("<foo> </foo>"), XmlFactory.parse("<bar>hello</bar>") };
@@ -241,5 +242,10 @@ public class ArrayTest {
     @Test
     public void testUpdatingJsonTupleViaArrayTypedVar() {
         BRunUtil.invokeFunction(compileResult, "testUpdatingJsonTupleViaArrayTypedVar");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

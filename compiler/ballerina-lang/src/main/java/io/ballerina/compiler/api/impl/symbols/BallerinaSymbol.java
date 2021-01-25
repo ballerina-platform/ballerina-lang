@@ -27,7 +27,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
-import java.util.Optional;
+import java.util.Objects;
 
 /**
  * Represents the implementation of a Compiled Ballerina Symbol.
@@ -39,7 +39,6 @@ public class BallerinaSymbol implements Symbol {
     private final String name;
     private final PackageID moduleID;
     private final SymbolKind symbolKind;
-    private final Documentation docAttachment;
     private final Location position;
     private final BSymbol internalSymbol;
 
@@ -47,7 +46,6 @@ public class BallerinaSymbol implements Symbol {
         this.name = name;
         this.moduleID = moduleID;
         this.symbolKind = symbolKind;
-        this.docAttachment = getDocAttachment(symbol);
 
         if (symbol == null) {
             throw new IllegalArgumentException("'symbol' cannot be null");
@@ -85,24 +83,39 @@ public class BallerinaSymbol implements Symbol {
         return this.symbolKind;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Optional<Documentation> docAttachment() {
-        return Optional.ofNullable(this.docAttachment);
-    }
-
     @Override
     public Location location() {
         return this.position;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof Symbol)) {
+            return false;
+        }
+
+        Symbol symbol = (Symbol) obj;
+
+        return this.name().equals(symbol.name())
+                && this.moduleID().equals(symbol.moduleID())
+                && this.kind().equals(symbol.kind())
+                && this.location().lineRange().equals(symbol.location().lineRange());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.name(), this.moduleID(), this.kind(), this.location().lineRange());
     }
 
     public BSymbol getInternalSymbol() {
         return this.internalSymbol;
     }
 
-    private Documentation getDocAttachment(BSymbol symbol) {
+    Documentation getDocAttachment(BSymbol symbol) {
         return symbol == null ? null : new BallerinaDocumentation(symbol.markdownDocumentation);
     }
 

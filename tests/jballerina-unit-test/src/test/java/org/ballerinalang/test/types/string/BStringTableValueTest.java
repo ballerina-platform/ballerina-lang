@@ -19,6 +19,7 @@
 package org.ballerinalang.test.types.string;
 
 import org.ballerinalang.test.BCompileUtil;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -41,5 +42,10 @@ public class BStringTableValueTest extends BStringTestCommons {
     @Test
     public void testTableWithArrayGeneration() {
         testAndAssert("testTableWithArrayGeneration", 55);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

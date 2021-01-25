@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 function newVehicle(handle strName) returns handle = @java:Constructor {
     'class:"org.ballerinalang.test.javainterop.overloading.pkg.Vehicle",

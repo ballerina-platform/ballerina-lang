@@ -134,7 +134,7 @@ public class SyntaxErrors {
             case VARIABLE_REF:
             case BASIC_LITERAL: // return var-ref for any kind of terminal expression
             case IDENTIFIER:
-            case QUALIFIED_IDENTIFIER:
+            case QUALIFIED_IDENTIFIER_START_IDENTIFIER:
             case NAMESPACE_PREFIX:
             case IMPLICIT_ANON_FUNC_PARAM:
             case WORKER_NAME_OR_METHOD_NAME:

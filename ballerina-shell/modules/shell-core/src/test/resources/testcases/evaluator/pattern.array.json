@@ -1,0 +1,15 @@
+[
+  {
+    "description": "Define array.",
+    "code": "float[3] scores = [9.8, 9.6, 9.5];"
+  },
+  {
+    "description": "Define variables with array binding pattern.",
+    "code": "[float, float, float] [score1, score2, score3] = scores;"
+  },
+  {
+    "description": "View values.",
+    "code": "println(\"Score 1: \", score1, \" Score 2: \", score2, \" Score 3: \", score3);",
+    "stdout": "Score 1: 9.8 Score 2: 9.6 Score 3: 9.5\n"
+  }
+]

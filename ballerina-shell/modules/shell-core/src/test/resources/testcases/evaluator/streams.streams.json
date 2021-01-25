@@ -1,0 +1,61 @@
+[
+  {
+    "description": "Define class required for stream.",
+    "code": "class OddNumberGenerator { int i = 1; public isolated function next() returns record {|int value;|}|error? { self.i += 2; return {value: self.i};}}"
+  },
+  {
+    "description": "Defines types required for stream.",
+    "code": "type ResultValue record {| int value;  |}; type Student record {  string firstName;   string lastName;   float score; }; type StudentValue record {|  Student value;  |}; type FullName record {| string firstName; string lastName;|}; type Subscription record {| string firstName; string lastName; float score; string degree; |};"
+  },
+  {
+    "description": "Define Odd number generation object.",
+    "code": "OddNumberGenerator oddGen = new;"
+  },
+  {
+    "description": "Define Odd number generation stream.",
+    "code": "var oddNumberStream = new stream<int, error>(oddGen);"
+  },
+  {
+    "description": "Get the next value from the stream.",
+    "code": "ResultValue|error? oddNumber = oddNumberStream.next();"
+  },
+  {
+    "description": "Get the value from the stream result.",
+    "code": "var oddNumberRv = <ResultValue> checkpanic oddNumber; println(oddNumberRv.value)",
+    "stdout": "3\n"
+  },
+  {
+    "description": "Define student records required for stream.",
+    "code": "Student s1 = {firstName: \"Alex\", lastName: \"George\", score: 1.5}; Student s2 = {firstName: \"Ranjan\", lastName: \"Fonseka\", score: 0.9}; Student s3 = {firstName: \"John\", lastName: \"David\", score: 1.2};"
+  },
+  {
+    "description": "Define student record array required for stream.",
+    "code": "Student[] studentList = [s1, s2, s3];"
+  },
+  {
+    "description": "Create stream from students array.",
+    "code": "stream<Student> studentStream = studentList.toStream();"
+  },
+  {
+    "description": "Get the next student from stream.",
+    "code": "StudentValue|error? student = studentStream.next();"
+  },
+  {
+    "description": "Check the stream result student.",
+    "code": "var studentSr = <StudentValue> checkpanic student; studentSr.value",
+    "expr": "{\"firstName\":\"Alex\",\"lastName\":\"George\",\"score\":1.5}"
+  },
+  {
+    "description": "Create another stream from students array.",
+    "code": "stream<Student> studentStream2 = studentList.toStream();"
+  },
+  {
+    "description": "Get the next student from iterator stream.",
+    "code": "StudentValue|error? nextStudent = studentStream2.iterator().next();"
+  },
+  {
+    "description": "Check the iterator result student.",
+    "code": "StudentValue  nextStudentV = <StudentValue> checkpanic nextStudent; nextStudentV.value;",
+    "expr": "{\"firstName\":\"Alex\",\"lastName\":\"George\",\"score\":1.5}"
+  }
+]

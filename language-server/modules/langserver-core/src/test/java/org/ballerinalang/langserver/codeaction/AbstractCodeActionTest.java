@@ -22,7 +22,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
@@ -56,7 +59,10 @@ public abstract class AbstractCodeActionTest {
 
     private final Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
 
-    private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
+    private static final WorkspaceManager workspaceManager
+            = BallerinaWorkspaceManager.getInstance(new LanguageServerContextImpl());
+    
+    private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
 
     @BeforeClass
     public void init() throws Exception {
@@ -64,7 +70,7 @@ public abstract class AbstractCodeActionTest {
     }
 
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException {
+    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
         String configJsonPath =
                 "codeaction" + File.separator + getResourceDir() + File.separator + "config" + File.separator + config;
         Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(source);
@@ -72,8 +78,9 @@ public abstract class AbstractCodeActionTest {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
         // Filter diagnostics for the cursor position
-        List<Diagnostic> diags = new ArrayList<>(
-                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager)));
+        List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
+                = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
+        List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
                                     configJsonObject.get("character").getAsInt());
         diags = diags.stream().

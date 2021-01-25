@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -74,7 +75,7 @@ public class ClassTest {
     public void classDefNegative() {
         CompileResult negative = BCompileUtil.compile("test-src/klass/class-def-negative.bal");
         int i = 0;
-        String expectedErrorMsgPrefix = "cyclic type reference in ";
+        String expectedErrorMsgPrefix = "invalid cyclic type reference in ";
         BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, A]'", 1, 1);
         BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, C, A]'", 1, 1);
         BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[B, A, B]'", 6, 1);
@@ -115,5 +116,11 @@ public class ClassTest {
         BAssertUtil.validateError(negative, i++, String.format(uninitializedMessage, "q"), 17, 13);
         BAssertUtil.validateError(negative, i++, String.format(uninitializedMessage, "q"), 18, 13);
         Assert.assertEquals(negative.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        distinctCompUnit = null;
     }
 }

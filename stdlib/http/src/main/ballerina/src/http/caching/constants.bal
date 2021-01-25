@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 // Cache-control directives
 # Forces the cache to validate a cached response with the origin server before serving.

@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 configurable int number = getConfigurableVal(5);
 configurable float fraction = ?;
@@ -24,7 +24,7 @@ configurable boolean isConfig = false;
 
 public function main() {
     test:assertEquals(25, number);
-    test:assertEquals(0.22, fraction);
+    test:assertEquals(4.22, fraction);
     test:assertEquals("Tom", name);
     test:assertEquals(true, isConfig);
 

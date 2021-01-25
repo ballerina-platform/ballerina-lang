@@ -17,6 +17,15 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
+import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
+import io.ballerina.toml.semantic.ast.TomlStringValueNode;
+import io.ballerina.toml.semantic.ast.TomlValueNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,31 +39,42 @@ public class PackageManifest {
     private final PackageDescriptor packageDesc;
     private final List<Dependency> dependencies;
     private final Map<String, Platform> platforms;
+    private final DiagnosticResult diagnostics;
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
-    private final Map<String, Object> otherEntries;
+    private final Map<String, TopLevelNode> otherEntries;
 
     private PackageManifest(PackageDescriptor packageDesc,
                             List<Dependency> dependencies,
                             Map<String, Platform> platforms,
-                            Map<String, Object> otherEntries) {
+                            Map<String, TopLevelNode> otherEntries,
+                            DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.platforms = Collections.unmodifiableMap(platforms);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
+        this.diagnostics = diagnostics;
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc) {
         return new PackageManifest(packageDesc, Collections.emptyList(),
-                Collections.emptyMap(), Collections.emptyMap());
+                Collections.emptyMap(), Collections.emptyMap(), new DefaultDiagnosticResult(Collections.EMPTY_LIST));
+    }
+
+    public static PackageManifest from(PackageDescriptor packageDesc,
+                                       List<Dependency> dependencies,
+                                       Map<String, Platform> platforms) {
+        return new PackageManifest(packageDesc, dependencies, platforms, Collections.emptyMap(),
+                new DefaultDiagnosticResult(Collections.EMPTY_LIST));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        List<Dependency> dependencies,
                                        Map<String, Platform> platforms,
-                                       Map<String, Object> otherEntries) {
-        return new PackageManifest(packageDesc, dependencies, platforms, otherEntries);
+                                       Map<String, TopLevelNode> otherEntries,
+                                       DiagnosticResult diagnostics) {
+        return new PackageManifest(packageDesc, dependencies, platforms, otherEntries, diagnostics);
     }
 
     public PackageName name() {
@@ -82,8 +102,54 @@ public class PackageManifest {
     }
 
     // TODO Do we need to custom key/value par mapping here
-    public Object getValue(String key) {
+    public TopLevelNode getValue(String key) {
         return otherEntries.get(key);
+    }
+
+    public List<String> license() {
+        return getOtherEntry("license");
+    }
+
+    public List<String> authors() {
+        return getOtherEntry("authors");
+    }
+
+    public List<String> keywords() {
+        return getOtherEntry("keywords");
+    }
+
+    public DiagnosticResult diagnostics() {
+        return diagnostics;
+    }
+
+    public String repository() {
+        TopLevelNode entryNode = getValue("repository");
+        if (entryNode == null || entryNode.kind() == TomlType.NONE) {
+            return null;
+        }
+        TomlValueNode valueNode = ((TomlKeyValueNode) entryNode).value();
+        if (valueNode.kind() == TomlType.NONE) {
+            return null;
+        }
+        TomlStringValueNode stringValueNode = (TomlStringValueNode) valueNode;
+        return stringValueNode.getValue();
+    }
+
+    private List<String> getOtherEntry(String key) {
+        List<String> elements = new ArrayList<>();
+        TopLevelNode entryNode = getValue(key);
+        if (entryNode == null || entryNode.kind() == TomlType.NONE) {
+            return elements;
+        }
+        TomlValueNode valueNode = ((TomlKeyValueNode) entryNode).value();
+        if (valueNode.kind() == TomlType.NONE) {
+            return elements;
+        }
+        TomlArrayValueNode arrayValueNode = (TomlArrayValueNode) valueNode;
+        for (TomlValueNode value: arrayValueNode.elements()) {
+            elements.add(((TomlStringValueNode) value).getValue());
+        }
+        return elements;
     }
 
     /**
@@ -123,13 +189,31 @@ public class PackageManifest {
     public static class Platform {
         // We could eventually add more things to the platform
         private final List<Map<String, Object>> dependencies;
+        private final List<Map<String, Object>> repositories;
 
         public Platform(List<Map<String, Object>> dependencies) {
-            this.dependencies = Collections.unmodifiableList(dependencies);
+            this(dependencies, Collections.emptyList());
+        }
+
+        public Platform(List<Map<String, Object>> dependencies, List<Map<String, Object>> repositories) {
+            if (dependencies != null) {
+                this.dependencies = Collections.unmodifiableList(dependencies);
+            } else {
+                this.dependencies = Collections.emptyList();
+            }
+            if (repositories != null) {
+                this.repositories = Collections.unmodifiableList(repositories);
+            } else {
+                this.repositories = Collections.emptyList();
+            }
         }
 
         public List<Map<String, Object>> dependencies() {
             return dependencies;
+        }
+
+        public List<Map<String, Object>> repositories() {
+            return repositories;
         }
     }
 }

@@ -22,7 +22,8 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.launch.LaunchListener;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.internal.configurable.TomlParser;
+import io.ballerina.runtime.internal.configurable.ConfigTomlParser;
+import io.ballerina.runtime.internal.configurable.ConfigurableConstants;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
@@ -49,9 +50,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_C
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_ENABLED;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIG_FILE_NAME;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.
@@ -116,18 +115,12 @@ public class LaunchUtils {
     private static void loadConfigurations(Map<String, String> configArgs, String configFilePath) {
         Path ballerinaConfPath = Paths.get(System.getProperty("user.dir")).resolve("ballerina.conf");
         try {
-            ConfigRegistry.getInstance().initRegistry(configArgs, configFilePath, ballerinaConfPath);
+            ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+            configRegistry.initRegistry(configArgs, configFilePath, ballerinaConfPath);
             LogManager logManager = LogManager.getLogManager();
             if (logManager instanceof BLogManager) {
                 ((BLogManager) logManager).loadUserProvidedLogConfiguration();
             }
-
-            boolean observeFlag = ConfigRegistry.getInstance().getAsBoolean(CONFIG_OBSERVABILITY_ENABLED);
-            if (observeFlag) {
-                ConfigRegistry.getInstance().addConfiguration(CONFIG_METRICS_ENABLED, Boolean.TRUE);
-                ConfigRegistry.getInstance().addConfiguration(CONFIG_TRACING_ENABLED, Boolean.TRUE);
-            }
-
         } catch (IOException e) {
             RuntimeUtils.handleUsageError("failed to read the specified configuration file: " +
                                                  configFilePath);
@@ -136,11 +129,17 @@ public class LaunchUtils {
         }
     }
 
-    public static void initConfigurableVariables(Map<Module, VariableKey[]> configurationData) {
+    public static void initConfigurableVariables(Path filePath, Map<Module, VariableKey[]> configurationData) {
         try {
-            TomlParser.populateConfigMap(configurationData);
+            ConfigTomlParser.populateConfigMap(filePath, configurationData);
         } catch (TomlException exception) {
             throw ErrorCreator.createError(StringUtils.fromString(exception.getMessage()));
         }
+    }
+
+    public static Path getConfigPath() {
+        Map<String, String> envVariables = System.getenv();
+        return Paths.get(envVariables.getOrDefault(ConfigurableConstants.CONFIG_ENV_VARIABLE,
+                Paths.get(RuntimeUtils.USER_DIR, CONFIG_FILE_NAME).toString()));
     }
 }

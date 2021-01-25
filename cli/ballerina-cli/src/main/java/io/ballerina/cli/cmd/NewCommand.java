@@ -82,7 +82,7 @@ public class NewCommand implements BLauncherCmd {
             CommandUtil.printError(errStream,
                     "The following required arguments were not provided:\n" +
                          "    <project-name>",
-                    "ballerina new <project-name>",
+                    "bal new <project-name>",
                     true);
             return;
         }
@@ -90,7 +90,7 @@ public class NewCommand implements BLauncherCmd {
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
                     "too many arguments.",
-                    "ballerina new <project-name>",
+                    "bal new <project-name>",
                     true);
             return;
         }
@@ -110,7 +110,7 @@ public class NewCommand implements BLauncherCmd {
         if (Files.exists(path)) {
             CommandUtil.printError(errStream,
                     "destination '" + path.toString() + "' already exists",
-                    "ballerina new <project-name>",
+                    "bal new <project-name>",
                     true);
             return;
         }
@@ -126,7 +126,7 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
-        if (!ProjectUtils.validatePkgName(packageName)) {
+        if (!ProjectUtils.validatePackageName(packageName)) {
             errStream.println("Unallowed characters in the project name were replaced by " +
                     "underscores when deriving the package name. Edit the Ballerina.toml to change it.");
             errStream.println();
@@ -135,7 +135,7 @@ public class NewCommand implements BLauncherCmd {
         // Check if the template exists
         if (!CommandUtil.getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
-                    "Template not found, use `ballerina new --help` to view available templates.",
+                    "Template not found, use `bal new --help` to view available templates.",
                     null,
                     false);
             return;
@@ -169,7 +169,7 @@ public class NewCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina new <project-name> \n");
+        out.append("  bal new <project-name> \n");
     }
 
     @Override

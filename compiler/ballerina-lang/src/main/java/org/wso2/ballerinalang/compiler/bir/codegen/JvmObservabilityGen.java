@@ -25,6 +25,8 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
+import org.wso2.ballerinalang.compiler.bir.model.ArgumentState;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
@@ -90,6 +92,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_CHECKPOINT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPORT_ERROR_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CALLABLE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
@@ -134,6 +137,10 @@ class JvmObservabilityGen {
     void instrumentPackage(BIRPackage pkg) {
         for (int i = 0; i < pkg.functions.size(); i++) {
             BIRFunction func = pkg.functions.get(i);
+
+            if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
+                rewriteControlFlowInvocation(func, pkg);
+            }
             rewriteAsyncInvocations(func, null, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
             if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
@@ -149,6 +156,12 @@ class JvmObservabilityGen {
             boolean isService = (typeDef.type.flags & Flags.SERVICE) == Flags.SERVICE;
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
                 BIRFunction func = typeDef.attachedFuncs.get(i);
+                if (isService) {
+                    if ((func.flags & Flags.RESOURCE) == Flags.RESOURCE ||
+                            (func.flags & Flags.REMOTE) == Flags.REMOTE) {
+                        rewriteControlFlowInvocation(func, pkg);
+                    }
+                }
                 rewriteAsyncInvocations(func, typeDef, pkg);
                 rewriteObservableFunctionInvocations(func, pkg);
                 if (isService) {
@@ -169,6 +182,66 @@ class JvmObservabilityGen {
                     operand.variableDcl.type, operand);
             constInitBB.instructions.add(constLoadIns);
         }
+    }
+
+    /**
+     * Adding Java Interop calls to basic blocks.
+     * Here the JI calls are added for all kinds of terminators.
+     *
+     * First we check if there are position details for instructions, if present we add the JI calls with those
+     * positions else, we consider the terminator position to create the JI call.
+     *
+     * @param func The function of which the instructions should be rewritten
+     * @param pkg The package containing the function
+     */
+    private void rewriteControlFlowInvocation(BIRFunction func, BIRPackage pkg) {
+        int i = 0;
+        while (i < func.basicBlocks.size()) {
+            // Basic blocks with JI method calls are added for all kinds of Terminators
+            BIRBasicBlock currentBB = func.basicBlocks.get(i);
+            Location desugaredPos;
+            // First we give the priority to Instructions,
+            // If no instructions are found, then we get the Terminator position
+            if (currentBB.instructions.size() != 0) {
+                desugaredPos = currentBB.instructions.get(0).pos;
+            } else {
+                desugaredPos = currentBB.terminator.pos;
+            }
+            if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0) {
+                BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
+                swapBasicBlockContent(currentBB, newBB);
+                injectCheckpointCall(currentBB, pkg, desugaredPos);
+                currentBB.terminator.thenBB = newBB;
+                // Fix error entries in the error entry table
+                fixErrorTable(func, currentBB, newBB);
+                i += 1; // Number of inserted BBs
+            }
+            i += 1;
+        }
+    }
+
+    /**
+     * Inject checkpoint JI method call to a basic block.
+     *
+     * @param currentBB The basic block to which the checkpoint call should be injected
+     * @param pkg The package the invocation belongs to
+     * @param originalInsPosition The source code position of the invocation
+     */
+    private void injectCheckpointCall(BIRBasicBlock currentBB, BIRPackage pkg, Location originalInsPosition) {
+        String pkgId = generatePackageId(pkg.packageID);
+        String position = generatePositionId(originalInsPosition);
+
+        BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
+        BIROperand originalInsPosOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, position);
+
+        JIMethodCall recordCheckPointCallTerminator = new JIMethodCall(null);
+        recordCheckPointCallTerminator.invocationType = INVOKESTATIC;
+        recordCheckPointCallTerminator.jClassName = OBSERVE_UTILS;
+        recordCheckPointCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V",
+                BAL_ENV, B_STRING_VALUE, B_STRING_VALUE);
+        recordCheckPointCallTerminator.name = RECORD_CHECKPOINT_METHOD;
+        recordCheckPointCallTerminator.args = Arrays.asList(pkgOperand, originalInsPosOperand);
+        currentBB.terminator = recordCheckPointCallTerminator;
     }
 
     /**
@@ -247,10 +320,10 @@ class JvmObservabilityGen {
             }
 
             // Creating and adding function parameters
-            List<BIROperand> funcParamOperands = new ArrayList<>();
+            List<BIRArgument> funcParamOperands = new ArrayList<>();
             Name selfArgName = new Name("%self");
             for (int i = 0; i < asyncCallIns.args.size(); i++) {
-                BIROperand arg = asyncCallIns.args.get(i);
+                BIRArgument arg = asyncCallIns.args.get(i);
                 BIRFunctionParameter funcParam;
                 if (arg.variableDcl.kind == VarKind.SELF) {
                     funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,
@@ -264,7 +337,7 @@ class JvmObservabilityGen {
                     desugaredFunc.requiredParams.add(new BIRParameter(asyncCallIns.pos, argName, 0));
                     desugaredFunc.argsCount++;
                 }
-                funcParamOperands.add(new BIROperand(funcParam));
+                funcParamOperands.add(new BIRArgument(ArgumentState.PROVIDED, funcParam));
             }
 
             // Generating function body
@@ -280,8 +353,8 @@ class JvmObservabilityGen {
             asyncCallIns.calleePkg = currentPkgId;
             asyncCallIns.isVirtual = attachedTypeDef != null;
             if (attachedTypeDef != null) {
-                asyncCallIns.args.add(0, new BIROperand(new BIRVariableDcl(attachedTypeDef.type,
-                        selfArgName, VarScope.FUNCTION, VarKind.SELF)));
+                asyncCallIns.args.add(0, new BIRArgument(ArgumentState.PROVIDED, new BIRVariableDcl(
+                                      attachedTypeDef.type, selfArgName, VarScope.FUNCTION, VarKind.SELF)));
             }
         }
     }

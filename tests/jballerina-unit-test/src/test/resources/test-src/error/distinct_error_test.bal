@@ -2,7 +2,7 @@
 type Foo distinct error;
 
 function testFooError() returns Foo {
-    Foo foo = Foo("error message", detailField=true);
+    Foo foo = error Foo("error message", detailField=true);
     var x = foo.detail();
     Foo f = foo;
 
@@ -10,15 +10,15 @@ function testFooError() returns Foo {
 }
 
 public type GraphAPIError distinct error<GraphAPIErrorDetails>;
-public type GraphAPIErrorDetails record {
+public type GraphAPIErrorDetails record {|
     string code;
     map<anydata> details;
-};
+|};
 
 public function testFunctionCallInDetailArgExpr() {
     json codeJson = "1234";
     map<anydata> details = {};
-    var x = GraphAPIError("Concurrent graph modification", code = codeJson.toString(), details = details);
+    var x = error GraphAPIError("Concurrent graph modification", code = codeJson.toString(), details = details);
     assertEquality(x.message(), "Concurrent graph modification");
     assertEquality(x.detail().code, "1234");
     assertEquality(x.detail().details, details);
@@ -35,6 +35,8 @@ function assertEquality(any|error actual, any|error expected) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

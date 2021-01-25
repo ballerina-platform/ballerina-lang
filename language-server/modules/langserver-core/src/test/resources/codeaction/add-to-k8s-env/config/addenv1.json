@@ -1,0 +1,24 @@
+{
+    "line": 6,
+    "character": 13,
+    "expected": [
+        {
+            "title": "Add as env to Kubernetes.toml",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 5,
+                            "character": 0
+                        },
+                        "end": {
+                            "line": 5,
+                            "character": 0
+                        }
+                    },
+                    "newText": "\n[[cloud.config.envs]]\nkey_ref\u003d\"name\"\nconfig_name\u003d\"name\"\n"
+                }
+            ]
+        }
+    ]
+}

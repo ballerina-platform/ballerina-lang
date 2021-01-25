@@ -31,16 +31,11 @@ subprojects {
         }
         repositories {
             maven {
-                if(project.version.endsWith('-SNAPSHOT') && project.hasProperty('publishToGithub')) {
-                    url = 'https://maven.pkg.github.com/ballerina-platform/ballerina-lang'
-                } else if(project.version.endsWith('-SNAPSHOT')) {
-                    url "https://maven.wso2.org/nexus/content/repositories/snapshots/"
-                } else {
-                    url "https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
-                }
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/ballerina-platform/ballerina-lang")
                 credentials {
-                    username System.getenv("NEXUS_USERNAME")
-                    password System.getenv("NEXUS_PASSWORD")
+                    username System.getenv("packageUser")
+                    password System.getenv("packagePAT")
                 }
             }
         }

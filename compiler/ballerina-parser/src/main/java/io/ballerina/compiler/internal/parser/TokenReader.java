@@ -100,10 +100,19 @@ public class TokenReader extends AbstractTokenReader {
     /**
      * Start the given mode of the token reader.
      * 
-     * @param mode Mode to switch on to
+     * @param mode Mode to start
      */
     public void startMode(ParserMode mode) {
         this.lexer.startMode(mode);
+    }
+
+    /**
+     * Switch the current mode of the token reader to the given mode.
+     *
+     * @param mode Mode to switch on to
+     */
+    public void switchMode(ParserMode mode) {
+        this.lexer.switchMode(mode);
     }
 
     /**
@@ -114,6 +123,7 @@ public class TokenReader extends AbstractTokenReader {
     }
 
     /**
+     * Get the current index of the token reader.
      *
      * @return current token index
      */
@@ -209,6 +219,7 @@ public class TokenReader extends AbstractTokenReader {
         }
 
         /**
+         * Get the start index of the token reader.
          *
          * @return current token index
          */

@@ -1,17 +1,19 @@
 module io.ballerina.runtime {
     requires java.xml;
-    requires toml4j;
     requires woodstox.core.asl;
     requires org.apache.commons.lang3;
     requires axiom.api;
     requires java.logging;
     requires java.management;
     requires opentracing.api;
+    requires opentracing.noop;
     requires java.transaction.xa;
     requires slf4j.api;
     requires axiom.impl;
     requires io.ballerina.config;
     requires io.ballerina.logging;
+    requires io.ballerina.toml;
+    requires io.ballerina.tools.api;
 
     requires transactions.jta;
     requires java.transaction;
@@ -32,6 +34,7 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.observability.metrics;
     exports io.ballerina.runtime.observability.metrics.spi;
     exports io.ballerina.runtime.observability.tracer;
+    exports io.ballerina.runtime.observability.tracer.spi;
     exports io.ballerina.runtime.transactions;
 
     // export only for Langlib , Cli and Testerina

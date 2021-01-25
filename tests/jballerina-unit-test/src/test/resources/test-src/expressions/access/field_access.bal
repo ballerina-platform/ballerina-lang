@@ -274,3 +274,8 @@ function testJsonFieldAccessOnInvocation() returns boolean {
 function getJson() returns json {
     return { x: { y: 1 } };
 }
+
+function testFieldAccessOnMapConstruct() returns boolean {
+    string name = ({name: "Sanjiva", employer: (), id: 1}).name;
+    return "Sanjiva" == name;
+}

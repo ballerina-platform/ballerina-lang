@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,12 +38,13 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
     private Token tokenAtCursor;
     private NonTerminalNode nodeAtCursor;
 
-    public BallerinaCompletionContextImpl(CompletionContext context) {
+    public BallerinaCompletionContextImpl(CompletionContext context, LanguageServerContext serverContext) {
         super(context.operation(),
                 context.fileUri(),
                 context.workspace(),
                 context.getCapabilities(),
-                context.getCursorPosition());
+                context.getCursorPosition(),
+                serverContext);
     }
 
     @Override

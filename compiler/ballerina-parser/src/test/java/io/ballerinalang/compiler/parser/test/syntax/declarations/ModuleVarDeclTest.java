@@ -104,4 +104,9 @@ public class ModuleVarDeclTest extends AbstractDeclarationTest {
     public void testConfigurableVarDeclRecovery() {
         testFile("module-var-decl/module_var_decl_source_15.bal", "module-var-decl/module_var_decl_assert_15.json");
     }
+
+    @Test
+    public void testModuleVarDeclWithWrongIdentifierParsing() {
+        testFile("module-var-decl/module_var_decl_source_16.bal", "module-var-decl/module_var_decl_assert_16.json");
+    }
 }

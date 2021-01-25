@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # A WebSocket client endpoint, which provides failover support for multiple WebSocket targets.
 public client class WebSocketFailoverClient {

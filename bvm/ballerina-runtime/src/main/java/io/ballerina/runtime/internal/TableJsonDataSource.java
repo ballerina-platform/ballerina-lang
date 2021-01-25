@@ -88,7 +88,8 @@ public class TableJsonDataSource implements JsonDataSource {
         BIterator itr = this.tableValue.getIterator();
         while (itr.hasNext()) {
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
-            MapValueImpl record = ((MapValueImpl) tupleValue.get(0));
+            //Retrieve table value from key-value tuple
+            MapValueImpl record = ((MapValueImpl) tupleValue.get(1));
             try {
                 values.append(this.objGen.transform(record));
             } catch (IOException e) {
@@ -201,22 +202,21 @@ public class TableJsonDataSource implements JsonDataSource {
             MapValue<BString, Object> jsonData = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
             boolean structError = true;
             if (data != null) {
-                Type internalType = structFields[index].type;
+                Type internalType = structFields[index].getFieldType();
                 if (internalType.getTag() == TypeTags.OBJECT_TYPE_TAG
                         || internalType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                     BField[] internalStructFields =
                             ((BStructureType) internalType).getFields().values().toArray(new BField[0]);
                     for (int i = 0; i < internalStructFields.length; i++) {
-                        BString internalKeyName = StringUtils.fromString(internalStructFields[i].name);
+                        BString internalKeyName = StringUtils.fromString(internalStructFields[i].getFieldName());
                         Object value = data.get(internalKeyName);
                         if (value instanceof BigDecimal) {
-                            jsonData.put(StringUtils.fromString(internalStructFields[i].name),
-                                         ((BigDecimal) value).doubleValue());
+                            jsonData.put(internalKeyName, ((BigDecimal) value).doubleValue());
                         } else if (value instanceof MapValueImpl) {
-                            jsonData.put(StringUtils.fromString(internalStructFields[i].name),
+                            jsonData.put(internalKeyName,
                                          getStructData((MapValueImpl) value, internalStructFields, i, internalKeyName));
                         } else {
-                            jsonData.put(StringUtils.fromString(internalStructFields[i].name), value);
+                            jsonData.put(internalKeyName, value);
                         }
                         structError = false;
                     }

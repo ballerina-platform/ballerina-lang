@@ -13,10 +13,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.transaction",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'test",
+      "insertText": "'transaction",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -30,7 +30,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'test;\n"
+          "newText": "import ballerina/lang.'transaction;\n"
         }
       ]
     },
@@ -57,10 +57,10 @@
       ]
     },
     {
-      "label": "ballerina/lang.transaction",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'transaction",
+      "insertText": "'test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -74,12 +74,34 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'transaction;\n"
+          "newText": "import ballerina/lang.'test;\n"
         }
       ]
     },
     {
-      "label": "ballerina/java",
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "insertText": "java",
@@ -96,29 +118,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/java;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.'value;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -145,10 +145,10 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'runtime",
+      "insertText": "'value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -162,7 +162,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'runtime;\n"
+          "newText": "import ballerina/lang.'value;\n"
         }
       ]
     },
@@ -370,6 +370,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "base16",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "base16 `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "base64",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "base64 `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "value1",
       "kind": "Variable",
       "detail": "int",
@@ -392,7 +406,7 @@
     {
       "label": "constructor",
       "kind": "Variable",
-      "detail": "object {int field1}",
+      "detail": "object {public int field1}",
       "insertText": "constructor",
       "insertTextFormat": "Snippet"
     },

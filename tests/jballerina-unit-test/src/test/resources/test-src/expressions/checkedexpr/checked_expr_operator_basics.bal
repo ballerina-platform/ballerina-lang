@@ -1,4 +1,4 @@
-
+import ballerina/lang.value;
 function openFileSuccess(string path) returns (boolean | error) {
     return true;
 }
@@ -77,18 +77,18 @@ type Person record {
     string name;
 };
 
-public type MyErrorData record {
+public type MyErrorData record {|
     string message?;
     error cause?;
-};
+|};
 
 type MyError error<MyErrorData>;
 
-public type CustomErrorData record {
+public type CustomErrorData record {|
     string data;
     string message?;
     error cause?;
-};
+|};
 
 type CustomError error<CustomErrorData>;
 
@@ -106,12 +106,12 @@ function testSafeAssignOpInAssignmentStatement7 () returns (string | error) {
 
 
 function readLineError() returns string | MyError {
-    MyError e = MyError("io error");
+    MyError e = error MyError("io error");
     return e;
 }
 
 function readLineCustomError() returns string | CustomError {
-    CustomError e = CustomError("custom io error", data = "foo.txt");
+    CustomError e = error CustomError("custom io error", data = "foo.txt");
     return e;
 }
 
@@ -196,4 +196,52 @@ function testCheckInBinaryLTExpression() returns boolean|error {
     int|error a = 10;
     int|error b = 20;
     return check b < check a;
+}
+
+function baz() returns boolean|error {
+    value:Cloneable x = error("error one!");
+    any y = check x;
+    return true;
+}
+
+type CyclicUnion readonly|boolean[]|CyclicUnion[];
+
+function corge(boolean bool) returns error|int {
+    CyclicUnion x = bool ? error("error two!") : 1234;
+    any y = check x;
+    return y is int ? y : 0;
+}
+
+function testCheckedErrorsWithReadOnlyInUnion() {
+    boolean|error x = baz();
+    assertTrue(x is error);
+    error errVal = <error> x;
+    assertEquality("error one!", errVal.message());
+    assertTrue(errVal.cause() is ());
+    assertEquality(0, errVal.detail().length());
+
+    int|error y = corge(true);
+    assertTrue(y is error);
+    errVal = <error> y;
+    assertEquality("error two!", errVal.message());
+    assertTrue(errVal.cause() is ());
+    assertEquality(0, errVal.detail().length());
+
+    y = corge(false);
+    assertTrue(y is int);
+    assertEquality(1234, checkpanic y);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

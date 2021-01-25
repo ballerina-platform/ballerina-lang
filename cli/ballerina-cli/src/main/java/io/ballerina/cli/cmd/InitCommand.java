@@ -90,7 +90,7 @@ public class InitCommand implements BLauncherCmd {
         if (argList != null && !(1 == argList.size())) {
             CommandUtil.printError(errStream,
                     "too many arguments.",
-                    "ballerina init <project-name>",
+                    "bal init <project-name>",
                     true);
             return;
         }
@@ -111,7 +111,7 @@ public class InitCommand implements BLauncherCmd {
         // Check if the template exists
         if (!template.equals("") && !CommandUtil.getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
-                    "Template not found, use `ballerina init --help` to view available templates.",
+                    "Template not found, use `bal init --help` to view available templates.",
                     null,
                     false);
             return;
@@ -120,7 +120,7 @@ public class InitCommand implements BLauncherCmd {
         String packageName = Optional.of(this.userDir.getFileName()).get().toString();
         if (argList != null && argList.size() > 0) {
             packageName = argList.get(0);
-            if (!ProjectUtils.validatePkgName(packageName)) {
+            if (!ProjectUtils.validatePackageName(packageName)) {
                 CommandUtil.printError(errStream,
                         "Invalid package name : '" + packageName + "' :\n" +
                                 "Package name can only contain alphanumerics and underscores" +
@@ -131,7 +131,7 @@ public class InitCommand implements BLauncherCmd {
             }
         }
 
-        if (!ProjectUtils.validatePkgName(packageName)) {
+        if (!ProjectUtils.validatePackageName(packageName)) {
             errStream.println("Unallowed characters in the project name were replaced by " +
                     "underscores when deriving the package name. Edit the Ballerina.toml to change it.");
             errStream.println();
@@ -167,7 +167,7 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina init \n");
+        out.append("  bal init \n");
     }
 
     @Override

@@ -101,7 +101,7 @@ public class GroupingTest extends BaseTestCase {
 
     @Test
     public void testListingOfTestGroups() throws BallerinaTestException {
-        String msg = "[g1, g2, g3, g4, g5, g6]";
+        String msg = "[g1, g2, g3, g4, g6, g5]";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--list-groups", "groups-test.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
@@ -121,6 +121,15 @@ public class GroupingTest extends BaseTestCase {
     public void beforeGroupsAfterGroups2() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test",
                 new String[]{"before-groups-after-groups-test2.bal"}, new HashMap<>(), projectPath, true);
+        if (errorOutput.contains("[fail] afterSuiteFunc")) {
+            throw new BallerinaTestException("Test failed due to assertion failure in after suite function");
+        }
+    }
+
+    @Test
+    public void afterGroupsWithDisabledTest() throws BallerinaTestException {
+        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"groups", "g1",
+                "after-groups-with-disabled-test.bal"}, new HashMap<>(), projectPath, true);
         if (errorOutput.contains("[fail] afterSuiteFunc")) {
             throw new BallerinaTestException("Test failed due to assertion failure in after suite function");
         }

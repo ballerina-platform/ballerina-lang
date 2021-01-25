@@ -20,6 +20,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -55,5 +56,10 @@ public class MatchStatementSyntaxErrorsTest {
         BAssertUtil.validateError(result, ++i, "missing identifier", 17, 1);
         BAssertUtil.validateError(result, ++i, "missing open brace token", 17, 1);
         BAssertUtil.validateError(result, ++i, "missing close brace token", 18, 1);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -16,22 +16,6 @@
 
 const INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.map}InherentTypeViolation";
 
-function testReadonlyRecordFields() {
-    testRecordWithSimpleReadonlyFields();
-    testInvalidRecordSimpleReadonlyFieldUpdate();
-    testValidUpdateOfPossiblyReadonlyFieldInUnion();
-    testInvalidUpdateOfPossiblyReadonlyFieldInUnion();
-    testRecordWithStructuredReadonlyFields();
-    testReadOnlyFieldWithDefaultValue();
-    testTypeReadOnlyFlagForAllReadOnlyFields();
-    testSubTypingWithReadOnlyFields();
-    testSubTypingWithReadOnlyFieldsViaReadOnlyType();
-    testSubTypingWithReadOnlyFieldsNegative();
-    testSubTypingWithReadOnlyFieldsPositiveComposite();
-    testSubTypingWithReadOnlyFieldsNegativeComposite();
-    testSubTypingMapAsRecordWithReadOnlyFields();
-}
-
 type Student record {
     readonly string name;
     readonly int id?;
@@ -221,6 +205,9 @@ type Bar record {|
     readonly int id;
 |};
 
+type EmptyClosedRecord record {|
+|};
+
 function testTypeReadOnlyFlagForAllReadOnlyFields() {
     Bar st = {
         name: "Maryam",
@@ -236,6 +223,36 @@ function testTypeReadOnlyFlagForAllReadOnlyFields() {
     readonly rd = st;
     assertTrue(rd is Bar);
     assertTrue(rd is Bar & readonly);
+
+    EmptyClosedRecord ecr = {};
+    readonly rd2 = ecr;
+    assertTrue(rd2 is EmptyClosedRecord);
+    assertTrue(rd2 is EmptyClosedRecord & readonly);
+    assertTrue(rd2 is record {} & readonly);
+}
+
+record {|
+    readonly int x = 1;
+|} modAnonRecord = {x: 2};
+
+function testTypeReadOnlyFlagForAllReadOnlyFieldsInAnonymousRecord() {
+    readonly rd = modAnonRecord;
+    assertTrue(<any|error> rd is record { int x; });
+    assertTrue(rd is record { int x; } & readonly);
+    record { int x; } rec = <record { int x; } & readonly> checkpanic rd;
+    assertEquality(2, rec.x);
+
+    record {|
+        readonly int x = 1;
+        readonly Bar y;
+    |} localAnonRecord = {y: {name: "Amy", id: 1001}};
+    readonly rd2 = localAnonRecord;
+    assertTrue(<any|error> rd2 is record {| int x; Bar y; |});
+    assertTrue(rd2 is record { int x; Bar y; } & readonly);
+    var rec2 = <record { int x; Bar y; } & readonly> checkpanic rd2;
+    assertEquality(1, rec2.x);
+    assertEquality("Amy", rec2.y.name);
+    assertEquality(1001, rec2.y.id);
 }
 
 type Person record {|
@@ -675,6 +692,159 @@ function testSubTypingMapAsRecordWithReadOnlyFields() {
     assertTrue(<any> immutableMapWithMarks is StudentParticularsWithMarks);
 }
 
+class NonReadOnlyClass {
+    int i = 1;
+}
+
+readonly class ReadOnlyClass {
+    int i;
+
+    isolated function init() {
+        self.i = 2;
+    }
+}
+
+readonly class AnotherReadOnlyClass {
+    int i;
+
+    function init(int i) {
+        self.i = i;
+    }
+}
+
+class ImplicitlyReadOnlyClass {
+    final int i;
+
+    isolated function init() {
+        self.i = 212;
+    }
+}
+
+type RecordWithReadOnlyFields record {|
+    readonly NonReadOnlyClass a;
+    readonly ReadOnlyClass & readonly b = new ReadOnlyClass();
+    readonly ImplicitlyReadOnlyClass c;
+|};
+
+type ONE 1;
+
+function testReadOnlyFieldsOfClassTypes() {
+    int[] arr = [];
+
+    record {
+        readonly NonReadOnlyClass a;
+        readonly ReadOnlyClass b;
+        readonly int c = 1;
+    } rec1 = {
+        a: object {
+            final int i = 1234;
+        },
+        b: new AnotherReadOnlyClass(2345)
+    };
+    assertTrue(<any> rec1 is record {
+        object { int i; } a;
+        AnotherReadOnlyClass b;
+        ONE c;
+    });
+    assertEquality(1234, rec1.a.i);
+    assertEquality(2345, rec1.b.i);
+    assertEquality(1, rec1.c);
+
+    RecordWithReadOnlyFields rec2 = {a: new AnotherReadOnlyClass(4567), c: new};
+    assertTrue(<any> rec2 is record {
+        AnotherReadOnlyClass a;
+        ReadOnlyClass b;
+        ImplicitlyReadOnlyClass c;
+    });
+    assertEquality(4567, rec2.a.i);
+    assertEquality(2, rec2.b.i);
+    assertEquality(212, rec2.c.i);
+}
+
+type CommonResponse record {|
+    string mediaType?;
+    map<string|string[]> headers?;
+    anydata body?;
+|};
+public type Forbidden record {|
+    *CommonResponse;
+|};
+
+public type Unauthorized record {|
+    *CommonResponse;
+    readonly byte[] body;
+    readonly boolean valid;
+|};
+
+function testTypeReadOnlynessNegativeWithNonReadOnlyFieldsViaInclusion() {
+    Unauthorized|Forbidden? x = tryAuthenticate(true);
+    assertFalse(<any> x is readonly);
+    Unauthorized u = {headers: {"h1": "v1"}, body: [1, 2, 3], valid: false};
+    assertEquality(u, x);
+
+    Forbidden f = {headers: {"h1": "v1", "h2": "v2"}, body: "invalid"};
+    assertFalse(<any> f is readonly);
+    var y = tryAuthenticate(false);
+    assertEquality(f, y);
+    x = y;
+    assertEquality(f, x);
+    y = x;
+    assertEquality(f, y);
+}
+
+function tryAuthenticate(boolean b) returns Unauthorized|Forbidden? {
+    if b {
+        return {headers: {"h1": "v1"}, body: [1, 2, 3], valid: false};
+    }
+    return {headers: {"h1": "v1", "h2": "v2"}, body: "invalid"};
+}
+
+type OpenRecordWithAllReadOnlyFields record {
+    readonly int i = 1;
+    readonly int j;
+};
+
+type ClosedRecordWithAllReadOnlyFields record {|
+    readonly int k;
+|};
+
+type IncludingRec1 record {|
+    *OpenRecordWithAllReadOnlyFields;
+    *ClosedRecordWithAllReadOnlyFields;
+    never...;
+|};
+
+type IncludingRec2 record {|
+    *ClosedRecordWithAllReadOnlyFields;
+    readonly int l;
+|};
+
+function testTypeReadOnlynessWithReadOnlyFieldsViaInclusion() {
+    IncludingRec1|IncludingRec2 w = {i: 1, j: 2, k: 3};
+    assertTrue(<any> w is readonly);
+    readonly r = w;
+    assertEquality(w, r);
+
+    IncludingRec1|IncludingRec2? x = getRecord(true);
+    assertEquality(w, x);
+
+    IncludingRec2 v = {k: 1, l: 2};
+    assertTrue(<any> v is readonly);
+    var y = getRecord(false);
+    assertEquality(v, y);
+    x = y;
+    assertEquality(v, x);
+    y = x;
+    assertEquality(v, y);
+}
+
+function getRecord(boolean b) returns IncludingRec1|IncludingRec2? {
+    if b {
+        return {i: 1, j: 2, k: 3};
+    }
+    return {k: 1, l: 2};
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
@@ -694,6 +864,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

@@ -24,9 +24,7 @@ import java.util.List;
 /**
  * Holds a Ballerina test info.
  *
- * @deprecated Use {@link io.ballerina.projects.testsuite.Test} instead.
  */
-@Deprecated
 public class Test {
 
     String testName;

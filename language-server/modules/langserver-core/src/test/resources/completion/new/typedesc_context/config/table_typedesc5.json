@@ -79,7 +79,7 @@
       ]
     },
     {
-      "label": "ballerina/java",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "insertText": "java",
@@ -96,7 +96,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/java;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -262,6 +262,16 @@
       "kind": "Struct",
       "detail": "Record",
       "insertText": "TableRecord",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to anydata or readonly type."
+      },
+      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {

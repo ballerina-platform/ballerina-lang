@@ -288,7 +288,14 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         boolean hasNewType = false;
         LinkedHashSet<BType> newMemberTypes = new LinkedHashSet<>();
 
+        if (!visitedTypes.add(originalType)) {
+            return originalType;
+        }
+
         for (BType member : originalType.getMemberTypes()) {
+            if (this.visitedTypes.contains(member)) {
+                continue;
+            }
             BType newMember = member.accept(this, null);
             newMemberTypes.add(newMember);
 
@@ -416,7 +423,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
     }
 
     private void reset() {
-        this.visitedTypes = null;
+        this.visitedTypes = new HashSet<>();
         this.paramValueTypes = null;
         this.isInvocation = false;
     }

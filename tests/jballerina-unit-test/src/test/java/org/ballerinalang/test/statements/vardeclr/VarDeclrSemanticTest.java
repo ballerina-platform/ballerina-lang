@@ -41,6 +41,7 @@ public class VarDeclrSemanticTest {
         validateError(result, 0, "incompatible types: expected 'int', found 'string'", 2, 13);
     }
 
+    @Test(enabled = false)
     public void testIncompleteListenerDecl() {
         CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/incomplete_listener_decl.bal");
         int indx = 0;
@@ -59,6 +60,7 @@ public class VarDeclrSemanticTest {
         assertEquals(result.getErrorCount(), indx);
     }
 
+    @Test
     public void testIncompleteListenerDecl2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/incomplete_listener_decl_2.bal");
         int indx = 0;
@@ -67,14 +69,19 @@ public class VarDeclrSemanticTest {
                       17, 1);
         validateError(result, indx++, "missing object keyword", 18, 1);
         validateError(result, indx++, "missing open brace token", 18, 1);
+        validateError(result, indx++, "missing object keyword", 19, 23);
+        validateError(result, indx++, "missing semicolon token", 19, 23);
         validateError(result, indx++, "missing close brace token", 22, 1);
         validateError(result, indx++, "missing equal token", 22, 1);
         validateError(result, indx++, "missing identifier", 22, 1);
         validateError(result, indx++, "missing identifier", 22, 1);
+        validateError(result, indx++, "missing identifier", 22, 1);
+        validateError(result, indx++, "missing semicolon token", 22, 1);
         validateError(result, indx++, "missing semicolon token", 22, 1);
         assertEquals(result.getErrorCount(), indx);
     }
 
+    @Test
     public void testIncompleteVarDecl() {
         CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/incomplete_var_decl.bal");
         int indx = 0;

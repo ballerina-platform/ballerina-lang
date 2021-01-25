@@ -18,9 +18,9 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
-import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
+import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 
@@ -50,8 +50,17 @@ public class Main {
             //convert the json string back to object
             Gson gson = new Gson();
             TestSuite response = gson.fromJson(br, TestSuite.class);
+            response.setModuleName(filterModuleName(args[args.length - 1]));
             startTestSuit(Paths.get(response.getSourceRootPath()), response, jsonTmpSummaryPath);
         }
+    }
+
+    private static String filterModuleName(String argument) {
+        //The module argument is always wrapped with a `\"` at start and end
+        if (argument.startsWith("\"") && argument.endsWith("\"") && argument.length() >= 2) {
+            return argument.substring(1, argument.length() - 1);
+        }
+        return argument;
     }
 
     private static void startTestSuit(Path sourceRootPath, TestSuite testSuite, Path jsonTmpSummaryPath)
