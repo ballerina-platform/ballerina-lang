@@ -670,8 +670,8 @@ public class DocumentationLexer extends AbstractLexer {
             } else {
                 token = getDocumentationLiteral(SyntaxKind.PARAMETER_NAME);
             }
-            // If the parameter name is not followed by a minus token, switch the mode.
-            if (peek() != LexerTerminals.MINUS) {
+            // If the parameter name is not followed by a minus token or a newline, switch the mode.
+            if (peek() != LexerTerminals.MINUS && ParserMode.DOCUMENTATION_INIT != this.mode) {
                 switchMode(ParserMode.DOCUMENTATION_INTERNAL);
             }
             return token;
