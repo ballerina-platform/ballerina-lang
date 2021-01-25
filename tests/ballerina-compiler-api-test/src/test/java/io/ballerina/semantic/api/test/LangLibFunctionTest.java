@@ -161,9 +161,9 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), ARRAY);
 
-        List<String> expFunctions = List.of("length", "iterator", "enumerate", "map", "forEach", "filter", "reduce",
-                                            "slice", "remove", "removeAll", "setLength", "indexOf", "lastIndexOf",
-                                            "reverse", "sort", "pop", "push", "shift", "unshift", "toString",
+        List<String> expFunctions = List.of("length", "iterator", "enumerate", "map", "forEach", "filter",
+                                            "reduce", "slice", "remove", "removeAll", "setLength", "reverse",
+                                            "sort", "pop", "push", "shift", "unshift", "toString",
                                             "toBalString", "toStream", "ensureType");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
