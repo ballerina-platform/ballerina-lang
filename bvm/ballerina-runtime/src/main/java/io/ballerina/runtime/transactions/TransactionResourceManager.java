@@ -21,10 +21,12 @@ import com.atomikos.icatch.jta.UserTransactionManager;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.configurable.ConfigurableMap;
+import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import org.ballerinalang.config.ConfigRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,7 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
@@ -76,10 +79,7 @@ public class TransactionResourceManager {
     private static final String ATOMIKOS_LOG_BASE_PROPERTY = "com.atomikos.icatch.log_base_dir";
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
     private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
-    private static final String CONFIG_TRANSACTION_MANAGER_ENABLED = "b7a.transaction.manager.enabled";
-    private static final String CONFIG_TRANSACTION_LOG_BASE = "b7a.transaction.log.base";
 
-    private static final ConfigRegistry CONFIG_REGISTRY = ConfigRegistry.getInstance();
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
     private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
     private Map<String, Transaction> trxRegistry;
@@ -158,7 +158,8 @@ public class TransactionResourceManager {
      * @return boolean whether the atomikos transaction manager should be enabled or not
      */
     public boolean getTransactionManagerEnabled() {
-        boolean transactionManagerEnabled = CONFIG_REGISTRY.getAsBoolean(CONFIG_TRANSACTION_MANAGER_ENABLED);
+        VariableKey managerEnabledKey = new VariableKey(TRANSACTION_PACKAGE_ID, "managerEnabled");
+        boolean transactionManagerEnabled = (boolean) ConfigurableMap.get(managerEnabledKey);
         return transactionManagerEnabled;
     }
 
@@ -168,11 +169,9 @@ public class TransactionResourceManager {
      * @return string log directory name
      */
     private String getTransactionLogDirectory() {
-        String transactionLogDirectory = CONFIG_REGISTRY.getAsString(CONFIG_TRANSACTION_LOG_BASE);
-        if (transactionLogDirectory != null) {
-            return transactionLogDirectory;
-        }
-        return "transaction_log_dir";
+        VariableKey logKey = new VariableKey(TRANSACTION_PACKAGE_ID, "logBase");
+        String transactionLogBase = ((BString) ConfigurableMap.get(logKey)).getValue();
+        return transactionLogBase;
     }
 
     /**
