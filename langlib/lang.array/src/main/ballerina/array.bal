@@ -33,7 +33,7 @@ type Type1 any|error;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type PureType any|error;
+type PureType anydata|error;
 
 # A type parameter that is a subtype of `error`.
 # Has the special semantic that when used in a declaration
