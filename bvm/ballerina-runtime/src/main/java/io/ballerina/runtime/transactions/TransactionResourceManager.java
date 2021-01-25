@@ -57,6 +57,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUIL
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
+import static java.util.Objects.isNull;
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
 
@@ -159,8 +160,12 @@ public class TransactionResourceManager {
      */
     public boolean getTransactionManagerEnabled() {
         VariableKey managerEnabledKey = new VariableKey(TRANSACTION_PACKAGE_ID, "managerEnabled");
-        boolean transactionManagerEnabled = (boolean) ConfigurableMap.get(managerEnabledKey);
-        return transactionManagerEnabled;
+        Object keyVal = ConfigurableMap.get(managerEnabledKey);
+        if (isNull(keyVal)) {
+            return false;
+        } else {
+            return (boolean) keyVal;
+        }
     }
 
     /**
@@ -170,8 +175,12 @@ public class TransactionResourceManager {
      */
     private String getTransactionLogDirectory() {
         VariableKey logKey = new VariableKey(TRANSACTION_PACKAGE_ID, "logBase");
-        String transactionLogBase = ((BString) ConfigurableMap.get(logKey)).getValue();
-        return transactionLogBase;
+        Object transactionLogBase = ConfigurableMap.get(logKey);
+        if (isNull(transactionLogBase)) {
+            return "transaction_log_dir";
+        } else {
+            return ((BString) transactionLogBase).getValue();
+        }
     }
 
     /**
