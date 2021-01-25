@@ -57,4 +57,62 @@ public class StringUtils {
         }
         return value;
     }
+
+    /**
+     * Escapes the <code>String</code> with the escaping rules of Java language
+     * string literals, so it's safe to insert the value into a string literal.
+     * The resulting string will not be quoted.
+     *
+     * <p>All characters under UCS code point 0x20 will be escaped.
+     * Where they have no dedicated escape sequence in Java, they will
+     * be replaced with hexadecimal escape (<tt>\</tt><tt>u<i>XXXX</i></tt>).
+     * <p>
+     * Based off of freemarker j_string built-in.
+     *
+     * @param string String to encode.
+     * @return encoded string.
+     */
+    public static String encodeJavaString(String string) {
+        int length = string.length();
+        for (int i = 0; i < length; i++) {
+            char c = string.charAt(i);
+            if (c == '"' || c == '\\' || c < 0x20) {
+                StringBuilder b = new StringBuilder(length + 4);
+                b.append(string, 0, i);
+                while (true) {
+                    if (c == '"') {
+                        b.append("\\\"");
+                    } else if (c == '\\') {
+                        b.append("\\\\");
+                    } else if (c < 0x20) {
+                        if (c == '\n') {
+                            b.append("\\n");
+                        } else if (c == '\r') {
+                            b.append("\\r");
+                        } else if (c == '\f') {
+                            b.append("\\f");
+                        } else if (c == '\b') {
+                            b.append("\\b");
+                        } else if (c == '\t') {
+                            b.append("\\t");
+                        } else {
+                            b.append("\\u00");
+                            int x = c / 0x10;
+                            b.append((char) (x + '0'));
+                            x = c & 0xF;
+                            b.append((char) (x < 0xA ? x + '0' : x - 0xA + 'a'));
+                        }
+                    } else {
+                        b.append(c);
+                    }
+                    i++;
+                    if (i >= length) {
+                        return b.toString();
+                    }
+                    c = string.charAt(i);
+                }
+            }
+        }
+        return string;
+    }
 }

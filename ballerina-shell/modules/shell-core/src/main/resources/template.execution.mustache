@@ -48,10 +48,10 @@ function sprintf(string template, any|error... values) returns string {
     {{/isNew}}
     {{^isNew }}
         {{#isAny }}
-            {{{type}}} {{{name}}} = <{{{type}}}> checkpanic recall_h("{{{name}}}");
+            {{{type}}} {{{name}}} = <{{{type}}}> checkpanic recall_h("{{{encodedName}}}");
         {{/isAny}}
         {{^isAny }}
-            {{{type}}} {{{name}}} = <{{{type}}}> recall_h("{{{name}}}");
+            {{{type}}} {{{name}}} = <{{{type}}}> recall_h("{{{encodedName}}}");
         {{/isAny}}
     {{/isNew}}
 {{/varDclns}}
@@ -80,7 +80,7 @@ public function stmts() returns any|error {
     {{{lastVarDcln}}}
     memorize_h("{{{exprVarName}}}", {{{exprVarName}}});
     {{#varDclns}}
-        memorize_h("{{{name}}}", {{{name}}});
+        memorize_h("{{{encodedName}}}", {{{name}}});
     {{/varDclns}}
     return {{{exprVarName}}};
 }
