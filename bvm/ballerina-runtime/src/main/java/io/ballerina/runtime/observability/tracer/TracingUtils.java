@@ -15,9 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.observability;
+package io.ballerina.runtime.observability.tracer;
 
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.observability.metrics.Tag;
 
 import java.util.Collections;
