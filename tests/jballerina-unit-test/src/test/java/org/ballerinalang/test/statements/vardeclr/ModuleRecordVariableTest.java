@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -82,7 +82,7 @@ public class ModuleRecordVariableTest {
     }
 
     @Test
-    public void testTaintAnalysisWithModuleLevelTupleVar() {
+    public void testTaintAnalysisWithModuleLevelRecordVar() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/vardeclr/module_record_var_decl_taint_analysis_negetive.bal");
         int index = 0;
@@ -91,7 +91,7 @@ public class ModuleRecordVariableTest {
     }
 
     @Test
-    public void testModuleLevelTupleVarAnnotationNegetive() {
+    public void testModuleLevelRecordVarAnnotationNegetive() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/vardeclr/module_record_var_decl_annotation_negetive.bal");
         int index = 0;
