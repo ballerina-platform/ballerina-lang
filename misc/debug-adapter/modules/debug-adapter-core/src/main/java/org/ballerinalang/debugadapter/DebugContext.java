@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter;
 
+import com.sun.jdi.request.EventRequestManager;
 import io.ballerina.projects.Project;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
@@ -69,5 +70,9 @@ public class DebugContext {
 
     public void setSourceProject(Project sourceProject) {
         this.sourceProject = sourceProject;
+    }
+
+    public EventRequestManager getEventManager() {
+        return debuggee.eventRequestManager();
     }
 }

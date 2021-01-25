@@ -21,7 +21,6 @@ import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
-import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
@@ -110,6 +109,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.closeQuietly;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getRectifiedSourcePath;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedundantQuotes;
+import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.CONSOLE;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.LAMBDA;
@@ -131,6 +131,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private String projectRoot;
     private ThreadReferenceProxyImpl activeThread;
     private SuspendedContext suspendedContext;
+    private DebugInstruction lastInstruction;
 
     private final AtomicLong nextVarReference = new AtomicLong();
     private final Map<Long, StackFrameProxyImpl> stackFramesMap = new HashMap<>();
@@ -272,7 +273,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (eventProcessor == null) {
             return CompletableFuture.completedFuture(threadsResponse);
         }
-        Map<Long, ThreadReference> threadsMap = eventProcessor.getThreadsMap();
+        Map<Long, ThreadReferenceProxyImpl> threadsMap = eventProcessor.getThreadsMap();
         if (threadsMap == null) {
             return CompletableFuture.completedFuture(threadsResponse);
         }
@@ -289,20 +290,32 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
-        activeThread = new ThreadReferenceProxyImpl(context.getDebuggee(),
-                eventProcessor.getThreadsMap().get(args.getThreadId()));
+        activeThread = eventProcessor.getThreadsMap().get(args.getThreadId());
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
+        stackTraceResponse.setStackFrames(new StackFrame[0]);
         try {
-            StackFrame[] filteredFrames = activeThread.frames().stream()
+            StackFrame[] validFrames = activeThread.frames().stream()
                     .map(this::toDapStackFrame)
                     .filter(f -> f != null && f.getSource().getName().endsWith(BAL_FILE_EXT) && f.getLine() > 0)
                     .toArray(StackFrame[]::new);
 
-            stackTraceResponse.setStackFrames(filteredFrames);
+            // If the last instruction is step-in and there are no valid stack frames, that means that the debugger has
+            // stepped into an unsupported source(i.e. lang library, standard library, imported module from central).
+            // Therefore we need to manually rollback into the previous debugging state by sending a step-out request
+            // or otherwise, this might produce unpredictable behaviors under different contexts as described in
+            // (https://github.com/ballerina-platform/ballerina-lang/issues/28071).
+            //
+            // Todo - Refactor accordingly after adding support for external module debugging support.
+            if (validFrames.length == 0 && lastInstruction == DebugInstruction.STEP_IN) {
+                sendOutput("Trying to step into an unsupported source! Rolling back into the previous state..",
+                        CONSOLE);
+                return CompletableFuture.completedFuture(stackTraceResponse);
+            }
+
+            stackTraceResponse.setStackFrames(validFrames);
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (JdiProxyException e) {
             LOGGER.error(e.getMessage(), e);
-            stackTraceResponse.setStackFrames(new StackFrame[0]);
             return CompletableFuture.completedFuture(stackTraceResponse);
         }
     }
@@ -373,6 +386,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         context.getDebuggee().resume();
         ContinueResponse continueResponse = new ContinueResponse();
         continueResponse.setAllThreadsContinued(true);
+        lastInstruction = DebugInstruction.CONTINUE;
         return CompletableFuture.completedFuture(continueResponse);
     }
 
@@ -380,6 +394,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> next(NextArguments args) {
         clearState();
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OVER);
+        lastInstruction = DebugInstruction.STEP_OVER;
         return CompletableFuture.completedFuture(null);
     }
 
@@ -388,6 +403,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         clearState();
         eventProcessor.restoreBreakpoints(false);
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
+        lastInstruction = DebugInstruction.STEP_IN;
         return CompletableFuture.completedFuture(null);
     }
 
@@ -396,6 +412,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         clearState();
         eventProcessor.restoreBreakpoints(false);
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OUT);
+        lastInstruction = DebugInstruction.STEP_OUT;
         return CompletableFuture.completedFuture(null);
     }
 
@@ -468,7 +485,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return breakpoint;
     }
 
-    private Thread toThread(ThreadReference threadReference) {
+    private Thread toThread(ThreadReferenceProxyImpl threadReference) {
         Thread thread = new Thread();
         thread.setId(threadReference.uniqueID());
         thread.setName(threadReference.name());
