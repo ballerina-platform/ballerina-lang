@@ -360,7 +360,7 @@ public class ObserveUtils {
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {
         BSpan bSpan = observerContext.getSpan();
         if (bSpan != null) {
-            return bSpan.getTraceContext();
+            return bSpan.extractContextForHttp();
         }
         return Collections.emptyMap();
     }

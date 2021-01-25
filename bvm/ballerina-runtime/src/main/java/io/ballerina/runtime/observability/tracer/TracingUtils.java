@@ -62,7 +62,7 @@ public class TracingUtils {
             }
         }
         if (isClient) {
-            observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, span.getTraceContext());
+            observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, span.extractContextForHttp());
         }
         observerContext.setSpan(span);
     }

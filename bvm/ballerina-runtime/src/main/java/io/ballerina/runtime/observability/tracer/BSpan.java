@@ -116,7 +116,7 @@ public class BSpan {
         span.setTag(tagKey, tagValue);
     }
 
-    public Map<String, String> getTraceContext() {
+    public Map<String, String> extractContextForHttp() {
         Map<String, String> carrierMap;
         if (span != null) {
             carrierMap = new HashMap<>();
