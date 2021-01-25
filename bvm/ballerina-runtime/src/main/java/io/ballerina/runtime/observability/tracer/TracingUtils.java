@@ -19,7 +19,6 @@ package io.ballerina.runtime.observability;
 
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.metrics.Tag;
-import io.ballerina.runtime.observability.tracer.BSpan;
 
 import java.util.Collections;
 import java.util.Map;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_ERROR_VALUE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
 import static io.ballerina.runtime.observability.tracer.TraceConstants.TAG_KEY_HTTP_STATUS_CODE;
 import static io.ballerina.runtime.observability.tracer.TraceConstants.TAG_KEY_STR_ERROR_MESSAGE;
 
@@ -49,7 +47,7 @@ public class TracingUtils {
     public static void startObservation(ObserverContext observerContext, boolean isClient) {
         BSpan span;
         if (observerContext.getParent() != null) {
-            BSpan parentSpan = (BSpan) observerContext.getParent().getProperty(KEY_SPAN);
+            BSpan parentSpan = observerContext.getParent().getSpan();
             span = BSpan.start(parentSpan, observerContext.getServiceName(), observerContext.getOperationName(),
                     isClient);
         } else {
@@ -65,7 +63,7 @@ public class TracingUtils {
         if (isClient) {
             observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, span.getTraceContext());
         }
-        observerContext.addProperty(KEY_SPAN, span);
+        observerContext.setSpan(span);
     }
 
     /**
@@ -74,7 +72,7 @@ public class TracingUtils {
      * @param observerContext context that holds the span to be finished
      */
     public static void stopObservation(ObserverContext observerContext) {
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
+        BSpan span = observerContext.getSpan();
         if (span != null) {
             // Adding error message to Trace Span
             ErrorValue bError = (ErrorValue) observerContext.getProperty(PROPERTY_ERROR_VALUE);

@@ -54,7 +54,6 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_RESOURCE_ACCESSOR;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_RESOURCE_PATH;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_TRUE_VALUE;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
 
 /**
  * Util class used for observability.
@@ -226,7 +225,7 @@ public class ObserveUtils {
         if (observerContext == null) {
             return;
         }
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
+        BSpan span = observerContext.getSpan();
         if (span == null) {
             return;
         }
@@ -359,7 +358,7 @@ public class ObserveUtils {
      * @return property map
      */
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {
-        BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
+        BSpan bSpan = observerContext.getSpan();
         if (bSpan != null) {
             return bSpan.getTraceContext();
         }

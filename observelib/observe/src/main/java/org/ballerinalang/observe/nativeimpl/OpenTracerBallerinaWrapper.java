@@ -169,7 +169,7 @@ public class OpenTracerBallerinaWrapper {
                         StringUtils.fromString(
                                 ("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}")));
             }
-            span = (BSpan) observer.getProperty(TraceConstants.KEY_SPAN);
+            span = observer.getSpan();
         } else {
             ObserverContext observerContext = observerContextMap.get(spanId);
             if (observerContext == null) {
@@ -179,7 +179,7 @@ public class OpenTracerBallerinaWrapper {
                 log.info(errorMsg);
                 return ErrorCreator.createError(StringUtils.fromString(errorMsg));
             }
-            span = (BSpan) observerContext.getProperty(TraceConstants.KEY_SPAN);
+            span = observerContext.getSpan();
         }
 
         span.addTag(tagKey, tagValue);

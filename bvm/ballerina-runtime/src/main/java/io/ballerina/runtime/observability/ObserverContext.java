@@ -18,6 +18,7 @@
 package io.ballerina.runtime.observability;
 
 import io.ballerina.runtime.observability.metrics.Tag;
+import io.ballerina.runtime.observability.tracer.BSpan;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,6 +47,8 @@ public class ObserverContext {
      * {@link Map} of custom Tags, which are relevant to metrics  .
      */
     public Map<String, Tag> customMetricTags;
+
+    private BSpan span;
 
     private String entrypointFunctionModule;
 
@@ -90,6 +93,14 @@ public class ObserverContext {
 
     public Set<Tag> getAllTags() {
         return new HashSet<>(tags.values());
+    }
+
+    public BSpan getSpan() {
+        return span;
+    }
+
+    public void setSpan(BSpan span) {
+        this.span = span;
     }
 
     public String getEntrypointFunctionModule() {

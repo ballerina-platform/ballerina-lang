@@ -27,8 +27,6 @@ public class TraceConstants {
     private TraceConstants() {
     }
 
-    public static final String KEY_SPAN = "_span_";
-
     public static final String TAG_KEY_SPAN_KIND = "span.kind";
 
     public static final String TAG_KEY_STR_ERROR_MESSAGE = "error.message";
