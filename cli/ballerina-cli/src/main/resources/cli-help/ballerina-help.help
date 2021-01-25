@@ -1,5 +1,5 @@
 NAME
-       The ballerina update tool
+       The ballerina tool
 
 SYNOPSIS
        bal <-v | --version>
