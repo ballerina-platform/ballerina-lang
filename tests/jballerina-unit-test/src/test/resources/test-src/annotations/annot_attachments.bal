@@ -88,10 +88,18 @@ int i = 12;
 }
 [int, string] [intVar, stringVar] = [1, "myString"];
 
+type myRecord record {int a;};
 @v11 {
     val: 3
 }
-record {int a;} {a:myA} = {a:5};
+myRecord {a:myA} = {a:5};
+
+type myError error<myRecord>;
+
+@v11 {
+    val: 4
+}
+myError error(message, a = errorNo) = error myError("error message", a = 5);
 
 @v12 {
     str: "v12 value"

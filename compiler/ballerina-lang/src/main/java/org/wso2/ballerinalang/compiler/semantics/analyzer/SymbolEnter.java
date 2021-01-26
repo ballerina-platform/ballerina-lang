@@ -2057,8 +2057,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 value.isDeclaredWithVar = true;
                 defineNode(value, env);
             }
-            if (recordVar.restParam != null) {
-                defineNode((BLangNode) recordVar.restParam, env);
+
+            BLangSimpleVariable restParam = (BLangSimpleVariable) recordVar.restParam;
+            if (restParam != null) {
+                restParam.isDeclaredWithVar = true;
+                defineNode(restParam, env);
             }
             return;
         }

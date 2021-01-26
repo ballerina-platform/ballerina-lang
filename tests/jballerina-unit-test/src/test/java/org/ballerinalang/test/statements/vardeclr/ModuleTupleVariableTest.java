@@ -62,7 +62,8 @@ public class ModuleTupleVariableTest {
 
     @Test
     public void testModuleLevelTupleVarDeclNegetive() {
-        CompileResult compileResultNegative = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl_negetive.bal");
+        CompileResult compileResultNegative = BCompileUtil.compile(
+                "test-src/statements/vardeclr/module_tuple_var_decl_negetive.bal");
         int index = 0;
         validateError(compileResultNegative, index++, "redeclared symbol 'a'", 19, 23);
         validateError(compileResultNegative, index++, "redeclared symbol 'b'", 20, 7);
