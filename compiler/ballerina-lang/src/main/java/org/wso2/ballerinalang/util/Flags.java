@@ -73,6 +73,7 @@ public class Flags {
 
     public static final long ENUM = OBJECT_CTOR << 1;                           //  33
     public static final long INCLUDED = ENUM << 1;                              //  34
+    public static final long ANY_FUNCTION = INCLUDED << 1;                      //  35
 
 
     public static long asMask(Set<Flag> flagSet) {
@@ -175,6 +176,9 @@ public class Flags {
                 case INCLUDED:
                     mask |= INCLUDED;
                     break;
+                case ANY_FUNCTION:
+                    mask |= ANY_FUNCTION;
+                    break;
             }
         }
         return mask;
@@ -274,6 +278,9 @@ public class Flags {
                     break;
                 case INCLUDED:
                     flagVal = INCLUDED;
+                    break;
+                case ANY_FUNCTION:
+                    flagVal = ANY_FUNCTION;
                     break;
                 default:
                     continue;

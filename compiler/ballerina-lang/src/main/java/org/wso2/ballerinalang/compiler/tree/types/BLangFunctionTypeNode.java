@@ -77,6 +77,9 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     @Override
     public String toString() {
         StringBuilder br = new StringBuilder();
+        if (this.flagSet.contains(Flag.ANY_FUNCTION)) {
+            return "function";
+        }
         br.append("function(");
         if (params.size() > 0) {
             br.append(getParamNames(params));

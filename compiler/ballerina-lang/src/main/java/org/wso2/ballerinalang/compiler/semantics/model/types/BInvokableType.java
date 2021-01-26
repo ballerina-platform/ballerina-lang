@@ -76,7 +76,9 @@ public class BInvokableType extends BType implements InvokableType {
         if (Symbols.isFlagOn(flags, Flags.TRANSACTIONAL)) {
             flagStr += "transactional ";
         }
-
+        if (Symbols.isFlagOn(flags, Flags.ANY_FUNCTION)) {
+            return flagStr + "function";
+        }
         return flagStr + "function " + getTypeSignature();
     }
 

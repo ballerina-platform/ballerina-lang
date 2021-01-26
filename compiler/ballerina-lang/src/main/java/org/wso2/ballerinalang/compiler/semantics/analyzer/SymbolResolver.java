@@ -1397,6 +1397,19 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         boolean foundDefaultableParam = false;
         List<String> paramNames = new ArrayList<>();
+        BInvokableType bInvokableType;
+        if (Symbols.isFlagOn(flags, Flags.ANY_FUNCTION)) {
+            bInvokableType = new BInvokableType(paramTypes, null, symTable.anyOrErrorType, null);
+            bInvokableType.flags = flags;
+            BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
+                                                                             env.enclPkg.symbol.pkgID, bInvokableType,
+                                                                             env.scope.owner, location, SOURCE);
+            tsymbol.params = params;
+            tsymbol.restParam = null;
+            tsymbol.returnType = symTable.anyOrErrorType;
+            bInvokableType.tsymbol = tsymbol;
+            return bInvokableType;
+        }
         for (BLangVariable paramNode : paramVars) {
             BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
             Name paramName = names.fromIdNode(param.name);
@@ -1459,7 +1472,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                        env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos, SOURCE);
         }
 
-        BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
+        bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
         bInvokableType.flags = flags;
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                                                                          env.enclPkg.symbol.pkgID, bInvokableType,
