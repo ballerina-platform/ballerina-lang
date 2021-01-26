@@ -24,7 +24,6 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -2321,7 +2320,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return recordVarType;
     }
 
-    private boolean doesRecordContainKeys(BType varType, List<BLangRecordVariable.BLangRecordVariableKeyValue> variableList,
+    private boolean doesRecordContainKeys(BType varType,
+                                          List<BLangRecordVariable.BLangRecordVariableKeyValue> variableList,
                                           boolean hasRestParam) {
         if (varType.tag == TypeTags.MAP || varType.tag == TypeTags.ANY || varType.tag == TypeTags.ANYDATA) {
             return true;

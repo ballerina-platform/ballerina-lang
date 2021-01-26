@@ -1699,7 +1699,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         BLangSimpleVariable restVar = (BLangSimpleVariable) bLangTupleVariable.restVariable;
-        if(restVar != null) {
+        if (restVar != null) {
             addUninitializedVar(restVar);
         }
     }
