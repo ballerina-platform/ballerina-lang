@@ -125,6 +125,21 @@ public class ModuleExecutionTest extends BaseTestCase {
         }
     }
 
+    @Test()
+    public void test_Module1_WithGroups() throws BallerinaTestException {
+        String msg1 = "1 passing";
+        String msg2 = "[pass] module1_test2";
+
+        LogLeecher clientLeecher1 = new LogLeecher(msg1);
+        LogLeecher clientLeecher2 = new LogLeecher(msg2);
+
+        balClient.runMain("test", new String[]{"--tests", "moduleExecution.Module1:*", "--groups", "g1"}, null,
+                new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
+
+        clientLeecher1.waitForText(20000);
+        clientLeecher2.waitForText(20000);
+    }
+
     @AfterMethod
     public void copyExec() {
         try {
