@@ -613,6 +613,50 @@ function testListMatchPattern23() {
     assertEquals("1", listMatchPattern23([1, 2, 3, 4, 5]));
 }
 
+function listMatchPattern24(any[] a) returns string {
+    match a {
+        [var x, var y, var z] => {
+            return x.toString() + z.toString();
+        }
+        _ => {
+            return "No match";
+        }
+    }
+}
+
+function testListMatchPattern24() {
+    assertEquals("No match", listMatchPattern24([1, 2, 3, 4, 5]));
+    assertEquals("13", listMatchPattern24([1, 2, 3]));
+}
+
+function listMatchPattern25(any[] a) returns string {
+    match a {
+        [var x, _, var z] => {
+            return x.toString() + z.toString();
+        }
+        _ => {
+            return "No match";
+        }
+    }
+}
+
+function testListMatchPattern25() {
+    assertEquals("No match", listMatchPattern25([1, 2, 3, 4, 5]));
+    assertEquals("13", listMatchPattern25([1, 2, 3]));
+}
+
+function listMatchPattern26(int[3] a) returns int {
+    match a {
+        [var x, _, var z] => {
+            return x + z;
+        }
+    }
+}
+
+function testListMatchPattern26() {
+    assertEquals(4, listMatchPattern26([1, 2, 3]));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

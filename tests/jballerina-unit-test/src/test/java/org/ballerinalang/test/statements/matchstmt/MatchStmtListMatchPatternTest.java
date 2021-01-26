@@ -164,6 +164,21 @@ public class MatchStmtListMatchPatternTest {
     }
 
     @Test
+    public void testListMatchPattern24() {
+        BRunUtil.invoke(result, "testListMatchPattern24");
+    }
+
+    @Test
+    public void testListMatchPattern25() {
+        BRunUtil.invoke(result, "testListMatchPattern25");
+    }
+
+    @Test
+    public void testListMatchPattern26() {
+        BRunUtil.invoke(result, "testListMatchPattern26");
+    }
+
+    @Test
     public void testRestMatchPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest1");
     }
@@ -221,6 +236,7 @@ public class MatchStmtListMatchPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 152, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 164, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 184, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 191, 9);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }

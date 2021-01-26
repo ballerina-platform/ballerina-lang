@@ -184,3 +184,10 @@ function testUnreachablePattern5() {
         [1, 2] => {} // unreachable pattern
      }
 }
+
+function testListMatchPatternNegative5() {
+    any[1] a = [];
+    match a {
+        [var x, var y] => {} // pattern will not be matched
+    }
+}

@@ -3729,6 +3729,13 @@ public class Types {
             tupleMemberTypes.add(intersectionType);
         }
 
+        if (tupleType.restType == null) {
+            if (arrayType.size == tupleType.tupleTypes.size() || arrayType.state == BArrayState.OPEN) {
+                return new BTupleType(null, tupleMemberTypes);
+            }
+            return symTable.semanticError;
+        }
+
         BType restIntersectionType = getTypeIntersection(tupleType.restType, arrayType.eType, env);
         if (restIntersectionType == symTable.semanticError) {
             return new BTupleType(null, tupleMemberTypes);
