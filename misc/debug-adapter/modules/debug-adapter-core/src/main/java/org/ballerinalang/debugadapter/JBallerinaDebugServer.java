@@ -277,7 +277,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (eventProcessor == null) {
             return CompletableFuture.completedFuture(threadsResponse);
         }
-        Map<Long, ThreadReference> threadsMap = eventProcessor.getThreadsMap1();
+        Map<Long, ThreadReference> threadsMap = eventProcessor.getThreadsMap();
         if (threadsMap == null) {
             return CompletableFuture.completedFuture(threadsResponse);
         }
