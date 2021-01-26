@@ -81,16 +81,14 @@ public class ForeachArrayTypedBindingPatternsTests {
         Assert.assertEquals(returns[0].stringValue(), "1:A:2.0 2:B:3.0 3:C:4.0 ");
     }
 
-    // TODO: enable the assert case one module record variable is supported
-    @Test(enabled = false)
+    @Test
     public void testArrayWithRecordInTupleWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testArrayWithRecordInTupleWithoutType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "1:1:A 2:2:B 3:3:C ");
     }
 
-    // TODO: enable the assert case one module record variable is supported
-    @Test(enabled = false)
+    @Test
     public void testArrayWithRecordInTupleWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testArrayWithRecordInTupleWithType");
         Assert.assertEquals(returns.length, 1);

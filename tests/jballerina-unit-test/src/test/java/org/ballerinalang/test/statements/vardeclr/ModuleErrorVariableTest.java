@@ -49,6 +49,14 @@ public class ModuleErrorVariableTest {
     public Object[] testModuleLevelErrorVarDeclData() {
         return new Object[]{
                 "testBasic",
+                "testWithErrorCause",
+                "testTupleVarInsideErrorVar",
+                "testRecordVarInsideErrorVar",
+                "testErrorVarInsideErrorVar",
+                "testErrorVarWithAnnotations",
+                "testVariableForwardReferencing",
+                "testErrorVarWithRestVariable",
+                "testErrorVarDeclaredWithVar"
         };
     }
 
