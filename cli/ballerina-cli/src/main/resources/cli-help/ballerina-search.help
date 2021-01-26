@@ -2,7 +2,7 @@ NAME
        ballerina-search - Search Ballerina Central for packages
 
 SYNOPSIS
-       ballerina search <keyword>
+       bal search <keyword>
 
 
 DESCRIPTION

@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -65,7 +66,12 @@ public class CaptureBindingPatternTest {
     public void testCaptureBindingPatternNegative1() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
 
-        int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, "unreachable pattern", 22, 9);
+        BAssertUtil.validateError(resultNegative, 0, "unreachable pattern", 22, 9);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

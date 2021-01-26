@@ -37,7 +37,7 @@ import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
- * This class represents the "ballerina search" command.
+ * This class represents the "bal search" command.
  *
  * @since 2.0.0
  */
@@ -79,13 +79,13 @@ public class SearchCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.isEmpty()) {
-            CommandUtil.printError(this.errStream, "no keyword given", "ballerina search [<org>|<package>|<text>] ",
+            CommandUtil.printError(this.errStream, "no keyword given", "bal search [<org>|<package>|<text>] ",
                                    false);
             return;
         }
 
         if (argList.size() > 1) {
-            CommandUtil.printError(this.errStream, "too many arguments", "ballerina search [<org>|<package>|<text>] ",
+            CommandUtil.printError(this.errStream, "too many arguments", "bal search [<org>|<package>|<text>] ",
                                    false);
             return;
         }
@@ -107,7 +107,7 @@ public class SearchCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append(" ballerina search [<org>|<package>|<text>] \n");
+        out.append(" bal search [<org>|<package>|<text>] \n");
     }
 
     @Override

@@ -39,7 +39,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.StringJoiner;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
@@ -52,6 +51,7 @@ public class PackageUtils {
 
     public static final String BAL_FILE_EXT = ".bal";
     public static final String INIT_CLASS_NAME = "$_init";
+    public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
     private static final String MODULE_DIR_NAME = "modules";
     private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
@@ -189,9 +189,9 @@ public class PackageUtils {
             return docName;
         }
 
-        Optional<DocumentId> docId = ProjectLoader.getDocumentId(path, (BuildProject) project);
-        Module module = project.currentPackage().module(docId.get().moduleId());
-        Document document = module.document(docId.get());
+        DocumentId documentId = project.documentId(path);
+        Module module = project.currentPackage().module(documentId.moduleId());
+        Document document = module.document(documentId);
 
         StringJoiner classNameJoiner = new StringJoiner(".");
         classNameJoiner.add(document.module().packageInstance().packageOrg().value())

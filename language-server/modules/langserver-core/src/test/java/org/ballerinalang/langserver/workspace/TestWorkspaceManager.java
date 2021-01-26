@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.workspace;
 
 import io.ballerina.projects.Document;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
@@ -29,7 +30,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -42,10 +42,11 @@ import java.util.Optional;
 public class TestWorkspaceManager {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/project");
     private final String dummyContent = "function foo() {\n}";
-    private final BallerinaWorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
+    private final BallerinaWorkspaceManager workspaceManager
+            = BallerinaWorkspaceManager.getInstance(new LanguageServerContextImpl());
 
     @Test(dataProvider = "workspace-data-provider")
-    public void testOpenDocument(Path filePath) throws IOException {
+    public void testOpenDocument(Path filePath) throws IOException, WorkspaceDocumentException {
         // Inputs from lang server
         DidOpenTextDocumentParams params = new DidOpenTextDocumentParams();
         TextDocumentItem textDocumentItem = new TextDocumentItem();
@@ -57,10 +58,9 @@ public class TestWorkspaceManager {
         workspaceManager.didOpen(filePath, params);
 
         // Assert content
-        String content = new String(Files.readAllBytes(filePath));
         Optional<Document> document = workspaceManager.document(filePath);
         Assert.assertNotNull(document.get());
-        Assert.assertEquals(document.get().syntaxTree().textDocument().toString(), content);
+        Assert.assertEquals(document.get().syntaxTree().textDocument().toString(), dummyContent);
     }
 
     @Test(dataProvider = "workspace-data-provider", dependsOnMethods = "testOpenDocument")

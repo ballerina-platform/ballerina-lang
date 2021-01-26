@@ -215,7 +215,11 @@ public class MemberAccessTest {
             { "testRecordMemberAccessByLiteral" },
             { "testRecordMemberAccessByConstant" },
             { "testRecordMemberAccessByVariable" },
-            { "testRecordMemberAccessForNonExistingKey" }
+            { "testRecordMemberAccessForNonExistingKey" },
+            { "testRestFieldAccessOnNilableRecordUnion" },
+            { "testAccessOnNilableMapUnion" },
+            { "testAccessOnNilableRecordMapUnion" },
+            { "testNestedAccessOnNilableUnion" }
         };
     }
 
@@ -320,5 +324,10 @@ public class MemberAccessTest {
     @Test
     public void testMemberAccessInUnionType() {
         BRunUtil.invoke(result, "testMemberAccessInUnionType");
+    }
+
+    @Test
+    public void testMemberAccessOnStructuralConstructs() {
+        BRunUtil.invoke(result, "testMemberAccessOnStructuralConstructs");
     }
 }

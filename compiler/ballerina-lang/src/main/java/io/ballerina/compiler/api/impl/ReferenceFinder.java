@@ -703,7 +703,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(invocationExpr.annAttachments);
         find(invocationExpr.restArgs);
 
-        if (!invocationExpr.pkgAlias.value.isEmpty()) {
+        if (!invocationExpr.pkgAlias.value.isEmpty() && invocationExpr.symbol != null) {
             addIfSameSymbol(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos);
         }
         addIfSameSymbol(invocationExpr.symbol, invocationExpr.name.pos);
@@ -968,6 +968,9 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
+        if (userDefinedType.type == null || userDefinedType.type.tsymbol == null) {
+            return;
+        }
         if (!userDefinedType.pkgAlias.value.isEmpty()) {
             addIfSameSymbol(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
         }

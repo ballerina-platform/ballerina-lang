@@ -143,7 +143,7 @@ public final class FunctionCompletionItemBuilder {
                 item.setCommand(cmd);
             }
             boolean skipFirstParam = skipFirstParam(ctx, bSymbol);
-            if (bSymbol.docAttachment().isPresent()) {
+            if (bSymbol.documentation().isPresent()) {
                 item.setDocumentation(getDocumentation(bSymbol, skipFirstParam, ctx));
             }
         }
@@ -155,7 +155,7 @@ public final class FunctionCompletionItemBuilder {
         String pkgID = functionSymbol.moduleID().toString();
         FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
 
-        Optional<Documentation> docAttachment = functionSymbol.docAttachment();
+        Optional<Documentation> docAttachment = functionSymbol.documentation();
         String description = docAttachment.isEmpty() || docAttachment.get().description().isEmpty()
                 ? "" : docAttachment.get().description().get();
         Map<String, String> docParamsMap = new HashMap<>();

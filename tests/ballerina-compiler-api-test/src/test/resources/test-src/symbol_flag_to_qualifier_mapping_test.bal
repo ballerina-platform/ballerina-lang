@@ -51,7 +51,7 @@ isolated function add(int x, int y) returns int => x + y;
 
 type Person record {|
     readonly string name;
-    int age;
+    int age?;
 |};
 
 client class TestEP {

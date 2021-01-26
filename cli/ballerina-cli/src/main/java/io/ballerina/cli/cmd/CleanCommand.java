@@ -34,7 +34,7 @@ import java.nio.file.Paths;
 import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
 
 /**
- * This class represents the "ballerina clean" command.
+ * This class represents the "bal clean" command.
  *
  * @since 2.0.0
  */
@@ -95,7 +95,7 @@ public class CleanCommand implements BLauncherCmd {
     
     @Override
     public void printUsage(StringBuilder out) {
-        out.append(" ballerina clean \n");
+        out.append(" bal clean \n");
     }
     
     @Override

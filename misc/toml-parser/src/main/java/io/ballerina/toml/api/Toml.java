@@ -61,7 +61,7 @@ public class Toml {
      *
      * @param tomlTableNode AST representation of TOML Table.
      */
-    private Toml(TomlTableNode tomlTableNode) {
+    public Toml(TomlTableNode tomlTableNode) {
         this.rootNode = tomlTableNode;
     }
 

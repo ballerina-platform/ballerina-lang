@@ -29,7 +29,7 @@ under the License.
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.docgen.docs"/>
+            <package name="org.ballerinalang.docgen.tests"/>
         </packages>
     </test>
 </suite>

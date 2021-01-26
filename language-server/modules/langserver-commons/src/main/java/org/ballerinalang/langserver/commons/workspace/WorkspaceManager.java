@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
@@ -99,23 +100,16 @@ public interface WorkspaceManager {
      * @param filePath file path of the document
      * @return {@link ModuleCompilation}
      */
-    Optional<ModuleCompilation> waitAndGetModuleCompilation(Path filePath);
-
-    /**
-     * Returns module compilation from the module provided.
-     *
-     * @param module {@link Module}
-     * @return {@link ModuleCompilation}
-     */
-    Optional<ModuleCompilation> waitAndGetModuleCompilation(Module module);
+    Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath);
 
     /**
      * The document open notification is sent from the client to the server to signal newly opened text documents.
      *
      * @param filePath {@link Path} of the document
      * @param params   {@link DidOpenTextDocumentParams}
+     * @throws WorkspaceDocumentException when project or document not found
      */
-    void didOpen(Path filePath, DidOpenTextDocumentParams params);
+    void didOpen(Path filePath, DidOpenTextDocumentParams params) throws WorkspaceDocumentException;
 
     /**
      * The document change notification is sent from the client to the server to signal changes to a text document.

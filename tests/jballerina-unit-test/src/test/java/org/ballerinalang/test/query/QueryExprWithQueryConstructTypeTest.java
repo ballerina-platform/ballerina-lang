@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -190,5 +191,12 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(semanticsNegativeResult, 0, "on conflict can only be used with queries which produce tables " +
                         "with key specifiers",
                 39, 13);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
+        semanticsNegativeResult = null;
     }
 }

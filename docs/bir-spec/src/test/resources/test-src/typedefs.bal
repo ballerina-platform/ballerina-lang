@@ -175,3 +175,6 @@ class Claz {
 type DistinctError distinct error;
 
 type DistinctCustomError distinct error<record { int i; }>;
+
+// ---------------------------------------------------------------------------------------------------------------------
+type cyclicType int|float|cyclicType[];

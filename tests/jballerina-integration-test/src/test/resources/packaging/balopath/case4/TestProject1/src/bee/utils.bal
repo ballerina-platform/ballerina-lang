@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 // Interop functions
 public function acceptNothingAndReturnNothing() = @java:Method {

@@ -162,6 +162,7 @@
             <class name="org.ballerinalang.test.javainterop.basic.ConstructorTest"></class>
             <class name="org.ballerinalang.test.javainterop.basic.FieldAccessMutateTest"></class>
             <class name="org.ballerinalang.test.javainterop.basic.JavaToBallerinaTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.JavaCastTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.FunctionsReturningPrimitivesTest"></class>
             <class name="org.ballerinalang.test.javainterop.basic.HandleRefersNullTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveConversionInFunctionReturnsTest"></class>
@@ -190,10 +191,14 @@
             <class name="org.ballerinalang.test.types.var.VarIgnoreTest"></class>
             <class name="org.ballerinalang.test.documentation.MultilineDocsTest"></class>
             <class name="org.ballerinalang.test.documentation.ObjectFieldDefaultValueTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtErrorMatchPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtConstPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementSyntaxErrorsTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.CaptureBindingPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.ListBindingPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtListMatchPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtMappingMatchPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtTypeNarrowingTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementOnFailTest"></class>
             <class name="org.ballerinalang.test.lock.LocksWithOnFailTest"></class>
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
@@ -218,7 +223,7 @@
             </class>
             <!-- <class name="org.ballerinalang.test.types.TypeUnificationTest"/> -->
             <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->
-            <class name="org.ballerinalang.test.types.DeepReadOnlyTest"/>
+            <class name="org.ballerinalang.test.types.readonly.DeepReadOnlyTest"/>
             <class name="org.ballerinalang.test.expressions.async.BasicAsyncOperationsTest">
                 <methods>
                     <exclude name="testAsyncNonNativeBasic6" />
@@ -231,34 +236,6 @@
             </class>
             <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
             <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
-
-
-            <!-- Disabled tests related to ProjectAPI change -->
-            <!-- ########################## START ############################# -->
-            <class name="org.ballerinalang.test.execution.ModuleExecutionFlowTests">
-                <methods>
-                    <exclude name="testModuleStartAndStopPanic"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.taintchecking.TaintedStatusPropagationTest">
-                <methods>
-                    <exclude name="testParameterStatusWithNativeInvocations"/>
-                    <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.documentation.ErrorsTest">
-                <methods>
-                    <exclude name="testErrorAsAType"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.bir.BirVariableOptimizationTest">
-                <methods>
-                    <exclude name="testAttachedFunctions"/>
-                    <exclude name="testFunctions"/>
-                </methods>
-            </class>
-            <!-- ########################## END ############################# -->
-
         </classes>
     </test>
 </suite>

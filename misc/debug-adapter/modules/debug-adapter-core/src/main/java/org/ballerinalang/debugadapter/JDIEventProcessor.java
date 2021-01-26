@@ -86,6 +86,9 @@ public class JDIEventProcessor {
                     LOGGER.error(e.getMessage(), e);
                 }
             }
+            // It is not required to terminate the debuggee (remote VM) in here, since it must be disconnected or dead
+            // by now.
+            context.getAdapter().exit(false);
         });
     }
 
@@ -217,8 +220,8 @@ public class JDIEventProcessor {
             Location currentLocation = threadReference.frames().get(0).location();
             ReferenceType referenceType = currentLocation.declaringType();
             List<Location> allLocations = currentLocation.method().allLineLocations();
-            Optional<Location> lastLocation = allLocations.stream().max(Comparator.comparingInt(Location::lineNumber));
             Optional<Location> firstLocation = allLocations.stream().min(Comparator.comparingInt(Location::lineNumber));
+            Optional<Location> lastLocation = allLocations.stream().max(Comparator.comparingInt(Location::lineNumber));
             if (firstLocation.isEmpty()) {
                 return;
             }
@@ -229,11 +232,11 @@ public class JDIEventProcessor {
                 return;
             }
 
-            int nextStepPoint = currentLocation.lineNumber();
+            int nextStepPoint = firstLocation.get().lineNumber();
             context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
             do {
                 List<Location> locations = referenceType.locationsOfLine(nextStepPoint);
-                if (!locations.isEmpty() && (locations.get(0).lineNumber() > currentLocation.lineNumber())) {
+                if (!locations.isEmpty() && (locations.get(0).lineNumber() > firstLocation.get().lineNumber())) {
                     BreakpointRequest bpReq = context.getDebuggee().eventRequestManager()
                             .createBreakpointRequest(locations.get(0));
                     bpReq.enable();

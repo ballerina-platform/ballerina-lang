@@ -1,5 +1,7 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.ManifestBuilder;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,6 +23,11 @@ public class Package {
     private final PackageContext packageContext;
     private final Map<ModuleId, Module> moduleMap;
     private final Function<ModuleId, Module> populateModuleFunc;
+    // Following are not final since they will be lazy loaded
+    private Optional<PackageMd> packageMd = null;
+    private Optional<BallerinaToml> ballerinaToml = null;
+    private Optional<DependenciesToml> dependenciesToml = null;
+    private Optional<KubernetesToml> kubernetesToml = null;
 
     private Package(PackageContext packageContext, Project project) {
         this.packageContext = packageContext;
@@ -136,7 +143,39 @@ public class Package {
     }
 
     public Optional<BallerinaToml> ballerinaToml() {
-        return packageContext.ballerinaToml();
+        if (null == this.ballerinaToml) {
+            this.ballerinaToml = this.packageContext.ballerinaTomlContext().map(c ->
+                    BallerinaToml.from(c, this)
+            );
+        }
+        return this.ballerinaToml;
+    }
+
+    public Optional<DependenciesToml> dependenciesToml() {
+        if (null == this.dependenciesToml) {
+            this.dependenciesToml = this.packageContext.dependenciesTomlContext().map(c ->
+                    DependenciesToml.from(c, this)
+            );
+        }
+        return this.dependenciesToml;
+    }
+
+    public Optional<KubernetesToml> kubernetesToml() {
+        if (null == this.kubernetesToml) {
+            this.kubernetesToml = this.packageContext.kubernetesTomlContext().map(c ->
+                    KubernetesToml.from(c, this)
+            );
+        }
+        return this.kubernetesToml;
+    }
+
+    public Optional<PackageMd> packageMd() {
+        if (null == this.packageMd) {
+            this.packageMd = this.packageContext.packageMdContext().map(c ->
+                    PackageMd.from(c, this)
+            );
+        }
+        return this.packageMd;
     }
 
     /**
@@ -173,20 +212,26 @@ public class Package {
     public static class Modifier {
         private PackageId packageId;
         private PackageManifest packageManifest;
-        private BallerinaToml ballerinaToml;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
         private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
         private CompilationOptions compilationOptions;
+        private TomlDocumentContext ballerinaTomlContext;
+        private TomlDocumentContext dependenciesTomlContext;
+        private TomlDocumentContext kubernetesTomlContext;
+        private MdDocumentContext packageMdContext;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
             this.packageManifest = oldPackage.manifest();
-            this.ballerinaToml = oldPackage.ballerinaToml().orElse(null);
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
             this.pkgDescDependencyGraph = oldPackage.packageContext().dependencyGraph();
             this.compilationOptions = oldPackage.compilationOptions();
+            this.ballerinaTomlContext = oldPackage.packageContext.ballerinaTomlContext().orElse(null);
+            this.dependenciesTomlContext = oldPackage.packageContext.dependenciesTomlContext().orElse(null);
+            this.kubernetesTomlContext = oldPackage.packageContext.kubernetesTomlContext().orElse(null);
+            this.packageMdContext = oldPackage.packageContext.packageMdContext().orElse(null);
         }
 
         Modifier updateModule(ModuleContext newModuleContext) {
@@ -218,6 +263,61 @@ public class Package {
         }
 
         /**
+         * Adds a Dependencies toml.
+         *
+         * @param documentConfig configuration of the toml document
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier addDependenciesToml(DocumentConfig documentConfig) {
+            TomlDocumentContext tomlDocumentContext = TomlDocumentContext.from(documentConfig);
+            this.dependenciesTomlContext = tomlDocumentContext;
+            return this;
+        }
+
+        /**
+         * Adds a Kubernetes toml.
+         *
+         * @param documentConfig configuration of the toml document
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier addKubernetesToml(DocumentConfig documentConfig) {
+            TomlDocumentContext tomlDocumentContext = TomlDocumentContext.from(documentConfig);
+            this.kubernetesTomlContext = tomlDocumentContext;
+            updateManifest();
+            return this;
+        }
+
+        /**
+         * Adds a package md.
+         *
+         * @param documentConfig configuration of the toml document
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier addPackageMd(DocumentConfig documentConfig) {
+            MdDocumentContext tomlDocumentContext = MdDocumentContext.from(documentConfig);
+            this.packageMdContext = tomlDocumentContext;
+            return this;
+        }
+
+
+        Modifier updateBallerinaToml(BallerinaToml ballerinaToml) {
+            this.ballerinaTomlContext = ballerinaToml.ballerinaTomlContext();
+            updateManifest();
+            return this;
+        }
+
+        Modifier updateDependenciesToml(DependenciesToml dependenciesToml) {
+            this.dependenciesTomlContext = dependenciesToml.dependenciesTomlContext();
+            updateManifest();
+            return this;
+        }
+
+        Modifier updateKubernetesToml(KubernetesToml kubernetesToml) {
+            this.kubernetesTomlContext = kubernetesToml.kubernetesTomlContext();
+            return this;
+        }
+
+        /**
          * Returns the updated package created by a module add/remove/update operation.
          *
          * @return updated package
@@ -237,9 +337,18 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
-                    this.ballerinaToml, this.compilationOptions, this.moduleContextMap, this.pkgDescDependencyGraph);
+                    this.ballerinaTomlContext, this.dependenciesTomlContext, this.kubernetesTomlContext,
+                    this.packageMdContext,  this.compilationOptions, this.moduleContextMap,
+                    this.pkgDescDependencyGraph);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
+        }
+
+        private void updateManifest() {
+            ManifestBuilder manifestBuilder = ManifestBuilder.from(this.ballerinaTomlContext.tomlDocument(),
+                    Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null),
+                    this.project.sourceRoot());
+            this.packageManifest = manifestBuilder.packageManifest();
         }
     }
 }

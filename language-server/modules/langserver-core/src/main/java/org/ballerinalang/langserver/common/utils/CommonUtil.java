@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -44,7 +44,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.FieldCompletionItem;
+import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
@@ -141,7 +141,7 @@ public class CommonUtil {
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
-        BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "ballerina" +
+        BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
     }
 
@@ -280,22 +280,22 @@ public class CommonUtil {
      * Get completion items list for struct fields.
      *
      * @param context Language server operation context
-     * @param fields  List of field descriptors
+     * @param fields  Map of field descriptors
      * @return {@link List}     List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
-                                                                       List<FieldSymbol> fields) {
+                                                                       Map<String, RecordFieldSymbol> fields) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        fields.forEach(field -> {
+        fields.forEach((name, field) -> {
             String insertText = getRecordFieldCompletionInsertText(field, 0);
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText);
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            fieldItem.setLabel(field.name());
+            fieldItem.setLabel(name);
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
-            completionItems.add(new FieldCompletionItem(context, field, fieldItem));
+            completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem));
         });
 
         return completionItems;
@@ -305,16 +305,17 @@ public class CommonUtil {
      * Get the completion item to fill all the struct fields.
      *
      * @param context Language Server Operation Context
-     * @param fields  List of fields
+     * @param fields  Map of fields
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
     public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
-                                                              List<FieldSymbol> fields) {
+                                                              Map<String, RecordFieldSymbol> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
-        for (FieldSymbol fieldSymbol : fields) {
-            String defaultFieldEntry = fieldSymbol.name()
-                    + PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(fieldSymbol.typeDescriptor());
+        for (Map.Entry<String, RecordFieldSymbol> fieldSymbolEntry : fields.entrySet()) {
+            String defaultFieldEntry = fieldSymbolEntry.getKey()
+                    + PKG_DELIMITER_KEYWORD + " "
+                    + getDefaultValueForType(fieldSymbolEntry.getValue().typeDescriptor());
             fieldEntries.add(defaultFieldEntry);
         }
 
@@ -502,8 +503,8 @@ public class CommonUtil {
      * @param recordType record type descriptor to evaluate
      * @return {@link List} of required fields captured
      */
-    public static List<FieldSymbol> getMandatoryRecordFields(RecordTypeSymbol recordType) {
-        return recordType.fieldDescriptors().stream()
+    public static List<RecordFieldSymbol> getMandatoryRecordFields(RecordTypeSymbol recordType) {
+        return recordType.fieldDescriptors().values().stream()
                 .filter(field -> !field.hasDefaultValue() && !field.isOptional())
                 .collect(Collectors.toList());
     }
@@ -514,18 +515,18 @@ public class CommonUtil {
      * @param bField BField to evaluate
      * @return {@link String} Insert text
      */
-    public static String getRecordFieldCompletionInsertText(FieldSymbol bField, int tabOffset) {
+    public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField, int tabOffset) {
         TypeSymbol fieldType = CommonUtil.getRawType(bField.typeDescriptor());
         StringBuilder insertText = new StringBuilder(bField.name() + ": ");
         if (fieldType.typeKind() == TypeDescKind.RECORD) {
-            List<FieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
+            List<RecordFieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
             if (requiredFields.isEmpty()) {
                 insertText.append("{").append("${1}}");
                 return insertText.toString();
             }
             insertText.append("{").append(LINE_SEPARATOR);
             List<String> requiredFieldInsertTexts = new ArrayList<>();
-            for (FieldSymbol field : requiredFields) {
+            for (RecordFieldSymbol field : requiredFields) {
                 String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
                         getRecordFieldCompletionInsertText(field, tabOffset + 1);
                 requiredFieldInsertTexts.add(fieldText);

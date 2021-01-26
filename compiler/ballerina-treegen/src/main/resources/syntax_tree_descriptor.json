@@ -3959,7 +3959,7 @@
             "attributes": [
                 {
                     "name": "fieldNameNode",
-                    "type": "SimpleNameReferenceNode"
+                    "type": "IdentifierToken"
                 },
                 {
                     "name": "colonToken",

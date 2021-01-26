@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 import bcintegrationtest/MODULE_1;
 
 public function getPetKind() returns string? {

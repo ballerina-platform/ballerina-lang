@@ -1,0 +1,242 @@
+[
+  {
+    "name": "Parse valid strings as is",
+    "input": "int value = 100;",
+    "expected": [
+      "int value = 100;"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Add semicolon at the end",
+    "input": "int number",
+    "expected": [
+      "int number;"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Separate on semicolons",
+    "input": "int number; number = 100;",
+    "expected": [
+      "int number;",
+      "number = 100;"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Do not break on contained semicolons",
+    "input": "function () { int p = 100; string h = \"hello\";};",
+    "expected": [
+      "function () { int p = 100; string h = \"hello\";};"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Remove unnecessary spaces I",
+    "input": "  \tint number; \n   ",
+    "expected": [
+      "int number;"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Remove unnecessary spaces II",
+    "input": "  \tint number; \n  string value ",
+    "expected": [
+      "int number;",
+      "string value;"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Ignore whitespaces inside expressions",
+    "input": "  \tint ( hello ) number; \n ",
+    "expected": [
+      "int ( hello ) number;"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Ignore toplevel semicolons if in string",
+    "input": "\" a;  b; \"",
+    "expected": [
+      "\" a;  b; \";"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Only split on top level semicolons I",
+    "input": "  int a = 0; while (a < 10) { a+= 1; }",
+    "expected": [
+      "int a = 0;",
+      "while (a < 10) { a+= 1; };"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Only split on top level semicolons II",
+    "input": "(a; b; b[c;]); d; {e; f;(h;)}",
+    "expected": [
+      "(a; b; b[c;]);",
+      "d;",
+      "{e; f;(h;)};"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Error on mismatched curly braces",
+    "input": "{aaa { bbb }",
+    "expected": [],
+    "accepted": false
+  },
+  {
+    "name": "Error on mismatched brackets",
+    "input": "[] [[[ ]]",
+    "expected": [],
+    "accepted": false
+  },
+  {
+    "name": "Error on mismatched parenthesis",
+    "input": "(( ())))",
+    "expected": [],
+    "accepted": false
+  },
+  {
+    "name": "Ignore mismatched parenthesis if on string",
+    "input": "(( (\")\")))",
+    "expected": [
+      "(( (\")\")));"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Ignore empty semicolons I",
+    "input": ";;;;;",
+    "expected": [],
+    "accepted": true
+  },
+  {
+    "name": "Ignore empty semicolons II",
+    "input": ";;aa;;;",
+    "expected": [
+      "aa;"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Ignore empty semicolons III",
+    "input": ";;aa;bbb;;",
+    "expected": [
+      "aa;",
+      "bbb;"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Ignore single quotes",
+    "input": "'Hello('",
+    "expected": [],
+    "accepted": false
+  },
+  {
+    "name": "Comments are not detected",
+    "input": "Hello // comment",
+    "expected": [
+      "Hello;"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Comments cant be closed",
+    "input": "Hello // comment // Hi",
+    "expected": [
+      "Hello;"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Comment stop on new line",
+    "input": "Hello // comment \n Hi // another comment",
+    "expected": [
+      "Hello \n Hi;"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Comments inside strings not detected",
+    "input": "Hello \"// comment\" // Real comment",
+    "expected": [
+      "Hello \"// comment\";"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Comments inside parenthesis removed",
+    "input": "A (Hello // comment)\nB( // DDD \n))",
+    "expected": [
+      "A (Hello \nB( \n));"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Quoted Identifier Case I",
+    "input": "function 'get_ɱȇşşağę_for_\\#(int val) returns string {}",
+    "expected": [
+      "function 'get_ɱȇşşağę_for_\\#(int val) returns string {};"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Quoted Identifier Case II",
+    "input": "type 'Person_\\{name\\&Ȧɢέ\\} record {}",
+    "expected": [
+      "type 'Person_\\{name\\&Ȧɢέ\\} record {};"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Quoted Identifier Case III",
+    "input": "int i = 'function('int);",
+    "expected": [
+      "int i = 'function('int);"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Sample Program I",
+    "input": "import ballerina/io;\npublic function main() {\n    string name = \"Ballerina\";\n    string template = string `Hello ${name}!!!`;\n\n    io:println(template);\n};",
+    "expected": [
+      "import ballerina/io;",
+      "public function main() {\n    string name = \"Ballerina\";\n    string template = string `Hello ${name}!!!`;\n\n    io:println(template);\n};"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Sample Program II",
+    "input": "import ballerina/io;\ntype Person record {|\n    readonly int id;\n    string name;\n    int age;\n|};\ntype Employee record {\n    readonly int id;\n    string name;\n    float salary;\n};\n\ntype EmployeeTable table<Employee> key(id);",
+    "expected": [
+      "import ballerina/io;",
+      "type Person record {|\n    readonly int id;\n    string name;\n    int age;\n|};",
+      "type Employee record {\n    readonly int id;\n    string name;\n    float salary;\n};",
+      "type EmployeeTable table<Employee> key(id);"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Right shift operation",
+    "input": "a >>= 2",
+    "expected": [
+      "a >>= 2;"
+    ],
+    "accepted": true
+  },
+  {
+    "name": "Regression Test I",
+    "input": "xml bookXML = xml `<book> <name>Sherlock Holmes</name> <author> <fname title=\"Sir\">Arthur</fname> <mname>Conan</mname> <lname>Doyle</lname> </author> <bar:year xmlns:bar=\"http://ballerina.com/a\">2019</bar:year> <!--Price: $10--> </book>`;",
+    "expected": [
+      "xml bookXML = xml `<book> <name>Sherlock Holmes</name> <author> <fname title=\"Sir\">Arthur</fname> <mname>Conan</mname> <lname>Doyle</lname> </author> <bar:year xmlns:bar=\"http://ballerina.com/a\">2019</bar:year> <!--Price: $10--> </book>`;"
+    ],
+    "accepted": true
+  }
+]

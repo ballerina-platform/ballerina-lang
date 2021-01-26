@@ -29,7 +29,7 @@ public interface ListMatchPatternNode {
 
     void addMatchPattern(MatchPatternNode matchPattern);
 
-    RestMatchPattern getRestMatchPattern();
+    RestMatchPatternNode getRestMatchPattern();
 
-    void setRestMatchPattern(RestMatchPattern restMatchPattern);
+    void setRestMatchPattern(RestMatchPatternNode restMatchPattern);
 }

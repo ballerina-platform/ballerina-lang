@@ -141,7 +141,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // byte variable test
         debugTestRunner.assertExpression(context, BYTE_VAR, "128", "int");
         // table variable test
-        debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee>", "table");
+        debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee>[3]", "table");
         // stream variable test
         debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int>", "stream");
         // never variable test
@@ -492,8 +492,17 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, String.format("%s + %s", FLOAT_VAR, DECIMAL_VAR), "-6.5", "decimal");
         // decimal + float
         debugTestRunner.assertExpression(context, String.format("%s + %s", DECIMAL_VAR, FLOAT_VAR), "-6.5", "decimal");
+
         // string + string
         debugTestRunner.assertExpression(context, String.format("%s + %s", STRING_VAR, STRING_VAR), "foofoo", "string");
+        // string with leading and trailing whitespaces
+        debugTestRunner.assertExpression(context, "\" one \" + \" two \" + \" three \"", " one  two  three ", "string");
+        // string template concatenation
+        String bStringTemplateExpr = String.format("string `name: ${%s}, age: ${%s}`", STRING_VAR, INT_VAR);
+        debugTestRunner.assertExpression(context, String.format("%s + %s + %s", bStringTemplateExpr,
+                bStringTemplateExpr, bStringTemplateExpr), "name: foo, age: 20name: foo, age: 20name: foo, age: 20",
+                "string");
+
         // xml + xml
         debugTestRunner.assertExpression(context, String.format("%s + %s", XML_VAR, XML_VAR),
             "<person gender=\"male\">" +
@@ -655,7 +664,16 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void typeTestEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // predefined types
+        debugTestRunner.assertExpression(context, String.format("%s is string", INT_VAR), "false", "boolean");
+        debugTestRunner.assertExpression(context, String.format("%s is int", INT_VAR), "true", "boolean");
+        debugTestRunner.assertExpression(context, String.format("%s is error", ERROR_VAR), "true", "boolean");
+        // union types
+        debugTestRunner.assertExpression(context, String.format("%s is int | string", STRING_VAR), "true", "boolean");
+        // other named types
+        debugTestRunner.assertExpression(context, String.format("%s is 'Person_\\\\\\ \\/\\<\\>\\:\\@\\[\\`\\{\\~" +
+                "\\u{2324}_ƮέŞŢ", OBJECT_VAR), "true", "boolean");
+        // Todo: add tests for full qualified type resolving, after adding support
     }
 
     @Override

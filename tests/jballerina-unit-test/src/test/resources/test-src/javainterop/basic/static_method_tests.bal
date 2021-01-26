@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 import ballerina/lang.'value;
 import ballerina/test;
 
@@ -138,6 +138,17 @@ public function testStringCast() {
     string s = <string> result;
     test:assertEquals("Ballerina", s);
 }
+
+public function testGetCurrentModule() {
+     string moduleString =  getCurrentModule(4);
+     test:assertEquals(moduleString, "$anon#.#0.0.0#4");
+}
+
+function hashCode(int receiver) returns int = @java:Method {
+    name: "hashCode",
+    'class: "java.lang.Byte",
+    paramTypes: ["byte"]
+} external;
 
 // Interop functions
 public function acceptNothingAndReturnNothing() = @java:Method {
@@ -269,17 +280,6 @@ function getCurrentModule(int a) returns string  = @java:Method {
 
 public function returnNullString(boolean nullVal) returns string? = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
-} external;
-
-public function testGetCurrentModule() {
-     string moduleString =  getCurrentModule(4);
-     test:assertEquals(moduleString, "$anon#.#0.0.0#4");
-}
-
-function hashCode(int receiver) returns int = @java:Method {
-    name: "hashCode",
-    'class: "java.lang.Byte",
-    paramTypes: ["byte"]
 } external;
 
 function getValue() returns MyType = @java:Method {

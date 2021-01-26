@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
@@ -71,6 +70,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -147,9 +148,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMessageMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangNamedArgMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -614,7 +623,19 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRestMatchPattern restMatchPattern) {
+    }
 
+    @Override
+    public void visit(BLangMappingMatchPattern mappingMatchPattern) {
+        for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
+            analyzeNode(fieldMatchPattern, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangFieldMatchPattern fieldMatchPattern) {
+        analyzeNode(fieldMatchPattern.fieldName, env);
+        analyzeNode(fieldMatchPattern.matchPattern, env);
     }
 
     @Override
@@ -623,7 +644,50 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
+    }
+
+    @Override
     public void visit(BLangCaptureBindingPattern captureBindingPattern) {
+    }
+
+    @Override
+    public void visit(BLangErrorMatchPattern errorMatchPattern) {
+        analyzeNode(errorMatchPattern.errorMessageMatchPattern, env);
+        analyzeNode(errorMatchPattern.errorCauseMatchPattern, env);
+        analyzeNode(errorMatchPattern.errorFieldMatchPatterns, env);
+    }
+
+    @Override
+    public void visit(BLangErrorMessageMatchPattern errorMessageMatchPattern) {
+        analyzeNode(errorMessageMatchPattern.simpleMatchPattern, env);
+    }
+
+    @Override
+    public void visit(BLangSimpleMatchPattern simpleMatchPattern) {
+        analyzeNode(simpleMatchPattern.wildCardMatchPattern, env);
+        analyzeNode(simpleMatchPattern.constPattern, env);
+        analyzeNode(simpleMatchPattern.varVariableName, env);
+    }
+
+    @Override
+    public void visit(BLangErrorCauseMatchPattern errorCauseMatchPattern) {
+        analyzeNode(errorCauseMatchPattern.simpleMatchPattern, env);
+        analyzeNode(errorCauseMatchPattern.errorMatchPattern, env);
+    }
+
+    @Override
+    public void visit(BLangErrorFieldMatchPatterns errorFieldMatchPatterns) {
+        for (BLangNamedArgMatchPattern namedArgMatchPattern : errorFieldMatchPatterns.namedArgMatchPatterns) {
+            analyzeNode(namedArgMatchPattern, env);
+        }
+        analyzeNode(errorFieldMatchPatterns.restMatchPattern, env);
+    }
+
+    @Override
+    public void visit(BLangNamedArgMatchPattern namedArgMatchPattern) {
+        analyzeNode(namedArgMatchPattern.argName, env);
+        analyzeNode(namedArgMatchPattern.matchPattern, env);
     }
 
     @Override
@@ -631,6 +695,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         for (BLangBindingPattern bindingPattern : listBindingPattern.bindingPatterns) {
             analyzeNode(bindingPattern, env);
         }
+    }
+
+    @Override
+    public void visit(BLangRestBindingPattern restBindingPattern) {
     }
 
     @Override

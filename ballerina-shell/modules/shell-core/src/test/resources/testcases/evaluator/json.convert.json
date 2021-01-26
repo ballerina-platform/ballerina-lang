@@ -1,0 +1,29 @@
+[
+  {
+    "description": "Define Types.",
+    "code": "type Person record { string fname; string lname; int age; }; type Movie record { string title; string year; string released; Person writer; }; type MapAnydata map<anydata>;"
+  },
+  {
+    "description": "Define movie.",
+    "code": "Movie theRevenant = { title: \"The Revenant\", year: \"2015\", released: \"08 Jan 2016\", writer: { fname: \"Michael\", lname: \"Punke\", age: 30 } };"
+  },
+  {
+    "description": "Clone as json.",
+    "code": "theRevenant.cloneWithType(json)",
+    "expr": "{\"title\":\"The Revenant\",\"year\":\"2015\",\"released\":\"08 Jan 2016\",\"writer\":{\"fname\":\"Michael\",\"lname\":\"Punke\",\"age\":30}}"
+  },
+  {
+    "description": "Clone as anydata.",
+    "code": "theRevenant.cloneWithType(MapAnydata);",
+    "expr": "{\"title\":\"The Revenant\",\"year\":\"2015\",\"released\":\"08 Jan 2016\",\"writer\":{\"fname\":\"Michael\",\"lname\":\"Punke\",\"age\":30}}"
+  },
+  {
+    "description": "Define json.",
+    "code": "json inceptionJson = { title: \"Inception\", year: \"2010\", released: \"16 Jul 2010\", writer: { fname: \"Christopher\", lname: \"Nolan\", age: 30 } };"
+  },
+  {
+    "description": "Clone as movie type.",
+    "code": "inceptionJson.cloneWithType(Movie)",
+    "expr": "{\"title\":\"Inception\",\"year\":\"2010\",\"released\":\"16 Jul 2010\",\"writer\":{\"fname\":\"Christopher\",\"lname\":\"Nolan\",\"age\":30}}"
+  }
+]

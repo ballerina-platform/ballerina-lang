@@ -259,26 +259,22 @@ public class JsonUtils {
      *          values of the JSON object. Otherwise a {@link BallerinaException} will be thrown.
      */
     public static MapValueImpl<BString, ?> jsonToMap(Object json, MapType mapType) {
-        if (json == null || !isJSONObject(json)) {
+        if (!isJSONObject(json)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                    getComplexObjectTypeName(OBJECT), getTypeName(json));
+                                                           getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
         MapValueImpl<BString, Object> map = new MapValueImpl<>(mapType);
         Type mapConstraint = mapType.getConstrainedType();
         if (mapConstraint == null || mapConstraint.getTag() == TypeTags.ANY_TAG ||
                 mapConstraint.getTag() == TypeTags.JSON_TAG) {
-            ((MapValueImpl<BString, Object>) json).entrySet().forEach(entry -> {
-                map.put(entry.getKey(), entry.getValue());
-            });
+            ((MapValueImpl<BString, Object>) json).forEach(map::put);
 
             return map;
         }
 
         // We reach here if the map is constrained.
-        ((MapValueImpl<BString, Object>) json).entrySet().forEach(entry -> {
-            map.put(entry.getKey(), convertJSON(entry.getValue(), mapConstraint));
-        });
+        ((MapValueImpl<BString, Object>) json).forEach((key, value) -> map.put(key, convertJSON(value, mapConstraint)));
 
         return map;
     }
@@ -292,7 +288,7 @@ public class JsonUtils {
      * values of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
      */
     public static MapValueImpl<BString, Object> convertJSONToRecord(Object json, StructureType structType) {
-        if (json == null || !isJSONObject(json)) {
+        if (!isJSONObject(json)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                                                            getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
@@ -380,12 +376,12 @@ public class JsonUtils {
      * @return Keys of the JSON as a {@link ArrayValue}
      */
     public static ArrayValue getKeys(Object json) {
-        if (json == null || !isJSONObject(json)) {
+        if (!isJSONObject(json)) {
             return new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_STRING));
         }
 
         BString[] keys = ((MapValueImpl<BString, ?>) json).getKeys();
-        return new ArrayValueImpl(keys);
+        return new ArrayValueImpl(keys, false);
     }
 
     public static Object convertUnionTypeToJSON(Object source, JsonType targetType) {
@@ -703,8 +699,7 @@ public class JsonUtils {
                 case TypeTags.MAP_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                 case TypeTags.OBJECT_TYPE_TAG:
-                    json.append(convertMapToJSON((MapValueImpl<BString, ?>) value,
-                                                 (BJsonType) PredefinedTypes.TYPE_JSON));
+                    json.append(convertMapToJSON((MapValueImpl<BString, ?>) value, PredefinedTypes.TYPE_JSON));
                     break;
                 case TypeTags.ARRAY_TAG:
                     json.append(convertArrayToJSON((ArrayValue) value));
@@ -847,4 +842,6 @@ public class JsonUtils {
         }
     }
 
+    private JsonUtils() {
+    }
 }

@@ -55,6 +55,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
@@ -83,6 +84,8 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
  */
 public class ProjectUtils {
     private static final String USER_HOME = "user.home";
+    private static final Pattern separatedIdentifierPattern = Pattern.compile("^[a-zA-Z0-9_.]*$");
+    private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
 
     /**
      * Validates the org-name.
@@ -91,8 +94,8 @@ public class ProjectUtils {
      * @return True if valid org-name or package name, else false.
      */
     public static boolean validateOrgName(String orgName) {
-        String validRegex = "^[a-zA-Z0-9_]*$";
-        return Pattern.matches(validRegex, orgName);
+        Matcher m = orgNamePattern.matcher(orgName);
+        return m.matches();
     }
 
     /**
@@ -101,12 +104,8 @@ public class ProjectUtils {
      * @param packageName The package name.
      * @return True if valid package name, else false.
      */
-    public static boolean validatePkgName(String packageName) {
-        String validLanglib = "^lang.[a-z0-9_]*$";
-        String validRegex = "^[a-zA-Z0-9_]*$";
-        // We have special case for lang. packages
-        // todo consider orgname when checking is it is a lang lib
-        return Pattern.matches(validRegex, packageName) || Pattern.matches(validLanglib, packageName);
+    public static boolean validatePackageName(String packageName) {
+        return validateDotSeparatedIdentifiers(packageName);
     }
 
     /**
@@ -116,8 +115,7 @@ public class ProjectUtils {
      * @return True if valid module name, else false.
      */
     public static boolean validateModuleName(String moduleName) {
-        String validRegex = "^[a-zA-Z0-9_.]*$";
-        return Pattern.matches(validRegex, moduleName);
+        return validateDotSeparatedIdentifiers(moduleName);
     }
 
     /**
@@ -174,7 +172,7 @@ public class ProjectUtils {
      * @return package name
      */
     public static String guessPkgName(String packageName) {
-        if (!validatePkgName(packageName)) {
+        if (!validatePackageName(packageName)) {
             return packageName.replaceAll("[^a-zA-Z0-9_]", "_");
         }
         return packageName;
@@ -241,12 +239,6 @@ public class ProjectUtils {
     public static Path getBallerinaRTJarPath() {
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
         String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
-        return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
-    }
-
-    public static Path getChoreoRuntimeJarPath() {
-        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
-        String runtimeJarName = "ballerina-choreo-extension-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
     }
 
@@ -468,5 +460,28 @@ public class ProjectUtils {
         }
 
         return null;
+    }
+
+    public static void checkWritePermission(Path path) {
+        if (!path.toFile().canWrite()) {
+            throw new ProjectException("'" + path + "' does not have write permissions");
+        }
+    }
+
+    public static void checkReadPermission(Path path) {
+        if (!path.toFile().canRead()) {
+            throw new ProjectException("'" + path + "' does not have read permissions");
+        }
+    }
+
+    public static void checkExecutePermission(Path path) {
+        if (!path.toFile().canRead()) {
+            throw new ProjectException("'" + path + "' does not have execute permissions");
+        }
+    }
+
+    private static boolean validateDotSeparatedIdentifiers(String identifiers) {
+        Matcher m = separatedIdentifierPattern.matcher(identifiers);
+        return m.matches();
     }
 }
