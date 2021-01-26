@@ -20,6 +20,7 @@ import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.event.BreakpointEvent;
@@ -152,15 +153,33 @@ public class JDIEventProcessor {
 
         // Filter thread references which are at breakpoint, suspended and whose thread status is running.
         for (ThreadReference threadReference : threadReferences) {
-            if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
-                    && !threadReference.name().equals("Reference Handler")
-                    && !threadReference.name().equals("Signal Dispatcher")
-                    && threadReference.isSuspended()
-            ) {
-                breakPointThreads.put(threadReference.uniqueID(), threadReference);
+            try {
+                if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
+                        && !threadReference.name().equals("Reference Handler")
+                        && !threadReference.name().equals("Signal Dispatcher")
+                        && threadReference.isSuspended()
+                        && isBalStrand(threadReference)
+                ) {
+                    breakPointThreads.put(threadReference.uniqueID(), threadReference);
+                }
+            } catch (AbsentInformationException | IncompatibleThreadStateException e) {
+                LOGGER.error(e.getMessage());
             }
         }
         return breakPointThreads;
+    }
+
+    boolean isBalStrand(ThreadReference threadReference)
+            throws IncompatibleThreadStateException, AbsentInformationException {
+        List<StackFrame> stackFrames = threadReference.frames();
+
+        if (stackFrames.isEmpty()) {
+            return false;
+        }
+        if (stackFrames.get(0).location() == null) {
+            return false;
+        }
+        return stackFrames.get(0).location().sourceName().endsWith(".bal");
     }
 
     void sendStepRequest(long threadId, int stepType) {
