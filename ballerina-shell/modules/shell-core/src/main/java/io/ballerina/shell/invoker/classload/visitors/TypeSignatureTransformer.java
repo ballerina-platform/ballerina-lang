@@ -235,7 +235,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         StringBuilder sigBuilder = new StringBuilder("stream<");
         sigBuilder.append(transformType(symbol.typeParameter()));
         if (symbol.completionValueTypeParameter().typeKind() != TypeDescKind.NEVER) {
-            sigBuilder.append(", ").append(sigBuilder.append(transformType(symbol.completionValueTypeParameter())));
+            sigBuilder.append(", ").append(transformType(symbol.completionValueTypeParameter()));
         }
         sigBuilder.append('>');
         this.setState(sigBuilder.toString());
