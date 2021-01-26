@@ -1,0 +1,59 @@
+[
+  {
+    "description": "The XML element.",
+    "code": "xml bookXML = xml `<book> <name>Sherlock Holmes</name> <author> <fname title=\"Sir\">Arthur</fname> <mname>Conan</mname> <lname>Doyle</lname> </author> <bar:year xmlns:bar=\"http://ballerina.com/a\">2019</bar:year> <!--Price: $10--> </book>`;"
+  },
+  {
+    "description": "Access expression I.",
+    "code": "bookXML/<author>/<fname>",
+    "expr": "<fname title=\"Sir\">Arthur</fname>"
+  },
+  {
+    "description": "Access expression II.",
+    "code": "bookXML/<ISBN>/<code>",
+    "expr": ""
+  },
+  {
+    "description": "Access expression III.",
+    "code": "bookXML/<author>/<fname>.title",
+    "expr": "Sir"
+  },
+  {
+    "description": "Access expression IV.",
+    "code": "bookXML/**/<fname>",
+    "expr": "<fname title=\"Sir\">Arthur</fname>"
+  },
+  {
+    "description": "Access expression V.",
+    "code": "bookXML/*",
+    "expr": " <name>Sherlock Holmes</name> <author> <fname title=\"Sir\">Arthur</fname> <mname>Conan</mname> <lname>Doyle</lname> </author> <bar:year xmlns:bar=\"http://ballerina.com/a\">2019</bar:year> <!--Price: $10--> "
+  },
+  {
+    "description": "Access expression VI.",
+    "code": "bookXML/<*>",
+    "expr": "<name>Sherlock Holmes</name><author> <fname title=\"Sir\">Arthur</fname> <mname>Conan</mname> <lname>Doyle</lname> </author><bar:year xmlns:bar=\"http://ballerina.com/a\">2019</bar:year>"
+  },
+  {
+    "description": "Define namespace.",
+    "code": "xmlns \"http://ballerina.com/a\" as bar;"
+  },
+  {
+    "description": "Access expression VII.",
+    "code": "bookXML/<bar:*>/*",
+    "expr": "2019"
+  },
+  {
+    "description": "Define XML sequence.",
+    "code": "xml seq = bookXML/*;"
+  },
+  {
+    "description": "Access expression VIII.",
+    "code": "seq.<name>",
+    "expr": "<name>Sherlock Holmes</name>"
+  },
+  {
+    "description": "Access expression IX.",
+    "code": "seq.<bar:year>",
+    "expr": "<bar:year xmlns:bar=\"http://ballerina.com/a\">2019</bar:year>"
+  }
+]

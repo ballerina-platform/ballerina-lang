@@ -66,8 +66,7 @@ public class CaptureBindingPatternTest {
     public void testCaptureBindingPatternNegative1() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
 
-        int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, "unreachable pattern", 22, 9);
+        BAssertUtil.validateError(resultNegative, 0, "unreachable pattern", 22, 9);
     }
 
     @AfterClass

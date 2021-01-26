@@ -5,11 +5,11 @@ type TrxErrorData record {|
     string data = "";
 |};
 
-type TrxErrorData2 record {
+type TrxErrorData2 record {|
     string message = "";
     error cause?;
     map<string> data = {};
-};
+|};
 
 const string reasonA = "ErrNo-1";
 type UserDefErrorTwoA error<reasonA, TrxErrorData2>;

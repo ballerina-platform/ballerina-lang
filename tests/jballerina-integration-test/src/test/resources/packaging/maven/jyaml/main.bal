@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 // Creates a file in the current directory.
 public function main(string filepath) {

@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/log;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 
 public type Info record {|

@@ -1,0 +1,65 @@
+[
+  {
+    "name": "Function Definition",
+    "input": "function printValue(string value) { };",
+    "expected": [
+      "FunctionDefinitionNode"
+    ]
+  },
+  {
+    "name": "Listener Declaration",
+    "input": "listener http:Listener helloWorldEP = new (9095, helloWorldEPConfig);",
+    "expected": [
+      "ListenerDeclarationNode"
+    ]
+  },
+  {
+    "name": "Type Definition",
+    "input": "type newType record{string name;};",
+    "expected": [
+      "TypeDefinitionNode"
+    ]
+  },
+  {
+    "name": "Service Declaration",
+    "input": "service hello on new http:Listener(9090) { };",
+    "expected": [
+      "ServiceDeclarationNode"
+    ]
+  },
+  {
+    "name": "Constant Declaration",
+    "input": "const int var1 = 3;",
+    "expected": [
+      "ConstantDeclarationNode"
+    ]
+  },
+  {
+    "name": "Module XML Namespace Declaration",
+    "input": "xmlns \"http://ballerina.com/aa\" as ns0;",
+    "expected": [
+      "ModuleXMLNamespaceDeclarationNode"
+    ]
+  },
+  {
+    "name": "Class Definition",
+    "input": "class Person { };",
+    "expected": [
+      "ClassDefinitionNode"
+    ]
+  },
+  {
+    "name": "Module Variable Declaration",
+    "input": "int t = 4;",
+    "expected": [
+      "ModuleVariableDeclarationNode"
+    ]
+  },
+  {
+    "name": "Enum Declaration",
+    "input": "enum Color { RED, GREEN, BLUE };",
+    "expected": [
+      "EnumDeclarationNode"
+    ]
+  }
+]

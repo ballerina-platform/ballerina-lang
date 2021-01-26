@@ -2,9 +2,9 @@ NAME
        ballerina-run - Build and execute a Ballerina program
 
 SYNOPSIS
-       ballerina run [<options>]
+       bal run [<options>]
                      <ballerina-file-path> | <executable-jar> [<arguments>] [<config properties>]
-       ballerina run [<options>] <.> | <ballerina-package-path> [<arguments>] [<config properties>]
+       bal run [<options>] <.> | <ballerina-package-path> [<arguments>] [<config properties>]
 
 
 DESCRIPTION
@@ -43,6 +43,9 @@ OPTIONS
            Package observability in the executable when run is used
            with a source file or a package.
 
+       --taint-check
+           Perform taint flow analysis.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set the Ballerina environment parameters as key/value pairs.
@@ -72,16 +75,16 @@ DEFAULT BEHAVIOR
 
 EXAMPLES
        Run the 'main' function and/or services in the hello .bal file.
-          $ ballerina run hello.bal
+          $ bal run hello.bal
 
        Run the 'main' function and/or services in the hello executable jar.
-          $ ballerina run hello.jar
+          $ bal run hello.jar
 
        Run the 'main' function and/or services in the current package.
-          $ ballerina run .
+          $ bal run .
 
        Run the 'main' function in the `math` package with three program args:
        add, 10, and 5. If the second and third parameters of the 'main'
        function are of types int and int, the second and third arguments
        would be passed as integer values 10 and 5.
-          $ ballerina run math add 10 5
+          $ bal run math add 10 5

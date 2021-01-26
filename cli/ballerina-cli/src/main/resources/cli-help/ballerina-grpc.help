@@ -3,7 +3,7 @@ NAME
                         definition
 
 SYNOPSIS
-       ballerina grpc --input <proto-file-path> [--output <path>]
+       bal grpc --input <proto-file-path> [--output <path>]
                         [--mode client | service | proxy]
 
 DESCRIPTION
@@ -29,12 +29,12 @@ OPTIONS
 EXAMPLES
        Generate the Ballerina gRPC stub file for the given .proto file to a
        'stub' directory.
-          $ ballerina grpc --input chat.proto --output stub
+          $ bal grpc --input chat.proto --output stub
 
        Generate the Ballerina gRPC stub file and client sample code for the
        given .proto file to a 'client' directory.
-          $ ballerina grpc --input chat.proto --output client --mode client
+          $ bal grpc --input chat.proto --output client --mode client
 
        Generate the Ballerina gRPC stub file and service sample code for the
        given .proto file to a 'service' directory.
-          $ ballerina grpc --input chat.proto --output service --mode service
+          $ bal grpc --input chat.proto --output service --mode service

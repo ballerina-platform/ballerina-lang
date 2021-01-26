@@ -79,7 +79,7 @@ public class Document {
         private Modifier(Document oldDocument) {
             this.documentId = oldDocument.documentId();
             this.name = oldDocument.name();
-            this.content = oldDocument.syntaxTree().textDocument().toString();
+            this.content = oldDocument.textDocument().toString();
             this.oldModule = oldDocument.module();
         }
 

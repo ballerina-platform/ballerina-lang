@@ -53,8 +53,8 @@ public class ProjectPaths {
             throw new ProjectException("provided path is not a regular file");
         }
 
-        // check if the file is the Ballerina.toml file
-        if (Optional.of(filepath.getFileName()).get().toString().equals(ProjectConstants.BALLERINA_TOML)) {
+        // check if the file is a ballerina project related toml file
+        if (isBallerinaRelatedToml(filepath)) {
             return filepath.getParent();
         }
 
@@ -97,6 +97,25 @@ public class ProjectPaths {
         return Files.exists(filepath)
                 && Files.isRegularFile(filepath)
                 && filepath.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT);
+    }
+
+    /**
+     * Returns whether the provided path is a ballerina project related toml file.
+     *
+     * @param filepath Ballerina file path
+     * @return true if the path is a ballerina project related toml file.
+     */
+    private static boolean isBallerinaRelatedToml(Path filepath) {
+        String fileName = Optional.of(filepath.getFileName()).get().toString();
+        switch (fileName) {
+            case ProjectConstants.BALLERINA_TOML:
+            case ProjectConstants.KUBERNETES_TOML:
+            case ProjectConstants.CONFIGURATION_TOML:
+            case ProjectConstants.DEPENDENCIES_TOML:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**

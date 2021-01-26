@@ -86,6 +86,9 @@ public class JDIEventProcessor {
                     LOGGER.error(e.getMessage(), e);
                 }
             }
+            // It is not required to terminate the debuggee (remote VM) in here, since it must be disconnected or dead
+            // by now.
+            context.getAdapter().exit(false);
         });
     }
 

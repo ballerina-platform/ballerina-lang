@@ -7,16 +7,6 @@ authors= ["jo", "pramodya"]
 keywords= ["toml", "ballerina"]
 repository= "https://github.com/ballerina-platform/ballerina-lang"
 
-[[dependency]]
-org = "wso2"
-name = "twitter"
-version = "2.3.4"
-
-[[dependency]]
-org = "wso2"
-name = "github"
-version = "1.2.3"
-
 [[platform.java11.dependency]]
 path = "/user/sameera/libs/toml4j.jar"
 artifactId = "toml4j"
@@ -33,3 +23,5 @@ groupId = "swagger.io"
 observabilityIncluded = true
 offline = true
 skipTests = false
+cloud = "k8s"
+taintCheck = true

@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 // Test a function that accepts a Ballerina byte for a Java short
 public function testCreateJShortFromBByte(byte value)  returns handle {

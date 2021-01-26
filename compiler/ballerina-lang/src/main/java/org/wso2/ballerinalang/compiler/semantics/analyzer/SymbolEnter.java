@@ -2320,16 +2320,39 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (recordTypeNode.restFieldType == null) {
-            if (recordTypeNode.sealed) {
-                recordType.restFieldType = symTable.noType;
-                return;
-            }
+        if (recordTypeNode.restFieldType != null) {
+            recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
+            return;
+        }
+
+        if (!recordTypeNode.sealed) {
             recordType.restFieldType = symTable.anydataType;
             return;
         }
 
-        recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
+        for (BLangType typeRef : recordTypeNode.typeRefs) {
+            if (typeRef.type.tag != TypeTags.RECORD) {
+                continue;
+            }
+            BType restFieldType = ((BRecordType) typeRef.type).restFieldType;
+            if (restFieldType == symTable.noType) {
+                continue;
+            }
+            if (recordType.restFieldType != null && !types.isSameType(recordType.restFieldType, restFieldType)) {
+                recordType.restFieldType = symTable.noType;
+                dlog.error(recordTypeNode.pos,
+                        DiagnosticErrorCode.
+                        CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES);
+                return;
+            }
+            recordType.restFieldType = restFieldType;
+            recordType.sealed = false;
+        }
+
+        if (recordType.restFieldType != null) {
+            return;
+        }
+        recordType.restFieldType = symTable.noType;
     }
 
     private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
@@ -2607,7 +2630,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (nodeKind != NodeKind.RECORD_TYPE || !(((BRecordType) structureType).sealed)) {
+            if (nodeKind != NodeKind.RECORD_TYPE) {
+                continue;
+            }
+
+            BRecordType recordType = (BRecordType) structureType;
+            if (!recordType.sealed && recordType.restFieldType.tag != TypeTags.NEVER) {
                 continue;
             }
 

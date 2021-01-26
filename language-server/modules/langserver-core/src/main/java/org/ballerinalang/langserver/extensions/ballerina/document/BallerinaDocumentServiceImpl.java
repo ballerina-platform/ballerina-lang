@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonElement;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
@@ -141,19 +143,27 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     @Override
     public CompletableFuture<BallerinaProject> project(BallerinaProjectParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            BallerinaProject project = new BallerinaProject();
+            BallerinaProject ballerinaProject = new BallerinaProject();
             try {
                 Optional<Path> filePath = CommonUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
                 if (filePath.isEmpty()) {
-                    return project;
+                    return ballerinaProject;
                 }
-                Path projectRoot = this.workspaceManager.projectRoot(filePath.get());
-                project.setPath(projectRoot.toString());
+                Optional<Project> project = this.workspaceManager.project(filePath.get());
+                if (project.isEmpty()) {
+                    return ballerinaProject;
+                }
+                ballerinaProject.setPath(project.get().sourceRoot().toString());
+                ProjectKind projectKind = project.get().kind();
+                if (projectKind != ProjectKind.SINGLE_FILE_PROJECT) {
+                    ballerinaProject.setPackageName(project.get().currentPackage().packageName().value());
+                }
+                ballerinaProject.setKind(projectKind.name());
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/project' failed!";
                 this.clientLogger.logError(msg, e, params.getDocumentIdentifier(), (Position) null);
             }
-            return project;
+            return ballerinaProject;
         });
     }
 
