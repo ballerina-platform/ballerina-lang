@@ -219,13 +219,13 @@ types:
         type: s4
   type_object_or_service:
     seq:
-      - id: is_object_type
+      - id: is_service
         type: s1
       - id: pkd_id_cp_index
         type: s4
       - id: name_cp_index
         type: s4
-      - id: is_abstract
+      - id: is_class
         type: u1
       - id: is_client
         type: u1
@@ -238,19 +238,35 @@ types:
       - id: has_generated_init_function
         type: s1
       - id: generated_init_function
-        type: object_attached_function
+        type: method
         if: has_generated_init_function == 1
       - id: has_init_function
         type: s1
       - id: init_function
-        type: object_attached_function
+        type: method
         if: has_init_function == 1
-      - id: object_attached_functions_count
+      - id: methods_count
         type: s4
-      - id: object_attached_functions
-        type: object_attached_function
+      - id: remote_methods_count
+        type: s4
+        if: is_client == 1 or is_service == 1
+      - id: resource_methods_count
+        type: s4
+        if: is_service == 1
+      - id: methods
+        type: method
         repeat: expr
-        repeat-expr: object_attached_functions_count
+        repeat-expr: methods_count
+      - id: remote_methods
+        type: method
+        repeat: expr
+        repeat-expr: remote_methods_count
+        if: is_client == 1 or is_service == 1
+      - id: resource_methods
+        type: resource_method
+        repeat: expr
+        repeat-expr: resource_methods_count
+        if: is_service == 1
       - id: type_inclusions_count
         type: s4
       - id: type_inclusions_cp_index
@@ -269,12 +285,34 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
-  object_attached_function:
+  method:
     seq:
       - id: name_cp_index
         type: s4
       - id: flags
         type: s8
+      - id: type_cp_index
+        type: s4
+  resource_method:
+    seq:
+      - id: method_name_cp_index
+        type: s4
+      - id: path_count
+        type: s4
+      - id: path_segments_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: path_count
+      - id: param_count
+        type: s4
+      - id: name_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: param_count
+      - id: param_defaultability
+        type: u1
+        repeat: expr
+        repeat-expr: param_count
       - id: type_cp_index
         type: s4
   type_union:
