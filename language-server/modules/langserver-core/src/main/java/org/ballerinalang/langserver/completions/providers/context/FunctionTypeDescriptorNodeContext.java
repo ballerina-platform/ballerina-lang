@@ -81,7 +81,7 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     }
 
     private boolean withinParameterContext(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
-        FunctionSignatureNode functionSignatureNode = node.functionSignature();
+        FunctionSignatureNode functionSignatureNode = node.functionSignature().get();
         if (functionSignatureNode.isMissing()) {
             return false;
         }
@@ -93,7 +93,7 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     }
 
     private boolean withinReturnKWContext(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
-        FunctionSignatureNode functionSignatureNode = node.functionSignature();
+        FunctionSignatureNode functionSignatureNode = node.functionSignature().get();
         if (functionSignatureNode.isMissing()) {
             return false;
         }
