@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # This file contains the utility functions implemented natively which are used by the 'stream' langib module.
 

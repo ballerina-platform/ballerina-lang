@@ -17,12 +17,12 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.BallerinaToml;
-import io.ballerina.projects.BallerinaTomlException;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
-import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.MdDocument;
+import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
@@ -58,14 +58,22 @@ public class ProjectFiles {
     public static PackageData loadSingleFileProjectPackageData(Path filePath) {
         DocumentData documentData = loadDocument(filePath);
         ModuleData defaultModule = ModuleData
-                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList());
-        return PackageData.from(filePath, defaultModule, Collections.emptyList());
+                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null);
+        return PackageData.from(filePath, defaultModule, Collections.emptyList(),
+                null, null, null, null);
     }
 
     public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
         ModuleData defaultModule = loadModule(packageDirPath);
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
-        return PackageData.from(packageDirPath, defaultModule, otherModules);
+
+        DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
+        DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
+        DocumentData kubernetesToml = loadDocument(packageDirPath.resolve(ProjectConstants.KUBERNETES_TOML));
+        DocumentData packageMd = loadDocument(packageDirPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+
+        return PackageData.from(packageDirPath, defaultModule, otherModules,
+                ballerinaToml, dependenciesToml, kubernetesToml, packageMd);
     }
 
     private static List<ModuleData> loadOtherModules(Path packageDirPath) {
@@ -103,9 +111,20 @@ public class ProjectFiles {
         } else {
             testSrcDocs = Collections.emptyList();
         }
+
+        MdDocument moduleMd = loadModuleMd(moduleDirPath);
         // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
-        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs);
+        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd);
     }
+
+    private static MdDocument loadModuleMd(Path modulePath) {
+        Path moduleMdPath = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+        if (Files.exists(moduleMdPath)) {
+            return new MdDocument(moduleMdPath);
+        }
+        return null;
+    }
+
 
     public static List<DocumentData> loadDocuments(Path dirPath) {
         try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
@@ -130,6 +149,10 @@ public class ProjectFiles {
     }
 
     public static DocumentData loadDocument(Path documentFilePath) {
+        if (Files.notExists(documentFilePath)) {
+            return null;
+        }
+
         String content;
         try {
             content = Files.readString(documentFilePath, Charset.defaultCharset());
@@ -150,18 +173,15 @@ public class ProjectFiles {
         return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);
     }
 
-    public static PackageManifest createPackageManifest(BallerinaToml ballerinaToml) {
-        return ballerinaToml.packageManifest();
-    }
-
-    public static BuildOptions createBuildOptions(Path projectPath, BuildOptions theirOptions) {
-        Path ballerinaTomlFilePath = projectPath.resolve(ProjectConstants.BALLERINA_TOML);
-        BallerinaToml ballerinaToml = BallerinaToml.from(ballerinaTomlFilePath);
-        if (ballerinaToml.diagnostics().hasErrors()) {
-            throw new BallerinaTomlException(ballerinaToml.getErrorMessage());
-        }
-
-        BuildOptions defaultBuildOptions = ballerinaToml.buildOptions();
+    public static BuildOptions createBuildOptions(PackageConfig packageConfig, BuildOptions theirOptions,
+                                                  Path projectDirPath) {
+        // Todo figure out how to pass the build options without a performance hit
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML,
+                packageConfig.ballerinaToml().map(t -> t.content()).orElse(""));
+        TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML,
+                packageConfig.dependenciesToml().map(t -> t.content()).orElse(""));
+        ManifestBuilder manifestBuilder = ManifestBuilder.from(ballerinaToml, dependenciesToml, projectDirPath);
+        BuildOptions defaultBuildOptions = manifestBuilder.buildOptions();
         if (defaultBuildOptions == null) {
             defaultBuildOptions = new BuildOptionsBuilder().build();
         }

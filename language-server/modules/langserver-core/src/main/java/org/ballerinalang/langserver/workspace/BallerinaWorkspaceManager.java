@@ -21,10 +21,14 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.KubernetesToml;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.Package;
@@ -34,6 +38,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -196,16 +201,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (projectPair.isEmpty()) {
             return Optional.empty();
         }
-        Optional<Document> document = document(filePath, projectPair.get().project());
-        if (document.isEmpty()) {
-            return Optional.empty();
-        }
-        // Get Package
-        Package packageInstance = document.get().module().packageInstance();
+
         // Lock Project Instance
         projectPair.get().locker().lock();
         try {
-            return Optional.of(packageInstance.getCompilation());
+            return Optional.of(projectPair.get().project().currentPackage().getCompilation());
         } finally {
             // Unlock Project Instance
             projectPair.get().locker().unlock();
@@ -219,7 +219,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param params   {@link DidOpenTextDocumentParams}
      */
     @Override
-    public void didOpen(Path filePath, DidOpenTextDocumentParams params) {
+    public void didOpen(Path filePath, DidOpenTextDocumentParams params) throws WorkspaceDocumentException {
         // Create Project, if not exists
         Path projectRoot = projectRoot(filePath);
         sourceRootToProject.computeIfAbsent(projectRoot, path -> createProject(filePath));
@@ -230,18 +230,19 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             return;
         }
 
-        // Check if new document is not loaded to Project Instance
-        Optional<Document> document = document(filePath, projectPair.project());
-        if (document.isEmpty()) {
-            // Lock Project Instance
-            projectPair.locker().lock();
-            try {
-                // Reload the project
-                projectPair.setProject(createProject(filePath).project());
-            } finally {
-                // Unlock Project Instance
-                projectPair.locker().unlock();
-            }
+        Project project = projectPair.project();
+        if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.DEPENDENCIES_TOML))) {
+            // create or update Dependencies.toml
+            //TODO: Remove this call with workspace events
+            updateDependenciesToml(params.getTextDocument().getText(), projectPair, true);
+        } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.KUBERNETES_TOML))) {
+            // create or update Kubernetes.toml
+            //TODO: Remove this call with workspace events
+            updateKubernetesToml(params.getTextDocument().getText(), projectPair, true);
+        } else if (ProjectPaths.isBalFile(filePath)) {
+            // update .bal document, if not exists reload project instance
+            //TODO: Remove this call with workspace events
+            updateDocument(filePath, params.getTextDocument().getText(), projectPair, true);
         }
     }
 
@@ -259,24 +260,133 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (projectPair.isEmpty()) {
             throw new WorkspaceDocumentException("Cannot add changes to a file in an un-opened project!");
         }
+
+        Project project = projectPair.get().project();
+        if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.BALLERINA_TOML))) {
+            // create or update Ballerina.toml
+            updateBallerinaToml(params.getContentChanges().get(0).getText(), projectPair.get());
+        } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.DEPENDENCIES_TOML))) {
+            // create or update Dependencies.toml
+            updateDependenciesToml(params.getContentChanges().get(0).getText(), projectPair.get(), false);
+        } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.KUBERNETES_TOML))) {
+            // create or update Kubernetes.toml
+            updateKubernetesToml(params.getContentChanges().get(0).getText(), projectPair.get(), false);
+        } else if (ProjectPaths.isBalFile(filePath)) {
+            // update .bal document
+            updateDocument(filePath, params.getContentChanges().get(0).getText(), projectPair.get(), false);
+        } else {
+            throw new WorkspaceDocumentException("Unsupported file update");
+        }
+    }
+
+    private void updateBallerinaToml(String content, ProjectPair projectPair) throws WorkspaceDocumentException {
         // Lock Project Instance
-        projectPair.get().locker().lock();
+        projectPair.locker().lock();
+        try {
+            Optional<BallerinaToml> ballerinaToml = projectPair.project().currentPackage().ballerinaToml();
+            // Get toml
+            if (ballerinaToml.isEmpty()) {
+                throw new WorkspaceDocumentException(ProjectConstants.BALLERINA_TOML + " does not exists!");
+            }
+            // Update toml
+            BallerinaToml updatedToml = ballerinaToml.get().modify().withContent(content).apply();
+            // Update project instance
+            projectPair.setProject(updatedToml.packageInstance().project());
+        } finally {
+            // Unlock Project Instance
+            projectPair.locker().unlock();
+        }
+    }
+
+    private void updateDependenciesToml(String content, ProjectPair projectPair, boolean createIfNotExists)
+            throws WorkspaceDocumentException {
+        // Lock Project Instance
+        projectPair.locker().lock();
+        try {
+            Optional<DependenciesToml> dependenciesToml = projectPair.project().currentPackage().dependenciesToml();
+            // Get toml
+            if (dependenciesToml.isEmpty()) {
+                if (createIfNotExists) {
+                    DocumentConfig documentConfig = DocumentConfig.from(
+                            DocumentId.create(ProjectConstants.DEPENDENCIES_TOML, null), content,
+                            ProjectConstants.DEPENDENCIES_TOML
+                    );
+                    Package pkg = projectPair.project().currentPackage().modify()
+                            .addDependenciesToml(documentConfig)
+                            .apply();
+                    // Update project instance
+                    projectPair.setProject(pkg.project());
+                    return;
+                }
+                throw new WorkspaceDocumentException(ProjectConstants.DEPENDENCIES_TOML + " does not exists!");
+            }
+            // Update toml
+            DependenciesToml updatedToml = dependenciesToml.get().modify().withContent(content).apply();
+            // Update project instance
+            projectPair.setProject(updatedToml.packageInstance().project());
+        } finally {
+            // Unlock Project Instance
+            projectPair.locker().unlock();
+        }
+    }
+
+    private void updateKubernetesToml(String content, ProjectPair projectPair, boolean createIfNotExists)
+            throws WorkspaceDocumentException {
+        // Lock Project Instance
+        projectPair.locker().lock();
+        try {
+            Optional<KubernetesToml> kubernetesToml = projectPair.project().currentPackage().kubernetesToml();
+            // Get toml
+            if (kubernetesToml.isEmpty()) {
+                if (createIfNotExists) {
+                    DocumentConfig documentConfig = DocumentConfig.from(
+                            DocumentId.create(ProjectConstants.KUBERNETES_TOML, null), content,
+                            ProjectConstants.KUBERNETES_TOML
+                    );
+                    Package pkg = projectPair.project().currentPackage().modify()
+                            .addKubernetesToml(documentConfig)
+                            .apply();
+                    // Update project instance
+                    projectPair.setProject(pkg.project());
+                    return;
+                }
+                throw new WorkspaceDocumentException(ProjectConstants.KUBERNETES_TOML + " does not exists!");
+            }
+            // Update toml
+            KubernetesToml updatedToml = kubernetesToml.get().modify().withContent(content).apply();
+            // Update project instance
+            projectPair.setProject(updatedToml.packageInstance().project());
+        } finally {
+            // Unlock Project Instance
+            projectPair.locker().unlock();
+        }
+    }
+
+    private void updateDocument(Path filePath, String content, ProjectPair projectPair, boolean createIfNotExists)
+            throws WorkspaceDocumentException {
+        // Lock Project Instance
+        projectPair.locker().lock();
         try {
             // Get document
-            Optional<Document> document = document(filePath, projectPair.get().project());
+            Optional<Document> document = document(filePath, projectPair.project());
             if (document.isEmpty()) {
-                throw new WorkspaceDocumentException("Document does not exist in path: " + filePath.toString());
+                if (createIfNotExists) {
+                    //TODO: Need to create document here, Need to address with workspace events
+                    // Reload the project
+                    projectPair.setProject(createProject(filePath).project());
+                } else {
+                    throw new WorkspaceDocumentException("Document does not exist in path: " + filePath.toString());
+                }
             }
 
             // Update file
-            String content = params.getContentChanges().get(0).getText();
             Document updatedDoc = document.get().modify().withContent(content).apply();
 
             // Update project instance
-            projectPair.get().setProject(updatedDoc.module().project());
+            projectPair.setProject(updatedDoc.module().project());
         } finally {
             // Unlock Project Instance
-            projectPair.get().locker().unlock();
+            projectPair.locker().unlock();
         }
     }
 

@@ -144,6 +144,26 @@ public class MatchStmtListMatchPatternTest {
     }
 
     @Test
+    public void testListMatchPattern20() {
+        BRunUtil.invoke(result, "testListMatchPattern20");
+    }
+
+    @Test
+    public void testListMatchPattern21() {
+        BRunUtil.invoke(result, "testListMatchPattern21");
+    }
+
+    @Test
+    public void testListMatchPattern22() {
+        BRunUtil.invoke(result, "testListMatchPattern22");
+    }
+
+    @Test
+    public void testListMatchPattern23() {
+        BRunUtil.invoke(result, "testListMatchPattern23");
+    }
+
+    @Test
     public void testRestMatchPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest1");
     }

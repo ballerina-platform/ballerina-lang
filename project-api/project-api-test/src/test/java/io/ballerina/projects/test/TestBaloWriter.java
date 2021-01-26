@@ -203,7 +203,7 @@ public class TestBaloWriter {
             }
 
             Assert.assertEquals(javaDependency.getOrg(), "ballerina");
-            Assert.assertEquals(javaDependency.getName(), "java");
+            Assert.assertEquals(javaDependency.getName(), "jballerina.java");
 
             Assert.assertEquals(fooDependency.getOrg(), "foo");
             Assert.assertEquals(fooDependency.getName(), "winery");
@@ -213,7 +213,7 @@ public class TestBaloWriter {
             List<Dependency> fooDependencies = fooDependency.getDependencies();
             Assert.assertEquals(fooDependencies.size(), 1);
             Assert.assertEquals(fooDependencies.get(0).getOrg(), "ballerina");
-            Assert.assertEquals(fooDependencies.get(0).getName(), "java");
+            Assert.assertEquals(fooDependencies.get(0).getName(), "jballerina.java");
 
 
             List<ModuleDependency> moduleDependencyGraph = dependencyGraphJson.getModuleDependencies();

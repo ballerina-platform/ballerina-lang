@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.codeaction.extensions.K8sDiagnosticsBasedCod
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.toml.ProbeStore;
 import org.ballerinalang.langserver.toml.TomlProbesVisitor;
-import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 
 /**
  * Abstract class for handling probe related code actions.
@@ -33,7 +32,9 @@ import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 public abstract class ProbeBasedDiagnosticAction implements K8sDiagnosticsBasedCodeAction {
 
     protected ProbeStore getProbe(CodeActionContext ctx) {
-        SyntaxTree syntaxTree = TomlSyntaxTreeUtil.getTomlSyntaxTree(ctx.filePath()).orElseThrow();
+        //Code Actions gets called only from Kubernetes.toml in a project.
+        SyntaxTree syntaxTree = ctx.workspace().project(ctx.filePath()).orElseThrow().currentPackage().kubernetesToml()
+                .orElseThrow().tomlDocument().syntaxTree();
         DocumentNode node = syntaxTree.rootNode();
         TomlProbesVisitor probesVisitor = new TomlProbesVisitor();
         node.accept(probesVisitor);

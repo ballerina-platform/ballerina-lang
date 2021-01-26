@@ -74,7 +74,6 @@ public class Endpoint {
         try {
             WebServer webServer = (WebServer) listenerEndpoint.getNativeData(WEB_SERVER_NATIVE_DATA_KEY);
             webServer.shutdownGracefully();
-            Utils.logInfo("Shutting down gracefully");
             return null;
         } catch (Throwable e) {
             return Utils.createError(e);
@@ -85,7 +84,6 @@ public class Endpoint {
         try {
             WebServer webServer = (WebServer) listenerEndpoint.getNativeData(WEB_SERVER_NATIVE_DATA_KEY);
             webServer.shutdownNow();
-            Utils.logInfo("Shutting down");
             return null;
         } catch (Throwable e) {
             return Utils.createError(e);
