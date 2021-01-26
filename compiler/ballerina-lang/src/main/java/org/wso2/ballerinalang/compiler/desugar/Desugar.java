@@ -1420,7 +1420,7 @@ public class Desugar extends BLangNodeVisitor {
         String name = String.format("$error$_%d$", errorVarCount++);
         BVarSymbol errorVarSymbol = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
                                                    errorType, this.env.scope.owner, varNode.pos, VIRTUAL);
-        final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varNode.pos, name,errorType, null,
+        final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varNode.pos, name, errorType, null,
                 errorVarSymbol);
         error.expr = varNode.expr;
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
@@ -1789,10 +1789,6 @@ public class Desugar extends BLangNodeVisitor {
                     filteredDetail.type,
                     ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol),
                     parentErrorVariable.restDetail.symbol);
-//            BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos,
-//                    ASTBuilderUtil.createVariableRef(pos, parentErrorVariable.restDetail.symbol),
-//                    ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol));
-//            parentBlockStmt.addStatement(assignmentStmt);
         }
         rewrite(parentBlockStmt, env);
     }
