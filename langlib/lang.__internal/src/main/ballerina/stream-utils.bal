@@ -32,7 +32,7 @@ public type Type1 any|error;
 
 # An `EmptyIterator` which returns nil on next() method invocation.
 class EmptyIterator {
-    public isolated function next() returns record {|Type value;|}|ErrorType? {
+    public isolated function next() returns record {|Type value;|}? {
         return ();
     }
 }

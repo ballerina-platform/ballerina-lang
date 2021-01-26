@@ -3218,8 +3218,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
         retTypeMembers.add(recordType);
-        if (streamType.error.tag != TypeTags.NEVER) {
-            retTypeMembers.add(streamType.error);
+        List<BType> errorTypes = getTypesList(streamType.error);
+        errorTypes.removeIf(type -> type.tag == TypeTags.NEVER);
+        if (!errorTypes.isEmpty()) {
+            retTypeMembers.addAll(errorTypes);
         }
         retTypeMembers.add(symTable.nilType);
 

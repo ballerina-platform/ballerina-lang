@@ -97,11 +97,11 @@ function testStreamConstructWithFilter() returns boolean {
     NumberGenerator numGen = new NumberGenerator();
     var intStream = new stream<int>(numGen);
 
-    stream<int,error> oddNumberStream = intStream.filter(function (int intVal) returns boolean {
+    stream<int> oddNumberStream = intStream.filter(function (int intVal) returns boolean {
         return intVal % 2 == 1;
     });
 
-    ResultValue? oddNumber = <ResultValue?> checkpanic oddNumberStream.next();
+    ResultValue? oddNumber = <ResultValue?>oddNumberStream.next();
     testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
 
     oddNumber = getRecordValue(oddNumberStream.next());

@@ -667,9 +667,19 @@ public class TypeParamAnalyzer {
                         symTable.mapType.tsymbol);
             case TypeTags.STREAM:
                 BType streamConstraint = getMatchingBoundType(((BStreamType) expType).constraint, env, resolvedTypes);
-                BType streamError = (((BStreamType) expType).error.tag != TypeTags.NEVER)
-                        ? getMatchingOptionalBoundType((BUnionType) ((BStreamType) expType).error, env, resolvedTypes)
-                        : symTable.neverType;
+                BType streamError = ((BStreamType) expType).error;
+                if (streamError.tag == TypeTags.UNION) {
+                    List<BType> errorTypes = types.getAllTypes(streamError);
+                    if (errorTypes.stream().anyMatch(e -> e.tag == TypeTags.NEVER)) {
+                        streamError = symTable.neverType;
+                    } else {
+                        streamError = getMatchingOptionalBoundType((BUnionType) streamError, env, resolvedTypes);
+                    }
+                } else if (streamError.tag == TypeTags.ERROR) {
+                    streamError = getMatchingBoundType(streamError, env, resolvedTypes);
+                } else {
+                    streamError = symTable.neverType;
+                }
                 return new BStreamType(TypeTags.STREAM, streamConstraint, streamError, symTable.streamType.tsymbol);
             case TypeTags.TABLE:
                 BType tableConstraint = getMatchingBoundType(((BTableType) expType).constraint, env, resolvedTypes);
@@ -814,8 +824,12 @@ public class TypeParamAnalyzer {
 
     private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
-        expType.getMemberTypes()
-                .forEach(type -> members.add(getMatchingBoundType(type, env, resolvedTypes)));
+        expType.getMemberTypes().forEach(type -> {
+            BType boundType = getMatchingBoundType(type, env, resolvedTypes);
+            if (boundType.tag != TypeTags.NEVER) {
+                members.add(boundType);
+            }
+        });
         return BUnionType.create(null, members);
     }
 
