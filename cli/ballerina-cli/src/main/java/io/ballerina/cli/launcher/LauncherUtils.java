@@ -58,7 +58,7 @@ public class LauncherUtils {
     public static BLauncherException createUsageExceptionWithHelp(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage("ballerina: " + errorMsg);
-        launcherException.addMessage("Run 'ballerina help' for usage.");
+        launcherException.addMessage("Run 'bal help' for usage.");
         return launcherException;
     }
 
