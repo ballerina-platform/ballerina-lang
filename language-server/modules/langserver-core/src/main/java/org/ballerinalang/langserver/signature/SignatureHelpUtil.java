@@ -16,10 +16,11 @@
 package org.ballerinalang.langserver.signature;
 
 import io.ballerina.compiler.api.symbols.Documentation;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -433,20 +434,17 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
 
-        List<FieldSymbol> fieldSymbols = new ArrayList<>();
-
-        if (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.OBJECT) {
-            fieldSymbols.addAll(((ObjectTypeSymbol) CommonUtil
-                    .getRawType(typeDescriptor.get())).fieldDescriptors());
-        } else if (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.RECORD) {
-            fieldSymbols.addAll(((RecordTypeSymbol) CommonUtil
-                    .getRawType(typeDescriptor.get())).fieldDescriptors());
+        TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
+        switch (rawType.typeKind()) {
+            case OBJECT:
+                ObjectFieldSymbol objField = ((ObjectTypeSymbol) rawType).fieldDescriptors().get(fieldName);
+                return objField != null ? Optional.of(objField.typeDescriptor()) : Optional.empty();
+            case RECORD:
+                RecordFieldSymbol recField = ((RecordTypeSymbol) rawType).fieldDescriptors().get(fieldName);
+                return recField != null ? Optional.of(recField.typeDescriptor()) : Optional.empty();
+            default:
+                return Optional.empty();
         }
-
-        return fieldSymbols.stream()
-                .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
-                .map(FieldSymbol::typeDescriptor)
-                .findAny();
     }
 
     private static Optional<? extends TypeSymbol> getTypeDescForNameRef(SignatureContext context,
@@ -493,7 +491,7 @@ public class SignatureHelpUtil {
 
         List<FunctionSymbol> visibleMethods = fieldTypeDesc.get().langLibMethods();
         if (CommonUtil.getRawType(fieldTypeDesc.get()).typeKind() == TypeDescKind.OBJECT) {
-            visibleMethods.addAll(((ObjectTypeSymbol) CommonUtil.getRawType(fieldTypeDesc.get())).methods());
+            visibleMethods.addAll(((ObjectTypeSymbol) CommonUtil.getRawType(fieldTypeDesc.get())).methods().values());
         }
         Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
@@ -510,7 +508,7 @@ public class SignatureHelpUtil {
         List<FunctionSymbol> functionSymbols = new ArrayList<>();
         if (CommonUtil.getRawType(typeDescriptor).typeKind() == TypeDescKind.OBJECT) {
             ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) CommonUtil.getRawType(typeDescriptor);
-            functionSymbols.addAll(objTypeDesc.methods());
+            functionSymbols.addAll(objTypeDesc.methods().values());
         }
         functionSymbols.addAll(typeDescriptor.langLibMethods());
 

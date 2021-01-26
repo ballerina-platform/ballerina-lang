@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public function testIntVarargs_1() returns [int, int, int] {
     return [calculateSum(1, 3, 6), calculateSum(6), calculateSum()];

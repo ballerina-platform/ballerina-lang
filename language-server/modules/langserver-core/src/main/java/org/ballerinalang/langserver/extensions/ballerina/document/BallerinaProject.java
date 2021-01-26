@@ -28,6 +28,8 @@ public class BallerinaProject {
 
     private String packageName;
 
+    private String kind;
+
     public String getPath() {
         return path;
     }
@@ -58,5 +60,13 @@ public class BallerinaProject {
 
     public void setPackageName(String packageName) {
         this.packageName = packageName;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
     }
 }

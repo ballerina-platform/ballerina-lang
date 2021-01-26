@@ -19,8 +19,8 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
@@ -34,7 +34,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.List;
+import java.util.Map;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
@@ -63,8 +63,8 @@ public class TypeCacheTest {
         TypeDefinitionSymbol personDefSymbol =
                 (TypeDefinitionSymbol) model.symbol(srcFile, LinePosition.from(30, 5)).get();
         TypeSymbol personTypedesc = personDefSymbol.typeDescriptor();
-        List<FieldSymbol> personFields = ((RecordTypeSymbol) personTypedesc).fieldDescriptors();
-        FieldSymbol parentField = personFields.stream().filter(field -> "parent".equals(field.name())).findAny().get();
+        Map<String, RecordFieldSymbol> personFields = ((RecordTypeSymbol) personTypedesc).fieldDescriptors();
+        RecordFieldSymbol parentField = personFields.get("parent");
         TypeSymbol type = ((UnionTypeSymbol) parentField.typeDescriptor()).memberTypeDescriptors().get(0);
 
         assertSame(personTypedesc, ((TypeReferenceTypeSymbol) type).typeDescriptor());
@@ -75,11 +75,10 @@ public class TypeCacheTest {
 
         assertSame(personTypedesc, ((TypeReferenceTypeSymbol) typeInclusion).typeDescriptor());
 
-        List<FieldSymbol> empFields = ((RecordTypeSymbol) employeeDefSymbol.typeDescriptor()).fieldDescriptors();
-        FieldSymbol designationType =
-                empFields.stream().filter(field -> "designation".equals(field.name())).findAny().get();
-        FieldSymbol nameType =
-                personFields.stream().filter(field -> "name".equals(field.name())).findAny().get();
+        Map<String, RecordFieldSymbol> empFields =
+                ((RecordTypeSymbol) employeeDefSymbol.typeDescriptor()).fieldDescriptors();
+        RecordFieldSymbol designationType = empFields.get("designation");
+        RecordFieldSymbol nameType = personFields.get("name");
 
         assertSame(nameType.typeDescriptor(), designationType.typeDescriptor());
     }

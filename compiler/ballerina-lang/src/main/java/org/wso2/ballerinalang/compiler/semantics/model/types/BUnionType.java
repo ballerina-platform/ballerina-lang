@@ -54,7 +54,9 @@ public class BUnionType extends BType implements UnionType {
 
     private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
+    private static final String CLONEABLE_TYPE = "CloneableType";
     private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE + "([12])?");
+    private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
     protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
         super(TypeTags.UNION, tsymbol);
@@ -114,13 +116,14 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public String toString() {
 
-        if (resolvingToString) {
+        // This logic is added to prevent duplicate recursive calls to toString
+        if (this.resolvingToString) {
             if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
                 return this.tsymbol.getName().getValue();
             }
             return "...";
         }
-        resolvingToString = true;
+        this.resolvingToString = true;
 
         StringJoiner joiner = new StringJoiner(getKind().typeName());
 
@@ -138,6 +141,8 @@ public class BUnionType extends BType implements UnionType {
         if (isCyclic && (tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
             typeStr = this.tsymbol.getName().getValue();
             if (pCloneable.matcher(typeStr).matches()) {
+                typeStr = CLONEABLE;
+            } else if (Symbols.isFlagOn(this.flags, Flags.TYPE_PARAM) && pCloneableType.matcher(typeStr).matches()) {
                 typeStr = CLONEABLE;
             }
         } else {

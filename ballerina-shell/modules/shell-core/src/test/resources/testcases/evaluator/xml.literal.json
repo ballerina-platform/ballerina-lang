@@ -1,0 +1,21 @@
+[
+  {
+    "description": "Define complex xml literal.",
+    "code": "xml x1 = xml `<book> <name>Sherlock Holmes</name> <author>Sir Arthur Conan Doyle</author> <!--Price: $10--> </book>`; x1",
+    "expr": "<book> <name>Sherlock Holmes</name> <author>Sir Arthur Conan Doyle</author> <!--Price: $10--> </book>"
+  },
+  {
+    "description": "Define XML namespaces.",
+    "code": "xmlns \"http://ballerina.com/\"; xmlns \"http://ballerina.com/aa\" as ns0;"
+  },
+  {
+    "description": "Define complex xml literal using namespaces.",
+    "code": "xml x2 = xml `<book ns0:status=\"available\"> <ns0:name>Sherlock Holmes</ns0:name> <author>Sir Arthur Conan Doyle</author> <!--Price: $10--> </book>`; x2",
+    "expr": "<book xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/aa\" ns0:status=\"available\"> <ns0:name>Sherlock Holmes</ns0:name> <author>Sir Arthur Conan Doyle</author> <!--Price: $10--> </book>"
+  },
+  {
+    "description": "Define complex xml literal using ${} notation.",
+    "code": "string title = \"(Sir)\"; xml x3 = xml `<ns0:newBook> <name>Sherlock Holmes</name> <author>${title} Arthur Conan Doyle</author> <!--Price: $${ 40 / 5 + 4 }--> </ns0:newBook>`; x3",
+    "expr": "<ns0:newBook xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/aa\"> <name>Sherlock Holmes</name> <author>(Sir) Arthur Conan Doyle</author> <!--Price: $12--> </ns0:newBook>"
+  }
+]

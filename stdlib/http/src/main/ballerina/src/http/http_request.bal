@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/stringutils;
-import ballerina/java;
+import ballerina/jballerina.java;
 import ballerina/time;
 import ballerina/lang.array;
 

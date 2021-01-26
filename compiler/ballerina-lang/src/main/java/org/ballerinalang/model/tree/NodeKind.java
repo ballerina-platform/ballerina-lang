@@ -130,6 +130,7 @@ public enum NodeKind {
     TRANSACTIONAL_EXPRESSION,
     OBJECT_CTOR_EXPRESSION,
     ERROR_CONSTRUCTOR_EXPRESSION,
+    DYNAMIC_PARAM_EXPR,
 
     /* Statements */
     ABORT,
@@ -210,7 +211,9 @@ public enum NodeKind {
 
     /* Binding patterns*/
     CAPTURE_BINDING_PATTERN,
+    WILDCARD_BINDING_PATTERN,
     LIST_BINDING_PATTERN,
+    REST_BINDING_PATTERN,
 
     /* Types */
     ARRAY_TYPE,

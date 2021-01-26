@@ -97,6 +97,8 @@ public class Type {
     @Expose
     public boolean isLambda;
     @Expose
+    public boolean isReadOnly;
+    @Expose
     public boolean isDeprecated;
     @Expose
     public boolean generateUserDefinedTypeLink = true;

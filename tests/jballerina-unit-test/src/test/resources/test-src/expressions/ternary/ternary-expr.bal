@@ -110,3 +110,8 @@ function decrement(int i) returns error|int {
 function increment(int i) returns error|int {
     return i + 1;
 }
+
+function testPredeclPrefixInTernary() returns int {
+    int a = true? int:sum(5, 6) : 5;
+    return a;
+}

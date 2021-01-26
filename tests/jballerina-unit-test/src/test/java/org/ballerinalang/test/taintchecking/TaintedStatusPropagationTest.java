@@ -20,6 +20,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -29,10 +30,23 @@ import org.testng.annotations.Test;
  */
 public class TaintedStatusPropagationTest {
 
-    @Test
-    public void testReturn() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/returns.bal");
+    @Test(dataProvider = "functionNamesProvider")
+    public void testSuccessful(String fileName) {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" + fileName);
         Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @DataProvider(name = "functionNamesProvider")
+    public Object[] getSuccessfulFileNames() {
+        return new String[]{"returns.bal", "variables.bal", "receiver.bal", "record.bal", "array.bal", "json.bal",
+                "map.bal", "xml.bal", "basic-worker.bal", "if-condition.bal", "ternary.bal", "lambda.bal",
+                "tuple-return.bal", "string-template.bal", "iterable.bal", "iterable-within-iterable.bal",
+                "foreach.bal", "multiple-invocation-levels.bal", "cast.bal", "chained-invocations.bal",
+                "global-variables.bal", "compound-assignment.bal", "is.bal", "object-functions.bal",
+                "global-object-functions.bal", "object-functions-with-constructor.bal",
+                "simple-worker-interaction.bal", "in-out-param-basic.bal", "param-status-with-native-invocations.bal",
+                "error.bal", "call.bal", "closure-variable-assignment.bal", "global-func-pointer-async-invocation.bal",
+                "let.bal"};
     }
 
     @Test
@@ -40,12 +54,6 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/returns-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 2, 20);
-    }
-
-    @Test
-    public void testVariable() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/variables.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -61,22 +69,10 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testReceiver() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/receiver.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testReceiverNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/receiver-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 3, 20);
-    }
-
-    @Test
-    public void testRecord() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/record.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -94,12 +90,6 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testArray() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/array.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testArrayNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/array-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 6);
@@ -109,12 +99,6 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 3, "tainted value passed to untainted parameter 'secureIn'", 19, 20);
         BAssertUtil.validateError(result, 4, "tainted value passed to untainted parameter 'secureIn'", 23, 20);
         BAssertUtil.validateError(result, 5, "tainted value passed to untainted parameter 'secureIn'", 28, 20);
-    }
-
-    @Test
-    public void testJson() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/json.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -132,12 +116,6 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testMap() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/map.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testMapNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/map-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 8);
@@ -152,12 +130,6 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testXML() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/xml.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testXMLNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/xml-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 4);
@@ -168,22 +140,10 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testBasicWorker() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/basic-worker.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testBasicWorkerNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/basic-worker-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 3, 24);
-    }
-
-    @Test
-    public void testIfCondition() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/if-condition.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -197,12 +157,6 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testTernaryExpr() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/ternary.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testTernaryExprNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/ternary-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
@@ -211,22 +165,10 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testLambda() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/lambda.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testLambdaNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/lambda-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 28, 20);
-    }
-
-    @Test
-    public void testTupleReturn() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/tuple-return.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -238,12 +180,6 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testStringTemplate() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/string-template.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testStringTemplateNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/string-template-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
@@ -251,22 +187,10 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testIterable() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/iterable.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testIterableNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/iterable-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 3, 20);
-    }
-
-    @Test
-    public void testIterableWitinIterable() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/iterable-within-iterable.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -278,23 +202,10 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testForEach() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/foreach.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testForEachNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/foreach-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 5, 24);
-    }
-
-    @Test
-    public void testMultipleInvocationLevels() {
-        CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/propagation/multiple-invocation-levels.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -306,23 +217,10 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testCast() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/cast.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testCastNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/cast-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 4, 20);
-    }
-
-    @Test
-    public void testChainedInvocations() {
-        CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/propagation/chained-invocations.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -340,12 +238,6 @@ public class TaintedStatusPropagationTest {
                 .compile("test-src/taintchecking/propagation/without-user-data-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 7, 20);
-    }
-
-    @Test
-    public void testGlobalVariables() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/global-variables.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -383,12 +275,6 @@ public class TaintedStatusPropagationTest {
 //    }
 
     @Test
-    public void testCompoundAssignment() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/compound-assignment.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testCompoundAssignmentNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/compound-assignment-negative.bal");
@@ -396,12 +282,6 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 7, 20);
         BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 11, 20);
         BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 16, 24);
-    }
-
-    @Test
-    public void testMatch() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/is.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -413,22 +293,10 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testObjectFunction() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/object-functions.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testObjectFunctionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/object-functions-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 14, 20);
-    }
-
-    @Test
-    public void testGlobalObjectFunction() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/global-object-functions.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -451,24 +319,11 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testObjectFunctionWithConstructor() {
-        CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/propagation/object-functions-with-constructor.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testObjectFunctionWithConstructorNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/object-functions-with-constructor-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 21, 20);
-    }
-
-    @Test
-    public void testSimpleWorkerInteraction() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/simple-worker-interaction.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/17497
@@ -504,12 +359,6 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testInOutParameters() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/in-out-param-basic.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testInOutParametersNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "in-out-param-basic-negative.bal");
@@ -522,24 +371,11 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testParameterStatusWithNativeInvocations() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
-                "param-status-with-native-invocations.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testParameterStatusWithNativeInvocationsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "param-status-with-native-invocations-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'key'", 23, 33);
-    }
-
-    @Test
-    public void testError() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/error.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'key'", 19, 26);
     }
 
     @Test
@@ -553,23 +389,10 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testCall() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/call.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testCallNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/call-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 18, 20);
-    }
-
-    @Test
-    public void testClosureVariableAssignment() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
-                "closure-variable-assignment.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -599,13 +422,6 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testGlobalFunctionPointerAsyncInvocation() {
-        CompileResult result = BCompileUtil.compile(
-                "test-src/taintchecking/propagation/global-func-pointer-async-invocation.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 0);
-    }
-
-    @Test
     public void testTaintednessPropagationIntoTypeGuardNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/into-type-guard-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
@@ -620,12 +436,6 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 1,
                 "functions returning tainted value are required to annotate return signature @tainted: 'foo'", 22, 24);
     }
-
-     @Test
-     public void testTaintLetExpr() {
-         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/let.bal");
-         Assert.assertEquals(result.getDiagnostics().length, 0);
-     }
 
      @Test
      public void testTaintLetExprNegative() {

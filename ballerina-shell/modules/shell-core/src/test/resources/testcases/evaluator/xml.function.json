@@ -1,0 +1,50 @@
+[
+  {
+    "description": "Imports xml module.",
+    "code": "import ballerina/lang.'xml as xmllib;"
+  },
+  {
+    "description": "Define XML elements.",
+    "code": "xml bookName = xml `<name>Book1</name>`; xml bookComment = xml `<!--some comment-->`; xml someText = xml `Hello, World!`; xml content = someText + bookName + bookComment; xmllib:Element book = <xmllib:Element> xml `<book/>`;"
+  },
+  {
+    "description": "Get the name of XML element.",
+    "code": "xmllib:Element bookNameElem = <xmllib:Element> bookName; bookNameElem.getName()",
+    "expr": "name"
+  },
+  {
+    "description": "Concat XML and Strings.",
+    "code": "xml concat = xmllib:concat(someText, bookName, bookComment); concat",
+    "expr": "Hello, World!<name>Book1</name><!--some comment-->"
+  },
+  {
+    "description": "If concat is the expected value.",
+    "code": "content == concat",
+    "expr": "true"
+  },
+  {
+    "description": "Number of elements in the sequence.",
+    "code": "concat.length()",
+    "expr": "3"
+  },
+  {
+    "description": "Get subsequence of XML sequence.",
+    "code": "xml x = content.slice(2, 3); x",
+    "expr": "<!--some comment-->"
+  },
+  {
+    "description": "Get all elements in the XML.",
+    "code": "x = content.elements(); x",
+    "expr": "<name>Book1</name>"
+  },
+  {
+    "description": "Set child elements of XML element.",
+    "code": "book.setChildren(content); book",
+    "expr": "<book>Hello, World!<name>Book1</name><!--some comment--></book>"
+  },
+  {
+    "description": "Strip insignificant parts.",
+    "code": "x = content.strip(); x",
+    "expr": "Hello, World!<name>Book1</name>"
+  }
+]

@@ -1289,7 +1289,10 @@ public class TypeChecker {
             Field sourceField = sourceFields.get(fieldName);
 
             if (sourceField == null) {
-                return false;
+                if (!SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.OPTIONAL)) {
+                    return false;
+                }
+                continue;
             }
 
             if (hasIncompatibleReadOnlyFlags(targetField, sourceField)) {

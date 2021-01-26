@@ -215,7 +215,7 @@ public class LSAnnotationCache {
      */
     private void loadAnnotationsFromPackage(Package pkg) {
         for (Module module : pkg.modules()) {
-            List<AnnotationSymbol> annotList = module.getCompilation().getSemanticModel().moduleLevelSymbols().stream()
+            List<AnnotationSymbol> annotList = module.getCompilation().getSemanticModel().moduleSymbols().stream()
                     .filter(symbol -> symbol.kind() == io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION)
                     .map(symbol -> (AnnotationSymbol) symbol)
                     .collect(Collectors.toList());

@@ -67,6 +67,6 @@ public function testSelfReferencingError() returns error {
 
 type MyError error<MyErrorData>;
 
-type MyErrorData record {
+type MyErrorData record {|
     *lang:Detail;
-};
+|};

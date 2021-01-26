@@ -56,6 +56,12 @@ OPTIONS
        --observability-included
            Package observability in the executable JAR file(s).
 
+       --cloud
+           Enable cloud artifact generation for cloud providers such as kubernetes.
+
+       --taint-check
+           Perform taint flow analysis.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set the Ballerina environment parameters as key/value pairs.

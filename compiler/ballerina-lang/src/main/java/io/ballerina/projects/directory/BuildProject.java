@@ -51,9 +51,13 @@ public class BuildProject extends Project {
      * @return build project
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+        return load(environmentBuilder, projectPath, new BuildOptionsBuilder().build());
+    }
+
+    public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
+                                    BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
-        BuildProject buildProject = new BuildProject(
-                environmentBuilder, projectPath, new BuildOptionsBuilder().build());
+        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, buildOptions);
         buildProject.addPackage(packageConfig);
         return buildProject;
     }
@@ -74,7 +78,7 @@ public class BuildProject extends Project {
 
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
-        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(projectPath, buildOptions);
+        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions);
         buildProject.addPackage(packageConfig);
         return buildProject;

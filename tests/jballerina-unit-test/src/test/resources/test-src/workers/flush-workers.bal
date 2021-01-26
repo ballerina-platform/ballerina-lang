@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 string append = "";
 function singleFlush () returns string {
     @strand{thread:"any"}

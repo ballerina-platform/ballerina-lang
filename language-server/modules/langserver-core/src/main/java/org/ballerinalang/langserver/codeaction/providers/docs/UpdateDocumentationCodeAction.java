@@ -47,6 +47,11 @@ import java.util.Optional;
 public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
 
     @Override
+    public int priority() {
+        return 998;
+    }
+
+    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
         String code = diagnostic.diagnosticInfo().code();
         if (!DiagnosticWarningCode.UNDOCUMENTED_PARAMETER.diagnosticId().equals(code) &&

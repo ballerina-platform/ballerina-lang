@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public function formatFruits() returns string {
    handle result = format( java:fromString("%s and %s"), java:fromString("mango"), java:fromString("banana"));

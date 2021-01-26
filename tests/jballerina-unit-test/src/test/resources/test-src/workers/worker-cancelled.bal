@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 // Test if worker actions are panicked if the worker is cancelled before sending
 function workerCancelledBeforeSend() {
