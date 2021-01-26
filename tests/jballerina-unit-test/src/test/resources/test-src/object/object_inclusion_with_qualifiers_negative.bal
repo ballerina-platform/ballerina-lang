@@ -126,3 +126,19 @@ function testInvalidReadOnlyReferenceInObjectConstructorExpression() {
         }
     };
 }
+
+public type Timestamp readonly & object {
+    public function toString() returns string;
+};
+
+class InvalidNonReadOnlyClassWithInvalidReadOnlyIntersectionInclusion {
+    *Timestamp;
+
+    public function toString() returns string => "";
+}
+
+type InvalidObjectTypeDescriptorWithInvalidReadOnlyIntersectionInclusion object {
+    *Timestamp;
+
+    public function toInt() returns int;
+};

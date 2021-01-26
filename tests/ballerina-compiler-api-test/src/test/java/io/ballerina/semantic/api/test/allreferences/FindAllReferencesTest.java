@@ -20,9 +20,11 @@ package io.ballerina.semantic.api.test.allreferences;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -33,6 +35,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -45,21 +49,24 @@ public abstract class FindAllReferencesTest {
 
     public static final List<Location> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<>());
     protected SemanticModel model;
+    protected Document srcFile;
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel(getTestSourcePath());
+        Project project = BCompileUtil.loadProject(getTestSourcePath());
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
 
     @Test(dataProvider = "PositionProvider")
     public void testFindAllReferencesUsingLocation(int line, int col, List<Location> expLocations) {
-        List<Location> locations = model.references(getFileName(), LinePosition.from(line, col));
+        List<Location> locations = model.references(srcFile, LinePosition.from(line, col));
         assertLocations(locations, expLocations);
     }
 
     @Test(dataProvider = "PositionProvider")
     public void testFindAllReferencesUsingSymbol(int line, int col, List<Location> expLocations) {
-        Optional<Symbol> symbol = model.symbol(getFileName(), LinePosition.from(line, col));
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
 
         if (expLocations.isEmpty()) {
             assertTrue(symbol.isEmpty());
@@ -73,9 +80,11 @@ public abstract class FindAllReferencesTest {
     @DataProvider(name = "PositionProvider")
     public abstract Object[][] getLookupPositions();
 
-    public abstract String getFileName();
-
     public abstract String getTestSourcePath();
+
+    public String getFileName() {
+        return this.srcFile.name();
+    }
 
     // Util methods
 

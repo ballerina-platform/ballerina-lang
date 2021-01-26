@@ -27,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -77,8 +78,9 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
 
         // Get parameter symbol
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
-        Optional<Symbol> optParamSymbol = semanticModel.symbol(relPath, initializer.get().lineRange().startLine());
+        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
+        Optional<Symbol> optParamSymbol = semanticModel.symbol(srcFile,
+                                                               initializer.get().lineRange().startLine());
         if (optParamSymbol.isEmpty() || optParamSymbol.get().kind() != SymbolKind.VARIABLE) {
             return Collections.emptyList();
         }

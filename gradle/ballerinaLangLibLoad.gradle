@@ -26,7 +26,7 @@ configurations {
 dependencies {
 
     testRuntime project(':ballerina-lang:annotations')
-    testRuntime project(':ballerina-lang:java')
+    testRuntime project(':ballerina-lang:jballerina.java')
     testRuntime project(':ballerina-lang:internal')
     testRuntime project(':ballerina-lang:array')
     testRuntime project(':ballerina-lang:decimal')
@@ -51,8 +51,8 @@ dependencies {
 
     distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
     testRuntime project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
-    testRuntime project(path: ':ballerina-lang:java', configuration: 'distributionBirJar')
+    distributionBalo project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBalo')
+    testRuntime project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBirJar')
     distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
     testRuntime project(path: ':ballerina-lang:internal', configuration: 'distributionBirJar')
     distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')

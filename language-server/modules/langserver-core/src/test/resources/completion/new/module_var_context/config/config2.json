@@ -121,7 +121,7 @@
       ]
     },
     {
-      "label": "ballerina/java",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "insertText": "java",
@@ -138,7 +138,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/java;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -409,6 +409,20 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "insertText": "object {\n\t\n};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "base16",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "base16 `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "base64",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "base64 `${1}`",
       "insertTextFormat": "Snippet"
     },
     {

@@ -211,10 +211,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getBacktickToken();
                 break;
             case LexerTerminals.SINGLE_QUOTE:
-                token = processQuotedIdentifier(false);
-                break;
-            case LexerTerminals.BACKSLASH:
-                token = processQuotedIdentifier(true);
+                token = processQuotedIdentifier();
                 break;
 
             // Numbers
@@ -284,7 +281,8 @@ public class BallerinaLexer extends AbstractLexer {
             case 'y':
             case 'z':
             case '_':
-                token = processIdentifierOrKeyword();
+            case '\\':
+                token = processIdentifierOrKeyword(c);
                 break;
 
             // Other
@@ -779,17 +777,11 @@ public class BallerinaLexer extends AbstractLexer {
     /**
      * Process and returns an identifier or a keyword.
      *
+     * @param startChar Initial char of the identifier
      * @return An identifier or a keyword.
      */
-    private STToken processIdentifierOrKeyword() {
-        while (isIdentifierFollowingChar(peek())) {
-            reader.advance();
-        }
-
-        if (peek() == '\\') {
-            return processQuotedIdentifier(false);
-        }
-
+    private STToken processIdentifierOrKeyword(int startChar) {
+        processUnquotedIdentifier(startChar);
         String tokenText = getLexeme();
         switch (tokenText) {
             // built-in named-types
@@ -1051,126 +1043,6 @@ public class BallerinaLexer extends AbstractLexer {
 
     /**
      * <p>
-     * Check whether a given char is an identifier start char.
-     * </p>
-     * <code>IdentifierInitialChar := A .. Z | a .. z | _ | UnicodeIdentifierChar</code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character is an identifier start char. <code>false</code> otherwise.
-     */
-    private boolean isIdentifierInitialChar(int c) {
-        if ('A' <= c && c <= 'Z') {
-            return true;
-        }
-
-        if ('a' <= c && c <= 'z') {
-            return true;
-        }
-
-        if (c == '_') {
-            return true;
-        }
-
-        return isUnicodeIdentifierChar(c);
-    }
-
-    /**
-     * <p>
-     * Check whether a given char is a unicode identifier char.
-     * </p>
-     * <code> UnicodeIdentifierChar := ^ ( AsciiChar | UnicodeNonIdentifierChar ) </code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character is a unicode identifier char. <code>false</code> otherwise.
-     */
-    private boolean isUnicodeIdentifierChar(int c) {
-        // check ASCII char range
-        if (0x0000 <= c && c <= 0x007F) {
-            return false;
-        }
-
-        // check UNICODE private use char
-        if (isUnicodePrivateUseChar(c) || isUnicodePatternWhiteSpaceChar(c)) {
-            return false;
-        }
-
-        // TODO: if (UnicodePatternSyntaxChar) return false
-        return (c != Character.MAX_VALUE);
-    }
-
-    /**
-     * <p>
-     * Check whether a given char is a unicode pattern white space char.
-     * </p>
-     * <code> UnicodePatternWhiteSpaceChar := 0x200E | 0x200F | 0x2028 | 0x2029 </code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character is a unicode pattern white space char. <code>false</code> otherwise.
-     */
-    private boolean isUnicodePatternWhiteSpaceChar(int c) {
-        return (0x200E == c || 0x200F == c || 0x2028 == c || 0x2029 == c);
-    }
-
-    /**
-     * <p>
-     * Check whether a given char is a unicode private use char.
-     * </p>
-     * <code> UnicodePrivateUseChar := 0xE000 .. 0xF8FF | 0xF0000 .. 0xFFFFD | 0x100000 .. 0x10FFFD </code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character is a unicode private use char. <code>false</code> otherwise.
-     */
-    private boolean isUnicodePrivateUseChar(int c) {
-        return (0xE000 <= c && c <= 0xF8FF || 0xF0000 <= c && c <= 0xFFFFD || 0x100000 <= c && c <= 0x10FFFD);
-    }
-
-    /**
-     * <p>
-     * Check whether a given char is an identifier following char.
-     * </p>
-     * <code>IdentifierFollowingChar := IdentifierInitialChar | Digit</code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character is an identifier following char. <code>false</code> otherwise.
-     */
-    private boolean isIdentifierFollowingChar(int c) {
-        return isIdentifierInitialChar(c) || isDigit(c);
-    }
-
-    /**
-     * <p>
-     * Check whether a given char is a digit.
-     * </p>
-     * <code>Digit := 0..9</code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character represents a digit. <code>false</code> otherwise.
-     */
-    static boolean isDigit(int c) {
-        return ('0' <= c && c <= '9');
-    }
-
-    /**
-     * <p>
-     * Check whether a given char is a hexa digit.
-     * </p>
-     * <code>HexDigit := Digit | a .. f | A .. F</code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character represents a hex digit. <code>false</code> otherwise.
-     */
-    static boolean isHexDigit(int c) {
-        if ('a' <= c && c <= 'f') {
-            return true;
-        }
-        if ('A' <= c && c <= 'F') {
-            return true;
-        }
-        return isDigit(c);
-    }
-
-    /**
-     * <p>
      * Check whether current input index points to a start of a hex-numeric literal.
      * </p>
      * <code>HexIndicator := 0x | 0X</code>
@@ -1211,11 +1083,11 @@ public class BallerinaLexer extends AbstractLexer {
      * <br/>
      * StringChar := ^ ( 0xA | 0xD | \ | " )
      * <br/>
-     * StringEscape := StringSingleEscape | StringNumericEscape
+     * StringEscape := StringSingleEscape | NumericEscape
      * <br/>
      * StringSingleEscape := \t | \n | \r | \\ | \"
      * <br/>
-     * StringNumericEscape := \ u{ CodePoint }
+     * NumericEscape := \ u{ CodePoint }
      * <br/>
      * CodePoint := HexDigit+
      * </code>
@@ -1245,15 +1117,14 @@ public class BallerinaLexer extends AbstractLexer {
                             continue;
                         case 'u':
                             if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
-                                processStringNumericEscape();
+                                processNumericEscape();
                             } else {
                                 reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
                                 this.reader.advance(2);
                             }
                             continue;
                         default:
-                            String escapeSequence = String.valueOf((char) this.reader.peek(2));
-                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
+                            reportInvalidEscapeSequence(this.reader.peek(2));
                             this.reader.advance();
                             continue;
                     }
@@ -1268,11 +1139,11 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     /**
-     * Process string numeric escape.
+     * Process numeric escape.
      * <p>
-     * <code>StringNumericEscape := \ u { CodePoint }</code>
+     * <code>NumericEscape := \ u { CodePoint }</code>
      */
-    private void processStringNumericEscape() {
+    private void processNumericEscape() {
         // Process '\ u {'
         this.reader.advance(3);
 
@@ -1478,24 +1349,62 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     /**
-     * Process quoted Identifier token.
-     * 
+     * Process quoted identifier.
+     * <p>
      * <code>
-     * QuotedIdentifierChar := IdentifierFollowingChar | QuotedIdentifierEscape | StringNumericEscape
+     * QuotedIdentifier := ' (IdentifierFollowingChar | IdentifierEscape) IdentifierEnd
      * </code>
-     * @param initialEscape Denotes whether <code>\</code> is at the beginning of the identifier
-     * @return Quoted identifier token
+     *
+     * @return An identifier token.
      */
-    private STToken processQuotedIdentifier(boolean initialEscape) {
+    private STToken processQuotedIdentifier() {
+        processIdentifierEnd(false);
+        if (String.valueOf(LexerTerminals.SINGLE_QUOTE).equals(getLexeme())) {
+            reportLexerError(DiagnosticErrorCode.ERROR_INCOMPLETE_QUOTED_IDENTIFIER);
+        }
+        return getIdentifierToken();
+    }
+
+    /**
+     * Process unquoted identifier.
+     * <p>
+     * <code>
+     * UnquotedIdentifier := (IdentifierInitialChar | IdentifierEscape) IdentifierEnd
+     * </code>
+     */
+    private void processUnquotedIdentifier(int startChar) {
+        processIdentifierEnd(startChar == LexerTerminals.BACKSLASH);
+    }
+
+    /**
+     * Process identifier end.
+     * <p>
+     * <i>Note: Need to update the {@link DocumentationLexer} whenever changing the identifier processing.</i>
+     * <p>
+     * <code>
+     * IdentifierEnd := IdentifierChar*
+     * <br/>
+     * IdentifierChar := IdentifierFollowingChar | IdentifierEscape
+     * <br/>
+     * IdentifierEscape := IdentifierSingleEscape | NumericEscape
+     * </code>
+     *
+     * @param initialEscape Denotes whether <code>\</code> is at the beginning of the identifier
+     */
+    private void processIdentifierEnd(boolean initialEscape) {
         while (!reader.isEOF()) {
             int k = 1;
             int nextChar = reader.peek();
             if (isIdentifierFollowingChar(nextChar)) {
                 reader.advance();
+                if (initialEscape) {
+                    reportInvalidEscapeSequence((char) nextChar);
+                    initialEscape = false;
+                }
                 continue;
             }
 
-            if (nextChar != '\\' && !initialEscape) {
+            if (nextChar != LexerTerminals.BACKSLASH && !initialEscape) {
                 break;
             }
             if (initialEscape) {
@@ -1503,7 +1412,7 @@ public class BallerinaLexer extends AbstractLexer {
                 initialEscape = false;
             }
 
-            // QuotedIdentifierEscape | StringNumericEscape
+            // IdentifierSingleEscape | NumericEscape
 
             nextChar = reader.peek(k);
             switch (nextChar) {
@@ -1512,17 +1421,16 @@ public class BallerinaLexer extends AbstractLexer {
                 case LexerTerminals.TAB:
                     break;
                 case 'u':
-                    // StringNumericEscape
-                    if (reader.peek(k + 1) == '{') {
-                        processStringNumericEscape();
+                    // NumericEscape
+                    if (reader.peek(k + 1) == LexerTerminals.OPEN_BRACE) {
+                        processNumericEscape();
                     } else {
                         reader.advance(k + 1);
                     }
                     continue;
                 default:
                     if (!isValidQuotedIdentifierEscapeChar(nextChar)) {
-                        String escapeSequence = String.valueOf((char) nextChar);
-                        reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
+                        reportInvalidEscapeSequence((char) nextChar);
                     }
 
                     reader.advance(k + 1);
@@ -1530,8 +1438,11 @@ public class BallerinaLexer extends AbstractLexer {
             }
             break;
         }
+    }
 
-        return getIdentifierToken();
+    private void reportInvalidEscapeSequence(char nextChar) {
+        String escapeSequence = String.valueOf(nextChar);
+        reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
     }
 
     private boolean isValidQuotedIdentifierEscapeChar(int nextChar) {

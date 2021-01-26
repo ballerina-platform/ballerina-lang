@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.symbols;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -25,6 +26,15 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public interface ClassSymbol extends ObjectTypeSymbol, Qualifiable, Deprecatable, Annotatable, Documentable {
+
+    /**
+     * Get the symbols of the fields of the class. The mapping is a set of field name and field symbol pairs. The
+     * returned map is ordered. The order in which the fields were specified in the source code is preserved when
+     * iterating the entries of the map.
+     *
+     * @return An ordered map containing the symbols of the fields
+     */
+    Map<String, ClassFieldSymbol> fieldDescriptors();
 
     /**
      * Get the init method.

@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.internal;
 
+import io.ballerina.projects.MdDocument;
+
 import java.nio.file.Path;
 import java.util.List;
 
@@ -31,24 +33,28 @@ public class ModuleData {
     private final String moduleName;
     private final List<DocumentData> srcDocs;
     private final List<DocumentData> testSrcDocs;
+    private final MdDocument moduleMd;
 
     // TODO do we need to maintain resources and test resources
 
     private ModuleData(Path moduleDirPath,
                        String moduleName,
                        List<DocumentData> srcDocs,
-                       List<DocumentData> testSrcDocs) {
+                       List<DocumentData> testSrcDocs,
+                       MdDocument moduleMd) {
         this.moduleDirPath = moduleDirPath;
         this.moduleName = moduleName;
         this.srcDocs = srcDocs;
         this.testSrcDocs = testSrcDocs;
+        this.moduleMd = moduleMd;
     }
 
     public static ModuleData from(Path path,
                                   String moduleName,
                                   List<DocumentData> srcDocuments,
-                                  List<DocumentData> testSrcDocuments) {
-        return new ModuleData(path, moduleName, srcDocuments, testSrcDocuments);
+                                  List<DocumentData> testSrcDocuments,
+                                  MdDocument moduleMd) {
+        return new ModuleData(path, moduleName, srcDocuments, testSrcDocuments, moduleMd);
     }
 
     public Path moduleDirectoryPath() {
@@ -65,5 +71,9 @@ public class ModuleData {
 
     public List<DocumentData> testSourceDocs() {
         return testSrcDocs;
+    }
+
+    public MdDocument moduleMd() {
+        return this.moduleMd;
     }
 }

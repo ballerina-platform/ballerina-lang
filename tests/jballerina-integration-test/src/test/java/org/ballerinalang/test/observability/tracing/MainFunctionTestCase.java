@@ -177,7 +177,11 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithPanic"),
-                    new AbstractMap.SimpleEntry<>("error", "true")
+                    new AbstractMap.SimpleEntry<>("error", "true"),
+                    new AbstractMap.SimpleEntry<>("error.message", "Test Error\n" +
+                            "\tat intg_tests.tracing_tests.utils.0_0_1.MockClient:callWithPanic(" +
+                            "mock_client_endpoint.bal:58)\n" +
+                            "\t   intg_tests.tracing_tests.0_0_1:main(01_main_function.bal:32)")
             ));
         });
 
@@ -198,7 +202,11 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithErrorReturn"),
-                    new AbstractMap.SimpleEntry<>("error", "true")
+                    new AbstractMap.SimpleEntry<>("error", "true"),
+                    new AbstractMap.SimpleEntry<>("error.message", "Test Error\n" +
+                            "\tat intg_tests.tracing_tests.utils.0_0_1.MockClient:callWithErrorReturn(" +
+                            "mock_client_endpoint.bal:46)\n" +
+                            "\t   intg_tests.tracing_tests.0_0_1:main(01_main_function.bal:38)")
             ));
         });
     }

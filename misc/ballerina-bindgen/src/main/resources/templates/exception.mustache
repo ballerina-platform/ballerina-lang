@@ -4,7 +4,6 @@
 
 type {{shortExceptionName}}Data record {
     string message;
-    error cause?;
 };
 
 {{accessModifier}}type {{shortExceptionName}} distinct error<{{shortExceptionName}}Data>;

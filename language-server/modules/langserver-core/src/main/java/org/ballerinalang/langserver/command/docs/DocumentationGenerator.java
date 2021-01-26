@@ -36,13 +36,15 @@ import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -90,26 +92,29 @@ public class DocumentationGenerator {
     /**
      * Generate documentation for non-terminal node.
      *
-     * @param node non-terminal node
+     * @param node       non-terminal node
+     * @param syntaxTree syntaxTree {@link SyntaxTree}
      * @return optional documentation
      */
-    public static Optional<DocAttachmentInfo> getDocumentationEditForNode(NonTerminalNode node) {
+    public static Optional<DocAttachmentInfo> getDocumentationEditForNode(NonTerminalNode node,
+                                                                          SyntaxTree syntaxTree) {
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
             case OBJECT_METHOD_DEFINITION: {
-                return Optional.of(generateFunctionDocumentation((FunctionDefinitionNode) node));
+                return Optional.of(generateFunctionDocumentation((FunctionDefinitionNode) node, syntaxTree));
             }
             case METHOD_DECLARATION: {
-                return Optional.of(generateMethodDocumentation((MethodDeclarationNode) node));
+                return Optional.of(generateMethodDocumentation((MethodDeclarationNode) node, syntaxTree));
             }
             case SERVICE_DECLARATION: {
-                return Optional.of(generateServiceDocumentation((ServiceDeclarationNode) node));
+                return Optional.of(generateServiceDocumentation((ServiceDeclarationNode) node, syntaxTree));
             }
             case TYPE_DEFINITION: {
-                return Optional.of(generateRecordOrObjectDocumentation((TypeDefinitionNode) node));
+                return Optional.of(generateRecordOrObjectDocumentation((TypeDefinitionNode) node, syntaxTree));
             }
             case CLASS_DEFINITION: {
-                return Optional.of(generateClassDocumentation((ClassDefinitionNode) node));
+                return Optional.of(generateClassDocumentation((ClassDefinitionNode) node, syntaxTree));
             }
             default:
                 break;
@@ -117,31 +122,19 @@ public class DocumentationGenerator {
         return Optional.empty();
     }
 
-    public static Optional<Symbol> getDocumentableSymbol(NonTerminalNode node, SemanticModel semanticModel,
-                                                         String fileName) {
+    public static Optional<Symbol> getDocumentableSymbol(NonTerminalNode node, SemanticModel semanticModel) {
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
-            case OBJECT_METHOD_DEFINITION: {
-                FunctionDefinitionNode functionDefNode = (FunctionDefinitionNode) node;
-                return semanticModel.symbol(fileName, functionDefNode.functionName().lineRange().startLine());
-            }
-            case METHOD_DECLARATION: {
-                MethodDeclarationNode methodDeclrNode = (MethodDeclarationNode) node;
-                return semanticModel.symbol(fileName, methodDeclrNode.methodName().lineRange().startLine());
-            }
+            case OBJECT_METHOD_DEFINITION:
+            case METHOD_DECLARATION:
 //            case SERVICE_DECLARATION: {
 //                ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) node;
 //                return semanticModel.symbol(fileName, serviceDeclrNode.typeDescriptor().map(s->s.lineRange()
 //                .startLine()).);
 //            }
-            case TYPE_DEFINITION: {
-                TypeDefinitionNode typeDefNode = (TypeDefinitionNode) node;
-                return semanticModel.symbol(fileName, typeDefNode.typeName().lineRange().startLine());
-            }
-            case CLASS_DEFINITION: {
-                ClassDefinitionNode classDefNode = (ClassDefinitionNode) node;
-                return semanticModel.symbol(fileName, classDefNode.className().lineRange().startLine());
-            }
+            case TYPE_DEFINITION:
+            case CLASS_DEFINITION:
+                return semanticModel.symbol(node);
             default:
                 break;
         }
@@ -152,60 +145,66 @@ public class DocumentationGenerator {
      * Generate documentation for service node.
      *
      * @param serviceDeclrNode service declaration node
-     * @return
+     * @param syntaxTree       syntaxTree {@link SyntaxTree}
+     * @return generated doc attachment
      */
-    private static DocAttachmentInfo generateServiceDocumentation(ServiceDeclarationNode serviceDeclrNode) {
+    private static DocAttachmentInfo generateServiceDocumentation(ServiceDeclarationNode serviceDeclrNode,
+                                                                  SyntaxTree syntaxTree) {
         MetadataNode metadata = serviceDeclrNode.metadata().orElse(null);
         Position docStart = CommonUtil.toRange(serviceDeclrNode.lineRange()).getStart();
         if (metadata != null && !metadata.annotations().isEmpty()) {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
-        int offset = docStart.getCharacter();
-        String desc = String.format("Description%n%s",
-                                    String.join("", Collections.nCopies(offset, " ")));
-        return new DocAttachmentInfo(desc, docStart);
+        String desc = String.format("Description%n");
+        return new DocAttachmentInfo(desc, docStart, getPadding(serviceDeclrNode, syntaxTree));
     }
 
     /**
      * Generate documentation for function definition node.
      *
      * @param bLangFunction function definition node
-     * @return
+     * @param syntaxTree    syntaxTree {@link SyntaxTree}
+     * @return generated doc attachment
      */
-    private static DocAttachmentInfo generateFunctionDocumentation(FunctionDefinitionNode bLangFunction) {
+    private static DocAttachmentInfo generateFunctionDocumentation(FunctionDefinitionNode bLangFunction,
+                                                                   SyntaxTree syntaxTree) {
         return getFunctionNodeDocumentation(bLangFunction.functionSignature(),
                                             bLangFunction.metadata().orElse(null),
-                                            CommonUtil.toRange(bLangFunction.lineRange()));
+                                            CommonUtil.toRange(bLangFunction.lineRange()),
+                                            syntaxTree);
     }
 
     /**
      * Generate documentation for method declaration node.
      *
      * @param methodDeclrNode method declaration node
+     * @param syntaxTree      syntaxTree {@link SyntaxTree}
      * @return
      */
-    private static DocAttachmentInfo generateMethodDocumentation(MethodDeclarationNode methodDeclrNode) {
+    private static DocAttachmentInfo generateMethodDocumentation(MethodDeclarationNode methodDeclrNode,
+                                                                 SyntaxTree syntaxTree) {
         return getFunctionNodeDocumentation(methodDeclrNode.methodSignature(),
                                             methodDeclrNode.metadata().orElse(null),
-                                            CommonUtil.toRange(methodDeclrNode.lineRange()));
+                                            CommonUtil.toRange(methodDeclrNode.lineRange()),
+                                            syntaxTree);
     }
 
     /**
      * Generate documentation for record or object type definition node.
      *
      * @param typeDefNode type definition node
-     * @return
+     * @param syntaxTree  syntaxTree {@link SyntaxTree}
+     * @return generated doc attachment
      */
-    private static DocAttachmentInfo generateRecordOrObjectDocumentation(TypeDefinitionNode typeDefNode) {
+    private static DocAttachmentInfo generateRecordOrObjectDocumentation(TypeDefinitionNode typeDefNode,
+                                                                         SyntaxTree syntaxTree) {
         MetadataNode metadata = typeDefNode.metadata().orElse(null);
         Position docStart = CommonUtil.toRange(typeDefNode.lineRange()).getStart();
         if (metadata != null && !metadata.annotations().isEmpty()) {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
-        int offset = docStart.getCharacter();
         io.ballerina.compiler.syntax.tree.Node typeDesc = typeDefNode.typeDescriptor();
-        String desc = String.format("Description%n%s",
-                                    String.join("", Collections.nCopies(offset, " ")));
+        String desc = String.format("Description%n");
         Map<String, String> parameters = new HashMap<>();
         switch (typeDesc.kind()) {
             case RECORD_TYPE_DESC:
@@ -235,24 +234,24 @@ public class DocumentationGenerator {
             default:
                 break;
         }
-        return new DocAttachmentInfo(desc, parameters, null, docStart);
+        return new DocAttachmentInfo(desc, parameters, null, docStart, getPadding(typeDefNode, syntaxTree));
     }
 
     /**
      * Generate documentation for class definition node.
      *
      * @param classDefNode class definition node
-     * @return
+     * @param syntaxTree   {@link SyntaxTree}
+     * @return generated doc attachment
      */
-    private static DocAttachmentInfo generateClassDocumentation(ClassDefinitionNode classDefNode) {
+    private static DocAttachmentInfo generateClassDocumentation(ClassDefinitionNode classDefNode,
+                                                                SyntaxTree syntaxTree) {
         MetadataNode metadata = classDefNode.metadata().orElse(null);
         Position docStart = CommonUtil.toRange(classDefNode.lineRange()).getStart();
         if (metadata != null && !metadata.annotations().isEmpty()) {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
-        int offset = docStart.getCharacter();
-        String desc = String.format("Description%n%s",
-                                    String.join("", Collections.nCopies(offset, " ")));
+        String desc = String.format("Description%n");
         Map<String, String> parameters = new HashMap<>();
         classDefNode.members().forEach(field -> {
             if (field.kind() == SyntaxKind.OBJECT_FIELD &&
@@ -263,12 +262,13 @@ public class DocumentationGenerator {
                 }
             }
         });
-        return new DocAttachmentInfo(desc, parameters, null, docStart);
+        return new DocAttachmentInfo(desc, parameters, null, docStart, getPadding(classDefNode, syntaxTree));
     }
 
 
     private static DocAttachmentInfo getFunctionNodeDocumentation(FunctionSignatureNode signatureNode,
-                                                                  MetadataNode metadata, Range functionRange) {
+                                                                  MetadataNode metadata, Range functionRange,
+                                                                  SyntaxTree syntaxTree) {
         Position docStart = functionRange.getStart();
         boolean hasDeprecated = false;
         if (metadata != null && !metadata.annotations().isEmpty()) {
@@ -281,9 +281,7 @@ public class DocumentationGenerator {
             }
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
-        int offset = docStart.getCharacter();
-        String desc = String.format("Description%n%s",
-                                    String.join("", Collections.nCopies(offset, " ")));
+        String desc = String.format("Description%n");
         Map<String, String> parameters = new HashMap<>();
         signatureNode.parameters().forEach(param -> {
             Optional<Token> paramName = Optional.empty();
@@ -297,9 +295,18 @@ public class DocumentationGenerator {
             paramName.ifPresent(token -> parameters.put(token.text(), "Parameter Description"));
         });
         String returnDesc = signatureNode.returnTypeDesc().isPresent() ? "Return Value Description" : null;
-        if (hasDeprecated) {
-//            attributes.add(getDeprecatedDescription(offset));
-        }
-        return new DocAttachmentInfo(desc, parameters, returnDesc, docStart);
+        //TODO: Handle deprecated documentation blocks, currently Documentation interface does not support it
+        return new DocAttachmentInfo(desc, parameters, returnDesc, docStart,
+                                     getPadding(signatureNode.parent(), syntaxTree));
+    }
+
+    private static String getPadding(NonTerminalNode bLangFunction, SyntaxTree syntaxTree) {
+        LinePosition position = bLangFunction.location().lineRange().startLine();
+        TextDocument textDocument = syntaxTree.textDocument();
+        int prevCharIndex = textDocument.textPositionFrom(LinePosition.from(position.line(), position.offset()));
+        int lineStartIndex = textDocument.textPositionFrom(LinePosition.from(position.line(), 0));
+        String sourceCode = syntaxTree.toSourceCode();
+        String padding = sourceCode.substring(lineStartIndex, prevCharIndex);
+        return padding.isBlank() ? padding : " ";
     }
 }

@@ -27,7 +27,6 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
  */
 public enum DiagnosticWarningCode implements DiagnosticCode {
     WARNING_INVALID_DOCUMENTATION_IDENTIFIER("BCE10000", "warning.invalid.documentation.identifier"),
-    WARNING_INVALID_DOCUMENTATION_EXPRESSION("BCE10001", "warning.invalid.documentation.expression"),
     ;
 
     String diagnosticId;

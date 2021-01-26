@@ -1,0 +1,68 @@
+[
+  {
+    "description": "Define function named function.",
+    "code": "function 'function(int val) returns int { return val + 1; }"
+  },
+  {
+    "description": "Define function with unicode identifier.",
+    "code": "function 'get_ɱȇşşağę_for_\\#(int val) returns string { return val.toString() + \" is a numeric value\" ; }"
+  },
+  {
+    "description": "Define quoted identifier in type def.",
+    "code": "type 'Person_\\{name\\&Ȧɢέ\\} record {| string 'first\\ name; int 'Ȧɢέ; |};"
+  },
+  {
+    "description": "Use quoted typedef.",
+    "code": "'Person_\\{name\\&Ȧɢέ\\} person = {'first\\ name: \"Tom\", 'Ȧɢέ:25}; person",
+    "expr": "{\"first name\":\"Tom\",\"Ȧɢέ\":25}"
+  },
+  {
+    "description": "Define normal type def.",
+    "code": "type Person record {| string 'first\\ name; int 'Ȧɢέ; |};"
+  },
+  {
+    "description": "Create variable named int.",
+    "code": "int 'int = 1; 'int",
+    "expr": "1"
+  },
+  {
+    "description": "Use quoted function.",
+    "code": "int i = 'function('int); i",
+    "expr": "2"
+  },
+  {
+    "description": "Define variable starting with digit.",
+    "code": "int '1PlusI = 1 + i; '1PlusI",
+    "expr": "3"
+  },
+  {
+    "description": "Use \\ to escape in quoted ids.",
+    "code": "int '\\{add\\#5\\} = 5 + i; '\\{add\\#5\\}",
+    "expr": "7"
+  },
+  {
+    "description": "Use unicode in name.",
+    "code": "string 'üňĩćőđę_ňāɱȇ = \"John doe\"; 'üňĩćőđę_ňāɱȇ",
+    "expr": "John doe"
+  },
+  {
+    "description": "Use unicode with escape in name.",
+    "code": "string 'unicode_\\u{2324} = \"Jane doe\"; 'unicode_\\u{2324}",
+    "expr": "Jane doe"
+  },
+  {
+    "description": "Invoke function with unicode.",
+    "code": "'get_ɱȇşşağę_for_\\#('int);",
+    "expr": "1 is a numeric value"
+  },
+  {
+    "description": "Define variable using type.",
+    "code": "Person person2 = {'first\\ name: \"Tom\", 'Ȧɢέ:25}; person2.'Ȧɢέ",
+    "expr": "25"
+  },
+  {
+    "description": "Member access of escaped name.",
+    "code": "person2[\"first name\"]",
+    "expr": "Tom"
+  }
+]

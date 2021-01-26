@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -72,6 +73,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
 //    todo that, we would have to move PackageContext class into an internal package.
 public class JBallerinaBackend extends CompilerBackend {
+
     private static final String JAR_FILE_EXTENSION = ".jar";
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
@@ -132,8 +134,14 @@ public class JBallerinaBackend extends CompilerBackend {
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
             moduleContext.generatePlatformSpecificCode(compilerContext, this);
-            diagnostics.addAll(moduleContext.diagnostics());
+            moduleContext.diagnostics().forEach(diagnostic ->
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
+
+        // add plugin diagnostics
+        diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
+        // add ballerina toml diagnostics
+        diagnostics.addAll(this.packageContext.manifest().diagnostics().diagnostics());
 
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
@@ -478,7 +486,6 @@ public class JBallerinaBackend extends CompilerBackend {
             this.value = value;
         }
     }
-
 
     JvmTarget jdkVersion() {
         return jdkVersion;

@@ -18,10 +18,10 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -37,6 +37,8 @@ import io.ballerina.runtime.observability.metrics.Tag;
 
 import java.util.Set;
 
+import static org.ballerinalang.observe.nativeimpl.Utils.metricType;
+
 /**
  * This is the getAllMetrics function native implementation for the registered metrics.
  * This can be used by the metric reporters to report the metrics.
@@ -46,14 +48,10 @@ import java.util.Set;
 
 public class GetAllMetrics {
 
-    private static final Type METRIC_TYPE = ValueCreator
-            .createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC)
-            .getType();
-
-    public static BArray getAllMetrics() {
+    public static BArray getAllMetrics(Environment env) {
         Metric[] metrics = DefaultMetricRegistry.getInstance().getAllMetrics();
 
-        BArray bMetrics = ValueCreator.createArrayValue(TypeCreator.createArrayType(METRIC_TYPE));
+        BArray bMetrics = ValueCreator.createArrayValue(TypeCreator.createArrayType(metricType));
         int metricIndex = 0;
         for (Metric metric : metrics) {
             MetricId metricId = metric.getId();
@@ -67,15 +65,15 @@ public class GetAllMetrics {
                 Gauge gauge = (Gauge) metric;
                 metricValue = gauge.getValue();
                 metricType = MetricConstants.GAUGE;
-                summary = Utils.createBSnapshots(gauge.getSnapshots());
+                summary = Utils.createBSnapshots(env, gauge.getSnapshots());
             } else if (metric instanceof PolledGauge) {
                 PolledGauge gauge = (PolledGauge) metric;
                 metricValue = gauge.getValue();
                 metricType = MetricConstants.GAUGE;
             }
             if (metricValue != null) {
-                BMap<BString, Object> metricStruct = ValueCreator.createRecordValue(
-                        ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC);
+                BMap<BString, Object> metricStruct = ValueCreator.createRecordValue(env.getCurrentModule(),
+                        ObserveNativeImplConstants.METRIC);
                 metricStruct.put(StringUtils.fromString("name"), StringUtils.fromString(metricId.getName()));
                 metricStruct.put(StringUtils.fromString("desc"), StringUtils.fromString(metricId.getDescription()));
                 metricStruct.put(StringUtils.fromString("tags"), getTags(metricId));

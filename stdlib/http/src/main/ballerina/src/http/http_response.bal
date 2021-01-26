@@ -19,7 +19,7 @@ import ballerina/mime;
 import ballerina/crypto;
 import ballerina/time;
 import ballerina/stringutils;
-import ballerina/java;
+import ballerina/jballerina.java;
 import ballerina/log;
 
 # Represents an HTTP response.

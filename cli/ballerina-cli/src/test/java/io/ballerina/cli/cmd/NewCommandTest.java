@@ -30,7 +30,7 @@ import java.nio.file.Path;
 
 
 /**
- * Test cases for ballerina new command.
+ * Test cases for bal new command.
  *
  * @since 2.0.0
  */
@@ -40,7 +40,7 @@ public class NewCommandTest extends BaseCommandTest {
     public Object[][] provideInvalidProjectNames() {
         return new Object[][] {
                 { "hello-app" },
-                { "my.project" }
+                { "my$project" }
         };
     }
 

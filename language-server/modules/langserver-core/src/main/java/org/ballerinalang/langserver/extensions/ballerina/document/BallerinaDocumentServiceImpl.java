@@ -17,17 +17,27 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PublishDiagnosticsParams;
 
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of Ballerina Document extension for Language Server.
@@ -37,10 +47,12 @@ import java.util.concurrent.CompletableFuture;
 public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private final WorkspaceManager workspaceManager;
     private final LSClientLogger clientLogger;
+    private final LanguageServerContext serverContext;
 
     public BallerinaDocumentServiceImpl(WorkspaceManager workspaceManager, LanguageServerContext serverContext) {
         this.workspaceManager = workspaceManager;
         this.clientLogger = LSClientLogger.getInstance(serverContext);
+        this.serverContext = serverContext;
     }
 
     @Override
@@ -53,9 +65,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         }
 
         try {
-            // Get the syntax tree for the document.
-            Optional<SyntaxTree> syntaxTree = this.workspaceManager.syntaxTree(filePath.get());
-            if (syntaxTree.isEmpty()) {
+            Optional<Document> srcFile = this.workspaceManager.document(filePath.get());
+            if (srcFile.isEmpty()) {
                 return CompletableFuture.supplyAsync(() -> reply);
             }
 
@@ -63,11 +74,10 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
 
             // Get the generated syntax tree JSON with type info.
-            JsonElement jsonSyntaxTree = DiagramUtil
-                    .getSyntaxTreeJSON(syntaxTree.get(), semanticModel.get());
+            JsonElement jsonSyntaxTree = DiagramUtil.getSyntaxTreeJSON(srcFile.get(), semanticModel.get());
 
             // Preparing the response.
-            reply.setSource(syntaxTree.get().toSourceCode());
+            reply.setSource(srcFile.get().syntaxTree().toSourceCode());
             reply.setSyntaxTree(jsonSyntaxTree);
             reply.setParseSuccess(reply.getSyntaxTree() != null);
         } catch (Throwable e) {
@@ -133,19 +143,48 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     @Override
     public CompletableFuture<BallerinaProject> project(BallerinaProjectParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            BallerinaProject project = new BallerinaProject();
+            BallerinaProject ballerinaProject = new BallerinaProject();
             try {
                 Optional<Path> filePath = CommonUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
                 if (filePath.isEmpty()) {
-                    return project;
+                    return ballerinaProject;
                 }
-                Path projectRoot = this.workspaceManager.projectRoot(filePath.get());
-                project.setPath(projectRoot.toString());
+                Optional<Project> project = this.workspaceManager.project(filePath.get());
+                if (project.isEmpty()) {
+                    return ballerinaProject;
+                }
+                ballerinaProject.setPath(project.get().sourceRoot().toString());
+                ProjectKind projectKind = project.get().kind();
+                if (projectKind != ProjectKind.SINGLE_FILE_PROJECT) {
+                    ballerinaProject.setPackageName(project.get().currentPackage().packageName().value());
+                }
+                ballerinaProject.setKind(projectKind.name());
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/project' failed!";
                 this.clientLogger.logError(msg, e, params.getDocumentIdentifier(), (Position) null);
             }
-            return project;
+            return ballerinaProject;
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<PublishDiagnosticsParams>> diagnostics(BallerinaProjectParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            String fileUri = params.getDocumentIdentifier().getUri();
+            try {
+                DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
+                                                                                 this.workspaceManager,
+                                                                                 LSContextOperation.DOC_DIAGNOSTICS,
+                                                                                 this.serverContext);
+                DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
+                return diagnosticsHelper.getLatestDiagnostics(context).entrySet().stream()
+                        .map((entry) -> new PublishDiagnosticsParams(entry.getKey(), entry.getValue()))
+                        .collect(Collectors.toList());
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaDocument/diagnostics' failed!";
+                this.clientLogger.logError(msg, e, params.getDocumentIdentifier(), (Position) null);
+                return Collections.emptyList();
+            }
         });
     }
 }

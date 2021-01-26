@@ -100,19 +100,19 @@ public class TestProcessor {
      * Get the syntax tree for tests.
      *
      * @param module Module
-     * @return Map<String, SyntaxTree>
+     * @return Map<Document, SyntaxTree>
      */
-    private Map<String, SyntaxTree> getTestSyntaxTreeMap(Module module) {
-        Map<String, SyntaxTree> syntaxTreeMap = new HashMap<>();
+    private Map<Document, SyntaxTree> getTestSyntaxTreeMap(Module module) {
+        Map<Document, SyntaxTree> syntaxTreeMap = new HashMap<>();
         if (isSingleFileProject(module.project())) {
             module.documentIds().forEach(documentId -> {
                 Document document = module.document(documentId);
-                syntaxTreeMap.put(document.name(), document.syntaxTree());
+                syntaxTreeMap.put(document, document.syntaxTree());
             });
         } else {
             module.testDocumentIds().forEach(documentId -> {
                 Document document = module.document(documentId);
-                syntaxTreeMap.put(document.name(), document.syntaxTree());
+                syntaxTreeMap.put(document, document.syntaxTree());
             });
         }
         return syntaxTreeMap;
@@ -144,7 +144,7 @@ public class TestProcessor {
      * @param suite        TestSuite
      */
     private void processAnnotations(Module module, TestSuite suite) {
-        Map<String, SyntaxTree> syntaxTreeMap = getTestSyntaxTreeMap(module);
+        Map<Document, SyntaxTree> syntaxTreeMap = getTestSyntaxTreeMap(module);
         List<FunctionSymbol> functionSymbolList = getFunctionSymbolList(syntaxTreeMap, module);
         for (FunctionSymbol functionSymbol : functionSymbolList) {
             String functionName = functionSymbol.name();
@@ -180,13 +180,13 @@ public class TestProcessor {
      * Returns the relevant AnnotationNode from Syntax Tree for a AnnotationSymbol.
      *
      * @param annotationSymbol AnnotationSymbol
-     * @param syntaxTreeMap Map<String, SyntaxTree>
-     * @param function String
+     * @param syntaxTreeMap    Map<String, SyntaxTree>
+     * @param function         String
      * @return AnnotationNode
      */
-    private AnnotationNode getAnnotationNode(AnnotationSymbol annotationSymbol, Map<String, SyntaxTree> syntaxTreeMap,
+    private AnnotationNode getAnnotationNode(AnnotationSymbol annotationSymbol, Map<Document, SyntaxTree> syntaxTreeMap,
                                              String function) {
-        for (Map.Entry<String, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
+        for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
             if (syntaxTreeEntry.getValue().containsModulePart()) {
                 ModulePartNode modulePartNode = syntaxTreeMap.get(syntaxTreeEntry.getKey()).rootNode();
                 for (Node node : modulePartNode.members()) {
@@ -216,18 +216,18 @@ public class TestProcessor {
     /**
      * Get function symbols list using syntax tree and semantic API.
      *
-     * @param syntaxTreeMap Map<String, SyntaxTree>
+     * @param syntaxTreeMap Map<Document, SyntaxTree>
      * @param module        Module
      * @return List<FunctionSymbol>
      */
-    private List<FunctionSymbol> getFunctionSymbolList(Map<String, SyntaxTree> syntaxTreeMap, Module module) {
+    private List<FunctionSymbol> getFunctionSymbolList(Map<Document, SyntaxTree> syntaxTreeMap, Module module) {
         List<FunctionSymbol> functionSymbolList = new ArrayList<>();
         List<String> functionNamesList = new ArrayList<>();
-        for (Map.Entry<String, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
+        for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
             List<Symbol> symbols = module.getCompilation().getSemanticModel().visibleSymbols(
                     syntaxTreeEntry.getKey(),
                     LinePosition.from(syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().line(),
-                            syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().offset()));
+                                      syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().offset()));
             for (Symbol symbol : symbols) {
                 if (symbol.kind() == SymbolKind.FUNCTION && symbol instanceof FunctionSymbol &&
                         !functionNamesList.contains(symbol.name())) {
@@ -260,15 +260,15 @@ public class TestProcessor {
      * @param testSuite     TestSuite
      */
     private void addUtilityFunctions(Module module, TestSuite testSuite) {
-        Map<String, SyntaxTree> syntaxTreeMap = new HashMap<>();
+        Map<Document, SyntaxTree> syntaxTreeMap = new HashMap<>();
         module.documentIds().forEach(documentId -> {
             Document document = module.document(documentId);
-            syntaxTreeMap.put(document.name(), document.syntaxTree());
+            syntaxTreeMap.put(document, document.syntaxTree());
         });
         if (!isSingleFileProject(module.project())) {
             module.testDocumentIds().forEach(documentId -> {
                 Document document = module.document(documentId);
-                syntaxTreeMap.put(document.name(), document.syntaxTree());
+                syntaxTreeMap.put(document, document.syntaxTree());
             });
         }
         List<FunctionSymbol> functionSymbolList = getFunctionSymbolList(syntaxTreeMap, module);
@@ -343,8 +343,11 @@ public class TestProcessor {
                         if (AFTER_SUITE_ALWAYS_RUN_FIELD_NAME.equals(specificField.fieldName().toString().trim())) {
                             ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
                             if (valueExpr != null) {
-                                if (Boolean.TRUE.toString().equals(valueExpr.toString())) {
-                                    alwaysRun.set(true);
+
+                                if (SyntaxKind.BOOLEAN_LITERAL == valueExpr.kind()) {
+                                    if (getStringValue(valueExpr).startsWith(Boolean.TRUE.toString())) {
+                                        alwaysRun.set(true);
+                                    }
                                 }
                             }
                         }
@@ -415,9 +418,11 @@ public class TestProcessor {
                         ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
                         if (valueExpr != null) {
                             if (TEST_ENABLE_ANNOTATION_NAME.equals(fieldName)) {
-                                if (Boolean.FALSE.toString().equals(getStringValue(valueExpr))) {
-                                    shouldSkip.set(true);
-                                    continue;
+                                if (SyntaxKind.BOOLEAN_LITERAL == valueExpr.kind()) {
+                                    if (getStringValue(valueExpr).startsWith(Boolean.FALSE.toString())) {
+                                        shouldSkip.set(true);
+                                        break;
+                                    }
                                 }
                             }
                             if (GROUP_ANNOTATION_NAME.equals(fieldName)) {

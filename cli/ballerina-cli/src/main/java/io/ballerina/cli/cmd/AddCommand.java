@@ -38,7 +38,7 @@ import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
 /**
- * This class represents the "ballerina add" command.
+ * This class represents the "bal add" command.
  *
  * @since 2.0.0
  */
@@ -112,7 +112,7 @@ public class AddCommand implements BLauncherCmd {
             CommandUtil.printError(errStream,
                     "The following required arguments were not provided:\n" +
                             "    <module-name>",
-                    "ballerina add <module-name> [-t|--template <template-name>]",
+                    "bal add <module-name> [-t|--template <template-name>]",
                     true);
             return;
         }
@@ -121,7 +121,7 @@ public class AddCommand implements BLauncherCmd {
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
                     "too many arguments.",
-                    "ballerina add <project-name>",
+                    "bal add <project-name>",
                     true);
             return;
         }
@@ -196,7 +196,7 @@ public class AddCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina add <module-name> [-t|--template <template-name>]\n");
+        out.append("  bal add <module-name> [-t|--template <template-name>]\n");
     }
 
     @Override

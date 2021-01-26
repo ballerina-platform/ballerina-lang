@@ -19,6 +19,7 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -26,7 +27,9 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -45,6 +48,8 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -57,33 +62,34 @@ import static org.testng.Assert.assertTrue;
 public class ServiceSemanticAPITest {
 
     private SemanticModel model;
-    private final String fileName = "service_symbol_test.bal";
+    private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/service_symbol_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/service_symbol_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
-
     @Test
     public void testServiceClass() {
-        ClassSymbol symbol = (ClassSymbol) model.symbol(fileName, from(22, 14)).get();
+        ClassSymbol symbol = (ClassSymbol) model.symbol(srcFile, from(22, 14)).get();
 
         List<String> expMethods = List.of("foo", "$get$barPath", "$get$foo$path", "$get$.", "$get$foo$baz",
                                           "$get$foo$*", "$get$foo$*$**");
         assertList(symbol.methods(), expMethods);
 
-        MethodSymbol method = symbol.methods().get(0);
+        MethodSymbol method = symbol.methods().get("foo");
         assertEquals(method.qualifiers().size(), 1);
         assertTrue(method.qualifiers().contains(Qualifier.REMOTE));
 
-        method = symbol.methods().get(1);
+        method = symbol.methods().get("$get$barPath");
         assertEquals(method.qualifiers().size(), 1);
         assertTrue(method.qualifiers().contains(Qualifier.RESOURCE));
     }
 
     @Test
     public void testServiceDeclTypedesc() {
-        TypeSymbol symbol = (TypeSymbol) model.symbol(fileName, from(66, 8)).get();
+        TypeSymbol symbol = (TypeSymbol) model.symbol(srcFile, from(66, 8)).get();
         assertEquals(symbol.typeKind(), TYPE_REFERENCE);
         assertEquals(symbol.name(), "ProcessingService");
         assertEquals(((TypeReferenceTypeSymbol) symbol).typeDescriptor().typeKind(), OBJECT);
@@ -91,7 +97,7 @@ public class ServiceSemanticAPITest {
 
     @Test
     public void testServiceDeclListener() {
-        VariableSymbol symbol = (VariableSymbol) model.symbol(fileName, from(66, 31)).get();
+        VariableSymbol symbol = (VariableSymbol) model.symbol(srcFile, from(66, 31)).get();
         assertEquals(symbol.name(), "lsn");
         assertEquals(symbol.typeDescriptor().typeKind(), TYPE_REFERENCE);
         assertEquals(symbol.typeDescriptor().name(), "Listener");
@@ -102,7 +108,7 @@ public class ServiceSemanticAPITest {
 
     @Test
     public void testServiceDeclField() {
-        VariableSymbol symbol = (VariableSymbol) model.symbol(fileName, from(68, 18)).get();
+        ClassFieldSymbol symbol = (ClassFieldSymbol) model.symbol(srcFile, from(68, 18)).get();
         assertEquals(symbol.name(), "magic");
         assertEquals(symbol.typeDescriptor().typeKind(), STRING);
         assertEquals(symbol.qualifiers().size(), 1);
@@ -111,7 +117,7 @@ public class ServiceSemanticAPITest {
 
     @Test(dataProvider = "ServiceDeclMethodPos")
     public void testServiceDeclMethods(int line, int col, String name, List<Qualifier> quals) {
-        MethodSymbol symbol = (MethodSymbol) model.symbol(fileName, from(line, col)).get();
+        MethodSymbol symbol = (MethodSymbol) model.symbol(srcFile, from(line, col)).get();
         assertEquals(symbol.name(), name);
         assertEquals(symbol.qualifiers().size(), quals.size());
 
@@ -130,7 +136,7 @@ public class ServiceSemanticAPITest {
 
     @Test(dataProvider = "LookupPosProvider")
     public void testInScopeSymbolLookup(int line, int col, List<String> expSymNames) {
-        List<Symbol> inscopeSymbols = model.visibleSymbols("service_symbol_test.bal", from(line, col));
+        List<Symbol> inscopeSymbols = model.visibleSymbols(srcFile, from(line, col));
         List<Symbol> sourceFileSymbols = getFilteredSymbolNames(inscopeSymbols);
 
         assertEquals(sourceFileSymbols.size(), expSymNames.size());

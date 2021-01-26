@@ -31,6 +31,8 @@ class CompilationOptionsBuilder {
     private Boolean observabilityIncluded;
     private Boolean dumpBir;
     private String dumpBirFile;
+    private String cloud;
+    private Boolean taintCheck;
 
     public CompilationOptionsBuilder() {
     }
@@ -60,15 +62,23 @@ class CompilationOptionsBuilder {
         return this;
     }
 
+    public CompilationOptionsBuilder cloud(String value) {
+        cloud = value;
+        return this;
+    }
+
     public CompilationOptionsBuilder dumpBirFile(String value) {
         dumpBirFile = value;
         return this;
     }
 
-    public CompilationOptions build() {
-        return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, dumpBir,
-                                      dumpBirFile);
+    public CompilationOptionsBuilder taintCheck(Boolean value) {
+        taintCheck = value;
+        return this;
     }
 
-
+    public CompilationOptions build() {
+        return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, dumpBir,
+                dumpBirFile, cloud, taintCheck);
+    }
 }

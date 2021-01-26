@@ -2,8 +2,8 @@ name: Publish Ballerina Snapshot
 
 on:
     push:
-      branches:
-        - master
+        branches:
+            - master
     workflow_dispatch:
 
 jobs:
@@ -20,15 +20,25 @@ jobs:
                 with:
                     java-version: 11
 
+            -   name: Cache Gradle packages
+                uses: actions/cache@v2
+                with:
+                    path: |
+                        ~/.gradle/caches
+                        ~/.gradle/wrapper
+                    key: ${{ runner.os }}-gradle-${{ github.sha }}
+                    restore-keys: ${{ runner.os }}-gradle-
+
             -   name: Initialize Sub Modules
                 run: git submodule update --init
 
             -   name: Build and Publish
                 env:
-                    NEXUS_USERNAME: ${{ secrets.BALLERINA_BOT_USERNAME }}
-                    NEXUS_PASSWORD: ${{ secrets.BALLERINA_BOT_TOKEN }}
+                    packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+                    packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
                 run: |
-                    ./gradlew publish -x test -x check -PpublishToGithub
+                    ./gradlew build -x test -x check -x createJavadoc --scan
+                    ./gradlew publish
 
             -   name: Trigger Standard Library Module Builds
                 run: |

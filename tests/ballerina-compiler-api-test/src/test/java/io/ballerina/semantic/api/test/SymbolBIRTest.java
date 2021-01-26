@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
@@ -49,6 +50,8 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
@@ -75,6 +78,7 @@ public class SymbolBIRTest {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_imports_test.bal");
         Package currentPackage = project.currentPackage();
         ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        Document srcFile = getDocumentForSingleSource(project);
 
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
@@ -86,8 +90,7 @@ public class SymbolBIRTest {
         List<SymbolInfo> moduleSymbols = getModuleSymbolInfo();
         List<SymbolInfo> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
 
-        List<Symbol> symbolsInScope =
-                model.visibleSymbols("symbol_lookup_with_imports_test.bal", LinePosition.from(18, 0));
+        List<Symbol> symbolsInScope = model.visibleSymbols(srcFile, LinePosition.from(18, 0));
         assertList(symbolsInScope, expSymbolNames);
 
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
@@ -110,10 +113,11 @@ public class SymbolBIRTest {
 
     @Test(dataProvider = "ImportSymbolPosProvider")
     public void testImportSymbols(int line, int column, String expSymbolName) {
-        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
-                "test-src/symbol_at_cursor_import_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_import_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
 
-        Optional<Symbol> symbol = model.symbol("symbol_at_cursor_import_test.bal", LinePosition.from(line, column));
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
 
         if (symbol.isEmpty()) {

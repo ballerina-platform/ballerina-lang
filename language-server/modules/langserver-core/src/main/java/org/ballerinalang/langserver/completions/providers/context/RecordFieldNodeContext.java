@@ -60,7 +60,8 @@ public class RecordFieldNodeContext extends AbstractCompletionProvider<RecordFie
     private boolean onTypeNameContext(BallerinaCompletionContext context, RecordFieldNode node) {
         int cursor = context.getCursorPositionInTree();
         int typeEnd = node.typeName().textRange().endOffset();
+        int typeStart = node.typeName().textRange().startOffset();
 
-        return cursor >= typeEnd;
+        return cursor >= typeStart && cursor <= typeEnd;
     }
 }

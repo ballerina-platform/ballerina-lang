@@ -192,3 +192,18 @@ function testBasicTypes() {
     string s = "foo";
     byte byt = 100;
 }
+
+public type CancelledError distinct error;
+public type UnKnownError distinct error;
+
+public type Error CancelledError |
+UnKnownError;
+
+type Baz "A"|();
+
+function testUnionsWithNil() {
+    int|() x = 10;
+    int|float|() y = 20;
+    "A"|() z = ();
+    "A"|"B"|() a = ();
+}

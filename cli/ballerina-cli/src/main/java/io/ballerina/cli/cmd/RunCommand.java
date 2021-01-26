@@ -23,7 +23,6 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBaloTask;
-import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.FileUtils;
@@ -80,7 +79,10 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
 
-    private static final String runCmd = "ballerina run [--experimental] [--offline] \n" +
+    @CommandLine.Option(names = "--taint-check", description = "perform taint flow analysis")
+    private Boolean taintCheck;
+
+    private static final String runCmd = "ballerina run [--experimental] [--offline] [--taint-check]\n" +
             "                  <executable-jar | ballerina-file | . | package-path> [program-args] [(--key=value)...]";
 
     public RunCommand() {
@@ -143,7 +145,6 @@ public class RunCommand implements BLauncherCmd {
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
-                .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO (build projects only)
@@ -190,6 +191,7 @@ public class RunCommand implements BLauncherCmd {
                 .skipTests(true)
                 .testReport(false)
                 .observabilityIncluded(observabilityIncluded)
+                .taintCheck(taintCheck)
                 .build();
     }
 }

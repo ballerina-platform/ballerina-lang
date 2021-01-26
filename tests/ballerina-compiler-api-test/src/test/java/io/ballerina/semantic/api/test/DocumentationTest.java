@@ -27,7 +27,9 @@ import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -36,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -48,32 +52,35 @@ import static org.testng.Assert.assertTrue;
 public class DocumentationTest {
 
     private SemanticModel model;
-    private final String fileName = "documentation_test.bal";
+    private Document srcFile;
     private final Map<String, String> emptyMap = new HashMap<>();
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/documentation_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/documentation_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
 
     @Test
     public void testAnnotationDocs() {
-        Optional<Symbol> symbol = model.symbol(fileName, from(27, 30));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(27, 30));
         Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
         assertDescriptionOnly(documentation.get(), "This is an annotation");
     }
 
     @Test
     public void testClassDocs() {
-        Optional<Symbol> symbol = model.symbol(fileName, from(30, 6));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(30, 6));
         Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
         assertDescriptionOnly(documentation.get(), "This is a class");
 
         ClassSymbol classSymbol = (ClassSymbol) symbol.get();
         classSymbol.fieldDescriptors().forEach(
-                field -> assertDescriptionOnly(field.documentation().get(), "Field name"));
+                (name, field) -> assertDescriptionOnly(field.documentation().get(), "Field name"));
         classSymbol.methods().forEach(
-                method -> assertDocumentation(method.documentation().get(), "Method getName", emptyMap, "string"));
+                (name, method) -> assertDocumentation(method.documentation().get(), "Method getName", emptyMap,
+                                                      "string"));
 
         assertDocumentation(classSymbol.initMethod().get().documentation().get(), "Method init",
                             Map.of("name", "Param name"), "error or nil");
@@ -81,14 +88,14 @@ public class DocumentationTest {
 
     @Test
     public void testConstantDocs() {
-        Optional<Symbol> symbol = model.symbol(fileName, from(47, 13));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(47, 13));
         Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
         assertDescriptionOnly(documentation.get(), "This is a constant");
     }
 
     @Test
     public void testEnumDocs() {
-        Optional<Symbol> symbol = model.symbol(fileName, from(50, 12));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(50, 12));
         Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
         assertDescriptionOnly(documentation.get(), "This is an enum");
 
@@ -100,19 +107,19 @@ public class DocumentationTest {
 
     @Test
     public void testTypeDefDocs() {
-        Optional<Symbol> symbol = model.symbol(fileName, from(19, 5));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(19, 5));
         Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
         assertDocumentation(documentation.get(), "This is a record", Map.of("foo", "Field foo", "bar", "Field bar"),
                             null);
 
         RecordTypeSymbol recordType = (RecordTypeSymbol) ((TypeDefinitionSymbol) symbol.get()).typeDescriptor();
         recordType.fieldDescriptors().forEach(
-                field -> assertDescriptionOnly(field.documentation().get(), "Field " + field.name()));
+                (name, field) -> assertDescriptionOnly(field.documentation().get(), "Field " + name));
     }
 
     @Test
     public void testFunctionDocs() {
-        Optional<Symbol> symbol = model.symbol(fileName, from(63, 9));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(63, 9));
         Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
         assertDocumentation(documentation.get(), "This is a function", Map.of("x", "Param x", "y", "Param y"),
                             "The sum");
@@ -120,7 +127,7 @@ public class DocumentationTest {
 
     @Test
     public void testModuleVarDocs() {
-        Optional<Symbol> symbol = model.symbol(fileName, from(66, 7));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(66, 7));
         Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
         assertDescriptionOnly(documentation.get(), "This is a variable");
     }

@@ -1,0 +1,3 @@
+[ballerina.observe]
+metricsEnabled=true    # Flag to enable Metrics
+metricsReporter="mock"

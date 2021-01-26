@@ -76,6 +76,32 @@ public class ModuleExecutionFlowTests {
     }
 
     @Test
+    public void testListenerInitReturnsError() {
+        CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation(
+                "test-src/execution/listener_return_error_project");
+        ExitDetails output = run(compileResult, new String[]{});
+
+        String expectedConsoleString = "init invoked";
+        String expectedErrorString = "error: Listener init failed {}";
+        Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
+        Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
+    }
+
+    @Test
+    public void testListenerInitReturnsErrorInServiceDecl() {
+        CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation(
+                "test-src/execution/service_decl_listener_return_error_project");
+        ExitDetails output = run(compileResult, new String[]{});
+
+        String expectedConsoleString = "init invoked\n" +
+                "init invoked\n" +
+                "init invoked";
+        String expectedErrorString = "error: ModA-inline-2 errored!!! {}";
+        Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
+        Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
+    }
+
+    @Test
     public void testModuleStartPanic() {
         CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj5");
         ExitDetails output = run(compileResult, new String[]{});

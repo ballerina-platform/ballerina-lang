@@ -268,4 +268,10 @@ public class LangLibStringTest {
         };
     }
 
+    @Test
+    public void testIncludes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIncludes");
+        assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
 }

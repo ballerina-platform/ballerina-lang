@@ -18,10 +18,14 @@
 
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.ManifestBuilder;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -29,6 +33,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import static io.ballerina.projects.util.ProjectConstants.INTERNAL_VERSION;
+import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
  * Test BallerinaToml.
@@ -39,11 +46,10 @@ public class BallerinaTomlTests {
     private static final Path BAL_TOML_REPO = RESOURCE_DIRECTORY.resolve("ballerina-toml");
 
     @Test
-    public void testValidBallerinaToml() {
-        BallerinaToml ballerinaToml = BallerinaToml.from(BAL_TOML_REPO.resolve("valid-ballerina.toml"));
-        Assert.assertFalse(ballerinaToml.diagnostics().hasErrors());
-
-        PackageManifest packageManifest = ballerinaToml.packageManifest();
+    public void testValidBallerinaToml() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"),
+                                                             BAL_TOML_REPO.resolve("valid-dependencies.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
         PackageDescriptor descriptor = packageManifest.descriptor();
         Assert.assertEquals(descriptor.name().value(), "winery");
@@ -78,18 +84,19 @@ public class BallerinaTomlTests {
         Assert.assertEquals(packageManifest.keywords(), Arrays.asList("toml", "ballerina"));
         Assert.assertEquals(packageManifest.repository(), "https://github.com/ballerina-platform/ballerina-lang");
 
-        Assert.assertTrue(ballerinaToml.buildOptions().observabilityIncluded());
-        Assert.assertTrue(ballerinaToml.buildOptions().offlineBuild());
-        Assert.assertFalse(ballerinaToml.buildOptions().skipTests());
-        Assert.assertFalse(ballerinaToml.buildOptions().codeCoverage());
+//        Assert.assertTrue(ballerinaToml.buildOptions().observabilityIncluded());
+//        Assert.assertTrue(ballerinaToml.buildOptions().offlineBuild());
+//        Assert.assertFalse(ballerinaToml.buildOptions().skipTests());
+//        Assert.assertFalse(ballerinaToml.buildOptions().codeCoverage());
+//        Assert.assertEquals(ballerinaToml.buildOptions().compilationOptions().getCloud(), "k8s");
+//        Assert.assertTrue(ballerinaToml.buildOptions().compilationOptions().getTaintCheck());
     }
 
     @Test
-    public void testSimpleBallerinaToml() {
-        BallerinaToml ballerinaToml = BallerinaToml.from(BAL_TOML_REPO.resolve("simple-ballerina.toml"));
-        Assert.assertFalse(ballerinaToml.diagnostics().hasErrors());
+    public void testSimpleBallerinaToml() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("simple-ballerina.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
-        PackageManifest packageManifest = ballerinaToml.packageManifest();
         PackageDescriptor descriptor = packageManifest.descriptor();
         Assert.assertEquals(descriptor.name().value(), "lang.annotations");
         Assert.assertEquals(descriptor.org().value(), "ballerina");
@@ -97,20 +104,24 @@ public class BallerinaTomlTests {
     }
 
     @Test
-    public void testEmptyBallerinaToml() {
-        BallerinaToml ballerinaToml = BallerinaToml.from(BAL_TOML_REPO.resolve("empty-ballerina.toml"));
-        Assert.assertTrue(ballerinaToml.diagnostics().hasErrors());
-        Assert.assertEquals(ballerinaToml.diagnostics().errors().size(), 1);
-        Assert.assertEquals(ballerinaToml.diagnostics().errors().iterator().next().message(),
-                            "invalid Ballerina.toml file: cannot find [package]");
+    public void testEmptyBallerinaToml() throws IOException {
+        System.setProperty(USER_NAME, "john");
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("empty-ballerina.toml"));
+        PackageDescriptor descriptor = packageManifest.descriptor();
+        // Package name is the root directory name
+        Assert.assertEquals(descriptor.name().value(), "ballerina_toml");
+        // Org is user name
+        Assert.assertEquals(descriptor.org().value(), "john");
+        // Version is 0.1.0
+        Assert.assertEquals(descriptor.version().value().toString(), INTERNAL_VERSION);
     }
 
     @Test
-    public void testBallerinaTomlWithEmptyPackage() {
-        BallerinaToml ballerinaToml = BallerinaToml.from(BAL_TOML_REPO.resolve("empty-package.toml"));
-        Assert.assertTrue(ballerinaToml.diagnostics().hasErrors());
-        Assert.assertEquals(ballerinaToml.diagnostics().errors().size(), 1);
-        Assert.assertEquals(ballerinaToml.diagnostics().errors().iterator().next().message(),
+    public void testBallerinaTomlWithEmptyPackage() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("empty-package.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 1);
+        Assert.assertEquals(packageManifest.diagnostics().errors().iterator().next().message(),
                             "invalid Ballerina.toml file: "
                                     + "organization, name and the version of the package is missing. example: \n"
                                     + "[package]\n"
@@ -120,12 +131,12 @@ public class BallerinaTomlTests {
     }
 
     @Test
-    public void testBallerinaTomlWithoutOrgNameVersion() {
-        BallerinaToml ballerinaToml = BallerinaToml.from(BAL_TOML_REPO.resolve("empty-platform-dependency.toml"));
-        Assert.assertTrue(ballerinaToml.diagnostics().hasErrors());
-        Assert.assertEquals(ballerinaToml.diagnostics().errors().size(), 3);
+    public void testBallerinaTomlWithoutOrgNameVersion() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("empty-platform-dependency.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 3);
 
-        Iterator<Diagnostic> iterator = ballerinaToml.diagnostics().errors().iterator();
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
         Assert.assertEquals(iterator.next().message(),
                             "invalid Ballerina.toml file: cannot find 'org' under [package]");
         Assert.assertEquals(iterator.next().message(),
@@ -135,12 +146,12 @@ public class BallerinaTomlTests {
     }
 
     @Test
-    public void testBallerinaTomlWithInvalidOrgNameVersion() {
-        BallerinaToml ballerinaToml = BallerinaToml.from(BAL_TOML_REPO.resolve("invalid-org-name-version.toml"));
-        Assert.assertTrue(ballerinaToml.diagnostics().hasErrors());
-        Assert.assertEquals(ballerinaToml.diagnostics().errors().size(), 3);
+    public void testBallerinaTomlWithInvalidOrgNameVersion() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("invalid-org-name-version.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 3);
 
-        Iterator<Diagnostic> iterator = ballerinaToml.diagnostics().errors().iterator();
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
         Assert.assertEquals(iterator.next().message(),
                             "invalid Ballerina.toml file: Invalid 'org' under [package]: 'foo.one' :\n"
                                     + "'org' can only contain alphanumerics, underscores and periods and the maximum "
@@ -155,11 +166,11 @@ public class BallerinaTomlTests {
     }
 
     @Test
-    public void testBallerinaTomlWithPlatformHavingDependencyArray() {
-        BallerinaToml ballerinaToml = BallerinaToml.from(BAL_TOML_REPO.resolve("platform-with-dependency-array.toml"));
-        Assert.assertFalse(ballerinaToml.diagnostics().hasErrors());
+    public void testBallerinaTomlWithPlatformHavingDependencyArray() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("platform-with-dependency-array.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
-        PackageManifest packageManifest = ballerinaToml.packageManifest();
         PackageDescriptor descriptor = packageManifest.descriptor();
         Assert.assertEquals(descriptor.name().value(), "debugger_helpers");
         Assert.assertEquals(descriptor.org().value(), "ballerina");
@@ -170,11 +181,9 @@ public class BallerinaTomlTests {
     }
 
     @Test
-    public void testBallerinaTomlWithPlatformScopes() {
-        BallerinaToml ballerinaToml = BallerinaToml.from(BAL_TOML_REPO.resolve("platfoms-with-scope.toml"));
-        Assert.assertFalse(ballerinaToml.diagnostics().hasErrors());
-
-        PackageManifest packageManifest = ballerinaToml.packageManifest();
+    public void testBallerinaTomlWithPlatformScopes() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("platfoms-with-scope.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
         PackageManifest.Platform platform = packageManifest.platform("java11");
         List<Map<String, Object>> platformDependencies = platform.dependencies();
@@ -199,11 +208,27 @@ public class BallerinaTomlTests {
     }
 
     @Test
-    public void testBallerinaTomlWithPlatformDependencyAsInlineTable() {
-        BallerinaToml ballerinaToml = BallerinaToml.from(BAL_TOML_REPO.resolve("inline-table.toml"));
-        DiagnosticResult diagnostics = ballerinaToml.diagnostics();
+    public void testBallerinaTomlWithPlatformDependencyAsInlineTable() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("inline-table.toml"));
+        DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
         Assert.assertEquals(diagnostics.errors().iterator().next().message(),
                             "invalid Ballerina.toml file: 'dependency' under 'platform' should be a table array");
+    }
+
+    private PackageManifest getPackageManifest(Path tomlPath) throws IOException {
+        String tomlContent = Files.readString(tomlPath);
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
+        return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();
+    }
+
+    private PackageManifest getPackageManifest(Path ballerinaTomlPath, Path dependenciesTomlPath) throws IOException {
+        String ballerinaTomlContent = Files.readString(ballerinaTomlPath);
+        String dependenciesTomlContent = Files.readString(dependenciesTomlPath);
+
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, ballerinaTomlContent);
+        TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML, dependenciesTomlContent);
+
+        return ManifestBuilder.from(ballerinaToml, dependenciesToml, ballerinaTomlPath.getParent()).packageManifest();
     }
 }

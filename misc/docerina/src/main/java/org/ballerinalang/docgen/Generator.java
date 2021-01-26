@@ -65,7 +65,6 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
-import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Annotation;
@@ -108,11 +107,10 @@ public class Generator {
      * @param module  module constructs model to fill.
      * @param syntaxTree syntax tree of the document.
      * @param semanticModel semantic model
-     * @param fileName document name.
      * @return whether the module has any public constructs.
      */
     public static boolean setModuleFromSyntaxTree(Module module, SyntaxTree syntaxTree,
-                                                  SemanticModel semanticModel, String fileName) {
+                                                  SemanticModel semanticModel) {
 
         boolean hasPublicConstructs = false;
         if (syntaxTree.containsModulePart()) {
@@ -124,31 +122,31 @@ public class Generator {
                             .kind().equals(SyntaxKind.PUBLIC_KEYWORD) || isTypePram(typeDefinition.metadata())) {
                         if (typeDefinition.typeDescriptor().kind().equals(SyntaxKind.RECORD_TYPE_DESC)) {
                             hasPublicConstructs = true;
-                            module.records.add(getRecordTypeModel(typeDefinition, semanticModel, fileName));
+                            module.records.add(getRecordTypeModel(typeDefinition, semanticModel));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
                             hasPublicConstructs = true;
-                            module.abstractObjects.add(getAbstractObjectModel(typeDefinition, semanticModel, fileName));
+                            module.abstractObjects.add(getAbstractObjectModel(typeDefinition, semanticModel));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
                             hasPublicConstructs = true;
                             Type firstType = Type.fromNode(((UnionTypeDescriptorNode) (typeDefinition.typeDescriptor()))
-                                    .leftTypeDesc(), semanticModel, fileName);
-                            if (firstType.category.equals("errors")) {
+                                    .leftTypeDesc(), semanticModel);
+                            if (firstType.category.equals("errors") ||
+                                    (firstType.category.equals("builtin") && firstType.name.equals("error"))) {
                                 module.errors.add(new Error(typeDefinition.typeName().text(),
                                         getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
-                                        .metadata()), Type.fromNode(typeDefinition.typeDescriptor(),
-                                        semanticModel, fileName)));
+                                        .metadata()), Type.fromNode(typeDefinition.typeDescriptor(), semanticModel)));
                             } else {
-                                module.types.add(getUnionTypeModel(typeDefinition, semanticModel, fileName));
+                                module.types.add(getUnionTypeModel(typeDefinition, semanticModel));
                             }
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                             hasPublicConstructs = true;
-                            Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, fileName);
+                            Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
                             if (refType.category.equals("errors")) {
                                 module.errors.add(new Error(typeDefinition.typeName().text(),
                                         getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
                                         .metadata()), refType));
                             } else {
-                                module.types.add(getUnionTypeModel(typeDefinition, semanticModel, fileName));
+                                module.types.add(getUnionTypeModel(typeDefinition, semanticModel));
                             }
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
                                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
@@ -164,20 +162,20 @@ public class Generator {
                             Type type = null;
                             if (errorTypeDescriptor.errorTypeParamsNode().isPresent()) {
                                 type = Type.fromNode(errorTypeDescriptor.errorTypeParamsNode().get().parameter(),
-                                        semanticModel, fileName);
+                                        semanticModel);
                             }
                             module.errors.add(new Error(typeDefinition.typeName().text(),
                                     getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
                                     .metadata()), type));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TUPLE_TYPE_DESC) {
                             hasPublicConstructs = true;
-                            module.types.add(getTupleTypeModel(typeDefinition, semanticModel, fileName));
+                            module.types.add(getTupleTypeModel(typeDefinition, semanticModel));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INTERSECTION_TYPE_DESC) {
                             hasPublicConstructs = true;
-                            module.types.add(getIntersectionTypeModel(typeDefinition, semanticModel, fileName));
+                            module.types.add(getIntersectionTypeModel(typeDefinition, semanticModel));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
                             hasPublicConstructs = true;
-                            module.types.add(getTypeDescModel(typeDefinition, semanticModel, fileName));
+                            module.types.add(getTypeDescModel(typeDefinition, semanticModel));
                         }
                         // TODO: handle value type nodes
                         // TODO: handle function type nodes
@@ -189,7 +187,7 @@ public class Generator {
                     if (classDefinition.visibilityQualifier().isPresent() && classDefinition.visibilityQualifier().get()
                             .kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                         hasPublicConstructs = true;
-                        BClass cls = getClassModel((ClassDefinitionNode) node, semanticModel, fileName);
+                        BClass cls = getClassModel((ClassDefinitionNode) node, semanticModel);
                         if (cls instanceof Client) {
                             module.clients.add((Client) cls);
                         } else if (cls instanceof Listener) {
@@ -201,18 +199,17 @@ public class Generator {
                 } else if (node.kind() == SyntaxKind.FUNCTION_DEFINITION &&
                         containsToken(((FunctionDefinitionNode) node).qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
                     hasPublicConstructs = true;
-                    module.functions.add(getFunctionModel((FunctionDefinitionNode) node, semanticModel, fileName));
+                    module.functions.add(getFunctionModel((FunctionDefinitionNode) node, semanticModel));
                 } else if (node.kind() == SyntaxKind.CONST_DECLARATION && ((ConstantDeclarationNode) node)
                         .visibilityQualifier().isPresent() && ((ConstantDeclarationNode) node).visibilityQualifier()
                         .get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     hasPublicConstructs = true;
-                    module.constants.add(getConstantTypeModel((ConstantDeclarationNode) node, semanticModel, fileName));
+                    module.constants.add(getConstantTypeModel((ConstantDeclarationNode) node, semanticModel));
                 } else if (node.kind() == SyntaxKind.ANNOTATION_DECLARATION && ((AnnotationDeclarationNode) node)
                         .visibilityQualifier().isPresent() && ((AnnotationDeclarationNode) node)
                         .visibilityQualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     hasPublicConstructs = true;
-                    module.annotations.add(getAnnotationModel((AnnotationDeclarationNode) node, semanticModel,
-                            fileName));
+                    module.annotations.add(getAnnotationModel((AnnotationDeclarationNode) node, semanticModel));
                 } else if (node.kind() == SyntaxKind.ENUM_DECLARATION &&
                         ((EnumDeclarationNode) node).qualifier().isPresent() &&
                         ((EnumDeclarationNode) node).qualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
@@ -251,7 +248,7 @@ public class Generator {
     }
 
     public static Annotation getAnnotationModel(AnnotationDeclarationNode annotationDeclaration,
-                                                SemanticModel semanticModel, String fileName) {
+                                                SemanticModel semanticModel) {
         String annotationName = annotationDeclaration.annotationTag().text();
         StringJoiner attachPointJoiner = new StringJoiner(", ");
         for (int i = 0; i < annotationDeclaration.attachPoints().size(); i++) {
@@ -261,19 +258,19 @@ public class Generator {
         }
 
         Type dataType = annotationDeclaration.typeDescriptor().isPresent() ? Type.fromNode(annotationDeclaration.
-                typeDescriptor().get(), semanticModel, fileName) : null;
+                typeDescriptor().get(), semanticModel) : null;
         return new Annotation(annotationName, getDocFromMetadata(annotationDeclaration.metadata()),
                 isDeprecated(annotationDeclaration.metadata()), dataType, attachPointJoiner.toString());
     }
 
     public static Constant getConstantTypeModel(ConstantDeclarationNode constantNode,
-                                                SemanticModel semanticModel, String fileName) {
+                                                SemanticModel semanticModel) {
         String constantName = constantNode.variableName().text();
         String value = constantNode.initializer().toString();
         String desc = getDocFromMetadata(constantNode.metadata());
         Type type;
         if (constantNode.typeDescriptor().isPresent()) {
-            type = Type.fromNode(constantNode.typeDescriptor().get(), semanticModel, fileName);
+            type = Type.fromNode(constantNode.typeDescriptor().get(), semanticModel);
         } else {
             String dataType = "";
             if (constantNode.initializer().kind() == SyntaxKind.STRING_LITERAL) {
@@ -295,12 +292,12 @@ public class Generator {
     }
 
     private static BType getIntersectionTypeModel(TypeDefinitionNode typeDefinition,
-                                                  SemanticModel semanticModel, String fileName) {
+                                                  SemanticModel semanticModel) {
         List<Type> memberTypes = new ArrayList<>();
         IntersectionTypeDescriptorNode typeDescriptor = (IntersectionTypeDescriptorNode) typeDefinition
                 .typeDescriptor();
-        memberTypes.add(Type.fromNode(typeDescriptor.leftTypeDesc(), semanticModel, fileName));
-        memberTypes.add(Type.fromNode(typeDescriptor.rightTypeDesc(), semanticModel, fileName));
+        memberTypes.add(Type.fromNode(typeDescriptor.leftTypeDesc(), semanticModel));
+        memberTypes.add(Type.fromNode(typeDescriptor.rightTypeDesc(), semanticModel));
         BType bType = new BType(typeDefinition.typeName().text(),
                 getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), memberTypes);
         bType.isIntersectionType = true;
@@ -308,11 +305,11 @@ public class Generator {
     }
 
     private static BType getTupleTypeModel(TypeDefinitionNode typeDefinition,
-                                           SemanticModel semanticModel, String fileName) {
+                                           SemanticModel semanticModel) {
         List<Type> memberTypes = new ArrayList<>();
         TupleTypeDescriptorNode typeDescriptor = (TupleTypeDescriptorNode) typeDefinition.typeDescriptor();
         memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(type ->
-                Type.fromNode(type, semanticModel, fileName)).collect(Collectors.toList()));
+                Type.fromNode(type, semanticModel)).collect(Collectors.toList()));
         BType bType = new BType(typeDefinition.typeName().text(),
                 getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), memberTypes);
         bType.isTuple = true;
@@ -320,11 +317,11 @@ public class Generator {
     }
 
     private static BType getTypeDescModel(TypeDefinitionNode typeDefinition,
-                                           SemanticModel semanticModel, String fileName) {
+                                           SemanticModel semanticModel) {
         TypedescTypeDescriptorNode typeDescriptor = (TypedescTypeDescriptorNode) typeDefinition.typeDescriptor();
         Type type = null;
         if (typeDescriptor.typedescTypeParamsNode().isPresent()) {
-            type = Type.fromNode(typeDescriptor.typedescTypeParamsNode().get().typeNode(), semanticModel, fileName);
+            type = Type.fromNode(typeDescriptor.typedescTypeParamsNode().get().typeNode(), semanticModel);
         }
         BType bType = new BType(typeDefinition.typeName().text(),
                 getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), null);
@@ -334,48 +331,47 @@ public class Generator {
     }
 
     private static BType getUnionTypeModel(TypeDefinitionNode typeDefinition,
-                                           SemanticModel semanticModel, String fileName) {
+                                           SemanticModel semanticModel) {
         List<Type> memberTypes = new ArrayList<>();
         Node typeDescriptor = typeDefinition.typeDescriptor();
         while (typeDescriptor.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
             UnionTypeDescriptorNode unionType = (UnionTypeDescriptorNode) typeDescriptor;
-            memberTypes.add(Type.fromNode(unionType.leftTypeDesc(), semanticModel, fileName));
+            memberTypes.add(Type.fromNode(unionType.leftTypeDesc(), semanticModel));
             typeDescriptor = unionType.rightTypeDesc();
         }
-        memberTypes.add(Type.fromNode(typeDescriptor, semanticModel, fileName));
+        memberTypes.add(Type.fromNode(typeDescriptor, semanticModel));
         BType bType = new BType(typeDefinition.typeName().text(), getDocFromMetadata(typeDefinition.metadata()),
                                 isDeprecated(typeDefinition.metadata()), memberTypes);
         bType.isAnonymousUnionType = true;
         return bType;
     }
 
-    private static BClass getClassModel(ClassDefinitionNode classDefinitionNode, SemanticModel semanticModel,
-                                        String fileName) {
+    private static BClass getClassModel(ClassDefinitionNode classDefinitionNode, SemanticModel semanticModel) {
         List<Function> functions = new ArrayList<>();
         String name = classDefinitionNode.className().text();
         String description = getDocFromMetadata(classDefinitionNode.metadata());
         boolean isDeprecated = isDeprecated(classDefinitionNode.metadata());
+        boolean isReadOnly = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.READONLY_KEYWORD);
+        boolean isIsolated = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.ISOLATED_KEYWORD);
 
         List<DefaultableVariable> fields = getDefaultableVariableList(classDefinitionNode.members(),
-                classDefinitionNode.metadata(), semanticModel, fileName);
+                classDefinitionNode.metadata(), semanticModel);
 
         for (Node member : classDefinitionNode.members()) {
             if (member instanceof FunctionDefinitionNode && (containsToken(((FunctionDefinitionNode) member)
                     .qualifierList(), SyntaxKind.PUBLIC_KEYWORD) || containsToken(((FunctionDefinitionNode) member)
                     .qualifierList(), SyntaxKind.REMOTE_KEYWORD))) {
-                functions.add(getFunctionModel((FunctionDefinitionNode) member, semanticModel, fileName));
+                functions.add(getFunctionModel((FunctionDefinitionNode) member, semanticModel));
             } else if (member instanceof TypeReferenceNode) {
-                Type originType = Type.fromNode(((TypeReferenceNode) member).typeName(), semanticModel, fileName);
+                Type originType = Type.fromNode(((TypeReferenceNode) member).typeName(), semanticModel);
                 TypeSymbol typeSymbol = null;
                 try {
-                    Optional<Symbol> symbol = semanticModel.symbol(fileName,
-                            LinePosition.from(((TypeReferenceNode) member).typeName().lineRange().startLine().line(),
-                                    ((TypeReferenceNode) member).typeName().lineRange().startLine().offset()));
+                    Optional<Symbol> symbol = semanticModel.symbol(member);
                     typeSymbol = ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
                 } catch (NullPointerException nullException) {
                     if (BallerinaDocUtils.isDebugEnabled()) {
-                        log.error("Symbol find threw null pointer in " + fileName + " : Line range:" +
-                                member.lineRange());
+                        log.error("Symbol find threw null pointer in Line range:" +
+                                ((TypeReferenceNode) member).typeName().lineRange());
                     }
                 }
                 functions.addAll(getInclusionFunctions(typeSymbol, originType, classDefinitionNode.members()));
@@ -383,17 +379,17 @@ public class Generator {
         }
 
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
-            return new Client(name, description, isDeprecated, fields, functions);
+            return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
                 || name.equals("Listener")) {
-            return new Listener(name, description, isDeprecated, fields, functions);
+            return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
         } else {
-            return new BClass(name, description, isDeprecated, fields, functions);
+            return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
         }
     }
 
     private static BAbstractObject getAbstractObjectModel(TypeDefinitionNode typeDefinition,
-                                                          SemanticModel semanticModel, String fileName) {
+                                                          SemanticModel semanticModel) {
         List<Function> functions = new ArrayList<>();
         String name = typeDefinition.typeName().text();
         String description = getDocFromMetadata(typeDefinition.metadata());
@@ -401,7 +397,7 @@ public class Generator {
         boolean isDeprecated = isDeprecated(typeDefinition.metadata());
 
         List<DefaultableVariable> fields = getDefaultableVariableList(typeDescriptorNode.members(),
-                typeDefinition.metadata(), semanticModel, fileName);
+                typeDefinition.metadata(), semanticModel);
 
         for (Node member : typeDescriptorNode.members()) {
             if (member instanceof MethodDeclarationNode) {
@@ -414,12 +410,12 @@ public class Generator {
 
                     // Iterate through the parameters
                     List<DefaultableVariable> parameters = new ArrayList<>(getDefaultableVariableList(methodSignature
-                                    .parameters(), methodNode.metadata(), semanticModel, fileName));
+                                    .parameters(), methodNode.metadata(), semanticModel));
 
                     // return params
                     if (methodSignature.returnTypeDesc().isPresent()) {
                         ReturnTypeDescriptorNode returnType = methodSignature.returnTypeDesc().get();
-                        Type type = Type.fromNode(returnType.type(), semanticModel, fileName);
+                        Type type = Type.fromNode(returnType.type(), semanticModel);
                         returnParams.add(new Variable(EMPTY_STRING, getParameterDocFromMetadataList(RETURN_PARAM_NAME,
                                 methodNode.metadata()), false, type));
                     }
@@ -432,17 +428,15 @@ public class Generator {
                             returnParams));
                 }
             } else if (member instanceof TypeReferenceNode) {
-                Type originType = Type.fromNode(((TypeReferenceNode) member).typeName(), semanticModel, fileName);
+                Type originType = Type.fromNode(((TypeReferenceNode) member).typeName(), semanticModel);
                 TypeSymbol typeSymbol = null;
                 try {
-                    Optional<Symbol> symbol = semanticModel.symbol(fileName,
-                            LinePosition.from(((TypeReferenceNode) member).typeName().lineRange().startLine().line(),
-                                    ((TypeReferenceNode) member).typeName().lineRange().startLine().offset()));
+                    Optional<Symbol> symbol = semanticModel.symbol(member);
                     typeSymbol = ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
                 } catch (NullPointerException nullException) {
                     if (BallerinaDocUtils.isDebugEnabled()) {
-                        log.error("Symbol find threw null pointer in " + fileName + " : Line range:" +
-                                member.lineRange());
+                        log.error("Symbol find threw null pointer in Line range:" +
+                                ((TypeReferenceNode) member).typeName().lineRange());
                     }
                 }
                 functions.addAll(getInclusionFunctions(typeSymbol, originType, typeDescriptorNode.members()));
@@ -451,12 +445,13 @@ public class Generator {
         return new BAbstractObject(name, description, isDeprecated, fields, functions);
     }
 
+    // TODO: Revisit this. This probably can be written in a much simpler way.
     private static List<Function> getInclusionFunctions(TypeSymbol typeSymbol, Type originType,
                                                         NodeList<Node> members) {
         List<Function> functions = new ArrayList<>();
         if (typeSymbol instanceof ObjectTypeSymbol) {
             ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) typeSymbol;
-            objectTypeSymbol.methods().forEach(methodSymbol -> {
+            objectTypeSymbol.methods().values().forEach(methodSymbol -> {
                 String methodName = methodSymbol.name();
                 // Check if the inclusion function is overridden
                 if (members.stream().anyMatch(node -> {
@@ -517,7 +512,7 @@ public class Generator {
     }
 
     private static Function getFunctionModel(FunctionDefinitionNode functionDefinitionNode,
-                                             SemanticModel semanticModel, String fileName) {
+                                             SemanticModel semanticModel) {
         String functionName = functionDefinitionNode.functionName().text();
 
         List<DefaultableVariable> parameters = new ArrayList<>();
@@ -526,12 +521,12 @@ public class Generator {
 
         // Iterate through the parameters
         parameters.addAll(getDefaultableVariableList(functionSignature.parameters(),
-                                                     functionDefinitionNode.metadata(), semanticModel, fileName));
+                                                     functionDefinitionNode.metadata(), semanticModel));
 
         // return params
         if (functionSignature.returnTypeDesc().isPresent()) {
             ReturnTypeDescriptorNode returnType = functionSignature.returnTypeDesc().get();
-            Type type = Type.fromNode(returnType.type(), semanticModel, fileName);
+            Type type = Type.fromNode(returnType.type(), semanticModel);
             returnParams.add(new Variable(EMPTY_STRING, getParameterDocFromMetadataList(RETURN_PARAM_NAME,
                     functionDefinitionNode.metadata()), false, type));
         }
@@ -546,10 +541,10 @@ public class Generator {
     }
 
     private static Record getRecordTypeModel(TypeDefinitionNode recordTypeDefinition,
-                                             SemanticModel semanticModel, String fileName) {
+                                             SemanticModel semanticModel) {
         String recordName = recordTypeDefinition.typeName().text();
         List<DefaultableVariable> fields = getDefaultableVariableList(((RecordTypeDescriptorNode) recordTypeDefinition
-                .typeDescriptor()).fields(), recordTypeDefinition.metadata(), semanticModel, fileName);
+                .typeDescriptor()).fields(), recordTypeDefinition.metadata(), semanticModel);
         boolean isClosed = ((((RecordTypeDescriptorNode) recordTypeDefinition.typeDescriptor()).bodyStartDelimiter()))
                 .kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
         return new Record(recordName, getDocFromMetadata(recordTypeDefinition.metadata()),
@@ -558,8 +553,7 @@ public class Generator {
 
     public static List<DefaultableVariable> getDefaultableVariableList(NodeList nodeList,
                                                                        Optional<MetadataNode> optionalMetadataNode,
-                                                                       SemanticModel semanticModel,
-                                                                       String fileName) {
+                                                                       SemanticModel semanticModel) {
         List<DefaultableVariable> variables = new ArrayList<>();
         for (int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
@@ -571,7 +565,8 @@ public class Generator {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
                 String defaultValue = recordField.expression().toString();
-                Type type = Type.fromNode(recordField.typeName(), semanticModel, fileName);
+                Type type = Type.fromNode(recordField.typeName(), semanticModel);
+                type.isReadOnly = recordField.readonlyKeyword().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
                         defaultValue);
                 variables.add(defaultableVariable);
@@ -582,55 +577,55 @@ public class Generator {
                 if (doc.equals("")) {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
-                Type type = Type.fromNode(recordField.typeName(), semanticModel, fileName);
+                Type type = Type.fromNode(recordField.typeName(), semanticModel);
+                type.isNullable = recordField.questionMarkToken().isPresent();
+                type.isReadOnly = recordField.readonlyKeyword().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
                         "");
                 variables.add(defaultableVariable);
             } else if (node instanceof TypeReferenceNode) {
-                Type originType = Type.fromNode(((TypeReferenceNode) node).typeName(), semanticModel, fileName);
+                Type originType = Type.fromNode(((TypeReferenceNode) node).typeName(), semanticModel);
                 DefaultableVariable defaultableVariable = new DefaultableVariable(originType.name, "",
                         false, null, "");
                 defaultableVariable.inclusionType = originType;
                 TypeSymbol typeSymbol = null;
                 try {
-                    Optional<Symbol> symbol = semanticModel.symbol(fileName,
-                            LinePosition.from(((TypeReferenceNode) node).typeName().lineRange().startLine().line(),
-                                    ((TypeReferenceNode) node).typeName().lineRange().startLine().offset()));
+                    Optional<Symbol> symbol = semanticModel.symbol(node);
                     typeSymbol = ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
                 } catch (NullPointerException nullException) {
                     if (BallerinaDocUtils.isDebugEnabled()) {
-                        log.error("Symbol find threw null pointer in " + fileName + " : Line range:" +
-                                node.lineRange());
+                        log.error("Symbol find threw null pointer in Line range:" +
+                                ((TypeReferenceNode) node).typeName().lineRange());
                     }
                 }
                 if (typeSymbol instanceof RecordTypeSymbol) {
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeSymbol;
-                    recordTypeSymbol.fieldDescriptors().forEach(field -> {
-                        Type type = new Type(field.name());
+                    recordTypeSymbol.fieldDescriptors().forEach((name, field) -> {
+                        Type type = new Type(name);
                         Type elemType;
-                        String name;
+                        String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            name = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().name();
                         } else {
-                            name = field.typeDescriptor().signature();
+                            typeName = field.typeDescriptor().signature();
                         }
-                        elemType = new Type(name);
+                        elemType = new Type(typeName);
                         Type.resolveSymbol(elemType, field.typeDescriptor());
                         type.elementType = elemType;
                         originType.memberTypes.add(type);
                     });
                 } else if (typeSymbol instanceof ObjectTypeSymbol) {
                     ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) typeSymbol;
-                    objectTypeSymbol.fieldDescriptors().forEach(field -> {
-                        Type type = new Type(field.name());
+                    objectTypeSymbol.fieldDescriptors().forEach((name, field) -> {
+                        Type type = new Type(name);
                         Type elemType;
-                        String name;
+                        String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            name = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().name();
                         } else {
-                            name = field.typeDescriptor().signature();
+                            typeName = field.typeDescriptor().signature();
                         }
-                        elemType = new Type(name);
+                        elemType = new Type(typeName);
                         Type.resolveSymbol(elemType, field.typeDescriptor());
                         type.elementType = elemType;
                         originType.memberTypes.add(type);
@@ -653,7 +648,7 @@ public class Generator {
                     } else {
                         defaultValue = "";
                     }
-                    Type type = Type.fromNode(objectField.typeName(), semanticModel, fileName);
+                    Type type = Type.fromNode(objectField.typeName(), semanticModel);
                     DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc,
                             isDeprecated(objectField.metadata()), type, defaultValue);
                     variables.add(defaultableVariable);
@@ -662,14 +657,14 @@ public class Generator {
                 RequiredParameterNode requiredParameter = (RequiredParameterNode) node;
                 String paramName = requiredParameter.paramName().isPresent() ?
                         requiredParameter.paramName().get().text() : "";
-                Type type = Type.fromNode(requiredParameter.typeName(), semanticModel, fileName);
+                Type type = Type.fromNode(requiredParameter.typeName(), semanticModel);
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), isDeprecated(requiredParameter.annotations()), type, ""));
             } else if (node instanceof DefaultableParameterNode) {
                 DefaultableParameterNode defaultableParameter = (DefaultableParameterNode) node;
                 String paramName = defaultableParameter.paramName().isPresent() ?
                         defaultableParameter.paramName().get().text() : "";
-                Type type = Type.fromNode(defaultableParameter.typeName(), semanticModel, fileName);
+                Type type = Type.fromNode(defaultableParameter.typeName(), semanticModel);
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), isDeprecated(defaultableParameter.annotations()),
                         type, defaultableParameter.expression().toString()));
@@ -679,7 +674,7 @@ public class Generator {
                         restParameter.paramName().get().text() : "";
                 Type type = new Type(paramName);
                 type.isRestParam = true;
-                type.elementType = Type.fromNode(restParameter.typeName(), semanticModel, fileName);
+                type.elementType = Type.fromNode(restParameter.typeName(), semanticModel);
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), false, type, ""));
             }

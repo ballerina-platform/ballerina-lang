@@ -134,8 +134,7 @@ public class AddCheckCodeAction extends TypeGuardCodeAction {
 
     private boolean containsErrorMemberType(CodeActionContext context, ExpressionNode expressionNode) {
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Optional<TypeSymbol> typeSymbol = semanticModel.type(expressionNode.location().lineRange().filePath(),
-                                                             expressionNode.lineRange());
+        Optional<TypeSymbol> typeSymbol = semanticModel.type(expressionNode.lineRange());
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION) {
             return false;
         }

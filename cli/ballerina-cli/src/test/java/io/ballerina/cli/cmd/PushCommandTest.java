@@ -67,13 +67,13 @@ public class PushCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(actual.contains("ballerina: too many arguments"));
-        Assert.assertTrue(actual.contains("ballerina push "));
+        Assert.assertTrue(actual.contains("bal push "));
     }
 
     @Test(description = "Push package without balo directory")
     public void testPushWithoutBaloDir() throws IOException {
         String expected = "cannot find balo file for the package: winery. Run "
-                + "'ballerina build' to compile and generate the balo.";
+                + "'bal build' to compile and generate the balo.";
 
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream);
@@ -105,7 +105,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         // Push
         String expected = "cannot find balo file for the package: winery. Run "
-                + "'ballerina build' to compile and generate the balo.";
+                + "'bal build' to compile and generate the balo.";
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream);
         new CommandLine(pushCommand).parse();
         pushCommand.execute();

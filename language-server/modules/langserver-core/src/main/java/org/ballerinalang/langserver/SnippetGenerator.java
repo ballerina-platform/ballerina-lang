@@ -1039,10 +1039,10 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getServiceDefSnippet() {
         ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
-        String snippet = "service ${1:serviceName} on new http:Listener(8080) {"
-                + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:newResource}(http:Caller ${3:caller}, "
-                + "http:Request ${5:request}) {" + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR +
-                "\t}" + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "service /${1} on new http:Listener(8080) {"
+                + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:methodName} ${3:resourceName}"
+                + "(http:Caller ${4:caller}, " + "http:Request ${5:req}) {" + CommonUtil.LINE_SEPARATOR
+                + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE_HTTP, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET, httpImport);
     }
@@ -1172,6 +1172,26 @@ public class SnippetGenerator {
         String snippet = "object {" + CommonUtil.LINE_SEPARATOR + "\t" + CommonUtil.LINE_SEPARATOR + "};";
         return new SnippetBlock("object constructor", snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
+    }
+
+    /**
+     * Get Base16 literal Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBase16LiteralSnippet() {
+        String snippet = "base16 `${1}`";
+        return new SnippetBlock("base16", snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Base64 literal Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBase64LiteralSnippet() {
+        String snippet = "base64 `${1}`";
+        return new SnippetBlock("base64", snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
     /**

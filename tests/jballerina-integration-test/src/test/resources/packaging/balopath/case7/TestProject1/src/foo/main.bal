@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 import wso2/utils;
 
 function testAcceptNothingButReturnString() returns handle {

@@ -50,7 +50,6 @@ import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFNULL;
@@ -62,11 +61,9 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATHS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -168,11 +165,7 @@ public class MainMethodGen {
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
         String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
-        mv.visitFieldInsn(GETSTATIC, RUNTIME_UTILS, "USER_DIR", "L" + STRING_VALUE + ";");
-        mv.visitInsn(ICONST_0);
-        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
-        mv.visitMethodInsn(INVOKESTATIC, PATHS, "get",
-                String.format("(L%s;[L%s;)L%s;", STRING_VALUE, STRING_VALUE, PATH), false);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigPath", "()L" + PATH + ";", false);
         mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, "(L" + PATH + ";)V", false);
     }
 
