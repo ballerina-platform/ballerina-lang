@@ -158,7 +158,7 @@ public class JDIEventProcessor {
                         && !threadReference.name().equals("Reference Handler")
                         && !threadReference.name().equals("Signal Dispatcher")
                         && threadReference.isSuspended()
-                        && filter(threadReference)
+                        && isBalStrand(threadReference)
                 ) {
                     breakPointThreads.put(threadReference.uniqueID(), threadReference);
                 }
@@ -169,17 +169,17 @@ public class JDIEventProcessor {
         return breakPointThreads;
     }
 
-    boolean filter(ThreadReference threadReference)
+    boolean isBalStrand(ThreadReference threadReference)
             throws IncompatibleThreadStateException, AbsentInformationException {
         List<StackFrame> stackFrames = threadReference.frames();
 
         if (stackFrames.isEmpty()) {
             return false;
-        } else if (stackFrames.get(0).location().sourceName().isEmpty()) {
-            return false;
-        } else {
-            return stackFrames.get(0).location().sourceName().endsWith(".bal");
         }
+        if (stackFrames.get(0).location() == null) {
+            return false;
+        }
+        return stackFrames.get(0).location().sourceName().endsWith(".bal");
     }
 
     void sendStepRequest(long threadId, int stepType) {
