@@ -121,4 +121,9 @@ public class DocumentationTest extends AbstractMiscTest {
     public void testDocWithInitialDiagnostics() {
         testFile("documentation/doc_source_18.bal", "documentation/doc_assert_18.json");
     }
+
+    @Test
+    public void testParameterDocWithMissingDescription() {
+        testFile("documentation/doc_source_21.bal", "documentation/doc_assert_21.json");
+    }
 }
