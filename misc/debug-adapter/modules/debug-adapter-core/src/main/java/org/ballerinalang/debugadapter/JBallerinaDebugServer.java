@@ -88,8 +88,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -123,10 +121,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private DebugExecutionManager executionManager;
     private JDIEventProcessor eventProcessor;
     private ExpressionEvaluator evaluator;
-    private final DebugContext context;
-    private Process launchedProcess;
-    private BufferedReader launchedStdoutStream;
-    private BufferedReader launchedErrorStream;
+    private final ExecutionContext context;
     private Project project;
     private String projectRoot;
     private ThreadReferenceProxyImpl activeThread;
@@ -150,10 +145,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String WORKER_LAMBDA_REGEX = "(\\$lambda\\$)\\b(.*)\\b(\\$lambda)(.*)";
 
     public JBallerinaDebugServer() {
-        context = new DebugContext(this);
+        context = new ExecutionContext(this);
     }
 
-    public DebugContext getContext() {
+    public ExecutionContext getContext() {
         return context;
     }
 
@@ -200,18 +195,17 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         Launcher launcher = project instanceof SingleFileProject ? new SingleFileLauncher(projectRoot, args) :
                 new PackageLauncher(projectRoot, args);
         try {
-            launchedProcess = launcher.start();
+            context.setLaunchedProcess(launcher.start());
         } catch (IOException e) {
             sendOutput("Unable to launch debug adapter: " + e.toString(), STDERR);
             return CompletableFuture.completedFuture(null);
         }
         CompletableFuture.runAsync(() -> {
-            if (launchedProcess != null) {
-                launchedErrorStream = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(),
-                        StandardCharsets.UTF_8));
+            if (context.getLaunchedProcess().isPresent()) {
+                BufferedReader errorStream = context.getErrorStream();
                 String line;
                 try {
-                    while ((line = launchedErrorStream.readLine()) != null) {
+                    while ((line = errorStream.readLine()) != null) {
                         sendOutput(line, STDERR);
                     }
                 } catch (IOException ignored) {
@@ -222,13 +216,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         });
 
         CompletableFuture.runAsync(() -> {
-            if (launchedProcess != null) {
-                launchedStdoutStream = new BufferedReader(new InputStreamReader(launchedProcess.getInputStream(),
-                        StandardCharsets.UTF_8));
+            if (context.getLaunchedProcess().isPresent()) {
+                BufferedReader inputStream = context.getInputStream();
                 String line;
                 try {
                     sendOutput("Waiting for debug process to start...", STDOUT);
-                    while ((line = launchedStdoutStream.readLine()) != null) {
+                    while ((line = inputStream.readLine()) != null) {
                         if (line.contains("Listening for transport dt_socket")) {
                             launcher.attachToLaunchedProcess(this);
                             sendOutput("Compiling...", STDOUT);
@@ -255,7 +248,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
             executionManager = new DebugExecutionManager();
             context.setDebuggee(new VirtualMachineProxyImpl(executionManager.attach(hostName, portName)));
-            EventRequestManager erm = context.getDebuggee().eventRequestManager();
+            EventRequestManager erm = context.getEventManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
             classPrepareRequest.enable();
             eventProcessor.startListening();
@@ -309,6 +302,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             if (validFrames.length == 0 && lastInstruction == DebugInstruction.STEP_IN) {
                 sendOutput("Trying to step into an unsupported source! Rolling back into the previous state..",
                         CONSOLE);
+                stepOut(activeThread.uniqueID());
                 return CompletableFuture.completedFuture(stackTraceResponse);
             }
 
@@ -381,8 +375,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<ContinueResponse> continue_(ContinueArguments args) {
-        clearState();
-        eventProcessor.restoreBreakpoints(true);
+        prepareFor(DebugInstruction.CONTINUE);
         context.getDebuggee().resume();
         ContinueResponse continueResponse = new ContinueResponse();
         continueResponse.setAllThreadsContinued(true);
@@ -392,7 +385,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> next(NextArguments args) {
-        clearState();
+        prepareFor(DebugInstruction.STEP_OVER);
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OVER);
         lastInstruction = DebugInstruction.STEP_OVER;
         return CompletableFuture.completedFuture(null);
@@ -400,8 +393,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> stepIn(StepInArguments args) {
-        clearState();
-        eventProcessor.restoreBreakpoints(false);
+        prepareFor(DebugInstruction.STEP_IN);
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
         lastInstruction = DebugInstruction.STEP_IN;
         return CompletableFuture.completedFuture(null);
@@ -409,11 +401,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> stepOut(StepOutArguments args) {
-        clearState();
-        eventProcessor.restoreBreakpoints(false);
-        eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OUT);
-        lastInstruction = DebugInstruction.STEP_OUT;
+        stepOut(args.getThreadId());
         return CompletableFuture.completedFuture(null);
+    }
+
+    private void stepOut(long threadId) {
+        prepareFor(DebugInstruction.STEP_OUT);
+        eventProcessor.sendStepRequest(threadId, StepRequest.STEP_OUT);
+        lastInstruction = DebugInstruction.STEP_OUT;
     }
 
     private void sendOutput(String output, String category) {
@@ -443,11 +438,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
         try {
             StackFrameProxyImpl frame = stackFramesMap.get(args.getFrameId());
-            SuspendedContext suspendedCtx = new SuspendedContext(project, context.getDebuggee(), activeThread, frame);
-            evaluator = Objects.requireNonNullElse(evaluator, new ExpressionEvaluator(suspendedCtx));
+            SuspendedContext ctx = new SuspendedContext(project, context.getDebuggee(), activeThread, frame);
+            evaluator = Objects.requireNonNullElse(evaluator, new ExpressionEvaluator(ctx));
 
             Value result = evaluator.evaluate(args.getExpression());
-            BVariable variable = VariableFactory.getVariable(suspendedCtx, result);
+            BVariable variable = VariableFactory.getVariable(ctx, result);
             if (variable == null) {
                 return CompletableFuture.completedFuture(response);
             } else if (variable instanceof BSimpleVariable) {
@@ -496,10 +491,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (terminateDebuggee) {
             new TerminatorFactory().getTerminator(OSUtils.getOperatingSystem()).terminate();
         }
-        closeQuietly(launchedErrorStream);
-        closeQuietly(launchedStdoutStream);
-        if (launchedProcess != null) {
-            launchedProcess.destroy();
+        if (context.getLaunchedProcess().isPresent()) {
+            closeQuietly(context.getInputStream());
+            closeQuietly(context.getErrorStream());
+            context.getLaunchedProcess().get().destroy();
         }
         new java.lang.Thread(() -> {
             try {
@@ -698,7 +693,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     /**
-     * Clears all the debug hit context information once the debuggee program is resumed.
+     * Clears previous state information and prepares for the given debug instruction type execution.
+     */
+    private void prepareFor(DebugInstruction instruction) {
+        clearState();
+        eventProcessor.restoreBreakpoints(instruction);
+    }
+
+    /**
+     * Clears state information.
      */
     private void clearState() {
         suspendedContext = null;

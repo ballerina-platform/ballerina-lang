@@ -21,23 +21,28 @@ import io.ballerina.projects.Project;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+
 /**
  * Debugging session context.
  */
-public class DebugContext {
+public class ExecutionContext {
 
-    private Process launchedProcess;
     private IDebugProtocolClient client;
     private final JBallerinaDebugServer adapter;
     private VirtualMachineProxyImpl debuggee;
     private Project sourceProject;
+    private Process launchedProcess;
 
-    DebugContext(JBallerinaDebugServer adapter) {
+    ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
     }
 
-    public Process getLaunchedProcess() {
-        return launchedProcess;
+    public Optional<Process> getLaunchedProcess() {
+        return Optional.ofNullable(launchedProcess);
     }
 
     public void setLaunchedProcess(Process launchedProcess) {
@@ -74,5 +79,13 @@ public class DebugContext {
 
     public EventRequestManager getEventManager() {
         return debuggee.eventRequestManager();
+    }
+
+    public BufferedReader getInputStream() {
+        return new BufferedReader(new InputStreamReader(launchedProcess.getInputStream(), StandardCharsets.UTF_8));
+    }
+
+    public BufferedReader getErrorStream() {
+        return new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(), StandardCharsets.UTF_8));
     }
 }

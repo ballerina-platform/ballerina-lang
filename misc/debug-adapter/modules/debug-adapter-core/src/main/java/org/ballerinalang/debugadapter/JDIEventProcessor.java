@@ -58,13 +58,13 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClas
  */
 public class JDIEventProcessor {
 
-    private final DebugContext context;
+    private final ExecutionContext context;
     private final Map<String, Breakpoint[]> breakpointsList = new HashMap<>();
     private final List<EventRequest> stepEventRequests = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String JBAL_STRAND_PREFIX = "jbal-strand-exec";
 
-    JDIEventProcessor(DebugContext context) {
+    JDIEventProcessor(ExecutionContext context) {
         this.context = context;
     }
 
@@ -172,13 +172,13 @@ public class JDIEventProcessor {
         context.getClient().continued(continuedEventArguments);
     }
 
-    void restoreBreakpoints(boolean isContinue) {
-        if (context.getDebuggee() == null) {
+    void restoreBreakpoints(DebugInstruction instruction) {
+        if (context.getDebuggee() == null || instruction == DebugInstruction.STEP_OVER) {
             return;
         }
-        context.getEventManager().deleteAllBreakpoints();
 
-        if (isContinue) {
+        context.getEventManager().deleteAllBreakpoints();
+        if (instruction == DebugInstruction.CONTINUE) {
             context.getDebuggee().allClasses().forEach(this::configureUserBreakPoints);
         }
     }
