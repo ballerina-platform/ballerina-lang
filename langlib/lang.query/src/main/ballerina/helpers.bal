@@ -18,7 +18,7 @@ import ballerina/lang.'xml;
 import ballerina/jballerina.java;
 
 function createPipeline(
-        (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,
+        Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection,
         typedesc<Type> resType)
             returns _StreamPipeline {
     return new _StreamPipeline(collection, resType);
@@ -80,11 +80,11 @@ function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _StreamFu
     pipeline.addStreamFunction(streamFunction);
 }
 
-function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, error?> {
+function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, ErrorType> {
     return pipeline.getStream();
 }
 
-function toArray(stream<Type, error?> strm, Type[] arr) returns Type[]|error {
+function toArray(stream<Type, ErrorType> strm, Type[] arr) returns Type[]|error {
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
         arr.push(v.value);
@@ -97,9 +97,9 @@ function toArray(stream<Type, error?> strm, Type[] arr) returns Type[]|error {
     return arr;
 }
 
-function toXML(stream<Type, error?> strm) returns xml {
+function toXML(stream<Type, ErrorType> strm) returns xml {
     xml result = 'xml:concat();
-    record {| Type value; |}|error? v = strm.next();
+    record {| Type value; |}|ErrorType? v = strm.next();
     while (v is record {| Type value; |}) {
         Type value = v.value;
         if (value is xml) {
@@ -110,9 +110,9 @@ function toXML(stream<Type, error?> strm) returns xml {
     return result;
 }
 
-function toString(stream<Type, error?> strm) returns string {
+function toString(stream<Type, ErrorType> strm) returns string {
     string result = "";
-    record {| Type value; |}|error? v = strm.next();
+    record {| Type value; |}|ErrorType? v = strm.next();
     while (v is record {| Type value; |}) {
         Type value = v.value;
         if (value is string) {
@@ -123,8 +123,8 @@ function toString(stream<Type, error?> strm) returns string {
     return result;
 }
 
-function addToTable(stream<Type, error?> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
-    record {| Type value; |}|error? v = strm.next();
+function addToTable(stream<Type, ErrorType> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
+    record {| Type value; |}|ErrorType? v = strm.next();
     while (v is record {| Type value; |}) {
         error? e = trap tbl.add(<map<Type>> checkpanic v.value);
         if (e is error) {
@@ -141,7 +141,7 @@ function addToTable(stream<Type, error?> strm, table<map<Type>> tbl, error? err)
     return tbl;
 }
 
-function consumeStream(stream<Type, error?> strm) returns error? {
+function consumeStream(stream<Type, ErrorType> strm) returns error? {
     any|error? v = strm.next();
     while (!(v is () || v is error)) {
         v = strm.next();
@@ -150,9 +150,3 @@ function consumeStream(stream<Type, error?> strm) returns error? {
         return v;
     }
 }
-
-// TODO: This for debugging purposes, remove once completed.
-function print(any|error? data) = @java:Method {
-    'class: "org.ballerinalang.langlib.query.Print",
-    name: "print"
-} external;
