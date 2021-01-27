@@ -928,25 +928,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             break;
         }
 
-        entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE_INTERNAL1);
-        while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
-                entry = entry.next;
-                continue;
-            }
-            entry.symbol.type = symTable.cloneableType;
-            break;
-        }
-
-        entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE_INTERNAL2);
-        while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
-                entry = entry.next;
-                continue;
-            }
-            entry.symbol.type = symTable.cloneableType;
-            break;
-        }
     }
 
     public void bootstrapIntRangeType() {

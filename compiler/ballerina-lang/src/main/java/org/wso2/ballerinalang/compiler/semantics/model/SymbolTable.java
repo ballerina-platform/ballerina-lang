@@ -779,7 +779,7 @@ public class SymbolTable {
         cloneableType = BUnionType.create(null, readonlyType, xmlType);
         addCyclicArrayMapTableOfMapMembers(cloneableType);
 
-        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, rootPkgSymbol.pkgID,
+        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PRIVATE, Names.CLONEABLE, rootPkgSymbol.pkgID,
                 cloneableType, rootPkgSymbol, builtinPos, BUILTIN);
 
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);
