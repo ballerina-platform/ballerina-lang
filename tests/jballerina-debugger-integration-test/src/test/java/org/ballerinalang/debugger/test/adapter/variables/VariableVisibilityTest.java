@@ -117,7 +117,8 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "recordVar", " /:@[`{~⌤_123_ƮέŞŢ_Student", "record");
 
         // anonymous record variable visibility test
-        debugTestRunner.assertVariable(localVariables, "anonRecord", "anonymous", "record");
+        debugTestRunner.assertVariable(localVariables, "anonRecord",
+                                       "record {| string city; string country; |}", "record");
 
         // error variable visibility test
         debugTestRunner.assertVariable(localVariables, "errorVar", "SimpleErrorType", "error");
