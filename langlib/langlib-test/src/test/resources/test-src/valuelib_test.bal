@@ -217,6 +217,8 @@ function testToStringMethod() {
     error err1 = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
                val3 = {"x":"AA","y":(1.0/0.0)});
     FirstError err2 = error FirstError(REASON_1, message = "Test passing error union to a function");
+    error err3 = error("first error", detail=(1.0/0.0));
+    error err4 = error("second error", err3);
 
     assertEquality("4", a.toString());
     assertEquality("4", b.toString());
@@ -226,6 +228,7 @@ function testToStringMethod() {
                                                             + "val3={\"x\":\"AA\",\"y\":Infinity})", err1.toString());
     assertEquality("error FirstError (\"Reason1\",message=\"Test passing error union to a function\")",
                                                                                                     err2.toString());
+    assertEquality("error(\"second error\",error(\"first error\",detail=Infinity))", err4.toString());
 }
 
 /////////////////////////// Tests for `mergeJson()` ///////////////////////////
@@ -428,7 +431,8 @@ function testToString() returns string[] {
     map<any|error> varMap = {};
     json varJson = {a: "STRING", b: 12, c: 12.4, d: true, e: {x:"x", y: ()}};
     any[] varArr = ["str", 23, 23.4, true];
-    FirstError varErr = error FirstError(REASON_1, message = "Test passing error union to a function");
+    error err = error("ExampleError");
+    FirstError varErr = error FirstError(REASON_1, err, message = "Test passing error union to a function");
     Student varObj = new("Alaa", "MMV");
     Teacher varObj2 = new("Rola", "MMV");
     any[] varObjArr = [varObj, varObj2];

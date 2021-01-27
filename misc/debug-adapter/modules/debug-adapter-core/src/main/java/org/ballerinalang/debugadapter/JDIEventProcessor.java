@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
 /**
@@ -149,14 +150,23 @@ public class JDIEventProcessor {
         // Filter thread references which are at breakpoint, suspended and whose thread status is running.
         for (ThreadReferenceProxyImpl threadReference : threadReferences) {
             if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
-                    && !threadReference.name().equals("Reference Handler")
-                    && !threadReference.name().equals("Signal Dispatcher")
-                    && threadReference.isSuspended()
+                && !threadReference.name().equals("Reference Handler")
+                && !threadReference.name().equals("Signal Dispatcher")
+                && threadReference.isSuspended()
+                && isBalStrand(threadReference)
             ) {
                 breakPointThreads.put(threadReference.uniqueID(), threadReference);
             }
         }
         return breakPointThreads;
+    }
+
+    private static boolean isBalStrand(ThreadReference threadReference) {
+        try {
+            return threadReference.frames().get(0).location().sourceName().endsWith(BAL_FILE_EXT);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     void sendStepRequest(long threadId, int stepType) {
