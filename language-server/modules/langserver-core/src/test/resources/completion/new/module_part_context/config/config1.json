@@ -146,7 +146,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "insertText": "service /${1} on new http:Listener(8080) {\n\tresource function ${2:methodName} ${3:resourceName}(http:Caller ${4:caller}, http:Request ${5:req}) {\n\t\t\n\t}\n}",
+      "insertText": "service /${1} on new http:Listener(8080) {\n\tresource function ${2:get} ${3:getResource}(http:Caller ${4:caller}, http:Request ${5:req}) {\n\t\t\n\t}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

@@ -1040,7 +1040,7 @@ public class SnippetGenerator {
     public static SnippetBlock getServiceDefSnippet() {
         ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
         String snippet = "service /${1} on new http:Listener(8080) {"
-                + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:methodName} ${3:resourceName}"
+                + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:get} ${3:getResource}"
                 + "(http:Caller ${4:caller}, " + "http:Request ${5:req}) {" + CommonUtil.LINE_SEPARATOR
                 + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE_HTTP, snippet, ItemResolverConstants.SNIPPET_TYPE,
