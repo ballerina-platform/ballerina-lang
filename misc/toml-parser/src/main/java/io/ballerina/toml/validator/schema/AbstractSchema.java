@@ -18,16 +18,21 @@
 
 package io.ballerina.toml.validator.schema;
 
+import java.util.Map;
+
 /**
  * Represents the base class for all the sub schemas in json schema.
  *
  * @since 2.0.0
  */
 public abstract class AbstractSchema {
-    private Type type;
 
-    public AbstractSchema(Type type) {
+    private Type type;
+    private final Map<String, String> message;
+
+    public AbstractSchema(Type type, Map<String, String> message) {
         this.type = type;
+        this.message = message;
     }
 
     public Type type() {
@@ -36,6 +41,14 @@ public abstract class AbstractSchema {
 
     void setType(Type type) {
         this.type = type;
+    }
+
+    public Map<String, String> message() {
+        return message;
+    }
+
+    public void addCustomMessage(String field, String message) {
+        this.message.put(field, message);
     }
 
     public abstract void accept(SchemaVisitor visitor);
