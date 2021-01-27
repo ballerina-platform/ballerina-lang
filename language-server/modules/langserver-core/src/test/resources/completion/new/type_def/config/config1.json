@@ -6,11 +6,18 @@
   "source": "type_def/source/source1.bal",
   "items": [
     {
+      "label": "TEST_TYPE",
+      "kind": "Unit",
+      "detail": "Function",
+      "insertText": "TEST_TYPE",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error",
       "kind": "Event",
       "detail": "Error",
       "documentation": {
-        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to anydata or readonly type."
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
       },
       "insertText": "error",
       "insertTextFormat": "Snippet"
@@ -236,10 +243,10 @@
       ]
     },
     {
-      "label": "ballerina/lang.array",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'array",
+      "insertText": "'value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -253,7 +260,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'array;\n"
+          "newText": "import ballerina/lang.'value;\n"
         }
       ]
     },
@@ -302,28 +309,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.'value;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.query",
       "kind": "Module",
       "detail": "Module",
@@ -364,6 +349,28 @@
             }
           },
           "newText": "import ballerina/lang.'runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'array;\n"
         }
       ]
     },
