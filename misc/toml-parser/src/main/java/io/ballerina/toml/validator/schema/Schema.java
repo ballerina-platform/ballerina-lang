@@ -26,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,8 @@ public class Schema extends ObjectSchema {
 
     public Schema(String description, boolean additionalProperties,
                   Map<String, AbstractSchema> properties, String schema, String title, List<String> required) {
-        super(Type.OBJECT, description, additionalProperties, properties, required);
+        //TODO Should we have another deserializer?
+        super(Type.OBJECT, new HashMap<>(), description, additionalProperties, properties, required);
         this.schema = schema;
         this.title = title;
     }

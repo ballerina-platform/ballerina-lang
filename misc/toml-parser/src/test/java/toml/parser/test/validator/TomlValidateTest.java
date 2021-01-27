@@ -35,11 +35,12 @@ import java.util.List;
  * @since 2.0.0
  */
 public class TomlValidateTest {
+    private final Path basePath = Paths.get("src", "test", "resources", "validator", "basic");
 
     @Test
     public void testClean() throws IOException {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-clean.toml");
+        Path resourceDirectory = basePath.resolve("c2c-schema.json");
+        Path sampleInput = basePath.resolve("c2c-clean.toml");
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
@@ -49,19 +50,19 @@ public class TomlValidateTest {
 
     @Test
     public void testInvalidType() throws IOException {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-invalid-type.toml");
+        Path resourceDirectory = basePath.resolve("c2c-schema.json");
+        Path sampleInput = basePath.resolve("c2c-invalid-type.toml");
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Diagnostic diagnostic = toml.diagnostics().get(0);
-        Assert.assertEquals(diagnostic.message(), "Key \"base\" expects STRING . Found integer");
+        Assert.assertEquals(diagnostic.message(), "Key \"base\" expects STRING . Found INTEGER");
     }
 
     @Test
     public void testInvalidRegex() throws IOException {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-invalid-regex.toml");
+        Path resourceDirectory = basePath.resolve("c2c-schema.json");
+        Path sampleInput = basePath.resolve("c2c-invalid-regex.toml");
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
@@ -72,8 +73,8 @@ public class TomlValidateTest {
 
     @Test
     public void testInvalidMinMax() throws IOException {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-invalid-min-max.toml");
+        Path resourceDirectory = basePath.resolve("c2c-schema.json");
+        Path sampleInput = basePath.resolve("c2c-invalid-min-max.toml");
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
@@ -88,8 +89,8 @@ public class TomlValidateTest {
 
     @Test
     public void testInvalidAdditionalProperty() throws IOException {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-invalid-additional-properties.toml");
+        Path resourceDirectory = basePath.resolve("c2c-schema.json");
+        Path sampleInput = basePath.resolve("c2c-invalid-additional-properties.toml");
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 

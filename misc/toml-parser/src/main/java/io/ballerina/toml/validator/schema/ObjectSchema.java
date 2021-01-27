@@ -18,7 +18,6 @@
 
 package io.ballerina.toml.validator.schema;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,21 +33,9 @@ public class ObjectSchema extends AbstractSchema {
     private Map<String, AbstractSchema> properties;
     private List<String> required;
 
-    public ObjectSchema(Type type) {
-        super(type);
-        this.hasAdditionalProperties = true;
-        this.properties = new HashMap<>();
-    }
-
-    public ObjectSchema(Type type, Map<String, AbstractSchema> properties) {
-        super(type);
-        this.hasAdditionalProperties = true;
-        this.properties = properties;
-    }
-
-    public ObjectSchema(Type type, String description, boolean hasAdditionalProperties,
+    public ObjectSchema(Type type, Map<String, String> message, String description, boolean hasAdditionalProperties,
                         Map<String, AbstractSchema> properties, List<String> required) {
-        super(type);
+        super(type, message);
         this.description = description;
         this.hasAdditionalProperties = hasAdditionalProperties;
         this.properties = properties;

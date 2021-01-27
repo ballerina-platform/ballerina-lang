@@ -18,6 +18,7 @@
 
 package io.ballerina.toml.validator.schema;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -28,12 +29,8 @@ import java.util.Optional;
 public class StringSchema extends AbstractSchema {
     private String pattern;
 
-    public StringSchema(Type type) {
-        super(type);
-    }
-
-    public StringSchema(Type type, String pattern) {
-        super(type);
+    public StringSchema(Type type, Map<String, String> message, String pattern) {
+        super(type, message);
         this.pattern = pattern;
     }
 
