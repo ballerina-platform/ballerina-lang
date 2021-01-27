@@ -208,6 +208,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_INIT_INVOCATION("BCE2419", "invalid.init.invocation"),
     INVALID_RESOURCE_FUNCTION_INVOCATION("BCE2420", "invalid.resource.function.invocation"),
     INVALID_ACTION_INVOCATION("BCE2421", "invalid.action.invocation"),
+    INVALID_FUNCTION_POINTER_INVOCATION_WITH_TYPE("BCE2422", "invalid.function.pointer.invocation.with.type"),
 
     TYPE_CAST_NOT_YET_SUPPORTED("BCE2423", "type.cast.not.yet.supported.for.type"),
     EQUALITY_NOT_YET_SUPPORTED("BCE2424", "equality.not.yet.supported.for.type"),

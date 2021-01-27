@@ -48,6 +48,14 @@ public class FunctionTypeTest {
                 "incompatible types: expected 'isolated function', found 'function (int) returns (int)'", 35, 30);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "'transactional' qualifier not allowed", 39, 28);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "function pointer with function type cannot be invoked", 49, 39);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'function (int) returns (string)', found 'other'", 49, 39);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "function pointer with function type cannot be invoked", 50, 40);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'function (int) returns (string)', found 'other'", 50, 40);
 
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
 
