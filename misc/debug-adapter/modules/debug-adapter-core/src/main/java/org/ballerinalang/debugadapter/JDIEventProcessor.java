@@ -20,7 +20,6 @@ import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
-import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.event.BreakpointEvent;
@@ -51,6 +50,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
 /**
@@ -153,33 +153,24 @@ public class JDIEventProcessor {
 
         // Filter thread references which are at breakpoint, suspended and whose thread status is running.
         for (ThreadReference threadReference : threadReferences) {
-            try {
-                if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
-                        && !threadReference.name().equals("Reference Handler")
-                        && !threadReference.name().equals("Signal Dispatcher")
-                        && threadReference.isSuspended()
-                        && isBalStrand(threadReference)
-                ) {
-                    breakPointThreads.put(threadReference.uniqueID(), threadReference);
-                }
-            } catch (AbsentInformationException | IncompatibleThreadStateException e) {
-                LOGGER.error(e.getMessage());
+            if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
+                && !threadReference.name().equals("Reference Handler")
+                && !threadReference.name().equals("Signal Dispatcher")
+                && threadReference.isSuspended()
+                && isBalStrand(threadReference)
+            ) {
+                breakPointThreads.put(threadReference.uniqueID(), threadReference);
             }
         }
         return breakPointThreads;
     }
 
-    boolean isBalStrand(ThreadReference threadReference)
-            throws IncompatibleThreadStateException, AbsentInformationException {
-        List<StackFrame> stackFrames = threadReference.frames();
-
-        if (stackFrames.isEmpty()) {
+    private static boolean isBalStrand(ThreadReference threadReference) {
+        try {
+            return threadReference.frames().get(0).location().sourceName().endsWith(BAL_FILE_EXT);
+        } catch (Exception e) {
             return false;
         }
-        if (stackFrames.get(0).location() == null) {
-            return false;
-        }
-        return stackFrames.get(0).location().sourceName().endsWith(".bal");
     }
 
     void sendStepRequest(long threadId, int stepType) {
