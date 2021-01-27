@@ -118,7 +118,6 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocume
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -438,18 +437,13 @@ public class TypedescriptorTest {
 
         StreamTypeSymbol streamType = (StreamTypeSymbol) type;
         assertEquals(streamType.typeParameter().typeKind(), typeParamKind);
-
-        if (streamType.completionValueTypeParameter().isPresent()) {
-            assertEquals(streamType.completionValueTypeParameter().get().typeKind(), completionValueTypeKind);
-        } else {
-            assertNull(completionValueTypeKind);
-        }
+        assertEquals(streamType.completionValueTypeParameter().typeKind(), completionValueTypeKind);
     }
 
     @DataProvider(name = "StreamTypePosProvider")
     public Object[][] getStreamTypePos() {
         return new Object[][]{
-                {93, 19, TYPE_REFERENCE, null},
+                {93, 19, TYPE_REFERENCE, NEVER},
                 {94, 23, TYPE_REFERENCE, NIL},
                 {95, 45, RECORD, ERROR}
         };
