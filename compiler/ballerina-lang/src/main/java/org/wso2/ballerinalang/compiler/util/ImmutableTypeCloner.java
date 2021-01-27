@@ -413,15 +413,22 @@ public class ImmutableTypeCloner {
             default:
                 BUnionType origUnionType = (BUnionType) type;
 
-                BType immutableEffectiveType;
                 LinkedHashSet<BType> originalMemberList = origUnionType.getMemberTypes();
-                LinkedHashSet<BType> readOnlyMemTypes = new LinkedHashSet<>(originalMemberList.size());
-                immutableEffectiveType = BUnionType.create(origUnionType.tsymbol);
+                if (unresolvedTypes.contains(origUnionType) && origUnionType.immutableType != null) {
+                    return origUnionType.immutableType;
+                } else {
+                    BIntersectionType immutableUnionIntersectionType = createImmutableIntersectionType(env, origUnionType,
+                            BUnionType.create(origUnionType.tsymbol),
+                            symTable);
+                    origUnionType.immutableType = immutableUnionIntersectionType;
+                }
 
-                BUnionType unionEffectiveImmutableType = (BUnionType) immutableEffectiveType;
+                LinkedHashSet<BType> readOnlyMemTypes = new LinkedHashSet<>(originalMemberList.size());
+                BUnionType unionEffectiveImmutableType = (BUnionType) origUnionType.immutableType.effectiveType;
                 unionEffectiveImmutableType.name = origUnionType.name;
                 unionEffectiveImmutableType.isCyclic = origUnionType.isCyclic;
                 unionEffectiveImmutableType.setMemberTypes(readOnlyMemTypes);
+
 
                 for (BType memberType : originalMemberList) {
                     if (types.isInherentlyImmutableType(memberType)) {
@@ -436,36 +443,26 @@ public class ImmutableTypeCloner {
                     BType immutableMemberType = getImmutableType(pos, types, memberType, env, pkgId, owner, symTable,
                             anonymousModelHelper, names, unresolvedTypes);
 
-                    if (origUnionType.isCyclic) {
-                        types.fixSelfReferencingSameUnion(memberType, origUnionType, immutableMemberType,
-                                (BUnionType) immutableEffectiveType, readOnlyMemTypes);
-                    } else {
-                        unionEffectiveImmutableType.add(immutableMemberType);
-                    }
+                    unionEffectiveImmutableType.add(immutableMemberType);
                 }
 
                 if (readOnlyMemTypes.size() == 1) {
-                    immutableEffectiveType = readOnlyMemTypes.iterator().next();
+                    origUnionType.immutableType.effectiveType = readOnlyMemTypes.iterator().next();
                 } else if (origUnionType.tsymbol != null) {
                     BTypeSymbol immutableUnionTSymbol = getReadonlyTSymbol(names, origUnionType.tsymbol, env, pkgId,
                                                                                 owner);
-                    immutableEffectiveType.tsymbol = immutableUnionTSymbol;
+                    origUnionType.immutableType.effectiveType.tsymbol = immutableUnionTSymbol;
                     immutableUnionTSymbol.name = origUnionType.tsymbol.name;
-                    immutableEffectiveType.flags |= (origUnionType.flags | Flags.READONLY);
+                    origUnionType.immutableType.effectiveType.flags |= (origUnionType.flags | Flags.READONLY);
 
                     if (immutableUnionTSymbol != null) {
-                        immutableUnionTSymbol.type = immutableEffectiveType;
+                        immutableUnionTSymbol.type = origUnionType.immutableType.effectiveType;
                     }
                 } else {
-                    immutableEffectiveType = BUnionType.create(null, readOnlyMemTypes);
-                    immutableEffectiveType.flags |= (origUnionType.flags | Flags.READONLY);
+                    origUnionType.immutableType.effectiveType.flags |= (origUnionType.flags | Flags.READONLY);
                 }
 
-                BIntersectionType immutableUnionIntersectionType = createImmutableIntersectionType(env, origUnionType,
-                        immutableEffectiveType,
-                        symTable);
-                origUnionType.immutableType = immutableUnionIntersectionType;
-                return immutableUnionIntersectionType;
+                return origUnionType.immutableType;
         }
     }
 
@@ -780,7 +777,7 @@ public class ImmutableTypeCloner {
                                                                       Names.EMPTY, pkgId, null, owner,
                                                                       symTable.builtinPos, VIRTUAL);
 
-        LinkedHashSet<BType> constituentTypes = new LinkedHashSet<BType>() {{
+        LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>() {{
             add(nonReadOnlyType);
             add(symTable.readonlyType);
         }};
