@@ -109,6 +109,15 @@ public class GroupingTest extends BaseTestCase {
     }
 
     @Test
+    public void testListGroupsWithOtherFlags() throws BallerinaTestException {
+        String msg = "Warning: Other flags are skipped when list-groups flag is provided.";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"--groups", "g1", "--list-groups", "groups-test.bal"},
+                null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(20000);
+    }
+
+    @Test
     public void beforeGroupsAfterGroups1() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"before-groups-after-groups-test.bal"},
                 new HashMap<>(), projectPath, true);

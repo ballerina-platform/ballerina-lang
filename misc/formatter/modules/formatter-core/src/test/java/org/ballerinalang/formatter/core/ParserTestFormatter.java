@@ -74,6 +74,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "match_stmt_source_10.bal", // issue #26376
                 "match_stmt_source_12.bal", // issue #26376
                 "error_binding_pattern_source_02.bal", // issue #26376
+                "doc_source_21.bal", // issue #28172
 
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
 

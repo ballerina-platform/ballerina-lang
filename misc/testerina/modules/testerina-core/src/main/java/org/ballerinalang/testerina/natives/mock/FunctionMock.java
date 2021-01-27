@@ -140,11 +140,14 @@ public class FunctionMock {
     private static Method getMockMethod(String orgName, String packageName, String version, String mockMethodName,
                                         String[] mockFunctionClasses) throws ClassNotFoundException {
         Method mockMethod = null;
-        Method classDeclaredMethod = getClassDeclaredMethod(resolveMockClass(mockMethodName, mockFunctionClasses,
-                orgName, packageName, version), mockMethodName);
+        String resolvedMockClass = resolveMockClass(mockMethodName, mockFunctionClasses,
+                orgName, packageName, version);
 
-        if (classDeclaredMethod != null) {
-            mockMethod = classDeclaredMethod;
+        if (resolvedMockClass != null) {
+            Method classDeclaredMethod = getClassDeclaredMethod(resolvedMockClass, mockMethodName);
+            if (classDeclaredMethod != null) {
+                mockMethod = classDeclaredMethod;
+            }
         }
 
         return mockMethod;
@@ -179,7 +182,7 @@ public class FunctionMock {
             if (mockMethodType != originalMethodType) {
                 throw ErrorCreator.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                                                        MockConstants.TEST_PACKAGE_ID,
-                                                       StringUtils.fromString("Return Type of function " +
+                                                       StringUtils.fromString("Return type of function " +
                                                                                        mockMethod.getName() +
                                                                                        " does not match function" +
                                                                                        originalMethod.getName()));
@@ -190,7 +193,7 @@ public class FunctionMock {
                 throw ErrorCreator.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                                                        MockConstants.TEST_PACKAGE_ID, StringUtils.fromString(
                                 "Parameter types of function " + mockMethod.getName() +
-                                        "does not match function" + originalMethod.getName()));
+                                        " does not match function" + originalMethod.getName()));
             }
 
             // Validate each param
