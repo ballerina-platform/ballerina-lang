@@ -38,7 +38,7 @@ public class SnippetBlock {
 
     private String label = "";
     private String detail = "";
-    private String snippet;
+    private final String snippet;
     private final Kind kind;
     private final Pair<String, String>[] imports;
 
