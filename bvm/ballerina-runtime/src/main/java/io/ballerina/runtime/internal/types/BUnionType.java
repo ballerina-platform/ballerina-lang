@@ -53,7 +53,7 @@ public class BUnionType extends BType implements UnionType {
 
     private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
-    private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE + "([12])?");
+    private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE);
 
     /**
      * Create a {@code BUnionType} which represents the union type.

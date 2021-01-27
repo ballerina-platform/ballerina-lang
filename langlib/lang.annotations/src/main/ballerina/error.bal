@@ -15,6 +15,7 @@
 // under the License.
 
 # The type of value to which `clone` and `cloneReadOnly` can be applied.
+# # This is the same as in lang.value, but is copied here to avoid a dependency.
 type __Cloneable readonly|xml|__Cloneable[]|map<__Cloneable>|table<map<__Cloneable>>;
 
 # Default error type.
