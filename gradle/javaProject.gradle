@@ -213,7 +213,7 @@ publishing {
         }
         if (artifactCodeCoverageReport.exists()) {
             maven(MavenPublication) {
-                artifact source: artifactCodeCoverageReport, classifier: getCheckedOutGitCommitHash()
+                artifact source: artifactCodeCoverageReport, classifier: 'jacoco'
             }
         }
     }
