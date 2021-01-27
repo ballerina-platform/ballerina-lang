@@ -26,6 +26,8 @@ import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
+import org.eclipse.lsp4j.debug.Thread;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -55,6 +57,10 @@ public class CallStackDebugTest extends BaseTestCase {
     public void callStackTest() throws BallerinaTestException {
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         StackFrame[] frames = debugTestRunner.fetchStackFrames(debugHitInfo.getRight());
+        Thread[] threads = debugTestRunner.fetchThreads();
+
+        // Call stack representation test for single strand visibility.
+        Assert.assertEquals(threads.length, 1);
 
         // Call stack representation test for strand creation with 'start' keyword.
         // Created strand is invoking a remote function.
