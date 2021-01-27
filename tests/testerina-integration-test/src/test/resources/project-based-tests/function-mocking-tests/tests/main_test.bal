@@ -50,6 +50,11 @@ test:MockFunction mock2_intAdd = new();
 }
 test:MockFunction mock_intAdd3 = new();
 
+@test:Mock {
+    functionName : "foo"
+}
+test:MockFunction mock_foo = new();
+
 //
 //  MOCK FUNCTIONS
 //
@@ -88,6 +93,10 @@ public function mockStringAdd(string str1) returns (string) {
 
 public function mockFloatAdd(float a, float b) returns (float) {
     return a - b;
+}
+
+public function bar(any a) returns @tainted string {
+    return "bye";
 }
 
 //
@@ -161,6 +170,12 @@ public function call_Test7() {
 public function call_Test8() {
     test:when(mock_intAdd3).call("mockIntAdd5");
     test:assertEquals(intAdd3(1, 3, 5), -9);
+}
+
+@test:Config {}
+public function call_Test9() {
+    test:when(mock_foo).call("bar");
+    test:assertEquals(foo("testing"), "bye");
 }
 
 @test:Config {}
