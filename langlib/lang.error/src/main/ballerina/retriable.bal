@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the Retriable error.
+# A type of error which can be retried.
 public type Retriable distinct error;
 
 public type RetryManager object {
  public function shouldRetry(error? e) returns boolean;
 };
 
-# Default retry manager to be used with retry statement.
+# The RetryManager used by default.
 public class DefaultRetryManager {
     private int count;
     public function init(int count = 3) {
