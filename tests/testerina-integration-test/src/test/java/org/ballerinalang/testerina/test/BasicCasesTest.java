@@ -74,7 +74,8 @@ public class BasicCasesTest extends BaseTestCase {
     @Test
     public void testAssertStructuralTypes() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test",
-                new String[]{"--code-coverage", "--includes=*", "assertions-structural-types"}, new HashMap<>(), projectPath, true);
+                new String[]{"--code-coverage", "--includes=*", "assertions-structural-types"},
+                new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "assertion failure for structural data types");
     }
 

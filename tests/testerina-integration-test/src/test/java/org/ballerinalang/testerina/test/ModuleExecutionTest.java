@@ -27,10 +27,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.HashMap;
-
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 /**
  * Test class to test Module test execution.
