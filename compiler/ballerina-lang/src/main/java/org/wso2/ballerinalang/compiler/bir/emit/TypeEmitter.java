@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -120,6 +121,8 @@ class TypeEmitter {
                 return emitBFiniteType((BFiniteType) bType, tabs);
             case TypeTags.HANDLE:
                 return emitBTypeHandle((BHandleType) bType, tabs);
+            case TypeTags.STREAM:
+                return emitBStreamType((BStreamType) bType, tabs);
             default:
                 throw new IllegalStateException("Invalid type");
         }
@@ -394,6 +397,20 @@ class TypeEmitter {
         // TODO check for constraint of handle ?
         str += ">";
         return str;
+    }
+
+    private static String emitBStreamType(BStreamType bType, int tabs) {
+        StringBuilder str = new StringBuilder();
+        str.append("stream");
+        str.append("<");
+        str.append(emitTypeRef(bType.constraint, 0));
+        if (bType.error.tag != TypeTags.NEVER) {
+            str.append(",");
+            str.append(emitSpaces(1));
+            str.append(emitTypeRef(bType.error, 0));
+        }
+        str.append(">");
+        return str.toString();
     }
 
     /////////////////////// Emitting type reference ///////////////////////////

@@ -174,10 +174,13 @@ function testErrorToBalString() {
     error err1 = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
            val3 = {"x":"AA","y":(1.0/0.0)});
     FirstError err2 = error FirstError(REASON_1, message = "Test passing error union to a function");
+    error err3 = error("first error", detail=(1.0/0.0));
+    error err4 = error("second error", err3);
 
     assert(err1.toBalString(), "error(\"Failed to get account balance\",details=true,val1=float:NaN," +
     "val2=\"This Error\",val3={\"x\":\"AA\",\"y\":float:Infinity})");
     assert(err2.toBalString(), "error FirstError (\"Reason1\",message=\"Test passing error union to a function\")");
+    assert(err4.toBalString(), "error(\"second error\",error(\"first error\",detail=float:Infinity))");
 }
 
 function testMapToBalString() {

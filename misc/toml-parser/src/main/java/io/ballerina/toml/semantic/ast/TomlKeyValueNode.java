@@ -50,6 +50,12 @@ public class TomlKeyValueNode extends TopLevelNode {
     }
 
     @Override
+    public void clearDiagnostics() {
+        super.diagnostics.clear();
+        value.clearDiagnostics();
+    }
+
+    @Override
     public String toString() {
         return "TomlKeyValue{" +
                 "key=" + key().name() +

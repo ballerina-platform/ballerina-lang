@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
@@ -38,6 +39,7 @@ public class PackageManifest {
     private final PackageDescriptor packageDesc;
     private final List<Dependency> dependencies;
     private final Map<String, Platform> platforms;
+    private final DiagnosticResult diagnostics;
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
@@ -46,23 +48,33 @@ public class PackageManifest {
     private PackageManifest(PackageDescriptor packageDesc,
                             List<Dependency> dependencies,
                             Map<String, Platform> platforms,
-                            Map<String, TopLevelNode> otherEntries) {
+                            Map<String, TopLevelNode> otherEntries,
+                            DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.platforms = Collections.unmodifiableMap(platforms);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
+        this.diagnostics = diagnostics;
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc) {
         return new PackageManifest(packageDesc, Collections.emptyList(),
-                Collections.emptyMap(), Collections.emptyMap());
+                Collections.emptyMap(), Collections.emptyMap(), new DefaultDiagnosticResult(Collections.EMPTY_LIST));
+    }
+
+    public static PackageManifest from(PackageDescriptor packageDesc,
+                                       List<Dependency> dependencies,
+                                       Map<String, Platform> platforms) {
+        return new PackageManifest(packageDesc, dependencies, platforms, Collections.emptyMap(),
+                new DefaultDiagnosticResult(Collections.EMPTY_LIST));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        List<Dependency> dependencies,
                                        Map<String, Platform> platforms,
-                                       Map<String, TopLevelNode> otherEntries) {
-        return new PackageManifest(packageDesc, dependencies, platforms, otherEntries);
+                                       Map<String, TopLevelNode> otherEntries,
+                                       DiagnosticResult diagnostics) {
+        return new PackageManifest(packageDesc, dependencies, platforms, otherEntries, diagnostics);
     }
 
     public PackageName name() {
@@ -104,6 +116,10 @@ public class PackageManifest {
 
     public List<String> keywords() {
         return getOtherEntry("keywords");
+    }
+
+    public DiagnosticResult diagnostics() {
+        return diagnostics;
     }
 
     public String repository() {
