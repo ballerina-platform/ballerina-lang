@@ -20,6 +20,7 @@ package io.ballerina.toml.api;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
+import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlTransformer;
@@ -42,7 +43,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -186,6 +189,37 @@ public class Toml {
 
         TomlValueNode value = tomlKeyValueNode.value();
         return (T) value;
+    }
+
+    public <T extends TomlValueNode> Optional<T> getEntry (String dottedKey) {
+        String[] splitDottedKeys = dottedKey.split("\\.");
+        String lastKey = splitDottedKeys[splitDottedKeys.length-1];
+        splitDottedKeys = Arrays.copyOf(splitDottedKeys, splitDottedKeys.length-1);
+        TomlTableNode parentTableNode = this.rootNode;
+        for (String key : splitDottedKeys) {
+            TopLevelNode topLevelNode = parentTableNode.entries().get(key);
+            if (topLevelNode == null || topLevelNode.kind() != TomlType.TABLE) {
+                return Optional.empty();
+            }
+            parentTableNode = (TomlTableNode) topLevelNode;
+        }
+
+        if (parentTableNode == null || parentTableNode.kind() != TomlType.TABLE) {
+            return Optional.empty();
+        }
+
+        TopLevelNode valueEntry = parentTableNode.entries().get(lastKey);
+
+        if (valueEntry == null || valueEntry.kind() != TomlType.KEY_VALUE) {
+            return Optional.empty();
+        }
+        TomlKeyValueNode keyValueNode = (TomlKeyValueNode) valueEntry;
+        if (keyValueNode.value() == null) {
+            return Optional.empty();
+        }
+        TomlValueNode value = keyValueNode.value();
+        return Optional.ofNullable((T) value);
+
     }
 
     /**
