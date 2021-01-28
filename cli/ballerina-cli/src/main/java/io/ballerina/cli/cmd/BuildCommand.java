@@ -152,6 +152,10 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--taint-check", description = "perform taint flow analysis")
     private Boolean taintCheck;
 
+    @CommandLine.Option(names = "--includes", hidden = true,
+            description = "hidden option for code coverage to include all classes")
+    private String includes;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -233,12 +237,17 @@ public class BuildCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
 
+        // Skip --include-all flag if it is set without code coverage
+        if (!project.buildOptions().codeCoverage() && includes != null) {
+            this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
+        }
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
-                .addTask(new RunTestsTask(outStream, errStream, args),
+                .addTask(new RunTestsTask(outStream, errStream, args, includes),
                         project.buildOptions().skipTests() || isSingleFileBuild)
                     // run tests (projects only)
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)

@@ -119,6 +119,10 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
     private boolean rerunTests;
 
+    @CommandLine.Option(names = "--includes", hidden = true,
+            description = "hidden option for code coverage to include all classes")
+    private String includes;
+
     private static final String testCmd = "bal test [--offline] [--skip-tests]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
@@ -190,6 +194,12 @@ public class TestCommand implements BLauncherCmd {
         if (listGroups && (rerunTests || groupList != null || disableGroupList != null || testList != null)) {
             displayWarning = true;
         }
+
+        // Skip --include-all flag if it is set without code coverage
+        if (!project.buildOptions().codeCoverage() && includes != null) {
+            this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
+        }
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFile)   // clean the target directory(projects only)
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
@@ -197,7 +207,7 @@ public class TestCommand implements BLauncherCmd {
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream, displayWarning), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, args, rerunTests, groupList, disableGroupList,
-                        testList), listGroups)
+                        testList, includes), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);
