@@ -195,10 +195,13 @@ public class BMainInstance implements BMain {
         if (javaOpts.contains("jacoco.agent")) {
             return;
         }
+
+        String jacocoAgentArgs = "-javaagent:" + Paths.get(balServer.getServerHome())
+                .resolve("bre").resolve("lib").resolve("jacocoagent.jar").toString() + "=destfile=" +
+                Paths.get(System.getProperty("user.dir"))
+                        .resolve("build").resolve("jacoco").resolve("test.exec") + " ";
+        javaOpts = jacocoAgentArgs + javaOpts;
         javaOpts = agentArgs + javaOpts;
-        if ("".equals(javaOpts)) {
-            return;
-        }
         envProperties.put(JAVA_OPTS, javaOpts);
     }
 
@@ -234,12 +237,12 @@ public class BMainInstance implements BMain {
 
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
-            if (envProperties != null) {
-                Map<String, String> env = processBuilder.environment();
-                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                    env.put(entry.getKey(), entry.getValue());
-                }
+            Map<String, String> env = processBuilder.environment();
+            if (envProperties == null) {
+                envProperties = new HashMap<>();
             }
+            addJavaAgents(envProperties);
+            env.putAll(envProperties);
 
             Process process = processBuilder.start();
 
@@ -315,12 +318,13 @@ public class BMainInstance implements BMain {
 
             cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
-            if (envProperties != null) {
-                Map<String, String> env = processBuilder.environment();
-                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                    env.put(entry.getKey(), entry.getValue());
-                }
+            Map<String, String> env = processBuilder.environment();
+            if (envProperties == null) {
+                envProperties = new HashMap<>();
             }
+            addJavaAgents(envProperties);
+            env.putAll(envProperties);
+
             process = processBuilder.start();
 
             ServerLogReader infoReader = new ServerLogReader("inputStream", process.getInputStream());
@@ -558,9 +562,9 @@ public class BMainInstance implements BMain {
 
             ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(new File(commandDir));
             Map<String, String> env = processBuilder.environment();
-            for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                env.put(entry.getKey(), entry.getValue());
-            }
+            addJavaAgents(envProperties);
+            env.putAll(envProperties);
+
             Process process = processBuilder.start();
 
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
@@ -638,13 +642,12 @@ public class BMainInstance implements BMain {
                 cmdArray = new String[]{"bash", balServer.getServerHome() +
                         File.separator + "bin/" + scriptName, command};
             }
-
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
 
             Map<String, String> env = processBuilder.environment();
+            addJavaAgents(envProperties);
             env.putAll(envProperties);
-
             Process process = processBuilder.start();
 
             // Give a small timeout so that the output is given.
