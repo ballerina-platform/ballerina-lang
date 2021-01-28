@@ -41,7 +41,8 @@ public class FunctionNameValidationTest extends BaseTestCase {
 
     @Test
     public void validateFunctionNamesTest() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"validate-function-names"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "validate-function-names"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "function name verification failure");
     }

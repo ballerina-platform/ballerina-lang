@@ -41,28 +41,32 @@ public class BasicCasesTest extends BaseTestCase {
 
     @Test
     public void testAssertions() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"assertions"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "assertions"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "assertion failure");
     }
 
     @Test
     public void testAssertDiffError() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"assertions-diff-error"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "assertions-diff-error"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "assertion diff message failure in test framework");
     }
 
     @Test
     public void testAssertionErrorMessage() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"assertions-error-messages"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "assertions-error-messages"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "assertion diff message failure");
     }
 
     @Test
     public void testAssertBehavioralTypes() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"assertions-behavioral-types"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "assertions-behavioral-types"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "assertion failure for behavioral data types");
     }
@@ -70,69 +74,78 @@ public class BasicCasesTest extends BaseTestCase {
     @Test
     public void testAssertStructuralTypes() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test",
-                new String[]{"assertions-structural-types"}, new HashMap<>(), projectPath, true);
+                new String[]{"--code-coverage", "--includes=*", "assertions-structural-types"}, new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "assertion failure for structural data types");
     }
 
     @Test
     public void testAssertSequenceTypes() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"assertions-sequence-types"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "assertions-sequence-types"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "assertion failure for sequence data types");
     }
 
     @Test
     public void testAnnotationAccess() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"annotation-access"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "annotation-access"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "test annotation access failure");
     }
 
     @Test
     public void testJavaInterops() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"interops"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "interops"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "interops failure");
     }
 
     @Test
     public void testBeforeAfter() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"before-after"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "before-after"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "before-after annotation attribute failure");
     }
 
     @Test
     public void testBeforeEachAfterEach() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"before-each-after-each"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "before-each-after-each"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "before-each-after-each annotation attribute failure");
     }
 
     @Test(dependsOnMethods = "testBeforeAfter")
     public void testDependsOn() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"depends-on"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "depends-on"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "depends-on annotation attribute failure");
     }
 
     @Test(dependsOnMethods = "testDependsOn")
     public void testAnnotations() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"annotations"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "annotations"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "annotations failure");
     }
 
     @Test
     public void testIsolatedFunctions() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"isolated-functions"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "isolated-functions"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "isolated functions failure");
     }
 
     @Test
     public void testIntersectionTypes() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"intersection-type-test"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "intersection-type-test"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "intersection type failure");
     }

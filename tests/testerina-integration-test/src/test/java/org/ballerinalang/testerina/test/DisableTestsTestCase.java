@@ -41,7 +41,8 @@ public class DisableTestsTestCase extends BaseTestCase {
 
     @Test
     public void testDisablingTests() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"disable-test.bal"},
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "disable-test.bal"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "disable test failure");
     }

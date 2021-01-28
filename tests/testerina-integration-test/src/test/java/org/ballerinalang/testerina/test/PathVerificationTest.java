@@ -43,7 +43,7 @@ public class PathVerificationTest extends BaseTestCase {
     @Test
     public void verifyTestsOutsidePath() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test",
-                new String[]{"path-verification"},
+                new String[]{"--code-coverage", "--includes=*", "path-verification"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(errorOutput, "outside path test failure");
     }
@@ -52,7 +52,7 @@ public class PathVerificationTest extends BaseTestCase {
     public void verifyMissingTestsDirectory() throws BallerinaTestException {
         String msg = "No tests found";
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"missing-tests-dir"},
+        balClient.runMain("test", new String[]{"--code-coverage", "--includes=*", "missing-tests-dir"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(20000);
     }
