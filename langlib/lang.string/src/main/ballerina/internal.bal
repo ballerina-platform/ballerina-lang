@@ -16,10 +16,6 @@
 
 import ballerina/jballerina.java;
 
-# Built-in subtype of string containing strings of length 1.
-@builtinSubtype
-type Char string;
-
 # Represent the iterator type returned when `iterator` method is invoked.
 class StringIterator {
 
@@ -31,12 +27,12 @@ class StringIterator {
 
     # Return the next member in string iterator, nil if end of iterator is reached.
     # + return - iterator result
-    public isolated function next() returns record {| Char value; |}? {
+    public isolated function next() returns record {| string value; |}? {
         return externNext(self);
     }
 }
 
-isolated function externNext(StringIterator iterator) returns record {| Char value; |}? = @java:Method {
+isolated function externNext(StringIterator iterator) returns record {| string value; |}? = @java:Method {
     'class: "org.ballerinalang.langlib.string.Next",
     name: "next"
 } external;
