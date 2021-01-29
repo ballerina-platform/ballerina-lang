@@ -95,7 +95,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -392,13 +391,6 @@ public class Types {
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
         }
-        if (matchExprType.tag == TypeTags.ANYDATA) {
-            Collections.fill(listBindingPatternType.tupleTypes, symTable.anydataType);
-            if (listBindingPatternType.restType != null) {
-                listBindingPatternType.restType = symTable.anydataType;
-            }
-            return listBindingPatternType;
-        }
         return symTable.noType;
     }
 
@@ -411,13 +403,6 @@ public class Types {
         BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType, env);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
-        }
-        if (matchExprType.tag == TypeTags.ANYDATA) {
-            Collections.fill(listMatchPatternType.tupleTypes, symTable.anydataType);
-            if (listMatchPatternType.restType != null) {
-                listMatchPatternType.restType = symTable.anydataType;
-            }
-            return listMatchPatternType;
         }
         return symTable.noType;
     }
@@ -3699,6 +3684,26 @@ public class Types {
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
+            } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.RECORD) {
+                BType intersectionType = createAnyDataAndRecordIntersection((BRecordType) lhsType, env);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (type.tag == TypeTags.RECORD && lhsType.tag == TypeTags.ANYDATA) {
+                BType intersectionType = createAnyDataAndRecordIntersection((BRecordType) type, env);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.TUPLE) {
+                BType intersectionType = createAnyDataAndTupleIntersection((BTupleType) lhsType, env);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (type.tag == TypeTags.TUPLE && lhsType.tag == TypeTags.ANYDATA) {
+                BType intersectionType = createAnyDataAndTupleIntersection((BTupleType) type, env);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
             }
             return null;
         }).filter(type -> type != null).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -3717,6 +3722,14 @@ public class Types {
         } else {
             return BUnionType.create(null, intersection);
         }
+    }
+
+    private BType createAnyDataAndRecordIntersection(BRecordType recordType, SymbolEnv env) {
+        return createRecordAndMapIntersection(recordType, new BMapType(TypeTags.MAP, symTable.anydataType, null), env);
+    }
+
+    private BType createAnyDataAndTupleIntersection(BTupleType tupleType, SymbolEnv env) {
+        return createArrayAndTupleIntersection(new BArrayType(symTable.anydataType), tupleType, env);
     }
 
     private BType createArrayAndTupleIntersection(BArrayType arrayType, BTupleType tupleType, SymbolEnv env) {
