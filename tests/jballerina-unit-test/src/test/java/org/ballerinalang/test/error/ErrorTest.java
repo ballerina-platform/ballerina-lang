@@ -290,6 +290,10 @@ public class ErrorTest {
                 "incompatible types: expected 'error', found 'string'", 128, 5);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error', found 'record {| string a; |}'", 129, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "invalid error binding pattern with type 'SampleError'", 142, 17);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "invalid error binding pattern with type 'error'", 144, 11);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 

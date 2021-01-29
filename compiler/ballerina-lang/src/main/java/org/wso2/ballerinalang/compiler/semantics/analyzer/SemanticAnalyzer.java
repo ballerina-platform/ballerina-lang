@@ -1581,6 +1581,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         errorVariable.type = errorType;
 
         if (!errorVariable.isInMatchStmt) {
+            if (errorVariable.message == null) {
+                dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN, errorVariable.type);
+                return false;
+            }
             errorVariable.message.type = symTable.stringType;
             errorVariable.message.accept(this);
 
