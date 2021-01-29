@@ -1782,7 +1782,7 @@ public class Types {
     public BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) collectionType.tsymbol;
         for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
-            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_OBJECT_ITERATOR_FUNC)) {
+            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC)) {
                 return getVarTypeFromIteratorFunc(func);
             }
         }
