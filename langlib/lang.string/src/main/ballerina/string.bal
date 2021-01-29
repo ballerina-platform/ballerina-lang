@@ -16,10 +16,6 @@
 
 import ballerina/jballerina.java;
 
-# Built-in subtype of string containing strings of length 1.
-@builtinSubtype
-type Char string;
-
 # Returns the length of the string.
 #
 # + str - the string
@@ -35,7 +31,7 @@ public isolated function length(string str) returns int = @java:Method {
 # + str - the string to be iterated over
 # + return - a new iterator object
 public isolated function iterator(string str) returns object {
-    public isolated function next() returns record {| string value; |}?;
+    public isolated function next() returns record {| Char value; |}?;
 }{
     StringIterator stringIterator = new(str);
     return stringIterator;
