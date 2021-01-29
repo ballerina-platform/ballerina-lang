@@ -224,15 +224,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        BLangCompilationUnit compilationUnit = getCompilationUnit(node.location().lineRange().filePath());
-        NodeFinder nodeFinder = new NodeFinder();
-        BLangNode astNode = nodeFinder.lookup(compilationUnit, node.location().lineRange());
-
-        if (astNode == null) {
-            return Optional.empty();
-        }
-
-        return Optional.ofNullable(typesFactory.getTypeDescriptor(astNode.type));
+        return type(node.location().lineRange());
     }
 
     /**
