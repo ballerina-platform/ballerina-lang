@@ -64,7 +64,8 @@ public isolated function sleep(decimal seconds) = @java:Method {
 # Type representing a stack frame.
 # A call stack is represented as an array of stack frames.
 # This type is also present in lang.error to avoid a dependency.
-public type StackFrame readonly & object {
+public type StackFrame object {
+//public type StackFrame readonly & object {
    # Returns a string representing this StackFrame.
    # This must not contain any newline characters.
    # + return - a string
