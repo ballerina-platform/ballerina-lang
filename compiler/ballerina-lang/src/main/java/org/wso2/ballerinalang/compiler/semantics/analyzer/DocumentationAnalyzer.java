@@ -193,11 +193,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangResourceFunction funcNode) {
-        visit((BLangFunction) funcNode);
-    }
-
-    @Override
     public void visit(BLangFunction funcNode) {
         validateParameters(funcNode, funcNode.getParameters(),
                 funcNode.restParam, DiagnosticWarningCode.UNDOCUMENTED_PARAMETER,

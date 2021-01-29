@@ -752,7 +752,7 @@ public class Desugar extends BLangNodeVisitor {
                 initFnBody.stmts.add(constInit);
             }
         }
-        pkgNode.globalVars = desugarGlobalVariables(pkgNode.globalVars, initFnBody);
+        pkgNode.globalVars = desugarGlobalVariables(pkgNode, initFnBody);
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
@@ -792,33 +792,6 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
-    }
-
-    private List<BLangVariable> desugarGlobalVariables(List<BLangVariable> globalVars,
-                                                       BLangBlockFunctionBody initFnBody) {
-        List<BLangVariable> desugaredGlobalVarList = new ArrayList<>();
-
-        globalVars.forEach(globalVar -> {
-            // This will convert complex variables to simple variables
-            switch (globalVar.getKind()) {
-                case TUPLE_VARIABLE:
-                case RECORD_VARIABLE:
-                    //Tuple and record variables will be desugared into block statement node
-                    BLangNode blockStatementNode = rewrite(globalVar, env);
-                    // Add each desugared simple variable to global variables
-                    ((BLangBlockStmt) blockStatementNode).stmts.forEach(bLangStatement -> {
-                        BLangSimpleVariableDef simpleVarDef1 = (BLangSimpleVariableDef) bLangStatement;
-                        addToInitFunction(simpleVarDef1.var, initFnBody);
-                        desugaredGlobalVarList.add(rewrite(simpleVarDef1.var, env));
-                    });
-                    break;
-                default:
-                    addToInitFunction((BLangSimpleVariable) globalVar, initFnBody);
-                    desugaredGlobalVarList.add(rewrite(globalVar, env));
-            }
-        });
-
-        return desugaredGlobalVarList;
     }
 
     // Add global variables with default values to init function

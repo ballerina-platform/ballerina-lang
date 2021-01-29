@@ -25,8 +25,6 @@ import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.assertFalse;
 
 /**
  * Class to test module level tuple variable declaration.
@@ -69,7 +67,29 @@ public class ModuleTupleVariableTest {
         validateError(compileResultNegative, index++, "redeclared symbol 'b'", 20, 7);
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 23, 12);
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 24, 9);
+        validateError(compileResultNegative, index++, "only a simple variable can be marked as 'isolated'", 31, 1);
+        validateError(compileResultNegative, index++, "annotation 'annot' is not allowed on var", 35, 1);
+        validateError(compileResultNegative, index++, "incompatible types: expected 'int', found 'other'", 38, 25);
+        validateError(compileResultNegative, index++, "redeclared symbol 'n'", 40, 9);
         assertEquals(compileResultNegative.getErrorCount(), index);
+    }
+
+    @Test
+    public void testTaintAnalysisWithModuleLevelTupleVar() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/statements/vardeclr/module_tuple_var_decl_taint_analysis_negetive.bal");
+        int index = 0;
+        validateError(compileResult, index++, "tainted value passed to global variable 'p'", 21, 5);
+        assertEquals(compileResult.getErrorCount(), index);
+    }
+    @Test
+    public void testModuleLevelTupleVarAnnotationNegetive() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/statements/vardeclr/module_tuple_var_decl_annotation_negetive.bal");
+        int index = 0;
+        validateError(compileResult, index++,
+                "annotation 'ballerina/lang.annotations:1.0.0:deprecated' is not allowed on var", 20, 1);
+        assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test

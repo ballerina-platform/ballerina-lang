@@ -583,7 +583,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BindingPatternNode bindingPatternNode = typedBindingPattern.bindingPattern();
         BLangVariable variable = getBLangVariableNode(bindingPatternNode);
 
-        initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer,
+        initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
                 modVarDeclrNode.qualifiers());
 
         NodeList<AnnotationNode> annotations = getAnnotations(modVarDeclrNode.metadata());
