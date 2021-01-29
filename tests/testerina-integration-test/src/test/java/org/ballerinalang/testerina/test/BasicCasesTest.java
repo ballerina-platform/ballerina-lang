@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -42,135 +43,98 @@ public class BasicCasesTest extends BaseTestCase {
     public void testAssertions() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"assertions"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to assertion failure in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "assertion failure");
     }
 
     @Test
     public void testAssertDiffError() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"assertions-diff-error"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to assertion diff message failure in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "assertion diff message failure in test framework");
     }
 
     @Test
     public void testAssertionErrorMessage() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"assertions-error-messages"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to assertion error message failure in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "assertion diff message failure");
     }
 
     @Test
     public void testAssertBehavioralTypes() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"assertions-behavioral-types"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to assertion failure for behavioral data types " +
-                    "in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "assertion failure for behavioral data types");
     }
 
     @Test
     public void testAssertStructuralTypes() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"assertions-structural-types"},
-                new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to assertion failure for structural data types " +
-                    "in test framework");
-        }
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"assertions-structural-types"}, new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(errorOutput, "assertion failure for structural data types");
     }
 
     @Test
     public void testAssertSequenceTypes() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"assertions-sequence-types"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to assertion failure for sequence data types " +
-                    "in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "assertion failure for sequence data types");
     }
 
     @Test
     public void testAnnotationAccess() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"annotation-access"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to test annotation access failure in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "test annotation access failure");
     }
 
     @Test
     public void testJavaInterops() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"interops"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to interops failure in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "interops failure");
     }
 
     @Test
     public void testBeforeAfter() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"before-after"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to before-after annotation attribute failure in test " +
-                    "framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "before-after annotation attribute failure");
     }
 
     @Test
     public void testBeforeEachAfterEach() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"before-each-after-each"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to before-each-after-each annotation attribute failure " +
-                    "in test framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "before-each-after-each annotation attribute failure");
     }
 
     @Test(dependsOnMethods = "testBeforeAfter")
     public void testDependsOn() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"depends-on"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to depends-on annotation attribute failure in test " +
-                    "framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "depends-on annotation attribute failure");
     }
 
     @Test(dependsOnMethods = "testDependsOn")
     public void testAnnotations() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"annotations"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to annotations failure in test " +
-                    "framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "annotations failure");
     }
 
     @Test
     public void testIsolatedFunctions() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"isolated-functions"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to isolated functions failure in test " +
-                    "framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "isolated functions failure");
     }
 
     @Test
     public void testIntersectionTypes() throws BallerinaTestException {
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"intersection-type-test"},
                 new HashMap<>(), projectPath, true);
-        if (errorOutput.contains("error: there are test failures")) {
-            throw new BallerinaTestException("Test failed due to intersection type failure in test " +
-                    "framework");
-        }
+        AssertionUtils.assertForTestFailures(errorOutput, "intersection type failure");
     }
 
 }
