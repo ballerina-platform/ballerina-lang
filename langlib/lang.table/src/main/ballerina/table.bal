@@ -102,7 +102,7 @@ public isolated function add(table<Type> t, Type val) = @java:Method {
 #
 # + t - the table
 # + func - a function to apply to each member
-# + return - new table containing result of applying `func` to each member
+# + return - new table containing result of applying function `func` to each member
 public isolated function 'map(table<Type> t, @isolatedParam function(Type val) returns Type1 func)
    returns table<Type1> key<never> = @java:Method {
     'class: "org.ballerinalang.langlib.table.Map",
@@ -110,7 +110,7 @@ public isolated function 'map(table<Type> t, @isolatedParam function(Type val) r
 } external;
 
 # Applies a function to each member of a table.
-# The `func` is applied to each member of `t`.
+# The function `func` is applied to each member of `t`.
 #
 # + t - the table
 # + func - a function to apply to each member
@@ -120,6 +120,7 @@ public isolated function forEach(table<Type> t, @isolatedParam function(Type val
 } external;
 
 # Selects the members from a table for which a function returns true.
+# The resulting table will have the same keys as the argument table.
 #
 # + t - the table
 # + func - a predicate to apply to each member to test whether it should be included
@@ -136,7 +137,7 @@ public isolated function filter(table<Type> key<KeyType> t, @isolatedParam funct
 #
 # + t - the table
 # + func - combining function
-# + initial - initial value for the first argument of combining `func`
+# + initial - initial value for the first argument of combining function `func`
 # + return - result of combining the members of `t` using `func`
 public isolated function reduce(table<Type> t, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 =
 @java:Method {
