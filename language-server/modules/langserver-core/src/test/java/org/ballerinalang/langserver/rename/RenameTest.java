@@ -48,23 +48,22 @@ public class RenameTest {
 
     @BeforeClass
     public void init() throws Exception {
-        this.configRoot = FileUtils.RES_DIR.resolve("rename").resolve("expected");
-        this.sourceRoot = FileUtils.RES_DIR.resolve("rename").resolve("sources");
+        this.configRoot = FileUtils.RES_DIR.resolve("rename").resolve("expected").resolve("single");
+        this.sourceRoot = FileUtils.RES_DIR.resolve("rename").resolve("sources").resolve("single");
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
     @Test(description = "Test Rename", dataProvider = "testDataProvider")
-    public void test(String configPath, String configDir) throws IOException {
-        JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
-                .resolve(configPath).toString());
-        JsonObject source = configObject.getAsJsonObject("source");
+    public void test(String resultJsonPath, String varName) throws IOException {
+        JsonObject resultJson = FileUtils.fileContentAsObject(configRoot.resolve(resultJsonPath).toString());
+        JsonObject source = resultJson.getAsJsonObject("source");
         Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
-        Position position = gson.fromJson(configObject.get("position"), Position.class);
-
+        Position position = gson.fromJson(resultJson.get("position"), Position.class);
+        
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String actualStr = TestUtil.getRenameResponse(sourcePath.toString(), position, "renamedVal", serviceEndpoint);
+        String actualStr = TestUtil.getRenameResponse(sourcePath.toString(), position, varName, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
-        JsonObject expected = configObject.getAsJsonObject("result");
+        JsonObject expected = resultJson.getAsJsonObject("result");
         JsonObject actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result");
         this.alterExpectedUri(expected);
         this.alterActualUri(actual);
@@ -75,10 +74,8 @@ public class RenameTest {
     @DataProvider
     public Object[][] testDataProvider() throws IOException {
         return new Object[][]{
-                {"renameFunction1.json", "function"},
-                {"renameObject1.json", "object"},
-                {"renameRecord1.json", "record"},
-                {"renameError1.json", "error"}
+                {"renameMethodParamResult.json", "newA"},
+                {"renameRecTypeResult.json", "NewRecData"},
         };
     }
 
