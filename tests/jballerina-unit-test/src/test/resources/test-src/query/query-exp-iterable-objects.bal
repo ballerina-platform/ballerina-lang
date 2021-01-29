@@ -140,7 +140,7 @@ public function testStreamOfStreams() returns int[] {
     return integers;
 }
 
-function toArray (stream<any|error, error> strm) returns any[]|error {
+function toArray (stream<any|error, error|never> strm) returns any[]|error {
     any[] arr = [];
     record {| any|error value; |}|error? v = strm.next();
     while (v is record {| any|error value; |}) {

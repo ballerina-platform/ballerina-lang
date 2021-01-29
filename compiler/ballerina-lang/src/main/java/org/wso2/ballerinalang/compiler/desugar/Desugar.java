@@ -5546,6 +5546,7 @@ public class Desugar extends BLangNodeVisitor {
         reorderArguments(invocation);
 
         invocation.requiredArgs = rewriteExprs(invocation.requiredArgs);
+        fixStreamTypeCastsInInvocationParams(invocation);
         fixNonRestArgTypeCastInTypeParamInvocation(invocation);
 
         invocation.restArgs = rewriteExprs(invocation.restArgs);
@@ -5643,6 +5644,19 @@ public class Desugar extends BLangNodeVisitor {
             conversionExpr.pos = genIExpr.pos;
 
             this.result = conversionExpr;
+        }
+    }
+
+    private void fixStreamTypeCastsInInvocationParams(BLangInvocation iExpr) {
+        List<BLangExpression> requiredArgs = iExpr.requiredArgs;
+        List<BVarSymbol> params = ((BInvokableSymbol) iExpr.symbol).params;
+        if (!params.isEmpty()) {
+            for (int i = 0; i < requiredArgs.size(); i++) {
+                BVarSymbol param = params.get(i);
+                if (param.type.tag == TypeTags.STREAM) {
+                    requiredArgs.set(i, addConversionExprIfRequired(requiredArgs.get(i), param.type));
+                }
+            }
         }
     }
 

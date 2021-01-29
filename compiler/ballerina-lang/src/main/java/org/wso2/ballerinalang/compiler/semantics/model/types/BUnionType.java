@@ -177,9 +177,7 @@ public class BUnionType extends BType implements UnionType {
         }
 
         for (BType memBType : toFlatTypeSet(types)) {
-            if (memBType.tag != TypeTags.NEVER) {
-                memberTypes.add(memBType);
-            }
+            memberTypes.add(memBType);
 
             if (isImmutable && !Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
                 isImmutable = false;

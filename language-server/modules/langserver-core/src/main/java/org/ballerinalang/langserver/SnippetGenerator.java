@@ -736,7 +736,7 @@ public class SnippetGenerator {
     public static SnippetBlock getStreamDefSnippet() {
         String snippet = "stream<${1}> ${2:streamName} = new;";
 
-        return new SnippetBlock(ItemResolverConstants.TABLE_WITH_KEY_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+        return new SnippetBlock(ItemResolverConstants.STREAM_DEF, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
 

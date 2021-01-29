@@ -708,37 +708,37 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.LT, ParserRuleContext.TYPEDESC_RHS };
 
     private static final ParserRuleContext[] ERROR_TYPE_OR_TYPE_REF =
-            { ParserRuleContext.ERROR_TYPE_PARAM_START, ParserRuleContext.COLON };
+            { ParserRuleContext.COLON, ParserRuleContext.ERROR_TYPE_PARAM_START };
 
     private static final ParserRuleContext[] PARAMETERIZED_TYPE_OR_TYPE_REF =
-            { ParserRuleContext.LT, ParserRuleContext.COLON };
+            { ParserRuleContext.COLON, ParserRuleContext.LT};
 
     private static final ParserRuleContext[] OBJECT_TYPE_OR_TYPE_REF =
-            { ParserRuleContext.OBJECT_TYPE_OBJECT_KEYWORD_RHS, ParserRuleContext.COLON };
+            { ParserRuleContext.COLON, ParserRuleContext.OBJECT_TYPE_OBJECT_KEYWORD_RHS };
 
     private static final ParserRuleContext[] STREAM_TYPE_OR_TYPE_REF =
-            { ParserRuleContext.LT, ParserRuleContext.COLON };
+            { ParserRuleContext.COLON, ParserRuleContext.LT };
 
     private static final ParserRuleContext[] TABLE_TYPE_OR_TYPE_REF =
-            { ParserRuleContext.ROW_TYPE_PARAM, ParserRuleContext.COLON };
+            { ParserRuleContext.COLON, ParserRuleContext.ROW_TYPE_PARAM };
 
     private static final ParserRuleContext[] TYPEDESC_TYPE_OR_TYPE_REF =
-            { ParserRuleContext.TYPEDESC_TYPE_DESCRIPTOR_RHS, ParserRuleContext.COLON };
+            { ParserRuleContext.COLON, ParserRuleContext.TYPEDESC_TYPE_DESCRIPTOR_RHS };
 
     private static final ParserRuleContext[] XML_TYPE_OR_TYPE_REF =
-            { ParserRuleContext.TYPEDESC_TYPE_DESCRIPTOR_RHS, ParserRuleContext.COLON };
+            { ParserRuleContext.COLON, ParserRuleContext.TYPEDESC_TYPE_DESCRIPTOR_RHS };
 
     private static final ParserRuleContext[] TYPEDESC_RHS_OR_TYPE_REF =
-            { ParserRuleContext.TYPEDESC_RHS, ParserRuleContext.COLON };
+            { ParserRuleContext.COLON, ParserRuleContext.TYPEDESC_RHS };
 
     private static final ParserRuleContext[] TABLE_CONS_OR_QUERY_EXPR_OR_VAR_REF =
-            { ParserRuleContext.EXPRESSION_START_TABLE_KEYWORD_RHS, ParserRuleContext.VAR_REF_COLON };
+            { ParserRuleContext.VAR_REF_COLON, ParserRuleContext.EXPRESSION_START_TABLE_KEYWORD_RHS };
 
     private static final ParserRuleContext[] QUERY_EXPR_OR_VAR_REF =
-            { ParserRuleContext.QUERY_CONSTRUCT_TYPE_RHS, ParserRuleContext.VAR_REF_COLON };
+            { ParserRuleContext.VAR_REF_COLON, ParserRuleContext.QUERY_CONSTRUCT_TYPE_RHS };
 
     private static final ParserRuleContext[] ERROR_CONS_EXPR_OR_VAR_REF =
-            { ParserRuleContext.ERROR_CONS_ERROR_KEYWORD_RHS, ParserRuleContext.VAR_REF_COLON };
+            { ParserRuleContext.VAR_REF_COLON, ParserRuleContext.ERROR_CONS_ERROR_KEYWORD_RHS };
 
     private static final ParserRuleContext[] QUALIFIED_IDENTIFIER =
             { ParserRuleContext.QUALIFIED_IDENTIFIER_START_IDENTIFIER,

@@ -8,6 +8,7 @@ on:
       - release-stage
       - stage
       - ballerina-1.2.x
+      - alpha-stage
 
 jobs:
   ubuntu_push_build:
@@ -33,19 +34,21 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ github.sha }}
           restore-keys: ${{ runner.os }}-gradle
 
-      - name: Build without integration test
+      - name: Build and publish
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build -x createJavadoc -x :jballerina-integration-test:test --max-workers=2 --scan
-
+          ./gradlew build -x createJavadoc --max-workers=2 --scan
+          ./gradlew publish
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
-
-      - name: Run integration test
+      - name: Trigger Standard Library Module Builds
         run: |
-          export DISPLAY=':99.0'
-          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew :jballerina-integration-test:test -x createJavadoc --no-parallel --scan
-
-          find ~/.gradle/caches/ -name "*.lock" -type f -delete
-
+          echo "Triggering stdlib module builds"
+          curl --request \
+          POST 'https://api.github.com/repos/ballerina-platform/ballerina-standard-library/dispatches' \
+          --header 'Accept: application/vnd.github.v3+json' \
+          --header 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "event_type": "ballerina-lang-push"
+          }'

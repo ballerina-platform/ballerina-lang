@@ -20,8 +20,11 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
 
 import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
 
@@ -41,29 +44,26 @@ public class SelectedFunctionTest extends BaseTestCase {
 
     @Test
     public void testSingleFunctionExecution() throws BallerinaTestException {
-        String msg = "1 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"--tests", "testFunc", "single-test-execution.bal"},
-                null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--tests", "testFunc", "single-test-execution.bal"},
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(errorOutput, "single function execution failure");
     }
 
     @Test
     public void testDependentFunctionExecution() throws BallerinaTestException {
-        String msg = "2 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"--tests", "testFunc2", "single-test-execution.bal"},
-                null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--tests", "testFunc2", "single-test-execution.bal"},
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(errorOutput, "dependant function execution failure");
     }
 
     @Test
     public void testMultipleFunctionExecution() throws BallerinaTestException {
-        String msg = "2 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"--tests", "testFunc,testFunc2",
-                "single-test-execution.bal"}, null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--tests", "testFunc,testFunc2", "single-test-execution.bal"},
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(errorOutput, "multiple function execution failure");
     }
 
     @Test
@@ -77,11 +77,10 @@ public class SelectedFunctionTest extends BaseTestCase {
 
     @Test
     public void testDisabledFunctionExecution() throws BallerinaTestException {
-        String msg = "No tests found";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"--tests", "testDisabledFunc", "single-test-execution.bal"},
-                null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--tests", "testDisabledFunc", "single-test-execution.bal"},
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(errorOutput, "disabled function execution failure");
     }
 
     @Test

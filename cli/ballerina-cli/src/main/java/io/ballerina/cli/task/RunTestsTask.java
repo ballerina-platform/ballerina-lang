@@ -87,6 +87,7 @@ public class RunTestsTask implements Task {
     private final PrintStream out;
     private final PrintStream err;
     private final List<String> args;
+    private final String includesInCoverage;
     private List<String> groupList;
     private List<String> disableGroupList;
     private boolean report;
@@ -96,19 +97,19 @@ public class RunTestsTask implements Task {
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args) {
+    public RunTestsTask(PrintStream out, PrintStream err, String[] args, String includes) {
         this.out = out;
         this.err = err;
         this.args = Lists.of(args);
+        this.includesInCoverage = includes;
     }
 
     public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList) {
+                        List<String> disableGroupList, List<String> testList, String includes) {
         this.out = out;
         this.err = err;
         this.args = Lists.of(args);
         this.isSingleTestExecution = false;
-
         this.isRerunTestExecution = rerunTests;
 
         // If rerunTests is true, we get the rerun test list and assign it to 'testList'
@@ -124,6 +125,7 @@ public class RunTestsTask implements Task {
             isSingleTestExecution = true;
             singleExecTests = testList;
         }
+        this.includesInCoverage = includes;
     }
 
     @Override
@@ -364,8 +366,10 @@ public class RunTestsTask implements Task {
                     + "=destfile="
                     + target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
                     .resolve(TesterinaConstants.EXEC_FILE_NAME).toString();
-            if (!TesterinaConstants.DOT.equals(packageName)) {
+            if (!TesterinaConstants.DOT.equals(packageName) && this.includesInCoverage == null) {
                 agentCommand += ",includes=" + orgName + ".*";
+            } else {
+                agentCommand += ",includes=" + this.includesInCoverage;
             }
             cmdArgs.add(agentCommand);
         }
