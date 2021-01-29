@@ -58,8 +58,8 @@
             },
             "required": ["name","org"],
             "message" : {
-                "required" : "name and org should exists",
-                "additionalProperties" : "Properties can only contain name, org, version, port, capacity, repository, keywords, exported"
+                "required" : "Field ${property} is required",
+                "additionalProperties" : "Field ${property} is not supported"
             }
         }
     }

@@ -85,17 +85,9 @@ public class CustomErrorTest {
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Diagnostic customDiagMessage = toml.diagnostics().get(0);
-        Assert.assertEquals(customDiagMessage.message(), "name and org should exists");
-        //Can get requried varaible name for custom message using this strucure rather than including having required
-        // file in the table.
-        //                 "version": {
-        //                    "type": "string",
-        //                    "required": true
-        //                }
+        Assert.assertEquals(customDiagMessage.message(), "Field org is required");
 
         Diagnostic defaultDiagMessage = toml.diagnostics().get(1);
-        Assert.assertEquals(defaultDiagMessage.message(),
-                "Properties can only contain name, org, version, port, capacity, repository, keywords, exported");
-        //Need a way to pass the variable holder.
+        Assert.assertEquals(defaultDiagMessage.message(), "Field additional is not supported");
     }
 }

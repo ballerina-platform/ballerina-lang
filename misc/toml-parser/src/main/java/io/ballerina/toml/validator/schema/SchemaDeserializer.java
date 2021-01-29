@@ -176,40 +176,40 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         if (customMessageJson == null) {
             return new HashMap<>();
         }
-        JsonElement type = customMessageJson.get("type");
+        JsonElement type = customMessageJson.get(TYPE);
         if (!(type == null || type.isJsonNull())) {
             String customTypeMessage = type.getAsString();
-            customMessages.put("type", customTypeMessage);
+            customMessages.put(TYPE, customTypeMessage);
         }
 
-        JsonElement pattern = customMessageJson.get("pattern");
+        JsonElement pattern = customMessageJson.get(PATTERN);
         if (!(pattern == null || pattern.isJsonNull())) {
             String customPatternMessage = pattern.getAsString();
-            customMessages.put("pattern", customPatternMessage);
+            customMessages.put(PATTERN, customPatternMessage);
         }
 
-        JsonElement required = customMessageJson.get("required");
+        JsonElement required = customMessageJson.get(REQUIRED);
         if (!(required == null || required.isJsonNull())) {
             String customRequiredMessage = required.getAsString();
-            customMessages.put("required", customRequiredMessage);
+            customMessages.put(REQUIRED, customRequiredMessage);
         }
 
-        JsonElement additionalProperties = customMessageJson.get("additionalProperties");
+        JsonElement additionalProperties = customMessageJson.get(ADDITIONAL_PROPERTIES);
         if (!(additionalProperties == null || additionalProperties.isJsonNull())) {
             String customAdditionalPropMessage = additionalProperties.getAsString();
-            customMessages.put("additionalProperties", customAdditionalPropMessage);
+            customMessages.put(ADDITIONAL_PROPERTIES, customAdditionalPropMessage);
         }
 
-        JsonElement minimum = customMessageJson.get("minimum");
+        JsonElement minimum = customMessageJson.get(MINIMUM);
         if (!(minimum == null || minimum.isJsonNull())) {
             String customMinMessage = minimum.getAsString();
-            customMessages.put("minimum", customMinMessage);
+            customMessages.put(MINIMUM, customMinMessage);
         }
 
-        JsonElement maximum = customMessageJson.get("maximum");
+        JsonElement maximum = customMessageJson.get(MAXIMUM);
         if (!(maximum == null || maximum.isJsonNull())) {
             String customMaxMessage = maximum.getAsString();
-            customMessages.put("maximum", customMaxMessage);
+            customMessages.put(MAXIMUM, customMaxMessage);
         }
 
         return customMessages;

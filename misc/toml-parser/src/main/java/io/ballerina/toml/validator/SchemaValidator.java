@@ -37,6 +37,7 @@ import io.ballerina.toml.validator.schema.ArraySchema;
 import io.ballerina.toml.validator.schema.NumericSchema;
 import io.ballerina.toml.validator.schema.ObjectSchema;
 import io.ballerina.toml.validator.schema.Schema;
+import io.ballerina.toml.validator.schema.SchemaDeserializer;
 import io.ballerina.toml.validator.schema.StringSchema;
 import io.ballerina.toml.validator.schema.Type;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -54,6 +55,8 @@ import java.util.regex.Pattern;
  * @since 2.0.0
  */
 public class SchemaValidator extends TomlNodeVisitor {
+
+    public static final String PROPERTY_HOLDER = "${property}";
 
     private AbstractSchema schema;
     private String key;
@@ -102,20 +105,20 @@ public class SchemaValidator extends TomlNodeVisitor {
 
     private String getRequiredErrorMessage(String field) {
         Map<String, String> message = this.schema.message();
-        String typeCustomMessage = message.get("required");
+        String typeCustomMessage = message.get(SchemaDeserializer.REQUIRED);
         if (typeCustomMessage == null) {
             return "Missing required field \"" + field + "\"";
         }
-        return typeCustomMessage;
+        return typeCustomMessage.replace(PROPERTY_HOLDER, field);
     }
 
     private String getUnexpectedPropertyErrorMessage(String key) {
         Map<String, String> message = this.schema.message();
-        String typeCustomMessage = message.get("additionalProperties");
+        String typeCustomMessage = message.get(SchemaDeserializer.ADDITIONAL_PROPERTIES);
         if (typeCustomMessage == null) {
             return "Unexpected Property \"" + key + "\"";
         }
-        return typeCustomMessage;
+        return typeCustomMessage.replace(PROPERTY_HOLDER, key);
     }
 
     @Override
@@ -148,7 +151,7 @@ public class SchemaValidator extends TomlNodeVisitor {
 
     private String getTypeErrorMessage(Type found) {
         Map<String, String> message = this.schema.message();
-        String typeCustomMessage = message.get("type");
+        String typeCustomMessage = message.get(SchemaDeserializer.TYPE);
         if (typeCustomMessage == null) {
             return String.format("Key \"%s\" expects %s . Found %s", this.key, schema.type(), found);
         }
@@ -157,7 +160,7 @@ public class SchemaValidator extends TomlNodeVisitor {
 
     private String getPatternErrorMessage(String pattern) {
         Map<String, String> message = this.schema.message();
-        String typeCustomMessage = message.get("pattern");
+        String typeCustomMessage = message.get(SchemaDeserializer.PATTERN);
         if (typeCustomMessage == null) {
             return String.format("Key \"%s\" value does not match the Regex provided in Schema %s", this.key,
                     pattern);
@@ -232,7 +235,7 @@ public class SchemaValidator extends TomlNodeVisitor {
 
     private String getMaxValueExceedErrorMessage(Double max) {
         Map<String, String> message = this.schema.message();
-        String maxCustomMessage = message.get("maximum");
+        String maxCustomMessage = message.get(SchemaDeserializer.MAXIMUM);
         if (maxCustomMessage == null) {
             return String.format("Key \"%s\" value can't be higher than %f", this.key,
                     max);
@@ -242,7 +245,7 @@ public class SchemaValidator extends TomlNodeVisitor {
 
     private String getMinValueDeceedErrorMessage(Double min) {
         Map<String, String> message = this.schema.message();
-        String minCustomMessage = message.get("minimum");
+        String minCustomMessage = message.get(SchemaDeserializer.MINIMUM);
         if (minCustomMessage == null) {
             return String.format("Key \"%s\" value can't be lower than %f", this.key,
                     min);

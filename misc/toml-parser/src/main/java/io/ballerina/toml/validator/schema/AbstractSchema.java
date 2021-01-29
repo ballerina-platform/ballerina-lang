@@ -47,9 +47,5 @@ public abstract class AbstractSchema {
         return message;
     }
 
-    public void addCustomMessage(String field, String message) {
-        this.message.put(field, message);
-    }
-
     public abstract void accept(SchemaVisitor visitor);
 }
