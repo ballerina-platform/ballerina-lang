@@ -30,6 +30,7 @@ public class RegressionEvaluatorTest extends AbstractEvaluatorTest {
     private static final String FUNCTION_NAME_EVALUATOR_TESTCASE = "testcases/evaluator/regression.function.name.json";
     private static final String SAME_IMPORT_EVALUATOR_TESTCASE = "testcases/evaluator/regression.same.import.json";
     private static final String IMPORT_USED_FN_TESTCASE = "testcases/evaluator/regression.import.used.fn.json";
+    private static final String IMPORT_CYCLIC_TYPE_TESTCASE = "testcases/evaluator/regression.cyclic.type.json";
 
     @Test
     public void testEvaluateFunctionName() throws BallerinaShellException {
@@ -47,5 +48,11 @@ public class RegressionEvaluatorTest extends AbstractEvaluatorTest {
     public void testEvaluateImportUsedFn() throws BallerinaShellException {
         // Functions using imports are correctly processed.
         testEvaluate(IMPORT_USED_FN_TESTCASE);
+    }
+
+    @Test
+    public void testEvaluateCyclicType() throws BallerinaShellException {
+        // Cyclic types use.
+        testEvaluate(IMPORT_CYCLIC_TYPE_TESTCASE);
     }
 }
