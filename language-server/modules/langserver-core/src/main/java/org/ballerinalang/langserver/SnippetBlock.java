@@ -82,8 +82,7 @@ public class SnippetBlock {
                         pair.getRight());
                 if (matchedImport.isEmpty()) {
                     importTextEdits.addAll(CommonUtil.getAutoImportTextEdits(pair.getLeft(), pair.getRight(), ctx));
-                }
-                if (matchedImport.isPresent() && matchedImport.get().prefix().isPresent()) {
+                } else if (matchedImport.get().prefix().isPresent()) {
                     insertText = this.snippet.replace(pair.getRight() + ":",
                             matchedImport.get().prefix().get().prefix().text() + ":");
                 }
