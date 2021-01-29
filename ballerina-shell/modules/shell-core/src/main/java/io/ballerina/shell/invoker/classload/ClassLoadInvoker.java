@@ -50,7 +50,7 @@ import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.invoker.classload.context.StatementContext;
 import io.ballerina.shell.invoker.classload.context.VariableContext;
 import io.ballerina.shell.invoker.classload.visitors.ElevatedTypeTransformer;
-import io.ballerina.shell.invoker.classload.visitors.TypeSignatureTransformer;
+import io.ballerina.shell.invoker.classload.visitors.ImportableTypeSymbolVisitor;
 import io.ballerina.shell.rt.InvokerMemory;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.types.ExecutableSnippet;
@@ -360,13 +360,15 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                         ? ((VariableSymbol) symbol).typeDescriptor()
                         : ((FunctionSymbol) symbol).typeDescriptor();
 
+                // Find if any or error type.
                 ElevatedTypeTransformer elevatedTypeTransformer = new ElevatedTypeTransformer();
                 ElevatedType elevatedType = elevatedTypeTransformer.transformType(typeSymbol);
 
-                TypeSignatureTransformer signatureTransformer = new TypeSignatureTransformer(this);
-                String variableType = signatureTransformer.transformType(typeSymbol);
-                this.newImplicitImports.addAll(signatureTransformer.getImplicitImportPrefixes());
+                // Convert type to a string and find required imports.
+                ImportableTypeSymbolVisitor importableVisitor = new ImportableTypeSymbolVisitor(this);
+                String variableType = importableVisitor.computeType(typeSymbol);
 
+                this.newImplicitImports.addAll(importableVisitor.getImplicitImportPrefixes());
                 foundVariables.add(new GlobalVariable(variableType, variableName, elevatedType));
                 this.newSymbols.add(hashedSymbol);
             }
