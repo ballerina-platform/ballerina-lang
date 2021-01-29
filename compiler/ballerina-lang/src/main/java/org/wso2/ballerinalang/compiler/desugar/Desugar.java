@@ -4803,10 +4803,10 @@ public class Desugar extends BLangNodeVisitor {
 
     public BInvokableSymbol getIterableObjectIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
         BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) collectionSymbol.type.tsymbol;
-        // We know for sure at this point, the object symbol should have the __iterator method
+        // We know for sure at this point, the object symbol should have the `iterator` method
         BAttachedFunction iteratorFunc = null;
         for (BAttachedFunction func : typeSymbol.attachedFuncs) {
-            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_OBJECT_ITERATOR_FUNC)) {
+            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC)) {
                 iteratorFunc = func;
                 break;
             }
@@ -6430,7 +6430,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangInvocation replaceWithIntRange(Location location, BLangExpression lhsExpr,
                                                 BLangExpression rhsExpr) {
-        BInvokableSymbol symbol = (BInvokableSymbol) symTable.langInternalModuleSymbol.scope
+        BInvokableSymbol symbol = (BInvokableSymbol) symTable.langObjectModuleSymbol.scope
                 .lookup(Names.CREATE_INT_RANGE).symbol;
         BLangInvocation createIntRangeInvocation = ASTBuilderUtil.createInvocationExprForMethod(location, symbol,
                 new ArrayList<>(Lists.of(lhsExpr, rhsExpr)), symResolver);

@@ -1046,7 +1046,7 @@ public function functionWithRangeExpressions() {
         // do nothing
     }
      object {
-        public function __iterator() returns
+        public function iterator() returns
             object {
                 public isolated function next() returns record {|int value;|}?;
             };
@@ -1054,7 +1054,7 @@ public function functionWithRangeExpressions() {
 
     object {
             public isolated function next() returns (record {|int value;|}?);
-    } iterator = iterableObj.__iterator();
+    } iterator = iterableObj.iterator();
 
     while (true) {
         record {|int value;|}? r = iterator.next();

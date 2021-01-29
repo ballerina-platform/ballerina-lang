@@ -129,7 +129,6 @@ public class Bootstrap {
         }
 
         symResolver.bootstrapCloneableType();
-        symResolver.bootstrapIntRangeType();
         symResolver.defineOperators();
     }
 
@@ -146,7 +145,6 @@ public class Bootstrap {
         symResolver.bootstrapAnydataType();
         symResolver.boostrapErrorType();
         symResolver.bootstrapCloneableType();
-        symResolver.bootstrapIntRangeType();
         symbolTable.langArrayModuleSymbol = loadLangLibFromBala(ARRAY, compilerContext);
         symbolTable.langDecimalModuleSymbol = loadLangLibFromBala(DECIMAL, compilerContext);
         symbolTable.langErrorModuleSymbol = loadLangLibFromBala(ERROR, compilerContext);
@@ -156,6 +154,7 @@ public class Bootstrap {
         symbolTable.langMapModuleSymbol = loadLangLibFromBala(MAP, compilerContext);
         symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
         symResolver.loadRawTemplateType();
+        symResolver.bootstrapIteratorType();
         symbolTable.langStreamModuleSymbol = loadLangLibFromBala(STREAM, compilerContext);
         symbolTable.langTableModuleSymbol = loadLangLibFromBala(TABLE, compilerContext);
         symbolTable.langStringModuleSymbol = loadLangLibFromBala(STRING, compilerContext);
@@ -165,6 +164,7 @@ public class Bootstrap {
         symbolTable.langQueryModuleSymbol = loadLangLibFromBala(QUERY, compilerContext);
         symbolTable.langTransactionModuleSymbol = loadLangLibFromBala(TRANSACTION, compilerContext);
         symbolTable.loadPredeclaredModules();
+        symResolver.bootstrapIntRangeType();
         symbolTable.updateBuiltinSubtypeOwners();
         symResolver.defineOperators();
     }
