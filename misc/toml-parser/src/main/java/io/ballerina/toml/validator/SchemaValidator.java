@@ -35,7 +35,6 @@ import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.toml.validator.schema.AbstractSchema;
 import io.ballerina.toml.validator.schema.ArraySchema;
 import io.ballerina.toml.validator.schema.NumericSchema;
-import io.ballerina.toml.validator.schema.ObjectSchema;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.toml.validator.schema.SchemaDeserializer;
 import io.ballerina.toml.validator.schema.StringSchema;
@@ -73,7 +72,7 @@ public class SchemaValidator extends TomlNodeVisitor {
             tomlTableNode.addDiagnostic(diagnostic);
             return;
         }
-        ObjectSchema objectSchema = (ObjectSchema) schema;
+        Schema objectSchema = (Schema) schema;
         Map<String, AbstractSchema> properties = objectSchema.properties();
         List<String> requiredFields = getRequiredFields(objectSchema);
         Map<String, TopLevelNode> tableEntries = tomlTableNode.entries();
@@ -315,7 +314,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         return new TomlDiagnostic(location, diagnosticInfo, message);
     }
 
-    private List<String> getRequiredFields(ObjectSchema objectSchema) {
+    private List<String> getRequiredFields(Schema objectSchema) {
         if (objectSchema.required() == null) {
             return new ArrayList<>();
         }
