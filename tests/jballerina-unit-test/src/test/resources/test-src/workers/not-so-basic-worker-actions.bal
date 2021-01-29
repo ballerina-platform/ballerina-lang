@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 function forkWithTimeoutTest1() returns map<anydata> {
     map<any> m = {};

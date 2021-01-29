@@ -291,9 +291,7 @@ public abstract class AbstractParserErrorHandler {
                 if (currentSol.action == Action.REMOVE && foundSol.action == Action.INSERT) {
                     bestMatch = currentMatch;
                 }
-            }
-
-            if (currentMatchFixesSize < bestmatchFixesSize) {
+            } else if (currentMatchFixesSize < bestmatchFixesSize) {
                 bestMatch = currentMatch;
             }
         }

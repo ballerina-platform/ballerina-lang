@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # Represents the placeholder to be given for object or record type arguments
 public const ANY = "__ANY__";

@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 type String1Typedesc typedesc<String1>;
 type String2Typedesc typedesc<String2>;

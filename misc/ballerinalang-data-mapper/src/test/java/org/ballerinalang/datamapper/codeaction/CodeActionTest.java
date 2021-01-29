@@ -170,6 +170,16 @@ public class CodeActionTest {
                 {"dataMapper8.json", "dataMapper8.bal"},
                 {"dataMapper9.json", "dataMapper9.bal"},
                 {"dataMapper10.json", "dataMapper10.bal"},
+                {"module-response/defaultDataMapper1.json", "datamapper-module-test/defaultDataMapper1.bal"},
+                {"module-response/defaultDataMapper2.json", "datamapper-module-test/defaultDataMapper2.bal"},
+                {"module-response/defaultDataMapper3.json", "datamapper-module-test/defaultDataMapper3.bal"},
+                {"module-response/defaultDataMapper4.json", "datamapper-module-test/defaultDataMapper4.bal"},
+                {"module-response/moduleDataMapper1.json",
+                        "datamapper-module-test/modules/module1/moduleDataMapper1.bal"},
+                {"module-response/moduleDataMapper2.json",
+                        "datamapper-module-test/modules/module2/moduleDataMapper2.bal"},
+                {"module-response/moduleDataMapper3.json",
+                        "datamapper-module-test/modules/module3/moduleDataMapper3.bal"},
         };
     }
 

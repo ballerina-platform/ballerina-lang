@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 configurable int intVar = 5;
 configurable float floatVar = 9.5;

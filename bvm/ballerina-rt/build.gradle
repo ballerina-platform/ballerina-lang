@@ -29,10 +29,10 @@ configurations {
 }
 
 dependencies {
-    
+
     // Lang lib Bir
     dist project(path: ':ballerina-lang:internal', configuration: 'distributionBirJar')
-    dist project(path: ':ballerina-lang:java', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:array', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:decimal', configuration: 'distributionBirJar')
@@ -75,9 +75,10 @@ dependencies {
     dist project(':ballerina-lang:runtime')
     dist project(':ballerina-lang:query')
     dist project(':ballerina-lang:transaction')
-    dist project(':ballerina-lang:java')
+    dist project(':ballerina-lang:jballerina.java')
     dist project(':ballerina-observability')
     dist project(':ballerina-observability-internal')
+    dist project(':ballerina-shell:shell-rt')
 
     // Third party jars
     // config
@@ -101,7 +102,7 @@ dependencies {
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
     dist 'com.h2database:h2:1.4.199'
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
-    
+
     // observability extensions
     //// metrics
     dist project(':metrics-extensions:ballerina-metrics-extension')

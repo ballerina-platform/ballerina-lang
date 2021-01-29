@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # Converts a string to a boolean.
 # Returns the boolean of which `s` is a string representation.

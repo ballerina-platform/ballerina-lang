@@ -249,7 +249,7 @@ public class NodeCloner extends BLangNodeVisitor {
         return nodeCloner;
     }
 
-    synchronized BLangCompilationUnit cloneCUnit(BLangCompilationUnit source) {
+    public synchronized BLangCompilationUnit cloneCUnit(BLangCompilationUnit source) {
 
         source.cloneAttempt += 1;
         currentCloneAttempt = source.cloneAttempt;

@@ -186,6 +186,9 @@ public class ConfigTomlParser {
     }
 
     private static TomlTableNode extractModuleNode(TomlTableNode orgNode, String moduleName) {
+        if (orgNode == null) {
+            return orgNode;
+        }
         TomlTableNode moduleNode = orgNode;
         int subModuleIndex = moduleName.indexOf(SUBMODULE_DELIMITER);
         if (subModuleIndex == -1) {

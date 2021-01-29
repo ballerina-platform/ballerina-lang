@@ -14,7 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
+
+# Config to enable transaction manager
+configurable boolean managerEnabled = false;
+# Config to specify transaction log directory
+configurable string logBase = "transaction_log_dir";
 
 # Information about a transaction that does not change
 # after the transaction is started.

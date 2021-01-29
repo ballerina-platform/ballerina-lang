@@ -38,6 +38,7 @@ import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.utils.FileUtils.deleteDirectory;
+import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
  * Build command tests.
@@ -480,6 +481,27 @@ public class BuildCommandTest extends BaseCommandTest {
         } catch (BLauncherException e) {
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("does not have write permissions"));
         }
+    }
+
+    @Test(description = "Build a valid ballerina project with empty ballerina.toml")
+    public void testBuildProjectWithEmptyBallerinaToml() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithEmptyBallerinaToml");
+
+        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty(USER_NAME, "john");
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, null, null);
+        // non existing bal file
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-project-with-empty-ballerina-toml.txt"));
+
+        Assert.assertTrue(projectPath.resolve("target").resolve("balo")
+                                  .resolve("john-validProjectWithEmptyBallerinaToml-any-0.1.0.balo").toFile().exists());
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("bin").resolve("validProjectWithEmptyBallerinaToml.jar").toFile()
+                        .exists());
     }
 
     static class Copy extends SimpleFileVisitor<Path> {
