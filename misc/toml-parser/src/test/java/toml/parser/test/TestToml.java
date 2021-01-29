@@ -51,7 +51,7 @@ public class TestToml {
             OUT.println(diagnostic.message());
         }
 
-        TomlStringValueNode key1 = (TomlStringValueNode) read.getEntry("key").get();
+        TomlStringValueNode key1 = (TomlStringValueNode) read.getEntry("\"key\"").get();
 
         OUT.println(key1.getValue());
     }

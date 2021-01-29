@@ -25,6 +25,7 @@ import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -211,5 +212,30 @@ public class KeyValueTest {
 
         Assert.assertEquals(cfirst, Long.valueOf(5L));
         Assert.assertEquals(csecond, Long.valueOf(6L));
+    }
+
+    @Test(enabled = false)
+    public void testDottedKey() throws IOException {
+        InputStream inputStream = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("syntax/key-value/new-api.toml");
+        Toml read = Toml.read(inputStream);
+
+        TomlStringValueNode plainKey = (TomlStringValueNode) read.getEntry("key").get();
+        Assert.assertEquals(plainKey.getValue(), "no quote");
+//TODO Fixme
+//        TomlStringValueNode simpleQuotedKey = (TomlStringValueNode) read.getEntry("\"key\"").get();
+//        Assert.assertEquals(simpleQuotedKey.getValue(), "quoted key");
+
+        TomlStringValueNode plainNestedChild = (TomlStringValueNode) read.getEntry("table.hi").get();
+        Assert.assertEquals(plainNestedChild.getValue(), "hii");
+
+//        //TODO fixme
+//        TomlStringValueNode shortChild = (TomlStringValueNode) read.getEntry("table1.child").get();
+//        Assert.assertEquals(shortChild.getValue(), "hello");
+
+        TomlStringValueNode quotedSingle = (TomlStringValueNode) read.getEntry("\"foo bar\"").get();
+        Assert.assertEquals(quotedSingle.getValue(), "boo");
+
+
     }
 }
