@@ -72,7 +72,7 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "invalid operation: type 'string' does not support field access",
                 49, 35);
         BAssertUtil.validateError(negative, index++, "too many arguments in call to 'length()'", 55, 9);
-        BAssertUtil.validateError(negative, index++, "missing required parameter 'func' in call to 'filter'()", 56, 5);
+        BAssertUtil.validateError(negative, index++, "missing required parameter 'func' in call to 'filter()'", 56, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
                 "returns ()', found 'int'", 58, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected '[string,string,string]', found " +
