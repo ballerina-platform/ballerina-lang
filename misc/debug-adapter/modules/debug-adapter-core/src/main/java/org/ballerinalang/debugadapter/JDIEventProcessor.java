@@ -19,7 +19,6 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
-import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
@@ -43,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +49,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
 /**
@@ -140,35 +137,6 @@ public class JDIEventProcessor {
         }
     }
 
-    Map<Long, ThreadReferenceProxyImpl> getThreadsMap() {
-        if (context.getDebuggee() == null) {
-            return null;
-        }
-        Collection<ThreadReferenceProxyImpl> threadReferences = context.getDebuggee().allThreads();
-        Map<Long, ThreadReferenceProxyImpl> breakPointThreads = new HashMap<>();
-
-        // Filter thread references which are at breakpoint, suspended and whose thread status is running.
-        for (ThreadReferenceProxyImpl threadReference : threadReferences) {
-            if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
-                && !threadReference.name().equals("Reference Handler")
-                && !threadReference.name().equals("Signal Dispatcher")
-                && threadReference.isSuspended()
-                && isBalStrand(threadReference)
-            ) {
-                breakPointThreads.put(threadReference.uniqueID(), threadReference);
-            }
-        }
-        return breakPointThreads;
-    }
-
-    private static boolean isBalStrand(ThreadReference threadReference) {
-        try {
-            return threadReference.frames().get(0).location().sourceName().endsWith(BAL_FILE_EXT);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     void sendStepRequest(long threadId, int stepType) {
         if (stepType == StepRequest.STEP_OVER) {
             configureDynamicBreakPoints(threadId);
@@ -214,7 +182,7 @@ public class JDIEventProcessor {
     }
 
     private void configureDynamicBreakPoints(long threadId) {
-        ThreadReferenceProxyImpl threadReference = getThreadsMap().get(threadId);
+        ThreadReferenceProxyImpl threadReference = context.getAdapter().getThreadsMap().get(threadId);
         try {
             Location currentLocation = threadReference.frames().get(0).location();
             ReferenceType referenceType = currentLocation.declaringType();
@@ -250,7 +218,7 @@ public class JDIEventProcessor {
 
     void createStepRequest(long threadId, int stepType) {
         context.getEventManager().deleteEventRequests(stepEventRequests);
-        ThreadReferenceProxyImpl threadReference = getThreadsMap().get(threadId);
+        ThreadReferenceProxyImpl threadReference = context.getAdapter().getThreadsMap().get(threadId);
         StepRequest request = context.getEventManager().createStepRequest(threadReference.getThreadReference(),
                 StepRequest.STEP_LINE, stepType);
 

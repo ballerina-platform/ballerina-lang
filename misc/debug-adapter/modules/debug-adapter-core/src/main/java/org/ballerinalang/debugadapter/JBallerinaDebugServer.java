@@ -21,6 +21,7 @@ import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
@@ -92,6 +93,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +109,6 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.closeQuietly;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getRectifiedSourcePath;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedundantQuotes;
-import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.CONSOLE;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.LAMBDA;
@@ -266,7 +267,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (eventProcessor == null) {
             return CompletableFuture.completedFuture(threadsResponse);
         }
-        Map<Long, ThreadReferenceProxyImpl> threadsMap = eventProcessor.getThreadsMap();
+        Map<Long, ThreadReferenceProxyImpl> threadsMap = getThreadsMap();
         if (threadsMap == null) {
             return CompletableFuture.completedFuture(threadsResponse);
         }
@@ -283,28 +284,33 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
-        activeThread = eventProcessor.getThreadsMap().get(args.getThreadId());
+        activeThread = getThreadsMap().get(args.getThreadId());
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         stackTraceResponse.setStackFrames(new StackFrame[0]);
         try {
-            StackFrame[] validFrames = activeThread.frames().stream()
+            List<StackFrame> balFrames = activeThread.frames().stream()
                     .map(this::toDapStackFrame)
-                    .filter(f -> f != null && f.getSource().getName().endsWith(BAL_FILE_EXT) && f.getLine() > 0)
-                    .toArray(StackFrame[]::new);
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
-            // If the last instruction is step-in and there are no valid stack frames, that means that the debugger has
-            // stepped into an unsupported source(i.e. lang library, standard library, imported module from central).
+            // If the last instruction is step-in and there are no valid source information in the top-most stack
+            // frame, that means that the debugger has stepped into an unsupported source(i.e. lang library, standard
+            // library, imported module from central).
             // Therefore we need to manually rollback into the previous debugging state by sending a step-out request
             // or otherwise, this might produce unpredictable behaviors under different contexts as described in
             // (https://github.com/ballerina-platform/ballerina-lang/issues/28071).
             //
-            // Todo - Refactor accordingly after adding support for external module debugging support.
-            if (validFrames.length == 0 && lastInstruction == DebugInstruction.STEP_IN) {
-                sendOutput("Trying to step into an unsupported source! Rolling back into the previous state..",
-                        CONSOLE);
-                stepOut(activeThread.uniqueID());
-                return CompletableFuture.completedFuture(stackTraceResponse);
-            }
+            // Todo - Enable and refactor accordingly after adding support for external module debugging support.
+            // if (!isValidFrame(balFrames.get(0)) && lastInstruction == DebugInstruction.STEP_IN) {
+            //     sendOutput("Trying to step into an unsupported source! Rolling back into the previous state..",
+            //                       ONSOLE);
+            //     stepOut(activeThread.uniqueID());
+            //     return CompletableFuture.completedFuture(stackTraceResponse);
+            //  }
+
+            StackFrame[] validFrames = balFrames.stream()
+                    .filter(JBallerinaDebugServer::isValidFrame)
+                    .toArray(StackFrame[]::new);
 
             stackTraceResponse.setStackFrames(validFrames);
             return CompletableFuture.completedFuture(stackTraceResponse);
@@ -541,20 +547,25 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         try {
             long variableReference = nextVarReference.getAndIncrement();
             stackFramesMap.put(variableReference, stackFrame);
-            Path sourcePath = getRectifiedSourcePath(stackFrame.location(), project, projectRoot);
-            if (sourcePath == null) {
+
+            if (!isBalStackFrame(stackFrame)) {
                 return null;
             }
-            Source source = new Source();
-            source.setPath(sourcePath.toString());
-            source.setName(stackFrame.location().sourceName());
 
             StackFrame dapStackFrame = new StackFrame();
             dapStackFrame.setId(variableReference);
-            dapStackFrame.setSource(source);
+            dapStackFrame.setName(getStackFrameName(stackFrame));
             dapStackFrame.setLine((long) stackFrame.location().lineNumber());
             dapStackFrame.setColumn(0L);
-            dapStackFrame.setName(getStackFrameName(stackFrame));
+
+            // Adds ballerina source information.
+            Path sourcePath = getRectifiedSourcePath(stackFrame.location(), project, projectRoot);
+            if (sourcePath != null) {
+                Source source = new Source();
+                source.setPath(sourcePath.toString());
+                source.setName(stackFrame.location().sourceName());
+                dapStackFrame.setSource(source);
+            }
             return dapStackFrame;
         } catch (AbsentInformationException | JdiProxyException e) {
             return null;
@@ -690,6 +701,72 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         project = ProjectLoader.loadProject(Paths.get(entryFilePath));
         context.setSourceProject(project);
         projectRoot = project.sourceRoot().toAbsolutePath().toString();
+    }
+
+    /**
+     * Returns a map of all currently running threads in the remote VM, against their unique ID.
+     * <p>
+     * Thread objects that have not yet been started (see {@link java.lang.Thread#start Thread.start()})
+     * and thread objects that have completed their execution are not included in the returned list.
+     */
+    Map<Long, ThreadReferenceProxyImpl> getThreadsMap() {
+        if (context.getDebuggee() == null) {
+            return null;
+        }
+        Collection<ThreadReferenceProxyImpl> threadReferences = context.getDebuggee().allThreads();
+        Map<Long, ThreadReferenceProxyImpl> breakPointThreads = new HashMap<>();
+
+        // Filter thread references which are at breakpoint, suspended and whose thread status is running.
+        for (ThreadReferenceProxyImpl threadReference : threadReferences) {
+            if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
+                    && !threadReference.name().equals("Reference Handler")
+                    && !threadReference.name().equals("Signal Dispatcher")
+                    && threadReference.isSuspended()
+                // Todo - enable
+                // && isBalStrand(threadReference)
+            ) {
+                breakPointThreads.put(threadReference.uniqueID(), threadReference);
+            }
+        }
+        return breakPointThreads;
+    }
+
+    /**
+     * Validates whether the given DAP thread reference represents a ballerina strand.
+     *
+     * @param threadReference DAP thread reference
+     * @return true if the given DAP thread reference represents a ballerina strand.
+     */
+    private static boolean isBalStrand(ThreadReferenceProxyImpl threadReference) {
+        try {
+            return isBalStackFrame(threadReference.frames().get(0));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Validates whether the given DAP stack frame represents a ballerina call stack frame.
+     *
+     * @param frame DAP stack frame
+     * @return true if the given DAP stack frame represents a ballerina call stack frame.
+     */
+    private static boolean isBalStackFrame(StackFrameProxyImpl frame) {
+        try {
+            return frame.location().sourceName().endsWith(BAL_FILE_EXT);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Validates a given ballerina stack frame for for its source information.
+     *
+     * @param stackFrame ballerina stack frame
+     * @return true if its a valid ballerina frame
+     */
+    private static boolean isValidFrame(StackFrame stackFrame) {
+        return stackFrame.getSource() != null && stackFrame.getLine() > 0;
     }
 
     /**
