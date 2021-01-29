@@ -657,6 +657,23 @@ function testListMatchPattern26() {
     assertEquals(4, listMatchPattern26([1, 2, 3]));
 }
 
+function listMatchPattern27(any a) returns string {
+    match a {
+        [12, _, "A"] => {
+            return "Matched";
+        }
+        _ => {
+            return "Match Default";
+        }
+    }
+}
+
+function testListMatchPattern27() {
+    assertEquals("Matched", listMatchPattern27([12, 2, "A"]));
+    assertEquals("Matched", listMatchPattern27([12, [12, 3], "A"]));
+    assertEquals("Match Default", listMatchPattern27([13, 2, "A"]));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
