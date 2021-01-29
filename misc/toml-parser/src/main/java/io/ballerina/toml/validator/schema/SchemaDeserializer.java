@@ -44,6 +44,8 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
     public static final String NUMBER = "number";
     public static final String STRING = "string";
     public static final String BOOLEAN = "boolean";
+    public static final String TITLE = "title";
+    public static final String SCHEMA = "$schema";
     public static final String DESCRIPTION = "description";
     public static final String ADDITIONAL_PROPERTIES = "additionalProperties";
     public static final String PROPERTIES = "properties";
@@ -78,7 +80,11 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         }
     }
 
-    private ObjectSchema getObjectSchema(JsonDeserializationContext jsonDeserializationContext, JsonObject jsonObj) {
+    private Schema getObjectSchema(JsonDeserializationContext jsonDeserializationContext, JsonObject jsonObj) {
+        JsonElement titleProp = jsonObj.get(TITLE);
+        String title = titleProp != null ? titleProp.getAsString() : null;
+        JsonElement schemaProp = jsonObj.get(SCHEMA);
+        String schema = schemaProp != null ? schemaProp.getAsString() : null;
         JsonElement descriptionProperty = jsonObj.get(DESCRIPTION);
         String description = descriptionProperty != null ? descriptionProperty.getAsString() : null;
         boolean additionalProperties = parseOptionalBooleanFromJson(jsonObj, ADDITIONAL_PROPERTIES);
@@ -93,8 +99,8 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         }
         List<String> requiredList = parseOptionalListFromJson(jsonObj, REQUIRED);
         Map<String, String> customMessages = parseOptionalMapFromJson(jsonObj, MESSAGE);
-        return new ObjectSchema(Type.OBJECT, customMessages, description, additionalProperties, propertiesList,
-                requiredList);
+        return new Schema(schema, title, Type.OBJECT, customMessages, description, additionalProperties,
+                propertiesList, requiredList);
     }
 
     private AbstractSchema getArraySchema(JsonDeserializationContext jsonDeserializationContext, JsonObject jsonObj) {

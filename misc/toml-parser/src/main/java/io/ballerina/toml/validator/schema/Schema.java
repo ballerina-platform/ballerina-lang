@@ -20,33 +20,38 @@ package io.ballerina.toml.validator.schema;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
- * Represents Root schema in JSON schema.
+ * Represents Object schema in JSON schema.
  *
  * @since 2.0.0
  */
-public class Schema extends ObjectSchema {
-
-    @SerializedName("$schema")
+public class Schema extends AbstractSchema {
     private final String schema;
     private final String title;
+    private String description;
+    private boolean hasAdditionalProperties;
+    private Map<String, AbstractSchema> properties;
+    private List<String> required;
 
-    public Schema(String description, boolean additionalProperties,
-                  Map<String, AbstractSchema> properties, String schema, String title, List<String> required) {
-        //TODO Should we have another deserializer?
-        super(Type.OBJECT, new HashMap<>(), description, additionalProperties, properties, required);
+    public Schema(String schema, String title, Type type, Map<String, String> message, String description,
+                  boolean hasAdditionalProperties,
+                  Map<String, AbstractSchema> properties, List<String> required) {
+        super(type, message);
         this.schema = schema;
         this.title = title;
+        this.description = description;
+        this.hasAdditionalProperties = hasAdditionalProperties;
+        this.properties = properties;
+        this.required = required;
     }
 
     /**
@@ -60,7 +65,7 @@ public class Schema extends ObjectSchema {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(AbstractSchema.class, new SchemaDeserializer()).create();
         BufferedReader reader = Files.newBufferedReader(jsonPath);
-        Schema rootSchema = gson.fromJson(reader, Schema.class);
+        Schema rootSchema = (Schema) gson.fromJson(reader, AbstractSchema.class);
         rootSchema.setType(Type.OBJECT);
         return rootSchema;
     }
@@ -74,14 +79,30 @@ public class Schema extends ObjectSchema {
     public static Schema from(String jsonContent) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(AbstractSchema.class, new SchemaDeserializer()).create();
-        Schema rootSchema = gson.fromJson(jsonContent, Schema.class);
+        Schema rootSchema = (Schema) gson.fromJson(jsonContent, AbstractSchema.class);
         rootSchema.setType(Type.OBJECT);
         return rootSchema;
+    }
+
+    public Optional<String> description() {
+        return Optional.ofNullable(description);
+    }
+
+    public boolean hasAdditionalProperties() {
+        return hasAdditionalProperties;
+    }
+
+    public Map<String, AbstractSchema> properties() {
+        return properties;
     }
 
     @Override
     public void accept(SchemaVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public List<String> required() {
+        return required;
     }
 
     public String title() {
