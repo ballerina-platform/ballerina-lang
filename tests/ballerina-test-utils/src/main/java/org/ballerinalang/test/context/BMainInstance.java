@@ -71,11 +71,11 @@ public class BMainInstance implements BMain {
     }
 
     private void configureAgentArgs() throws BallerinaTestException {
-        String jacocoArgLine = System.getProperty("jacoco.agent.argLine");
-        if (jacocoArgLine == null || jacocoArgLine.isEmpty()) {
-            log.warn("Running integration test without jacoco test coverage");
-            return;
-        }
+        // add jacoco agent
+        String jacocoArgLine = "-javaagent:" + Paths.get(balServer.getServerHome())
+                .resolve("bre").resolve("lib").resolve("jacocoagent.jar").toString() + "=destfile=" +
+                Paths.get(System.getProperty("user.dir"))
+                        .resolve("build").resolve("jacoco").resolve("test.exec");
         agentArgs = jacocoArgLine + " ";
     }
 
@@ -183,7 +183,7 @@ public class BMainInstance implements BMain {
         runMain("build", new String[] { "--sourceroot", sourceRoot, packagePath },
                 envProperties, null, leechers, balServer.getServerHome());
         runJar(sourceRoot, packagePath, ArrayUtils.addAll(flags, args), envProperties, clientArgs, leechers,
-               balServer.getServerHome());
+                balServer.getServerHome());
 
     }
 
@@ -195,13 +195,10 @@ public class BMainInstance implements BMain {
         if (javaOpts.contains("jacoco.agent")) {
             return;
         }
-
-        String jacocoAgentArgs = "-javaagent:" + Paths.get(balServer.getServerHome())
-                .resolve("bre").resolve("lib").resolve("jacocoagent.jar").toString() + "=destfile=" +
-                Paths.get(System.getProperty("user.dir"))
-                        .resolve("build").resolve("jacoco").resolve("test.exec") + " ";
-        javaOpts = jacocoAgentArgs + javaOpts;
         javaOpts = agentArgs + javaOpts;
+        if ("".equals(javaOpts)) {
+            return;
+        }
         envProperties.put(JAVA_OPTS, javaOpts);
     }
 
@@ -217,7 +214,7 @@ public class BMainInstance implements BMain {
      * @throws BallerinaTestException if starting services failed
      */
     public void runMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
-                         LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
+                        LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
         String scriptName;
         if (BCompileUtil.jBallerinaTestsEnabled()) {
             scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
@@ -237,12 +234,12 @@ public class BMainInstance implements BMain {
 
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
-            Map<String, String> env = processBuilder.environment();
-            if (envProperties == null) {
-                envProperties = new HashMap<>();
+            if (envProperties != null) {
+                Map<String, String> env = processBuilder.environment();
+                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+                    env.put(entry.getKey(), entry.getValue());
+                }
             }
-            addJavaAgents(envProperties);
-            env.putAll(envProperties);
 
             Process process = processBuilder.start();
 
@@ -318,13 +315,12 @@ public class BMainInstance implements BMain {
 
             cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
-            Map<String, String> env = processBuilder.environment();
-            if (envProperties == null) {
-                envProperties = new HashMap<>();
+            if (envProperties != null) {
+                Map<String, String> env = processBuilder.environment();
+                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+                    env.put(entry.getKey(), entry.getValue());
+                }
             }
-            addJavaAgents(envProperties);
-            env.putAll(envProperties);
-
             process = processBuilder.start();
 
             ServerLogReader infoReader = new ServerLogReader("inputStream", process.getInputStream());
@@ -513,7 +509,7 @@ public class BMainInstance implements BMain {
     private void runJar(String sourceRoot, String packageName, String[] args, Map<String, String> envProperties,
                         String[] clientArgs, LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
         executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
-                       args, envProperties, clientArgs, leechers, commandDir);
+                args, envProperties, clientArgs, leechers, commandDir);
     }
 
     /**
@@ -555,16 +551,16 @@ public class BMainInstance implements BMain {
                 runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
             }
             String tempBalHome = new File("src" + File.separator + "test" + File.separator +
-                                                  "resources" + File.separator + "ballerina.home").getAbsolutePath();
+                    "resources" + File.separator + "ballerina.home").getAbsolutePath();
             runCmdSet.add("-Dballerina.home=" + tempBalHome);
             runCmdSet.addAll(Arrays.asList("-jar", jarPath));
             runCmdSet.addAll(Arrays.asList(args));
 
             ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(new File(commandDir));
             Map<String, String> env = processBuilder.environment();
-            addJavaAgents(envProperties);
-            env.putAll(envProperties);
-
+            for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+                env.put(entry.getKey(), entry.getValue());
+            }
             Process process = processBuilder.start();
 
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
@@ -642,12 +638,13 @@ public class BMainInstance implements BMain {
                 cmdArray = new String[]{"bash", balServer.getServerHome() +
                         File.separator + "bin/" + scriptName, command};
             }
+
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
 
             Map<String, String> env = processBuilder.environment();
-            addJavaAgents(envProperties);
             env.putAll(envProperties);
+
             Process process = processBuilder.start();
 
             // Give a small timeout so that the output is given.
