@@ -752,6 +752,7 @@ public class Desugar extends BLangNodeVisitor {
                 initFnBody.stmts.add(constInit);
             }
         }
+
         pkgNode.globalVars = desugarGlobalVariables(pkgNode, initFnBody);
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
@@ -794,7 +795,6 @@ public class Desugar extends BLangNodeVisitor {
         result = pkgNode;
     }
 
-    // Add global variables with default values to init function
     private BLangStatementExpression createIfElseFromConfigurable(BLangSimpleVariable configurableVar) {
 
         /*
