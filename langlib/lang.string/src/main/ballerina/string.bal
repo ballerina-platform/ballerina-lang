@@ -35,7 +35,7 @@ public isolated function length(string str) returns int = @java:Method {
 # + str - the string to be iterated over
 # + return - a new iterator object
 public isolated function iterator(string str) returns object {
-    public isolated function next() returns record {| string value; |}?;
+    public isolated function next() returns record {| Char value; |}?;
 }{
     StringIterator stringIterator = new(str);
     return stringIterator;
@@ -120,6 +120,18 @@ public isolated function lastIndexOf(string str, string substr, int startIndex =
 returns int? = @java:Method {
     'class: "org.ballerinalang.langlib.string.LastIndexOf",
     name: "lastIndexOf"
+} external;
+
+# Tests whether a string includes another string.
+#
+# + str - the string in which to search
+# + substr - the string to search for
+# + startIndex - index to start searching from
+# + return - `true` if there is an occurrence of `substr` in `str` at an index >= `startIndex`,
+#    or `false` otherwise
+public isolated function includes(string str, string substr, int startIndex = 0) returns boolean = @java:Method {
+    'class: "org.ballerinalang.langlib.string.Includes",
+    name: "includes"
 } external;
 
 # Tests whether a string starts with another string.
@@ -246,16 +258,4 @@ public isolated function fromCodePointInts(int[] codePoints) returns string|erro
 public isolated function fromCodePointInt(int codePoint) returns Char|error = @java:Method {
     'class: "org.ballerinalang.langlib.string.FromCodePointInt",
     name: "fromCodePointInt"
-} external;
-
-# Tests whether a string includes another string.
-#
-# + str - the string in which to search
-# + substr - the string to search for
-# + startIndex - index to start searching from
-# + return - `true` if there is an occurrence of `substr` in `str` at an index >= `startIndex`,
-#    or `false` otherwise
-public isolated function includes(string str, string substr, int startIndex = 0) returns boolean = @java:Method {
-    'class: "org.ballerinalang.langlib.string.Includes",
-    name: "includes"
 } external;
