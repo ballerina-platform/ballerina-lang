@@ -27,7 +27,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class StringSchema extends AbstractSchema {
-    private String pattern;
+    private final String pattern;
 
     public StringSchema(Type type, Map<String, String> message, String pattern) {
         super(type, message);
