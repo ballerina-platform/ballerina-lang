@@ -114,9 +114,12 @@ task createDistributionCache() {
     dependsOn configurations.distributionBalo
     doLast {
         configurations.distributionBalo.each { artifact ->
-            copy {
-                from zipTree( artifact.getPath() )
-                into "$buildDir/repo"
+            new Action<CopySpec>() { // use action instead of closure syntax, to prevent race conditions
+                @Override
+                void execute(CopySpec spec) {
+                    spec.from zipTree( artifact.getPath() )
+                    spec.into "$buildDir/repo"
+                }
             }
         }
     }
