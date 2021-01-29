@@ -37,10 +37,10 @@ import java.util.Optional;
 public class Schema extends AbstractSchema {
     private final String schema;
     private final String title;
-    private String description;
-    private boolean hasAdditionalProperties;
-    private Map<String, AbstractSchema> properties;
-    private List<String> required;
+    private final String description;
+    private final boolean hasAdditionalProperties;
+    private final Map<String, AbstractSchema> properties;
+    private final List<String> required;
 
     public Schema(String schema, String title, Type type, Map<String, String> message, String description,
                   boolean hasAdditionalProperties,
@@ -65,9 +65,7 @@ public class Schema extends AbstractSchema {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(AbstractSchema.class, new SchemaDeserializer()).create();
         BufferedReader reader = Files.newBufferedReader(jsonPath);
-        Schema rootSchema = (Schema) gson.fromJson(reader, AbstractSchema.class);
-        rootSchema.setType(Type.OBJECT);
-        return rootSchema;
+        return (Schema) gson.fromJson(reader, AbstractSchema.class);
     }
 
     /**
@@ -79,9 +77,7 @@ public class Schema extends AbstractSchema {
     public static Schema from(String jsonContent) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(AbstractSchema.class, new SchemaDeserializer()).create();
-        Schema rootSchema = (Schema) gson.fromJson(jsonContent, AbstractSchema.class);
-        rootSchema.setType(Type.OBJECT);
-        return rootSchema;
+        return (Schema) gson.fromJson(jsonContent, AbstractSchema.class);
     }
 
     public Optional<String> description() {

@@ -26,7 +26,7 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class ArraySchema extends AbstractSchema {
-    private AbstractSchema items;
+    private final AbstractSchema items;
 
     public ArraySchema(Type type, Map<String, String> message, AbstractSchema items) {
         super(type, message);

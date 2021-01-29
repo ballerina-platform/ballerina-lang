@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public abstract class AbstractSchema {
 
-    private Type type;
+    private final Type type;
     private final Map<String, String> message;
 
     public AbstractSchema(Type type, Map<String, String> message) {
@@ -37,10 +37,6 @@ public abstract class AbstractSchema {
 
     public Type type() {
         return type;
-    }
-
-    void setType(Type type) {
-        this.type = type;
     }
 
     public Map<String, String> message() {
