@@ -16,10 +16,6 @@
 
 import ballerina/jballerina.java;
 
-# Built-in subtype of string containing strings of length 1.
-@builtinSubtype
-type Char string;
-
 # Returns the length of the string.
 #
 # + str - the string
