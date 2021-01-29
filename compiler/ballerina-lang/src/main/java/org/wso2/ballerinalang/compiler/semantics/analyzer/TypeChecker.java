@@ -3116,13 +3116,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BStreamType actualStreamType = (BStreamType) actualType;
-                if (actualStreamType.error != null) {
-                    BType error = actualStreamType.error;
-                    if (error != symTable.neverType && !types.containsErrorType(error)) {
-                        dlog.error(cIExpr.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, error.toString());
-                        resultType = symTable.semanticError;
-                        return;
-                    }
+                BType error = actualStreamType.error;
+                if (error.tag != TypeTags.NEVER && !types.containsErrorType(error)) {
+                    dlog.error(cIExpr.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, error.toString());
+                    resultType = symTable.semanticError;
+                    return;
                 }
 
                 if (!cIExpr.initInvocation.argExprs.isEmpty()) {
@@ -3220,8 +3218,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
         retTypeMembers.add(recordType);
-        if (streamType.error != symTable.neverType && streamType.error != null) {
-            retTypeMembers.add(streamType.error);
+        List<BType> errorTypes = getTypesList(streamType.error);
+        errorTypes.removeIf(type -> type.tag == TypeTags.NEVER);
+        if (!errorTypes.isEmpty()) {
+            retTypeMembers.addAll(errorTypes);
         }
         retTypeMembers.add(symTable.nilType);
 
@@ -4476,14 +4476,15 @@ public class TypeChecker extends BLangNodeVisitor {
             BType errorType = getErrorType(collectionType);
             selectType = selectTypes.get(0);
             if (queryExpr.isStream) {
-                return new BStreamType(TypeTags.STREAM, selectType, errorType, null);
+                return new BStreamType(TypeTags.STREAM, selectType,
+                        errorType != null ? errorType : symTable.neverType, null);
             } else if (queryExpr.isTable) {
                 actualType = getQueryTableType(queryExpr, selectType);
             } else {
                 actualType = resolvedTypes.get(0);
             }
 
-            if (errorType != null) {
+            if (errorType != null && errorType.tag != TypeTags.NEVER) {
                 return BUnionType.create(null, actualType, errorType);
             } else {
                 return actualType;

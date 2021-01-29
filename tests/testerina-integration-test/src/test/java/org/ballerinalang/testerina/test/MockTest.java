@@ -40,7 +40,7 @@ public class MockTest extends BaseTestCase {
 
     @Test()
     public void testFunctionMocking() throws BallerinaTestException {
-        String msg1 = "9 passing";
+        String msg1 = "10 passing";
         String msg2 = "3 failing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);

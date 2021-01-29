@@ -62,3 +62,8 @@ public class TestClass {
         return intAdd(a, b);
     }
 }
+
+// Function with any data type
+public function foo(any a) returns string {
+    return "Hello";
+}
