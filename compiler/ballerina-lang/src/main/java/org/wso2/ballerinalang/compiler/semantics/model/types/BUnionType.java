@@ -116,6 +116,7 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public String toString() {
 
+        boolean readonly = Symbols.isFlagOn(flags, Flags.READONLY);
         // This logic is added to prevent duplicate recursive calls to toString
         if (this.resolvingToString) {
             if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
@@ -148,7 +149,9 @@ public class BUnionType extends BType implements UnionType {
         } else {
             typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
         }
-
+        if (readonly) {
+            typeStr += " & readonly";
+        }
         this.resolvingToString = false;
         boolean hasNilType = this.memberTypes.size() > numberOfNotNilTypes;
         return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
