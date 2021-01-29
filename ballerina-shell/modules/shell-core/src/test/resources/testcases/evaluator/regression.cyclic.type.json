@@ -14,5 +14,13 @@
   {
     "description": "Use cyclic type.",
     "code": "B b = a"
+  },
+  {
+    "description": "Imports module lang.value.",
+    "code": "import ballerina/lang.value"
+  },
+  {
+    "description": "Use cyclic type Cloneable.",
+    "code": "value:Cloneable? x = ()"
   }
 ]

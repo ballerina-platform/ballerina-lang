@@ -64,19 +64,22 @@ import java.util.stream.Collectors;
  */
 public class ImportableTypeSymbolVisitor extends TypeSymbolVisitor {
     private static final String ANON_MODULE = "$anon";
+    private static final String ANNOTATION_MODULE = "ballerina/'lang.'annotations";
+    private static final String CLONEABLE_DEF = "readonly|xml<>|Cloneable[]|map<Cloneable>|table<map<Cloneable>>|()";
+    private static final String VALUE_MODULE = "ballerina/'lang.'value";
     private static final Map<String, String> ORIGINAL_REPLACEMENTS = Map.of(
             "xml<>", "xml<never>",
             "anydata...;", "");
 
     private final ImportProcessor importProcessor;
     private final Set<String> implicitImportPrefixes;
-    private final Map<String, String> importReplaces;
+    private final Map<String, String> inTypeReplacements;
     private final Set<Symbol> visitedSymbols;
 
     public ImportableTypeSymbolVisitor(ImportProcessor importProcessor) {
         this.implicitImportPrefixes = new HashSet<>();
         this.importProcessor = importProcessor;
-        this.importReplaces = new HashMap<>(ORIGINAL_REPLACEMENTS);
+        this.inTypeReplacements = new HashMap<>();
         this.visitedSymbols = new HashSet<>();
     }
 
@@ -127,15 +130,25 @@ public class ImportableTypeSymbolVisitor extends TypeSymbolVisitor {
 
     @Override
     protected void visit(UnionTypeSymbol symbol) {
+        String typeSignature = symbol.signature();
+        if (typeSignature.equals(CLONEABLE_DEF)) {
+            // This is cloneable type, which is defined as a built-in.
+            // No need to traverse deeper. However, an import must be added.
+            addImportedReplacement(typeSignature, VALUE_MODULE, "'value", "Cloneable");
+            return;
+        }
+
         symbol.memberTypeDescriptors().forEach(this::visitType);
     }
 
     @Override
     protected void visit(XMLTypeSymbol symbol) {
-        // If symbol is simply `xml` no need to traverse child symbols
-        if (!symbol.signature().equals("xml")) {
-            symbol.typeParameter().ifPresent(this::visitType);
+        if (symbol.signature().equals("xml") || symbol.signature().equals("xml<>")) {
+            // If symbol is simply `xml` no need to traverse child symbols
+            // If symbol is xml<>, it is actually, xml<never>
+            return;
         }
+        symbol.typeParameter().ifPresent(this::visitType);
     }
 
     @Override
@@ -208,12 +221,10 @@ public class ImportableTypeSymbolVisitor extends TypeSymbolVisitor {
     private void findExternalRefType(TypeSymbol typeSymbol, String typeName) {
         String typeSignature = typeSymbol.signature();
 
-        if (typeSymbol.moduleID().orgName().equals(ANON_MODULE) ||
-                (typeSymbol.moduleID().moduleName().equals("lang.annotations")
-                        && typeSymbol.moduleID().orgName().equals("ballerina"))) {
+        if (typeSymbol.moduleID().orgName().equals(ANON_MODULE)) {
             // No import required. If the name is not found,
             // signature can be used without module parts.
-            importReplaces.put(typeSignature, typeName);
+            inTypeReplacements.put(typeSignature, typeName);
             return;
         }
 
@@ -223,11 +234,31 @@ public class ImportableTypeSymbolVisitor extends TypeSymbolVisitor {
         String fullModuleName = typeSymbol.moduleID().orgName() + "/" + moduleName;
         String defaultPrefix = StringUtils.quoted(typeSymbol.moduleID().modulePrefix());
 
+        if (fullModuleName.equals(ANNOTATION_MODULE)) {
+            // Lang.annotations is a module that should skip importing.
+            inTypeReplacements.put(typeSignature, typeName);
+            return;
+        }
+
+        // Add that type as an import.
+        addImportedReplacement(typeSignature, fullModuleName, defaultPrefix, typeName);
+    }
+
+    /**
+     * Add an import from given import data and a replacement
+     * for the type imported.
+     *
+     * @param signature     Signature of imported type.
+     * @param module        Slash/dot separated full module name.
+     * @param defaultPrefix Prefix to import as (default). Will calculated another if this is already used.
+     * @param typeName      Type to import from the said module.
+     */
+    private void addImportedReplacement(String signature, String module, String defaultPrefix, String typeName) {
         try {
-            String importPrefix = importProcessor.processImplicitImport(fullModuleName, defaultPrefix);
+            String importPrefix = importProcessor.processImplicitImport(module, defaultPrefix);
             implicitImportPrefixes.add(importPrefix);
             String importedName = String.format("%s:%s", importPrefix, typeName);
-            importReplaces.put(typeSignature, importedName);
+            inTypeReplacements.put(signature, importedName);
         } catch (InvokerException e) {
             throw new RuntimeException(e);
         }
@@ -242,7 +273,12 @@ public class ImportableTypeSymbolVisitor extends TypeSymbolVisitor {
         visitType(typeSymbol);
         String variableType = typeSymbol.signature();
         // Replace all found replacements
-        for (Map.Entry<String, String> entry : importReplaces.entrySet()) {
+        for (Map.Entry<String, String> entry : inTypeReplacements.entrySet()) {
+            variableType = variableType.replace(entry.getKey(), entry.getValue());
+        }
+        // TODO: Fix(?) these in signature level
+        // Replace all original replacements
+        for (Map.Entry<String, String> entry : ORIGINAL_REPLACEMENTS.entrySet()) {
             variableType = variableType.replace(entry.getKey(), entry.getValue());
         }
         return variableType;
