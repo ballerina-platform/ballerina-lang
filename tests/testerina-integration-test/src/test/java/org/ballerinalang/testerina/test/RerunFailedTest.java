@@ -49,8 +49,8 @@ public class RerunFailedTest extends BaseTestCase {
         String msg2 = "2 failing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
-
-        balClient.runMain("test", new String[]{"--code-coverage", "--includes=*", "rerun-failed-tests"},
+        String[] args = mergeCoverageArgs(new String[]{"rerun-failed-tests"});
+        balClient.runMain("test", args,
                 null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
 
         clientLeecher1.waitForText(20000);
@@ -64,8 +64,8 @@ public class RerunFailedTest extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
 
-        balClient.runMain("test",
-                new String[]{"--code-coverage", "--includes=*", "--rerun-failed", "rerun-failed-tests"},
+        String[] args = mergeCoverageArgs(new String[]{"--rerun-failed", "rerun-failed-tests"});
+        balClient.runMain("test", args,
                 null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
 
         clientLeecher1.waitForText(20000);

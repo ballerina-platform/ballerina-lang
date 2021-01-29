@@ -47,10 +47,10 @@ public class ModuleExecutionTest extends BaseTestCase {
 
     @Test()
     public void test_DefaultModule_AllTests() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test",
+        String output = balClient.runMainAndReadStdOut("test",
                 new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:*"},
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(errorOutput, "default module test failure");
+        AssertionUtils.assertForTestFailures(output, "default module test failure");
 
     }
 
@@ -91,10 +91,10 @@ public class ModuleExecutionTest extends BaseTestCase {
 
     @Test()
     public void test_Module1_AllTests() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test",
+        String output = balClient.runMainAndReadStdOut("test",
                 new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution.Module1:*"},
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(errorOutput, "module wise test failure");
+        AssertionUtils.assertForTestFailures(output, "module wise test failure");
 
     }
 
@@ -121,8 +121,8 @@ public class ModuleExecutionTest extends BaseTestCase {
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
 
-        balClient.runMain("test",
-                new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution.Module1:module1_*"},
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "moduleExecution.Module1:module1_*"});
+        balClient.runMain("test", args,
                 null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3},
                 projectPath);
         clientLeecher1.waitForText(20000);
@@ -140,7 +140,8 @@ public class ModuleExecutionTest extends BaseTestCase {
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
 
-        balClient.runMain("test", new String[]{"--code-coverage", "--includes=*", "--tests", "common*"},
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "common*"});
+        balClient.runMain("test", args,
                 null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3},
                 projectPath);
         clientLeecher1.waitForText(20000);

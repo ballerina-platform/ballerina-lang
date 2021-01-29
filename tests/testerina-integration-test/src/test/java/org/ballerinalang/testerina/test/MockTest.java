@@ -44,7 +44,9 @@ public class MockTest extends BaseTestCase {
         String msg2 = "3 failing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        balClient.runMain("test", new String[]{"--code-coverage", "--includes=*", "function-mocking-tests"},
+
+        String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
+        balClient.runMain("test", args,
                 null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
@@ -56,7 +58,9 @@ public class MockTest extends BaseTestCase {
         String msg2 = "6 failing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        balClient.runMain("test", new String[]{"--code-coverage", "--includes=*", "object-mocking-tests"},
+
+        String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests"});
+        balClient.runMain("test", args,
                 null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);

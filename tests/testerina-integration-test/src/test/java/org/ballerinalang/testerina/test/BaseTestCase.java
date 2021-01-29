@@ -27,8 +27,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Parent test class for all integration test cases. This will provide basic functionality for integration tests. This
@@ -40,6 +42,7 @@ public class BaseTestCase {
     Path tempProjectDirectory;
     protected static Path singleFileTestsPath;
     static Path projectBasedTestsPath;
+    String[] coverageArgs = new String[]{"--code-coverage", "--includes=*"};
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {
@@ -80,5 +83,9 @@ public class BaseTestCase {
         } catch (IOException e) {
             // ignore exception
         }
+    }
+
+    protected String[] mergeCoverageArgs(String[] cmdArgs) {
+        return Stream.concat(Arrays.stream(coverageArgs), Arrays.stream(cmdArgs)).toArray(String[]::new);
     }
 }
