@@ -201,12 +201,15 @@ check {
     dependsOn createJavadoc
 }
 
-def getCheckedOutGitCommitHash() {
-    'git rev-parse --verify --short HEAD'.execute().text.trim()
+task jacocoMergeExec(type: JacocoMerge) {
+        destinationFile = file("$buildDir/jacoco/jacoco.exec")
+        executionData = fileTree("$buildDir/jacoco/").matching {
+            include "**.exec"
+        } as FileCollection
 }
 
 publishing {
-    def artifactCodeCoverageReport = file("$buildDir/jacoco/test.exec")
+    def artifactCodeCoverageReport = file("$buildDir/jacoco/jacoco.exec")
     publications {
         mavenJava {
             from components.java
@@ -219,6 +222,7 @@ publishing {
     }
 }
 
+test.finalizedBy(jacocoMergeExec)
 //compileJava {
 //    doFirst {
 //        inputs.property("moduleName", moduleName)
