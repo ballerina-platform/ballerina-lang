@@ -28,10 +28,12 @@ import org.testng.annotations.Test;
  */
 public class SimpleEvaluatorTest extends AbstractEvaluatorTest {
     private static final String BASIC_EVALUATOR_TESTCASE = "testcases/evaluator/values.basic.json";
-    private static final String LITERALS_EVALUATOR_TESTCASE = "testcases/evaluator/values.basic.json";
+    private static final String LITERALS_EVALUATOR_TESTCASE = "testcases/evaluator/values.literals.json";
 
     @Test
     public void testEvaluateBasic() throws BallerinaShellException {
+        // TODO: toBalString of [5,24,56,243] = [5,24,56,-13] ?
+        // TODO: [174,238,205,239,171,205,18,52,85,103,136,136,34] = [-82,-18,-51,-17,-85,-51,18,52,85,103,-120,-120,34]
         testEvaluate(BASIC_EVALUATOR_TESTCASE);
     }
 

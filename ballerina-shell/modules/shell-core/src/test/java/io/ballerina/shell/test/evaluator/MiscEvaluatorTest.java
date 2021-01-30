@@ -38,6 +38,7 @@ public class MiscEvaluatorTest extends AbstractEvaluatorTest {
 
     @Test
     public void testEvaluateRawTemplate() throws BallerinaShellException {
+        // TODO: Evaluation of object:RawTemplate returns a bal string of `object XXXXX` format.
         testEvaluate(RAW_TEMP_EVALUATOR_TESTCASE);
     }
 

@@ -27,7 +27,7 @@
   {
     "description": "Uses i in a string template.",
     "code": "string template = string `Hello ${i}!!!`; template",
-    "expr": "Hello 100!!!"
+    "expr": "\"Hello 100!!!\""
   },
   {
     "description": "Range expression x...y format.",
@@ -66,12 +66,12 @@
   {
     "description": "Create a byte array.",
     "code": "byte[] byteArray1 = [5, 24, 56, 243]; byteArray1",
-    "expr": "[5,24,56,243]"
+    "expr": "[5,24,56,-13]"
   },
   {
     "description": "Create a byte array using base16 literal.",
     "code": "byte[] byteArray2 = base16 `aeeecdefabcd12345567888822`; byteArray2",
-    "expr": "[174,238,205,239,171,205,18,52,85,103,136,136,34]"
+    "expr": "[-82,-18,-51,-17,-85,-51,18,52,85,103,-120,-120,34]"
   },
   {
     "description": "Create a byte array using base literal.",
