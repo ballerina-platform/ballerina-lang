@@ -32,8 +32,9 @@ public class SimpleEvaluatorTest extends AbstractEvaluatorTest {
 
     @Test
     public void testEvaluateBasic() throws BallerinaShellException {
-        // TODO: toBalString of [5,24,56,243] = [5,24,56,-13] ?
-        // TODO: [174,238,205,239,171,205,18,52,85,103,136,136,34] = [-82,-18,-51,-17,-85,-51,18,52,85,103,-120,-120,34]
+        // TODO: Fix the test cases after #28302,
+        // TODO: toBalString of [5,24,56,243]
+        // TODO: and [174,238,205,239,171,205,18,52,85,103,136,136,34]
         testEvaluate(BASIC_EVALUATOR_TESTCASE);
     }
 
