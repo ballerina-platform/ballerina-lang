@@ -92,10 +92,10 @@ public function run() {
     {{/varDclns}}
 }
 
-public function main() {
-    error|() ret = trap run();
+public function main() returns error? {
+    error? ret = trap run();
     if (ret is error) {
-        memorize_h("{{{exprVarName}}}", ());
         println("Panic: ", ret.message());
+        return ret;
     }
 }
