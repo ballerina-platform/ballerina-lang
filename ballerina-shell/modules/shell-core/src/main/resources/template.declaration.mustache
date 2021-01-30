@@ -6,7 +6,6 @@
     {{{.}}}
 {{/moduleDclns}}
 
-function printerr(any|error value) { }
 function println(any|error... values) { }
 function recall_h(string name) returns any|error { }
 function memorize_h(string name, any|error value) { }
@@ -24,8 +23,9 @@ function sprintf(string template, any|error... values) returns string { return "
         {{/isAny}}
     {{/isNew}}
 {{/varDclns}}
+any|error {{{exprVarName}}} = ();
 
-public function main() returns error? {
+public function main() {
     // Redefine to restrict user
     {{#varDclns}}
         {{^isNew }}
@@ -39,8 +39,10 @@ public function main() returns error? {
             {{/isAny}}
         {{/isNew}}
     {{/varDclns}}
+    any|error {{{exprVarName}}} = ();
 
     {{{lastVarDcln}}}
 
+    // Use the java module to suppress import not used error
     _ = java:JavaClassNotFoundError;
 }
