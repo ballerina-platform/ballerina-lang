@@ -18,6 +18,9 @@
 
 package io.ballerina.shell.utils;
 
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
+
 /**
  * Utility functions required by invokers.
  * Static class.
@@ -27,6 +30,8 @@ package io.ballerina.shell.utils;
 public class StringUtils {
     private static final int MAX_VAR_STRING_LENGTH = 78;
     private static final String QUOTE = "'";
+    private static final String SPACE = " ";
+    private static final String CARET = "^";
 
     /**
      * Creates an quoted identifier to use for variable names.
@@ -56,5 +61,33 @@ public class StringUtils {
                     + "..." + value.substring(value.length() - subStrLength);
         }
         return value;
+    }
+
+    /**
+     * Highlight and show the error position.
+     *
+     * @param textDocument Text document to extract source code.
+     * @param diagnostic   Diagnostic to show.
+     * @return The string with position highlighted.
+     */
+    public static String highlightDiagnostic(TextDocument textDocument,
+                                             io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
+        // Get the source code
+        String sourceLine = textDocument.line(diagnostic.location().lineRange().startLine().line()).text();
+
+
+        LinePosition startLine = diagnostic.location().lineRange().startLine();
+        LinePosition endLine = diagnostic.location().lineRange().endLine();
+
+        if (startLine.line() != endLine.line()) {
+            // Error spans for line, will not highlight error
+            return String.format("%s%n%s", diagnostic.message(), sourceLine);
+        }
+
+        // Error is same line, can highlight using ^^^
+        int position = startLine.offset();
+        int length = endLine.offset() - startLine.offset() + 1;
+        return String.format("%s%n%s%n%s%s", diagnostic.message(), sourceLine,
+                SPACE.repeat(position), CARET.repeat(length));
     }
 }

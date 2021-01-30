@@ -18,8 +18,6 @@
 
 package io.ballerina.shell;
 
-import io.ballerina.tools.text.TextDocument;
-
 /**
  * Diagnostic message which denotes error, debug messages.
  * These are collected and returned to the callee.
@@ -64,22 +62,6 @@ public class Diagnostic {
      */
     public static Diagnostic debug(String message) {
         return new Diagnostic(message, DiagnosticKind.DEBUG);
-    }
-
-    /**
-     * Highlight and show the error position.
-     *
-     * @param textDocument Text document to extract source code.
-     * @param diagnostic   Diagnostic to show.
-     * @return The string with position highlighted.
-     */
-    public static String highlightDiagnostic(TextDocument textDocument,
-                                             io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
-        // Get the source code
-        String space = " ";
-        String sourceLine = textDocument.line(diagnostic.location().lineRange().startLine().line()).text();
-        int position = diagnostic.location().lineRange().startLine().offset();
-        return String.format("%s%n%s%n%s^", diagnostic.message(), sourceLine, space.repeat(position));
     }
 
     /**

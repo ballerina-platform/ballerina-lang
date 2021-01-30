@@ -30,6 +30,7 @@ import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.snippet.Snippet;
+import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.File;
@@ -187,7 +188,7 @@ public abstract class Invoker extends DiagnosticReporter {
                     "This is currently not supported in REPL. " +
                     "Please explicitly state the type.";
         }
-        return Diagnostic.highlightDiagnostic(document.textDocument(), diagnostic);
+        return StringUtils.highlightDiagnostic(document.textDocument(), diagnostic);
     }
 
     /**
