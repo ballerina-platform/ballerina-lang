@@ -106,6 +106,8 @@ public class BallerinaShell {
                         String result = evaluator.evaluate(source);
                         terminal.result(result);
                     }
+                } catch (ShellExitException e) {
+                    throw e;
                 } catch (Exception e) {
                     if (!evaluator.hasErrors()) {
                         terminal.fatalError("Something went wrong: " + e.getMessage());
