@@ -98,24 +98,29 @@ public class BallerinaShell {
             String rightPrompt = String.format("took %s ms", previousDuration.toMillis());
             rightPrompt = terminal.color(rightPrompt, TerminalAdapter.BRIGHT);
 
-            String source = terminal.readLine(leftPrompt, rightPrompt).trim();
-
-            start = Instant.now();
             try {
-                if (!commandHandler.handle(source)) {
-                    String result = evaluator.evaluate(source);
-                    terminal.result(result);
+                String source = terminal.readLine(leftPrompt, rightPrompt).trim();
+                start = Instant.now();
+                try {
+                    if (!commandHandler.handle(source)) {
+                        String result = evaluator.evaluate(source);
+                        terminal.result(result);
+                    }
+                } catch (Exception e) {
+                    if (!evaluator.hasErrors()) {
+                        terminal.fatalError("Something went wrong: " + e.getMessage());
+                    }
+                    outputException(e);
+                } finally {
+                    end = Instant.now();
+                    evaluator.diagnostics().forEach(this::outputDiagnostic);
+                    evaluator.resetDiagnostics();
+                    terminal.println("");
                 }
-            } catch (Exception e) {
-                if (!evaluator.hasErrors()) {
-                    terminal.fatalError("Something went wrong: " + e.getMessage());
-                }
-                outputException(e);
-            } finally {
-                end = Instant.now();
-                evaluator.diagnostics().forEach(this::outputDiagnostic);
-                evaluator.resetDiagnostics();
-                terminal.println("");
+            } catch (ShellExitException e) {
+                terminal.info("Bye!!!");
+                isRunning = false;
+                break;
             }
         }
     }
@@ -194,9 +199,5 @@ public class BallerinaShell {
         } catch (BallerinaShellException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void exit() {
-        this.isRunning = false;
     }
 }

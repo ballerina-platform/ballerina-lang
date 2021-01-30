@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,23 +16,11 @@
  * under the License.
  */
 
-package io.ballerina.shell.cli.handlers;
-
-import io.ballerina.shell.cli.BallerinaShell;
-import io.ballerina.shell.cli.ShellExitException;
+package io.ballerina.shell.cli;
 
 /**
- * Exits from the shell.
- *
- * @since 2.0.0
+ * Exception to signify that shell wants to exit.
+ * After this is called no new input/output can be done on shell.
  */
-public class ExitCommand extends AbstractCommand {
-    public ExitCommand(BallerinaShell ballerinaShell) {
-        super(ballerinaShell);
-    }
-
-    @Override
-    public void run(String... args) throws ShellExitException {
-        throw new ShellExitException();
-    }
+public class ShellExitException extends Exception {
 }
