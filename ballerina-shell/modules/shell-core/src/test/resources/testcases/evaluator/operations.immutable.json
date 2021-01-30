@@ -56,8 +56,7 @@
   {
     "description": "Cannot update immutables.",
     "code": "addEntryToMap(m2, \"intValTwo\", 10);",
-    "error": "InvokerException",
-    "stdout": "Exception occurred: error(\"{ballerina/lang.map}InvalidUpdate\",message=\"Invalid map insertion: modification not allowed on readonly value\")\n"
+    "stdout": "Panic: {ballerina/lang.map}InvalidUpdate\n"
   },
   {
     "description": "Clone immutable and check ref eq.",
