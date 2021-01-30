@@ -70,7 +70,8 @@ public class ReplShellApplication {
             DefaultParser parser = new DefaultParser();
             parser.setEofOnUnclosedBracket(DefaultParser.Bracket.CURLY,
                     DefaultParser.Bracket.ROUND, DefaultParser.Bracket.SQUARE);
-            parser.setQuoteChars(new char[]{'"'});
+            parser.setEofOnUnclosedQuote(true);
+            parser.setQuoteChars(new char[]{'"', '`'});
             parser.setEscapeChars(new char[]{});
 
             LineReader lineReader = LineReaderBuilder.builder()
