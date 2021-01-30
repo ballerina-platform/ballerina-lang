@@ -19,9 +19,11 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
 
 /**
  * Test class containing tests related to function name verification.
@@ -38,13 +40,10 @@ public class FunctionNameValidationTest extends BaseTestCase {
     }
 
     @Test
-    public void verifyTestsOutsidePath() throws BallerinaTestException {
-        LogLeecher passingLeecher = new LogLeecher("1 passing");
-        LogLeecher failingLeecher = new LogLeecher("0 failing");
-        balClient.runMain("test", new String[]{"validate-function-names"}, null, new String[0],
-                new LogLeecher[]{passingLeecher, failingLeecher}, projectPath);
-        passingLeecher.waitForText(20000);
-        failingLeecher.waitForText(20000);
+    public void validateFunctionNamesTest() throws BallerinaTestException {
+        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"validate-function-names"},
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(errorOutput, "function name verification failure");
     }
 
 }

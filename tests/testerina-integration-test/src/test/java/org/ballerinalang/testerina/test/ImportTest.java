@@ -20,9 +20,11 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
 
 /**
  * Test class to test predeclared langlibs using a ballerina project.
@@ -39,11 +41,9 @@ public class ImportTest extends BaseTestCase {
     }
 
     @Test()
-    public void testBeforeAfter() throws BallerinaTestException {
-        String msg = "4 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"predeclared-import-tests"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+    public void testImportTest() throws BallerinaTestException {
+        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"predeclared-import-tests"},
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(errorOutput, "predeclared import test failure");
     }
 }
