@@ -92,7 +92,7 @@ import java.util.stream.Collectors;
  */
 public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     // Context related information
-    public static final String CONTEXT_EXPR_VAR_NAME = "expr";
+    public static final String CONTEXT_EXPR_VAR_NAME = "__last__";
     // Main class and method names to invoke
     public static final String MODULE_NOT_FOUND_CODE = "BCE2003";
     protected static final String MODULE_INIT_CLASS_NAME = "$_init";
