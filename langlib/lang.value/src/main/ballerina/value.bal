@@ -200,7 +200,7 @@ public type JsonFloat ()|boolean|string|float|JsonFloat[]|map<JsonFloat>;
 # Returns an error if the string cannot be parsed.
 #
 # + str - string in JSON format
-# + return - `str` parsed to json or error
+# + return - `str` parsed to JsonFloat or error
 public isolated function fromJsonFloatString(string str) returns JsonFloat|error = @java:Method {
     'class: "org.ballerinalang.langlib.value.FromJsonFloatString",
     name: "fromJsonFloatString"
@@ -213,7 +213,7 @@ public type JsonDecimal ()|boolean|string|decimal|JsonDecimal[]|map<JsonDecimal>
 # Returns an error if the string cannot be parsed.
 #
 # + str - string in JSON format
-# + return - `str` parsed to json or error
+# + return - `str` parsed to JsonDecimal or error
 public isolated function fromJsonDecimalString(string str) returns JsonDecimal|error = @java:Method {
     'class: "org.ballerinalang.langlib.value.FromJsonDecimalString",
     name: "fromJsonDecimalString"
