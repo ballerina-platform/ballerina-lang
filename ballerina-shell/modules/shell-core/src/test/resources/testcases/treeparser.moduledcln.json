@@ -54,5 +54,19 @@
     "expected": [
       "EnumDeclarationNode"
     ]
+  },
+  {
+    "name": "Variable Declaration I",
+    "input": "final int i = 100;",
+    "expected": [
+      "ModuleVariableDeclarationNode"
+    ]
+  },
+  {
+    "name": "Variable Declaration II",
+    "input": "final int i;",
+    "expected": [
+      "ModuleVariableDeclarationNode"
+    ]
   }
 ]
