@@ -131,5 +131,12 @@
     "expected": [
       "PanicStatementNode"
     ]
+  },
+  {
+    "name": "Module Variable Declaration",
+    "input": "int t = 4;",
+    "expected": [
+      "VariableDeclarationNode"
+    ]
   }
 ]

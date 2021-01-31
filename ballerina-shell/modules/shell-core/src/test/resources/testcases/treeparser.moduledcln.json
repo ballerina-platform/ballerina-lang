@@ -49,13 +49,6 @@
     ]
   },
   {
-    "name": "Module Variable Declaration",
-    "input": "int t = 4;",
-    "expected": [
-      "ModuleVariableDeclarationNode"
-    ]
-  },
-  {
     "name": "Enum Declaration",
     "input": "enum Color { RED, GREEN, BLUE };",
     "expected": [
