@@ -68,6 +68,7 @@ public class StringUtilsTest {
         SyntaxTree tree = SyntaxTree.from(textDocument);
         Diagnostic diagnostic = tree.diagnostics().iterator().next();
         String error = StringUtils.highlightDiagnostic(textDocument, diagnostic);
+        error = error.replace("\r\n", "\n");
         Assert.assertEquals(error, expectedError);
     }
 }
