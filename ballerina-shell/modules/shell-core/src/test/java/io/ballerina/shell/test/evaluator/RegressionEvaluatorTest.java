@@ -30,7 +30,7 @@ public class RegressionEvaluatorTest extends AbstractEvaluatorTest {
     private static final String FUNCTION_NAME_EVALUATOR_TESTCASE = "testcases/evaluator/regression.function.name.json";
     private static final String SAME_IMPORT_EVALUATOR_TESTCASE = "testcases/evaluator/regression.same.import.json";
     private static final String IMPORT_USED_FN_TESTCASE = "testcases/evaluator/regression.import.used.fn.json";
-    private static final String IMPORT_PANIC_SAVE_STATE = "testcases/evaluator/regression.panic.save.state.json";
+    private static final String PANIC_SAVE_STATE_TESTCASE = "testcases/evaluator/regression.panic.save.state.json";
     private static final String QUALIFIERS_TESTCASE = "testcases/evaluator/regression.qualifiers.json";
 
     @Test
@@ -60,6 +60,6 @@ public class RegressionEvaluatorTest extends AbstractEvaluatorTest {
     @Test
     public void testEvaluatePanicSaveState() throws BallerinaShellException {
         // Check if panic correctly preserves state.
-        testEvaluate(IMPORT_PANIC_SAVE_STATE);
+        testEvaluate(PANIC_SAVE_STATE_TESTCASE);
     }
 }
