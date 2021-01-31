@@ -185,7 +185,7 @@ function testArrayFromBalString() {
     byte[] arr4 = [12, 10, 9, 8];
     string[] arr5 = ["ABC", "XYZ", "LMN"];
     decimal[] arr6 = [12.65, 1, 2, 90.0];
-    (anydata|error)[] arr7 = ["str", 23, 23.4, true, {"x":"AA","y":(1.0/0.0),"z":1.23}, x1, ["X", (0.0/0.0),
+    anydata[] arr7 = ["str", 23, 23.4, true, {"x":"AA","y":(1.0/0.0),"z":1.23}, x1, ["X", (0.0/0.0),
     x1], underGradTable, xmlVal];
 
     string s1 = "[1,2,3,4,5]";

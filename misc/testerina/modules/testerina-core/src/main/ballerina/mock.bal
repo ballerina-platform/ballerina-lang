@@ -39,8 +39,6 @@ public type InvalidMemberFieldError distinct error;
 public const FUNCTION_CALL_ERROR = "FunctionCallError";
 public type FunctionCallError distinct error;
 
-type AnydataOrError anydata|error;
-
 # Represents mocking related errors
 public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMismatchError|InvalidMemberFieldError|FunctionCallError;
 
@@ -109,7 +107,7 @@ public class MockObject {
 public class MemberFunctionStub {
     object {} mockObject;
     string functionName = "";
-    AnydataOrError[] args = [];
+    (anydata|error)[] args = [];
     any|error returnValue = ();
     any|error returnValueSeq = [];
 
@@ -239,7 +237,7 @@ public class MockFunction {
 public class FunctionStub {
     MockFunction mockFuncObj;
     any|error returnValue = ();
-    AnydataOrError[] args = [];
+    (anydata|error)[] args = [];
 
 
     # Gets invoked during the stub registration
