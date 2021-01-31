@@ -19,7 +19,11 @@
 package io.ballerina.shell.snippet.types;
 
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.shell.snippet.SnippetSubKind;
+
+import java.util.stream.Collectors;
 
 /**
  * These will be variable declarations.
@@ -30,5 +34,34 @@ import io.ballerina.shell.snippet.SnippetSubKind;
 public class VariableDeclarationSnippet extends ExecutableSnippet {
     public VariableDeclarationSnippet(ModuleVariableDeclarationNode rootNode) {
         super(SnippetSubKind.VARIABLE_DECLARATION, rootNode);
+    }
+
+    /**
+     * This will remove all the qualifiers from a declaration and
+     * return the TYPE VAR = INIT; formatted declaration.
+     *
+     * @return The variable declarations without the qualifiers.
+     */
+    public String withoutQualifiers() {
+        assert rootNode instanceof ModuleVariableDeclarationNode;
+        return ((ModuleVariableDeclarationNode) rootNode).modify()
+                .withMetadata(null)
+                .withQualifiers(NodeFactory.createEmptyNodeList())
+                .apply().toSourceCode();
+    }
+
+    /**
+     * This will ONLY return the metadata and qualifiers of this node.
+     * Whitespaces will be added between all qualifiers and metadata.
+     *
+     * @return Qualifiers/Metadata as string.
+     */
+    public String qualifiersAndMetadata() {
+        assert rootNode instanceof ModuleVariableDeclarationNode;
+        ModuleVariableDeclarationNode moduleVariableDeclarationNode = (ModuleVariableDeclarationNode) rootNode;
+        String metadata = moduleVariableDeclarationNode.metadata().map(Node::toSourceCode).orElse("");
+        String qualifiers = moduleVariableDeclarationNode.qualifiers().stream()
+                .map(Node::toSourceCode).collect(Collectors.joining(" "));
+        return metadata + qualifiers;
     }
 }

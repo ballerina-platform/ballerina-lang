@@ -132,6 +132,8 @@ public class BasicSnippetFactory extends SnippetFactory {
         } else if (node instanceof VariableDeclarationNode) {
             VariableDeclarationNode varNode = (VariableDeclarationNode) node;
             NodeList<Token> qualifiers = NodeFactory.createEmptyNodeList();
+            // Only final qualifier is transferred.
+            // It is the only possible qualifier that can be transferred.
             if (varNode.finalKeyword().isPresent()) {
                 qualifiers = NodeFactory.createNodeList(varNode.finalKeyword().get());
             }
