@@ -32,6 +32,7 @@ public class StringUtils {
     private static final String QUOTE = "'";
     private static final String SPACE = " ";
     private static final String CARET = "^";
+    private static final String DASH = "-";
 
     /**
      * Creates an quoted identifier to use for variable names.
@@ -84,10 +85,13 @@ public class StringUtils {
             return String.format("%s%n%s", diagnostic.message(), sourceLine);
         }
 
-        // Error is same line, can highlight using ^^^
+        // Error is same line, can highlight using ^-----^
+        // Error will expand as ^, ^^, ^-^, ^--^
         int position = startLine.offset();
-        int length = endLine.offset() - startLine.offset() + 1;
+        int length = Math.max(endLine.offset() - startLine.offset(), 1);
+        String caretUnderline = length == 1
+                ? CARET : CARET + DASH.repeat(length - 2) + CARET;
         return String.format("%s%n%s%n%s%s", diagnostic.message(), sourceLine,
-                SPACE.repeat(position), CARET.repeat(length));
+                SPACE.repeat(position), caretUnderline);
     }
 }
