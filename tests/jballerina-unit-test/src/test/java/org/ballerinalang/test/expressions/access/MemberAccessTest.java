@@ -269,7 +269,8 @@ public class MemberAccessTest {
         return new Object[][] {
                 { "testUnavailableFinalAccessInNestedAccess" },
                 { "testAvailableFinalAccessInNestedAccess" },
-                { "testUnavailableIntermediateAccessInNestedAccess" }
+                { "testUnavailableIntermediateAccessInNestedAccess" },
+                { "testNilValuedFinalAccessInNestedAccess" }
         };
     }
 

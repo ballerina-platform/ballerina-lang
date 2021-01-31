@@ -703,6 +703,20 @@ function testUnavailableIntermediateAccessInNestedAccess() {
     assertTrue(k is ());
 }
 
+function testNilValuedFinalAccessInNestedAccess() {
+    map<map<int?>> f = {x: {i: (), j: 2}};
+    int? i = f["x"]["i"];
+    int? j = (f["x"])["i"];
+    int? k = ((f["x"]["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+
+    int? q = ((f["x"]["j"]));
+    assertEquality(2, q);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

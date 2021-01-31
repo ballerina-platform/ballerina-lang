@@ -500,6 +500,35 @@ function testUnavailableIntermediateAccessInNestedAccess() {
     assertTrue(p is ());
 }
 
+type RecordWithNilableFieldConfig record {
+    NilableFieldConfig? rec;
+};
+
+type NilableFieldConfig record {|
+    int? i = ();
+|};
+
+function testNilValuedFinalAccessInNestedAccess() {
+    RecordWithNilableFieldConfig f = {rec: {}};
+    int? i = f?.rec?.i;
+    int? j = f?.rec["i"];
+    int? k = f["rec"]["i"];
+    int? l = f["rec"]?.i;
+    int? m = (f["rec"])?.i;
+    int? n = ((f?.rec))["i"];
+    int? o = (f["rec"]?.i);
+    int? p = ((f?.rec["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+    assertTrue(l is ());
+    assertTrue(m is ());
+    assertTrue(n is ());
+    assertTrue(o is ());
+    assertTrue(p is ());
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

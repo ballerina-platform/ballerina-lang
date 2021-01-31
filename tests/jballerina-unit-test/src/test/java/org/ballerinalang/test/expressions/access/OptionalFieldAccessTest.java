@@ -102,7 +102,8 @@ public class OptionalFieldAccessTest {
         return new Object[][] {
                 { "testUnavailableFinalAccessInNestedAccess" },
                 { "testAvailableFinalAccessInNestedAccess" },
-                { "testUnavailableIntermediateAccessInNestedAccess" }
+                { "testUnavailableIntermediateAccessInNestedAccess" },
+                { "testNilValuedFinalAccessInNestedAccess" }
         };
     }
 
