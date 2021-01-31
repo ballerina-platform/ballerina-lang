@@ -259,7 +259,6 @@ public class MemberAccessTest {
         };
     }
 
-
     @Test(dataProvider = "optionalMappingMemberAccessFunctions2")
     public void testOptionalMappingMemberAccess2(String function) {
         BRunUtil.invoke(result, function);

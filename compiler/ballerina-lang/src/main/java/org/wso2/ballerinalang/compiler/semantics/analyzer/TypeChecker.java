@@ -6570,8 +6570,8 @@ public class TypeChecker extends BLangNodeVisitor {
                         varRefType, fieldName);
             }
             fieldAccessExpr.nilSafeNavigation = nillableExprType;
-            fieldAccessExpr.originalType = fieldAccessExpr.leafNode ? actualType :
-                    getSafeType(actualType, fieldAccessExpr);
+            fieldAccessExpr.originalType = fieldAccessExpr.leafNode || !nillableExprType ? actualType :
+                    types.getTypeWithoutNil(actualType);
         } else if (types.isLax(effectiveType)) {
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
             actualType = accessCouldResultInError(effectiveType) ?
@@ -6693,8 +6693,8 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             indexBasedAccessExpr.nilSafeNavigation = nillableExprType;
-            indexBasedAccessExpr.originalType = indexBasedAccessExpr.leafNode ? actualType :
-                    getSafeType(actualType, indexBasedAccessExpr);
+            indexBasedAccessExpr.originalType = indexBasedAccessExpr.leafNode || !nillableExprType ? actualType :
+                    types.getTypeWithoutNil(actualType);
         } else if (types.isSubTypeOfList(varRefType)) {
             checkExpr(indexExpr, this.env, symTable.intType);
 
@@ -7155,43 +7155,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         BUnionType.create(null, possibleTypesByMember);
         }
         return actualType;
-    }
-
-    private BType getSafeType(BType type, BLangAccessExpression accessExpr) {
-        if (type.tag != TypeTags.UNION) {
-            return type;
-        }
-
-        // Extract the types without the error and null, and revisit access expression
-        List<BType> lhsTypes = new ArrayList<>(((BUnionType) type).getMemberTypes());
-
-        if (accessExpr.errorSafeNavigation) {
-            if (!lhsTypes.contains(symTable.errorType)) {
-                dlog.error(accessExpr.pos, DiagnosticErrorCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
-                return symTable.semanticError;
-            }
-
-            lhsTypes = lhsTypes.stream()
-                    .filter(memberType -> memberType != symTable.errorType)
-                    .collect(Collectors.toList());
-
-            if (lhsTypes.isEmpty()) {
-                dlog.error(accessExpr.pos, DiagnosticErrorCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
-                return symTable.semanticError;
-            }
-        }
-
-        if (accessExpr.nilSafeNavigation) {
-            lhsTypes = lhsTypes.stream()
-                    .filter(memberType -> memberType != symTable.nilType)
-                    .collect(Collectors.toList());
-        }
-
-        if (lhsTypes.size() == 1) {
-            return lhsTypes.get(0);
-        }
-
-        return BUnionType.create(null, new LinkedHashSet<>(lhsTypes));
     }
 
     private List<BType> getTypesList(BType type) {
