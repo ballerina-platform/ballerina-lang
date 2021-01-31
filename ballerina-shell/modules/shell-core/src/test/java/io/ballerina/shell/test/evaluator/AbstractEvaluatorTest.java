@@ -65,6 +65,7 @@ public abstract class AbstractEvaluatorTest {
                 Assert.assertTrue(evaluator.hasErrors(), testCase.getDescription());
                 String errorClass = e.getClass().getSimpleName();
                 if (testCase.getError() != null) {
+                    Assert.assertEquals(invoker.getOutput(), testCase.getStdout(), testCase.getDescription());
                     Assert.assertEquals(testCase.getError(), errorClass, testCase.getDescription());
                     continue;
                 }

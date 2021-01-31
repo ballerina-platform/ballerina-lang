@@ -57,6 +57,7 @@
   {
     "description": "Update readonly - panic.",
     "code": "anyEmployee.details = { id: 222288, country: \"Sri Lanka\" };",
-    "stdout": "Panic: {ballerina/lang.map}InherentTypeViolation\n"
+    "stdout": "Panic: {ballerina/lang.map}InherentTypeViolation\n",
+    "error": "InvokerException"
   }
 ]
