@@ -32,11 +32,23 @@ public class GlobalVariable {
     private final String type;
     private final String variableName;
     private final ElevatedType elevatedType;
+    private final String qualifiersAndMetadata;
 
-    public GlobalVariable(String type, String variableName, ElevatedType elevatedType) {
-        this.type = type;
+    public GlobalVariable(String type, String variableName,
+                          ElevatedType elevatedType, String qualifiersAndMetadata) {
+        this.type = Objects.requireNonNull(type);
+        this.elevatedType = Objects.requireNonNull(elevatedType);
+        this.qualifiersAndMetadata = Objects.requireNonNull(qualifiersAndMetadata);
         this.variableName = variableName;
-        this.elevatedType = elevatedType;
+    }
+
+    private GlobalVariable(String variableName) {
+        // This constructor is only used to create a temp global
+        // variable to search in a hashmap using the variable name.
+        this.type = null;
+        this.variableName = variableName;
+        this.elevatedType = null;
+        this.qualifiersAndMetadata = null;
     }
 
     /**
@@ -47,7 +59,7 @@ public class GlobalVariable {
      * @return Whether the variable is contained inside the collection.
      */
     public static boolean isDefined(Collection<GlobalVariable> globalVariables, String variableName) {
-        return globalVariables.contains(new GlobalVariable("", variableName, null));
+        return globalVariables.contains(new GlobalVariable(variableName));
     }
 
     public String getType() {
@@ -60,6 +72,10 @@ public class GlobalVariable {
 
     public ElevatedType getElevatedType() {
         return elevatedType;
+    }
+
+    public String getQualifiersAndMetadata() {
+        return qualifiersAndMetadata;
     }
 
     @Override
@@ -81,6 +97,6 @@ public class GlobalVariable {
 
     @Override
     public String toString() {
-        return String.format("<%s> %s %s", elevatedType, type, variableName);
+        return String.format("<%s> %s %s %s", elevatedType, qualifiersAndMetadata, type, variableName);
     }
 }

@@ -29,12 +29,14 @@ import io.ballerina.shell.utils.StringUtils;
  * @since 2.0.0
  */
 public class VariableContext {
+    private final String prefix;
     private final String name;
     private final String type;
     private final boolean isNew;
     private final boolean isAny;
 
-    private VariableContext(String name, String type, boolean isNew, boolean isAny) {
+    private VariableContext(String prefix, String name, String type, boolean isNew, boolean isAny) {
+        this.prefix = prefix;
         this.name = StringUtils.quoted(name);
         this.type = type;
         this.isNew = isNew;
@@ -48,7 +50,8 @@ public class VariableContext {
      * @return Context for a new variable.
      */
     public static VariableContext newVar(GlobalVariable variableEntry) {
-        return new VariableContext(variableEntry.getVariableName(), variableEntry.getType(), true,
+        return new VariableContext(variableEntry.getQualifiersAndMetadata(),
+                variableEntry.getVariableName(), variableEntry.getType(), true,
                 variableEntry.getElevatedType().isAssignableToAny());
     }
 
@@ -59,8 +62,13 @@ public class VariableContext {
      * @return Context for a old variable.
      */
     public static VariableContext oldVar(GlobalVariable variableEntry) {
-        return new VariableContext(variableEntry.getVariableName(), variableEntry.getType(), false,
+        return new VariableContext(variableEntry.getQualifiersAndMetadata(),
+                variableEntry.getVariableName(), variableEntry.getType(), false,
                 variableEntry.getElevatedType().isAssignableToAny());
+    }
+
+    public String prefix() {
+        return prefix;
     }
 
     public String name() {

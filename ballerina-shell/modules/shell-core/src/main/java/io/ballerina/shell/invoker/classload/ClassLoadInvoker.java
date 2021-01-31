@@ -341,6 +341,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         SingleFileProject project = getProject(varTypeInferContext, DECLARATION_TEMPLATE_FILE);
         Collection<Symbol> symbols = visibleUnknownSymbols(project);
 
+        String qualifiersAndMetadata = newSnippet.qualifiersAndMetadata();
         Set<GlobalVariable> foundVariables = new HashSet<>();
         for (Symbol symbol : symbols) {
             HashedSymbol hashedSymbol = new HashedSymbol(symbol);
@@ -366,7 +367,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 String variableType = signatureTransformer.transformType(typeSymbol);
                 this.newImplicitImports.addAll(signatureTransformer.getImplicitImportPrefixes());
 
-                foundVariables.add(new GlobalVariable(variableType, variableName, elevatedType));
+                foundVariables.add(new GlobalVariable(variableType, variableName, elevatedType, qualifiersAndMetadata));
                 this.newSymbols.add(hashedSymbol);
             }
         }
@@ -437,7 +438,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         // Imports = snippet imports + module def imports
         Set<String> importStrings = getUsedImportStatements(newSnippet);
         importStrings.addAll(imports.getImplicitImports());
-        String lastVarDcln = newSnippet.toString();
+        String lastVarDcln = newSnippet.withoutQualifiers();
 
         return new ClassLoadContext(this.contextId, importStrings, moduleDclnStrings, varDclns, lastVarDcln);
     }
