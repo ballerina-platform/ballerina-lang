@@ -2463,6 +2463,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        markLeafNode(fieldAccessExpr);
+
         // First analyze the accessible expression.
         BLangExpression containerExpression = fieldAccessExpr.expr;
 
@@ -2591,6 +2593,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
+        markLeafNode(indexBasedAccessExpr);
+
         // First analyze the variable reference expression.
         BLangExpression containerExpression = indexBasedAccessExpr.expr;
         if (containerExpression.getKind() ==  NodeKind.TYPEDESC_EXPRESSION) {
@@ -6566,7 +6570,8 @@ public class TypeChecker extends BLangNodeVisitor {
                         varRefType, fieldName);
             }
             fieldAccessExpr.nilSafeNavigation = nillableExprType;
-            fieldAccessExpr.originalType = getSafeType(actualType, fieldAccessExpr);
+            fieldAccessExpr.originalType = fieldAccessExpr.leafNode ? actualType :
+                    getSafeType(actualType, fieldAccessExpr);
         } else if (types.isLax(effectiveType)) {
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
             actualType = accessCouldResultInError(effectiveType) ?
@@ -6688,7 +6693,8 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             indexBasedAccessExpr.nilSafeNavigation = nillableExprType;
-            indexBasedAccessExpr.originalType = getSafeType(actualType, indexBasedAccessExpr);
+            indexBasedAccessExpr.originalType = indexBasedAccessExpr.leafNode ? actualType :
+                    getSafeType(actualType, indexBasedAccessExpr);
         } else if (types.isSubTypeOfList(varRefType)) {
             checkExpr(indexExpr, this.env, symTable.intType);
 
@@ -7677,6 +7683,31 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         markTypeAsIsolated(actualObjectType);
+    }
+
+    private void markLeafNode(BLangAccessExpression accessExpression) {
+        BLangNode parent = accessExpression.parent;
+        if (parent == null) {
+            accessExpression.leafNode = true;
+            return;
+        }
+
+        NodeKind kind = parent.getKind();
+
+        while (kind == NodeKind.GROUP_EXPR) {
+            parent = parent.parent;
+
+            if (parent == null) {
+                accessExpression.leafNode = true;
+                break;
+            }
+
+            kind = parent.getKind();
+        }
+
+        if (kind != NodeKind.FIELD_BASED_ACCESS_EXPR && kind != NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            accessExpression.leafNode = true;
+        }
     }
 
     private static class FieldInfo {
