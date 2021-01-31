@@ -82,13 +82,12 @@ public function run() {
         {{{exprVarName}}} = ();
     }
 
-    // Variable declaration
+    // Variable declaration and save new vars
     {{{lastVarDcln}}}
-
-    // Save variables
-    memorize_h("{{{exprVarName}}}", {{{exprVarName}}});
     {{#varDclns}}
-        memorize_h("{{{encodedName}}}", {{{name}}});
+        {{#isNew }}
+                memorize_h("{{{encodedName}}}", {{{name}}});
+            {{/isNew}}
     {{/varDclns}}
 }
 
@@ -96,6 +95,15 @@ public function main() returns error? {
     error? ret = trap run();
     if (ret is error) {
         println("Panic: ", ret.message());
-        return ret;
     }
+
+    // Save old variables
+    memorize_h("{{{exprVarName}}}", {{{exprVarName}}});
+    {{#varDclns}}
+        {{^isNew }}
+            memorize_h("{{{encodedName}}}", {{{name}}});
+        {{/isNew}}
+    {{/varDclns}}
+
+    return ret;
 }
