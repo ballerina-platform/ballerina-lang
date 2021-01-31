@@ -12,11 +12,13 @@
   {
     "description": "Panic error value",
     "code": "panic error(\"whoops\")",
-    "stdout": "Panic: whoops\n"
+    "stdout": "Panic: whoops\n",
+    "error": "InvokerException"
   },
   {
     "description": "Runtime error.",
     "code": "1/0",
-    "stdout": "Panic: {ballerina}DivisionByZero\n"
+    "stdout": "Panic: {ballerina}DivisionByZero\n",
+    "error": "InvokerException"
   }
 ]

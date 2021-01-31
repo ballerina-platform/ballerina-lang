@@ -15,6 +15,7 @@
   {
     "description": "Check panic on an error.",
     "code": "int z = checkpanic parse(\"Invalid\");",
-    "stdout": "Panic: {ballerina/lang.int}NumberParsingError\n"
+    "stdout": "Panic: {ballerina/lang.int}NumberParsingError\n",
+    "error": "InvokerException"
   }
 ]
