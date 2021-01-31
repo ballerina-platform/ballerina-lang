@@ -20,7 +20,6 @@ package io.ballerina.toml.api;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
-import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlTransformer;
@@ -44,6 +43,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -54,7 +54,6 @@ import java.util.TreeSet;
  *
  * @since 2.0.0
  */
-@Deprecated
 public class Toml {
 
     private TomlTableNode rootNode;
@@ -87,7 +86,7 @@ public class Toml {
     /**
      * Read TOML File using Path and validate it against a json schema.
      *
-     * @param path Path of the TOML file
+     * @param path   Path of the TOML file
      * @param schema json schema to validate the toml against
      * @return TOML Object
      * @throws IOException if file is not accessible
@@ -108,14 +107,14 @@ public class Toml {
      * @throws IOException if file is not accessible
      */
     public static Toml read(InputStream inputStream) throws IOException {
-       return read(new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), null);
+        return read(new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), null);
     }
 
     /**
      * Read TOML File using InputStream and validate against a json schema.
      *
      * @param inputStream InputStream of the TOML file
-     * @param schema json schema to validate the toml against
+     * @param schema      json schema to validate the toml against
      * @return TOML Object
      * @throws IOException if file is not accessible
      */
@@ -126,7 +125,7 @@ public class Toml {
     /**
      * Parse TOML file using TOML String.
      *
-     * @param content String representation of the TOML file content.
+     * @param content  String representation of the TOML file content.
      * @param filePath path of the TOML file
      * @return TOML Object
      */
@@ -143,8 +142,8 @@ public class Toml {
     /**
      * Parse TOML file using TOML String and validate against a json schema.
      *
-     * @param content String representation of the TOML file content.
-     * @param schema json schema to validate the toml against
+     * @param content  String representation of the TOML file content.
+     * @param schema   json schema to validate the toml against
      * @param filePath path of the TOML file
      * @return TOML Object
      */
@@ -177,36 +176,19 @@ public class Toml {
     /**
      * Get value from a key of a Key Value pair.
      *
-     * @param key key name
-     * @param <T> Type of the AST Value Node
+     * @param dottedKey key name
+     * @param <T>       Type of the AST Value Node
      * @return AST Value Node
      */
-    public <T extends TomlValueNode> T get(String key) {
-        TomlKeyValueNode tomlKeyValueNode = (TomlKeyValueNode) rootNode.entries().get(key);
-        if (tomlKeyValueNode == null || tomlKeyValueNode.value() == null) {
-            return null;
-        }
-
-        TomlValueNode value = tomlKeyValueNode.value();
-        return (T) value;
-    }
-
-    public <T extends TomlValueNode> Optional<T> getEntry (String dottedKey) {
-        String[] splitDottedKeys = dottedKey.split("\\.");
-        String lastKey = splitDottedKeys[splitDottedKeys.length-1];
-        splitDottedKeys = Arrays.copyOf(splitDottedKeys, splitDottedKeys.length-1);
-        TomlTableNode parentTableNode = this.rootNode;
-        for (String key : splitDottedKeys) {
-            TopLevelNode topLevelNode = parentTableNode.entries().get(key);
-            if (topLevelNode == null || topLevelNode.kind() != TomlType.TABLE) {
-                return Optional.empty();
-            }
-            parentTableNode = (TomlTableNode) topLevelNode;
-        }
-
-        if (parentTableNode == null || parentTableNode.kind() != TomlType.TABLE) {
+    public <T extends TomlValueNode> Optional<T> get(String dottedKey) {
+        String[] parentDottedKeys = splitDottedkeys(dottedKey);
+        String lastKey = parentDottedKeys[parentDottedKeys.length - 1];
+        parentDottedKeys = Arrays.copyOf(parentDottedKeys, parentDottedKeys.length - 1);
+        Optional<TomlTableNode> parentNode = getParentNode(parentDottedKeys);
+        if (parentNode.isEmpty()) {
             return Optional.empty();
         }
+        TomlTableNode parentTableNode = parentNode.get();
 
         TopLevelNode valueEntry = parentTableNode.entries().get(lastKey);
 
@@ -219,37 +201,68 @@ public class Toml {
         }
         TomlValueNode value = keyValueNode.value();
         return Optional.ofNullable((T) value);
+    }
 
+    private String[] splitDottedkeys(String dottedKey) {
+        return dottedKey.split("\\.(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+    }
+
+    private Optional<TomlTableNode> getParentNode(String[] parentDottedKeys) {
+        TomlTableNode parentTableNode = this.rootNode;
+        for (String key : parentDottedKeys) {
+            TopLevelNode topLevelNode = parentTableNode.entries().get(key);
+            if (topLevelNode == null || topLevelNode.kind() != TomlType.TABLE) {
+                return Optional.empty();
+            }
+            parentTableNode = (TomlTableNode) topLevelNode;
+        }
+
+        if (parentTableNode == null || parentTableNode.kind() != TomlType.TABLE) {
+            return Optional.empty();
+        }
+        return Optional.of(parentTableNode);
     }
 
     /**
      * Get Child Table from TOML.
      *
-     * @param key Identifier of the table.
+     * @param dottedKey Identifier of the table.
      * @return Child Table
      */
-    public Toml getTable(String key) {
-        TopLevelNode topLevelNode = rootNode.entries().get(key);
-        if (topLevelNode == null || topLevelNode.kind() != TomlType.TABLE) {
-            return null;
+    public Optional<Toml> getTable(String dottedKey) {
+        String[] parentDottedKeys = splitDottedkeys(dottedKey);
+
+        Optional<TomlTableNode> parentNode = getParentNode(parentDottedKeys);
+        if (parentNode.isEmpty()) {
+            return Optional.empty();
         }
 
-        return new Toml((TomlTableNode) topLevelNode);
+        return Optional.of(new Toml(parentNode.get()));
     }
 
     /**
      * Get Array of Tables from TOML.
      *
-     * @param key Identifier of the table.
+     * @param dottedKey Identifier of the table.
      * @return List of Tables
      */
-    public List<Toml> getTables(String key) {
-        TopLevelNode tableNode = rootNode.entries().get(key);
-        if (tableNode == null || tableNode.kind() != TomlType.TABLE_ARRAY) {
-            return null;
+    public List<Toml> getTables(String dottedKey) {
+        String[] parentDottedKeys = splitDottedkeys(dottedKey);
+        String lastKey = parentDottedKeys[parentDottedKeys.length - 1];
+        parentDottedKeys = Arrays.copyOf(parentDottedKeys, parentDottedKeys.length - 1);
+        Optional<TomlTableNode> parentNode = getParentNode(parentDottedKeys);
+        if (parentNode.isEmpty()) {
+            return Collections.emptyList();
+        }
+        TomlTableNode parentTableNode = parentNode.get();
+
+        TopLevelNode valueEntry = parentTableNode.entries().get(lastKey);
+
+        if (valueEntry == null || valueEntry.kind() != TomlType.TABLE_ARRAY) {
+            return Collections.emptyList();
         }
 
-        TomlTableArrayNode tomlTableArrayNode = (TomlTableArrayNode) tableNode;
+        TomlTableArrayNode tomlTableArrayNode = (TomlTableArrayNode) valueEntry;
         List<TomlTableNode> childs = tomlTableArrayNode.children();
         List<Toml> tomlList = new ArrayList<>();
         for (TomlTableNode child : childs) {

@@ -43,12 +43,12 @@ public class TomlKeyNode extends TomlNode {
 
     public String name() {
         List<String> list = new ArrayList<>();
-        for (TomlKeyEntryNode keyEntryNode:keys) {
-//            if (keyEntryNode.kind() != TomlType.STRING) {
-//                list.add("\""+keyEntryNode.name().toString()+"\"");
-//            } else {
+        for (TomlKeyEntryNode keyEntryNode : keys) {
+            if (keyEntryNode.kind() == TomlType.STRING) {
+                list.add("\"" + keyEntryNode.name().toString() + "\"");
+            } else {
                 list.add(keyEntryNode.name().toString());
-//            }
+            }
         }
         return String.join(".", list);
     }
