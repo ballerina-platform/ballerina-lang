@@ -92,6 +92,20 @@ public class OptionalFieldAccessTest {
         };
     }
 
+    @Test(dataProvider = "recordOptionalFieldAccessFunctions2")
+    public void testRecordOptionalFieldAccess2(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "recordOptionalFieldAccessFunctions2")
+    public Object[][] recordOptionalFieldAccessFunctions2() {
+        return new Object[][] {
+                { "testUnavailableFinalAccessInNestedAccess" },
+                { "testAvailableFinalAccessInNestedAccess" },
+                { "testUnavailableIntermediateAccessInNestedAccess" }
+        };
+    }
+
     @Test(dataProvider = "laxOptionalFieldAccessFunctions")
     public void testLaxOptionalFieldAccess(String function) {
         BValue[] returns = BRunUtil.invoke(result, function);
