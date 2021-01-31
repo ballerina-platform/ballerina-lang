@@ -150,6 +150,9 @@ public class JvmCastGen {
             case JTypeTags.JDOUBLE:
                 generateCheckCastBToJDouble(mv, sourceType);
                 break;
+            case JTypeTags.JBOOLEAN:
+                generateCheckCastBToJBoolean(mv, sourceType);
+                break;
             case JTypeTags.JREF:
                 generateCheckCastBToJRef(mv, sourceType, targetType);
                 break;
@@ -370,6 +373,26 @@ public class JvmCastGen {
                 throw new BLangCompilerException(String.format("Casting is not supported from '%s' " +
                         "to 'java double'", sourceType));
         }
+    }
+
+    private void generateCheckCastBToJBoolean(MethodVisitor mv, BType sourceType) {
+
+        switch (sourceType.tag) {
+            case TypeTags.BOOLEAN:
+                break;
+            case TypeTags.HANDLE:
+                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD,
+                        String.format("()L%s;", OBJECT), false);
+                break;
+            case TypeTags.FINITE:
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BOOLEAN_METHOD, String.format("(L%s;)J", OBJECT),
+                        false);
+                break;
+            default:
+                throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java boolean'",
+                        sourceType));
+        }
+
     }
 
     private void generateCheckCastBToJRef(MethodVisitor mv, BType sourceType, JType targetType) {
