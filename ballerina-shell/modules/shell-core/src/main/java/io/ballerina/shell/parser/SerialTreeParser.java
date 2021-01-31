@@ -28,7 +28,6 @@ import io.ballerina.shell.parser.trials.ImportDeclarationTrial;
 import io.ballerina.shell.parser.trials.ModuleMemberTrial;
 import io.ballerina.shell.parser.trials.ParserRejectedException;
 import io.ballerina.shell.parser.trials.ParserTrialFailedException;
-import io.ballerina.shell.parser.trials.RejectInvalidStmtTrial;
 import io.ballerina.shell.parser.trials.StatementTrial;
 import io.ballerina.shell.parser.trials.TreeParserTrial;
 
@@ -49,7 +48,6 @@ public class SerialTreeParser extends TrialTreeParser {
         super(timeOutDurationMs);
         this.nodeParserTrials = List.of(
                 new ImportDeclarationTrial(this),
-                new RejectInvalidStmtTrial(this),
                 new ModuleMemberTrial(this),
                 new ExpressionTrial(this),
                 new StatementTrial(this),
