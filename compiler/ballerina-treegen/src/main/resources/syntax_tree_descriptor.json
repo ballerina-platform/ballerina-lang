@@ -4102,6 +4102,54 @@
             ]
         },
         {
+            "name": "MarkdownCodeBlockNode",
+            "base": "DocumentationNode",
+            "kind": "MARKDOWN_CODE_BLOCK",
+            "attributes": [
+                {
+                    "name": "startLineHashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "codeDescription",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "codeLines",
+                    "type": "MarkdownCodeLineNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "endLineHashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "MarkdownCodeLineNode",
+            "base": "DocumentationNode",
+            "kind": "MARKDOWN_CODE_LINE",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "CodeDescription",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "OrderByClauseNode",
             "base": "IntermediateClauseNode",
             "kind": "ORDER_BY_CLAUSE",

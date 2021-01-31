@@ -2250,6 +2250,32 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 endBacktick);
     }
 
+    public static STNode createMarkdownCodeBlockNode(
+            STNode startLineHashToken,
+            STNode startBacktick,
+            STNode codeDescription,
+            STNode codeLines,
+            STNode endLineHashToken,
+            STNode endBacktick) {
+
+        return new STMarkdownCodeBlockNode(
+                startLineHashToken,
+                startBacktick,
+                codeDescription,
+                codeLines,
+                endLineHashToken,
+                endBacktick);
+    }
+
+    public static STNode createMarkdownCodeLineNode(
+            STNode hashToken,
+            STNode CodeDescription) {
+
+        return new STMarkdownCodeLineNode(
+                hashToken,
+                CodeDescription);
+    }
+
     public static STNode createOrderByClauseNode(
             STNode orderKeyword,
             STNode byKeyword,

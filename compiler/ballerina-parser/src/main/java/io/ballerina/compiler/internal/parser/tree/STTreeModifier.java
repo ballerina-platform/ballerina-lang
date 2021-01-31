@@ -2416,6 +2416,34 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STMarkdownCodeBlockNode transform(
+            STMarkdownCodeBlockNode markdownCodeBlockNode) {
+        STNode startLineHashToken = modifyNode(markdownCodeBlockNode.startLineHashToken);
+        STNode startBacktick = modifyNode(markdownCodeBlockNode.startBacktick);
+        STNode codeDescription = modifyNode(markdownCodeBlockNode.codeDescription);
+        STNode codeLines = modifyNode(markdownCodeBlockNode.codeLines);
+        STNode endLineHashToken = modifyNode(markdownCodeBlockNode.endLineHashToken);
+        STNode endBacktick = modifyNode(markdownCodeBlockNode.endBacktick);
+        return markdownCodeBlockNode.modify(
+                startLineHashToken,
+                startBacktick,
+                codeDescription,
+                codeLines,
+                endLineHashToken,
+                endBacktick);
+    }
+
+    @Override
+    public STMarkdownCodeLineNode transform(
+            STMarkdownCodeLineNode markdownCodeLineNode) {
+        STNode hashToken = modifyNode(markdownCodeLineNode.hashToken);
+        STNode CodeDescription = modifyNode(markdownCodeLineNode.CodeDescription);
+        return markdownCodeLineNode.modify(
+                hashToken,
+                CodeDescription);
+    }
+
+    @Override
     public STOrderByClauseNode transform(
             STOrderByClauseNode orderByClauseNode) {
         STNode orderKeyword = modifyNode(orderByClauseNode.orderKeyword);

@@ -773,6 +773,14 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(documentationReferenceNode);
     }
 
+    public void visit(STMarkdownCodeBlockNode markdownCodeBlockNode) {
+        visitSyntaxNode(markdownCodeBlockNode);
+    }
+
+    public void visit(STMarkdownCodeLineNode markdownCodeLineNode) {
+        visitSyntaxNode(markdownCodeLineNode);
+    }
+
     public void visit(STOrderByClauseNode orderByClauseNode) {
         visitSyntaxNode(orderByClauseNode);
     }

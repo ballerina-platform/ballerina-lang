@@ -783,6 +783,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(documentationReferenceNode);
     }
 
+    public void visit(MarkdownCodeBlockNode markdownCodeBlockNode) {
+        visitSyntaxNode(markdownCodeBlockNode);
+    }
+
+    public void visit(MarkdownCodeLineNode markdownCodeLineNode) {
+        visitSyntaxNode(markdownCodeLineNode);
+    }
+
     public void visit(OrderByClauseNode orderByClauseNode) {
         visitSyntaxNode(orderByClauseNode);
     }

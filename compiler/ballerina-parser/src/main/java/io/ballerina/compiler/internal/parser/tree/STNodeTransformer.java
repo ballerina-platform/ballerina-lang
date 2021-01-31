@@ -773,6 +773,14 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(documentationReferenceNode);
     }
 
+    public T transform(STMarkdownCodeBlockNode markdownCodeBlockNode) {
+        return transformSyntaxNode(markdownCodeBlockNode);
+    }
+
+    public T transform(STMarkdownCodeLineNode markdownCodeLineNode) {
+        return transformSyntaxNode(markdownCodeLineNode);
+    }
+
     public T transform(STOrderByClauseNode orderByClauseNode) {
         return transformSyntaxNode(orderByClauseNode);
     }

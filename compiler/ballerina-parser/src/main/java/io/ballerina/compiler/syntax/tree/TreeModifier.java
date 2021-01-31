@@ -3050,6 +3050,42 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public MarkdownCodeBlockNode transform(
+            MarkdownCodeBlockNode markdownCodeBlockNode) {
+        Token startLineHashToken =
+                modifyToken(markdownCodeBlockNode.startLineHashToken());
+        Token startBacktick =
+                modifyToken(markdownCodeBlockNode.startBacktick());
+        Token codeDescription =
+                modifyToken(markdownCodeBlockNode.codeDescription().orElse(null));
+        NodeList<MarkdownCodeLineNode> codeLines =
+                modifyNodeList(markdownCodeBlockNode.codeLines());
+        Token endLineHashToken =
+                modifyToken(markdownCodeBlockNode.endLineHashToken());
+        Token endBacktick =
+                modifyToken(markdownCodeBlockNode.endBacktick());
+        return markdownCodeBlockNode.modify(
+                startLineHashToken,
+                startBacktick,
+                codeDescription,
+                codeLines,
+                endLineHashToken,
+                endBacktick);
+    }
+
+    @Override
+    public MarkdownCodeLineNode transform(
+            MarkdownCodeLineNode markdownCodeLineNode) {
+        Token hashToken =
+                modifyToken(markdownCodeLineNode.hashToken());
+        Token CodeDescription =
+                modifyToken(markdownCodeLineNode.CodeDescription());
+        return markdownCodeLineNode.modify(
+                hashToken,
+                CodeDescription);
+    }
+
+    @Override
     public OrderByClauseNode transform(
             OrderByClauseNode orderByClauseNode) {
         Token orderKeyword =

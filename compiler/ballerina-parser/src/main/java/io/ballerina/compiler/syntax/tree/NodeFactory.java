@@ -2969,6 +2969,41 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stDocumentationReferenceNode.createUnlinkedFacade();
     }
 
+    public static MarkdownCodeBlockNode createMarkdownCodeBlockNode(
+            Token startLineHashToken,
+            Token startBacktick,
+            Token codeDescription,
+            NodeList<MarkdownCodeLineNode> codeLines,
+            Token endLineHashToken,
+            Token endBacktick) {
+        Objects.requireNonNull(startLineHashToken, "startLineHashToken must not be null");
+        Objects.requireNonNull(startBacktick, "startBacktick must not be null");
+        Objects.requireNonNull(codeLines, "codeLines must not be null");
+        Objects.requireNonNull(endLineHashToken, "endLineHashToken must not be null");
+        Objects.requireNonNull(endBacktick, "endBacktick must not be null");
+
+        STNode stMarkdownCodeBlockNode = STNodeFactory.createMarkdownCodeBlockNode(
+                startLineHashToken.internalNode(),
+                startBacktick.internalNode(),
+                getOptionalSTNode(codeDescription),
+                codeLines.underlyingListNode().internalNode(),
+                endLineHashToken.internalNode(),
+                endBacktick.internalNode());
+        return stMarkdownCodeBlockNode.createUnlinkedFacade();
+    }
+
+    public static MarkdownCodeLineNode createMarkdownCodeLineNode(
+            Token hashToken,
+            Token CodeDescription) {
+        Objects.requireNonNull(hashToken, "hashToken must not be null");
+        Objects.requireNonNull(CodeDescription, "CodeDescription must not be null");
+
+        STNode stMarkdownCodeLineNode = STNodeFactory.createMarkdownCodeLineNode(
+                hashToken.internalNode(),
+                CodeDescription.internalNode());
+        return stMarkdownCodeLineNode.createUnlinkedFacade();
+    }
+
     public static OrderByClauseNode createOrderByClauseNode(
             Token orderKeyword,
             Token byKeyword,
