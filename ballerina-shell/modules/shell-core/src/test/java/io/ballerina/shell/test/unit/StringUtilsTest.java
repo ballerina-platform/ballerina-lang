@@ -18,7 +18,11 @@
 
 package io.ballerina.shell.test.unit;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.utils.StringUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -41,5 +45,29 @@ public class StringUtilsTest {
         Assert.assertEquals(StringUtils.shortenedString("abc".repeat(10)), "abcabcabcabcabcabcabcabcabcabc");
         Assert.assertEquals(StringUtils.shortenedString("abc".repeat(100)),
                 "abcabcabcabcabcabcabcabcabcabcabcabcabc...abcabcabcabcabcabcabcabcabcabcabcabcabc");
+    }
+
+    @Test
+    public void testHighlightDiagnostic() {
+        testHighlightDiagnostic("int i = 100", "" +
+                "missing semicolon token\n" +
+                "int i = 100\n" +
+                "           ^");
+        testHighlightDiagnostic("int i\\-\\like\\-hyphens = 100", "" +
+                "invalid escape sequence '\\l'\n" +
+                "int i\\-\\like\\-hyphens = 100\n" +
+                "    ^---------------^");
+        testHighlightDiagnostic("\\l", "" +
+                "invalid escape sequence '\\l'\n" +
+                "\\l\n" +
+                "^^");
+    }
+
+    private void testHighlightDiagnostic(String code, String expectedError) {
+        TextDocument textDocument = TextDocuments.from(code);
+        SyntaxTree tree = SyntaxTree.from(textDocument);
+        Diagnostic diagnostic = tree.diagnostics().iterator().next();
+        String error = StringUtils.highlightDiagnostic(textDocument, diagnostic);
+        Assert.assertEquals(error, expectedError);
     }
 }
