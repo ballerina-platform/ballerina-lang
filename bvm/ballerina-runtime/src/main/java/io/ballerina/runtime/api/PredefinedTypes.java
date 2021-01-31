@@ -173,6 +173,9 @@ public class PredefinedTypes {
     public static final ErrorType TYPE_ERROR;
     public static final BUnionType TYPE_CLONEABLE;
 
+    public static final BUnionType TYPE_JSON_DECIMAL;
+    public static final BUnionType TYPE_JSON_FLOAT;
+
     public static final RecordType STRING_ITR_NEXT_RETURN_TYPE =
             IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING);
 
@@ -246,5 +249,37 @@ public class PredefinedTypes {
         TYPE_ERROR_DETAIL = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_DETAIL);
         TYPE_ERROR = new BErrorType(TypeConstants.ERROR, EMPTY_MODULE, TYPE_DETAIL);
         ANY_AND_READONLY_OR_ERROR_TYPE = new BUnionType(Arrays.asList(ANY_AND_READONLY_TYPE, TYPE_ERROR));
+    }
+
+    // public type JsonDecimal ()|boolean|string|decimal|JsonDecimal[]|map<JsonDecimal>;
+    static {
+        ArrayList<Type> members = new ArrayList<>();
+        members.add(TYPE_NULL);
+        members.add(TYPE_BOOLEAN);
+        members.add(TYPE_STRING);
+        members.add(TYPE_DECIMAL);
+        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        BUnionType jsonDecimal = new BUnionType(TypeConstants.JSON_DECIMAL_TNAME, valueModule, members);
+        jsonDecimal.isCyclic = true;
+        MapType internaljsonDecimalMap = new BMapType(TypeConstants.MAP_TNAME, jsonDecimal, valueModule);
+        ArrayType internaljsonDecimalArray = new BArrayType(jsonDecimal);
+        jsonDecimal.addMembers(internaljsonDecimalArray, internaljsonDecimalMap);
+        TYPE_JSON_DECIMAL = jsonDecimal;
+    }
+
+    // public type JsonDecimal ()|boolean|string|decimal|JsonDecimal[]|map<JsonDecimal>;
+    static {
+        ArrayList<Type> members = new ArrayList<>();
+        members.add(TYPE_NULL);
+        members.add(TYPE_BOOLEAN);
+        members.add(TYPE_STRING);
+        members.add(TYPE_DECIMAL);
+        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        BUnionType jsonFloat = new BUnionType(TypeConstants.JSON_FLOAT_TNAME, valueModule, members);
+        jsonFloat.isCyclic = true;
+        MapType internaljsonDecimalMap = new BMapType(TypeConstants.MAP_TNAME, jsonFloat, valueModule);
+        ArrayType internaljsonDecimalArray = new BArrayType(jsonFloat);
+        jsonFloat.addMembers(internaljsonDecimalArray, internaljsonDecimalMap);
+        TYPE_JSON_FLOAT = jsonFloat;
     }
 }
