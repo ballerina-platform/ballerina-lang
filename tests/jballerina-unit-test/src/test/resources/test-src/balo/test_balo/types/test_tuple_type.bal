@@ -88,7 +88,7 @@ function testEmptyTupleWithRestDescOnly() {
 
 function testTupleWithUnionRestDesc() {
     any anyVal = tuples:getTupleWithUnionRestDesc();
-    //assertFalse(anyVal is [int, string...]); // https://github.com/ballerina-platform/ballerina-lang/issues/28320
+    assertFalse(anyVal is [int, string...]);
     assertFalse(anyVal is (int|string|boolean)[4]);
     assertTrue(anyVal is [int, (string|boolean)...]);
     assertTrue(anyVal is (int|string|boolean)[]);

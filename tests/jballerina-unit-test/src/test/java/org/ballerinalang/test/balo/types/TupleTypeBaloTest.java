@@ -65,22 +65,22 @@ public class TupleTypeBaloTest {
                 BCompileUtil.compile("test-src/balo/test_balo/types/test_tuple_type_negative.bal");
 
         int i = 0;
-//        validateError(negativeResult, i++, "incompatible types: expected '[int]', found '[int,string...]'", 18, 15);
+        validateError(negativeResult, i++, "incompatible types: expected '[int]', found '[int,string...]'", 18, 15);
         validateError(negativeResult, i++, "incompatible types: expected '[int,string]', found '[int,string...]'", 19,
                       23);
         validateError(negativeResult, i++, "incompatible types: expected '[int,string,string...]', " +
                 "found '[int,string...]'", 20, 34);
-//        validateError(negativeResult, i++, "incompatible types: expected '[int,boolean...]', found '[int,string...]'",
-//                      21, 27);
+        validateError(negativeResult, i++, "incompatible types: expected '[int,boolean...]', found '[int,string...]'",
+                      21, 27);
 
         validateError(negativeResult, i++, "incompatible types: expected '[string,string...]', found '[string...]'",
                       23, 29);
-//        validateError(negativeResult, i++, "incompatible types: expected '[int...]', found '[string...]'", 24, 18);
-//
-//        validateError(negativeResult, i++, "incompatible types: expected '[int,string...]', found '[int," +
-//                              "(string|boolean)...]'", 26, 26);
-//        validateError(negativeResult, i++, "incompatible types: expected '[int,boolean...]', found '[int," +
-//                              "(string|boolean)...]'", 27, 27);
+        validateError(negativeResult, i++, "incompatible types: expected '[int...]', found '[string...]'", 24, 18);
+
+        validateError(negativeResult, i++, "incompatible types: expected '[int,string...]', found '[int," +
+                "(string|boolean)...]'", 26, 26);
+        validateError(negativeResult, i++, "incompatible types: expected '[int,boolean...]', found '[int," +
+                "(string|boolean)...]'", 27, 27);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

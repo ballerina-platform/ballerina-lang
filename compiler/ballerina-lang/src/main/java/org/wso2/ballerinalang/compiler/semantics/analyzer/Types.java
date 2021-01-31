@@ -2569,6 +2569,13 @@ public class Types {
             if (source.tupleTypes.size() != t.tupleTypes.size()) {
                 return false;
             }
+
+            BType sourceRestType = source.restType;
+            BType targetRestType = t.restType;
+            if ((sourceRestType == null || targetRestType == null) && sourceRestType != targetRestType) {
+                return false;
+            }
+
             for (int i = 0; i < source.tupleTypes.size(); i++) {
                 if (t.getTupleTypes().get(i) == symTable.noType) {
                     continue;
@@ -2577,7 +2584,12 @@ public class Types {
                     return false;
                 }
             }
-            return true;
+
+            if (sourceRestType == null) {
+                return true;
+            }
+
+            return isSameType(sourceRestType, targetRestType, this.unresolvedTypes);
         }
 
         @Override
