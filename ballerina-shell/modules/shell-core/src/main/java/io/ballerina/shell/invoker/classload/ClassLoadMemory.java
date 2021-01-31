@@ -80,11 +80,6 @@ public class ClassLoadMemory {
     // Outputting utility functions
 
     @SuppressWarnings("unused")
-    public static void printerr(Object object) {
-        println("Exception occurred: ", object);
-    }
-
-    @SuppressWarnings("unused")
     public static String sprintf(String string, Object... objects) {
         return String.format(string, objects);
     }
