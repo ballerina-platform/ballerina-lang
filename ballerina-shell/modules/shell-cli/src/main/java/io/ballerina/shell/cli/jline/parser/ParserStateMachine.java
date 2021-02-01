@@ -19,6 +19,7 @@
 package io.ballerina.shell.cli.jline.parser;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -47,7 +48,17 @@ public class ParserStateMachine {
     private static final char DOLLAR = '$';
     private static final char DOUBLE_QUOTES = '\"';
     private static final char NEW_LINE = '\n';
-
+    private static final char SPACE = ' ';
+    private static final char TAB = '\t';
+    // Continuing operator characters are characters than cannot
+    // end a syntactically correct snippet: specifically :@*%+-<=&|^!,
+    // Note that you cannot include,
+    // . because floating point literals can end with a .
+    // > because x is map<int> is a valid expression (also XML filter expressions can end with >)
+    // '?' because x is int? is a valid expression
+    // '/' will be handled by AFTER_FORWARD_SLASH so it cannot be included here
+    private static final Set<Character> CONTINUING_OPERATORS =
+            Set.of(':', '@', '*', '%', '+', '-', '<', '=', '&', '|', '^', '!', ',');
     private static final Map<Character, Character> OPEN_BRACKETS =
             Map.of(CLOSE_CURLY, OPEN_CURLY,
                     CLOSE_PAREN, OPEN_PAREN,
@@ -86,6 +97,9 @@ public class ParserStateMachine {
                 break;
             case IN_COMMENT:
                 inCommentState(character);
+                break;
+            case AFTER_OPERATOR:
+                afterOperatorState(character);
                 break;
         }
 
@@ -136,6 +150,9 @@ public class ParserStateMachine {
             case HASH:
                 state = ParserState.IN_COMMENT;
                 break;
+        }
+        if (CONTINUING_OPERATORS.contains(character)) {
+            state = ParserState.AFTER_OPERATOR;
         }
     }
 
@@ -255,11 +272,35 @@ public class ParserStateMachine {
         }
     }
 
+    /**
+     * Handles state after a operator.
+     * Waits until any character that is not a whitespace is fed.
+     *
+     * @param character Next character to process.
+     */
+    private void afterOperatorState(char character) {
+        assert state == ParserState.AFTER_OPERATOR;
+        if (character == NEW_LINE || character == SPACE || character == TAB) {
+            return;
+        }
+        state = ParserState.NORMAL;
+    }
+
     public ParserState getState() {
         return state;
     }
 
-    public boolean stackHasElements() {
+    public boolean isIncomplete() {
+        if (state == ParserState.ERROR) {
+            // ERROR state is always considered to be complete
+            return false;
+        }
+        if (state == ParserState.AFTER_FORWARD_SLASH
+                || state == ParserState.AFTER_OPERATOR) {
+            // Just after operators is considered to be incomplete
+            return true;
+        }
+        // Otherwise, all brackets/backticks are closed is completion
         return !stack.empty();
     }
 }

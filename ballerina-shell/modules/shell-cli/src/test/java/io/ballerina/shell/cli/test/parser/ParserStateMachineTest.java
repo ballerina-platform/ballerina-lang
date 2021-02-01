@@ -107,6 +107,18 @@ public class ParserStateMachineTest {
         Assert.assertEquals(states[9], ParserState.ERROR);
     }
 
+    @Test
+    public void testOperator() {
+        //                                   0        1         2         3          4         5
+        //                                   12345678901234567890123456789012 34567890123456789012
+        ParserState[] states = states("int i = 1 + 3");
+        Assert.assertEquals(states[0], ParserState.NORMAL);
+        Assert.assertEquals(states[4], ParserState.NORMAL);
+        Assert.assertEquals(states[11], ParserState.AFTER_OPERATOR);
+        Assert.assertEquals(states[12], ParserState.AFTER_OPERATOR);
+        Assert.assertEquals(states[13], ParserState.NORMAL);
+    }
+
     private ParserState[] states(String input) {
         ParserStateMachine stateMachine = new ParserStateMachine();
         ParserState[] states = new ParserState[input.length() + 1];

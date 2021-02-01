@@ -31,6 +31,7 @@ public enum ParserState {
     IN_TEMPLATE, // in template (i.e. following `)
     IN_TEMPLATE_AFTER_DOLLAR, // in template, following $
     AFTER_FORWARD_SLASH, // following /
-    IN_COMMENT, // in comment (either # or // style)
+    IN_COMMENT, // in comment (either # or // style),
+    AFTER_OPERATOR, // following operators
     ERROR
 }

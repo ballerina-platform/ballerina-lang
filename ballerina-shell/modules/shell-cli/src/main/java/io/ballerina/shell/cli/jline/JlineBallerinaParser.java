@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.cli.jline;
 
-import io.ballerina.shell.cli.jline.parser.ParserState;
 import io.ballerina.shell.cli.jline.parser.ParserStateMachine;
 import org.jline.reader.EOFError;
 import org.jline.reader.ParsedLine;
@@ -74,10 +73,7 @@ public class JlineBallerinaParser implements Parser {
             wordCursor = words.get(words.size() - 1).length();
         }
 
-        if (context != ParseContext.COMPLETE
-                && stateMachine.getState() != ParserState.ERROR
-                && stateMachine.stackHasElements()) {
-            // Submitted, No error but stack has elements: Input is incomplete
+        if (context != ParseContext.COMPLETE && stateMachine.isIncomplete()) {
             throw new EOFError(-1, -1, "incomplete line");
         }
         return new JlineParsedLine(line, words, wordIndex, wordCursor, cursor);
