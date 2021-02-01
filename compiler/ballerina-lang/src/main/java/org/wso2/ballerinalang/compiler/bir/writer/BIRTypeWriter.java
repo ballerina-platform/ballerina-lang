@@ -352,14 +352,6 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BObjectType bObjectType) {
-        //This is to say this is an object, this is a temporary fix object - 1, service - 0,
-        // ideal fix would be to use the type tag to
-        // differentiate. TODO fix later
-        if ((bObjectType.flags & Flags.SERVICE) == Flags.SERVICE) {
-            buff.writeByte(1);
-        } else {
-            buff.writeByte(0);
-        }
         writeObjectAndServiceTypes(bObjectType);
         writeTypeIds(bObjectType.typeIdSet);
     }
@@ -367,13 +359,17 @@ public class BIRTypeWriter implements TypeVisitor {
     private void writeObjectAndServiceTypes(BObjectType bObjectType) {
         BTypeSymbol tSymbol = bObjectType.tsymbol;
 
+        boolean isService = (bObjectType.flags & Flags.SERVICE) == Flags.SERVICE;
+        buff.writeBoolean(isService);
+
         // Write the package details in the form of constant pool entry TODO find a better approach
         writePackageIndex(tSymbol);
 
         buff.writeInt(addStringCPEntry(tSymbol.name.value));
         //TODO below two line are a temp solution, introduce a generic concept
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)); // Abstract object or not
-        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT));
+        boolean isClient = Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT);
+        buff.writeBoolean(isClient);
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields.values()) {
             buff.writeInt(addStringCPEntry(field.name.value));
@@ -403,12 +399,53 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeByte(0);
             buff.writeByte(0);
         }
-        buff.writeInt(attachedFuncs.size());
-        for (BAttachedFunction attachedFunc : attachedFuncs) {
+
+//        buff.writeInt(attachedFuncs.size());
+//        for (BAttachedFunction attachedFunc : attachedFuncs) {
+//            writeAttachFunction(attachedFunc);
+//        }
+         writeObjectAttachedFunctions(attachedFuncs, isService, isClient);
+
+        writeTypeInclusions(bObjectType.typeInclusions);
+    }
+
+    private void writeObjectAttachedFunctions(List<BAttachedFunction> funcs, boolean isService, boolean isClient) {
+        List<BAttachedFunction> attachedFunctions = new ArrayList<>();
+        List<BAttachedFunction> remoteFunctions = new ArrayList<>();
+        List<BAttachedFunction> resourceFunctions = new ArrayList<>();
+        for (BAttachedFunction attachedFunc : funcs) {
+            if (Symbols.isRemote(attachedFunc.symbol)) {
+                remoteFunctions.add(attachedFunc);
+            } else if (Symbols.isResource(attachedFunc.symbol)) {
+                resourceFunctions.add(attachedFunc);
+            } else {
+                attachedFunctions.add(attachedFunc);
+            }
+        }
+
+        buff.writeInt(attachedFunctions.size());
+        if (isClient || isService) {
+            buff.writeInt(remoteFunctions.size());
+        }
+        if (isService) {
+            buff.writeInt(resourceFunctions.size());
+        }
+
+        for (BAttachedFunction attachedFunc : attachedFunctions) {
             writeAttachFunction(attachedFunc);
         }
 
-        writeTypeInclusions(bObjectType.typeInclusions);
+        if (isService || isClient) {
+            for (BAttachedFunction attachedFunc : remoteFunctions) {
+                writeAttachFunction(attachedFunc);
+            }
+        }
+
+        if (isService) {
+            for (BAttachedFunction attachedFunc : resourceFunctions) {
+                writeAttachFunction(attachedFunc);
+            }
+        }
     }
 
     private void writeAttachFunction(BAttachedFunction attachedFunc) {

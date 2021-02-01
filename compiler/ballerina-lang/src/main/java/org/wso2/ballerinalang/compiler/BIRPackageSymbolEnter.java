@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -347,6 +348,7 @@ public class BIRPackageSymbolEnter {
         String funcName = getStringCPEntryValue(dataInStream);
         String workerName = getStringCPEntryValue(dataInStream);
         var flags = dataInStream.readLong();
+        boolean isResource = dataInStream.readBoolean();
         byte origin = dataInStream.readByte();
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
@@ -359,6 +361,7 @@ public class BIRPackageSymbolEnter {
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
+        BAttachedFunction attachedFunc = null;
         if (this.currentStructure != null) {
             BType attachedType = this.currentStructure.type;
 
@@ -369,8 +372,10 @@ public class BIRPackageSymbolEnter {
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
                 // todo: Define resource function from BIR
-                BAttachedFunction attachedFunc =
-                        new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
+                attachedFunc = isResource
+                        ? new BResourceFunction(names.fromString(funcName), invokableSymbol, funcType, null, null,
+                        null, null, symTable.builtinPos)
+                        : new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
                                               symTable.builtinPos);
                 BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
                 if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName)
@@ -391,6 +396,20 @@ public class BIRPackageSymbolEnter {
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, dataInStream);
 
+        if (isResource) {
+            BResourceFunction resourceFunction = (BResourceFunction) attachedFunc;
+            String resourceMethodName = getStringCPEntryValue(dataInStream);
+            resourceFunction.accessor = names.fromString(resourceMethodName);
+            int resourcePathCount = dataInStream.readInt();
+            ArrayList<Name> path = new ArrayList<>();
+            for(int i = 0; i < resourcePathCount; i++) {
+                path.add(names.fromString(getStringCPEntryValue(dataInStream)));
+            }
+            resourceFunction.resourcePath = path;
+
+            setPathParams(resourceFunction);
+        }
+
         // set taint table to the function symbol
         readTaintTable(invokableSymbol, dataInStream);
 
@@ -403,6 +422,30 @@ public class BIRPackageSymbolEnter {
         dataInStream.skip(dataInStream.readLong()); // read and skip method body
 
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
+    }
+
+    private void setPathParams(BResourceFunction resourceFunction) {
+        int pathParamCount = 0;
+        int restPathParamIndex = -1;
+        List<Name> resourcePath = resourceFunction.resourcePath;
+        for (int i = 0, resourcePathSize = resourcePath.size(); i < resourcePathSize; i++) {
+            Name name = resourcePath.get(i);
+            if (name.value.equals("*")) {
+                pathParamCount++;
+            } else if (name.value.equals("**")) {
+                restPathParamIndex = i;
+            }
+        }
+        List<BVarSymbol> pathParams = new ArrayList<>();
+        List<BVarSymbol> params = resourceFunction.symbol.params;
+        for(int i = 0; i < pathParamCount; i++) {
+            pathParams.add(params.get(i));
+        }
+        resourceFunction.pathParams = pathParams;
+
+        if (restPathParamIndex > 0) {
+            resourceFunction.restPathParam = params.get(restPathParamIndex);
+        }
     }
 
     private void defineGlobalVarDependencies(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
@@ -1320,14 +1363,16 @@ public class BIRPackageSymbolEnter {
             SymbolEnv pkgEnv;
             int pkgCpIndex;
             PackageID pkgId;
-            boolean service = inputStream.readByte() == 1;
+            boolean isService = inputStream.readBoolean();
 
             pkgCpIndex = inputStream.readInt();
             pkgId = getPackageId(pkgCpIndex);
 
             String objName = getStringCPEntryValue(inputStream);
-            var objFlags = (inputStream.readBoolean() ? Flags.CLASS : 0) | Flags.PUBLIC;
-            objFlags = inputStream.readBoolean() ? objFlags | Flags.CLIENT : objFlags;
+            boolean isClass = inputStream.readBoolean();
+            var objFlags = (isClass ? Flags.CLASS : 0) | Flags.PUBLIC;
+            boolean isClient = inputStream.readBoolean();
+            objFlags = isClient ? objFlags | Flags.CLIENT : objFlags;
             BObjectTypeSymbol objectSymbol;
 
             if (Symbols.isFlagOn(objFlags, Flags.CLASS)) {
@@ -1345,7 +1390,7 @@ public class BIRPackageSymbolEnter {
             // Below is a temporary fix, need to fix this properly by using the type tag
             objectType = new BObjectType(objectSymbol);
 
-            if (service) {
+            if (isService) {
                 objectType.flags |= Flags.SERVICE;
                 objectSymbol.flags |= Flags.SERVICE;
             }
@@ -1383,8 +1428,23 @@ public class BIRPackageSymbolEnter {
             if (constructorPresent) {
                 ignoreAttachedFunc();
             }
-            int funcCount = inputStream.readInt();
-            for (int i = 0; i < funcCount; i++) {
+
+            int methodCount = inputStream.readInt();
+            int remoteMethodCount = 0;
+            if (isService || isClient) {
+                remoteMethodCount = inputStream.readInt();
+            }
+            int resourceMethodCount = 0;
+            if (isService) {
+                resourceMethodCount = inputStream.readInt();
+            }
+            for (int i = 0; i < methodCount; i++) {
+                ignoreAttachedFunc();
+            }
+            for (int i = 0; i < remoteMethodCount; i++) {
+                ignoreAttachedFunc();
+            }
+            for (int i = 0; i < resourceMethodCount; i++) {
                 ignoreAttachedFunc();
             }
 

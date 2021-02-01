@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -196,6 +197,9 @@ public class BIRBinaryWriter {
         buf.writeInt(addStringCPEntry(birFunction.workerName.value));
         // Flags
         buf.writeLong(birFunction.flags);
+
+        boolean isResource = (birFunction.flags & Flags.RESOURCE) == Flags.RESOURCE;
+        buf.writeBoolean(isResource);
         // Origin
         buf.writeByte(birFunction.origin.value());
 
@@ -224,6 +228,15 @@ public class BIRBinaryWriter {
             buf.writeByte(birFunction.receiver.kind.getValue());
             writeType(buf, birFunction.receiver.type);
             buf.writeInt(addStringCPEntry(birFunction.receiver.name.value));
+        }
+
+        if (isResource) {
+            BIRNode.BIRResourceMethod resourceMethod = (BIRNode.BIRResourceMethod) birFunction;
+            buf.writeInt(addStringCPEntry(resourceMethod.methodName.value));
+            buf.writeInt(resourceMethod.resourcePath.size());
+            for(var path: resourceMethod.resourcePath) {
+                buf.writeInt(addStringCPEntry(path.value));
+            }
         }
 
         writeTaintTable(buf, birFunction.taintTable);

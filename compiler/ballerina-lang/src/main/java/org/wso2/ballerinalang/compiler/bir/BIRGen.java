@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRLockDetailsHolder;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRResourceMethod;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.ConstValue;
@@ -64,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -499,12 +501,16 @@ public class BIRGen extends BLangNodeVisitor {
 
         for (BAttachedFunction func : ((BObjectTypeSymbol) classDefinition.symbol).referencedFunctions) {
             BInvokableSymbol funcSymbol = func.symbol;
+            BIRFunction birFunc;
             if (Symbols.isResource(funcSymbol) && Symbols.isFunctionDeclaration(funcSymbol)) {
-                // Service classes are not required to implement reference resource functions.
-                continue;
+                BResourceFunction resourceFunction = (BResourceFunction) func;
+                birFunc = new BIRResourceMethod(classDefinition.pos, func.funcName, resourceFunction.accessor,
+                        resourceFunction.resourcePath, funcSymbol.flags, func.type,
+                        names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable(), funcSymbol.origin.toBIROrigin());
+            } else {
+                birFunc = new BIRFunction(classDefinition.pos, func.funcName, funcSymbol.flags, func.type,
+                        names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable(), funcSymbol.origin.toBIROrigin());
             }
-            BIRFunction birFunc = new BIRFunction(classDefinition.pos, func.funcName, funcSymbol.flags, func.type,
-                    names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable(), funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
                 birFunc.receiver = getSelf(funcSymbol.receiverSymbol);
@@ -577,6 +583,8 @@ public class BIRGen extends BLangNodeVisitor {
         boolean isTypeAttachedFunction = astFunc.flagSet.contains(Flag.ATTACHED) &&
                 !typeDefs.containsKey(astFunc.receiver.type.tsymbol);
 
+        boolean isResourceFunction = astFunc.flagSet.contains(Flag.RESOURCE);
+
         Name workerName = names.fromIdNode(astFunc.defaultWorkerName);
 
         this.env.unlockVars.push(new BIRLockDetailsHolder());
@@ -584,7 +592,14 @@ public class BIRGen extends BLangNodeVisitor {
 
         TaintTable taintTable = populateTaintTable(astFunc.symbol.taintTable);
 
-        if (isTypeAttachedFunction) {
+        if (isResourceFunction) {
+            Name funcName = names.fromString(astFunc.name.value);
+            BLangResourceFunction resourceFunction = (BLangResourceFunction) astFunc;
+            birFunc = new BIRResourceMethod(astFunc.pos, funcName, names.fromIdNode(resourceFunction.methodName),
+                    resourceFunction.resourcePath.stream().map(p -> names.fromIdNode(p)).collect(Collectors.toList()),
+                    astFunc.symbol.flags, type, workerName,
+                    astFunc.sendsToThis.size(), taintTable, astFunc.symbol.origin.toBIROrigin());
+        } else if (isTypeAttachedFunction) {
             Name funcName = names.fromString(astFunc.symbol.name.value);
             birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, workerName,
                                       astFunc.sendsToThis.size(), taintTable, astFunc.symbol.origin.toBIROrigin());

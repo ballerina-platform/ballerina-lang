@@ -263,7 +263,7 @@ types:
         repeat-expr: remote_methods_count
         if: is_client == 1 or is_service == 1
       - id: resource_methods
-        type: resource_method
+        type: method
         repeat: expr
         repeat-expr: resource_methods_count
         if: is_service == 1
@@ -291,28 +291,6 @@ types:
         type: s4
       - id: flags
         type: s8
-      - id: type_cp_index
-        type: s4
-  resource_method:
-    seq:
-      - id: method_name_cp_index
-        type: s4
-      - id: path_count
-        type: s4
-      - id: path_segments_cp_index
-        type: s4
-        repeat: expr
-        repeat-expr: path_count
-      - id: param_count
-        type: s4
-      - id: name_cp_index
-        type: s4
-        repeat: expr
-        repeat-expr: param_count
-      - id: param_defaultability
-        type: u1
-        repeat: expr
-        repeat-expr: param_count
       - id: type_cp_index
         type: s4
   type_union:
@@ -666,6 +644,8 @@ types:
         type: s4
       - id: flags
         type: s8
+      - id: is_resource
+        type: u1
       - id: origin
         type: s1
       - id: type_cp_index
@@ -688,6 +668,17 @@ types:
       - id: reciever
         type: reciever
         if: has_receiver != 0
+      - id: method_name_cp_index
+        type: s4
+        if : is_resource == 1
+      - id: path_count
+        type: s4
+        if : is_resource == 1
+      - id: path_segments_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: path_count
+        if : is_resource == 1
       - id: taint_table_length
         type: s8
       - id: taint_table

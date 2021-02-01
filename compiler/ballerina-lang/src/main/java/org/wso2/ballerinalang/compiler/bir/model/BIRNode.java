@@ -397,6 +397,38 @@ public abstract class BIRNode {
         }
     }
 
+    public static class BIRResourceMethod extends BIRFunction {
+        public Name methodName;
+        public List<Name> resourcePath;
+
+        public BIRResourceMethod(Location pos, Name name, long flags, SymbolOrigin origin, BInvokableType type,
+                                 List<BIRParameter> requiredParams, BIRVariableDcl receiver, BIRParameter restParam,
+                                 int argsCount, List<BIRVariableDcl> localVars, BIRVariableDcl returnVariable,
+                                 Map<BIRFunctionParameter, List<BIRBasicBlock>> parameters,
+                                 List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTable,
+                                 Name workerName, ChannelDetails[] workerChannels, TaintTable taintTable,
+                                 List<BIRAnnotationAttachment> annotAttachments,
+                                 Set<BIRGlobalVariableDcl> dependentGlobalVars) {
+            super(pos, name, flags, origin, type, requiredParams, receiver, restParam, argsCount, localVars,
+                    returnVariable, parameters, basicBlocks, errorTable, workerName, workerChannels, taintTable,
+                    annotAttachments, dependentGlobalVars);
+        }
+
+        public BIRResourceMethod(Location pos, Name name, Name methodName, List<Name> resourcePath, long flags,
+                                 BInvokableType type, Name workerName, int sendInsCount, TaintTable taintTable,
+                                 SymbolOrigin origin) {
+            super(pos, name, flags, type, workerName, sendInsCount, taintTable, origin);
+            this.methodName = methodName;
+            this.resourcePath = resourcePath;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+    }
+
     /**
      * A basic block definition.
      *
