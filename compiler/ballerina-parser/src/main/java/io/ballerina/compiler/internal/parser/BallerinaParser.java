@@ -2013,13 +2013,9 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 STToken token = peek();
-                Solution solution;
-                if (prevParamKind == SyntaxKind.DEFAULTABLE_PARAM) {
-                    solution = recover(token, ParserRuleContext.PARAMETER_START_WITHOUT_ASTERISK,
-                                       prevParamKind, isParamNameOptional);
-                } else {
-                    solution = recover(token, ParserRuleContext.PARAMETER_START, prevParamKind, isParamNameOptional);
-                }
+                Solution solution =
+                        recover(token, ParserRuleContext.PARAMETER_START, prevParamKind, isParamNameOptional);
+
                 if (solution.action == Action.KEEP) {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
                     // at the correct place, but some token after that is not.

@@ -312,9 +312,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] PARAMETER_START =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.PARAMETER_START_WITHOUT_ANNOTATION };
 
-    private static final ParserRuleContext[] PARAMETER_START_WITHOUT_ASTERISK =
-            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.TYPE_DESC_IN_PARAM };
-
     private static final ParserRuleContext[] PARAMETER_START_WITHOUT_ANNOTATION =
             { ParserRuleContext.TYPE_DESC_IN_PARAM, ParserRuleContext.ASTERISK };
 
@@ -793,7 +790,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SPECIFIC_FIELD_RHS:
             case PARAMETER_START:
             case PARAMETER_START_WITHOUT_ANNOTATION:
-            case PARAMETER_START_WITHOUT_ASTERISK:
             case STMT_START_WITH_EXPR_RHS:
             case EXPR_STMT_RHS:
             case RECORD_FIELD_OR_RECORD_END:
@@ -1418,7 +1414,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARRAY_LENGTH:
             case PARAMETER_START:
             case PARAMETER_START_WITHOUT_ANNOTATION:
-            case PARAMETER_START_WITHOUT_ASTERISK:
             case STMT_START_WITH_EXPR_RHS:
             case EXPR_STMT_RHS:
             case EXPRESSION_STATEMENT_START:
@@ -1735,9 +1730,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case PARAMETER_START_WITHOUT_ANNOTATION:
                 alternativeRules = PARAMETER_START_WITHOUT_ANNOTATION;
-                break;
-            case PARAMETER_START_WITHOUT_ASTERISK:
-                alternativeRules = PARAMETER_START_WITHOUT_ASTERISK;
                 break;
             case ANNOT_DECL_OPTIONAL_TYPE:
                 alternativeRules = ANNOT_DECL_OPTIONAL_TYPE;
@@ -3995,6 +3987,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_SERVICE:
             case TYPE_DESC_IN_PATH_PARAM:
             case STMT_START_BRACKETED_LIST:
+            case DEFAULTABLE_PARAM:
             case BRACKETED_LIST:
             case TYPE_REFERENCE_IN_TYPE_INCLUSION:
                 return true;
