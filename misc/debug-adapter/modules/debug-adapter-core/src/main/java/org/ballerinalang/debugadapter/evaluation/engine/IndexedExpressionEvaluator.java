@@ -99,14 +99,13 @@ public class IndexedExpressionEvaluator extends Evaluator {
                                         keyVar.getBType() + "'"));
                     }
                     int index = Integer.parseInt(keyVar.getDapVariable().getValue());
-                    int childSize = ((BCompoundVariable) containerVar).getChildVariables().size();
+                    int childSize = ((BCompoundVariable) containerVar).getChildVariables().getRight().size();
                     // Validates for IndexOutOfRange errors.
                     if (index < 0 || index >= childSize) {
                         throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                                 "String index out of range: index=" + index + ", size=" + childSize));
                     }
-                    String indexAsKey = String.format("[%d]", index);
-                    Value child = ((BCompoundVariable) containerVar).getChildByName(indexAsKey);
+                    Value child = ((BCompoundVariable) containerVar).getChildByIndex(index);
                     return new BExpressionValue(context, child);
                 }
                 // Index access of mappings (map, json)

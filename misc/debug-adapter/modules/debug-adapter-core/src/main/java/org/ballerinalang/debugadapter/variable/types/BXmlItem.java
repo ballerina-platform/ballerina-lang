@@ -20,9 +20,11 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -52,16 +54,16 @@ public class BXmlItem extends BCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeChildVariables() {
+    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
         Map<String, Value> childMap = new HashMap<>();
         try {
             Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
             Optional<Value> attributes = getFieldValue(jvmValue, FIELD_ATTRIBUTES);
             children.ifPresent(value -> childMap.put(FIELD_CHILDREN, value));
             attributes.ifPresent(value -> childMap.put(FIELD_ATTRIBUTES, value));
-            return childMap;
+            return Either.forLeft(childMap);
         } catch (Exception e) {
-            return childMap;
+            return Either.forLeft(childMap);
         }
     }
 

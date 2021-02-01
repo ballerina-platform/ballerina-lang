@@ -25,15 +25,14 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
@@ -58,10 +57,10 @@ public class BTuple extends BCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeChildVariables() {
+    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return new HashMap<>();
+                return Either.forRight(new ArrayList<>());
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Field valueField = jvmValueRef.referenceType().fieldByName("refValues");
@@ -69,15 +68,9 @@ public class BTuple extends BCompoundVariable {
 
             // List length is 100 by default. Create a sub list with actual array size.
             List<Value> valueSubList = valueList.subList(0, getTupleSize(jvmValueRef));
-            Map<String, Value> values = new TreeMap<>();
-            AtomicInteger nextVarIndex = new AtomicInteger(0);
-            valueSubList.forEach(item -> {
-                int varIndex = nextVarIndex.getAndIncrement();
-                values.put("[" + varIndex + "]", valueSubList.get(varIndex));
-            });
-            return values;
+            return Either.forRight(valueSubList);
         } catch (Exception ignored) {
-            return new HashMap<>();
+            return Either.forRight(new ArrayList<>());
         }
     }
 

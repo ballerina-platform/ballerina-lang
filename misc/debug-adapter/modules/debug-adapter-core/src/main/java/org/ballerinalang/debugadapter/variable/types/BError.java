@@ -21,9 +21,11 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -55,7 +57,7 @@ public class BError extends BCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeChildVariables() {
+    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
         try {
             Map<String, Value> childVarMap = new TreeMap<>();
             // Fetches message, cause and details of the error.
@@ -66,9 +68,9 @@ public class BError extends BCompoundVariable {
             message.ifPresent(value -> childVarMap.put(FIELD_MESSAGE, value));
             cause.ifPresent(value -> childVarMap.put(FIELD_CAUSE, value));
             details.ifPresent(value -> childVarMap.put(FIELD_DETAILS, value));
-            return childVarMap;
+            return Either.forLeft(childVarMap);
         } catch (Exception ignored) {
-            return new HashMap<>();
+            return Either.forLeft(new HashMap<>());
         }
     }
 

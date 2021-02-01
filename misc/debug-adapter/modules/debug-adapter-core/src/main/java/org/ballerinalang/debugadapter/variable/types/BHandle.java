@@ -22,9 +22,11 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -56,20 +58,20 @@ public class BHandle extends BCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeChildVariables() {
+    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
         try {
             Map<String, Value> childVarMap = new TreeMap<>();
             Optional<Value> value = VariableUtils.getFieldValue(jvmValue, FIELD_VALUE);
             value.ifPresent(val -> childVarMap.put(FIELD_VALUE, val));
-            return childVarMap;
+            return Either.forLeft(childVarMap);
         } catch (Exception ignored) {
-            return new HashMap<>();
+            return Either.forLeft(new HashMap<>());
         }
     }
 
     @Override
     protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
         // maximum children size will be 1 (value).
-        return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 3);
+        return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 1);
     }
 }

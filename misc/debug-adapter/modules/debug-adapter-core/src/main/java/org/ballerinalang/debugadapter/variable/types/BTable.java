@@ -25,17 +25,14 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
-import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_TYPE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_TYPENAME;
@@ -73,30 +70,22 @@ public class BTable extends BCompoundVariable {
     }
 
     @Override
-    protected Map<String, Value> computeChildVariables() {
+    protected Either<Map<String, Value>, List<Value>> computeChildVariables() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return new HashMap<>();
+                return Either.forRight(new ArrayList<>());
             }
             Value[] tableKeys = getTableKeys();
             List<Value> tableEntries = getTableEntriesFor(tableKeys);
 
-            Map<String, Value> values = new TreeMap<>();
-            AtomicInteger nextVarIndex = new AtomicInteger(0);
-            tableEntries.forEach(item -> {
-                int varIndex = nextVarIndex.getAndIncrement();
-                String keyStr = VariableFactory.getVariable(context, tableKeys[varIndex]).getDapVariable().getValue();
-                values.put("[" + keyStr + "]", item);
-            });
-
             // If the size of the table exceeds the allowed child variable limit, appends a notification (which is
             // wrapped inside a dummy variable) to the list of child variables, to inform the user.
             if (getTableSize() > CHILD_VAR_LIMIT) {
-                addTailChildVariable(values);
+                addTailChildVariable(tableEntries);
             }
-            return values;
+            return Either.forRight(tableEntries);
         } catch (Exception ignored) {
-            return new HashMap<>();
+            return Either.forRight(new ArrayList<>());
         }
     }
 
@@ -202,8 +191,8 @@ public class BTable extends BCompoundVariable {
      *
      * @param values the list of child variables.
      */
-    private void addTailChildVariable(Map<String, Value> values) {
-        values.put("[...]", context.getAttachedVm().mirrorOf(String.format("Showing first %d elements out of %d " +
+    private void addTailChildVariable(List<Value> values) {
+        values.add(context.getAttachedVm().mirrorOf(String.format("Showing first %d elements out of %d " +
                 "total entries", CHILD_VAR_LIMIT, getTableSize())));
     }
 }

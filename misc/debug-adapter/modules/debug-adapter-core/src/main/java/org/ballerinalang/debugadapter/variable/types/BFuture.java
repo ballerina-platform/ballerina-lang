@@ -23,9 +23,11 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -50,7 +52,7 @@ public class BFuture extends BCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeChildVariables() {
+    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
         Map<String, Value> childVarMap = new TreeMap<>();
         try {
             Optional<Value> isDone = VariableUtils.getFieldValue(jvmValue, FIELD_IS_DONE);
@@ -69,9 +71,9 @@ public class BFuture extends BCompoundVariable {
                     childVarMap.put(FIELD_PANIC, stringValue);
                 }
             }
-            return childVarMap;
+            return Either.forLeft(childVarMap);
         } catch (Exception ignored) {
-            return childVarMap;
+            return Either.forLeft(childVarMap);
         }
     }
 

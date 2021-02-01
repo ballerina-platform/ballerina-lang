@@ -22,6 +22,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -48,12 +49,12 @@ public class BJson extends BCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeChildVariables() {
+    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
         Map<String, Value> childMap = new HashMap<>();
         try {
             Optional<Value> jsonValues = VariableUtils.getFieldValue(jvmValue, FIELD_JSON_DATA);
             if (jsonValues.isEmpty()) {
-                return childMap;
+                return Either.forLeft(childMap);
             }
             for (Value jsonMap : ((ArrayReference) jsonValues.get()).getValues()) {
                 if (jsonMap != null) {
@@ -64,9 +65,9 @@ public class BJson extends BCompoundVariable {
                     }
                 }
             }
-            return childMap;
+            return Either.forLeft(childMap);
         } catch (Exception ignored) {
-            return childMap;
+            return Either.forLeft(childMap);
         }
     }
 

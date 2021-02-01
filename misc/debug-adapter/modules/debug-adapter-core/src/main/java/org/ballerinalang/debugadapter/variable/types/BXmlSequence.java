@@ -22,13 +22,13 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
@@ -56,27 +56,21 @@ public class BXmlSequence extends BCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeChildVariables() {
-        Map<String, Value> childMap = new HashMap<>();
+    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
+        List<Value> childValues = new ArrayList<>();
         try {
             Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
             if (children.isEmpty()) {
-                return childMap;
+                return Either.forRight(childValues);
             }
             Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), FIELD_ELEMENT_DATA);
             if (childArray.isEmpty()) {
-                return childMap;
+                return Either.forRight(childValues);
             }
-            List<Value> childrenValues = ((ArrayReference) childArray.get()).getValues();
-            AtomicInteger index = new AtomicInteger();
-            childrenValues.forEach(ref -> {
-                if (ref != null) {
-                    childMap.put(Integer.toString(index.getAndIncrement()), ref);
-                }
-            });
-            return childMap;
+            childValues = ((ArrayReference) childArray.get()).getValues();
+            return Either.forRight(childValues);
         } catch (Exception e) {
-            return childMap;
+            return Either.forRight(childValues);
         }
     }
 

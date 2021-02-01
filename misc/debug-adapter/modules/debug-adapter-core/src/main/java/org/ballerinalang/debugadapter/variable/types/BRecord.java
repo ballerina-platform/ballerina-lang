@@ -23,9 +23,11 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
@@ -51,10 +53,10 @@ public class BRecord extends BCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeChildVariables() {
+    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return new HashMap<>();
+                return Either.forLeft(new HashMap<>());
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
@@ -64,9 +66,9 @@ public class BRecord extends BCompoundVariable {
                     recordFields.put(field.name(), value);
                 }
             });
-            return recordFields;
+            return Either.forLeft(recordFields);
         } catch (Exception ignored) {
-            return new HashMap<>();
+            return Either.forLeft(new HashMap<>());
         }
     }
 
