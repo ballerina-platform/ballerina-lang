@@ -219,7 +219,7 @@ public class KeyValueTest {
     @Test
     public void testDottedKey() throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("syntax/key-value/new-api.toml");
+                .getResourceAsStream("syntax/key-value/dotted.toml");
         Toml read = Toml.read(inputStream);
 
         Optional<TomlValueNode> noneExistKey = read.get("none");
@@ -249,5 +249,34 @@ public class KeyValueTest {
         List<Toml> envList = read.getTables("cloud.config.envs");
         Assert.assertEquals(envList.size(), 2);
 
+        TomlStringValueNode appleType = (TomlStringValueNode) read.get("apple.type").get();
+        Assert.assertEquals(appleType.getValue(), "fruit");
+
+        TomlStringValueNode orangeType = (TomlStringValueNode) read.get("orange.type").get();
+        Assert.assertEquals(orangeType.getValue(), "fruit");
+
+        TomlStringValueNode appleSkin = (TomlStringValueNode) read.get("apple.skin").get();
+        Assert.assertEquals(appleSkin.getValue(), "thin");
+
+        TomlStringValueNode orangeSkin = (TomlStringValueNode) read.get("orange.skin").get();
+        Assert.assertEquals(orangeSkin.getValue(), "thick");
+
+        TomlStringValueNode appleColor = (TomlStringValueNode) read.get("apple.color").get();
+        Assert.assertEquals(appleColor.getValue(), "red");
+
+        TomlStringValueNode orangeColor = (TomlStringValueNode) read.get("orange.color").get();
+        Assert.assertEquals(orangeColor.getValue(), "orange");
+
+        TomlStringValueNode nestedDottedKey = (TomlStringValueNode) read.get("root.first.second").get();
+        Assert.assertEquals(nestedDottedKey.getValue(), "value");
+
+        TomlStringValueNode nestedDottedKey1 = (TomlStringValueNode) read.get("root.first.third").get();
+        Assert.assertEquals(nestedDottedKey1.getValue(), "value1");
+
+        TomlStringValueNode mixedDotted = (TomlStringValueNode) read.get("foo.bar").get();
+        Assert.assertEquals(mixedDotted.getValue(), "test");
+
+        TomlStringValueNode mixedTable = (TomlStringValueNode) read.get("foo.fee").get();
+        Assert.assertEquals(mixedTable.getValue(), "wew");
     }
 }

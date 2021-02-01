@@ -86,7 +86,7 @@ public class Toml {
     /**
      * Read TOML File using Path and validate it against a json schema.
      *
-     * @param path   Path of the TOML file
+     * @param path Path of the TOML file
      * @param schema json schema to validate the toml against
      * @return TOML Object
      * @throws IOException if file is not accessible
@@ -114,7 +114,7 @@ public class Toml {
      * Read TOML File using InputStream and validate against a json schema.
      *
      * @param inputStream InputStream of the TOML file
-     * @param schema      json schema to validate the toml against
+     * @param schema json schema to validate the toml against
      * @return TOML Object
      * @throws IOException if file is not accessible
      */
@@ -125,13 +125,13 @@ public class Toml {
     /**
      * Parse TOML file using TOML String.
      *
-     * @param content  String representation of the TOML file content.
-     * @param filePath path of the TOML file
+     * @param content String representation of the TOML file content.
+     * @param fileName file name of the TOML file
      * @return TOML Object
      */
-    public static Toml read(String content, String filePath) {
+    public static Toml read(String content, String fileName) {
         TextDocument textDocument = TextDocuments.from(content);
-        SyntaxTree syntaxTree = SyntaxTree.from(textDocument, filePath);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument, fileName);
         TomlTransformer nodeTransformer = new TomlTransformer();
         TomlTableNode
                 transformedTable = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
@@ -142,14 +142,14 @@ public class Toml {
     /**
      * Parse TOML file using TOML String and validate against a json schema.
      *
-     * @param content  String representation of the TOML file content.
-     * @param schema   json schema to validate the toml against
-     * @param filePath path of the TOML file
+     * @param content String representation of the TOML file content.
+     * @param schema json schema to validate the toml against
+     * @param fileName file name of the TOML file
      * @return TOML Object
      */
-    public static Toml read(String content, String filePath, Schema schema) {
+    public static Toml read(String content, String fileName, Schema schema) {
         TextDocument textDocument = TextDocuments.from(content);
-        SyntaxTree syntaxTree = SyntaxTree.from(textDocument, filePath);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument, fileName);
         TomlTransformer nodeTransformer = new TomlTransformer();
         TomlTableNode
                 transformedTable = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
@@ -177,7 +177,7 @@ public class Toml {
      * Get value from a key of a Key Value pair.
      *
      * @param dottedKey key name
-     * @param <T>       Type of the AST Value Node
+     * @param <T> Type of the AST Value Node
      * @return AST Value Node
      */
     public <T extends TomlValueNode> Optional<T> get(String dottedKey) {
