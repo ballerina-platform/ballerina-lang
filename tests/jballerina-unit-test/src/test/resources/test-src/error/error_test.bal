@@ -371,6 +371,24 @@ function testUnionErrorTypeDescriptionInferring() {
     assertEquality(err.detail().toString(), e.detail().toString());
 }
 
+type SampleErrorData record {
+    string message?;
+    error cause?;
+    string info;
+    boolean fatal;
+};
+
+type SampleError error<SampleErrorData>;
+
+function testErrorBindingPattern() {
+    SampleError error(info=info,fatal=fatal) = error SampleError("Sample Error", info = "Detail Info",
+    fatal = true);
+    error error(data=transactionData) = error("TransactionError", data={"A":"a", "B":"b"});
+    assertEquality(info, "Detail Info");
+    assertEquality(fatal, true);
+    assertEquality(transactionData.toString(), "{\"A\":\"a\",\"B\":\"b\"}");
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {

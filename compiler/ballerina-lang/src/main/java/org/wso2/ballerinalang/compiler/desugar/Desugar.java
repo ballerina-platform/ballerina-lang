@@ -1638,15 +1638,17 @@ public class Desugar extends BLangNodeVisitor {
             convertedErrorVarSymbol = errorVariableSymbol;
         }
 
-        parentErrorVariable.message.expr = generateErrorMessageBuiltinFunction(parentErrorVariable.message.pos,
-                parentErrorVariable.message.type, convertedErrorVarSymbol, null);
+        if (parentErrorVariable.message != null) {
+            parentErrorVariable.message.expr = generateErrorMessageBuiltinFunction(parentErrorVariable.message.pos,
+                    parentErrorVariable.message.type, convertedErrorVarSymbol, null);
 
-        if (names.fromIdNode((parentErrorVariable.message).name) == Names.IGNORE) {
-            parentErrorVariable.message = null;
-        } else {
-            BLangSimpleVariableDef reasonVariableDef =
-                    ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.message.pos, parentBlockStmt);
-            reasonVariableDef.var = parentErrorVariable.message;
+            if (names.fromIdNode((parentErrorVariable.message).name) == Names.IGNORE) {
+                parentErrorVariable.message = null;
+            } else {
+                BLangSimpleVariableDef reasonVariableDef =
+                        ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.message.pos, parentBlockStmt);
+                reasonVariableDef.var = parentErrorVariable.message;
+            }
         }
 
         if (parentErrorVariable.cause != null) {

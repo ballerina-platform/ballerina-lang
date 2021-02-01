@@ -128,18 +128,3 @@ function testErrorTypeInfer() {
     error<*> e1 = "hello";
     error<*> e2 = { a: "abc"};
 }
-
-type SampleErrorData record {
-    string message?;
-    error cause?;
-    string info;
-    boolean fatal;
-};
-
-type SampleError error<SampleErrorData>;
-
-function testErrorBindingPattern() {
-    SampleError error(info=info,fatal=fatal) = error SampleError("Sample Error", info = "Detail Info",
-    fatal = true);
-    error error(data=data) = error("TransactionError", data={"A":"a", "B":"b"});
-}

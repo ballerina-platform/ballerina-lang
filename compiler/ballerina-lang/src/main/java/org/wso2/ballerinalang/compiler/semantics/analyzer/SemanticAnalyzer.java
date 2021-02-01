@@ -1576,12 +1576,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         errorVariable.type = errorType;
 
         if (!errorVariable.isInMatchStmt) {
-            if (errorVariable.message == null) {
-                dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN, errorVariable.type);
-                return false;
+            if (errorVariable.message != null) {
+                errorVariable.message.type = symTable.stringType;
+                errorVariable.message.accept(this);
             }
-            errorVariable.message.type = symTable.stringType;
-            errorVariable.message.accept(this);
 
             if (errorVariable.cause != null) {
                 errorVariable.cause.type = symTable.errorOrNilType;
@@ -1613,8 +1611,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateErrorVariable(BLangErrorVariable errorVariable, BErrorType errorType) {
-        errorVariable.message.type = symTable.stringType;
-        errorVariable.message.accept(this);
+        if (errorVariable.message != null) {
+            errorVariable.message.type = symTable.stringType;
+            errorVariable.message.accept(this);
+        }
 
         BRecordType recordType = getDetailAsARecordType(errorType);
         LinkedHashMap<String, BField> detailFields = recordType.fields;
