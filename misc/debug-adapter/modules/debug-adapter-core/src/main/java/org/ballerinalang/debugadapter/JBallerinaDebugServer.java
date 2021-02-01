@@ -548,7 +548,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             long variableReference = nextVarReference.getAndIncrement();
             stackFramesMap.put(variableReference, stackFrame);
 
-            if (!isBalStackFrame(stackFrame)) {
+            if (!isBalStackFrame(stackFrame.getStackFrame())) {
                 return null;
             }
 
@@ -713,19 +713,19 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (context.getDebuggee() == null) {
             return null;
         }
-        Collection<ThreadReferenceProxyImpl> threadReferences = context.getDebuggee().allThreads();
+        Collection<ThreadReference> threadReferences = context.getDebuggee().getVirtualMachine().allThreads();
         Map<Long, ThreadReferenceProxyImpl> breakPointThreads = new HashMap<>();
 
         // Filter thread references which are at breakpoint, suspended and whose thread status is running.
-        for (ThreadReferenceProxyImpl threadReference : threadReferences) {
+        for (ThreadReference threadReference : threadReferences) {
             if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
                     && !threadReference.name().equals("Reference Handler")
                     && !threadReference.name().equals("Signal Dispatcher")
                     && threadReference.isSuspended()
-                // Todo - enable
-                // && isBalStrand(threadReference)
+                    && isBalStrand(threadReference)
             ) {
-                breakPointThreads.put(threadReference.uniqueID(), threadReference);
+                breakPointThreads.put(threadReference.uniqueID(), new ThreadReferenceProxyImpl(context.getDebuggee(),
+                        threadReference));
             }
         }
         return breakPointThreads;
@@ -733,11 +733,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     /**
      * Validates whether the given DAP thread reference represents a ballerina strand.
+     * <p>
      *
      * @param threadReference DAP thread reference
      * @return true if the given DAP thread reference represents a ballerina strand.
      */
-    private static boolean isBalStrand(ThreadReferenceProxyImpl threadReference) {
+    private static boolean isBalStrand(ThreadReference threadReference) {
+        // Todo - Refactor to use thread proxy implementation
         try {
             return isBalStackFrame(threadReference.frames().get(0));
         } catch (Exception e) {
@@ -751,7 +753,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * @param frame DAP stack frame
      * @return true if the given DAP stack frame represents a ballerina call stack frame.
      */
-    private static boolean isBalStackFrame(StackFrameProxyImpl frame) {
+    private static boolean isBalStackFrame(com.sun.jdi.StackFrame frame) {
+        // Todo - Refactor to use stack frame proxy implementation
         try {
             return frame.location().sourceName().endsWith(BAL_FILE_EXT);
         } catch (Exception e) {
