@@ -119,6 +119,20 @@ public class ParserStateMachineTest {
         Assert.assertEquals(states[13], ParserState.NORMAL);
     }
 
+    @Test
+    public void testCompletion() {
+        Assert.assertTrue(isIncomplete(" int i = 12 + \n"));
+        Assert.assertTrue(isIncomplete("{ \n"));
+        Assert.assertTrue(isIncomplete("{ \n {} "));
+        Assert.assertTrue(isIncomplete("` Hello \n ${ hi\n"));
+        Assert.assertTrue(isIncomplete("` Hello \n ${ hi\n } \n"));
+        Assert.assertFalse(isIncomplete("` Hello \n ${ hi\n } \n`"));
+        Assert.assertFalse(isIncomplete("// { \n"));
+        Assert.assertFalse(isIncomplete("{ }"));
+        Assert.assertFalse(isIncomplete("# dsds {"));
+        Assert.assertFalse(isIncomplete("{ ( } "));
+    }
+
     private ParserState[] states(String input) {
         ParserStateMachine stateMachine = new ParserStateMachine();
         ParserState[] states = new ParserState[input.length() + 1];
@@ -128,5 +142,13 @@ public class ParserStateMachineTest {
             states[i + 1] = stateMachine.getState();
         }
         return states;
+    }
+
+    private boolean isIncomplete(String input) {
+        ParserStateMachine stateMachine = new ParserStateMachine();
+        for (int i = 0; i < input.length(); i++) {
+            stateMachine.feed(input.charAt(i));
+        }
+        return stateMachine.isIncomplete();
     }
 }
