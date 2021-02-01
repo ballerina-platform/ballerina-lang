@@ -109,8 +109,8 @@ public class ParserStateMachineTest {
 
     @Test
     public void testOperator() {
-        //                                   0        1         2         3          4         5
-        //                                   12345678901234567890123456789012 34567890123456789012
+        //                                   0        1   
+        //                                   1234567890123
         ParserState[] states = states("int i = 1 + 3");
         Assert.assertEquals(states[0], ParserState.NORMAL);
         Assert.assertEquals(states[4], ParserState.NORMAL);
