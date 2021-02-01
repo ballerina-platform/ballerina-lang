@@ -367,7 +367,7 @@ function testTupleRemoveAll() returns [int, string] {
     return t;
 }
 
-function testTupleRemoveAllForTupleWithRestMemberType() returns [int, string] {
+function testTupleRemoveAllForTupleWithRestMemberType() returns [int, string, boolean...] {
     [int, string, boolean...] t = [1, "hello", true];
     t.removeAll();
     return t;
