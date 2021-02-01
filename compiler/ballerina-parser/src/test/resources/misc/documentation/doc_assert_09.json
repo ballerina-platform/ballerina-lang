@@ -95,6 +95,12 @@
                                           "kind": "WHITESPACE_MINUTIAE",
                                           "value": "    "
                                         }
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
                                       ]
                                     },
                                     {
@@ -102,7 +108,7 @@
                                       "children": [
                                         {
                                           "kind": "DOCUMENTATION_DESCRIPTION",
-                                          "value": " This is a function",
+                                          "value": "This is a function",
                                           "trailingMinutiae": [
                                             {
                                               "kind": "END_OF_LINE_MINUTIAE",
@@ -233,6 +239,12 @@
                                           "kind": "WHITESPACE_MINUTIAE",
                                           "value": "    "
                                         }
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
                                       ]
                                     },
                                     {
@@ -240,7 +252,7 @@
                                       "children": [
                                         {
                                           "kind": "DOCUMENTATION_DESCRIPTION",
-                                          "value": " This is a remote function",
+                                          "value": "This is a remote function",
                                           "trailingMinutiae": [
                                             {
                                               "kind": "END_OF_LINE_MINUTIAE",
@@ -381,6 +393,12 @@
                                           "kind": "WHITESPACE_MINUTIAE",
                                           "value": "    "
                                         }
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
                                       ]
                                     },
                                     {
@@ -388,7 +406,7 @@
                                       "children": [
                                         {
                                           "kind": "DOCUMENTATION_DESCRIPTION",
-                                          "value": " This is a resource accessor definition",
+                                          "value": "This is a resource accessor definition",
                                           "trailingMinutiae": [
                                             {
                                               "kind": "END_OF_LINE_MINUTIAE",

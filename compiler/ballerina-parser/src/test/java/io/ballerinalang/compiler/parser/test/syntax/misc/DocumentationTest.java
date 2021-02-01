@@ -75,17 +75,17 @@ public class DocumentationTest extends AbstractMiscTest {
     }
 
     @Test
-    public void testTippleBacktickDocumentation() {
+    public void testTippleBacktickCodeRef() {
         testFile("documentation/doc_source_10.bal", "documentation/doc_assert_10.json");
     }
 
     @Test
-    public void testDoubleBacktickDocumentation() {
+    public void testDoubleBacktickCodeRef() {
         testFile("documentation/doc_source_11.bal", "documentation/doc_assert_11.json");
     }
 
     @Test
-    public void testDocReferenceWithSpecialKeywords() {
+    public void testBalNameRefWithSpecialKey() {
         testFile("documentation/doc_source_14.bal", "documentation/doc_assert_14.json");
     }
 
@@ -95,12 +95,12 @@ public class DocumentationTest extends AbstractMiscTest {
     }
 
     @Test
-    public void testSingleBacktickContentInDocumentation() {
+    public void testSingleBacktickReference() {
         testFile("documentation/doc_source_16.bal", "documentation/doc_assert_16.json");
     }
 
     @Test
-    public void testBacktickContentForFunctionKeyword() {
+    public void testBacktickReferenceWithFunctionKey() {
         testFile("documentation/doc_source_17.bal", "documentation/doc_assert_17.json");
     }
 
