@@ -1279,86 +1279,7 @@ public class BIRPackageSymbolEnter {
                     }
                     return finiteType;
                 case TypeTags.OBJECT:
-                    boolean service = inputStream.readByte() == 1;
-
-                    pkgCpIndex = inputStream.readInt();
-                    pkgId = getPackageId(pkgCpIndex);
-
-                    String objName = getStringCPEntryValue(inputStream);
-                    var objFlags = (inputStream.readBoolean() ? Flags.CLASS : 0) | Flags.PUBLIC;
-                    objFlags = inputStream.readBoolean() ? objFlags | Flags.CLIENT : objFlags;
-                    BObjectTypeSymbol objectSymbol;
-
-                    if (Symbols.isFlagOn(objFlags, Flags.CLASS)) {
-                        objectSymbol = Symbols.createClassSymbol(objFlags, names.fromString(objName),
-                                                                 env.pkgSymbol.pkgID, null, env.pkgSymbol,
-                                                                 symTable.builtinPos, COMPILED_SOURCE, false);
-                    } else {
-                        objectSymbol = Symbols.createObjectSymbol(objFlags, names.fromString(objName),
-                                                                  env.pkgSymbol.pkgID, null, env.pkgSymbol,
-                                                                  symTable.builtinPos, COMPILED_SOURCE);
-                    }
-
-                    objectSymbol.scope = new Scope(objectSymbol);
-                    BObjectType objectType;
-                    // Below is a temporary fix, need to fix this properly by using the type tag
-                    objectType = new BObjectType(objectSymbol);
-
-                    if (service) {
-                        objectType.flags |= Flags.SERVICE;
-                        objectSymbol.flags |= Flags.SERVICE;
-                    }
-                    if (isImmutable(flags)) {
-                        objectSymbol.flags |= Flags.READONLY;
-                    }
-                    objectType.flags = flags;
-                    objectSymbol.type = objectType;
-                    addShapeCP(objectType, cpI);
-                    compositeStack.push(objectType);
-                    int fieldCount = inputStream.readInt();
-                    for (int i = 0; i < fieldCount; i++) {
-                        String fieldName = getStringCPEntryValue(inputStream);
-                        var fieldFlags = inputStream.readLong();
-
-                        byte[] docBytes = readDocBytes(inputStream);
-
-                        BType fieldType = readTypeFromCp();
-                        BVarSymbol objectVarSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
-                                                                    objectSymbol.pkgID, fieldType,
-                                                                    objectSymbol.scope.owner, symTable.builtinPos,
-                                                                    COMPILED_SOURCE);
-
-                        defineMarkDownDocAttachment(objectVarSymbol, docBytes);
-
-                        BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
-                        objectType.fields.put(structField.name.value, structField);
-                        objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
-                    }
-                    boolean generatedConstructorPresent = inputStream.readBoolean();
-                    if (generatedConstructorPresent) {
-                        ignoreAttachedFunc();
-                    }
-                    boolean constructorPresent = inputStream.readBoolean();
-                    if (constructorPresent) {
-                        ignoreAttachedFunc();
-                    }
-                    int funcCount = inputStream.readInt();
-                    for (int i = 0; i < funcCount; i++) {
-                        ignoreAttachedFunc();
-                    }
-
-                    objectType.typeInclusions = readTypeInclusions();
-                    objectType.typeIdSet = readTypeIdSet(inputStream);
-
-                    Object poppedObjType = compositeStack.pop();
-                    assert poppedObjType == objectType;
-
-                    if (pkgId.equals(env.pkgSymbol.pkgID)) {
-                        return objectType;
-                    }
-
-                    pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
-                    return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(objName)).type;
+                    return readObjectType(cpI, flags);
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
                     break;
@@ -1393,6 +1314,92 @@ public class BIRPackageSymbolEnter {
                     return symTable.xmlTextType;
             }
             return null;
+        }
+
+        private BType readObjectType(int cpI, long flags) throws IOException {
+            SymbolEnv pkgEnv;
+            int pkgCpIndex;
+            PackageID pkgId;
+            boolean service = inputStream.readByte() == 1;
+
+            pkgCpIndex = inputStream.readInt();
+            pkgId = getPackageId(pkgCpIndex);
+
+            String objName = getStringCPEntryValue(inputStream);
+            var objFlags = (inputStream.readBoolean() ? Flags.CLASS : 0) | Flags.PUBLIC;
+            objFlags = inputStream.readBoolean() ? objFlags | Flags.CLIENT : objFlags;
+            BObjectTypeSymbol objectSymbol;
+
+            if (Symbols.isFlagOn(objFlags, Flags.CLASS)) {
+                objectSymbol = Symbols.createClassSymbol(objFlags, names.fromString(objName),
+                                                         env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                                                         symTable.builtinPos, COMPILED_SOURCE, false);
+            } else {
+                objectSymbol = Symbols.createObjectSymbol(objFlags, names.fromString(objName),
+                                                          env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                                                          symTable.builtinPos, COMPILED_SOURCE);
+            }
+
+            objectSymbol.scope = new Scope(objectSymbol);
+            BObjectType objectType;
+            // Below is a temporary fix, need to fix this properly by using the type tag
+            objectType = new BObjectType(objectSymbol);
+
+            if (service) {
+                objectType.flags |= Flags.SERVICE;
+                objectSymbol.flags |= Flags.SERVICE;
+            }
+            if (isImmutable(flags)) {
+                objectSymbol.flags |= Flags.READONLY;
+            }
+            objectType.flags = flags;
+            objectSymbol.type = objectType;
+            addShapeCP(objectType, cpI);
+            compositeStack.push(objectType);
+            int fieldCount = inputStream.readInt();
+            for (int i = 0; i < fieldCount; i++) {
+                String fieldName = getStringCPEntryValue(inputStream);
+                var fieldFlags = inputStream.readLong();
+
+                byte[] docBytes = readDocBytes(inputStream);
+
+                BType fieldType = readTypeFromCp();
+                BVarSymbol objectVarSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
+                                                            objectSymbol.pkgID, fieldType,
+                                                            objectSymbol.scope.owner, symTable.builtinPos,
+                                                            COMPILED_SOURCE);
+
+                defineMarkDownDocAttachment(objectVarSymbol, docBytes);
+
+                BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
+                objectType.fields.put(structField.name.value, structField);
+                objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
+            }
+            boolean generatedConstructorPresent = inputStream.readBoolean();
+            if (generatedConstructorPresent) {
+                ignoreAttachedFunc();
+            }
+            boolean constructorPresent = inputStream.readBoolean();
+            if (constructorPresent) {
+                ignoreAttachedFunc();
+            }
+            int funcCount = inputStream.readInt();
+            for (int i = 0; i < funcCount; i++) {
+                ignoreAttachedFunc();
+            }
+
+            objectType.typeInclusions = readTypeInclusions();
+            objectType.typeIdSet = readTypeIdSet(inputStream);
+
+            Object poppedObjType = compositeStack.pop();
+            assert poppedObjType == objectType;
+
+            if (pkgId.equals(env.pkgSymbol.pkgID)) {
+                return objectType;
+            }
+
+            pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
+            return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(objName)).type;
         }
 
         private BTypeIdSet readTypeIdSet(DataInputStream inputStream) throws IOException {
