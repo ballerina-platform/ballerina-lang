@@ -38,11 +38,6 @@ public class BallerinaStringCharTypeSymbol extends AbstractTypeSymbol implements
     }
 
     @Override
-    public String name() {
-        return Names.STRING_CHAR;
-    }
-
-    @Override
     public Optional<String> getName() {
         return Optional.of(Names.STRING_CHAR);
     }

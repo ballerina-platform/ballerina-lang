@@ -100,7 +100,8 @@ public class SemanticAPITestUtils {
     }
 
     public static void assertList(List<? extends Symbol> actualValues, List<String> expectedValues) {
-        Map<String, Symbol> symbols = actualValues.stream().collect(Collectors.toMap(Symbol::name, s -> s));
+        Map<String, Symbol> symbols = actualValues.stream().collect(
+                Collectors.toMap(s -> s.getName().orElse(""), s -> s));
         assertList(symbols, expectedValues);
     }
 
@@ -117,7 +118,7 @@ public class SemanticAPITestUtils {
         List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(line, column));
         return allInScopeSymbols.stream()
                 .filter(s -> s.moduleID().equals(moduleID))
-                .collect(Collectors.toMap(Symbol::name, s -> s));
+                .collect(Collectors.toMap(s -> s.getName().orElse(""), s -> s));
     }
 
     public static List<String> getSymbolNames(List<String> mainList, String... args) {

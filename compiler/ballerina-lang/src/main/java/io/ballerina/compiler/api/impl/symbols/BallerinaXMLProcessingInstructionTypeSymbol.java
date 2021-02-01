@@ -46,11 +46,6 @@ public class BallerinaXMLProcessingInstructionTypeSymbol extends AbstractTypeSym
     }
 
     @Override
-    public String name() {
-        return Names.STRING_XML_PI;
-    }
-
-    @Override
     public Optional<String> getName() {
         return Optional.of(Names.STRING_XML_PI);
     }

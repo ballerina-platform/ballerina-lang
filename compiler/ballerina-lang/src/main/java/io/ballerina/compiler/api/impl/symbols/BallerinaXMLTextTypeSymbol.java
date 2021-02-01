@@ -44,11 +44,6 @@ public class BallerinaXMLTextTypeSymbol extends AbstractTypeSymbol implements XM
     }
 
     @Override
-    public String name() {
-        return Names.STRING_XML_TEXT;
-    }
-
-    @Override
     public Optional<String> getName() {
         return Optional.of(Names.STRING_XML_TEXT);
     }

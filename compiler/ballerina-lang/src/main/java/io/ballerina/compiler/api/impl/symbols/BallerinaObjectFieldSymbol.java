@@ -68,8 +68,8 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
     }
 
     @Override
-    public String name() {
-        return this.bField.getName().getValue();
+    public Optional<String> getName() {
+        return Optional.of(this.bField.getName().getValue());
     }
 
     @Override

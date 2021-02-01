@@ -52,11 +52,6 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
-    public String name() {
-        return this.functionSymbol.name();
-    }
-
-    @Override
     public Optional<String> getName() {
         return this.functionSymbol.getName();
     }

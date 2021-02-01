@@ -44,11 +44,6 @@ public class BallerinaXMLCommentTypeSymbol extends AbstractTypeSymbol implements
     }
 
     @Override
-    public String name() {
-        return Names.STRING_XML_COMMENT;
-    }
-
-    @Override
     public Optional<String> getName() {
         return Optional.of(Names.STRING_XML_COMMENT);
     }

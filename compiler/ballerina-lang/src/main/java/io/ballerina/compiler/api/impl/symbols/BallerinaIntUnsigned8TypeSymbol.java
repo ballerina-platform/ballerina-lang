@@ -38,11 +38,6 @@ public class BallerinaIntUnsigned8TypeSymbol extends AbstractTypeSymbol implemen
     }
 
     @Override
-    public String name() {
-        return Names.STRING_UNSIGNED8;
-    }
-
-    @Override
     public Optional<String> getName() {
         return Optional.of(Names.STRING_UNSIGNED8);
     }

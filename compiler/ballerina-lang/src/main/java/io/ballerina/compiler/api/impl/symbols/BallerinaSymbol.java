@@ -61,14 +61,6 @@ public class BallerinaSymbol implements Symbol {
                                                     symbol.pos.lineRange().endLine().offset());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String name() {
-        return this.name;
-    }
-
     @Override
     public Optional<String> getName() {
         return Optional.ofNullable(this.name);

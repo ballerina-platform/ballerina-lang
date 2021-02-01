@@ -35,11 +35,6 @@ public class BallerinaTypeSymbol extends AbstractTypeSymbol {
     }
 
     @Override
-    public String name() {
-        return this.typeName;
-    }
-
-    @Override
     public String signature() {
         return this.typeName;
     }

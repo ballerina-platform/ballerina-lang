@@ -62,12 +62,9 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
         this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public String name() {
-        return this.bField.getName().getValue();
+    public Optional<String> getName() {
+        return Optional.of(this.bField.getName().getValue());
     }
 
     /**
