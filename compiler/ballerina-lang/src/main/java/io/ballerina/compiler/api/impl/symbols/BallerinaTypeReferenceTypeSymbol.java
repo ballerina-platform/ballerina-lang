@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a TypeReference type descriptor.
@@ -64,6 +65,11 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     @Override
     public String name() {
         return this.definitionName;
+    }
+
+    @Override
+    public Optional<String> getName() {
+        return Optional.of(this.definitionName);
     }
 
     @Override

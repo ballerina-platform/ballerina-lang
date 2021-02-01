@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.Optional;
+
 /**
  * Represents the int:Signed16 type descriptor.
  *
@@ -38,6 +40,11 @@ public class BallerinaIntSigned16TypeSymbol extends AbstractTypeSymbol implement
     @Override
     public String name() {
         return Names.STRING_SIGNED16;
+    }
+
+    @Override
+    public Optional<String> getName() {
+        return Optional.of(Names.STRING_SIGNED16);
     }
 
     @Override

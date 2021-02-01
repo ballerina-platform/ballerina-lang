@@ -68,6 +68,22 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
     }
 
     @Override
+    public Optional<String> getName() {
+        if (this.typeName == null) {
+            BXMLType xmlType = (BXMLType) this.getBType();
+            SymbolTable symbolTable = SymbolTable.getInstance(this.context);
+
+            if (xmlType == symbolTable.xmlType || this.typeParameter().isEmpty()) {
+                this.typeName = "xml";
+            } else {
+                this.typeName = "xml<" + this.typeParameter().get().name() + ">";
+            }
+        }
+
+        return Optional.of(this.typeName);
+    }
+
+    @Override
     public String signature() {
         return getName().get();
     }

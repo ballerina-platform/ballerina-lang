@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.Optional;
+
 /**
  * Represents the int:Unsigned32 type descriptor.
  *
@@ -38,6 +40,11 @@ public class BallerinaIntUnsigned32TypeSymbol extends AbstractTypeSymbol impleme
     @Override
     public String name() {
         return Names.STRING_UNSIGNED32;
+    }
+
+    @Override
+    public Optional<String> getName() {
+        return Optional.of(Names.STRING_UNSIGNED32);
     }
 
     @Override
