@@ -55,7 +55,7 @@ import java.util.regex.Pattern;
  */
 public class SchemaValidator extends TomlNodeVisitor {
 
-    public static final String PROPERTY_HOLDER = "${property}";
+    private static final String PROPERTY_HOLDER = "${property}";
 
     private AbstractSchema schema;
     private String key;

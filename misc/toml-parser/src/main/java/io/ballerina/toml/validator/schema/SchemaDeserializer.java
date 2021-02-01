@@ -73,7 +73,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
             case STRING:
                 return getStringSchema(jsonObj);
             case BOOLEAN:
-                Map<String, String> customMessages = parseOptionalMapFromJson(jsonObj, MESSAGE);
+                Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
                 return new BooleanSchema(Type.BOOLEAN, customMessages);
             default:
                 throw new JsonSchemaException(type + " is not supported type in json schema");
@@ -98,7 +98,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
             propertiesList.put(key, abstractSchema);
         }
         List<String> requiredList = parseOptionalListFromJson(jsonObj, REQUIRED);
-        Map<String, String> customMessages = parseOptionalMapFromJson(jsonObj, MESSAGE);
+        Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
         return new Schema(schema, title, Type.OBJECT, customMessages, description, additionalProperties,
                 propertiesList, requiredList);
     }
@@ -106,20 +106,20 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
     private AbstractSchema getArraySchema(JsonDeserializationContext jsonDeserializationContext, JsonObject jsonObj) {
         JsonElement items = jsonObj.get(ITEMS).getAsJsonObject();
         AbstractSchema abstractSchema = jsonDeserializationContext.deserialize(items, AbstractSchema.class);
-        Map<String, String> customMessages = parseOptionalMapFromJson(jsonObj, MESSAGE);
+        Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
         return new ArraySchema(Type.ARRAY, customMessages, abstractSchema);
     }
 
     private StringSchema getStringSchema(JsonObject jsonObj) {
         String pattern = parseOptionalStringFromJson(jsonObj, PATTERN);
-        Map<String, String> customMessages = parseOptionalMapFromJson(jsonObj, MESSAGE);
+        Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
         return new StringSchema(Type.STRING, customMessages, pattern);
     }
 
     private NumericSchema getNumericSchema(JsonObject jsonObj, Type type) {
         Double minimum = parseOptionalDoubleFromJson(jsonObj, MINIMUM);
         Double maximum = parseOptionalDoubleFromJson(jsonObj, MAXIMUM);
-        Map<String, String> customMessages = parseOptionalMapFromJson(jsonObj, MESSAGE);
+        Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
         return new NumericSchema(type, customMessages, minimum, maximum);
     }
 
@@ -176,49 +176,30 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         throw new JsonSchemaException(key + " should always be a string");
     }
 
-    private Map<String, String> parseOptionalMapFromJson(JsonObject jsonObject, String key) {
+    private Map<String, String> parseOptionalMapFromMessageJson(JsonObject jsonObject) {
         Map<String, String> customMessages = new HashMap<>();
-        JsonObject customMessageJson = jsonObject.getAsJsonObject(key);
+        JsonObject customMessageJson = jsonObject.getAsJsonObject(SchemaDeserializer.MESSAGE);
         if (customMessageJson == null) {
             return new HashMap<>();
         }
-        JsonElement type = customMessageJson.get(TYPE);
-        if (!(type == null || type.isJsonNull())) {
-            String customTypeMessage = type.getAsString();
-            customMessages.put(TYPE, customTypeMessage);
-        }
 
-        JsonElement pattern = customMessageJson.get(PATTERN);
-        if (!(pattern == null || pattern.isJsonNull())) {
-            String customPatternMessage = pattern.getAsString();
-            customMessages.put(PATTERN, customPatternMessage);
-        }
-
-        JsonElement required = customMessageJson.get(REQUIRED);
-        if (!(required == null || required.isJsonNull())) {
-            String customRequiredMessage = required.getAsString();
-            customMessages.put(REQUIRED, customRequiredMessage);
-        }
-
-        JsonElement additionalProperties = customMessageJson.get(ADDITIONAL_PROPERTIES);
-        if (!(additionalProperties == null || additionalProperties.isJsonNull())) {
-            String customAdditionalPropMessage = additionalProperties.getAsString();
-            customMessages.put(ADDITIONAL_PROPERTIES, customAdditionalPropMessage);
-        }
-
-        JsonElement minimum = customMessageJson.get(MINIMUM);
-        if (!(minimum == null || minimum.isJsonNull())) {
-            String customMinMessage = minimum.getAsString();
-            customMessages.put(MINIMUM, customMinMessage);
-        }
-
-        JsonElement maximum = customMessageJson.get(MAXIMUM);
-        if (!(maximum == null || maximum.isJsonNull())) {
-            String customMaxMessage = maximum.getAsString();
-            customMessages.put(MAXIMUM, customMaxMessage);
-        }
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, TYPE);
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, PATTERN);
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, REQUIRED);
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, ADDITIONAL_PROPERTIES);
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, MINIMUM);
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, MAXIMUM);
 
         return customMessages;
+    }
+
+    private void addFieldToCustomMessagesMap(Map<String, String> customMessages, JsonObject customMessageJson,
+                                             String field) {
+        JsonElement type = customMessageJson.get(field);
+        if (!(type == null || type.isJsonNull())) {
+            String customTypeMessage = type.getAsString();
+            customMessages.put(field, customTypeMessage);
+        }
     }
 }
 
