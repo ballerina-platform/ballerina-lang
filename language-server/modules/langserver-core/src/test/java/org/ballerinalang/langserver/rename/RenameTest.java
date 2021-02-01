@@ -28,11 +28,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test class for Renaming.
@@ -65,8 +62,8 @@ public class RenameTest {
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         JsonObject expected = resultJson.getAsJsonObject("result");
         JsonObject actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result");
-        this.alterExpectedUri(expected);
-        this.alterActualUri(actual);
+        RenameTestUtil.alterExpectedUri(expected, this.sourceRoot);
+        RenameTestUtil.alterActualUri(actual);
         Assert.assertEquals(actual, expected);
     }
 
@@ -74,44 +71,13 @@ public class RenameTest {
     @DataProvider
     public Object[][] testDataProvider() throws IOException {
         return new Object[][]{
-                {"renameMethodParamResult.json", "newA"},
-                {"renameRecTypeResult.json", "NewRecData"},
+                {"rename_method_param_result.json", "newA"},
+                {"rename_rec_result.json", "NewRecData"},
         };
     }
 
     @AfterClass
     public void shutDownLanguageServer() throws IOException {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
-    }
-
-    private void alterExpectedUri(JsonObject expected) throws IOException {
-        JsonObject newChanges = new JsonObject();
-        expected.getAsJsonObject("changes").entrySet().forEach(jEntry -> {
-            String[] uriComponents = jEntry.getKey().replace("\"", "").split("/");
-            Path expectedPath = Paths.get(this.sourceRoot.toUri());
-            for (String uriComponent : uriComponents) {
-                expectedPath = expectedPath.resolve(uriComponent);
-            }
-            try {
-                newChanges.add(expectedPath.toFile().getCanonicalPath(), jEntry.getValue());
-            } catch (IOException e) {
-                // Ignore the exception
-            }
-        });
-        expected.add("changes", newChanges);
-    }
-
-    private void alterActualUri(JsonObject actual) throws IOException {
-        JsonObject newChanges = new JsonObject();
-        actual.getAsJsonObject("changes").entrySet().forEach(jEntry -> {
-            String uri = jEntry.getKey().replace("\"", "");
-            try {
-                String canonicalPath = new File(URI.create(uri)).getCanonicalPath();
-                newChanges.add(canonicalPath, jEntry.getValue());
-            } catch (IOException e) {
-                // Ignore exception
-            }
-        });
-        actual.add("changes", newChanges);
     }
 }
