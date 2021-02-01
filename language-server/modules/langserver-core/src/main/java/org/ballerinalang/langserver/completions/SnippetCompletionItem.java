@@ -31,7 +31,7 @@ public class SnippetCompletionItem extends AbstractLSCompletionItem {
     private final SnippetBlock.Kind kind;
 
     public SnippetCompletionItem(BallerinaCompletionContext lsContext, SnippetBlock snippetBlock) {
-        super(lsContext, snippetBlock.build(lsContext));
+        super(lsContext, snippetBlock.build(lsContext), CompletionItemType.SNIPPET);
         this.kind = snippetBlock.kind();
     }
 

@@ -29,9 +29,13 @@ import org.eclipse.lsp4j.InsertTextFormat;
 public abstract class AbstractLSCompletionItem implements LSCompletionItem {
 
     protected CompletionItem completionItem;
+    private final CompletionItemType itemType;
 
-    public AbstractLSCompletionItem(BallerinaCompletionContext context, CompletionItem completionItem) {
+    public AbstractLSCompletionItem(BallerinaCompletionContext context,
+                                    CompletionItem completionItem,
+                                    CompletionItemType itemType) {
         this.completionItem = completionItem;
+        this.itemType = itemType;
         this.setInsertTextFormat(context);
     }
 
@@ -39,7 +43,12 @@ public abstract class AbstractLSCompletionItem implements LSCompletionItem {
     public CompletionItem getCompletionItem() {
         return completionItem;
     }
-    
+
+    @Override
+    public CompletionItemType getType() {
+        return this.itemType;
+    }
+
     /**
      * Convert the Snippet to a plain text snippet by removing the place holders.
      *
