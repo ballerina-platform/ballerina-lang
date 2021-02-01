@@ -31,9 +31,7 @@ import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Package;
@@ -173,7 +171,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 CompletionItem xmlItem = XMLNSCompletionItemBuilder.build((XMLNamespaceSymbol) symbol);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, xmlItem));
             }
-            
+
             processedSymbols.add(symbol);
         });
         return completionItems;
@@ -251,12 +249,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     }
                     String label = prefix;
                     String insertText = prefix;
-                    // If the import is a langlib module and there isn't a user defined alias we add ' before
-                    if ("ballerina".equals(orgName) && importNode.moduleName().get(0).text().equals("lang")
-                            && pkgName.endsWith("." + importNode.prefix().get().prefix().text())
-                            && this.appendSingleQuoteForPackageInsertText(ctx)) {
-                        insertText = "'" + insertText;
-                    }
                     CompletionItem item = new CompletionItem();
                     item.setLabel(label);
                     item.setInsertText(insertText);
@@ -272,11 +264,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
             String orgName = pkg.packageOrg().value();
-            boolean pkgAlreadyImported = currentModuleImports.stream()
-                    .anyMatch(importPkg -> importPkg.orgName().isPresent()
-                            && importPkg.orgName().get().orgName().text().equals(orgName)
-                            && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(name));
-            if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name)
+            if (!CommonUtil.matchingImportedModule(ctx, pkg) && !populatedList.contains(orgName + "/" + name)
                     && !this.isPreDeclaredLangLib(pkg)) {
                 CompletionItem item = new CompletionItem();
                 item.setLabel(CommonUtil.getPackageLabel(pkg));
@@ -433,12 +421,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         });
 
         return completionItems;
-    }
-
-    private boolean appendSingleQuoteForPackageInsertText(BallerinaCompletionContext context) {
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        return !(nodeAtCursor != null && nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
-                ((SimpleNameReferenceNode) nodeAtCursor).name().text().startsWith("'"));
     }
 
     private LSCompletionItem getLangLibCompletionItem(ModuleID moduleID, BallerinaCompletionContext context) {
