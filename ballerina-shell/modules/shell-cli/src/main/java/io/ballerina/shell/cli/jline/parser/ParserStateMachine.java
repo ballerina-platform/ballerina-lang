@@ -48,6 +48,7 @@ public class ParserStateMachine {
     private static final char DOLLAR = '$';
     private static final char DOUBLE_QUOTES = '\"';
     private static final char NEW_LINE = '\n';
+    private static final char CARRIAGE_RETURN = '\r';
     private static final char SPACE = ' ';
     private static final char TAB = '\t';
     // Continuing operator characters are characters than cannot
@@ -73,6 +74,11 @@ public class ParserStateMachine {
     }
 
     public void feed(char character) {
+        if (character == CARRIAGE_RETURN) {
+            // Ignore carriage return
+            return;
+        }
+
         switch (state) {
             case NORMAL:
                 normalState(character);

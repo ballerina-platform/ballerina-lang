@@ -31,14 +31,17 @@ import org.testng.annotations.Test;
 public class ParserStateMachineTest {
     @Test
     public void testString() {
-        //                                   0          1
-        //                                   12345 678 9012
-        ParserState[] states = states("Hello\"Hi\"Hee");
+        //                                   0          1           2
+        //                                   12345 678 9012 3456789 0
+        ParserState[] states = states("Hello\"Hi\"Hee\"(Hello\n");
         Assert.assertEquals(states[0], ParserState.NORMAL);
         Assert.assertEquals(states[5], ParserState.NORMAL);
         Assert.assertEquals(states[8], ParserState.IN_DOUBLE_QUOTES);
         Assert.assertEquals(states[9], ParserState.NORMAL);
         Assert.assertEquals(states[12], ParserState.NORMAL);
+        Assert.assertEquals(states[14], ParserState.IN_DOUBLE_QUOTES);
+        Assert.assertEquals(states[18], ParserState.IN_DOUBLE_QUOTES);
+        Assert.assertEquals(states[20], ParserState.ERROR);
         //                     12345 6 7 89
         states = states("Hello\\\"\\d");
         Assert.assertEquals(states[5], ParserState.NORMAL);
@@ -48,6 +51,13 @@ public class ParserStateMachineTest {
         Assert.assertEquals(states[9], ParserState.NORMAL);
         states = states("{ {{ { \"} }}");
         Assert.assertEquals(states[states.length - 1], ParserState.IN_DOUBLE_QUOTES);
+        //                     123 456 7
+        states = states("ff(\"dd\n");
+        Assert.assertEquals(states[1], ParserState.NORMAL);
+        Assert.assertEquals(states[3], ParserState.NORMAL);
+        Assert.assertEquals(states[4], ParserState.IN_DOUBLE_QUOTES);
+        Assert.assertEquals(states[6], ParserState.IN_DOUBLE_QUOTES);
+        Assert.assertEquals(states[7], ParserState.ERROR);
     }
 
     @Test
@@ -109,7 +119,7 @@ public class ParserStateMachineTest {
 
     @Test
     public void testOperator() {
-        //                                   0        1   
+        //                                   0        1
         //                                   1234567890123
         ParserState[] states = states("int i = 1 + 3");
         Assert.assertEquals(states[0], ParserState.NORMAL);
@@ -121,16 +131,17 @@ public class ParserStateMachineTest {
 
     @Test
     public void testCompletion() {
-        Assert.assertTrue(isIncomplete(" int i = 12 + \n"));
-        Assert.assertTrue(isIncomplete("{ \n"));
-        Assert.assertTrue(isIncomplete("{ \n {} "));
-        Assert.assertTrue(isIncomplete("` Hello \n ${ hi\n"));
-        Assert.assertTrue(isIncomplete("` Hello \n ${ hi\n } \n"));
-        Assert.assertFalse(isIncomplete("` Hello \n ${ hi\n } \n`"));
-        Assert.assertFalse(isIncomplete("// { \n"));
-        Assert.assertFalse(isIncomplete("{ }"));
-        Assert.assertFalse(isIncomplete("# dsds {"));
-        Assert.assertFalse(isIncomplete("{ ( } "));
+        Assert.assertFalse(isComplete(" int i = 12 + \n"));
+        Assert.assertFalse(isComplete("{ \n"));
+        Assert.assertFalse(isComplete("{ \n {} "));
+        Assert.assertFalse(isComplete("` Hello \n ${ hi\n"));
+        Assert.assertFalse(isComplete("` Hello \n ${ hi\n } \n"));
+        Assert.assertTrue(isComplete("Hello(\"abc\n"));
+        Assert.assertTrue(isComplete("` Hello \n ${ hi\n } \n`"));
+        Assert.assertTrue(isComplete("// { \n"));
+        Assert.assertTrue(isComplete("{ }"));
+        Assert.assertTrue(isComplete("# dsds {"));
+        Assert.assertTrue(isComplete("{ ( } "));
     }
 
     private ParserState[] states(String input) {
@@ -144,11 +155,11 @@ public class ParserStateMachineTest {
         return states;
     }
 
-    private boolean isIncomplete(String input) {
+    private boolean isComplete(String input) {
         ParserStateMachine stateMachine = new ParserStateMachine();
         for (int i = 0; i < input.length(); i++) {
             stateMachine.feed(input.charAt(i));
         }
-        return stateMachine.isIncomplete();
+        return !stateMachine.isIncomplete();
     }
 }

@@ -34,6 +34,7 @@ import java.util.List;
  */
 public class JlineBallerinaParser implements Parser {
     private static final char SPACE = ' ';
+    private static final char NEW_LINE = '\n';
 
 
     @Override
@@ -73,6 +74,8 @@ public class JlineBallerinaParser implements Parser {
             wordCursor = words.get(words.size() - 1).length();
         }
 
+        // Feed additional newline to the parser to submit all data
+        stateMachine.feed(NEW_LINE);
         if (context != ParseContext.COMPLETE && stateMachine.isIncomplete()) {
             throw new EOFError(-1, -1, "incomplete line");
         }
