@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.symbols.Documentation;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.tools.diagnostics.Location;
@@ -28,6 +29,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Represents the implementation of a Compiled Ballerina Symbol.
@@ -67,6 +69,16 @@ public class BallerinaSymbol implements Symbol {
         return this.name;
     }
 
+    @Override
+    public Optional<String> getName() {
+        return Optional.ofNullable(this.name);
+    }
+
+    @Override
+    public Optional<ModuleSymbol> getModule() {
+        return Optional.empty();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -86,6 +98,11 @@ public class BallerinaSymbol implements Symbol {
     @Override
     public Location location() {
         return this.position;
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        return Optional.ofNullable(this.position);
     }
 
     @Override

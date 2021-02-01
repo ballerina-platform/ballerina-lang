@@ -20,6 +20,8 @@ package io.ballerina.compiler.api.symbols;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.tools.diagnostics.Location;
 
+import java.util.Optional;
+
 /**
  * Represents a compiled language symbol.
  *
@@ -38,6 +40,13 @@ public interface Symbol {
     String name();
 
     /**
+     * Retrieves the name of the symbol if it is associated with an identifier.
+     *
+     * @return The name of the symbol if applicable
+     */
+    Optional<String> getName();
+
+    /**
      * Get the moduleID of the symbol.
      *
      * @return {@link ModuleID} of the symbol
@@ -46,6 +55,13 @@ public interface Symbol {
      */
     @Deprecated
     ModuleID moduleID();
+
+    /**
+     * Retrieves the symbol of the module this symbol belongs to.
+     *
+     * @return The {@link ModuleSymbol} of the module
+     */
+    Optional<ModuleSymbol> getModule();
 
     /**
      * Get the Symbol Kind.
@@ -59,6 +75,15 @@ public interface Symbol {
      * the definition of the symbol.
      *
      * @return The position information of the symbol
+     * @deprecated This method will be removed in a later version and be replaced with the getLocation() method.
      */
+    @Deprecated
     Location location();
+
+    /**
+     * Retrieves the location of the symbol if the symbol is associated with an identifier in a source file.
+     *
+     * @return The location of the symbol if applicable
+     */
+    Optional<Location> getLocation();
 }

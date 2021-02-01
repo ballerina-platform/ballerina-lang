@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -53,6 +54,16 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     @Override
     public String name() {
         return this.functionSymbol.name();
+    }
+
+    @Override
+    public Optional<String> getName() {
+        return this.functionSymbol.getName();
+    }
+
+    @Override
+    public Optional<ModuleSymbol> getModule() {
+        return this.functionSymbol.getModule();
     }
 
     @Override
@@ -93,6 +104,11 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     @Override
     public Location location() {
         return this.functionSymbol.location();
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        return this.functionSymbol.getLocation();
     }
 
     @Override

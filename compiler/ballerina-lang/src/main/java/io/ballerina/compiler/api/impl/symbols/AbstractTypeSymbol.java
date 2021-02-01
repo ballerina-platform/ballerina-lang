@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.LangLibrary;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -30,6 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a Ballerina Type Descriptor.
@@ -58,6 +60,16 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     }
 
     @Override
+    public Optional<String> getName() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<ModuleSymbol> getModule() {
+        return Optional.empty();
+    }
+
+    @Override
     public ModuleID moduleID() {
         return moduleID;
     }
@@ -78,6 +90,11 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     @Override
     public Location location() {
         return null;
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        return Optional.empty();
     }
 
     @Override
