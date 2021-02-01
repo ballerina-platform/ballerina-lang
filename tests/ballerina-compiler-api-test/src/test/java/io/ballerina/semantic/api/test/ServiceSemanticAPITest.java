@@ -91,16 +91,16 @@ public class ServiceSemanticAPITest {
     public void testServiceDeclTypedesc() {
         TypeSymbol symbol = (TypeSymbol) model.symbol(srcFile, from(66, 8)).get();
         assertEquals(symbol.typeKind(), TYPE_REFERENCE);
-        assertEquals(symbol.name(), "ProcessingService");
+        assertEquals(symbol.getName().get(), "ProcessingService");
         assertEquals(((TypeReferenceTypeSymbol) symbol).typeDescriptor().typeKind(), OBJECT);
     }
 
     @Test
     public void testServiceDeclListener() {
         VariableSymbol symbol = (VariableSymbol) model.symbol(srcFile, from(66, 31)).get();
-        assertEquals(symbol.name(), "lsn");
+        assertEquals(symbol.getName().get(), "lsn");
         assertEquals(symbol.typeDescriptor().typeKind(), TYPE_REFERENCE);
-        assertEquals(symbol.typeDescriptor().name(), "Listener");
+        assertEquals(symbol.typeDescriptor().getName().get(), "Listener");
         assertEquals(symbol.qualifiers().size(), 2);
         assertTrue(symbol.qualifiers().contains(LISTENER));
         assertTrue(symbol.qualifiers().contains(FINAL));
@@ -109,7 +109,7 @@ public class ServiceSemanticAPITest {
     @Test
     public void testServiceDeclField() {
         ClassFieldSymbol symbol = (ClassFieldSymbol) model.symbol(srcFile, from(68, 18)).get();
-        assertEquals(symbol.name(), "magic");
+        assertEquals(symbol.getName().get(), "magic");
         assertEquals(symbol.typeDescriptor().typeKind(), STRING);
         assertEquals(symbol.qualifiers().size(), 1);
         assertTrue(symbol.qualifiers().contains(PUBLIC));
@@ -118,7 +118,7 @@ public class ServiceSemanticAPITest {
     @Test(dataProvider = "ServiceDeclMethodPos")
     public void testServiceDeclMethods(int line, int col, String name, List<Qualifier> quals) {
         MethodSymbol symbol = (MethodSymbol) model.symbol(srcFile, from(line, col)).get();
-        assertEquals(symbol.name(), name);
+        assertEquals(symbol.getName().get(), name);
         assertEquals(symbol.qualifiers().size(), quals.size());
 
         for (Qualifier qual : quals) {

@@ -60,7 +60,7 @@ public class SymbolPositionTest {
             assertNull(expSymbolName);
         }
 
-        assertEquals(symbol.get().name(), expSymbolName);
+        assertEquals(symbol.get().getName().get(), expSymbolName);
 
         Location pos = symbol.get().location();
         assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");
@@ -93,7 +93,7 @@ public class SymbolPositionTest {
     public void testTypeNarrowedSymbolPositions(int line, int col) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
 
-        assertEquals(symbol.get().name(), "val");
+        assertEquals(symbol.get().getName().get(), "val");
 
         Location pos = symbol.get().location();
         assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");

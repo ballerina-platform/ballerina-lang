@@ -71,7 +71,7 @@ public class TestSourcesTest {
             assertNull(expSymbolName);
         }
 
-        assertEquals(symbol.get().name(), expSymbolName);
+        assertEquals(symbol.get().getName().get(), expSymbolName);
     }
 
     @DataProvider(name = "SymbolPosProvider")
