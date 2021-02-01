@@ -1447,6 +1447,12 @@ public class BIRPackageSymbolEnter {
             String enumName = getStringCPEntryValue(inputStream);
             int memberCount = inputStream.readInt();
             BSymbol pkgSymbol = packageCache.getSymbol(enumPkgId);
+
+            // pkg symbol will be null if it's an enum in the current module.
+            if (pkgSymbol == null) {
+                pkgSymbol = env.pkgSymbol;
+            }
+
             SymbolEnv enumPkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
 
             // pkg env will be null if it's an enum in the current module.
@@ -1461,8 +1467,8 @@ public class BIRPackageSymbolEnter {
                 members.add((BConstantSymbol) sym);
             }
 
-            unionType.tsymbol = new BEnumSymbol(members, flags, names.fromString(enumName), enumPkgId, unionType,
-                    pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
+            unionType.tsymbol = new BEnumSymbol(members, flags, names.fromString(enumName), pkgSymbol.pkgID, unionType,
+                                                pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
         }
     }
 
