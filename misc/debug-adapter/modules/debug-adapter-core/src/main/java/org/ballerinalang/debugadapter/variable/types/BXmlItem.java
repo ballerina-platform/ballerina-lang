@@ -21,6 +21,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -62,5 +63,11 @@ public class BXmlItem extends BCompoundVariable {
         } catch (Exception e) {
             return childMap;
         }
+    }
+
+    @Override
+    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+        // maximum children size will be 2 (children and attributes).
+        return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 2);
     }
 }

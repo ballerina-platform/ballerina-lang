@@ -23,7 +23,9 @@ import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -65,6 +67,20 @@ public class BXmlItemAttributeMap extends BCompoundVariable {
             return childVarMap;
         } catch (Exception ignored) {
             return childVarMap;
+        }
+    }
+
+    @Override
+    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+        try {
+            Optional<Value> mapValues = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_DATA);
+            if (mapValues.isEmpty()) {
+                return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);
+            }
+            List<Value> attributesMap = ((ArrayReference) mapValues.get()).getValues();
+            return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, attributesMap.size());
+        } catch (Exception ignored) {
+            return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);
         }
     }
 }

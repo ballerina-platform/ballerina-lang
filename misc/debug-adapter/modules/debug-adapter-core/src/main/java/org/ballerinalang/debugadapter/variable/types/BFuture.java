@@ -24,6 +24,7 @@ import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
@@ -72,5 +73,11 @@ public class BFuture extends BCompoundVariable {
         } catch (Exception ignored) {
             return childVarMap;
         }
+    }
+
+    @Override
+    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+        // maximum children size will be 3 (isDone, result and panic).
+        return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 3);
     }
 }

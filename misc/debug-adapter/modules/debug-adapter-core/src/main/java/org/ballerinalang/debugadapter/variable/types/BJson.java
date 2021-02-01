@@ -23,7 +23,9 @@ import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -65,6 +67,20 @@ public class BJson extends BCompoundVariable {
             return childMap;
         } catch (Exception ignored) {
             return childMap;
+        }
+    }
+
+    @Override
+    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+        try {
+            Optional<Value> jsonValues = VariableUtils.getFieldValue(jvmValue, FIELD_JSON_DATA);
+            if (jsonValues.isEmpty()) {
+                return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);
+            }
+            List<Value> jsonElements = ((ArrayReference) jsonValues.get()).getValues();
+            return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, jsonElements.size());
+        } catch (Exception ignored) {
+            return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);
         }
     }
 }

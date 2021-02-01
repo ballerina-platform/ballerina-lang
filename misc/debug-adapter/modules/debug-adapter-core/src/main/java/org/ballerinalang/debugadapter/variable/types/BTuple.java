@@ -26,6 +26,7 @@ import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,11 @@ public class BTuple extends BCompoundVariable {
         } catch (Exception ignored) {
             return new HashMap<>();
         }
+    }
+
+    @Override
+    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+        return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, getTupleSize((ObjectReference) jvmValue));
     }
 
     /**

@@ -52,6 +52,8 @@ public abstract class BCompoundVariable implements BVariable {
      */
     protected abstract Map<String, Value> computeChildVariables();
 
+    protected abstract Map.Entry<ChildVariableKind, Integer> getChildrenCount();
+
     @Override
     public SuspendedContext getContext() {
         return context;
@@ -79,6 +81,12 @@ public abstract class BCompoundVariable implements BVariable {
             dapVariable.setName(this.name);
             dapVariable.setType(this.type.getString());
             dapVariable.setValue(computeValue());
+            Map.Entry<ChildVariableKind, Integer> childrenCount = getChildrenCount();
+            if (childrenCount.getKey() == ChildVariableKind.INDEXED) {
+                dapVariable.setIndexedVariables(childrenCount.getValue().longValue());
+            } else {
+                dapVariable.setNamedVariables(childrenCount.getValue().longValue());
+            }
         }
         return dapVariable;
     }
@@ -98,5 +106,15 @@ public abstract class BCompoundVariable implements BVariable {
             throw new DebugVariableException("No child variables found with name: '" + name + "'");
         }
         return childVariables.get(name);
+    }
+
+    /**
+     * Child variable types.
+     * <p>
+     * Indexed child variables - array elements, table entries etc.
+     * Named child variables - map entries, json elements, etc.
+     */
+    protected enum ChildVariableKind {
+        NAMED, INDEXED
     }
 }

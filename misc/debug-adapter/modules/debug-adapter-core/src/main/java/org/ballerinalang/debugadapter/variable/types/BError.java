@@ -22,6 +22,7 @@ import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -69,5 +70,11 @@ public class BError extends BCompoundVariable {
         } catch (Exception ignored) {
             return new HashMap<>();
         }
+    }
+
+    @Override
+    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+        // maximum children size will be 3 (error message, cause and details).
+        return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 3);
     }
 }

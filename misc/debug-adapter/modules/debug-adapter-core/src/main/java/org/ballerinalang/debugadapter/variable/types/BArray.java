@@ -25,6 +25,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,11 @@ public class BArray extends BCompoundVariable {
         } catch (Exception ignored) {
             return new HashMap<>();
         }
+    }
+
+    @Override
+    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+        return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, getArraySize((ObjectReference) jvmValue));
     }
 
     /**

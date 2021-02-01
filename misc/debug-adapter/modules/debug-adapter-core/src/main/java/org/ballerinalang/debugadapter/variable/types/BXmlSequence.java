@@ -23,6 +23,7 @@ import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,24 @@ public class BXmlSequence extends BCompoundVariable {
             return childMap;
         } catch (Exception e) {
             return childMap;
+        }
+    }
+
+    @Override
+    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+        try {
+            Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
+            if (children.isEmpty()) {
+                return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, 0);
+            }
+            Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), FIELD_ELEMENT_DATA);
+            if (childArray.isEmpty()) {
+                return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, 0);
+            }
+            List<Value> childrenValues = ((ArrayReference) childArray.get()).getValues();
+            return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, childrenValues.size());
+        } catch (Exception e) {
+            return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, 0);
         }
     }
 }

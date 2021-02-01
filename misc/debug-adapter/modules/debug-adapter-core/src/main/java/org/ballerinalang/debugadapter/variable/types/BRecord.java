@@ -24,6 +24,7 @@ import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +67,25 @@ public class BRecord extends BCompoundVariable {
             return recordFields;
         } catch (Exception ignored) {
             return new HashMap<>();
+        }
+    }
+
+    @Override
+    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+        try {
+            if (!(jvmValue instanceof ObjectReference)) {
+                return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);
+            }
+            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
+            Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
+            long recordFieldCount = fieldValueMap.keySet()
+                    .stream()
+                    .filter(field -> field.toString().contains(RECORD_FIELD_PATTERN_IDENTIFIER))
+                    .count();
+
+            return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, Long.valueOf(recordFieldCount).intValue());
+        } catch (Exception ignored) {
+            return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);
         }
     }
 

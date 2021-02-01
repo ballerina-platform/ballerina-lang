@@ -28,6 +28,7 @@ import org.ballerinalang.debugadapter.variable.DebugVariableException;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -97,6 +98,11 @@ public class BTable extends BCompoundVariable {
         } catch (Exception ignored) {
             return new HashMap<>();
         }
+    }
+
+    @Override
+    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+        return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, getChildVariableLimit());
     }
 
     /**
