@@ -30,6 +30,7 @@ import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.testng.annotations.Test;
 
 import java.util.Optional;
@@ -66,20 +67,20 @@ public class TypeByMiscExprTest extends TypeByNodeTest {
             @Override
             public void visit(BinaryExpressionNode binaryExpressionNode) {
                 TypeDescKind typeKind;
-                switch (binaryExpressionNode.operator().text()) {
-                    case "-":
-                    case "*":
-                    case "+":
-                    case "/":
+                switch (OperatorKind.valueFrom(binaryExpressionNode.operator().text())) {
+                    case SUB:
+                    case MUL:
+                    case ADD:
+                    case DIV:
                         typeKind = INT;
                         break;
-                    case ">=":
-                    case "!=":
-                    case "==":
-                    case "&&":
+                    case GREATER_EQUAL:
+                    case NOT_EQUAL:
+                    case EQUAL:
+                    case AND:
                         typeKind = BOOLEAN;
                         break;
-                    case "...":
+                    case CLOSED_RANGE:
                         typeKind = OBJECT;
                         break;
                     default:
