@@ -131,7 +131,7 @@ public class ParserStateMachine {
             case CLOSE_CURLY:
             case CLOSE_PAREN:
             case CLOSE_SQ_BR:
-                if (stack.peek() == OPEN_BRACKETS.get(character)) {
+                if (!stack.empty() && stack.peek() == OPEN_BRACKETS.get(character)) {
                     stack.pop();
                     if (!stack.empty() && stack.peek() == BACKTICK) {
                         state = ParserState.IN_TEMPLATE;
@@ -223,11 +223,12 @@ public class ParserStateMachine {
                 state = ParserState.IN_TEMPLATE_AFTER_DOLLAR;
                 break;
             case BACKTICK:
-                if (stack.peek() == BACKTICK) {
+                if (!stack.empty() && stack.peek() == BACKTICK) {
                     state = ParserState.NORMAL;
                     stack.pop();
                     break;
                 }
+                state = ParserState.ERROR;
                 break;
         }
     }

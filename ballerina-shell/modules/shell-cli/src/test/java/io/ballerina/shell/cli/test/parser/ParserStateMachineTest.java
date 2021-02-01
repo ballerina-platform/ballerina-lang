@@ -142,6 +142,7 @@ public class ParserStateMachineTest {
         Assert.assertTrue(isComplete("{ }"));
         Assert.assertTrue(isComplete("# dsds {"));
         Assert.assertTrue(isComplete("{ ( } "));
+        Assert.assertTrue(isComplete(")"));
     }
 
     private ParserState[] states(String input) {
