@@ -55,7 +55,8 @@ public class TupleTypeBaloTest {
                 {"testTupleWithMemberAndRestDesc"},
                 {"testTupleWithRestDescOnly"},
                 {"testEmptyTupleWithRestDescOnly"},
-                {"testTupleWithUnionRestDesc"}
+                {"testTupleWithUnionRestDesc"},
+                {"testTupleWithVar"}
         };
     }
 

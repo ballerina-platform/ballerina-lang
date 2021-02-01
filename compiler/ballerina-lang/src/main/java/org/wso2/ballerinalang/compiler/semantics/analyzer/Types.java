@@ -2585,7 +2585,7 @@ public class Types {
                 }
             }
 
-            if (sourceRestType == null) {
+            if (sourceRestType == null || targetRestType == symTable.noType) {
                 return true;
             }
 

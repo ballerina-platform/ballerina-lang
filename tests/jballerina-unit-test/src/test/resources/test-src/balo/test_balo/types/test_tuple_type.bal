@@ -111,6 +111,31 @@ function testTupleWithUnionRestDesc() {
     assertEquality("tuple index out of range: index: 5, size: 4", err.detail()["message"]);
 }
 
+function testTupleWithVar() {
+    var a = tuples:getTupleWithMemberAndRestDesc();
+    [int, string...] b = a;
+    assertEquality(<[int, string...]> [1, "hello", "world"], b);
+
+    var [c, ...d] = tuples:getTupleWithMemberAndRestDesc();
+    assertEquality(1, c);
+    assertEquality(<string[]> ["hello", "world"], d);
+
+    var e = tuples:getTupleWithRestDescOnly();
+    string[] f = e;
+    assertEquality(<[string...]> ["hello", "world"], e);
+    assertEquality(<[string...]> ["hello", "world"], f);
+
+    var [...g] = tuples:getTupleWithRestDescOnly();
+    assertEquality(<[string...]> ["hello", "world"], g);
+
+    // https://github.com/ballerina-platform/ballerina-lang/issues/28326
+    //var [...h] = tuples:getTupleWithMemberAndRestDesc();
+    //(int|string)[] i = h;
+    //[int, string...] j = h;
+    //assertEquality(<(int|string)[]> [1, "hello", "world"], i);
+    //assertEquality(<(int|string)[]> [1, "hello", "world"], j);
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
