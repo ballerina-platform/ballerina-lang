@@ -152,7 +152,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 VariableSymbol varSymbol = (VariableSymbol) symbol;
                 TypeSymbol typeDesc = (varSymbol).typeDescriptor();
                 String typeName = typeDesc == null ? "" : CommonUtil.getModifiedTypeName(ctx, typeDesc);
-                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
+                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, varSymbol.getName().get(),
+                                                                                   typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
                 // Here skip all the package symbols since the package is added separately
@@ -183,7 +184,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         visibleSymbols.forEach(bSymbol -> {
             if (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS
                     || bSymbol.kind() == ENUM) {
-                CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
+                CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.getName().get());
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
         });

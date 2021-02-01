@@ -39,7 +39,7 @@ public final class WorkerCompletionItemBuilder {
      */
     public static CompletionItem build(WorkerSymbol workerSymbol) {
         CompletionItem item = new CompletionItem();
-        String name = workerSymbol.name();
+        String name = workerSymbol.getName().get();
         item.setLabel(name);
         item.setInsertText(name);
         item.setDetail(ItemResolverConstants.WORKER);
