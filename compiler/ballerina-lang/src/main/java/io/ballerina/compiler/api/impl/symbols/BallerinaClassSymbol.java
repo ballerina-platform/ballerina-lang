@@ -132,10 +132,10 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
 
     @Override
     public String signature() {
-        if (this.name().startsWith("$anonType$")) {
+        if (this.getName().get().startsWith("$anonType$")) {
             return typeDescriptor.signature();
         }
-        return this.name();
+        return this.getName().get();
     }
 
     @Override

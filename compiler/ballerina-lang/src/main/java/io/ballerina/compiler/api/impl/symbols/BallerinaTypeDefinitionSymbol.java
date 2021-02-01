@@ -61,7 +61,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
 
     @Override
     public String moduleQualifiedName() {
-        return this.moduleID().moduleName() + ":" + this.name();
+        return this.moduleID().moduleName() + ":" + this.getName().get();
     }
 
     @Override

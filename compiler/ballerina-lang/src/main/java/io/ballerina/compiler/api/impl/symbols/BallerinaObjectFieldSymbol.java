@@ -135,7 +135,7 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
             joiner.add(qualifier.getValue());
         }
 
-        this.signature = joiner.add(this.typeDescriptor().signature()).add(this.name()).toString();
+        this.signature = joiner.add(this.typeDescriptor().signature()).add(this.getName().get()).toString();
         return this.signature;
     }
 }

@@ -117,7 +117,7 @@ public class BallerinaSymbol implements Symbol {
 
         Symbol symbol = (Symbol) obj;
 
-        return this.name().equals(symbol.name())
+        return this.getName().get().equals(symbol.getName().get())
                 && this.moduleID().equals(symbol.moduleID())
                 && this.kind().equals(symbol.kind())
                 && this.location().lineRange().equals(symbol.location().lineRange());
@@ -125,7 +125,7 @@ public class BallerinaSymbol implements Symbol {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.name(), this.moduleID(), this.kind(), this.location().lineRange());
+        return Objects.hash(this.getName().get(), this.moduleID(), this.kind(), this.location().lineRange());
     }
 
     public BSymbol getInternalSymbol() {

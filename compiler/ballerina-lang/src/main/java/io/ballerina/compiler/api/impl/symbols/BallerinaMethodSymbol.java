@@ -119,7 +119,7 @@ public class BallerinaMethodSymbol implements MethodSymbol {
 
         StringBuilder signature = new StringBuilder(qualifierJoiner.toString());
         StringJoiner joiner = new StringJoiner(", ");
-        signature.append(this.functionSymbol.name()).append("(");
+        signature.append(this.functionSymbol.getName().get()).append("(");
         for (ParameterSymbol requiredParam : this.typeDescriptor().parameters()) {
             String ballerinaParameterSignature = requiredParam.signature();
             joiner.add(ballerinaParameterSignature);

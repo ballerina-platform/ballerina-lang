@@ -160,7 +160,7 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
             joiner.add(qualifier.getValue());
         }
 
-        this.signature = joiner.add(this.typeDescriptor().signature()).add(this.name()).toString();
+        this.signature = joiner.add(this.typeDescriptor().signature()).add(this.getName().get()).toString();
 
         if (this.isOptional()) {
             this.signature += "?";

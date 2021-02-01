@@ -69,6 +69,6 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
 
     @Override
     public String signature() {
-        return name();
+        return getName().get();
     }
 }
