@@ -17,7 +17,7 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
-import io.ballerina.compiler.syntax.tree.DocumentationReferenceNode;
+import io.ballerina.compiler.syntax.tree.BallerinaNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -30,76 +30,76 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STDocumentationReferenceNode extends STDocumentationNode {
+public class STBallerinaNameReferenceNode extends STDocumentationNode {
     public final STNode referenceType;
     public final STNode startBacktick;
-    public final STNode backtickContent;
+    public final STNode nameReference;
     public final STNode endBacktick;
 
-    STDocumentationReferenceNode(
+    STBallerinaNameReferenceNode(
             STNode referenceType,
             STNode startBacktick,
-            STNode backtickContent,
+            STNode nameReference,
             STNode endBacktick) {
         this(
                 referenceType,
                 startBacktick,
-                backtickContent,
+                nameReference,
                 endBacktick,
                 Collections.emptyList());
     }
 
-    STDocumentationReferenceNode(
+    STBallerinaNameReferenceNode(
             STNode referenceType,
             STNode startBacktick,
-            STNode backtickContent,
+            STNode nameReference,
             STNode endBacktick,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.DOCUMENTATION_REFERENCE, diagnostics);
+        super(SyntaxKind.BALLERINA_NAME_REFERENCE, diagnostics);
         this.referenceType = referenceType;
         this.startBacktick = startBacktick;
-        this.backtickContent = backtickContent;
+        this.nameReference = nameReference;
         this.endBacktick = endBacktick;
 
         addChildren(
                 referenceType,
                 startBacktick,
-                backtickContent,
+                nameReference,
                 endBacktick);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STDocumentationReferenceNode(
+        return new STBallerinaNameReferenceNode(
                 this.referenceType,
                 this.startBacktick,
-                this.backtickContent,
+                this.nameReference,
                 this.endBacktick,
                 diagnostics);
     }
 
-    public STDocumentationReferenceNode modify(
+    public STBallerinaNameReferenceNode modify(
             STNode referenceType,
             STNode startBacktick,
-            STNode backtickContent,
+            STNode nameReference,
             STNode endBacktick) {
         if (checkForReferenceEquality(
                 referenceType,
                 startBacktick,
-                backtickContent,
+                nameReference,
                 endBacktick)) {
             return this;
         }
 
-        return new STDocumentationReferenceNode(
+        return new STBallerinaNameReferenceNode(
                 referenceType,
                 startBacktick,
-                backtickContent,
+                nameReference,
                 endBacktick,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new DocumentationReferenceNode(this, position, parent);
+        return new BallerinaNameReferenceNode(this, position, parent);
     }
 
     @Override

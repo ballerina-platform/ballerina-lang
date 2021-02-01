@@ -3032,20 +3032,35 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public DocumentationReferenceNode transform(
-            DocumentationReferenceNode documentationReferenceNode) {
+    public BallerinaNameReferenceNode transform(
+            BallerinaNameReferenceNode ballerinaNameReferenceNode) {
         Token referenceType =
-                modifyToken(documentationReferenceNode.referenceType().orElse(null));
+                modifyToken(ballerinaNameReferenceNode.referenceType().orElse(null));
         Token startBacktick =
-                modifyToken(documentationReferenceNode.startBacktick());
-        Node backtickContent =
-                modifyNode(documentationReferenceNode.backtickContent());
+                modifyToken(ballerinaNameReferenceNode.startBacktick());
+        Node nameReference =
+                modifyNode(ballerinaNameReferenceNode.nameReference());
         Token endBacktick =
-                modifyToken(documentationReferenceNode.endBacktick());
-        return documentationReferenceNode.modify(
+                modifyToken(ballerinaNameReferenceNode.endBacktick());
+        return ballerinaNameReferenceNode.modify(
                 referenceType,
                 startBacktick,
-                backtickContent,
+                nameReference,
+                endBacktick);
+    }
+
+    @Override
+    public InlineCodeReferenceNode transform(
+            InlineCodeReferenceNode inlineCodeReferenceNode) {
+        Token startBacktick =
+                modifyToken(inlineCodeReferenceNode.startBacktick());
+        Token codeReference =
+                modifyToken(inlineCodeReferenceNode.codeReference());
+        Token endBacktick =
+                modifyToken(inlineCodeReferenceNode.endBacktick());
+        return inlineCodeReferenceNode.modify(
+                startBacktick,
+                codeReference,
                 endBacktick);
     }
 

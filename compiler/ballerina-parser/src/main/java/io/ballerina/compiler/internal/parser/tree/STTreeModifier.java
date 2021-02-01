@@ -2402,16 +2402,28 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STDocumentationReferenceNode transform(
-            STDocumentationReferenceNode documentationReferenceNode) {
-        STNode referenceType = modifyNode(documentationReferenceNode.referenceType);
-        STNode startBacktick = modifyNode(documentationReferenceNode.startBacktick);
-        STNode backtickContent = modifyNode(documentationReferenceNode.backtickContent);
-        STNode endBacktick = modifyNode(documentationReferenceNode.endBacktick);
-        return documentationReferenceNode.modify(
+    public STBallerinaNameReferenceNode transform(
+            STBallerinaNameReferenceNode ballerinaNameReferenceNode) {
+        STNode referenceType = modifyNode(ballerinaNameReferenceNode.referenceType);
+        STNode startBacktick = modifyNode(ballerinaNameReferenceNode.startBacktick);
+        STNode nameReference = modifyNode(ballerinaNameReferenceNode.nameReference);
+        STNode endBacktick = modifyNode(ballerinaNameReferenceNode.endBacktick);
+        return ballerinaNameReferenceNode.modify(
                 referenceType,
                 startBacktick,
-                backtickContent,
+                nameReference,
+                endBacktick);
+    }
+
+    @Override
+    public STInlineCodeReferenceNode transform(
+            STInlineCodeReferenceNode inlineCodeReferenceNode) {
+        STNode startBacktick = modifyNode(inlineCodeReferenceNode.startBacktick);
+        STNode codeReference = modifyNode(inlineCodeReferenceNode.codeReference);
+        STNode endBacktick = modifyNode(inlineCodeReferenceNode.endBacktick);
+        return inlineCodeReferenceNode.modify(
+                startBacktick,
+                codeReference,
                 endBacktick);
     }
 

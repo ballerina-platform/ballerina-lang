@@ -4078,9 +4078,9 @@
             ]
         },
         {
-            "name": "DocumentationReferenceNode",
+            "name": "BallerinaNameReferenceNode",
             "base": "DocumentationNode",
-            "kind": "DOCUMENTATION_REFERENCE",
+            "kind": "BALLERINA_NAME_REFERENCE",
             "attributes": [
                 {
                     "name": "referenceType",
@@ -4092,8 +4092,27 @@
                     "type": "Token"
                 },
                 {
-                    "name": "backtickContent",
+                    "name": "nameReference",
                     "type": "Node"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "InlineCodeReferenceNode",
+            "base": "DocumentationNode",
+            "kind": "INLINE_CODE_REFERENCE",
+            "attributes": [
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "codeReference",
+                    "type": "Token"
                 },
                 {
                     "name": "endBacktick",

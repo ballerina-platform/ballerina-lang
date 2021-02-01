@@ -2952,21 +2952,36 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stMarkdownParameterDocumentationLineNode.createUnlinkedFacade();
     }
 
-    public static DocumentationReferenceNode createDocumentationReferenceNode(
+    public static BallerinaNameReferenceNode createBallerinaNameReferenceNode(
             Token referenceType,
             Token startBacktick,
-            Node backtickContent,
+            Node nameReference,
             Token endBacktick) {
         Objects.requireNonNull(startBacktick, "startBacktick must not be null");
-        Objects.requireNonNull(backtickContent, "backtickContent must not be null");
+        Objects.requireNonNull(nameReference, "nameReference must not be null");
         Objects.requireNonNull(endBacktick, "endBacktick must not be null");
 
-        STNode stDocumentationReferenceNode = STNodeFactory.createDocumentationReferenceNode(
+        STNode stBallerinaNameReferenceNode = STNodeFactory.createBallerinaNameReferenceNode(
                 getOptionalSTNode(referenceType),
                 startBacktick.internalNode(),
-                backtickContent.internalNode(),
+                nameReference.internalNode(),
                 endBacktick.internalNode());
-        return stDocumentationReferenceNode.createUnlinkedFacade();
+        return stBallerinaNameReferenceNode.createUnlinkedFacade();
+    }
+
+    public static InlineCodeReferenceNode createInlineCodeReferenceNode(
+            Token startBacktick,
+            Token codeReference,
+            Token endBacktick) {
+        Objects.requireNonNull(startBacktick, "startBacktick must not be null");
+        Objects.requireNonNull(codeReference, "codeReference must not be null");
+        Objects.requireNonNull(endBacktick, "endBacktick must not be null");
+
+        STNode stInlineCodeReferenceNode = STNodeFactory.createInlineCodeReferenceNode(
+                startBacktick.internalNode(),
+                codeReference.internalNode(),
+                endBacktick.internalNode());
+        return stInlineCodeReferenceNode.createUnlinkedFacade();
     }
 
     public static MarkdownCodeBlockNode createMarkdownCodeBlockNode(

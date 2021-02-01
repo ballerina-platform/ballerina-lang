@@ -779,8 +779,12 @@ public abstract class NodeVisitor {
         visitSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
-    public void visit(DocumentationReferenceNode documentationReferenceNode) {
-        visitSyntaxNode(documentationReferenceNode);
+    public void visit(BallerinaNameReferenceNode ballerinaNameReferenceNode) {
+        visitSyntaxNode(ballerinaNameReferenceNode);
+    }
+
+    public void visit(InlineCodeReferenceNode inlineCodeReferenceNode) {
+        visitSyntaxNode(inlineCodeReferenceNode);
     }
 
     public void visit(MarkdownCodeBlockNode markdownCodeBlockNode) {

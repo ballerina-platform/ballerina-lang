@@ -2237,16 +2237,27 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 documentElements);
     }
 
-    public static STNode createDocumentationReferenceNode(
+    public static STNode createBallerinaNameReferenceNode(
             STNode referenceType,
             STNode startBacktick,
-            STNode backtickContent,
+            STNode nameReference,
             STNode endBacktick) {
 
-        return new STDocumentationReferenceNode(
+        return new STBallerinaNameReferenceNode(
                 referenceType,
                 startBacktick,
-                backtickContent,
+                nameReference,
+                endBacktick);
+    }
+
+    public static STNode createInlineCodeReferenceNode(
+            STNode startBacktick,
+            STNode codeReference,
+            STNode endBacktick) {
+
+        return new STInlineCodeReferenceNode(
+                startBacktick,
+                codeReference,
                 endBacktick);
     }
 
