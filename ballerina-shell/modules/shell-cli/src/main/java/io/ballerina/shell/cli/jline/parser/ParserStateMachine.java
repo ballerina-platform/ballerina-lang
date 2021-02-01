@@ -107,6 +107,7 @@ public class ParserStateMachine {
             case AFTER_OPERATOR:
                 afterOperatorState(character);
                 break;
+            default:
         }
 
     }
@@ -131,7 +132,7 @@ public class ParserStateMachine {
             case CLOSE_CURLY:
             case CLOSE_PAREN:
             case CLOSE_SQ_BR:
-                if (!stack.empty() && stack.peek() == OPEN_BRACKETS.get(character)) {
+                if (!stack.empty() && OPEN_BRACKETS.get(character).equals(stack.peek())) {
                     stack.pop();
                     if (!stack.empty() && stack.peek() == BACKTICK) {
                         state = ParserState.IN_TEMPLATE;
@@ -156,6 +157,7 @@ public class ParserStateMachine {
             case HASH:
                 state = ParserState.IN_COMMENT;
                 break;
+            default:
         }
         if (CONTINUING_OPERATORS.contains(character)) {
             state = ParserState.AFTER_OPERATOR;
@@ -191,6 +193,7 @@ public class ParserStateMachine {
             case NEW_LINE:
                 state = ParserState.ERROR;
                 break;
+            default:
         }
     }
 
@@ -230,6 +233,7 @@ public class ParserStateMachine {
                 }
                 state = ParserState.ERROR;
                 break;
+            default:
         }
     }
 
