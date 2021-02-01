@@ -1999,14 +1999,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorDestructure errorDeStmt) {
         BLangErrorVarRef varRef = errorDeStmt.varRef;
-        if (varRef.message == null) {
-            dlog.error(varRef.pos, DiagnosticErrorCode.MISSING_REQUIRED_ARG_BINDING_PATTERN_ERROR_MESSAGE);
-        } else if (varRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
-                names.fromIdNode(((BLangSimpleVarRef) varRef.message).variableName) != Names.IGNORE) {
-            setTypeOfVarRefInErrorBindingAssignment(varRef.message);
-        } else {
-            // set message var refs type to no type if the variable name is '_'
-            varRef.message.type = symTable.noType;
+        if (varRef.message != null) {
+            if (varRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+                    names.fromIdNode(((BLangSimpleVarRef) varRef.message).variableName) != Names.IGNORE) {
+                setTypeOfVarRefInErrorBindingAssignment(varRef.message);
+            } else {
+                // set message var refs type to no type if the variable name is '_'
+                varRef.message.type = symTable.noType;
+            }
         }
 
         if (varRef.cause != null) {

@@ -2578,8 +2578,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private void createVarRefAssignmentStmts(BLangErrorVarRef parentErrorVarRef, BLangBlockStmt parentBlockStmt,
                                              BVarSymbol errorVarySymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
-        if (parentErrorVarRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
-                names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.message).variableName) != Names.IGNORE) {
+        if (parentErrorVarRef.message != null && (parentErrorVarRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF
+                || names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.message).variableName) != Names.IGNORE)) {
             BLangAssignment message = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos, parentBlockStmt);
             message.expr = generateErrorMessageBuiltinFunction(parentErrorVarRef.message.pos,
                     symTable.stringType, errorVarySymbol, parentIndexAccessExpr);

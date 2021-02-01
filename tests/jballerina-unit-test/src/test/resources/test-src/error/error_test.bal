@@ -383,10 +383,17 @@ type SampleError error<SampleErrorData>;
 function testErrorBindingPattern() {
     SampleError error(info=info,fatal=fatal) = error SampleError("Sample Error", info = "Detail Info",
     fatal = true);
-    error error(data=transactionData) = error("TransactionError", data={"A":"a", "B":"b"});
     assertEquality(info, "Detail Info");
     assertEquality(fatal, true);
+
+    error error(data=transactionData) = error("TransactionError", data={"A":"a", "B":"b"});
     assertEquality(transactionData.toString(), "{\"A\":\"a\",\"B\":\"b\"}");
+
+    string i;
+    boolean b;
+    error(info=i,fatal=b) = error SampleError("Sample Error", info = "Some Info", fatal = false);
+    assertEquality(i, "Some Info");
+    assertEquality(b, false);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
