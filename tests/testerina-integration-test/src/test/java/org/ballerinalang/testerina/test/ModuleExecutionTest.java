@@ -21,8 +21,11 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
 
 /**
  * Test class to test Module test execution.
@@ -40,11 +43,11 @@ public class ModuleExecutionTest extends BaseTestCase {
 
     @Test()
     public void test_DefaultModule_AllTests() throws BallerinaTestException {
-        String msg1 = "4 passing";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        balClient.runMain("test", new String[]{"--tests", "moduleExecution:*"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1}, projectPath);
-        clientLeecher1.waitForText(20000);
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--tests", "moduleExecution:*"},
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(errorOutput, "default module test failure");
+
     }
 
     @Test()
@@ -81,11 +84,11 @@ public class ModuleExecutionTest extends BaseTestCase {
 
     @Test()
     public void test_Module1_AllTests() throws BallerinaTestException {
-        String msg1 = "3 passing";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        balClient.runMain("test", new String[]{"--tests", "moduleExecution.Module1:*"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1}, projectPath);
-        clientLeecher1.waitForText(20000);
+        String errorOutput = balClient.runMainAndReadStdOut("test",
+                new String[]{"--tests", "moduleExecution.Module1:*"},
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(errorOutput, "module wise test failure");
+
     }
 
     @Test()

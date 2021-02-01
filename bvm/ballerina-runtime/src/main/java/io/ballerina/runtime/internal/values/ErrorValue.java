@@ -103,7 +103,7 @@ public class ErrorValue extends BError implements RefValue {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
             return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent)
-                    + ")";
+                    + getCauseToString(linkParent) + ")";
         }
         return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent) +
                 getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
@@ -114,7 +114,7 @@ public class ErrorValue extends BError implements RefValue {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
             return "error" + getModuleNameToBalString() + "(" + ((StringValue) message)
-                    .informalStringValue(linkParent) + ")";
+                    .informalStringValue(linkParent) + getCauseToBalString(linkParent) + ")";
         }
         return "error" + getModuleNameToBalString() + "(" + ((StringValue) message).expressionStringValue(linkParent) +
                 getCauseToBalString(linkParent) + getDetailsToBalString(linkParent) + ")";

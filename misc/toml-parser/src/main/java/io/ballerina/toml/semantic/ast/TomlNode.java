@@ -49,6 +49,10 @@ public abstract class TomlNode implements Node {
         return diagnostics;
     }
 
+    public void clearDiagnostics() {
+        diagnostics.clear();
+    }
+
     public void addDiagnostic(Diagnostic diagnostic) {
         this.diagnostics.add(diagnostic);
     }
