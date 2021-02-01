@@ -107,7 +107,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         StringJoiner joiner = new StringJoiner(" ");
         fieldSymbol.qualifiers().forEach(qualifier -> joiner.add(qualifier.getValue()));
         String signature = joiner.add(transformType(fieldSymbol.typeDescriptor()))
-                .add(fieldSymbol.name()).toString();
+                .add(fieldSymbol.getName().get()).toString();
         this.setState(signature);
     }
 
@@ -117,7 +117,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         fieldSymbol.qualifiers().forEach(qualifier -> joiner.add(qualifier.getValue()));
 
         String signature = joiner.add(transformType(fieldSymbol.typeDescriptor()))
-                .add(fieldSymbol.name()).toString();
+                .add(fieldSymbol.getName().get()).toString();
         if (fieldSymbol.isOptional()) {
             signature += "?";
         }
@@ -132,7 +132,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
 
         StringBuilder signature = new StringBuilder(qualifierJoiner.toString());
         StringJoiner joiner = new StringJoiner(", ");
-        signature.append(methodSymbol.name()).append("(");
+        signature.append(methodSymbol.getName().get()).append("(");
 
         methodSymbol.typeDescriptor().parameters().stream().map(this::transformParameter).forEach(joiner::add);
         methodSymbol.typeDescriptor().restParam().map(this::transformParameter).ifPresent(joiner::add);
@@ -329,7 +329,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
     private String transformExternalRefType(TypeSymbol typeSymbol) {
         // If the module is not anon, imports module.
 
-        String typeName = typeSymbol.name();
+        String typeName = typeSymbol.getName().get();
         if (typeName.isBlank()) {
             String typeSignature = typeSymbol.signature();
             typeName = typeSignature.substring(typeSignature.lastIndexOf(':') + 1);

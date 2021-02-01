@@ -451,7 +451,7 @@ public class Generator {
         if (typeSymbol instanceof ObjectTypeSymbol) {
             ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) typeSymbol;
             objectTypeSymbol.methods().values().forEach(methodSymbol -> {
-                String methodName = methodSymbol.name();
+                String methodName = methodSymbol.getName().get();
                 // Check if the inclusion function is overridden
                 if (members.stream().anyMatch(node -> {
                     if (node instanceof MethodDeclarationNode && ((MethodDeclarationNode) node).methodName()
@@ -472,7 +472,7 @@ public class Generator {
 
                 methodSymbol.typeDescriptor().parameters().forEach(parameterSymbol -> {
                     boolean parameterDeprecated = parameterSymbol.annotations().stream()
-                            .anyMatch(annotationSymbol -> annotationSymbol.name().equals("deprecated"));
+                            .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
                     Type type = new Type(parameterSymbol.typeDescriptor().signature());
                     Type.resolveSymbol(type, parameterSymbol.typeDescriptor());
                     parameters.add(new DefaultableVariable(parameterSymbol.getName().isPresent() ?
@@ -482,7 +482,7 @@ public class Generator {
                 if (methodSymbol.typeDescriptor().restParam().isPresent()) {
                     ParameterSymbol restParam = methodSymbol.typeDescriptor().restParam().get();
                     boolean parameterDeprecated = restParam.annotations().stream()
-                            .anyMatch(annotationSymbol -> annotationSymbol.name().equals("deprecated"));
+                            .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
                     Type type = new Type(restParam.getName().isPresent() ? restParam.getName().get() : "");
                     type.isRestParam = true;
                     Type elemType = new Type(restParam.typeDescriptor().signature());
@@ -604,7 +604,7 @@ public class Generator {
                         Type elemType;
                         String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            typeName = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().getName().get();
                         } else {
                             typeName = field.typeDescriptor().signature();
                         }
@@ -620,7 +620,7 @@ public class Generator {
                         Type elemType;
                         String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            typeName = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().getName().get();
                         } else {
                             typeName = field.typeDescriptor().signature();
                         }

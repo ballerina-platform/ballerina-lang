@@ -345,7 +345,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         for (Symbol symbol : symbols) {
             HashedSymbol hashedSymbol = new HashedSymbol(symbol);
             // TODO: After name alternative is implemented use it.
-            String variableName = symbol.name();
+            String variableName = symbol.getName().get();
 
             boolean ignoreSymbol = knownSymbols.contains(hashedSymbol)
                     || GlobalVariable.isDefined(foundVariables, variableName)
@@ -405,7 +405,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 if (!symbol.kind().equals(SymbolKind.MODULE)) {
                     this.newSymbols.add(new HashedSymbol(symbol));
                     // TODO: After name alternative is implemented use it.
-                    return Map.entry(symbol.name(), newSnippet.toString());
+                    return Map.entry(symbol.getName().get(), newSnippet.toString());
                 }
             }
         }

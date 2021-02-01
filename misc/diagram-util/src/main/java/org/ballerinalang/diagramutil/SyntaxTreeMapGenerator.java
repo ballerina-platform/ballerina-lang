@@ -195,8 +195,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             RequiredParameterNode requiredParameterNode = (RequiredParameterNode) node;
             Optional<Token> paramName = requiredParameterNode.paramName();
             symbolMetaInfo.addProperty("name", paramName.isPresent() ? paramName.get().text() : "");
-            symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-            symbolMetaInfo.addProperty("typeName", typeSymbol.name());
+            symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
+            symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
             symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
             symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
@@ -204,8 +204,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             CaptureBindingPatternNode captureBindingPatternNode =
                     (CaptureBindingPatternNode) variableDeclarationNode.typedBindingPattern().bindingPattern();
             symbolMetaInfo.addProperty("name", captureBindingPatternNode.variableName().text());
-            symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-            symbolMetaInfo.addProperty("typeName", typeSymbol.name());
+            symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
+            symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
             symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
             symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
         } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
@@ -214,8 +214,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 SimpleNameReferenceNode simpleNameReferenceNode =
                         (SimpleNameReferenceNode) assignmentStatementNode.varRef();
                 symbolMetaInfo.addProperty("name", simpleNameReferenceNode.name().text());
-                symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-                symbolMetaInfo.addProperty("typeName", typeSymbol.name());
+                symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
+                symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
                 symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
                 symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
             }

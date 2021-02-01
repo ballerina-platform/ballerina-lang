@@ -110,8 +110,8 @@ class AIDataMapperCodeActionUtil {
             Symbol lftTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
             Symbol rhsTypeSymbol = (Symbol) props.get(RIGHT_SYMBOL_INDEX).value();
 
-            String foundTypeLeft = lftTypeSymbol.name();
-            String foundTypeRight = rhsTypeSymbol.name();
+            String foundTypeLeft = lftTypeSymbol.getName().get();
+            String foundTypeRight = rhsTypeSymbol.getName().get();
 
             // Get the semantic model
             SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
@@ -123,7 +123,7 @@ class AIDataMapperCodeActionUtil {
 
             // get the symbol at cursor type
             Symbol symbolAtCursor = semanticModel.symbol(srcFile.get(), linePosition).get();
-            String symbolAtCursorName = symbolAtCursor.name();
+            String symbolAtCursorName = symbolAtCursor.getName().get();
             String symbolAtCursorType = "";
             // Check if function return a record type in multi-module project
             if (SymbolUtil.getTypeDescriptor(symbolAtCursor).isEmpty()) {
@@ -151,14 +151,14 @@ class AIDataMapperCodeActionUtil {
                     if ("".equals(foundTypeLeft)) {
                         List<TypeSymbol> leftTypeSymbols = ((UnionTypeSymbol) lftTypeSymbol).memberTypeDescriptors();
                         lftTypeSymbol = findSymbol(leftTypeSymbols);
-                        foundTypeLeft = lftTypeSymbol.name();
+                        foundTypeLeft = lftTypeSymbol.getName().get();
                         foundErrorLeft = true;
                     }
                     // If the check or checkpanic is used
                     if ("".equals(foundTypeRight)) {
                         List<TypeSymbol> rightTypeSymbols = ((UnionTypeSymbol) rhsTypeSymbol).memberTypeDescriptors();
                         rhsTypeSymbol = findSymbol(rightTypeSymbols);
-                        foundTypeRight = rhsTypeSymbol.name();
+                        foundTypeRight = rhsTypeSymbol.getName().get();
                         foundErrorRight = true;
                     }
 
@@ -188,7 +188,7 @@ class AIDataMapperCodeActionUtil {
 
             // Insert function declaration at the bottom of the file
             String functionName = String.format("map%sTo%s", foundTypeRight, foundTypeLeft);
-            boolean found = fileContentSymbols.stream().anyMatch(p -> p.name().contains(functionName));
+            boolean found = fileContentSymbols.stream().anyMatch(p -> p.getName().get().contains(functionName));
             if (found) {
                 return fEdits;
             } else {
@@ -240,7 +240,7 @@ class AIDataMapperCodeActionUtil {
      */
     public static Symbol findSymbol(List<TypeSymbol> fileContentSymbols) {
         for (Symbol symbol : fileContentSymbols) {
-            if (!"ERROR".equals(symbol.name())) {
+            if (!"ERROR".equals(symbol.getName().get())) {
                 return symbol;
             }
         }
@@ -337,7 +337,7 @@ class AIDataMapperCodeActionUtil {
             } else {
                 fieldDetails.addProperty(TYPE, attributeType.typeKind().toString());
             }
-            properties.add(attribute.name(), fieldDetails);
+            properties.add(attribute.getName().get(), fieldDetails);
         }
         return properties;
     }

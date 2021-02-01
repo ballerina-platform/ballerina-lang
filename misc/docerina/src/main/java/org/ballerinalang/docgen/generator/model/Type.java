@@ -288,7 +288,7 @@ public class Type {
             if (classSymbol.qualifiers().contains(Qualifier.CLIENT)) {
                 return "clients";
             } else if (classSymbol.qualifiers().contains(Qualifier.LISTENER) ||
-                    typeDescriptor.name().equals("Listener")) {
+                    "Listener".equals(typeDescriptor.getName().orElse(null))) {
                 return "listeners";
             } else {
                 return "classes";

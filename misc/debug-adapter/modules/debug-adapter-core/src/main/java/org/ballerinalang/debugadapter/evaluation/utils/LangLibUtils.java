@@ -103,7 +103,7 @@ public class LangLibUtils {
                                                                         ModuleSymbol langLibDef, String functionName) {
         return langLibDef.functions()
                 .stream()
-                .filter(functionSymbol -> modifyName(functionSymbol.name()).equals(functionName))
+                .filter(functionSymbol -> modifyName(functionSymbol.getName().get()).equals(functionName))
                 .findFirst();
     }
 

@@ -40,7 +40,7 @@ public class HashedSymbol {
      * @param symbol Symbol to wrap.
      */
     public HashedSymbol(Symbol symbol) {
-        this.name = symbol.name();
+        this.name = symbol.getName().get();
         this.kind = symbol.kind();
     }
 

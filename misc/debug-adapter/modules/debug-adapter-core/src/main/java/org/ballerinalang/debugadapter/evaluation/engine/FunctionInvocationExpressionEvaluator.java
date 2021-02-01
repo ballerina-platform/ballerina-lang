@@ -92,7 +92,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         List<Symbol> functionMatches = semanticContext.moduleSymbols()
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
-                        && modifyName(symbol.name()).equals(functionName))
+                        && modifyName(symbol.getName().get()).equals(functionName))
                 .collect(Collectors.toList());
         if (functionMatches.isEmpty()) {
             return Optional.empty();
