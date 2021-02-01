@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 8,
+    "line": 9,
     "character": 1
   },
-  "source": "service_decl/source/source7.bal",
+  "source": "service_decl/source/source18.bal",
   "items": [
     {
       "label": "import",
@@ -146,23 +146,9 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "insertText": "service /${1} on new http:Listener(8080) {\n\tresource function ${2:get} ${3:getResource}(http:Caller ${4:caller}, http:Request ${5:req}) {\n\t\t\n\t}\n}",
+      "insertText": "service /${1} on new modHttp:Listener(8080) {\n\tresource function ${2:get} ${3:getResource}(modHttp:Caller ${4:caller}, modHttp:Request ${5:req}) {\n\t\t\n\t}\n}",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
+      "additionalTextEdits": []
     },
     {
       "label": "annotation",
@@ -490,6 +476,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "modHttp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "B",
+      "insertText": "modHttp",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
@@ -500,11 +494,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -523,11 +517,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -546,11 +540,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -569,11 +563,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -592,11 +586,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -615,11 +609,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -638,11 +632,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },

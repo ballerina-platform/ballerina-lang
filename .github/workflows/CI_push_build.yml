@@ -34,21 +34,15 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ github.sha }}
           restore-keys: ${{ runner.os }}-gradle
 
-      - name: Build and publish
+      - name: Build
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew build -x createJavadoc --max-workers=2 --scan
-          ./gradlew publish
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
-      - name: Trigger Standard Library Module Builds
-        run: |
-          echo "Triggering stdlib module builds"
-          curl --request \
-          POST 'https://api.github.com/repos/ballerina-platform/ballerina-standard-library/dispatches' \
-          --header 'Accept: application/vnd.github.v3+json' \
-          --header 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
-          --header 'Content-Type: application/json' \
-          --data-raw '{
-              "event_type": "ballerina-lang-push"
-          }'
+
+      - name: Publish Jacoco Coverage artifact
+          run: |
+            export DISPLAY=':99.0'
+            /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+            ./gradlew publishCodeCovPublicationToGitHubPackagesRepository --max-workers=2 --scan --no-daemon
