@@ -13236,7 +13236,7 @@ public class BallerinaParser extends AbstractParser {
             }
             matchClauses.add(clause);
 
-            STNode seperator = parseMatchPatternEnd();
+            STNode seperator = parseMatchPatternListMemberRhs();
             if (seperator == null) {
                 break;
             }
@@ -13304,7 +13304,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseMatchPatternEnd() {
+    private STNode parseMatchPatternListMemberRhs() {
         switch (peek().kind) {
             case PIPE_TOKEN:
                 return parsePipeToken();
@@ -13313,8 +13313,8 @@ public class BallerinaParser extends AbstractParser {
                 // Returning null indicates the end of the match-patterns list
                 return null;
             default:
-                recover(peek(), ParserRuleContext.MATCH_PATTERN_RHS);
-                return parseMatchPatternEnd();
+                recover(peek(), ParserRuleContext.MATCH_PATTERN_LIST_MEMBER_RHS);
+                return parseMatchPatternListMemberRhs();
         }
     }
 
