@@ -103,9 +103,11 @@ public class SymbolBIRTest {
 
         List<String> fooTypeDefs = getSymbolNames(getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF), "Digit");
         fooTypeDefs.remove("PersonObj");
+        fooTypeDefs.remove("Colour");
         SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), fooTypeDefs);
 
         SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj"));
+        SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
 
         List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
         SemanticAPITestUtils.assertList(fooModule.allSymbols(), allSymbols);
