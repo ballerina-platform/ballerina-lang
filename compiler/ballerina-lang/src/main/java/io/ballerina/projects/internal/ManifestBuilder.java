@@ -29,6 +29,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
@@ -43,6 +44,8 @@ import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.validator.TomlValidator;
+import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -52,7 +55,9 @@ import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.compiler.CompilerOptionName;
 
+import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,6 +83,9 @@ public class ManifestBuilder {
     private PackageManifest packageManifest;
     private BuildOptions buildOptions;
     private Path projectPath;
+
+    private static final Path DEPENDENCIES_TOML_SCHEMA = Paths
+            .get("src", "main", "resources", "dependencies-toml-schema.json");
 
     private static final String PACKAGE = "package";
     private static final String VERSION = "version";
@@ -105,7 +113,7 @@ public class ManifestBuilder {
         }
 
         // Add toml syntax diagnostics
-        ballerinaToml.syntaxTree().diagnostics().forEach(this.diagnosticList::add);
+        this.diagnosticList.addAll(ballerinaToml.toml().diagnostics());
         diagnostics = new DefaultDiagnosticResult(this.diagnosticList);
         return diagnostics;
     }
@@ -130,20 +138,32 @@ public class ManifestBuilder {
 
     @SuppressWarnings("unchecked")
     private PackageManifest parseAsPackageManifest() {
-        PackageDescriptor packageDescriptor = getPackageDescriptor(ballerinaToml.tomlAstNode());
+        TomlValidator ballerinaTomlValidator;
+        try {
+            ballerinaTomlValidator = new TomlValidator(
+                    Schema.from(FileUtils.readFileAsString("ballerina-toml-schema.json")));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read the TOML validator schema file.");
+        }
+
+        // Validate ballerinaToml using ballerina toml schema
+        ballerinaTomlValidator.validate(ballerinaToml.toml());
+
+        TomlTableNode tomlAstNode = ballerinaToml.toml().rootNode();
+        PackageDescriptor packageDescriptor = getPackageDescriptor(tomlAstNode);
 
         // Do not mutate toml tree
         Map<String, TopLevelNode> otherEntries = new HashMap<>();
-        if (!ballerinaToml.tomlAstNode().entries().isEmpty()) {
+        if (!tomlAstNode.entries().isEmpty()) {
 
-            for (Map.Entry<String, TopLevelNode> entry : ballerinaToml.tomlAstNode().entries().entrySet()) {
+            for (Map.Entry<String, TopLevelNode> entry : tomlAstNode.entries().entrySet()) {
                 if (entry.getKey().equals(PACKAGE)) {
                     continue;
                 }
                 otherEntries.put(entry.getKey(), entry.getValue());
             }
 
-            TomlTableNode pkgNode = (TomlTableNode) ballerinaToml.tomlAstNode().entries().get(PACKAGE);
+            TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
             if (pkgNode != null && pkgNode.kind() != TomlType.NONE && !pkgNode.entries().isEmpty()) {
                 // TODO add package properties which is not available in the `PackageDescriptor` to `otherEntries`
                 // TODO we need to fix this properly later
@@ -237,7 +257,7 @@ public class ManifestBuilder {
     }
 
     private BuildOptions parseBuildOptions() {
-        TomlTableNode tomlTableNode = ballerinaToml.tomlAstNode();
+        TomlTableNode tomlTableNode = ballerinaToml.toml().rootNode();
         return setBuildOptions(tomlTableNode);
     }
 
@@ -246,8 +266,18 @@ public class ManifestBuilder {
             return Collections.emptyList();
         }
 
+        TomlValidator dependenciesTomlValidator;
+        try {
+            dependenciesTomlValidator = new TomlValidator(Schema.from(DEPENDENCIES_TOML_SCHEMA));
+        } catch (IOException e) {
+            throw new ProjectException(
+                    "Failed to read the TOML validator schema file from the path:" + DEPENDENCIES_TOML_SCHEMA);
+        }
+        // Validate dependencies toml using dependencies toml schema
+        dependenciesTomlValidator.validate(dependenciesToml.get().toml());
+
         List<PackageManifest.Dependency> dependencies = new ArrayList<>();
-        TomlTableNode tomlTableNode = dependenciesToml.get().tomlAstNode();
+        TomlTableNode tomlTableNode = dependenciesToml.get().toml().rootNode();
 
         if (tomlTableNode.entries().isEmpty()) {
             addDiagnostic(null, DiagnosticSeverity.ERROR, tomlTableNode,

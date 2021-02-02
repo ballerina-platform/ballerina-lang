@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -31,6 +33,10 @@ public class PackageDescriptor {
     private final PackageName packageName;
     private final PackageOrg packageOrg;
     private final PackageVersion packageVersion;
+    private final List<String> license;
+    private final List<String> authors;
+    private final List<String> keywords;
+    private final String repository;
 
     private PackageDescriptor(PackageOrg packageOrg,
                               PackageName packageName,
@@ -38,11 +44,36 @@ public class PackageDescriptor {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
         this.packageVersion = packageVersion;
+        this.license = Collections.emptyList();
+        this.authors = Collections.emptyList();
+        this.keywords = Collections.emptyList();
+        this.repository = "";
+    }
+
+    private PackageDescriptor(PackageOrg packageOrg,
+            PackageName packageName,
+            PackageVersion packageVersion,
+            List<String> license,
+            List<String> authors,
+            List<String> keywords,
+            String repository) {
+        this.packageName = packageName;
+        this.packageOrg = packageOrg;
+        this.packageVersion = packageVersion;
+        this.license = license;
+        this.authors = authors;
+        this.keywords = keywords;
+        this.repository = repository;
     }
 
     public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName,
                                          PackageVersion packageVersion) {
         return new PackageDescriptor(packageOrg, packageName, packageVersion);
+    }
+
+    public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName, PackageVersion packageVersion,
+            List<String> license, List<String> authors, List<String> keywords, String repository) {
+        return new PackageDescriptor(packageOrg, packageName, packageVersion, license, authors, keywords, repository);
     }
 
     public PackageName name() {
@@ -55,6 +86,22 @@ public class PackageDescriptor {
 
     public PackageVersion version() {
         return packageVersion;
+    }
+
+    public List<String> license() {
+        return license;
+    }
+
+    public List<String> authors() {
+        return authors;
+    }
+
+    public List<String> keywords() {
+        return keywords;
+    }
+
+    public String repository() {
+        return repository;
     }
 
     public boolean isLangLibPackage() {
