@@ -526,6 +526,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 endPos.offset());
     }
 
+    private Location getPosition(Node startNode, Node endNode) {
+        if (startNode == null || endNode == null) {
+            return null;
+        }
+        LinePosition startPos = startNode.lineRange().startLine();
+        LinePosition endPos = endNode.lineRange().endLine();
+        return new BLangDiagnosticLocation(currentCompUnitName, startPos.line(), endPos.line(),
+                                           startPos.offset(), endPos.offset());
+    }
+
     private Location getPositionWithoutMetadata(Node node) {
         if (node == null) {
             return null;
@@ -2123,7 +2133,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             BLangTableMultiKeyExpr multiKeyExpr =
                     (BLangTableMultiKeyExpr) TreeBuilder.createTableMultiKeyExpressionNode();
-            multiKeyExpr.pos = getPosition(indexedExpressionNode);
+            multiKeyExpr.pos = getPosition(keys.get(0), keys.get(keys.size() - 1));
             List<BLangExpression> multiKeyIndexExprs = new ArrayList<>();
             for (io.ballerina.compiler.syntax.tree.ExpressionNode keyExpr : keys) {
                 multiKeyIndexExprs.add(createExpression(keyExpr));
@@ -2689,6 +2699,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
             constrainedType.type = refType;
             constrainedType.constraint = createTypeNode(node.get().typeNode());
+            constrainedType.pos = getPosition(typedescTypeDescriptorNode);
             return constrainedType;
         }
 
