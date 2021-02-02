@@ -611,7 +611,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] ERROR_ARG_LIST_MATCH_PATTERN_START =
             { ParserRuleContext.CONSTANT_EXPRESSION, ParserRuleContext.VAR_KEYWORD,
-                    ParserRuleContext.ERROR_FIELD_MATCH_PATTERN };
+                    ParserRuleContext.ERROR_FIELD_MATCH_PATTERN, ParserRuleContext.CLOSE_PARENTHESIS };
 
     private static final ParserRuleContext[] ERROR_MESSAGE_MATCH_PATTERN_END =
             { ParserRuleContext.ERROR_MESSAGE_MATCH_PATTERN_END_COMMA, ParserRuleContext.CLOSE_PARENTHESIS };

@@ -2417,17 +2417,7 @@
                                         },
                                         {
                                           "kind": "LIST",
-                                          "hasDiagnostics": true,
-                                          "children": [
-                                            {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_IDENTIFIER"
-                                              ]
-                                            }
-                                          ]
+                                          "children": []
                                         },
                                         {
                                           "kind": "CLOSE_PAREN_TOKEN",
