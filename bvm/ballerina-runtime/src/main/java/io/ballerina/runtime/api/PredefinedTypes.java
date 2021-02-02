@@ -267,19 +267,19 @@ public class PredefinedTypes {
         TYPE_JSON_DECIMAL = jsonDecimal;
     }
 
-    // public type JsonDecimal ()|boolean|string|decimal|JsonDecimal[]|map<JsonDecimal>;
+    // public type JsonFloat ()|boolean|string|float|JsonFloat[]|map<JsonFloat>;
     static {
         ArrayList<Type> members = new ArrayList<>();
         members.add(TYPE_NULL);
         members.add(TYPE_BOOLEAN);
         members.add(TYPE_STRING);
-        members.add(TYPE_DECIMAL);
+        members.add(TYPE_FLOAT);
         var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
         BUnionType jsonFloat = new BUnionType(TypeConstants.JSON_FLOAT_TNAME, valueModule, members);
         jsonFloat.isCyclic = true;
-        MapType internaljsonDecimalMap = new BMapType(TypeConstants.MAP_TNAME, jsonFloat, valueModule);
-        ArrayType internaljsonDecimalArray = new BArrayType(jsonFloat);
-        jsonFloat.addMembers(internaljsonDecimalArray, internaljsonDecimalMap);
+        MapType internaljsonFloatMap = new BMapType(TypeConstants.MAP_TNAME, jsonFloat, valueModule);
+        ArrayType internaljsonFloatArray = new BArrayType(jsonFloat);
+        jsonFloat.addMembers(internaljsonFloatArray, internaljsonFloatMap);
         TYPE_JSON_FLOAT = jsonFloat;
     }
 }
