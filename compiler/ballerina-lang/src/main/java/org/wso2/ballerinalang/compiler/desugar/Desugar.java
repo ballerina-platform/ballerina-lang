@@ -6796,6 +6796,12 @@ public class Desugar extends BLangNodeVisitor {
         BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
+        if (!objectType.typeIdSet.primary.isEmpty()) {
+            objectClassType.typeIdSet.primary.addAll(objectType.typeIdSet.primary);
+        }
+        if (!objectType.typeIdSet.secondary.isEmpty()) {
+            objectClassType.typeIdSet.secondary.addAll(objectType.typeIdSet.secondary);
+        }
 
         // Create a new object type node and a type def from the concrete class type
 //        BLangObjectTypeNode objectClassNode = TypeDefBuilderHelper.createObjectTypeNode(objectClassType, pos);
@@ -6828,6 +6834,21 @@ public class Desugar extends BLangNodeVisitor {
         env.enclPkg.topLevelNodes.add(classDef.generatedInitFunction);
 
         return rewrite(classDef, env);
+    }
+
+    /**
+     * When `objectType` is created using abstract object `referenceType` we need to add type ids of referenced object
+     *
+     * @param objectType Type which referreing another type
+     * @param referenceType Type getting included
+     */
+    private void inlcudeTypeIdsFromReference(BObjectType objectType, BObjectType referenceType) {
+        if (!referenceType.typeIdSet.primary.isEmpty()) {
+            objectType.typeIdSet.primary.addAll(referenceType.typeIdSet.primary);
+        }
+        if (!referenceType.typeIdSet.secondary.isEmpty()) {
+            objectType.typeIdSet.secondary.addAll(referenceType.typeIdSet.secondary);
+        }
     }
 
     /**
