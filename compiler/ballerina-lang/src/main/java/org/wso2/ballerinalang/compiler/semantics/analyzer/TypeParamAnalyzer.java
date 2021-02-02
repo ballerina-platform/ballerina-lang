@@ -421,11 +421,13 @@ public class TypeParamAnalyzer {
                     findTypeParam(loc, ((BTypedescType) expType).constraint, ((BTypedescType) actualType).constraint,
                                   env, resolvedTypes, result);
                 }
+                return;
             case TypeTags.INTERSECTION:
                 if (actualType.tag == TypeTags.INTERSECTION) {
                     findTypeParam(loc, ((BIntersectionType) expType).effectiveType,
                             ((BIntersectionType) actualType).effectiveType, env, resolvedTypes, result);
                 }
+                return;
         }
     }
 
