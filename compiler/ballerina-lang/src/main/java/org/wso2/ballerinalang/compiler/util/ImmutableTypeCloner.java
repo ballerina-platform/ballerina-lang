@@ -417,9 +417,8 @@ public class ImmutableTypeCloner {
                 if (unresolvedTypes.contains(origUnionType) && origUnionType.immutableType != null) {
                     return origUnionType.immutableType;
                 } else {
-                    BIntersectionType immutableUnionIntersectionType = createImmutableIntersectionType(env, origUnionType,
-                            BUnionType.create(origUnionType.tsymbol),
-                            symTable);
+                    BIntersectionType immutableUnionIntersectionType = createImmutableIntersectionType(env,
+                            origUnionType, BUnionType.create(origUnionType.tsymbol), symTable);
                     origUnionType.immutableType = immutableUnionIntersectionType;
                 }
 
