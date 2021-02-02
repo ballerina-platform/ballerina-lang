@@ -20,6 +20,7 @@ package io.ballerina.shell.invoker.classload.visitors;
 
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.shell.invoker.classload.ElevatedType;
@@ -84,6 +85,11 @@ public class ElevatedTypeTransformer extends TypeSymbolTransformer<ElevatedType>
     @Override
     protected void visit(ErrorTypeSymbol symbol) {
         setState(ElevatedType.ERROR);
+    }
+
+    @Override
+    protected void visit(TypeReferenceTypeSymbol symbol) {
+        setState(transformType(symbol.typeDescriptor()));
     }
 
     @Override
