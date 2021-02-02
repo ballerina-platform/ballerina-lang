@@ -385,7 +385,7 @@ public class JvmCastGen {
                         String.format("()L%s;", OBJECT), false);
                 break;
             case TypeTags.FINITE:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BOOLEAN_METHOD, String.format("(L%s;)J", OBJECT),
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BOOLEAN_METHOD, String.format("(L%s;)Z", OBJECT),
                         false);
                 break;
             default:
