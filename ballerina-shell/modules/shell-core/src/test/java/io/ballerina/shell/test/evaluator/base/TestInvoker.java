@@ -34,7 +34,8 @@ public class TestInvoker extends ClassLoadInvoker {
     private String output = "";
 
     @Override
-    protected Object invokeMethod(ClassLoader classLoader, String className, String methodName) throws InvokerException {
+    protected Object invokeMethod(ClassLoader classLoader, String className, String methodName)
+            throws InvokerException {
         PrintStream stdOut = System.out;
         ByteArrayOutputStream stdOutBaOs = new ByteArrayOutputStream();
         try {
