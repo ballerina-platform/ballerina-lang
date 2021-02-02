@@ -588,7 +588,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
             // Schedule and run the function and return if result is valid
             BFuture out = scheduler.schedule(new Object[1], methodInvocation, null, null, null,
-                    PredefinedTypes.TYPE_BOOLEAN, null, null);
+                    PredefinedTypes.TYPE_ERROR, null, null);
             scheduler.start();
 
             Object result = out.getResult();
