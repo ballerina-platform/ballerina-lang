@@ -2831,6 +2831,12 @@ public class Types {
             return true;
         }
 
+        if (source.tag == TypeTags.UNION && ((BUnionType) source).isCyclic) {
+            if (!unresolvedTypes.add(pair)) {
+                return true;
+            }
+        }
+
         Set<BType> sourceTypes = new LinkedHashSet<>();
         Set<BType> targetTypes = new LinkedHashSet<>();
 
@@ -2898,6 +2904,7 @@ public class Types {
             while (targetIterator.hasNext()) {
                 BType t = targetIterator.next();
                 if (isAssignable(sMember, t, unresolvedTypes)) {
+                    sourceIterator.remove();
                     sourceTypeIsNotAssignableToAnyTargetType = false;
                     break;
                 }

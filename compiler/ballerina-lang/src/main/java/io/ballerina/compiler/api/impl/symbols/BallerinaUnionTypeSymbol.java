@@ -113,7 +113,6 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         }
 
         if (unionType.resolvingToString) {
-            unionType.resolvingToString = false;
             return "...";
         }
 

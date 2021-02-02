@@ -118,7 +118,6 @@ public class BUnionType extends BType implements UnionType {
 
         // This logic is added to prevent duplicate recursive calls to toString
         if (this.resolvingToString) {
-            this.resolvingToString = false;
             if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
                 return this.tsymbol.getName().getValue();
             }
