@@ -36,11 +36,13 @@ public class HashedSymbol {
 
     /**
      * Wraps symbol with hashed symbol to make is hashable.
+     * Symbol must have a name to be created a hashed symbol.
+     * If the symbol does not have a name {@code NoSuchElementException} will be thrown.
      *
      * @param symbol Symbol to wrap.
      */
     public HashedSymbol(Symbol symbol) {
-        this.name = symbol.getName().get();
+        this.name = symbol.getName().orElseThrow();
         this.kind = symbol.kind();
     }
 

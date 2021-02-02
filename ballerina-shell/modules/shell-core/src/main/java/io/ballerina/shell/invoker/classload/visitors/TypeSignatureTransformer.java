@@ -329,8 +329,9 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
     private String transformExternalRefType(TypeSymbol typeSymbol) {
         // If the module is not anon, imports module.
 
-        String typeName = typeSymbol.getName().get();
+        String typeName = typeSymbol.getName().orElse("");
         if (typeName.isBlank()) {
+            // Name was null or blank
             String typeSignature = typeSymbol.signature();
             typeName = typeSignature.substring(typeSignature.lastIndexOf(':') + 1);
         }
