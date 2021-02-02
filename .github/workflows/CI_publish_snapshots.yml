@@ -28,8 +28,7 @@ jobs:
                     packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
                     packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
                 run: |
-                    ./gradlew build -x createJavadoc --scan
-                    ./gradlew publish
+                    ./gradlew clean build -x createJavadoc --scan publish --continue --rerun-tasks
 
             -   name: Trigger Standard Library Module Builds
                 run: |
