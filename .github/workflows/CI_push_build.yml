@@ -42,7 +42,10 @@ jobs:
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
       - name: Publish Jacoco Coverage artifact
-          run: |
-            export DISPLAY=':99.0'
-            /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-            ./gradlew publishCodeCovPublicationToGitHubPackagesRepository --max-workers=2 --scan --no-daemon
+        env:
+          packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+        run: |
+          export DISPLAY=':99.0'
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          ./gradlew publishCodeCovPublicationToGitHubPackagesRepository --max-workers=2 --scan --no-daemon
