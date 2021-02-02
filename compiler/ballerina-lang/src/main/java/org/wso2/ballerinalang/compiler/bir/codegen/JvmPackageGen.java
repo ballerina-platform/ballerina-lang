@@ -637,7 +637,6 @@ public class JvmPackageGen {
         JavaClass klass = new JavaClass(initFunc.pos.lineRange().filePath());
         klass.functions.add(0, initFunc);
         PackageID packageID = birPackage.packageID;
-        initMethodGen.addInitAndTypeInitInstructions(packageID, initFunc);
         jvmClassMap.put(initClass, klass);
         String pkgName = JvmCodeGenUtil.getPackageName(packageID);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(initFunc, packageID, initClass));
