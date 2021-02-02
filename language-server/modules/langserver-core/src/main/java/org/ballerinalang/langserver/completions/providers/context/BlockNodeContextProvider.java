@@ -62,7 +62,9 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, T node)
             throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+
         if (onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Covers the following
@@ -80,23 +82,23 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                             || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
 
-            return this.getCompletionItemList(moduleContent, context);
+            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+        } else {
+            /*
+            Covers the following
+            Ex: function test() {
+                    <cursor>
+                    i<cursor>
+                }
+             */
+            completionItems.addAll(getStaticCompletionItems(context));
+            completionItems.addAll(getStatementCompletionItems(context, node));
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getSymbolCompletions(context));
         }
+        this.sort(context, node, completionItems);
         
-        /*
-        Covers the following
-        Ex: function test() {
-                <cursor>
-                i<cursor>
-            }
-         */
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(getStaticCompletionItems(context));
-        completionItems.addAll(getStatementCompletionItems(context, node));
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getSymbolCompletions(context));
-
         return completionItems;
     }
 

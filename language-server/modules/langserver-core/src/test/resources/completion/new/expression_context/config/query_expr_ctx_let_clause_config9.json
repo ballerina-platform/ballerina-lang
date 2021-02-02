@@ -10,8 +10,9 @@
       "kind": "Event",
       "detail": "Error",
       "documentation": {
-        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to anydata or readonly type."
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
       },
+      "sortText": "Q",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -22,12 +23,15 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
+      "sortText": "L",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Thread",
+      "kind": "TypeParameter",
       "detail": "Union",
+      "sortText": "M",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -35,6 +39,7 @@
       "label": "float",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -42,6 +47,7 @@
       "label": "xml",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -49,6 +55,7 @@
       "label": "readonly",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
@@ -56,6 +63,7 @@
       "label": "handle",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
@@ -63,6 +71,7 @@
       "label": "never",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "never",
       "insertTextFormat": "Snippet"
     },
@@ -70,6 +79,7 @@
       "label": "decimal",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -77,6 +87,7 @@
       "label": "string",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -84,6 +95,7 @@
       "label": "stream",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
@@ -91,6 +103,7 @@
       "label": "json",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -98,6 +111,7 @@
       "label": "table",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -105,6 +119,7 @@
       "label": "anydata",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -112,6 +127,7 @@
       "label": "any",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
@@ -119,6 +135,7 @@
       "label": "int",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -126,6 +143,7 @@
       "label": "boolean",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -133,6 +151,7 @@
       "label": "future",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -140,6 +159,7 @@
       "label": "service",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -147,6 +167,7 @@
       "label": "typedesc",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -154,13 +175,15 @@
       "label": "byte",
       "kind": "Unit",
       "detail": "type",
+      "sortText": "Q",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "map",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "type ",
+      "sortText": "Q",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
@@ -168,6 +191,7 @@
       "label": "error",
       "kind": "Event",
       "detail": "error",
+      "sortText": "Q",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -175,6 +199,7 @@
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "record ",
       "insertTextFormat": "Snippet"
     },
@@ -182,6 +207,7 @@
       "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "sortText": "O",
       "insertText": "record {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -189,6 +215,7 @@
       "label": "record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "sortText": "O",
       "insertText": "record {|\n\t${1}\n|}",
       "insertTextFormat": "Snippet"
     },
@@ -196,6 +223,7 @@
       "label": "object",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
@@ -203,6 +231,7 @@
       "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "sortText": "O",
       "insertText": "object {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -210,6 +239,7 @@
       "label": "var",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "var ",
       "insertTextFormat": "Snippet"
     }

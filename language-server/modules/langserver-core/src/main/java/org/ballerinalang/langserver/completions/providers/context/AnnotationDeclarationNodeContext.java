@@ -35,8 +35,8 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -56,6 +56,7 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, AnnotationDeclarationNode node) {
+        List<LSCompletionItem> completionItemList = new ArrayList<>();
         if (this.onTypeDescriptorContext(context, node)) {
             Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION
                     && this.isValidTypeDescForAnnotations((TypeDefinitionSymbol) symbol);
@@ -63,27 +64,22 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
                 List<Symbol> filteredSymbols = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
                 
-                return this.getCompletionItemList(filteredSymbols, context);
+                completionItemList.addAll(this.getCompletionItemList(filteredSymbols, context));
             } else {
                 List<Symbol> filteredSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
                         .filter(predicate)
                         .collect(Collectors.toList());
-                List<LSCompletionItem> completionItemList = this.getCompletionItemList(filteredSymbols, context);
+                completionItemList.addAll(this.getCompletionItemList(filteredSymbols, context));
                 completionItemList.addAll(this.getModuleCompletionItems(context));
-                
-                return completionItemList;
             }
+        } else if (this.onSuggestOnKeyword(context, node)) {
+            completionItemList.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+        } else if (this.onSuggestAttachmentPoints(context, node)) {
+            completionItemList.addAll(this.getAnnotationAttachmentPoints(context));
         }
 
-        if (this.onSuggestOnKeyword(context, node)) {
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
-        }
-
-        if (this.onSuggestAttachmentPoints(context, node)) {
-            return this.getAnnotationAttachmentPoints(context);
-        }
-
-        return Collections.emptyList();
+        this.sort(context, node, completionItemList);
+        return completionItemList;
     }
 
     private boolean onTypeDescriptorContext(BallerinaCompletionContext context, AnnotationDeclarationNode node) {

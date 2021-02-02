@@ -9,20 +9,15 @@
       "label": "TestObject1",
       "kind": "Interface",
       "detail": "Object",
+      "sortText": "K",
       "insertText": "TestObject1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Listener",
-      "kind": "Interface",
-      "detail": "Class",
-      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
+      "sortText": "K",
       "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
@@ -33,6 +28,7 @@
       "documentation": {
         "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
       },
+      "sortText": "K",
       "insertText": "Client",
       "insertTextFormat": "Snippet"
     },
@@ -43,13 +39,23 @@
       "documentation": {
         "left": "Represents a response.\n"
       },
+      "sortText": "K",
       "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "listener1",
       "kind": "Variable",
       "detail": "ballerina/module1:0.1.0:Listener",
+      "sortText": "B",
       "insertText": "listener1",
       "insertTextFormat": "Snippet"
     }

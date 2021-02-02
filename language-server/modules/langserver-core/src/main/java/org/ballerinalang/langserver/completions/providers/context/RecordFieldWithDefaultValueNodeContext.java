@@ -80,6 +80,7 @@ public class RecordFieldWithDefaultValueNodeContext extends
             completionItems.addAll(getNewExprCompletionItems(ctx, node.typeName()));
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_IS.get()));
         }
+        this.sort(ctx, node, completionItems);
 
         return completionItems;
     }
