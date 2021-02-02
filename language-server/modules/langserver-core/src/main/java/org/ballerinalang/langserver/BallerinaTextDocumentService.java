@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.Module;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.formatter.core.Formatter;
@@ -265,14 +266,24 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            String fileUri = params.getTextDocument().getUri();
-
             try {
                 ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
                         params.getPosition());
-                return ReferencesUtil.getReferences(context);
+
+                Map<Module, List<io.ballerina.tools.diagnostics.Location>> referencesMap = 
+                        ReferencesUtil.getReferences(context);
+                Path projectRoot = context.workspace().projectRoot(context.filePath());
+
+                List<Location> references = new ArrayList<>();
+                referencesMap.forEach((module, locations) ->
+                        locations.forEach(location -> {
+                            String uri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
+                            references.add(new Location(uri, ReferencesUtil.getRange(location)));
+                        }));
+                
+                return references;
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Find References", e);
                 return new ArrayList<>();
@@ -456,28 +467,32 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
             WorkspaceEdit workspaceEdit = new WorkspaceEdit();
+            Map<String, List<TextEdit>> changes = new HashMap<>();
 
             try {
                 ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
                         params.getPosition());
-                
-                List<Location> locations = ReferencesUtil.getReferences(context);
-                Map<String, List<TextEdit>> changes = new HashMap<>();
-                locations.forEach(location -> {
-                    TextEdit textEdit = new TextEdit(location.getRange(), params.getNewName());
-                    List<TextEdit> textEdits = changes.computeIfAbsent(location.getUri(), k -> new ArrayList<>());
-                    textEdits.add(textEdit);
-                });
-                workspaceEdit.setChanges(changes);
+
+                Map<Module, List<io.ballerina.tools.diagnostics.Location>> locationMap = 
+                        ReferencesUtil.getReferences(context);
+                Path projectRoot = context.workspace().projectRoot(context.filePath());
+
+                locationMap.forEach((module, locations) ->
+                        locations.forEach(location -> {
+                            String uri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
+                            List<TextEdit> textEdits = changes.computeIfAbsent(uri, k -> new ArrayList<>());
+                            textEdits.add(new TextEdit(ReferencesUtil.getRange(location), params.getNewName()));
+                        }));
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
             } catch (Throwable e) {
                 String msg = "Operation 'text/rename' failed!";
                 this.clientLogger.logError(msg, e, params.getTextDocument(), params.getPosition());
             }
-            
+
+            workspaceEdit.setChanges(changes);
             return workspaceEdit;
         });
     }
