@@ -61,7 +61,8 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         Optional<ClassSymbol> classSymbol = getClassSymbol(context, node);
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
         classSymbol.ifPresent(symbol -> completionItems.add(this.getExplicitNewCompletionItem(symbol, context)));
-
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 

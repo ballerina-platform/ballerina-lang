@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -111,18 +110,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
-        for (LSCompletionItem item : completionItems) {
-            CompletionItem cItem = item.getCompletionItem();
-            int rank;
-            if (item instanceof SnippetCompletionItem) {
-                rank = 1;
-            } else if (item instanceof SymbolCompletionItem) {
-                rank = 2;
-            } else {
-                rank = 3;
-            }
-            cItem.setSortText(SortingUtil.genSortText(rank));
-        }
+        SortingUtil.toDefaultSorting(context, completionItems);
     }
 
     /**
@@ -207,20 +195,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         ));
 
         return completionItems;
-    }
-
-    /**
-     * Filter all the types in the Module.
-     *
-     * @param moduleSymbol package symbol
-     * @return {@link List} list of filtered type entries
-     */
-    @Deprecated
-    protected List<Symbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
-        List<Symbol> typeDefs = new ArrayList<>();
-        typeDefs.addAll(moduleSymbol.typeDefinitions());
-        typeDefs.addAll(moduleSymbol.classes());
-        return typeDefs;
     }
 
     /**

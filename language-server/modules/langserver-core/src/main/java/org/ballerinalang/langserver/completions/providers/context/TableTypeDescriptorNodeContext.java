@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,8 +46,10 @@ public class TableTypeDescriptorNodeContext extends AbstractCompletionProvider<T
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (this.onSuggestKeyKw(context, node)) {
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_KEY.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_KEY.get()));
         }
+        // Sorting is invoked to maintain consistency and avoid missing the phase in future with new modifications
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
