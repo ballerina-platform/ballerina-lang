@@ -230,7 +230,8 @@ public class BIRBinaryWriter {
             buf.writeInt(addStringCPEntry(birFunction.receiver.name.value));
         }
 
-        if (isResource) {
+        // instanceof check instead of checking `isResource` to avoid spotbug error
+        if (birFunction instanceof BIRNode.BIRResourceMethod) {
             BIRNode.BIRResourceMethod resourceMethod = (BIRNode.BIRResourceMethod) birFunction;
             buf.writeInt(addStringCPEntry(resourceMethod.methodName.value));
             buf.writeInt(resourceMethod.resourcePath.size());
