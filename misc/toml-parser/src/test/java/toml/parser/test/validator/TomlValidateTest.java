@@ -35,11 +35,12 @@ import java.util.List;
  * @since 2.0.0
  */
 public class TomlValidateTest {
+    private final Path basePath = Paths.get("src", "test", "resources", "validator", "basic");
 
     @Test
     public void testClean() throws IOException {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-clean.toml");
+        Path resourceDirectory = basePath.resolve("c2c-schema.json");
+        Path sampleInput = basePath.resolve("c2c-clean.toml");
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
@@ -49,51 +50,51 @@ public class TomlValidateTest {
 
     @Test
     public void testInvalidType() throws IOException {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-invalid-type.toml");
+        Path resourceDirectory = basePath.resolve("c2c-schema.json");
+        Path sampleInput = basePath.resolve("c2c-invalid-type.toml");
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Diagnostic diagnostic = toml.diagnostics().get(0);
-        Assert.assertEquals(diagnostic.message(), "Key \"base\" expects STRING . Found integer");
+        Assert.assertEquals(diagnostic.message(), "key 'base' expects STRING . found INTEGER");
     }
 
     @Test
     public void testInvalidRegex() throws IOException {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-invalid-regex.toml");
+        Path resourceDirectory = basePath.resolve("c2c-schema.json");
+        Path sampleInput = basePath.resolve("c2c-invalid-regex.toml");
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Diagnostic diagnostic = toml.diagnostics().get(0);
-        Assert.assertEquals(diagnostic.message(), "Key \"name\" value does not match the Regex provided in Schema " +
+        Assert.assertEquals(diagnostic.message(), "key 'name' value does not match the regex provided in schema " +
                 "[a-zA-Z0-9][a-zA-Z0-9_.-]+");
     }
 
     @Test
     public void testInvalidMinMax() throws IOException {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-invalid-min-max.toml");
+        Path resourceDirectory = basePath.resolve("c2c-schema.json");
+        Path sampleInput = basePath.resolve("c2c-invalid-min-max.toml");
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         List<Diagnostic> validate = toml.diagnostics();
 
         Diagnostic diagnostic = validate.get(0);
-        Assert.assertEquals(diagnostic.message(), "Key \"cpu\" value can't be lower than 1.000000");
+        Assert.assertEquals(diagnostic.message(), "key 'cpu' value can't be lower than 1.000000");
 
         Diagnostic diagnostic1 = validate.get(1);
-        Assert.assertEquals(diagnostic1.message(), "Key \"memory\" value can't be higher than 100.000000");
+        Assert.assertEquals(diagnostic1.message(), "key 'memory' value can't be higher than 100.000000");
     }
 
     @Test
     public void testInvalidAdditionalProperty() throws IOException {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
-        Path sampleInput = Paths.get("src", "test", "resources", "validator", "c2c-invalid-additional-properties.toml");
+        Path resourceDirectory = basePath.resolve("c2c-schema.json");
+        Path sampleInput = basePath.resolve("c2c-invalid-additional-properties.toml");
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Diagnostic diagnostic = toml.diagnostics().get(0);
-        Assert.assertEquals(diagnostic.message(), "Unexpected Property \"field\"");
+        Assert.assertEquals(diagnostic.message(), "unexpected property 'field'");
     }
 }
