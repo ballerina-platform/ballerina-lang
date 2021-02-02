@@ -397,6 +397,11 @@ public abstract class BIRNode {
         }
     }
 
+    /**
+     * Function representation of a resource method definition.
+     *
+     * @since 2.0.0
+     */
     public static class BIRResourceMethod extends BIRFunction {
         public Name methodName;
         public List<Name> resourcePath;

@@ -402,7 +402,7 @@ public class BIRPackageSymbolEnter {
             resourceFunction.accessor = names.fromString(resourceMethodName);
             int resourcePathCount = dataInStream.readInt();
             ArrayList<Name> path = new ArrayList<>();
-            for(int i = 0; i < resourcePathCount; i++) {
+            for (int i = 0; i < resourcePathCount; i++) {
                 path.add(names.fromString(getStringCPEntryValue(dataInStream)));
             }
             resourceFunction.resourcePath = path;
@@ -438,7 +438,7 @@ public class BIRPackageSymbolEnter {
         }
         List<BVarSymbol> pathParams = new ArrayList<>();
         List<BVarSymbol> params = resourceFunction.symbol.params;
-        for(int i = 0; i < pathParamCount; i++) {
+        for (int i = 0; i < pathParamCount; i++) {
             pathParams.add(params.get(i));
         }
         resourceFunction.pathParams = pathParams;

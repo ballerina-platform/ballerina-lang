@@ -234,7 +234,7 @@ public class BIRBinaryWriter {
             BIRNode.BIRResourceMethod resourceMethod = (BIRNode.BIRResourceMethod) birFunction;
             buf.writeInt(addStringCPEntry(resourceMethod.methodName.value));
             buf.writeInt(resourceMethod.resourcePath.size());
-            for(var path: resourceMethod.resourcePath) {
+            for (var path: resourceMethod.resourcePath) {
                 buf.writeInt(addStringCPEntry(path.value));
             }
         }
