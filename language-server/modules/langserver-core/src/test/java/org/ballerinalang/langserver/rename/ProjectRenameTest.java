@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.rename;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -56,7 +55,7 @@ public class ProjectRenameTest {
     }
 
     @Test(description = "Test reference", dataProvider = "testDataProvider")
-    public void testRenameOnce(String configPath, String varName) throws IOException {
+    public void test(String configPath, String varName) throws IOException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
         Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
@@ -70,7 +69,7 @@ public class ProjectRenameTest {
         JsonObject actual = parser.parse(actualStr).getAsJsonObject().get("result").getAsJsonObject();
         RenameTestUtil.alterExpectedUri(expected, this.sourceRoot);
         RenameTestUtil.alterActualUri(actual);
-        
+
         Assert.assertEquals(actual, expected);
     }
 
@@ -79,6 +78,8 @@ public class ProjectRenameTest {
         log.info("Test textDocument/definition for Basic Cases");
         return new Object[][]{
                 {"rename_class_result.json", "Student"},
+                // TODO: Subsequent invocations to rename/references return partial results causing this to fail
+                // {"rename_function_result.json", "getStudents"},
         };
     }
 
