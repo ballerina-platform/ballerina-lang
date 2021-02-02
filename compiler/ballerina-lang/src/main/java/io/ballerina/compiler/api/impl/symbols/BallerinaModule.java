@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -29,8 +30,10 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
@@ -59,6 +62,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     private List<ClassSymbol> classes;
     private List<FunctionSymbol> functions;
     private List<ConstantSymbol> constants;
+    private List<EnumSymbol> enums;
     private List<Symbol> allSymbols;
 
     protected BallerinaModule(CompilerContext context, String name, PackageID moduleID, BPackageSymbol packageSymbol) {
@@ -167,6 +171,28 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
 
         this.constants = Collections.unmodifiableList(constants);
         return this.constants;
+    }
+
+    @Override
+    public List<EnumSymbol> enums() {
+        if (this.enums != null) {
+            return this.enums;
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        List<EnumSymbol> enums = new ArrayList<>();
+
+        for (Map.Entry<Name, ScopeEntry> entry : this.packageSymbol.scope.entries.entrySet()) {
+            ScopeEntry scopeEntry = entry.getValue();
+
+            if (scopeEntry.symbol instanceof BEnumSymbol && Symbols.isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC)) {
+                String constName = scopeEntry.symbol.getName().getValue();
+                enums.add(symbolFactory.createEnumSymbol((BEnumSymbol) scopeEntry.symbol, constName));
+            }
+        }
+
+        this.enums = Collections.unmodifiableList(enums);
+        return this.enums;
     }
 
     /**
