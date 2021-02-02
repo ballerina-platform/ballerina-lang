@@ -22,10 +22,9 @@ import com.sun.jdi.IntegerValue;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
 /**
  * Ballerina tuple variable type.
  */
-public class BTuple extends BCompoundVariable {
+public class BTuple extends IndexedCompoundVariable {
 
     public BTuple(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.TUPLE, value);
@@ -57,25 +56,28 @@ public class BTuple extends BCompoundVariable {
     }
 
     @Override
-    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
+    public List<Value> computeIndexedChildVariables(int start, int count) {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return Either.forRight(new ArrayList<>());
+                return new ArrayList<>();
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Field valueField = jvmValueRef.referenceType().fieldByName("refValues");
-            List<Value> valueList = ((ArrayReference) jvmValueRef.getValue(valueField)).getValues();
 
-            // List length is 100 by default. Create a sub list with actual array size.
-            List<Value> valueSubList = valueList.subList(0, getTupleSize(jvmValueRef));
-            return Either.forRight(valueSubList);
+            // If count > 0, returns a sublist of the child variables
+            // If count == 0, returns all child variables
+            if (count > 0) {
+                return ((ArrayReference) jvmValueRef.getValue(valueField)).getValues(start, count);
+            } else {
+                return ((ArrayReference) jvmValueRef.getValue(valueField)).getValues(0, getTupleSize(jvmValueRef));
+            }
         } catch (Exception ignored) {
-            return Either.forRight(new ArrayList<>());
+            return new ArrayList<>();
         }
     }
 
     @Override
-    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
         return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, getTupleSize((ObjectReference) jvmValue));
     }
 

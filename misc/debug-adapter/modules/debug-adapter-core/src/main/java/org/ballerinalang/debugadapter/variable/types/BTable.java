@@ -22,11 +22,10 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
 /**
  * Ballerina table variable type.
  */
-public class BTable extends BCompoundVariable {
+public class BTable extends IndexedCompoundVariable {
 
     private static final String FIELD_CONSTRAINT = "constraint";
     private static final String METHOD_SIZE = "size";
@@ -70,12 +69,12 @@ public class BTable extends BCompoundVariable {
     }
 
     @Override
-    protected Either<Map<String, Value>, List<Value>> computeChildVariables() {
+    protected List<Value> computeIndexedChildVariables(int start, int count) {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return Either.forRight(new ArrayList<>());
+                return new ArrayList<>();
             }
-            Value[] tableKeys = getTableKeys();
+            Value[] tableKeys = getTableKeys(start, count);
             List<Value> tableEntries = getTableEntriesFor(tableKeys);
 
             // If the size of the table exceeds the allowed child variable limit, appends a notification (which is
@@ -83,14 +82,14 @@ public class BTable extends BCompoundVariable {
             if (getTableSize() > CHILD_VAR_LIMIT) {
                 addTailChildVariable(tableEntries);
             }
-            return Either.forRight(tableEntries);
+            return tableEntries;
         } catch (Exception ignored) {
-            return Either.forRight(new ArrayList<>());
+            return new ArrayList<>();
         }
     }
 
     @Override
-    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
         return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, getChildVariableLimit());
     }
 
@@ -141,7 +140,7 @@ public class BTable extends BCompoundVariable {
         }
     }
 
-    private Value[] getTableKeys() throws Exception {
+    private Value[] getTableKeys(int start, int count) throws Exception {
         Optional<Method> method = VariableUtils.getMethod(jvmValue, METHOD_GETKEYS);
         if (method.isEmpty()) {
             return new Value[0];
@@ -152,12 +151,23 @@ public class BTable extends BCompoundVariable {
             return new Value[0];
         }
 
-        int variableLimit = getChildVariableLimit();
-        Value[] firstNKeys = new Value[variableLimit];
-        for (int index = 0; index < variableLimit; index++) {
-            firstNKeys[index] = ((ArrayReference) keys).getValue(index);
+        // If count > 0, returns a sublist of the child variables
+        // If count == 0, returns all child variables
+        if (count > 0) {
+            Value[] keyArray = new Value[count];
+            for (int index = start; index < start + count; index++) {
+                keyArray[index] = ((ArrayReference) keys).getValue(index);
+            }
+            return keyArray;
+        } else {
+            // returns only the first N entries of the table instead of fetching all the entries at once, to avoid OOMs.
+            int variableLimit = getChildVariableLimit();
+            Value[] keyArray = new Value[variableLimit];
+            for (int index = 0; index < variableLimit; index++) {
+                keyArray[index] = ((ArrayReference) keys).getValue(index);
+            }
+            return keyArray;
         }
-        return firstNKeys;
     }
 
     private List<Value> getTableEntriesFor(Value[] tableKeys) {

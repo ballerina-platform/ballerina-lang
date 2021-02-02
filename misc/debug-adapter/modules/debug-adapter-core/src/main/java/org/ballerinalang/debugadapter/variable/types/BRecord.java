@@ -20,14 +20,12 @@ import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
@@ -35,7 +33,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
 /**
  * Ballerina record variable type.
  */
-public class BRecord extends BCompoundVariable {
+public class BRecord extends NamedCompoundVariable {
 
     private static final String RECORD_FIELD_PATTERN_IDENTIFIER = "$value$";
 
@@ -53,10 +51,10 @@ public class BRecord extends BCompoundVariable {
     }
 
     @Override
-    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
+    public Map<String, Value> computeNamedChildVariables() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return Either.forLeft(new HashMap<>());
+                return new HashMap<>();
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
@@ -66,14 +64,14 @@ public class BRecord extends BCompoundVariable {
                     recordFields.put(field.name(), value);
                 }
             });
-            return Either.forLeft(recordFields);
+            return recordFields;
         } catch (Exception ignored) {
-            return Either.forLeft(new HashMap<>());
+            return new HashMap<>();
         }
     }
 
     @Override
-    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
                 return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);

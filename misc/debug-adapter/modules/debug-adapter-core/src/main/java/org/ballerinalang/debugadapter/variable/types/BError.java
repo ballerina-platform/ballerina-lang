@@ -18,14 +18,12 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -36,7 +34,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
 /**
  * Ballerina error variable type.
  */
-public class BError extends BCompoundVariable {
+public class BError extends NamedCompoundVariable {
 
     private static final String FIELD_MESSAGE = "message";
     private static final String FIELD_CAUSE = "cause";
@@ -57,7 +55,7 @@ public class BError extends BCompoundVariable {
     }
 
     @Override
-    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
+    public Map<String, Value> computeNamedChildVariables() {
         try {
             Map<String, Value> childVarMap = new TreeMap<>();
             // Fetches message, cause and details of the error.
@@ -68,14 +66,14 @@ public class BError extends BCompoundVariable {
             message.ifPresent(value -> childVarMap.put(FIELD_MESSAGE, value));
             cause.ifPresent(value -> childVarMap.put(FIELD_CAUSE, value));
             details.ifPresent(value -> childVarMap.put(FIELD_DETAILS, value));
-            return Either.forLeft(childVarMap);
+            return childVarMap;
         } catch (Exception ignored) {
-            return Either.forLeft(new HashMap<>());
+            return new HashMap<>();
         }
     }
 
     @Override
-    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
         // maximum children size will be 3 (error message, cause and details).
         return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 3);
     }

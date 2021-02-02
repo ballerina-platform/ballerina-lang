@@ -20,14 +20,12 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -35,7 +33,7 @@ import java.util.TreeMap;
 /**
  * Ballerina future variable type.
  */
-public class BFuture extends BCompoundVariable {
+public class BFuture extends NamedCompoundVariable {
 
     private static final String FIELD_RESULT = "result";
     private static final String FIELD_IS_DONE = "isDone";
@@ -52,7 +50,7 @@ public class BFuture extends BCompoundVariable {
     }
 
     @Override
-    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
+    public Map<String, Value> computeNamedChildVariables() {
         Map<String, Value> childVarMap = new TreeMap<>();
         try {
             Optional<Value> isDone = VariableUtils.getFieldValue(jvmValue, FIELD_IS_DONE);
@@ -71,14 +69,14 @@ public class BFuture extends BCompoundVariable {
                     childVarMap.put(FIELD_PANIC, stringValue);
                 }
             }
-            return Either.forLeft(childVarMap);
+            return childVarMap;
         } catch (Exception ignored) {
-            return Either.forLeft(childVarMap);
+            return childVarMap;
         }
     }
 
     @Override
-    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
         // maximum children size will be 3 (isDone, result and panic).
         return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 3);
     }

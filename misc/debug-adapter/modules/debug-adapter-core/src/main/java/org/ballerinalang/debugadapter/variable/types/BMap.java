@@ -19,10 +19,9 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -33,7 +32,7 @@ import java.util.Optional;
 /**
  * Ballerina map variable type.
  */
-public class BMap extends BCompoundVariable {
+public class BMap extends NamedCompoundVariable {
 
     private static final String FIELD_MAP_DATA = "table";
     private static final String FIELD_MAP_KEY = "key";
@@ -49,12 +48,12 @@ public class BMap extends BCompoundVariable {
     }
 
     @Override
-    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
+    public Map<String, Value> computeNamedChildVariables() {
         Map<String, Value> childVarMap = new HashMap<>();
         try {
             Optional<Value> mapValues = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_DATA);
             if (mapValues.isEmpty()) {
-                return Either.forLeft(childVarMap);
+                return childVarMap;
             }
             for (Value map : ((ArrayReference) mapValues.get()).getValues()) {
                 if (map != null) {
@@ -65,14 +64,14 @@ public class BMap extends BCompoundVariable {
                     }
                 }
             }
-            return Either.forLeft(childVarMap);
+            return childVarMap;
         } catch (Exception ignored) {
-            return Either.forLeft(childVarMap);
+            return childVarMap;
         }
     }
 
     @Override
-    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
         try {
             Optional<Value> jsonValues = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_DATA);
             if (jsonValues.isEmpty()) {

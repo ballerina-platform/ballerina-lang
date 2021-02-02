@@ -20,20 +20,18 @@ import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Ballerina object variable type.
  */
-public class BObject extends BCompoundVariable {
+public class BObject extends NamedCompoundVariable {
 
     private static final String OBJECT_FIELD_PATTERN_IDENTIFIER = "$value$";
 
@@ -47,10 +45,10 @@ public class BObject extends BCompoundVariable {
     }
 
     @Override
-    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
+    public Map<String, Value> computeNamedChildVariables() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return Either.forLeft(new HashMap<>());
+                return new HashMap<>();
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
@@ -60,14 +58,14 @@ public class BObject extends BCompoundVariable {
                     values.put(field.name(), value);
                 }
             });
-            return Either.forLeft(values);
+            return values;
         } catch (Exception ignored) {
-            return Either.forLeft(new HashMap<>());
+            return new HashMap<>();
         }
     }
 
     @Override
-    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
                 return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);

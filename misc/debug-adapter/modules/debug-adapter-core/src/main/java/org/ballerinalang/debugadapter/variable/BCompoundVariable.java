@@ -19,9 +19,7 @@ package org.ballerinalang.debugadapter.variable;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
@@ -36,7 +34,6 @@ public abstract class BCompoundVariable implements BVariable {
     private final BVariableType type;
     protected Value jvmValue;
     private Variable dapVariable;
-    private Either<Map<String, Value>, List<Value>> childVariables;
 
     public BCompoundVariable(SuspendedContext context, String varName, BVariableType bVariableType, Value jvmValue) {
         this.context = context;
@@ -45,26 +42,14 @@ public abstract class BCompoundVariable implements BVariable {
         this.type = bVariableType;
         this.jvmValue = jvmValue;
         this.dapVariable = null;
-        this.childVariables = null;
     }
 
     /**
-     * Returns JDI value representations of all the child variables. Child variables can either be
-     * <ul>
-     *   <li> a map of named child variables (map entries, json elements, etc.) </li>
-     *   <li> a list of indexed child variables (array elements, table entries etc.) </li>
-     * </ul>
-     * <p>
-     * Each compound variable type must have their own implementation to compute/fetch values.
-     */
-    protected abstract Either<Map<String, Value>, List<Value>> computeChildVariables();
-
-    /**
-     * Returns child variable count of the variable, which is used for child variable paging.
+     * Returns child variable count, to be used for child variable paging.
      *
      * @return child variable count of the variable
      */
-    protected abstract Map.Entry<ChildVariableKind, Integer> getChildrenCount();
+    public abstract Map.Entry<ChildVariableKind, Integer> getChildrenCount();
 
     @Override
     public SuspendedContext getContext() {
@@ -103,41 +88,14 @@ public abstract class BCompoundVariable implements BVariable {
         return dapVariable;
     }
 
-    public Either<Map<String, Value>, List<Value>> getChildVariables() {
-        if (childVariables == null) {
-            childVariables = computeChildVariables();
-        }
-        return childVariables;
-    }
-
-    public Value getChildByName(String name) throws DebugVariableException {
-        if (childVariables == null) {
-            childVariables = computeChildVariables();
-        }
-
-        if (!childVariables.isLeft() || !childVariables.getLeft().containsKey(name)) {
-            throw new DebugVariableException("No child variables found with name: '" + name + "'");
-        }
-        return childVariables.getLeft().get(name);
-    }
-
-    public Value getChildByIndex(int index) throws DebugVariableException {
-        if (childVariables == null) {
-            childVariables = computeChildVariables();
-        }
-        if (!childVariables.isRight() || childVariables.getRight().size() < index) {
-            throw new DebugVariableException("No child variables found with index: '" + index + "'");
-        }
-        return childVariables.getRight().get(index);
-    }
-
     /**
      * Child variable types.
      * <p>
      * Indexed child variables - array elements, table entries etc.
      * Named child variables - map entries, json elements, etc.
      */
-    protected enum ChildVariableKind {
-        NAMED, INDEXED
+    public enum ChildVariableKind {
+        NAMED,
+        INDEXED
     }
 }

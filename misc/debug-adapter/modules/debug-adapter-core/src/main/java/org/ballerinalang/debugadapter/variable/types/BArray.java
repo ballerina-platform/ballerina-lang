@@ -22,9 +22,8 @@ import com.sun.jdi.IntegerValue;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
 /**
  * Ballerina array variable type.
  */
-public class BArray extends BCompoundVariable {
+public class BArray extends IndexedCompoundVariable {
 
     public BArray(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.ARRAY, value);
@@ -60,10 +59,10 @@ public class BArray extends BCompoundVariable {
     }
 
     @Override
-    public Either<Map<String, Value>, List<Value>> computeChildVariables() {
+    protected List<Value> computeIndexedChildVariables(int start, int count) {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return Either.forRight(new ArrayList<>());
+                return new ArrayList<>();
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             List<Field> fields = jvmValueRef.referenceType().allFields();
@@ -71,17 +70,20 @@ public class BArray extends BCompoundVariable {
                     fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))
                     .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
 
-            List<Value> valueList = ((ArrayReference) jvmValueRef.getValue(arrayValueField)).getValues();
-            // List length is 100 by default. Create a sub list with actual array size.
-            List<Value> valueSubList = valueList.subList(0, getArraySize(jvmValueRef));
-            return Either.forRight(valueSubList);
+            // If count > 0, returns a sublist of the child variables
+            // If count == 0, returns all child variables
+            if (count > 0) {
+                return ((ArrayReference) jvmValueRef.getValue(arrayValueField)).getValues(start, count);
+            } else {
+                return ((ArrayReference) jvmValueRef.getValue(arrayValueField)).getValues(0, getArraySize(jvmValueRef));
+            }
         } catch (Exception ignored) {
-            return Either.forRight(new ArrayList<>());
+            return new ArrayList<>();
         }
     }
 
     @Override
-    protected Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
         return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, getArraySize((ObjectReference) jvmValue));
     }
 

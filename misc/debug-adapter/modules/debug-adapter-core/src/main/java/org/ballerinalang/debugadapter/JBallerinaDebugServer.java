@@ -46,6 +46,8 @@ import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
@@ -84,7 +86,6 @@ import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -675,17 +676,20 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     private Variable[] computeChildVariables(VariablesArguments args) {
         BCompoundVariable parentVar = loadedVariables.get(args.getVariablesReference());
-        Either<Map<String, Value>, List<Value>> childVariables = parentVar.getChildVariables();
         Long stackFrameId = variableToStackFrameMap.get(args.getVariablesReference());
         if (stackFrameId == null) {
             return new Variable[0];
         }
 
-        // Handles named variables.
-        if (childVariables.isLeft()) {
-            return childVariables.getLeft().entrySet().stream().map(entry -> {
-                String name = entry.getKey();
-                Value value = entry.getValue();
+        // Handles indexed variables.
+        if (parentVar instanceof IndexedCompoundVariable) {
+            int startIndex = Objects.requireNonNullElse(args.getStart().intValue(), 0);
+            int count = Objects.requireNonNullElse(args.getCount().intValue(), 0);
+            List<Value> childVars = ((IndexedCompoundVariable) parentVar).getIndexedChildVariables(startIndex, count);
+
+            AtomicInteger index = new AtomicInteger(0);
+            return childVars.stream().map(value -> {
+                String name = String.format("[%d]", index.getAndIncrement());
                 BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
                 if (variable == null) {
                     return null;
@@ -701,11 +705,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             }).filter(Objects::nonNull).toArray(Variable[]::new);
         }
 
-        // Handles indexed variables.
-        if (childVariables.isRight()) {
-            AtomicInteger index = new AtomicInteger(0);
-            return childVariables.getRight().stream().map(value -> {
-                String name = String.format("[%d]", index.getAndIncrement());
+        // Handles named variables.
+        if (parentVar instanceof NamedCompoundVariable) {
+            Map<String, Value> childVars = ((NamedCompoundVariable) parentVar).getNamedChildVariables();
+            return childVars.entrySet().stream().map(entry -> {
+                String name = entry.getKey();
+                Value value = entry.getValue();
                 BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
                 if (variable == null) {
                     return null;
