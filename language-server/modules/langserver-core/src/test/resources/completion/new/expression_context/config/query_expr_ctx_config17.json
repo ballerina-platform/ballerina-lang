@@ -9,6 +9,7 @@
       "label": "from",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
@@ -16,6 +17,7 @@
       "label": "from clause",
       "kind": "Snippet",
       "detail": "Snippet",
+      "sortText": "O",
       "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
@@ -23,6 +25,7 @@
       "label": "where",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "where ",
       "insertTextFormat": "Snippet"
     },
@@ -30,6 +33,7 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "let",
       "insertTextFormat": "Snippet"
     },
@@ -37,6 +41,7 @@
       "label": "let clause",
       "kind": "Snippet",
       "detail": "Snippet",
+      "sortText": "O",
       "insertText": "let ${1:var} ${2:varName} = ${3}",
       "insertTextFormat": "Snippet"
     },
@@ -44,6 +49,7 @@
       "label": "join",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "join ",
       "insertTextFormat": "Snippet"
     },
@@ -51,6 +57,7 @@
       "label": "join clause",
       "kind": "Snippet",
       "detail": "Snippet",
+      "sortText": "O",
       "insertText": "join ${1:var} ${2:varName} in ${3:expr} on ${3:onExpr} equals ${3:equalsExpr}",
       "insertTextFormat": "Snippet"
     },
@@ -58,6 +65,7 @@
       "label": "order by",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "order by ",
       "insertTextFormat": "Snippet"
     },
@@ -65,6 +73,7 @@
       "label": "limit",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "limit ",
       "insertTextFormat": "Snippet"
     },
@@ -72,6 +81,7 @@
       "label": "select",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "select ",
       "insertTextFormat": "Snippet"
     }
