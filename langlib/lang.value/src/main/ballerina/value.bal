@@ -25,6 +25,12 @@ public type Cloneable readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneabl
 @typeParam
 type CloneableType Cloneable|never;
 
+# A type parameter that is a subtype of `anydata`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+@typeParam
+type AnydataType anydata;
+
 # Returns a clone of `v`.
 # A clone is a deep copy that does not copy immutable subtrees.
 # A clone can therefore safely be used concurrently with the original.
@@ -74,7 +80,7 @@ public isolated function cloneReadOnly(CloneableType  v) returns CloneableType =
 # - numeric values can be converted using the NumericConvert abstract operation
 # - if a record type descriptor specifies default values, these will be used
 #   to supply any missing members
-public isolated function cloneWithType(anydata v, typedesc<anydata> t) returns t|error = @java:Method {
+public isolated function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = @java:Method {
     'class: "org.ballerinalang.langlib.value.CloneWithType",
     name: "cloneWithType"
 } external;
