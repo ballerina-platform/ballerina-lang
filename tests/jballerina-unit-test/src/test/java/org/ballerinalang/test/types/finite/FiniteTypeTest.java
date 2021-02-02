@@ -379,6 +379,10 @@ public class FiniteTypeTest {
         BRunUtil.invoke(result, "testFiniteTypesWithPositiveFloats");
     }
 
+    @Test
+    public void testNilFiniteType() {
+        BRunUtil.invoke(result, "testNilFiniteType");
+    }
     @AfterClass
     public void tearDown() {
         result = null;

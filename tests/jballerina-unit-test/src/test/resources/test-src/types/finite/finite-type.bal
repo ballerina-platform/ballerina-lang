@@ -484,6 +484,18 @@ function testFiniteTypesWithPositiveFloats() {
     assertEquality(1.5,n);
 }
 
+const CONST3 = ();
+
+public function testNilFiniteType() {
+    any v = CONST3;
+    string a = "";
+    string mah = "match";
+    if (v is CONST3) {
+        a = mah;
+    }
+    assertEquality(a, mah);
+}
+
 const ASSERTION_ERROR_REASON = "TypeAssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
@@ -499,13 +511,3 @@ function assertEquality(any|error expected, any|error actual) {
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expectedValAsString + "', found '" + tActual.toString() + "'");
 }
-
-//public const '\- = "-";
-//public const d = "d";
-//public const s = "s";
-//public type FT '\-|s|d;
-//
-//function testEscapedTypeName() returns FT {
-//    FT f = '\-;
-//    return f;
-//}
