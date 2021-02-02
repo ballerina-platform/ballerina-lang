@@ -6837,21 +6837,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     /**
-     * When `objectType` is created using abstract object `referenceType` we need to add type ids of referenced object
-     *
-     * @param objectType Type which referreing another type
-     * @param referenceType Type getting included
-     */
-    private void inlcudeTypeIdsFromReference(BObjectType objectType, BObjectType referenceType) {
-        if (!referenceType.typeIdSet.primary.isEmpty()) {
-            objectType.typeIdSet.primary.addAll(referenceType.typeIdSet.primary);
-        }
-        if (!referenceType.typeIdSet.secondary.isEmpty()) {
-            objectType.typeIdSet.secondary.addAll(referenceType.typeIdSet.secondary);
-        }
-    }
-
-    /**
      * Creates a user-defined init() method for the provided object type node. If there are fields without default
      * values specified in the type node, this will add parameters for those fields in the init() method and assign the
      * param values to the respective fields in the method body.
