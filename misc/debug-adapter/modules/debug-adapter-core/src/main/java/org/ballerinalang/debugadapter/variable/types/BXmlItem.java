@@ -22,7 +22,7 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 
 import java.util.AbstractMap;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -53,7 +53,7 @@ public class BXmlItem extends NamedCompoundVariable {
 
     @Override
     public Map<String, Value> computeNamedChildVariables() {
-        Map<String, Value> childMap = new HashMap<>();
+        Map<String, Value> childMap = new LinkedHashMap<>();
         try {
             Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
             Optional<Value> attributes = getFieldValue(jvmValue, FIELD_ATTRIBUTES);

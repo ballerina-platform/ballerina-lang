@@ -687,7 +687,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             int count = Objects.requireNonNullElse(args.getCount().intValue(), 0);
             List<Value> childVars = ((IndexedCompoundVariable) parentVar).getIndexedChildVariables(startIndex, count);
 
-            AtomicInteger index = new AtomicInteger(0);
+            AtomicInteger index = new AtomicInteger(startIndex);
             return childVars.stream().map(value -> {
                 String name = String.format("[%d]", index.getAndIncrement());
                 BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);

@@ -24,9 +24,9 @@ import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
@@ -57,7 +57,7 @@ public class BError extends NamedCompoundVariable {
     @Override
     public Map<String, Value> computeNamedChildVariables() {
         try {
-            Map<String, Value> childVarMap = new TreeMap<>();
+            Map<String, Value> childVarMap = new LinkedHashMap<>();
             // Fetches message, cause and details of the error.
             Optional<Value> message = VariableUtils.getFieldValue(jvmValue, FIELD_MESSAGE);
             Optional<Value> cause = VariableUtils.getFieldValue(jvmValue, FIELD_CAUSE);

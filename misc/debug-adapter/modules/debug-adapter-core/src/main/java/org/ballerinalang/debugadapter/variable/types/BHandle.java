@@ -25,9 +25,9 @@ import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
@@ -58,7 +58,7 @@ public class BHandle extends NamedCompoundVariable {
     @Override
     public Map<String, Value> computeNamedChildVariables() {
         try {
-            Map<String, Value> childVarMap = new TreeMap<>();
+            Map<String, Value> childVarMap = new LinkedHashMap<>();
             Optional<Value> value = VariableUtils.getFieldValue(jvmValue, FIELD_VALUE);
             value.ifPresent(val -> childVarMap.put(FIELD_VALUE, val));
             return childVarMap;

@@ -24,7 +24,7 @@ import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.AbstractMap;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,7 +49,7 @@ public class BMap extends NamedCompoundVariable {
 
     @Override
     public Map<String, Value> computeNamedChildVariables() {
-        Map<String, Value> childVarMap = new HashMap<>();
+        Map<String, Value> childVarMap = new LinkedHashMap<>();
         try {
             Optional<Value> mapValues = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_DATA);
             if (mapValues.isEmpty()) {

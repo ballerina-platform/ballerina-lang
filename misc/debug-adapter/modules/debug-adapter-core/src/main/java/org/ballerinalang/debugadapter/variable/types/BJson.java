@@ -24,7 +24,7 @@ import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.AbstractMap;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,7 +49,7 @@ public class BJson extends NamedCompoundVariable {
 
     @Override
     public Map<String, Value> computeNamedChildVariables() {
-        Map<String, Value> childMap = new HashMap<>();
+        Map<String, Value> childMap = new LinkedHashMap<>();
         try {
             Optional<Value> jsonValues = VariableUtils.getFieldValue(jvmValue, FIELD_JSON_DATA);
             if (jsonValues.isEmpty()) {

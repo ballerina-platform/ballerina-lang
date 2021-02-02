@@ -25,7 +25,7 @@ import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.AbstractMap;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
@@ -54,11 +54,11 @@ public class BRecord extends NamedCompoundVariable {
     public Map<String, Value> computeNamedChildVariables() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return new HashMap<>();
+                return new LinkedHashMap<>();
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
-            Map<String, Value> recordFields = new HashMap<>();
+            Map<String, Value> recordFields = new LinkedHashMap<>();
             fieldValueMap.forEach((field, value) -> {
                 if (field.toString().contains(RECORD_FIELD_PATTERN_IDENTIFIER)) {
                     recordFields.put(field.name(), value);
@@ -66,7 +66,7 @@ public class BRecord extends NamedCompoundVariable {
             });
             return recordFields;
         } catch (Exception ignored) {
-            return new HashMap<>();
+            return new LinkedHashMap<>();
         }
     }
 

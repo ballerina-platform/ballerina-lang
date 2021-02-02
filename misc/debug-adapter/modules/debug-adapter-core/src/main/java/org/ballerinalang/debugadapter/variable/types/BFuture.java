@@ -26,9 +26,9 @@ import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 
 /**
  * Ballerina future variable type.
@@ -51,7 +51,7 @@ public class BFuture extends NamedCompoundVariable {
 
     @Override
     public Map<String, Value> computeNamedChildVariables() {
-        Map<String, Value> childVarMap = new TreeMap<>();
+        Map<String, Value> childVarMap = new LinkedHashMap<>();
         try {
             Optional<Value> isDone = VariableUtils.getFieldValue(jvmValue, FIELD_IS_DONE);
             Optional<Value> result = VariableUtils.getFieldValue(jvmValue, FIELD_RESULT);
