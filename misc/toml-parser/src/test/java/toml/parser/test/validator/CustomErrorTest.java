@@ -56,11 +56,11 @@ public class CustomErrorTest {
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Diagnostic customDiagMessage = toml.diagnostics().get(0);
-        Assert.assertEquals(customDiagMessage.message(), "Org cant be empty");
+        Assert.assertEquals(customDiagMessage.message(), "org cant be empty");
 
         Diagnostic defaultDiagMessage = toml.diagnostics().get(1);
         Assert.assertEquals(defaultDiagMessage.message(),
-                "Key \"version\" value does not match the Regex provided in Schema ^(?!\\s*$).+");
+                "key 'version' value does not match the regex provided in schema ^(?!\\s*$).+");
     }
 
     @Test
@@ -71,10 +71,10 @@ public class CustomErrorTest {
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Diagnostic customDiagMessage = toml.diagnostics().get(0);
-        Assert.assertEquals(customDiagMessage.message(), "Invalid Type");
+        Assert.assertEquals(customDiagMessage.message(), "invalid type");
 
         Diagnostic defaultDiagMessage = toml.diagnostics().get(1);
-        Assert.assertEquals(defaultDiagMessage.message(), "Key \"org\" expects STRING . Found INTEGER");
+        Assert.assertEquals(defaultDiagMessage.message(), "key 'org' expects STRING . found INTEGER");
     }
 
     @Test
@@ -84,10 +84,10 @@ public class CustomErrorTest {
 
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
-        Diagnostic customDiagMessage = toml.diagnostics().get(0);
-        Assert.assertEquals(customDiagMessage.message(), "Field org is required");
+        Diagnostic customDiagMessageRequired = toml.diagnostics().get(0);
+        Assert.assertEquals(customDiagMessageRequired.message(), "field 'org' is required");
 
-        Diagnostic defaultDiagMessage = toml.diagnostics().get(1);
-        Assert.assertEquals(defaultDiagMessage.message(), "Field additional is not supported");
+        Diagnostic customDiagMessageAddtionalProp = toml.diagnostics().get(1);
+        Assert.assertEquals(customDiagMessageAddtionalProp.message(), "field 'additional' is not supported");
     }
 }

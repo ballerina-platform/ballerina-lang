@@ -106,7 +106,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         Map<String, String> message = this.schema.message();
         String typeCustomMessage = message.get(SchemaDeserializer.REQUIRED);
         if (typeCustomMessage == null) {
-            return "Missing required field \"" + field + "\"";
+            return "missing required field '" + field + "'";
         }
         return typeCustomMessage.replace(PROPERTY_HOLDER, field);
     }
@@ -115,7 +115,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         Map<String, String> message = this.schema.message();
         String typeCustomMessage = message.get(SchemaDeserializer.ADDITIONAL_PROPERTIES);
         if (typeCustomMessage == null) {
-            return "Unexpected Property \"" + key + "\"";
+            return "unexpected property '" + key + "'";
         }
         return typeCustomMessage.replace(PROPERTY_HOLDER, key);
     }
@@ -152,7 +152,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         Map<String, String> message = this.schema.message();
         String typeCustomMessage = message.get(SchemaDeserializer.TYPE);
         if (typeCustomMessage == null) {
-            return String.format("Key \"%s\" expects %s . Found %s", this.key, schema.type(), found);
+            return String.format("key '%s' expects %s . found %s", this.key, schema.type(), found);
         }
         return typeCustomMessage;
     }
@@ -161,7 +161,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         Map<String, String> message = this.schema.message();
         String typeCustomMessage = message.get(SchemaDeserializer.PATTERN);
         if (typeCustomMessage == null) {
-            return String.format("Key \"%s\" value does not match the Regex provided in Schema %s", this.key,
+            return String.format("key '%s' value does not match the regex provided in schema %s", this.key,
                     pattern);
         }
         return typeCustomMessage;
@@ -236,7 +236,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         Map<String, String> message = this.schema.message();
         String maxCustomMessage = message.get(SchemaDeserializer.MAXIMUM);
         if (maxCustomMessage == null) {
-            return String.format("Key \"%s\" value can't be higher than %f", this.key,
+            return String.format("key '%s' value can't be higher than %f", this.key,
                     max);
         }
         return maxCustomMessage;
@@ -246,7 +246,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         Map<String, String> message = this.schema.message();
         String minCustomMessage = message.get(SchemaDeserializer.MINIMUM);
         if (minCustomMessage == null) {
-            return String.format("Key \"%s\" value can't be lower than %f", this.key,
+            return String.format("key '%s' value can't be lower than %f", this.key,
                     min);
         }
         return minCustomMessage;
@@ -257,7 +257,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         List<Diagnostic> diagnostics = new ArrayList<>();
         if (numericSchema.maximum().isPresent()) {
             Double max = numericSchema.maximum().get();
-            if (value >= max) {
+            if (value > max) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(location, "TVE0005", "error" +
                         ".maximum.value.exceed", DiagnosticSeverity.ERROR, getMaxValueExceedErrorMessage(max));
                 diagnostics.add(diagnostic);
@@ -265,7 +265,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         }
         if (numericSchema.minimum().isPresent()) {
             Double min = numericSchema.minimum().get();
-            if (value <= min) {
+            if (value < min) {
                 TomlDiagnostic diagnostic = getTomlDiagnostic(location, "TVE0004", "error.minimum.value.deceed",
                         DiagnosticSeverity.ERROR, getMinValueDeceedErrorMessage(min));
                 diagnostics.add(diagnostic);

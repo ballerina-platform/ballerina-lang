@@ -12,14 +12,14 @@
                 "name": {
                     "type": "string",
                     "message" : {
-                        "type" : "Invalid Type"
+                        "type" : "invalid type"
                     }
                 },
                 "org": {
                     "type": "string",
                     "pattern": "^(?!\\s*$).+",
                     "message" : {
-                        "pattern" : "Org cant be empty"
+                        "pattern" : "org cant be empty"
                     }
                 },
                 "version": {
@@ -30,14 +30,14 @@
                     "type": "integer",
                     "minimum": 0,
                     "message" : {
-                        "minimum" : "Port should be positive int"
+                        "minimum" : "port should be positive int"
                     }
                 },
                 "capacity": {
                     "type": "integer",
                     "maximum": 5,
                     "message" : {
-                        "maximum" : "Max Capacity is 5"
+                        "maximum" : "max capacity is 5"
                     }
                 },
                 "repository": {
@@ -58,8 +58,8 @@
             },
             "required": ["name","org"],
             "message" : {
-                "required" : "Field ${property} is required",
-                "additionalProperties" : "Field ${property} is not supported"
+                "required" : "field '${property}' is required",
+                "additionalProperties" : "field '${property}' is not supported"
             }
         }
     }
