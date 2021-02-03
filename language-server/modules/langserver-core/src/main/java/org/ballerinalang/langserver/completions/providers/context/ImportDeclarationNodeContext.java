@@ -88,9 +88,9 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         }
 
         if (onSuggestCurrentProjectModules(ctx, node, moduleName)) {
-            return this.getCurrentProjectModules(ctx, moduleName);
-        }
-        if (onSuggestAsKeyword(ctx, node)) {
+            completionItems.addAll(this.getCurrentProjectModules(ctx, moduleName));
+            contextScope = ContextScope.OTHER;
+        } else if (onSuggestAsKeyword(ctx, node)) {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_AS.get()));
             contextScope = ContextScope.SCOPE1;
         } else if (node.orgName().isPresent()) {

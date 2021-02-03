@@ -50,7 +50,10 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         if (this.onTypeNameContext(context, node)) {
             return new ArrayList<>();
         }
-        return new ArrayList<>(typeDescriptorCItems(context));
+        List<LSCompletionItem> completionItems = typeDescriptorCItems(context);
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 
     private List<LSCompletionItem> typeDescriptorCItems(BallerinaCompletionContext context) {
