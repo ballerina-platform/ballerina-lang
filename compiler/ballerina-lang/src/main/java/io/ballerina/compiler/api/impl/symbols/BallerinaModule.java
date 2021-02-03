@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
@@ -64,11 +66,22 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     private List<ConstantSymbol> constants;
     private List<EnumSymbol> enums;
     private List<Symbol> allSymbols;
+    private ModuleID id;
 
     protected BallerinaModule(CompilerContext context, String name, PackageID moduleID, BPackageSymbol packageSymbol) {
         super(name, moduleID, SymbolKind.MODULE, packageSymbol);
         this.context = context;
         this.packageSymbol = packageSymbol;
+    }
+
+    @Override
+    public ModuleID id() {
+        if (this.id != null) {
+            return this.id;
+        }
+
+        this.id = new BallerinaModuleID(this.packageSymbol.pkgID);
+        return this.id;
     }
 
     /**
@@ -234,12 +247,12 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
         }
 
         ModuleSymbol symbol = (ModuleSymbol) obj;
-        return this.moduleID().equals(symbol.moduleID());
+        return this.id().equals(symbol.id());
     }
 
     @Override
     public int hashCode() {
-        return this.moduleID().hashCode();
+        return this.id().hashCode();
     }
 
     /**

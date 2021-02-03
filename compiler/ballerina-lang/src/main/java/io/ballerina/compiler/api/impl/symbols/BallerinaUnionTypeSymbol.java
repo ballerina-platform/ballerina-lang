@@ -74,7 +74,8 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                 }
             } else {
                 for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
-                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID(), value, value.type));
+                    ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.type));
                 }
             }
 

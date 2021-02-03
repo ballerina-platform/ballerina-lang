@@ -47,7 +47,8 @@ public interface Symbol {
     ModuleID moduleID();
 
     /**
-     * Retrieves the symbol of the module this symbol belongs to.
+     * Retrieves the symbol of the module this symbol belongs to if the symbol is defined in a module. Type symbols will
+     * typically return empty except for {@link TypeReferenceTypeSymbol}.
      *
      * @return The {@link ModuleSymbol} of the module
      */

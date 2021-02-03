@@ -40,6 +40,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private final String definitionName;
     private TypeSymbol typeDescriptorImpl;
     private Location location;
+    private String signature;
 
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
                                             String definitionName) {
@@ -87,14 +88,22 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
 
     @Override
     public String signature() {
-        if (this.moduleID() == null || (this.moduleID().moduleName().equals("lang.annotations") &&
-                this.moduleID().orgName().equals("ballerina"))) {
-            return this.definitionName;
+        if (this.signature != null) {
+            return this.signature;
         }
-        return !this.isAnonOrg(this.moduleID()) ? this.moduleID().orgName() + Names.ORG_NAME_SEPARATOR +
-                this.moduleID().moduleName() + Names.VERSION_SEPARATOR + this.moduleID().version() + ":" +
-                this.definitionName
-                : this.definitionName;
+
+        ModuleID moduleID = this.getModule().get().id();
+        if (moduleID == null || (moduleID.moduleName().equals("lang.annotations") &&
+                moduleID.orgName().equals("ballerina"))) {
+            this.signature = this.definitionName;
+        } else {
+            this.signature = !this.isAnonOrg(moduleID) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +
+                    moduleID.moduleName() + Names.VERSION_SEPARATOR + moduleID.version() + ":" +
+                    this.definitionName
+                    : this.definitionName;
+        }
+
+        return this.signature;
     }
 
     private boolean isAnonOrg(ModuleID moduleID) {
