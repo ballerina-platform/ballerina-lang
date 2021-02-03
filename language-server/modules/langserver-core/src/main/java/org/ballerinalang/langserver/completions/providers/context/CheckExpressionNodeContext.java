@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -42,16 +43,20 @@ public class CheckExpressionNodeContext extends AbstractCompletionProvider<Check
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, CheckExpressionNode node)
             throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, nameRef), ctx);
-        }
+            List<Symbol> expressionContextEntries = QNameReferenceUtil.getExpressionContextEntries(ctx, nameRef);
+            completionItems.addAll(this.getCompletionItemList(expressionContextEntries, ctx));
+        } else {
         /*
         We add the action keywords in order to support the check action context completions
          */
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.actionKWCompletions(ctx));
-        completionItems.addAll(this.expressionCompletions(ctx));
+            completionItems.addAll(this.actionKWCompletions(ctx));
+            completionItems.addAll(this.expressionCompletions(ctx));
+        }
+        this.sort(ctx, node, completionItems);
 
         return completionItems;
     }

@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -1168,6 +1169,11 @@ public class BIRPackageSymbolEnter {
                     var poppedUnionType = compositeStack.pop();
                     assert poppedUnionType == unionType;
 
+                    boolean isEnum = inputStream.readBoolean();
+                    if (isEnum) {
+                        readAndSetEnumSymbol(unionType, flags);
+                    }
+
                     if (hasName) {
                         if (unionsPkgId.equals(env.pkgSymbol.pkgID)) {
                             return unionType;
@@ -1434,6 +1440,35 @@ public class BIRPackageSymbolEnter {
                 typeInclusions.add(inclusion);
             }
             return typeInclusions;
+        }
+
+        private void readAndSetEnumSymbol(BUnionType unionType, long flags) throws IOException {
+            PackageID enumPkgId = getPackageId(inputStream.readInt());
+            String enumName = getStringCPEntryValue(inputStream);
+            int memberCount = inputStream.readInt();
+            BSymbol pkgSymbol = packageCache.getSymbol(enumPkgId);
+
+            // pkg symbol will be null if it's an enum in the current module.
+            if (pkgSymbol == null) {
+                pkgSymbol = env.pkgSymbol;
+            }
+
+            SymbolEnv enumPkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+
+            // pkg env will be null if it's an enum in the current module.
+            if (enumPkgEnv == null) {
+                enumPkgEnv = SymbolEnv.createPkgEnv(null, env.pkgSymbol.scope, null);
+            }
+
+            List<BConstantSymbol> members = new ArrayList<>();
+            for (int i = 0; i < memberCount; i++) {
+                String memName = getStringCPEntryValue(inputStream);
+                BSymbol sym = symbolResolver.lookupSymbolInMainSpace(enumPkgEnv, names.fromString(memName));
+                members.add((BConstantSymbol) sym);
+            }
+
+            unionType.tsymbol = new BEnumSymbol(members, flags, names.fromString(enumName), pkgSymbol.pkgID, unionType,
+                                                pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
         }
     }
 

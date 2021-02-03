@@ -219,9 +219,12 @@ public class JDIEventProcessor {
     void createStepRequest(long threadId, int stepType) {
         context.getEventManager().deleteEventRequests(stepEventRequests);
         ThreadReferenceProxyImpl threadReference = context.getAdapter().getThreadsMap().get(threadId);
+        if (threadReference == null || threadReference.getThreadReference() == null) {
+            return;
+        }
+
         StepRequest request = context.getEventManager().createStepRequest(threadReference.getThreadReference(),
                 StepRequest.STEP_LINE, stepType);
-
         request.setSuspendPolicy(StepRequest.SUSPEND_ALL);
         // Todo - Replace with a class inclusive filter.
         request.addClassExclusionFilter("io.*");
