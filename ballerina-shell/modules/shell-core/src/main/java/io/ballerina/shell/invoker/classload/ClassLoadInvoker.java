@@ -386,12 +386,12 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             throws InvokerException {
         // Add all required imports
         this.newImplicitImports.addAll(newSnippet.usedImports());
+        String moduleDeclarationName = newSnippet.name().orElse("");
 
-        ClassLoadContext varTypeInferContext = createModuleDclnNameInferContext(newSnippet);
+        ClassLoadContext varTypeInferContext = createModuleDclnNameInferContext(moduleDeclarationName, newSnippet);
         SingleFileProject project = getProject(varTypeInferContext, DECLARATION_TEMPLATE_FILE);
         Collection<Symbol> symbols = visibleUnknownSymbols(project);
 
-        String moduleDeclarationName = newSnippet.name().orElse("");
         symbols.stream().map(HashedSymbol::new).forEach(newSymbols::add);
         return Map.entry(moduleDeclarationName, newSnippet.toString());
     }
@@ -430,10 +430,12 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * @param newSnippet New snippet. Must be a module member dcln.
      * @return Context to infer dcln name.
      */
-    protected ClassLoadContext createModuleDclnNameInferContext(ModuleMemberDeclarationSnippet newSnippet) {
+    protected ClassLoadContext createModuleDclnNameInferContext(String moduleDeclarationName,
+                                                                ModuleMemberDeclarationSnippet newSnippet) {
         List<VariableContext> varDclns = globalVariableContexts();
-        List<String> moduleDclnStrings = new ArrayList<>(moduleDclns.values());
-        moduleDclnStrings.add(newSnippet.toString());
+        Map<String, String> moduleDclnStringsMap = new HashMap<>(moduleDclns);
+        moduleDclnStringsMap.put(moduleDeclarationName, newSnippet.toString());
+        ArrayList<String> moduleDclnStrings = new ArrayList<>(moduleDclnStringsMap.values());
 
         // Get all required imports
         Set<String> importStrings = getUsedImportStatements(newSnippet);
