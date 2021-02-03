@@ -91,9 +91,9 @@ public class TableTest {
         ErrorTestUtils.validateDiagnostic(actualDiagOfDupKey, expectedLineRangeOfDupKey,  "existing node 'key'",
                 DiagnosticSeverity.ERROR);
 
-        LineRange expectedLineRangeOfDupTable = ErrorTestUtils.toLineRange(22, 22, 1, 12);
+        LineRange expectedLineRangeOfDupTable = ErrorTestUtils.toLineRange(21, 22, 1, 12);
         Diagnostic actualDiagOfDupTable = diagnostics.get(1);
-        ErrorTestUtils.validateDiagnostic(actualDiagOfDupTable, expectedLineRangeOfDupTable,  "existing node 'mow'",
+        ErrorTestUtils.validateDiagnostic(actualDiagOfDupTable, expectedLineRangeOfDupTable,  "existing node 'foo'",
                 DiagnosticSeverity.ERROR);
     }
 }

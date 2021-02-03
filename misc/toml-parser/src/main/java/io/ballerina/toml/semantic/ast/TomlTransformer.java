@@ -226,7 +226,9 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
                 if ((targetTable).generated()) {
                     parentTable.replaceGeneratedTable(newTableNode);
                 } else {
-                    appendEntriesToTable(targetTable, tableChild);
+                    TomlDiagnostic nodeExists = dlog.error(tableChild.location(),
+                            DiagnosticErrorCode.ERROR_EXISTING_NODE, newTableNode.key().name());
+                    parentTable.addDiagnostic(nodeExists);
                 }
             } else if (topLevelNode instanceof TomlKeyValueNode) {
                 TomlDiagnostic nodeExist = dlog.error(newTableNode.location(),
@@ -234,20 +236,6 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
                 parentTable.addDiagnostic(nodeExist);
             } else {
                 throw new UnsupportedOperationException();
-            }
-        }
-    }
-
-    private void appendEntriesToTable(TomlTableNode targetTable, TomlTableNode newTable) {
-        for (Map.Entry<String, TopLevelNode> entry : newTable.entries().entrySet()) {
-            String key = entry.getKey();
-            TopLevelNode value = entry.getValue();
-            boolean isExist = targetTable.entries().containsKey(key);
-            if (!isExist) {
-                targetTable.entries().put(key, value);
-            } else {
-                TomlDiagnostic nodeExists = dlog.error(value.location(), DiagnosticErrorCode.ERROR_EXISTING_NODE, key);
-                targetTable.addDiagnostic(nodeExists);
             }
         }
     }

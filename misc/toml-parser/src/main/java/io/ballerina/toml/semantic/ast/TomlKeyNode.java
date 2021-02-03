@@ -42,7 +42,7 @@ public class TomlKeyNode extends TomlNode {
     }
 
     public String name() {
-        List<String> list = new ArrayList<>();
+        List<String> list = new ArrayList<>(keys.size());
         for (TomlKeyEntryNode keyEntryNode : keys) {
             if (keyEntryNode.kind() == TomlType.STRING) {
                 list.add("\"" + keyEntryNode.name().toString() + "\"");

@@ -275,8 +275,5 @@ public class KeyValueTest {
 
         TomlStringValueNode mixedDotted = (TomlStringValueNode) read.get("foo.bar").get();
         Assert.assertEquals(mixedDotted.getValue(), "test");
-
-        TomlStringValueNode mixedTable = (TomlStringValueNode) read.get("foo.fee").get();
-        Assert.assertEquals(mixedTable.getValue(), "wew");
     }
 }

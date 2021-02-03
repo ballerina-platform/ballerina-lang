@@ -31,5 +31,3 @@ key= "BAR"
 first.second = "value"
 first.third = "value1"
 
-[foo]
-fee = "wew"
