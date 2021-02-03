@@ -708,7 +708,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         List<String> varStrings = new ArrayList<>();
         for (GlobalVariable entry : globalVars) {
             Object obj = InvokerMemory.recall(contextId, entry.getVariableName());
-            String value = StringUtils.shortenedString(obj);
+            String objStr = StringUtils.getExpressionStringValue(obj);
+            String value = StringUtils.shortenedString(objStr);
             String varString = String.format("(%s) %s %s = %s",
                     entry.getVariableName(), entry.getType(), entry.getVariableName(), value);
             varStrings.add(varString);
