@@ -322,10 +322,25 @@ public function testAnonymousRecordWithLetExpression() {
         int j?;
     } rec = let int v = 1 in {i: v};
     
-    assert(rec.i, 1);
+    assert(1, rec.i);
     
     rec.j = 5;
-    assert(rec?.j, 5);
+    assert(5, rec?.j);
+}
+
+type Rec record {|
+    int i;
+    int j = 100;
+|};
+    
+public function testRecordWithLetExpression() {
+    Rec rec1 = let int v = 160 in {i: v};
+    assert(160, rec1.i);
+    assert(100, rec1.j);
+    
+    Rec rec2 = let int v = 161 in {i: v, j: v};
+    assert(161, rec2.i);
+    assert(161, rec2.j);
 }
 
 //// Util functions

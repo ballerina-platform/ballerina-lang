@@ -33,3 +33,17 @@ function wrongTypes() {
 function fun() returns int {
     return 1;
 }
+
+function invalidTypesWithAnonymousRecord() {
+    record {
+        byte i;
+        int j?;
+    } rec1 = let int v = 160 in {i: v};
+
+    record {
+        string i;
+        int j?;
+    } rec2 = let string v = "160" in {i: v};
+    
+    rec2.j = "invalid";
+}

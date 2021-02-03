@@ -56,7 +56,9 @@ public class LetExpressionTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 27, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 28, 39);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 29, 28);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'string', found 'int'", 30, 42);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 30, 42);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 41, 37);
+        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'int', found 'string'", 48, 14);
     }
 
     @Test(description = "Test cases for scenarios where let expression is not yet supported")
@@ -102,7 +104,8 @@ public class LetExpressionTest {
 //                {"testLetExpressionErrorBindingSimple"},
 //                {"testLetExpressionErrorBindingVar"},
 //                {"testLetExpressionRecordConstrainedErrorBinding"},
-                {"testAnonymousRecordWithLetExpression"}
+                {"testAnonymousRecordWithLetExpression"},
+                {"testRecordWithLetExpression"}
         };
     }
 
