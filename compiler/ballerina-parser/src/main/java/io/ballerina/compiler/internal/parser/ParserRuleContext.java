@@ -274,6 +274,7 @@ public enum ParserRuleContext {
     MATCH_PATTERN_START("match-pattern-start"),
     MATCH_PATTERN_END("match-pattern-end"),
     MATCH_PATTERN_RHS("match-pattern-rhs"),
+    MATCH_PATTERN_LIST_MEMBER_RHS("match-pattern-list-memebr-rhs"),
     OPTIONAL_MATCH_GUARD("optional-match-guard"),
     LIST_MATCH_PATTERN("list-match-pattern"),
     LIST_MATCH_PATTERNS_START("list-match-patterns-start"),
