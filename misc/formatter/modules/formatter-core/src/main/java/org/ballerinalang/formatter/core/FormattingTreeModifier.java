@@ -2019,11 +2019,11 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public MappingMatchPatternNode transform(MappingMatchPatternNode mappingMatchPatternNode) {
-        Token openBraceToken = formatToken(mappingMatchPatternNode.openBraceToken(), 1, 0);
+        Token openBraceToken = formatToken(mappingMatchPatternNode.openBraceToken(), 0, 0);
         SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns =
-                formatSeparatedNodeList(mappingMatchPatternNode.fieldMatchPatterns(), 0, 0, 1, 0);
+                formatSeparatedNodeList(mappingMatchPatternNode.fieldMatchPatterns(), 0, 0, 0, 0);
         RestMatchPatternNode restMatchPattern =
-                formatNode(mappingMatchPatternNode.restMatchPattern().orElse(null), 1, 0);
+                formatNode(mappingMatchPatternNode.restMatchPattern().orElse(null), 0, 0);
         Token closeBraceToken =
                 formatToken(mappingMatchPatternNode.closeBraceToken(), env.trailingWS, env.trailingNL);
         return mappingMatchPatternNode.modify()
@@ -3246,7 +3246,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public FieldMatchPatternNode transform(FieldMatchPatternNode fieldMatchPatternNode) {
         IdentifierToken fieldNameNode = formatNode(fieldMatchPatternNode.fieldNameNode(), 0, 0);
-        Token colonToken = formatToken(fieldMatchPatternNode.colonToken(), 0, 0);
+        Token colonToken = formatToken(fieldMatchPatternNode.colonToken(), 1, 0);
         Node matchPattern = formatNode(fieldMatchPatternNode.matchPattern(), env.trailingWS, env.trailingNL);
         return fieldMatchPatternNode.modify()
                 .withFieldNameNode(fieldNameNode)
