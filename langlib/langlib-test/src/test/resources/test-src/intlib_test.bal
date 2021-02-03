@@ -51,3 +51,9 @@ function testFromHexString() returns [int|error, int|error] {
     int|error v2 = ints:fromHexString("12invalid34");
     return [v1, v2];
 }
+
+function testChainedIntFunctions() returns int {
+    var e = 0;
+    int a = e.max(1).min(2);
+    return a;
+}

@@ -274,4 +274,10 @@ public class LangLibStringTest {
         assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test
+    public void testChainedStringFunctions() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testChainedStringFunctions");
+        assertEquals(returns[0].stringValue(), "foo1foo2foo3foo4");
+    }
+
 }
