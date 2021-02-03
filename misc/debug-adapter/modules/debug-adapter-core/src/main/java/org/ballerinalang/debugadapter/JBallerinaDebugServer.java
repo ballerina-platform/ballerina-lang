@@ -86,6 +86,7 @@ import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -681,52 +682,68 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             return new Variable[0];
         }
 
-        // Handles indexed variables.
         if (parentVar instanceof IndexedCompoundVariable) {
+            // Handles indexed variables.
             int startIndex = (args.getStart() != null) ? args.getStart().intValue() : 0;
             int count = (args.getCount() != null) ? args.getCount().intValue() : 0;
-            List<Value> childVars = ((IndexedCompoundVariable) parentVar).getIndexedChildVariables(startIndex, count);
 
-            AtomicInteger index = new AtomicInteger(startIndex);
-            return childVars.stream().map(value -> {
-                String name = String.format("[%d]", index.getAndIncrement());
-                BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
-                if (variable == null) {
-                    return null;
-                } else if (variable instanceof BSimpleVariable) {
-                    variable.getDapVariable().setVariablesReference(0L);
-                } else if (variable instanceof BCompoundVariable) {
-                    long variableReference = nextVarReference.getAndIncrement();
-                    variable.getDapVariable().setVariablesReference(variableReference);
-                    loadedVariables.put(variableReference, (BCompoundVariable) variable);
-                    updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
-                }
-                return variable.getDapVariable();
-            }).filter(Objects::nonNull).toArray(Variable[]::new);
-        }
-
-        // Handles named variables.
-        if (parentVar instanceof NamedCompoundVariable) {
+            Either<Map<String, Value>, List<Value>> childVars = ((IndexedCompoundVariable) parentVar)
+                    .getIndexedChildVariables(startIndex, count);
+            if (childVars.isLeft()) {
+                // Handles map-type indexed variables.
+                return createVariableArrayFrom(args, childVars.getLeft());
+            } else if (childVars.isRight()) {
+                // Handles list-type indexed variables.
+                return createVariableArrayFrom(args, childVars.getRight());
+            }
+            return new Variable[0];
+        } else if (parentVar instanceof NamedCompoundVariable) {
+            // Handles named variables.
             Map<String, Value> childVars = ((NamedCompoundVariable) parentVar).getNamedChildVariables();
-            return childVars.entrySet().stream().map(entry -> {
-                String name = entry.getKey();
-                Value value = entry.getValue();
-                BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
-                if (variable == null) {
-                    return null;
-                } else if (variable instanceof BSimpleVariable) {
-                    variable.getDapVariable().setVariablesReference(0L);
-                } else if (variable instanceof BCompoundVariable) {
-                    long variableReference = nextVarReference.getAndIncrement();
-                    variable.getDapVariable().setVariablesReference(variableReference);
-                    loadedVariables.put(variableReference, (BCompoundVariable) variable);
-                    updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
-                }
-                return variable.getDapVariable();
-            }).filter(Objects::nonNull).toArray(Variable[]::new);
+            return createVariableArrayFrom(args, childVars);
         }
 
         return new Variable[0];
+    }
+
+    private Variable[] createVariableArrayFrom(VariablesArguments args, Map<String, Value> varMap) {
+        return varMap.entrySet().stream().map(entry -> {
+            String name = entry.getKey();
+            Value value = entry.getValue();
+            BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
+            if (variable == null) {
+                return null;
+            } else if (variable instanceof BSimpleVariable) {
+                variable.getDapVariable().setVariablesReference(0L);
+            } else if (variable instanceof BCompoundVariable) {
+                long variableReference = nextVarReference.getAndIncrement();
+                variable.getDapVariable().setVariablesReference(variableReference);
+                loadedVariables.put(variableReference, (BCompoundVariable) variable);
+                updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
+            }
+            return variable.getDapVariable();
+        }).filter(Objects::nonNull).toArray(Variable[]::new);
+    }
+
+    private Variable[] createVariableArrayFrom(VariablesArguments args, List<Value> varMap) {
+        int startIndex = (args.getStart() != null) ? args.getStart().intValue() : 0;
+        AtomicInteger index = new AtomicInteger(startIndex);
+
+        return varMap.stream().map(value -> {
+            String name = String.format("[%d]", index.getAndIncrement());
+            BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
+            if (variable == null) {
+                return null;
+            } else if (variable instanceof BSimpleVariable) {
+                variable.getDapVariable().setVariablesReference(0L);
+            } else if (variable instanceof BCompoundVariable) {
+                long variableReference = nextVarReference.getAndIncrement();
+                variable.getDapVariable().setVariablesReference(variableReference);
+                loadedVariables.put(variableReference, (BCompoundVariable) variable);
+                updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
+            }
+            return variable.getDapVariable();
+        }).filter(Objects::nonNull).toArray(Variable[]::new);
     }
 
     private void loadProjectInfo(Map<String, Object> clientArgs) {

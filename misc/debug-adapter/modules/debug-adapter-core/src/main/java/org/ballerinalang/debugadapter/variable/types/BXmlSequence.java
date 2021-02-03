@@ -22,8 +22,8 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,16 +55,16 @@ public class BXmlSequence extends IndexedCompoundVariable {
     }
 
     @Override
-    public List<Value> computeIndexedChildVariables(int start, int count) {
+    public Either<Map<String, Value>, List<Value>> computeIndexedChildVariables(int start, int count) {
         List<Value> childValues = new ArrayList<>();
         try {
             Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
             if (children.isEmpty()) {
-                return childValues;
+                return Either.forRight(childValues);
             }
             Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), FIELD_ELEMENT_DATA);
             if (childArray.isEmpty()) {
-                return childValues;
+                return Either.forRight(childValues);
             }
 
             // If count > 0, returns a sublist of the child variables
@@ -74,27 +74,26 @@ public class BXmlSequence extends IndexedCompoundVariable {
             } else {
                 childValues = ((ArrayReference) childArray.get()).getValues();
             }
-            return childValues;
+            return Either.forRight(childValues);
         } catch (Exception e) {
-            return childValues;
+            return Either.forRight(childValues);
         }
     }
 
     @Override
-    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+    public int getChildrenCount() {
         try {
             Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
             if (children.isEmpty()) {
-                return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, 0);
+                return 0;
             }
             Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), FIELD_ELEMENT_DATA);
             if (childArray.isEmpty()) {
-                return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, 0);
+                return 0;
             }
-            List<Value> childrenValues = ((ArrayReference) childArray.get()).getValues();
-            return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, childrenValues.size());
+            return ((ArrayReference) childArray.get()).length();
         } catch (Exception e) {
-            return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, 0);
+            return 0;
         }
     }
 }

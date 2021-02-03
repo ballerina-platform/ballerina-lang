@@ -25,8 +25,8 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +42,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
  */
 public class BTuple extends IndexedCompoundVariable {
 
+    int tupleSize = -1;
+
     public BTuple(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.TUPLE, value);
     }
@@ -56,29 +58,31 @@ public class BTuple extends IndexedCompoundVariable {
     }
 
     @Override
-    public List<Value> computeIndexedChildVariables(int start, int count) {
+    public Either<Map<String, Value>, List<Value>> computeIndexedChildVariables(int start, int count) {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return new ArrayList<>();
+                return Either.forRight(new ArrayList<>());
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Field valueField = jvmValueRef.referenceType().fieldByName("refValues");
 
             // If count > 0, returns a sublist of the child variables
             // If count == 0, returns all child variables
+            List<Value> children;
             if (count > 0) {
-                return ((ArrayReference) jvmValueRef.getValue(valueField)).getValues(start, count);
+                children = ((ArrayReference) jvmValueRef.getValue(valueField)).getValues(start, count);
             } else {
-                return ((ArrayReference) jvmValueRef.getValue(valueField)).getValues(0, getTupleSize(jvmValueRef));
+                children = ((ArrayReference) jvmValueRef.getValue(valueField)).getValues(0, getTupleSize(jvmValueRef));
             }
+            return Either.forRight(children);
         } catch (Exception ignored) {
-            return new ArrayList<>();
+            return Either.forRight(new ArrayList<>());
         }
     }
 
     @Override
-    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
-        return new AbstractMap.SimpleEntry<>(ChildVariableKind.INDEXED, getTupleSize((ObjectReference) jvmValue));
+    public int getChildrenCount() {
+        return getTupleSize((ObjectReference) jvmValue);
     }
 
     /**
@@ -120,11 +124,18 @@ public class BTuple extends IndexedCompoundVariable {
      * @return size of the tuple.
      */
     private int getTupleSize(ObjectReference arrayRef) {
+        if (tupleSize < 0) {
+            populateTupleSize(arrayRef);
+        }
+        return tupleSize;
+    }
+
+    private void populateTupleSize(ObjectReference arrayRef) {
         List<Field> fields = arrayRef.referenceType().allFields();
         Field arraySizeField = arrayRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
                 fieldValueEntry.getValue() != null &&
                         fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
                 .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
-        return ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
+        tupleSize = ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
     }
 }

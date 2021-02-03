@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.variable;
 
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Map;
 
@@ -35,13 +36,25 @@ public abstract class NamedCompoundVariable extends BCompoundVariable {
     }
 
     /**
-     * Returns JDI value representations of all the child variables, as a map of named child variables (i.e. map
-     * entries, json elements, etc.)
+     * Returns JDI value representations of all the child variables, as a map of named child variables (i.e. error
+     * variable entries, object fields, record fields).
      * <p>
      * Each compound variable type with named child variables must have their own implementation to compute/fetch
      * values.
      */
     protected abstract Map<String, Value> computeNamedChildVariables();
+
+    @Override
+    public Variable getDapVariable() {
+        if (dapVariable == null) {
+            dapVariable = new Variable();
+            dapVariable.setName(this.name);
+            dapVariable.setType(this.type.getString());
+            dapVariable.setValue(computeValue());
+            dapVariable.setNamedVariables((long) getChildrenCount());
+        }
+        return dapVariable;
+    }
 
     public Map<String, Value> getNamedChildVariables() {
         if (namedChildVariables == null) {

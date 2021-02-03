@@ -101,7 +101,7 @@ public class IndexedExpressionEvaluator extends Evaluator {
                                         keyVar.getBType() + "'"));
                     }
                     int index = Integer.parseInt(keyVar.getDapVariable().getValue());
-                    int childSize = ((BCompoundVariable) containerVar).getChildrenCount().getValue();
+                    int childSize = ((BCompoundVariable) containerVar).getChildrenCount();
                     // Validates for IndexOutOfRange errors.
                     if (index < 0 || index >= childSize) {
                         throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),

@@ -23,7 +23,6 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
-import java.util.AbstractMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,16 +70,16 @@ public class BXmlItemAttributeMap extends NamedCompoundVariable {
     }
 
     @Override
-    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+    public int getChildrenCount() {
         try {
             Optional<Value> mapValues = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_DATA);
             if (mapValues.isEmpty()) {
-                return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);
+                return 0;
             }
             List<Value> attributesMap = ((ArrayReference) mapValues.get()).getValues();
-            return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, attributesMap.size());
+            return attributesMap.size();
         } catch (Exception ignored) {
-            return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);
+            return 0;
         }
     }
 }

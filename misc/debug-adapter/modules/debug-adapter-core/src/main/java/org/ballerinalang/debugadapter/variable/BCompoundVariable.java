@@ -20,8 +20,6 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.Map;
-
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 
 /**
@@ -30,10 +28,10 @@ import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 public abstract class BCompoundVariable implements BVariable {
 
     protected final SuspendedContext context;
-    private final String name;
-    private final BVariableType type;
+    protected final String name;
+    protected final BVariableType type;
     protected Value jvmValue;
-    private Variable dapVariable;
+    protected Variable dapVariable;
 
     public BCompoundVariable(SuspendedContext context, String varName, BVariableType bVariableType, Value jvmValue) {
         this.context = context;
@@ -49,7 +47,7 @@ public abstract class BCompoundVariable implements BVariable {
      *
      * @return child variable count of the variable
      */
-    public abstract Map.Entry<ChildVariableKind, Integer> getChildrenCount();
+    public abstract int getChildrenCount();
 
     @Override
     public SuspendedContext getContext() {
@@ -71,28 +69,15 @@ public abstract class BCompoundVariable implements BVariable {
         return jvmValue;
     }
 
-    @Override
-    public Variable getDapVariable() {
-        if (dapVariable == null) {
-            dapVariable = new Variable();
-            dapVariable.setName(this.name);
-            dapVariable.setType(this.type.getString());
-            dapVariable.setValue(computeValue());
-            Map.Entry<ChildVariableKind, Integer> childrenCount = getChildrenCount();
-            if (childrenCount.getKey() == ChildVariableKind.INDEXED) {
-                dapVariable.setIndexedVariables(childrenCount.getValue().longValue());
-            } else {
-                dapVariable.setNamedVariables(childrenCount.getValue().longValue());
-            }
-        }
-        return dapVariable;
-    }
-
     /**
      * Child variable types.
      * <p>
-     * Indexed child variables - array elements, table entries etc.
-     * Named child variables - map entries, json elements, etc.
+     * <ul>
+     * <li> Indexed child variables - Variable types which can contain a large number of child variable entries and
+     * hence should be lazy loaded (i.e. array elements, table entries, map entries, json elements, etc.)
+     * <li> Named child variables - Variable types with a known/limited number of child elements. (i.e. error variable
+     * fields, object fields, etc.)
+     * </ul>
      */
     public enum ChildVariableKind {
         NAMED,

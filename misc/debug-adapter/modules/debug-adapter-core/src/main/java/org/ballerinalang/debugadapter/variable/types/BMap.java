@@ -20,10 +20,10 @@ import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.AbstractMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,7 @@ import java.util.Optional;
 /**
  * Ballerina map variable type.
  */
-public class BMap extends NamedCompoundVariable {
+public class BMap extends IndexedCompoundVariable {
 
     private static final String FIELD_MAP_DATA = "table";
     private static final String FIELD_MAP_KEY = "key";
@@ -48,39 +48,48 @@ public class BMap extends NamedCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeNamedChildVariables() {
+    public Either<Map<String, Value>, List<Value>> computeIndexedChildVariables(int start, int count) {
         Map<String, Value> childVarMap = new LinkedHashMap<>();
         try {
             Optional<Value> mapValues = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_DATA);
             if (mapValues.isEmpty()) {
-                return childVarMap;
+                return Either.forLeft(childVarMap);
             }
-            for (Value map : ((ArrayReference) mapValues.get()).getValues()) {
-                if (map != null) {
-                    Optional<Value> mapKey = VariableUtils.getFieldValue(map, FIELD_MAP_KEY);
-                    Optional<Value> mapValue = VariableUtils.getFieldValue(map, FIELD_MAP_VALUE);
+
+            // If count > 0, returns a sublist of the child variables
+            // If count == 0, returns all child variables
+            List<Value> mapEntries;
+            if (count > 0) {
+                mapEntries = ((ArrayReference) mapValues.get()).getValues(start, count);
+            } else {
+                mapEntries = ((ArrayReference) mapValues.get()).getValues(0, getChildrenCount());
+            }
+
+            for (Value mapEntry : mapEntries) {
+                if (mapEntry != null) {
+                    Optional<Value> mapKey = VariableUtils.getFieldValue(mapEntry, FIELD_MAP_KEY);
+                    Optional<Value> mapValue = VariableUtils.getFieldValue(mapEntry, FIELD_MAP_VALUE);
                     if (mapKey.isPresent() && mapValue.isPresent()) {
                         childVarMap.put(VariableUtils.getStringFrom(mapKey.get()), mapValue.get());
                     }
                 }
             }
-            return childVarMap;
+            return Either.forLeft(childVarMap);
         } catch (Exception ignored) {
-            return childVarMap;
+            return Either.forLeft(childVarMap);
         }
     }
 
     @Override
-    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+    public int getChildrenCount() {
         try {
-            Optional<Value> jsonValues = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_DATA);
-            if (jsonValues.isEmpty()) {
-                return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);
+            Optional<Value> mapValues = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_DATA);
+            if (mapValues.isEmpty()) {
+                return 0;
             }
-            List<Value> jsonElements = ((ArrayReference) jsonValues.get()).getValues();
-            return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, jsonElements.size());
+            return ((ArrayReference) mapValues.get()).length();
         } catch (Exception ignored) {
-            return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);
+            return 0;
         }
     }
 }

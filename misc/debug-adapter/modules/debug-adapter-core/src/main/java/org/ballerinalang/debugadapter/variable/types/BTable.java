@@ -26,8 +26,8 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +48,6 @@ public class BTable extends IndexedCompoundVariable {
     private static final String METHOD_SIZE = "size";
     private static final String METHOD_GETKEYS = "getKeys";
     private static final String METHOD_GET = "get";
-    // Maximum number of table entries that will be shown in the debug view.
-    private static final int CHILD_VAR_LIMIT = 10;
 
     private int tableSize = -1;
 
@@ -69,21 +67,21 @@ public class BTable extends IndexedCompoundVariable {
     }
 
     @Override
-    protected List<Value> computeIndexedChildVariables(int start, int count) {
+    public Either<Map<String, Value>, List<Value>> computeIndexedChildVariables(int start, int count) {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return new ArrayList<>();
+                return Either.forRight(new ArrayList<>());
             }
             Value[] tableKeys = getTableKeys(start, count);
-            return getTableEntriesFor(tableKeys);
+            return Either.forRight(getTableEntriesFor(tableKeys));
         } catch (Exception ignored) {
-            return new ArrayList<>();
+            return Either.forRight(new ArrayList<>());
         }
     }
 
     @Override
-    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
-        return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, getChildVariableLimit());
+    public int getChildrenCount() {
+        return getTableSize();
     }
 
     /**
@@ -154,7 +152,7 @@ public class BTable extends IndexedCompoundVariable {
             return keyArray;
         } else {
             // returns only the first N entries of the table instead of fetching all the entries at once, to avoid OOMs.
-            int variableLimit = getChildVariableLimit();
+            int variableLimit = getTableSize();
             Value[] keyArray = new Value[variableLimit];
             for (int index = 0; index < variableLimit; index++) {
                 keyArray[index] = ((ArrayReference) keys).getValue(index);
@@ -182,9 +180,5 @@ public class BTable extends IndexedCompoundVariable {
         } catch (Exception e) {
             return new ArrayList<>();
         }
-    }
-
-    private int getChildVariableLimit() {
-        return Math.max(Math.min(getTableSize(), CHILD_VAR_LIMIT), 0);
     }
 }

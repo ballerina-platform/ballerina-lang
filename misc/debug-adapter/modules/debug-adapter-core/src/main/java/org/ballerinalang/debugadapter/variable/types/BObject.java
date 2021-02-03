@@ -24,7 +24,6 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
-import java.util.AbstractMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -65,10 +64,10 @@ public class BObject extends NamedCompoundVariable {
     }
 
     @Override
-    public Map.Entry<ChildVariableKind, Integer> getChildrenCount() {
+    public int getChildrenCount() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);
+                return 0;
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
@@ -77,9 +76,9 @@ public class BObject extends NamedCompoundVariable {
                     .filter(field -> field.toString().contains(OBJECT_FIELD_PATTERN_IDENTIFIER))
                     .count();
 
-            return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, Long.valueOf(objectFieldCount).intValue());
+            return Long.valueOf(objectFieldCount).intValue();
         } catch (Exception ignored) {
-            return new AbstractMap.SimpleEntry<>(ChildVariableKind.NAMED, 0);
+            return 0;
         }
     }
 }
