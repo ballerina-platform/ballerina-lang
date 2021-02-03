@@ -117,7 +117,7 @@ public class SemanticAPITestUtils {
                                                        int column, ModuleID moduleID) {
         List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(line, column));
         return allInScopeSymbols.stream()
-                .filter(s -> s.moduleID().equals(moduleID))
+                .filter(s -> s.getModule().get().id().equals(moduleID))
                 .collect(Collectors.toMap(s -> s.getName().orElse(""), s -> s));
     }
 

@@ -86,8 +86,10 @@ public class TestSourcesTest {
     @Test(dataProvider = "VisibleSymbolPosProvider")
     public void testVisibleSymbols(int line, int col, List<String> expSymbols) {
         List<Symbol> symbols = model.visibleSymbols(srcFile, from(line, col)).stream()
-                .filter(sym -> sym.moduleID().moduleName().equals("semapi.baz") ||
-                        !sym.moduleID().moduleName().startsWith("lang."))
+                .filter(sym -> {
+                    String moduleName = sym.getModule().get().getName().get();
+                    return moduleName.equals("semapi.baz") || !moduleName.startsWith("lang.");
+                })
                 .collect(Collectors.toList());
 
         assertEquals(symbols.size(), expSymbols.size());

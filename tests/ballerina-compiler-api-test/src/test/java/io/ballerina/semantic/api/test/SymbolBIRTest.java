@@ -148,7 +148,8 @@ public class SymbolBIRTest {
         assertEquals(actualValues.size(), expectedValues.size());
 
         for (SymbolInfo val : expectedValues) {
-            assertTrue(actualValues.stream().anyMatch(sym -> val.equals(new SymbolInfo(sym.getName().get(), sym.kind()))),
+            assertTrue(actualValues.stream()
+                               .anyMatch(sym -> val.equals(new SymbolInfo(sym.getName().get(), sym.kind()))),
                        "Symbol not found: " + val);
 
         }
