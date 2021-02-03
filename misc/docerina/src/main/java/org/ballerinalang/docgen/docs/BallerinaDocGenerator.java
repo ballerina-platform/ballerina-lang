@@ -31,7 +31,9 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.docs.utils.PathToJson;
+import org.ballerinalang.docgen.generator.model.CentralStdLibrary;
 import org.ballerinalang.docgen.generator.model.DocPackage;
+import org.ballerinalang.docgen.generator.model.DocPackageMetadata;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
 import org.ballerinalang.docgen.generator.model.PackageLibrary;
@@ -67,15 +69,16 @@ public class BallerinaDocGenerator {
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
     private static PrintStream out = System.out;
 
-    private static final String MODULE_CONTENT_FILE = "Module.md";
-    private static final Path BAL_BUILTIN = Paths.get("ballerina", "builtin");
-    private static final String HTML = ".html";
-    private static final String DOC_JSON = "api-doc-data.json";
-    private static final String JSON = ".json";
-    private static final String MODULE_SEARCH = "search";
-    private static final String SEARCH_DATA = "search-data.js";
+    private static final String DOC_DATA_JSON = "doc_data.json";
+    private static final String DOC_DATA_JS = "doc_data.js";
+    private static final String CENTRAL_DOC_DATA_JSON = "central_doc_data.json";
+    private static final String SEARCH_DATA_JSON = "search-data.json";
+    private static final String SEARCH_DATA_JS = "search-data.js";
     private static final String SEARCH_DIR = "doc-search";
+    private static final String DATA_DIR = "data";
+
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
+            .setPrettyPrinting()
             .excludeFieldsWithoutExposeAnnotation().create();
 
     /**
@@ -96,9 +99,31 @@ public class BallerinaDocGenerator {
         }
         Arrays.sort(fList);
         PackageLibrary packageLib = new PackageLibrary();
+        PackageLibrary langLib = null;
+        CentralStdLibrary centralLib = new CentralStdLibrary();
+        centralLib.releaseName = System.getProperty("ballerina.version");
+
+        // Get doc data json containing langlibs, which is generated when ballerina-lang is being built.
+        Path langLibsJsonPath = Paths.get(directory.getAbsolutePath(), DATA_DIR, DOC_DATA_JSON);
+        if (langLibsJsonPath.toFile().exists()) {
+            try (BufferedReader br = Files.newBufferedReader(langLibsJsonPath, StandardCharsets.UTF_8)) {
+                langLib = gson.fromJson(br, PackageLibrary.class);
+                if (langLib.packages.isEmpty()) {
+                    out.println("No langlibs found at: " + langLibsJsonPath.toString());
+                    return;
+                }
+            } catch (IOException e) {
+                String errorMsg = String.format("API documentation generation failed. Cause: %s",
+                        e.getMessage());
+                out.println(errorMsg);
+                log.error(errorMsg, e);
+                return;
+            }
+        }
+
         for (File file : fList) {
             if (file.isDirectory()) {
-                Path docJsonPath = Paths.get(file.getAbsolutePath(), "data", "doc_data" + JSON);
+                Path docJsonPath = Paths.get(file.getAbsolutePath(), DATA_DIR, DOC_DATA_JSON);
                 if (docJsonPath.toFile().exists()) {
                     try (BufferedReader br = Files.newBufferedReader(docJsonPath, StandardCharsets.UTF_8)) {
                         PackageLibrary jsonPackageLib = gson.fromJson(br, PackageLibrary.class);
@@ -117,8 +142,24 @@ public class BallerinaDocGenerator {
                                 return;
                             }
                         });
-                        packageLib.packages.addAll(jsonPackageLib.packages);
+                        for (DocPackage docPackage : jsonPackageLib.packages) {
+                            packageLib.packages.add(docPackage);
 
+                            // Create json to show stdlibs through central
+                            if (langLib != null) {
+                                if (langLib.packages.stream().anyMatch(langLibPackage
+                                        -> langLibPackage.name.equals(docPackage.name))) {
+                                    centralLib.langLibs.add(docPackage);
+                                } else {
+                                    DocPackageMetadata pkgMeta = new DocPackageMetadata();
+                                    pkgMeta.name = docPackage.name;
+                                    pkgMeta.summary = docPackage.summary;
+                                    pkgMeta.orgName = docPackage.orgName;
+                                    pkgMeta.version = docPackage.version;
+                                    centralLib.stdLibs.add(pkgMeta);
+                                }
+                            }
+                        }
                         File newIndex = new File(file.getAbsolutePath() + File.separator + "index.html");
                         String htmlData = "<!DOCTYPE html>\n" +
                                 "<html>\n" +
@@ -146,6 +187,18 @@ public class BallerinaDocGenerator {
             }
         }
         writeAPIDocs(packageLib, apiDocsRoot, true);
+
+        // Create the central json
+        String json = gson.toJson(centralLib);
+        File jsonFile = new File(apiDocsRoot + File.separator + DATA_DIR + File.separator + CENTRAL_DOC_DATA_JSON);
+        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),
+                StandardCharsets.UTF_8)) {
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            out.println(String.format("docerina: failed to create the " + CENTRAL_DOC_DATA_JSON + ". Cause: %s",
+                    e.getMessage()));
+            log.error("Failed to create " + CENTRAL_DOC_DATA_JSON + " file.", e);
+        }
     }
 
     /**
@@ -188,7 +241,7 @@ public class BallerinaDocGenerator {
                         packageLib.packages.get(0).modules.get(0).id
                         : output + File.separator + packageLib.packages.get(0).name;
             }
-            String dataDir = output + File.separator + "data";
+            String dataDir = output + File.separator + DATA_DIR;
             String searchDir = output + File.separator + SEARCH_DIR;
             try {
                 Files.createDirectories(Paths.get(dataDir));
@@ -271,8 +324,8 @@ public class BallerinaDocGenerator {
 
     private static void genProjectJson(PackageLibrary packageLib, String dataDir) {
 
-        File jsFile = new File(dataDir + File.separator + "doc_data.js");
-        File jsonFile = new File(dataDir + File.separator + "doc_data.json");
+        File jsFile = new File(dataDir + File.separator + DOC_DATA_JS);
+        File jsonFile = new File(dataDir + File.separator + DOC_DATA_JSON);
         if (jsFile.exists()) {
             boolean deleted = jsFile.delete();
             if (!deleted) {
@@ -291,18 +344,18 @@ public class BallerinaDocGenerator {
             String js = "var docData = " + json + ";";
             writer.write(new String(js.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the " + "doc_data.js" + ". Cause: %s",
+            out.println(String.format("docerina: failed to create the " + DOC_DATA_JS + ". Cause: %s",
                     e.getMessage()));
-            log.error("Failed to create " + "doc_data.js" + " file.", e);
+            log.error("Failed to create " + DOC_DATA_JS + " file.", e);
         }
 
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),
                 StandardCharsets.UTF_8)) {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the " + "doc_data.json" + ". Cause: %s",
+            out.println(String.format("docerina: failed to create the " + DOC_DATA_JSON + ". Cause: %s",
                     e.getMessage()));
-            log.error("Failed to create " + "doc_data.json" + " file.", e);
+            log.error("Failed to create " + DOC_DATA_JSON + " file.", e);
         }
     }
 
@@ -376,8 +429,8 @@ public class BallerinaDocGenerator {
                 searchConstants, searchErrors, searchTypes, searchClients, searchListeners, searchAnnotations,
                 searchAbstractObjects, searchEnums);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        File jsonFile = new File(searchDir + File.separator + "search-data.json");
-        File jsFile = new File(searchDir + File.separator + "search-data.js");
+        File jsonFile = new File(searchDir + File.separator + SEARCH_DATA_JSON);
+        File jsFile = new File(searchDir + File.separator + SEARCH_DATA_JS);
         if (jsFile.exists()) {
             boolean deleted = jsFile.delete();
             if (!deleted) {
@@ -395,8 +448,9 @@ public class BallerinaDocGenerator {
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the search-data.json. Cause: %s", e.getMessage()));
-            log.error("Failed to create search-data.json file.", e);
+            out.println(String.format("docerina: failed to create the " + SEARCH_DATA_JSON
+                    + ". Cause: %s", e.getMessage()));
+            log.error("Failed to create " + SEARCH_DATA_JSON + " file.", e);
         }
 
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsFile),
@@ -404,9 +458,9 @@ public class BallerinaDocGenerator {
             String js = "var searchData = " + json + ";";
             writer.write(new String(js.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the " + "search-data.js" + ". Cause: %s",
+            out.println(String.format("docerina: failed to create the " + SEARCH_DATA_JS + ". Cause: %s",
                     e.getMessage()));
-            log.error("Failed to create " + "search-data.js" + " file.", e);
+            log.error("Failed to create " + SEARCH_DATA_JS + " file.", e);
         }
 
     }
