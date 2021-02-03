@@ -18,8 +18,15 @@
 
 package io.ballerina.shell.snippet.types;
 
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.SnippetSubKind;
 
@@ -37,14 +44,27 @@ public class ModuleMemberDeclarationSnippet extends Snippet {
     }
 
     /**
-     * Name of the enum used. Will be empty if this is not an enum.
-     *
-     * @return Enum identifier.
+     * @return the name associated with the module level declaration.
+     * If the module declaration has no name, this will return null.
      */
-    public Optional<String> enumName() {
-        if (rootNode instanceof EnumDeclarationNode) {
-            return Optional.of(((EnumDeclarationNode) rootNode).identifier().text());
+    public Optional<String> name() {
+        if (rootNode instanceof ClassDefinitionNode) {
+            return Optional.ofNullable(((ClassDefinitionNode) rootNode).className().text());
+        } else if (rootNode instanceof ConstantDeclarationNode) {
+            return Optional.ofNullable(((ConstantDeclarationNode) rootNode).variableName().text());
+        } else if (rootNode instanceof EnumDeclarationNode) {
+            return Optional.ofNullable(((EnumDeclarationNode) rootNode).identifier().text());
+        } else if (rootNode instanceof FunctionDefinitionNode) {
+            return Optional.ofNullable(((FunctionDefinitionNode) rootNode).functionName().text());
+        } else if (rootNode instanceof ListenerDeclarationNode) {
+            return Optional.ofNullable(((ListenerDeclarationNode) rootNode).variableName().text());
+        } else if (rootNode instanceof ModuleXMLNamespaceDeclarationNode) {
+            ModuleXMLNamespaceDeclarationNode namespaceNode = (ModuleXMLNamespaceDeclarationNode) rootNode;
+            return namespaceNode.namespacePrefix().map(Token::text);
+        } else if (rootNode instanceof TypeDefinitionNode) {
+            return Optional.ofNullable(((TypeDefinitionNode) rootNode).typeName().text());
+        } else {
+            return Optional.empty();
         }
-        return Optional.empty();
     }
 }

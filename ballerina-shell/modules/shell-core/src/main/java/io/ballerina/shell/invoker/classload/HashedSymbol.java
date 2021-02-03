@@ -20,6 +20,7 @@ package io.ballerina.shell.invoker.classload;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.shell.utils.StringUtils;
 
 import java.util.Objects;
 
@@ -40,7 +41,7 @@ public class HashedSymbol {
      * @param symbol Symbol to wrap.
      */
     public HashedSymbol(Symbol symbol) {
-        this.name = symbol.name();
+        this.name = StringUtils.quoted(symbol.name());
         this.kind = symbol.kind();
     }
 

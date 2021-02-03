@@ -22,7 +22,6 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -346,7 +345,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         for (Symbol symbol : symbols) {
             HashedSymbol hashedSymbol = new HashedSymbol(symbol);
             // TODO: After name alternative is implemented use it.
-            String variableName = symbol.name();
+            String variableName = StringUtils.quoted(symbol.name());
 
             boolean ignoreSymbol = knownSymbols.contains(hashedSymbol)
                     || GlobalVariable.isDefined(foundVariables, variableName)
@@ -376,9 +375,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     }
 
     /**
-     * Processes a variable declaration snippet.
-     * Symbols are processed to know the new module dcln.
-     * Only compilation is done.
+     * Processes a variable declaration snippet. Only compilation is done.
      * TODO: Support enums.
      *
      * @param newSnippet New snippet to process.
@@ -394,25 +391,9 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         SingleFileProject project = getProject(varTypeInferContext, DECLARATION_TEMPLATE_FILE);
         Collection<Symbol> symbols = visibleUnknownSymbols(project);
 
-        Optional<String> enumName = newSnippet.enumName();
-        if (enumName.isPresent()) {
-            // Enum. Has to process as such. The code will be as is.
-            // Enums cannot be processed as normal because they are desugared in compilation.
-            // All new symbols are added as known.
-            symbols.stream().map(HashedSymbol::new).forEach(this.newSymbols::add);
-            return Map.entry(enumName.get(), newSnippet.toString());
-        } else {
-            for (Symbol symbol : symbols) {
-                if (!symbol.kind().equals(SymbolKind.MODULE)) {
-                    this.newSymbols.add(new HashedSymbol(symbol));
-                    // TODO: After name alternative is implemented use it.
-                    return Map.entry(symbol.name(), newSnippet.toString());
-                }
-            }
-        }
-
-        addDiagnostic(Diagnostic.error("Invalid module level declaration: cannot be compiled."));
-        throw new InvokerException();
+        String moduleDeclarationName = newSnippet.name().orElse("");
+        symbols.stream().map(HashedSymbol::new).forEach(newSymbols::add);
+        return Map.entry(moduleDeclarationName, newSnippet.toString());
     }
 
     /**
