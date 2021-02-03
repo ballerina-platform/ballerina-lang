@@ -9,6 +9,7 @@
       "label": "in",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "in ",
       "insertTextFormat": "Snippet"
     }
