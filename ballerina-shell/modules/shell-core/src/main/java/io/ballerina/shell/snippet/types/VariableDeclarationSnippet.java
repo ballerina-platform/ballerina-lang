@@ -18,8 +18,17 @@
 
 package io.ballerina.shell.snippet.types;
 
+import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.shell.snippet.SnippetSubKind;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * These will be variable declarations.
@@ -30,5 +39,47 @@ import io.ballerina.shell.snippet.SnippetSubKind;
 public class VariableDeclarationSnippet extends ExecutableSnippet {
     public VariableDeclarationSnippet(ModuleVariableDeclarationNode rootNode) {
         super(SnippetSubKind.VARIABLE_DECLARATION, rootNode);
+    }
+
+    /**
+     * Variable names that are defined in this snippet.
+     */
+    public Set<String> names() {
+        Set<String> foundVariableIdentifiers = new HashSet<>();
+        rootNode.accept(new VariableNameFinder(foundVariableIdentifiers));
+        return foundVariableIdentifiers;
+    }
+
+    /**
+     * A helper class to find the var dclns declared in a snippet.
+     *
+     * @since 2.0.0
+     */
+    private static class VariableNameFinder extends NodeVisitor {
+        private final Set<String> foundVariableIdentifiers;
+
+        public VariableNameFinder(Set<String> foundVariableIdentifiers) {
+            this.foundVariableIdentifiers = foundVariableIdentifiers;
+        }
+
+        @Override
+        public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
+            addIdentifier(captureBindingPatternNode.variableName());
+        }
+
+        @Override
+        public void visit(RestBindingPatternNode restBindingPatternNode) {
+            addIdentifier(restBindingPatternNode.variableName().name());
+        }
+
+        @Override
+        public void visit(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+            addIdentifier(fieldBindingPatternVarnameNode.variableName().name());
+        }
+
+        private void addIdentifier(Token token) {
+            String unescapedIdentifier = IdentifierUtils.unescapeUnicodeCodepoints(token.text());
+            foundVariableIdentifiers.add(unescapedIdentifier);
+        }
     }
 }

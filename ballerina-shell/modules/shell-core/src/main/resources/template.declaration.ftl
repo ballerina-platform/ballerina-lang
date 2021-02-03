@@ -14,14 +14,12 @@ function memorize_h(string name, any|error value) { }
 function sprintf(string template, any|error... values) returns string { return ""; }
 
 <#list varDclns as varDcln>
-<#if !varDcln.new>
 <#if varDcln.isAny()>
 ${varDcln.type} ${varDcln.name} = // value
 <${varDcln.type}> checkpanic recall_h("x");
 <#else>
 ${varDcln.type} ${varDcln.name} = // value
 <${varDcln.type}> recall_h("x");
-</#if>
 </#if>
 </#list>
 

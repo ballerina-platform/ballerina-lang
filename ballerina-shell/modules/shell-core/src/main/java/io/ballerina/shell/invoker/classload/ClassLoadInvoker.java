@@ -108,9 +108,10 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
 
     /**
-     * Set of symbols that are known or seen at this point.
+     * Set of identifiers that are known or seen at the initialization.
+     * These can't be overridden.
      */
-    protected final Set<HashedSymbol> knownSymbols;
+    protected final Set<QuotedIdentifier> initialIdentifiers;
     /**
      * List of imports done.
      * These are imported to the read generated code as necessary.
@@ -137,12 +138,6 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     protected final String contextId;
 
     /**
-     * Stores all the newly found symbols in this iteration.
-     * This is reset in each iteration and is persisted to `knownSymbols` at the end
-     * of the current iteration. (If it were a success)
-     */
-    private final Set<HashedSymbol> newSymbols;
-    /**
      * Stores all the newly found implicit imports.
      * Persisted at the end of iteration to `mustImportPrefixes`.
      * Key is the source snippet name (variable name/dcln name), value is the prefix.
@@ -159,9 +154,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         this.contextId = UUID.randomUUID().toString();
         this.moduleDclns = new HashMap<>();
         this.globalVars = new HashMap<>();
-        this.newSymbols = new HashSet<>();
         this.newImports = new HashMap<>();
-        this.knownSymbols = new HashSet<>();
+        this.initialIdentifiers = new HashSet<>();
         this.imports = new HashedImports();
     }
 
@@ -178,10 +172,11 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         ClassLoadContext emptyContext = new ClassLoadContext(contextId, imports.getUsedImports());
         SingleFileProject project = getProject(emptyContext, DECLARATION_TEMPLATE_FILE);
         PackageCompilation compilation = compile(project);
-        Collection<Symbol> symbols = visibleUnknownSymbols(project, compilation);
-        symbols.stream().map(HashedSymbol::new).forEach(knownSymbols::add);
-        JBallerinaBackend.from(compile(project), JvmTarget.JAVA_11);
+        initialIdentifiers.addAll(visibleVarSymbols(project, compilation).stream()
+                .map(s -> new QuotedIdentifier(s.name())).collect(Collectors.toList()));
+        JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         this.initialized.set(true);
+        addDiagnostic(Diagnostic.debug("Added initial identifiers: " + initialIdentifiers));
     }
 
     @Override
@@ -191,7 +186,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         this.moduleDclns.clear();
         this.globalVars.clear();
         InvokerMemory.forgetAll(contextId);
-        this.knownSymbols.clear();
+        this.initialIdentifiers.clear();
         this.initialized.set(false);
         this.imports.reset();
     }
@@ -202,7 +197,6 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             throw new IllegalStateException("Invoker execution not initialized.");
         }
 
-        newSymbols.clear();
         newImports.clear();
 
         // TODO: Fix the closure bug. Following will not work with isolated functions.
@@ -224,12 +218,10 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 ModuleMemberDeclarationSnippet moduleDcln = (ModuleMemberDeclarationSnippet) newSnippet;
                 Map.Entry<QuotedIdentifier, String> newModuleDcln = timedOperation("processing module dcln",
                         () -> processModuleDcln(moduleDcln));
-                this.knownSymbols.addAll(this.newSymbols);
                 this.newImports.forEach(imports::storeImportUsages);
                 this.moduleDclns.put(newModuleDcln.getKey(), newModuleDcln.getValue());
                 addDiagnostic(Diagnostic.debug("Module dcln name: " + newModuleDcln.getKey()));
                 addDiagnostic(Diagnostic.debug("Module dcln code: " + newModuleDcln.getValue()));
-                addDiagnostic(Diagnostic.debug("Found new symbols: " + this.newSymbols));
                 addDiagnostic(Diagnostic.debug("Implicit imports added: " + this.newImports));
                 return Optional.empty();
 
@@ -262,13 +254,11 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
                 // Save required data if execution was successful
                 Object executionResult = InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME);
-                this.knownSymbols.addAll(this.newSymbols);
                 if (newSnippet.isVariableDeclaration()) {
                     globalVars.putAll(newVariables);
                     newImports.forEach(imports::storeImportUsages);
                 }
                 addDiagnostic(Diagnostic.debug("Found new variables: " + newVariables));
-                addDiagnostic(Diagnostic.debug("Found new symbols: " + this.newSymbols));
                 addDiagnostic(Diagnostic.debug("Implicit imports added: " + this.newImports));
                 return Optional.ofNullable(executionResult);
 
@@ -343,36 +333,36 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         // No matter the approach, compile. This will confirm that syntax is valid.
         ClassLoadContext varTypeInferContext = createVarTypeInferContext(newSnippet);
         SingleFileProject project = getProject(varTypeInferContext, DECLARATION_TEMPLATE_FILE);
-        Collection<Symbol> symbols = visibleUnknownSymbols(project);
+        PackageCompilation compilation = compile(project);
+        Collection<Symbol> symbols = visibleVarSymbols(project, compilation);
 
+        Set<QuotedIdentifier> definedVariables = newSnippet.names().stream()
+                .map(QuotedIdentifier::new).collect(Collectors.toSet());
         Map<QuotedIdentifier, GlobalVariable> foundVariables = new HashMap<>();
+        addDiagnostic(Diagnostic.debug("Found variable nodes: " + definedVariables));
         for (Symbol symbol : symbols) {
-            HashedSymbol hashedSymbol = new HashedSymbol(symbol);
             // TODO: After name alternative is implemented use it.
             QuotedIdentifier variableName = new QuotedIdentifier(symbol.name());
-
-            boolean ignoreSymbol = knownSymbols.contains(hashedSymbol)
-                    || foundVariables.containsKey(variableName)
-                    || variableName.contains(DOLLAR);
-            boolean acceptableSymbol = symbol instanceof VariableSymbol
-                    || symbol instanceof FunctionSymbol;
-
-            // Identify variable type
-            if (!ignoreSymbol && acceptableSymbol) {
-                TypeSymbol typeSymbol = (symbol instanceof VariableSymbol)
-                        ? ((VariableSymbol) symbol).typeDescriptor()
-                        : ((FunctionSymbol) symbol).typeDescriptor();
-
-                ElevatedTypeTransformer elevatedTypeTransformer = new ElevatedTypeTransformer();
-                ElevatedType elevatedType = elevatedTypeTransformer.transformType(typeSymbol);
-
-                TypeSignatureTransformer signatureTransformer = new TypeSignatureTransformer(this);
-                String variableType = signatureTransformer.transformType(typeSymbol);
-                this.newImports.put(variableName, signatureTransformer.getImplicitImportPrefixes());
-
-                foundVariables.put(variableName, new GlobalVariable(variableType, variableName, elevatedType));
-                this.newSymbols.add(hashedSymbol);
+            if (initialIdentifiers.contains(variableName)) {
+                continue;
             }
+            if (!(definedVariables.contains(variableName))) {
+                continue;
+            }
+
+            assert symbol instanceof VariableSymbol || symbol instanceof FunctionSymbol;
+            TypeSymbol typeSymbol = (symbol instanceof VariableSymbol)
+                    ? ((VariableSymbol) symbol).typeDescriptor()
+                    : ((FunctionSymbol) symbol).typeDescriptor();
+
+            ElevatedTypeTransformer elevatedTypeTransformer = new ElevatedTypeTransformer();
+            ElevatedType elevatedType = elevatedTypeTransformer.transformType(typeSymbol);
+
+            TypeSignatureTransformer signatureTransformer = new TypeSignatureTransformer(this);
+            String variableType = signatureTransformer.transformType(typeSymbol);
+            this.newImports.put(variableName, signatureTransformer.getImplicitImportPrefixes());
+
+            foundVariables.put(variableName, new GlobalVariable(variableType, variableName, elevatedType));
         }
 
         return foundVariables;
@@ -398,9 +388,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
         ClassLoadContext varTypeInferContext = createModuleDclnNameInferContext(moduleDeclarationName, newSnippet);
         SingleFileProject project = getProject(varTypeInferContext, DECLARATION_TEMPLATE_FILE);
-        Collection<Symbol> symbols = visibleUnknownSymbols(project);
-
-        symbols.stream().map(HashedSymbol::new).forEach(newSymbols::add);
+        compile(project);
         return Map.entry(moduleDeclarationName, newSnippet.toString());
     }
 
@@ -588,25 +576,14 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     }
 
     /**
-     * Gets the symbols that are visible to main method but are unknown (previously not seen).
-     * Compilation is also done.
-     *
-     * @param project Project to get symbols.
-     * @return All the visible symbols.
-     */
-    protected Collection<Symbol> visibleUnknownSymbols(Project project) throws InvokerException {
-        PackageCompilation compilation = compile(project);
-        return visibleUnknownSymbols(project, compilation);
-    }
-
-    /**
-     * Gets the symbols that are visible to main method but are unknown (previously not seen).
+     * Gets the symbols that are visible to main method.
+     * Returns only function symbols and variable symbols.
      *
      * @param project     Project to get symbols.
      * @param compilation Compilation object.
      * @return All the visible symbols.
      */
-    protected Collection<Symbol> visibleUnknownSymbols(Project project, PackageCompilation compilation) {
+    protected Collection<Symbol> visibleVarSymbols(Project project, PackageCompilation compilation) {
         // Get the document associated with project
         Module module = project.currentPackage().getDefaultModule();
         ModuleId moduleId = module.moduleId();
@@ -626,7 +603,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
         return compilation.getSemanticModel(moduleId)
                 .visibleSymbols(document, cursorPos).stream()
-                .filter((s) -> !knownSymbols.contains(new HashedSymbol(s)))
+                .filter(s -> s instanceof VariableSymbol || s instanceof FunctionSymbol)
                 .collect(Collectors.toList());
     }
 
