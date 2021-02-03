@@ -47,3 +47,12 @@ function invalidTypesWithAnonymousRecord() {
     
     rec2.j = "invalid";
 }
+
+class FooClass {
+    public function init(int m) {
+    }
+}
+
+function testLetWithClass() {
+    FooClass foo = let int m = 5 in new(m, m);
+}
