@@ -18,6 +18,8 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.IntegerValue;
+import com.sun.jdi.Method;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BVariableType;
@@ -25,6 +27,7 @@ import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,10 +38,14 @@ import java.util.Optional;
  */
 public class BMap extends IndexedCompoundVariable {
 
+    private int mapSize = -1;
+    private ArrayReference loadedKeys = null;
+    private Value[] loadedValues = null;
+
     private static final String FIELD_MAP_DATA = "table";
     private static final String FIELD_MAP_SIZE = "size";
-    private static final String FIELD_MAP_KEY = "key";
-    private static final String FIELD_MAP_VALUE = "value";
+    private static final String METHOD_GET_KEYS = "getKeys";
+    private static final String METHOD_GET = "get";
 
     public BMap(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.MAP, value);
@@ -60,21 +67,15 @@ public class BMap extends IndexedCompoundVariable {
 
             // If count > 0, returns a sublist of the child variables
             // If count == 0, returns all child variables
-            List<Value> mapEntries;
+            Map<Value, Value> mapEntries;
             if (count > 0) {
-                mapEntries = ((ArrayReference) mapValues.get()).getValues(start, count);
+                mapEntries = getEntries(start, count);
             } else {
-                mapEntries = ((ArrayReference) mapValues.get()).getValues(0, getChildrenCount());
+                mapEntries = getEntries(0, getChildrenCount());
             }
 
-            for (Value mapEntry : mapEntries) {
-                if (mapEntry != null) {
-                    Optional<Value> mapKey = VariableUtils.getFieldValue(mapEntry, FIELD_MAP_KEY);
-                    Optional<Value> mapValue = VariableUtils.getFieldValue(mapEntry, FIELD_MAP_VALUE);
-                    if (mapKey.isPresent() && mapValue.isPresent()) {
-                        childVarMap.put(VariableUtils.getStringFrom(mapKey.get()), mapValue.get());
-                    }
-                }
+            for (Map.Entry<Value, Value> mapEntry : mapEntries.entrySet()) {
+                childVarMap.put(VariableUtils.getStringFrom(mapEntry.getKey()), mapEntry.getValue());
             }
             return Either.forLeft(childVarMap);
         } catch (Exception ignored) {
@@ -84,14 +85,66 @@ public class BMap extends IndexedCompoundVariable {
 
     @Override
     public int getChildrenCount() {
-        try {
-            Optional<Value> mapSize = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_SIZE);
-            if (mapSize.isEmpty() || !(mapSize.get() instanceof IntegerValue)) {
-                return 0;
+        if (mapSize < 0) {
+            populateMapSize();
+        }
+        return mapSize;
+    }
+
+    private Map<Value, Value> getEntries(int startIndex, int count) {
+        if (loadedKeys == null) {
+            loadAllKeys();
+        }
+        Map<Value, Value> entries = new LinkedHashMap<>();
+        List<Value> keysRange = loadedKeys.getValues(startIndex, count);
+        for (int i = startIndex; i < startIndex + count; i++) {
+            Value key = keysRange.get(i - startIndex);
+            if (loadedValues[i] == null) {
+                loadedValues[i] = getValueFor(key);
             }
-            return ((IntegerValue) mapSize.get()).intValue();
+            entries.put(key, loadedValues[i]);
+        }
+        return entries;
+    }
+
+    private Value getValueFor(Value key) {
+        try {
+            Optional<Method> getMethod = VariableUtils.getMethod(jvmValue, METHOD_GET);
+            if (getMethod.isEmpty()) {
+                return null;
+            }
+            return ((ObjectReference) jvmValue).invokeMethod(context.getOwningThread().getThreadReference(),
+                    getMethod.get(), Collections.singletonList(key), ObjectReference.INVOKE_SINGLE_THREADED);
         } catch (Exception ignored) {
-            return 0;
+            return null;
+        }
+    }
+
+    private void loadAllKeys() {
+        try {
+            Optional<Method> entrySetMethod = VariableUtils.getMethod(jvmValue, METHOD_GET_KEYS);
+            if (entrySetMethod.isEmpty()) {
+                return;
+            }
+            Value keyArray = ((ObjectReference) jvmValue).invokeMethod(context.getOwningThread().getThreadReference(),
+                    entrySetMethod.get(), Collections.emptyList(), ObjectReference.INVOKE_SINGLE_THREADED);
+
+            loadedKeys = (ArrayReference) keyArray;
+            loadedValues = new Value[getChildrenCount()];
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void populateMapSize() {
+        try {
+            Optional<Value> mapSizeValue = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_SIZE);
+            if (mapSizeValue.isEmpty() || !(mapSizeValue.get() instanceof IntegerValue)) {
+                mapSize = 0;
+                return;
+            }
+            mapSize = ((IntegerValue) mapSizeValue.get()).intValue();
+        } catch (Exception ignored) {
+            mapSize = 0;
         }
     }
 }
