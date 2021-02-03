@@ -496,6 +496,43 @@ public function testNilFiniteType() {
     assertEquality(a, mah);
 }
 
+type FooString "foo";
+
+type BarString "bar";
+
+type FooInt 1;
+
+type BarInt 2;
+
+type FooBoolean true;
+
+type BarBoolean false;
+
+type RecString1 record {|
+    FooString|BarString a;
+    FooInt|BarInt b;
+    FooBoolean|BarBoolean c;
+|};
+
+type RecString2 record {|
+    string a;
+    int b;
+    boolean c;
+|};
+
+public function testRecordStringEquality() {
+    RecString1 rec1 = {a: "foo", b: 1, c: true};
+
+    RecString2 rec2 = rec1;
+
+    string a = "";
+    string mah = "match";
+    if (<any>rec1 is RecString2) {
+        a = mah;
+    }
+    assertEquality(a, mah);
+}
+
 const ASSERTION_ERROR_REASON = "TypeAssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

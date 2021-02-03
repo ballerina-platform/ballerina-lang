@@ -647,6 +647,10 @@ public class TypeChecker {
             return checkIsType(sourceType, PredefinedTypes.ANY_AND_READONLY_OR_ERROR_TYPE, unresolvedTypes);
         }
 
+        if (sourceTypeTag == TypeTags.UNION_TAG) {
+            return isUnionTypeMatch((BUnionType) sourceType, targetType, unresolvedTypes);
+        }
+
         switch (targetTypeTag) {
             case TypeTags.BYTE_TAG:
             case TypeTags.SIGNED32_INT_TAG:
