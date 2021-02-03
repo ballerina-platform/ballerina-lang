@@ -222,7 +222,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 Map.Entry<String, String> newModuleDcln = timedOperation("processing module dcln",
                         () -> processModuleDcln(moduleDcln));
                 this.knownSymbols.addAll(this.newSymbols);
-                this.newImplicitImports.forEach(imports::storeImplicitPrefix);
+                this.newImplicitImports.forEach(i -> imports.storeImplicitPrefix(newModuleDcln.getKey(), i));
                 this.moduleDclns.put(newModuleDcln.getKey(), newModuleDcln.getValue());
                 addDiagnostic(Diagnostic.debug("Module dcln name: " + newModuleDcln.getKey()));
                 addDiagnostic(Diagnostic.debug("Module dcln code: " + newModuleDcln.getValue()));
@@ -260,7 +260,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 // Save required data if execution was successful
                 Object executionResult = InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME);
                 this.knownSymbols.addAll(this.newSymbols);
-                this.newImplicitImports.forEach(imports::storeImplicitPrefix);
+                this.newImplicitImports.forEach(imports::storeAnonImplicitPrefix);
                 if (newSnippet.isVariableDeclaration()) {
                     globalVars.addAll(newVariables);
                 }
