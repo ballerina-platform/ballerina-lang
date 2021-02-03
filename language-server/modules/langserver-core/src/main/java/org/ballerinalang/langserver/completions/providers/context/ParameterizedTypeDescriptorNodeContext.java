@@ -44,16 +44,18 @@ public class ParameterizedTypeDescriptorNodeContext
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ParameterizedTypeDescriptorNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
+
         if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(ctx,
                     (QualifiedNameReferenceNode) nodeAtCursor);
-            return this.getCompletionItemList(typesInModule, ctx);
+            completionItems.addAll(this.getCompletionItemList(typesInModule, ctx));
+        } else {
+            completionItems.addAll(this.getModuleCompletionItems(ctx));
+            completionItems.addAll(this.getTypeItems(ctx));
         }
-
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getModuleCompletionItems(ctx));
-        completionItems.addAll(this.getTypeItems(ctx));
+        this.sort(ctx, node, completionItems);
 
         return completionItems;
     }

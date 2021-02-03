@@ -80,6 +80,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             completionItems.addAll(this.initializerItems(context, listenerNode.get()));
             this.sort(context, node, completionItems, ContextScope.INITIALIZER);
         }
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
