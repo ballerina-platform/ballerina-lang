@@ -39,6 +39,9 @@ public class ExecutionContext {
 
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
+        this.client = null;
+        this.debuggee = null;
+        this.launchedProcess = null;
     }
 
     public Optional<Process> getLaunchedProcess() {

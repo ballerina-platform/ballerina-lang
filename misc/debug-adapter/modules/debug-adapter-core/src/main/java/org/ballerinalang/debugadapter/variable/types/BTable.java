@@ -75,14 +75,7 @@ public class BTable extends IndexedCompoundVariable {
                 return new ArrayList<>();
             }
             Value[] tableKeys = getTableKeys(start, count);
-            List<Value> tableEntries = getTableEntriesFor(tableKeys);
-
-            // If the size of the table exceeds the allowed child variable limit, appends a notification (which is
-            // wrapped inside a dummy variable) to the list of child variables, to inform the user.
-            if (getTableSize() > CHILD_VAR_LIMIT) {
-                addTailChildVariable(tableEntries);
-            }
-            return tableEntries;
+            return getTableEntriesFor(tableKeys);
         } catch (Exception ignored) {
             return new ArrayList<>();
         }
@@ -193,16 +186,5 @@ public class BTable extends IndexedCompoundVariable {
 
     private int getChildVariableLimit() {
         return Math.max(Math.min(getTableSize(), CHILD_VAR_LIMIT), 0);
-    }
-
-    /**
-     * If the size of the table exceeds the allowed child variable limit, appends a notification (which is wrapped
-     * inside a dummy variable) to the list of child variables, to inform the user.
-     *
-     * @param values the list of child variables.
-     */
-    private void addTailChildVariable(List<Value> values) {
-        values.add(context.getAttachedVm().mirrorOf(String.format("Showing first %d elements out of %d " +
-                "total entries", CHILD_VAR_LIMIT, getTableSize())));
     }
 }

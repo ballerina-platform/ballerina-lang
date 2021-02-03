@@ -683,8 +683,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         // Handles indexed variables.
         if (parentVar instanceof IndexedCompoundVariable) {
-            int startIndex = Objects.requireNonNullElse(args.getStart().intValue(), 0);
-            int count = Objects.requireNonNullElse(args.getCount().intValue(), 0);
+            int startIndex = (args.getStart() != null) ? args.getStart().intValue() : 0;
+            int count = (args.getCount() != null) ? args.getCount().intValue() : 0;
             List<Value> childVars = ((IndexedCompoundVariable) parentVar).getIndexedChildVariables(startIndex, count);
 
             AtomicInteger index = new AtomicInteger(startIndex);
