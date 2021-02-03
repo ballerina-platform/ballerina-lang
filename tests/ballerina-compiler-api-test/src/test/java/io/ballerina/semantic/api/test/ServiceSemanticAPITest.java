@@ -154,7 +154,8 @@ public class ServiceSemanticAPITest {
 
     private List<Symbol> getFilteredSymbolNames(List<Symbol> symbols) {
         return symbols.stream()
-                .filter(s -> !"ballerina".equals(s.getModule().get().organization()))
+                .filter(s -> s.getModule().isPresent() &&
+                        !"ballerina".equals(s.getModule().get().getModule().get().id().orgName()))
                 .collect(Collectors.toList());
     }
 

@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -59,11 +58,6 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     @Override
     public Optional<ModuleSymbol> getModule() {
         return this.functionSymbol.getModule();
-    }
-
-    @Override
-    public ModuleID moduleID() {
-        return this.functionSymbol.moduleID();
     }
 
     @Override

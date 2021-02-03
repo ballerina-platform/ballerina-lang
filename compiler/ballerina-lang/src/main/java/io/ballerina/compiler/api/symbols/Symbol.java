@@ -37,16 +37,6 @@ public interface Symbol {
     Optional<String> getName();
 
     /**
-     * Get the moduleID of the symbol.
-     *
-     * @return {@link ModuleID} of the symbol
-     * @deprecated This method will be removed in a later version and be replaced with a new method which will return
-     * the module symbol instead.
-     */
-    @Deprecated
-    ModuleID moduleID();
-
-    /**
      * Retrieves the symbol of the module this symbol belongs to if the symbol is defined in a module. Type symbols will
      * typically return empty except for {@link TypeReferenceTypeSymbol}.
      *

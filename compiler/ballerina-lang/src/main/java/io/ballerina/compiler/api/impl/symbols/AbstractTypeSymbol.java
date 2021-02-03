@@ -70,11 +70,6 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     }
 
     @Override
-    public ModuleID moduleID() {
-        return moduleID;
-    }
-
-    @Override
     public abstract String signature();
 
     @Override

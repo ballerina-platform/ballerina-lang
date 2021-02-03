@@ -17,8 +17,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -69,14 +67,6 @@ public class BallerinaSymbol implements Symbol {
     @Override
     public Optional<ModuleSymbol> getModule() {
         return Optional.empty();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ModuleID moduleID() {
-        return new BallerinaModuleID(this.moduleID);
     }
 
     /**
