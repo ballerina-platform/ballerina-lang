@@ -106,6 +106,11 @@ public class PullCommand implements BLauncherCmd {
 
         // Get org name
         String[] moduleInfo = resourceName.split("/");
+        if (moduleInfo.length != 2) {
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+                                   USAGE_TEXT, false);
+            return;
+        }
         orgName = moduleInfo[0];
         String moduleNameAndVersion = moduleInfo[1];
 
@@ -114,9 +119,13 @@ public class PullCommand implements BLauncherCmd {
         if (packageInfo.length == 2) {
             packageName = packageInfo[0];
             version = packageInfo[1];
-        } else {
+        } else if (packageInfo.length == 1) {
             packageName = moduleNameAndVersion;
             version = Names.EMPTY.getValue();
+        } else {
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+                                   USAGE_TEXT, false);
+            return;
         }
 
         // Validate package org, name and version
