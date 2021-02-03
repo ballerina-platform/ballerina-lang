@@ -78,8 +78,7 @@ public class ProjectRenameTest {
         log.info("Test textDocument/definition for Basic Cases");
         return new Object[][]{
                 {"rename_class_result.json", "Student"},
-                // TODO: Subsequent invocations to rename/references return partial results causing this to fail
-                // {"rename_function_result.json", "getStudents"},
+                {"rename_function_result.json", "getStudents"},
         };
     }
 
