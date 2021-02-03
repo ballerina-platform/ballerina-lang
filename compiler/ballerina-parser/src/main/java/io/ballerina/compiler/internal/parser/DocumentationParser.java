@@ -57,7 +57,6 @@ public class DocumentationParser extends AbstractParser {
      *          | DeprecationDocumentationLine
      *          | ParameterDocumentationLine
      *          | ReturnParameterDocumentationLine
-     *          | DocumentationCodeLine
      *          | InvalidDocumentationLine )
      * </code>
      * <p>
@@ -84,12 +83,46 @@ public class DocumentationParser extends AbstractParser {
     private STNode parseSingleDocumentationLine() {
         STNode hashToken = consume();
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.PLUS_TOKEN) {
-            return parseParameterDocumentationLine(hashToken);
-        } else if (nextToken.kind == SyntaxKind.DEPRECATION_LITERAL) {
-            return parseDeprecationDocumentationLine(hashToken);
+        switch (nextToken.kind) {
+            case PLUS_TOKEN:
+                return parseParameterDocumentationLine(hashToken);
+            case DEPRECATION_LITERAL:
+                return parseDeprecationDocumentationLine(hashToken);
+            case TRIPLE_BACKTICK_TOKEN:
+            case DOUBLE_BACKTICK_TOKEN:
+                return parseCodeBlockOrInlineCodeRef(hashToken);
+            default:
+                return parseDocumentationLine(hashToken);
         }
-        return parseDocumentationLine(hashToken);
+    }
+
+    private STNode parseCodeBlockOrInlineCodeRef(STNode startLineHash) {
+        STNode startBacktick = consume();
+
+        STToken nextToken = peek();
+        if (isInlineCodeRef(nextToken.kind)) {
+            STNode inlineCodeNode = parseInlineCode(startBacktick);
+            List<STNode> docElements = new ArrayList<>();
+            docElements.add(inlineCodeNode);
+            parseDocElements(docElements);
+            STNode docElementList = STNodeFactory.createNodeList(docElements);
+            return createMarkdownReferenceDocumentationLineNode(startLineHash, docElementList);
+        } else {
+            return parseCodeBlock(startLineHash, startBacktick);
+        }
+    }
+
+    private boolean isInlineCodeRef(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case DOUBLE_BACKTICK_TOKEN:
+            case TRIPLE_BACKTICK_TOKEN:
+                return true;
+            case CODE_CONTENT:
+                return getNextNextToken().kind != SyntaxKind.HASH_TOKEN;
+            case HASH_TOKEN:
+            default:
+                return false;
+        }
     }
 
     /**
@@ -109,7 +142,7 @@ public class DocumentationParser extends AbstractParser {
     }
 
     /**
-     * Parse documentation line, reference documentation line and code documentation line.
+     * Parse documentation line and reference documentation line.
      *
      * @param hashToken Hash token at the beginning of the line
      * @return Parsed node
@@ -126,8 +159,6 @@ public class DocumentationParser extends AbstractParser {
                 STNode docElement = docElements.get(0);
                 if (docElement.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
                     return createMarkdownDocumentationLineNode(hashToken, docElementList);
-                } else if (docElement.kind == SyntaxKind.CODE_DESCRIPTION) {
-                    return createMarkdownCodeDocumentationLineNode(hashToken, docElementList);
                 }
                 // Else fall through
             default:
@@ -137,31 +168,190 @@ public class DocumentationParser extends AbstractParser {
 
     private List<STNode> parseDocumentationElements() {
         List<STNode> docElements = new ArrayList<>();
+        parseDocElements(docElements);
+        return docElements;
+    }
+
+    private void parseDocElements(List<STNode> docElements) {
         STNode docElement;
         SyntaxKind nextTokenKind = peek().kind;
         while (!isEndOfIntermediateDocumentation(nextTokenKind)) {
-            if (nextTokenKind == SyntaxKind.DOCUMENTATION_DESCRIPTION || nextTokenKind == SyntaxKind.CODE_DESCRIPTION) {
+            if (nextTokenKind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
                 docElement = consume();
+            } else if (nextTokenKind == SyntaxKind.DOUBLE_BACKTICK_TOKEN ||
+                    nextTokenKind == SyntaxKind.TRIPLE_BACKTICK_TOKEN) {
+                docElement = parseInlineCode(consume());
             } else {
-                docElement = parseDocumentationReference();
+                docElement = parseBallerinaNameRefOrInlineCodeRef();
             }
             docElements.add(docElement);
             nextTokenKind = peek().kind;
         }
-        return docElements;
     }
 
-    private STNode parseDocumentationReference() {
+    private STNode parseInlineCode(STNode startBacktick) {
+        STNode codeDescription = parseCodeContentToken();
+        STNode endBacktick = parseCodeEndBacktick(startBacktick.kind);
+        return STNodeFactory.createInlineCodeReferenceNode(startBacktick, codeDescription, endBacktick);
+    }
+
+    private STNode parseCodeContentToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CODE_CONTENT) {
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(SyntaxKind.CODE_CONTENT);
+        }
+    }
+
+    /**
+     * Parse back-tick token.
+     * <p>
+     * <code>
+     * Code-Block :=
+     * ``` code-description ````
+     * | # ``` [code-description] code-line*  # ```
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseCodeBlock(STNode startLineHash , STNode startBacktick) {
+        STNode codeDescription = parseOptionalCodeDescription();
+        STNode codeLines = parseCodeLines();
+        STNode endLineHash = parseHashToken();
+        STNode endBacktick = parseCodeEndBacktick(startBacktick.kind);
+        return STNodeFactory.createMarkdownCodeBlockNode(startLineHash, startBacktick, codeDescription,
+                codeLines, endLineHash, endBacktick);
+    }
+
+    /**
+     * Parse back-tick token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseCodeEndBacktick(SyntaxKind backtickKind) {
+        STToken token = peek();
+        if (token.kind == backtickKind) {
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(backtickKind);
+        }
+    }
+
+    /**
+     * Parse back-tick token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseCodeLines() {
+        List<STNode> codeLineList = new ArrayList<>();
+        while (!isEndOfCodeLines()) {
+            STNode codeLineNode = parseCodeLine();
+            codeLineList.add(codeLineNode);
+        }
+        return STNodeFactory.createNodeList(codeLineList);
+    }
+
+    private boolean isEndOfCodeLines() {
+        STNode nextToken = peek();
+        if (nextToken.kind == SyntaxKind.HASH_TOKEN) {
+            STNode nextNextToken = getNextNextToken();
+            switch (nextNextToken.kind) {
+                case CODE_CONTENT:
+                case HASH_TOKEN: // case where code line description is empty
+                    return false;
+                default:
+                    return true;
+            }
+        }
+
+        return true;
+    }
+
+    private STNode parseCodeLine() {
+        STNode hash = parseHashToken();
+
+        STNode codeDescription;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.HASH_TOKEN) {
+            // We reach here, when the code line is empty
+            codeDescription = createEmptyCodeContentToken();
+        } else {
+            codeDescription = parseCodeContentToken();
+        }
+
+        return STNodeFactory.createMarkdownCodeLineNode(hash, codeDescription);
+    }
+
+    private STNode createEmptyCodeContentToken() {
+        STNode codeDescription;
+        String lexeme = "";
+        STNode emptyMinutiae = STNodeFactory.createEmptyNodeList();
+        codeDescription = STNodeFactory.createLiteralValueToken(SyntaxKind.CODE_CONTENT, lexeme, emptyMinutiae,
+                emptyMinutiae);
+        return codeDescription;
+    }
+
+    /**
+     * Parse back-tick token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseOptionalCodeDescription() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CODE_CONTENT) {
+            return consume();
+        } else {
+            return STNodeFactory.createEmptyNode();
+        }
+    }
+
+    /**
+     * Parse back-tick token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseHashToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.HASH_TOKEN) {
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(SyntaxKind.HASH_TOKEN);
+        }
+    }
+
+
+    private STNode parseBallerinaNameRefOrInlineCodeRef() {
         STNode referenceType = STNodeFactory.createEmptyNode();
         if (isDocumentReferenceType(peek().kind)) {
             referenceType = consume();
         }
 
         STNode startBacktick = parseBacktickToken();
-        STNode backtickContent = parseBacktickContent(referenceType);
+
+        boolean isCodeRef = false;
+        STNode contentToken;
+        ReferenceGenre referenceGenre = getReferenceGenre(referenceType);
+        if (isBallerinaNameRefTokenSequence(referenceGenre)) {
+            contentToken = parseNameReferenceContent();
+        } else {
+            contentToken = combineAndCreateCodeContentToken();
+            if (referenceGenre != ReferenceGenre.NO_KEY) {
+                contentToken = SyntaxErrors.addDiagnostic(contentToken,
+                        DiagnosticWarningCode.WARNING_INVALID_BALLERINA_NAME_REFERENCE, ((STToken) contentToken).text());
+            } else {
+                isCodeRef = true;
+            }
+        }
+
         STNode endBacktick = parseBacktickToken();
-        return STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick, backtickContent,
-                endBacktick);
+
+        if (isCodeRef) {
+            return STNodeFactory.createInlineCodeReferenceNode(startBacktick, contentToken, endBacktick);
+        } else {
+            return STNodeFactory.createBallerinaNameReferenceNode(referenceType, startBacktick, contentToken,
+                    endBacktick);
+        }
     }
 
     /**
@@ -179,12 +369,12 @@ public class DocumentationParser extends AbstractParser {
     }
 
     /**
-     * Look ahead and see if upcoming token sequence is valid.
+     * Look ahead and see if incoming token sequence is a ballerina name reference.
      *
      * @param refGenre Genre of the backtick block reference
-     * @return <code>true</code> if content is valid<code>false</code> otherwise.
+     * @return <code>true</code> if content is a ballerina name reference<code>false</code> otherwise.
      */
-    private boolean isValidBacktickContentSequence(ReferenceGenre refGenre) {
+    private boolean isBallerinaNameRefTokenSequence(ReferenceGenre refGenre) {
         boolean hasMatch;
         Lookahead lookahead = new Lookahead();
         switch (refGenre) {
@@ -325,10 +515,11 @@ public class DocumentationParser extends AbstractParser {
             case PARAMETER_NAME:
             case MINUS_TOKEN:
             case BACKTICK_TOKEN:
-            case BACKTICK_CONTENT:
+            case DOUBLE_BACKTICK_TOKEN:
+            case TRIPLE_BACKTICK_TOKEN:
+            case CODE_CONTENT:
             case RETURN_KEYWORD:
             case DEPRECATION_LITERAL:
-            case CODE_DESCRIPTION:
                 return false;
             default:
                 return !isDocumentReferenceType(kind);
@@ -378,28 +569,6 @@ public class DocumentationParser extends AbstractParser {
     }
 
     /**
-     * Parse back-tick content.
-     *
-     * @param referenceType Node that precedes the backtick block
-     * @return Parsed node
-     */
-    private STNode parseBacktickContent(STNode referenceType) {
-        ReferenceGenre referenceGenre = getReferenceGenre(referenceType);
-        if (isValidBacktickContentSequence(referenceGenre)) {
-            return parseBacktickContent();
-        }
-
-        STNode contentToken = combineAndCreateBacktickContentToken();
-        if (referenceGenre != ReferenceGenre.NO_KEY) {
-            // Log warning for backtick block with a reference type, but content is invalid.
-            contentToken = SyntaxErrors.addDiagnostic(contentToken,
-                    DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_IDENTIFIER, ((STToken) contentToken).text());
-        }
-
-        return contentToken;
-    }
-
-    /**
      * Get the genre of the reference type.
      *
      * @param referenceType Node that precedes the backtick block
@@ -417,9 +586,9 @@ public class DocumentationParser extends AbstractParser {
         return ReferenceGenre.SPECIAL_KEY;
     }
 
-    private STNode combineAndCreateBacktickContentToken() {
+    private STNode combineAndCreateCodeContentToken() {
         if (!isBacktickExprToken(peek().kind)) {
-            return STNodeFactory.createMissingToken(SyntaxKind.BACKTICK_CONTENT);
+            return STNodeFactory.createMissingToken(SyntaxKind.CODE_CONTENT);
         }
 
         StringBuilder backtickContent = new StringBuilder();
@@ -435,7 +604,7 @@ public class DocumentationParser extends AbstractParser {
         // Therefore, set only the trailing minutiae
         STNode leadingMinutiae = STNodeFactory.createEmptyNodeList();
         STNode trailingMinutiae = token.trailingMinutiae();
-        return STNodeFactory.createLiteralValueToken(SyntaxKind.BACKTICK_CONTENT, backtickContent.toString(),
+        return STNodeFactory.createLiteralValueToken(SyntaxKind.CODE_CONTENT, backtickContent.toString(),
                 leadingMinutiae, trailingMinutiae);
     }
 
@@ -446,34 +615,20 @@ public class DocumentationParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
             case CLOSE_PAREN_TOKEN:
             case IDENTIFIER_TOKEN:
-            case BACKTICK_CONTENT:
+            case CODE_CONTENT:
                 return true;
             default:
                 return false;
         }
     }
 
-    private STNode parseBacktickContent() {
+    private STNode parseNameReferenceContent() {
         STToken token = peek();
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             STNode identifier = consume();
             return parseBacktickExpr(identifier);
         }
-        return parseBacktickContentToken();
-    }
-
-    /**
-     * Parse back-tick content token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseBacktickContentToken() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.BACKTICK_CONTENT) {
-            return consume();
-        } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.BACKTICK_CONTENT);
-        }
+        return parseNameReferenceContent();
     }
 
     /**
@@ -605,11 +760,6 @@ public class DocumentationParser extends AbstractParser {
 
     private STNode createMarkdownDocumentationLineNode(STNode hashToken, STNode documentationElements) {
         return STNodeFactory.createMarkdownDocumentationLineNode(SyntaxKind.MARKDOWN_DOCUMENTATION_LINE, hashToken,
-                documentationElements);
-    }
-
-    private STNode createMarkdownCodeDocumentationLineNode(STNode hashToken, STNode documentationElements) {
-        return STNodeFactory.createMarkdownDocumentationLineNode(SyntaxKind.MARKDOWN_CODE_DOCUMENTATION_LINE, hashToken,
                 documentationElements);
     }
 
