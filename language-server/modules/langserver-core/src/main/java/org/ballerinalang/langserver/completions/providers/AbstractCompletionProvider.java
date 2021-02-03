@@ -59,13 +59,14 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
@@ -259,7 +260,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 completionItems.add(new StaticCompletionItem(ctx, item, kind));
             }
         });
-        completionItems.addAll(this.getLangLibCompletionItem(ctx));
+        // Get the pre-declared langlib completion items
+        completionItems.addAll(this.getLangLibCompletionItems(ctx));
 
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         Optional<Module> currentModule = ctx.workspace().module(ctx.filePath());
@@ -396,7 +398,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return completionItems;
     }
 
-    private List<LSCompletionItem> getLangLibCompletionItem(BallerinaCompletionContext ctx) {
+    private List<LSCompletionItem> getLangLibCompletionItems(BallerinaCompletionContext ctx) {
         return ctx.visibleSymbols(ctx.getCursorPosition()).stream()
                 .filter(symbol -> {
                     ModuleID moduleID = symbol.moduleID();
