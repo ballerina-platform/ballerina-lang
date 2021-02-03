@@ -322,7 +322,10 @@ public function testAnonymousRecordWithLetExpression() {
         int j?;
     } rec = let int v = 1 in {i: v};
     
-    assertTrue(rec.i == 1, "rec.i == 1");
+    assert(rec.i, 1);
+    
+    rec.j = 5;
+    assert(rec?.j, 5);
 }
 
 //// Util functions
