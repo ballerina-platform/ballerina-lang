@@ -46,7 +46,6 @@ import io.ballerina.shell.invoker.classload.ImportProcessor;
 import io.ballerina.shell.utils.StringUtils;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -362,7 +361,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
      *
      * @return Set of implicit prefixes.
      */
-    public Collection<String> getImplicitImportPrefixes() {
+    public Set<String> getImplicitImportPrefixes() {
         return implicitImportPrefixes;
     }
 }

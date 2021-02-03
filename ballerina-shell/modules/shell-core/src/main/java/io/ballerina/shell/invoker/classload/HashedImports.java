@@ -18,12 +18,15 @@
 
 package io.ballerina.shell.invoker.classload;
 
-import io.ballerina.compiler.syntax.tree.NodeFactory;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
 import io.ballerina.shell.utils.StringUtils;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,19 +41,20 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class HashedImports {
-    private static final String DEFAULT_IMPORT_SOURCE = "'$";
-    private static final String MAIN_METHOD_NAME = "'main";
-    private static final ImportDeclarationSnippet JAVA_IMPORT = new ImportDeclarationSnippet(
-            NodeFactory.createImportDeclarationNode(
-                    NodeFactory.createToken(SyntaxKind.IMPORT_KEYWORD),
-                    NodeFactory.createImportOrgNameNode(NodeFactory.createIdentifierToken("ballerina"),
-                            NodeFactory.createToken(SyntaxKind.SLASH_TOKEN)),
-                    NodeFactory.createSeparatedNodeList(
-                            NodeFactory.createIdentifierToken("jballerina"),
-                            NodeFactory.createToken(SyntaxKind.DOT_TOKEN),
-                            NodeFactory.createIdentifierToken("java")
-                    ),
-                    null, NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN)));
+    private static final String ANON_SOURCE = "'$";
+    private static final Collection<String> ANON_IMPORT_PREFIXES = List.of("java");
+    private static final String JAVA_IMPORT_SOURCE = "import ballerina/jballerina.java;";
+    private static final ImportDeclarationSnippet JAVA_IMPORT;
+
+    static {
+        // Set the java import snippet
+        TextDocument importText = TextDocuments.from(JAVA_IMPORT_SOURCE);
+        SyntaxTree syntaxTree = SyntaxTree.from(importText);
+        assert syntaxTree.rootNode() instanceof ModulePartNode;
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+        ImportDeclarationNode importDeclaration = modulePartNode.imports().get(0);
+        JAVA_IMPORT = new ImportDeclarationSnippet(importDeclaration);
+    }
 
     /**
      * This is a map of import prefix to the import statement used.
@@ -62,21 +66,19 @@ public class HashedImports {
      */
     private final HashMap<String, String> reverseImports;
     /**
-     * Imports that should be done regardless of usage in the current snippet.
-     * These are possibly the imports that are done previously
-     * in module level declarations or variable declarations.
-     * All prefixes are quoted identifiers.
-     * Key is the source of the implicit prefix. (quoted)
-     * Value is the imports done by that source.
+     * Import prefixes that are used in each module declaration/var declaration.
+     * Key is the name of the module/var declaration. (quoted name)
+     * Value is the prefixes used by that name. (quoted prefix)
+     * All the implicit imports should be included under ANON_SOURCE name.
      */
-    private final Map<String, List<String>> implicitImportPrefixes;
+    private final Map<String, Set<String>> usedPrefixes;
 
     public HashedImports() {
         this.imports = new HashMap<>();
         this.reverseImports = new HashMap<>();
-        this.implicitImportPrefixes = new HashMap<>();
+        this.usedPrefixes = new HashMap<>();
         storeImport(JAVA_IMPORT);
-        storeImplicitPrefix(MAIN_METHOD_NAME, JAVA_IMPORT.getPrefix());
+        storeAnonImplicitPrefixes(ANON_IMPORT_PREFIXES);
     }
 
     /**
@@ -86,9 +88,9 @@ public class HashedImports {
     public void reset() {
         this.imports.clear();
         this.reverseImports.clear();
-        this.implicitImportPrefixes.clear();
+        this.usedPrefixes.clear();
         storeImport(JAVA_IMPORT);
-        storeImplicitPrefix(MAIN_METHOD_NAME, JAVA_IMPORT.getPrefix());
+        storeAnonImplicitPrefixes(ANON_IMPORT_PREFIXES);
     }
 
     /**
@@ -163,23 +165,27 @@ public class HashedImports {
     }
 
     /**
-     * Add a prefix to persisted list of imports.
+     * Add prefixes to persisted list of imports.
+     * The name will be linked with the import prefix.
+     * eg: {@code a:P? p = ()} will have {@code p} as name and {@code a} as prefix.
      *
-     * @param sourceName Source of the import.
-     * @param prefix     Prefix to add.
+     * @param name     Usage source declaration name of the import.
+     * @param prefixes Used prefixes.
      */
-    public void storeImplicitPrefix(String sourceName, String prefix) {
-        List<String> sourcePrefixes = this.implicitImportPrefixes.getOrDefault(sourceName, new ArrayList<>());
-        sourcePrefixes.add(StringUtils.quoted(prefix));
-        this.implicitImportPrefixes.put(StringUtils.quoted(sourceName), sourcePrefixes);
+    public void storeImportUsages(String name, Collection<String> prefixes) {
+        // Get the prefixes previously used by this name and add prefix this to it.
+        Set<String> sourcePrefixes = this.usedPrefixes.getOrDefault(name, new HashSet<>());
+        prefixes.stream().map(StringUtils::quoted).forEach(sourcePrefixes::add);
+        this.usedPrefixes.put(StringUtils.quoted(name), sourcePrefixes);
     }
 
     /**
-     * Add a prefix to persisted list of imports that originated without a source.
-     * Will be added as an import from $ source.
+     * Add prefixes to persisted list of imports th
+     * at originated without a source.
+     * Will be added as an import from ANON_SOURCE.
      */
-    public void storeAnonImplicitPrefix(String prefix) {
-        storeImplicitPrefix(DEFAULT_IMPORT_SOURCE, prefix);
+    public void storeAnonImplicitPrefixes(Collection<String> prefixes) {
+        storeImportUsages(ANON_SOURCE, prefixes);
     }
 
     /**
@@ -196,12 +202,28 @@ public class HashedImports {
      *
      * @return Set of implicit import statements.
      */
-    public Set<String> getImplicitImports() {
+    public Set<String> getUsedImports() {
+        return getUsedImports(List.of(ANON_SOURCE));
+    }
+
+    /**
+     * All the import statements that were used by the given names.
+     *
+     * @return Set of import statements used in given names.
+     */
+    public Set<String> getUsedImports(Collection<String> names) {
+        Set<String> allUsedImportPrefixes = new HashSet<>();
+        names.stream()
+                .map(this.usedPrefixes::get) // get used prefixes of names
+                .filter(Objects::nonNull) // discard null lists
+                .forEach(allUsedImportPrefixes::addAll);
+
         Set<String> importStrings = new HashSet<>();
-        Set<String> allImplicitImports = new HashSet<>();
-        this.implicitImportPrefixes.values().forEach(allImplicitImports::addAll);
-        allImplicitImports.stream().map(this::getImport)
-                .filter(Objects::nonNull).forEach(importStrings::add);
+        allUsedImportPrefixes.stream()
+                .map(this::getImport) // get the import statement
+                .filter(Objects::nonNull) // discard null imports
+                .forEach(importStrings::add);
+
         return importStrings;
     }
 }
