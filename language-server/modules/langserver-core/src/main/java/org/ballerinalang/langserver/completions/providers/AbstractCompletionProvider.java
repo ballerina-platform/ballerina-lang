@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langserver.completions.providers;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -59,6 +58,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,7 +71,6 @@ import javax.annotation.Nonnull;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
 
 /**
@@ -240,28 +239,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
             String orgName = pkg.packageOrg().value();
-            if (!CommonUtil.matchingImportedModule(ctx, pkg) && !processedList.contains(orgName + "/" + name)
-                    && !CommonUtil.isPreDeclaredLangLib(pkg)) {
+            if (!CommonUtil.matchingImportedModule(ctx, pkg) && !processedList.contains(orgName + "/" + name)) {
                 String[] pkgNameComps = name.split("\\.");
                 String insertText = pkgNameComps[pkgNameComps.length - 1];
-                // Check for the lang lib module insert text
-                if ("ballerina".equals(orgName) && name.startsWith("lang.")) {
-                    String[] pkgNameComponents = name.split("\\.");
-                    insertText = "'" + pkgNameComponents[pkgNameComponents.length - 1];
-                }
                 List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, ctx);
                 CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits);
-                StaticCompletionItem.Kind kind;
-                if (orgName.equals("ballerina") && name.startsWith("lang.")) {
-                    kind = StaticCompletionItem.Kind.LANG_LIB_MODULE;
-                } else {
-                    kind = StaticCompletionItem.Kind.MODULE;
-                }
-                completionItems.add(new StaticCompletionItem(ctx, item, kind));
+                completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
             }
         });
-        // Get the pre-declared langlib completion items
-        completionItems.addAll(this.getLangLibCompletionItems(ctx));
 
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         Optional<Module> currentModule = ctx.workspace().module(ctx.filePath());
@@ -396,27 +381,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         });
 
         return completionItems;
-    }
-
-    private List<LSCompletionItem> getLangLibCompletionItems(BallerinaCompletionContext ctx) {
-        return ctx.visibleSymbols(ctx.getCursorPosition()).stream()
-                .filter(symbol -> {
-                    ModuleID moduleID = symbol.moduleID();
-                    return symbol.kind() == MODULE && moduleID.orgName().equals("ballerina")
-                            && moduleID.moduleName().startsWith("lang.")
-                            && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(moduleID.moduleName());
-                })
-                .map(symbol -> {
-                    CompletionItem item = new CompletionItem();
-                    item.setLabel(symbol.moduleID().orgName() + "/" + symbol.moduleID().moduleName());
-                    String insertText = "'" + symbol.moduleID().modulePrefix();
-                    item.setInsertText(insertText);
-                    item.setDetail(ItemResolverConstants.MODULE_TYPE);
-                    item.setKind(CompletionItemKind.Module);
-
-                    return new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.LANG_LIB_MODULE);
-                })
-                .collect(Collectors.toList());
     }
 
     private CompletionItem getModuleCompletionItem(String label, String insertText, @Nonnull List<TextEdit> txtEdits) {
