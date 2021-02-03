@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -49,27 +50,30 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, OnFailClauseNode node) {
-        if (this.onSuggestTypeDescriptors(context, node)) {
-            NonTerminalNode symbolAtCursor = context.getNodeAtCursor();
-            Predicate<Symbol> errorPredicate = SymbolUtil::isError;
-            if (symbolAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                QualifiedNameReferenceNode qRef = (QualifiedNameReferenceNode) symbolAtCursor;
-                return this.getCompletionItemList(QNameReferenceUtil.getModuleContent(context, qRef, errorPredicate),
-                        context);
-            }
+        if (!this.onSuggestTypeDescriptors(context, node)) {
+            return Collections.emptyList();
+        }
 
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        NonTerminalNode symbolAtCursor = context.getNodeAtCursor();
+        
+        Predicate<Symbol> errorPredicate = SymbolUtil::isError;
+        if (symbolAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qRef = (QualifiedNameReferenceNode) symbolAtCursor;
+            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qRef, errorPredicate);
+            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+        } else {
             List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-            List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
+            completionItems.addAll(this.getModuleCompletionItems(context));
             List<Symbol> errEntries = visibleSymbols.stream()
                     .filter(errorPredicate)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(errEntries, context));
             completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
-
-            return completionItems;
         }
+        this.sort(context, node, completionItems);
 
-        return new ArrayList<>();
+        return completionItems;
     }
 
     @Override

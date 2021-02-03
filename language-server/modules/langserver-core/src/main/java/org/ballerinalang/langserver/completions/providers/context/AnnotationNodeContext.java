@@ -70,10 +70,9 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
         if (this.onQualifiedNameIdentifier(context, node.annotReference())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.annotReference();
-            return this.getAnnotationsInModule(context, qNameRef.modulePrefix().text(), attachedNode);
-        }
-
-        // Fixme Temporarily disabled the caching usage
+            completionItems.addAll(this.getAnnotationsInModule(context, qNameRef.modulePrefix().text(), attachedNode));
+        } else {
+            // Fixme Temporarily disabled the caching usage
 //        LSAnnotationCache.getInstance().getAnnotationMapForSyntaxKind(attachedNode, context)
 //                .forEach((key, value) -> value.forEach(annotation -> {
 //                    LSCompletionItem cItem;
@@ -84,8 +83,10 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 //                    }
 //                    completionItems.add(cItem);
 //                }));
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(this.getCurrentModuleAnnotations(context, attachedNode));
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.addAll(this.getCurrentModuleAnnotations(context, attachedNode));
+        }
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }

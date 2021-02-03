@@ -198,7 +198,7 @@ public class SyntaxErrors {
             case ENUM_MEMBER_RHS:
             case ENUM_MEMBER_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
-            case MATCH_PATTERN_RHS:
+            case MATCH_PATTERN_LIST_MEMBER_RHS:
             case OPTIONAL_MATCH_GUARD:
                 return DiagnosticErrorCode.ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN;
             case XML_COMMENT_CONTENT:

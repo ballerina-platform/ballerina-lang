@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -44,22 +45,22 @@ public class TypeReferenceNodeContext extends AbstractCompletionProvider<TypeRef
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TypeReferenceNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.CLASS
                 || (symbol.kind() == SymbolKind.TYPE || SymbolUtil.isObject(symbol));
 
         if (this.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
-
-            return this.getCompletionItemList(moduleContent, context);
+            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+        } else {
+            List<Symbol> symbols = context.visibleSymbols(context.getCursorPosition()).stream()
+                    .filter(predicate).collect(Collectors.toList());
+            completionItems.addAll(this.getCompletionItemList(symbols, context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
         }
+        this.sort(context, node, completionItems);
 
-        List<Symbol> symbols = context.visibleSymbols(context.getCursorPosition()).stream()
-                .filter(predicate).collect(Collectors.toList());
-
-        List<LSCompletionItem> completionItems = this.getCompletionItemList(symbols, context);
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        
         return completionItems;
     }
 }

@@ -9,6 +9,7 @@
       "label": "key",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "key",
       "insertTextFormat": "Snippet"
     }
