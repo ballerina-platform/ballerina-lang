@@ -131,7 +131,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC =
             { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.FUNC_DEF_OR_TYPE_FIRST_QUALIFIER };
 
-    private static final ParserRuleContext[] FUNC_DEF_OR_FUNC_TYPE_WITHOUT_FIRST_QUALIFIER =
+    private static final ParserRuleContext[] FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER =
             { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.FUNC_DEF_OR_TYPE_SECOND_QUALIFIER };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
@@ -1625,7 +1625,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 alternativeRules = TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC;
                 break;
             case FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER:
-                alternativeRules = FUNC_DEF_OR_FUNC_TYPE_WITHOUT_FIRST_QUALIFIER;
+                alternativeRules = FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER;
                 break;
             case FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL:
                 alternativeRules = FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL;
