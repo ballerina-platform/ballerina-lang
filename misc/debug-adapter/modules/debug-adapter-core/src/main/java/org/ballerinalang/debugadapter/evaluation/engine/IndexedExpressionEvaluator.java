@@ -28,7 +28,6 @@ import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
-import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.List;
@@ -126,7 +125,7 @@ public class IndexedExpressionEvaluator extends Evaluator {
                     }
                     String keyString = keyVar.getDapVariable().getValue();
                     try {
-                        Value child = ((NamedCompoundVariable) containerVar).getChildByName(keyString);
+                        Value child = ((IndexedCompoundVariable) containerVar).getChildByName(keyString);
                         return new BExpressionValue(context, child);
                     } catch (DebugVariableException e) {
                         return new BExpressionValue(context, null);

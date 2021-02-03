@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ArrayReference;
+import com.sun.jdi.IntegerValue;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BVariableType;
@@ -35,6 +36,7 @@ import java.util.Optional;
 public class BJson extends IndexedCompoundVariable {
 
     private static final String FIELD_JSON_DATA = "table";
+    private static final String FIELD_JSON_SIZE = "size";
     private static final String FIELD_JSON_KEY = "key";
     private static final String FIELD_JSON_VALUE = "value";
 
@@ -48,7 +50,7 @@ public class BJson extends IndexedCompoundVariable {
     }
 
     @Override
-    public Either<Map<String, Value>, List<Value>> computeIndexedChildVariables(int start, int count) {
+    public Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
         Map<String, Value> childMap = new LinkedHashMap<>();
         try {
             Optional<Value> jsonValues = VariableUtils.getFieldValue(jvmValue, FIELD_JSON_DATA);
@@ -84,11 +86,11 @@ public class BJson extends IndexedCompoundVariable {
     @Override
     public int getChildrenCount() {
         try {
-            Optional<Value> jsonValues = VariableUtils.getFieldValue(jvmValue, FIELD_JSON_DATA);
-            if (jsonValues.isEmpty()) {
+            Optional<Value> mapSize = VariableUtils.getFieldValue(jvmValue, FIELD_JSON_SIZE);
+            if (mapSize.isEmpty() || !(mapSize.get() instanceof IntegerValue)) {
                 return 0;
             }
-            return ((ArrayReference) jsonValues.get()).length();
+            return ((IntegerValue) mapSize.get()).intValue();
         } catch (Exception ignored) {
             return 0;
         }

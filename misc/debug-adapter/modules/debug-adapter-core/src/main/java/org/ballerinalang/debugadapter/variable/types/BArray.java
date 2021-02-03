@@ -61,7 +61,7 @@ public class BArray extends IndexedCompoundVariable {
     }
 
     @Override
-    protected Either<Map<String, Value>, List<Value>> computeIndexedChildVariables(int start, int count) {
+    protected Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
                 return Either.forRight(new ArrayList<>());

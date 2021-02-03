@@ -55,7 +55,7 @@ public class BHandle extends NamedCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeNamedChildVariables() {
+    public Map<String, Value> computeChildVariables() {
         try {
             Map<String, Value> childVarMap = new LinkedHashMap<>();
             Optional<Value> value = VariableUtils.getFieldValue(jvmValue, FIELD_VALUE);

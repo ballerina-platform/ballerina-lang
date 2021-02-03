@@ -55,7 +55,7 @@ public class BXmlSequence extends IndexedCompoundVariable {
     }
 
     @Override
-    public Either<Map<String, Value>, List<Value>> computeIndexedChildVariables(int start, int count) {
+    public Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
         List<Value> childValues = new ArrayList<>();
         try {
             Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);

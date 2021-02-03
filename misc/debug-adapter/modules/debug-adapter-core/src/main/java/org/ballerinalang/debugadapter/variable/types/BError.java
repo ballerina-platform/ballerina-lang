@@ -54,7 +54,7 @@ public class BError extends NamedCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeNamedChildVariables() {
+    public Map<String, Value> computeChildVariables() {
         try {
             Map<String, Value> childVarMap = new LinkedHashMap<>();
             // Fetches message, cause and details of the error.

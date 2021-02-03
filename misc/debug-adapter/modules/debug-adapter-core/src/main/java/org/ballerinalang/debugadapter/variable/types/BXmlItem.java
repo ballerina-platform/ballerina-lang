@@ -51,7 +51,7 @@ public class BXmlItem extends NamedCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeNamedChildVariables() {
+    public Map<String, Value> computeChildVariables() {
         Map<String, Value> childMap = new LinkedHashMap<>();
         try {
             Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);

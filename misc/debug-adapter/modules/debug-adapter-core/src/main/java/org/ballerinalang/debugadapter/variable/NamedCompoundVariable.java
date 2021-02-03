@@ -23,7 +23,8 @@ import org.eclipse.lsp4j.debug.Variable;
 import java.util.Map;
 
 /**
- * Implementation for ballerina variable types with named child variables (i.e. map entries, json elements, etc).
+ * Implementation for ballerina variable types with a known/limited number of child elements. (i.e. error variable
+ * fields, object fields, etc.)
  *
  * @since 2.0.0
  */
@@ -36,13 +37,39 @@ public abstract class NamedCompoundVariable extends BCompoundVariable {
     }
 
     /**
-     * Returns JDI value representations of all the child variables, as a map of named child variables (i.e. error
+     * Retrieves JDI value representations of all the child variables, as a map of named child variables (i.e. error
      * variable entries, object fields, record fields).
      * <p>
      * Each compound variable type with named child variables must have their own implementation to compute/fetch
      * values.
      */
-    protected abstract Map<String, Value> computeNamedChildVariables();
+    protected abstract Map<String, Value> computeChildVariables();
+
+    /**
+     * Retrieves JDI value representations of all the child variables, as a map of named child variables (i.e. error
+     * variable entries, object fields, record fields).
+     * <p>
+     */
+    public Map<String, Value> getNamedChildVariables() {
+        if (namedChildVariables == null) {
+            namedChildVariables = computeChildVariables();
+        }
+        return namedChildVariables;
+    }
+
+    /**
+     * Returns the JDI value representation of the child variable for a given name.
+     */
+    public Value getChildByName(String name) throws DebugVariableException {
+        if (namedChildVariables == null) {
+            namedChildVariables = computeChildVariables();
+        }
+
+        if (!namedChildVariables.containsKey(name)) {
+            throw new DebugVariableException("No child variables found with name: '" + name + "'");
+        }
+        return namedChildVariables.get(name);
+    }
 
     @Override
     public Variable getDapVariable() {
@@ -54,23 +81,5 @@ public abstract class NamedCompoundVariable extends BCompoundVariable {
             dapVariable.setNamedVariables((long) getChildrenCount());
         }
         return dapVariable;
-    }
-
-    public Map<String, Value> getNamedChildVariables() {
-        if (namedChildVariables == null) {
-            namedChildVariables = computeNamedChildVariables();
-        }
-        return namedChildVariables;
-    }
-
-    public Value getChildByName(String name) throws DebugVariableException {
-        if (namedChildVariables == null) {
-            namedChildVariables = computeNamedChildVariables();
-        }
-
-        if (!namedChildVariables.containsKey(name)) {
-            throw new DebugVariableException("No child variables found with name: '" + name + "'");
-        }
-        return namedChildVariables.get(name);
     }
 }

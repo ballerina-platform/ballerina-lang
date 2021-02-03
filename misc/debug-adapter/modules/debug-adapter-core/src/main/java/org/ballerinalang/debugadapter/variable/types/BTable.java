@@ -67,7 +67,7 @@ public class BTable extends IndexedCompoundVariable {
     }
 
     @Override
-    public Either<Map<String, Value>, List<Value>> computeIndexedChildVariables(int start, int count) {
+    public Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
                 return Either.forRight(new ArrayList<>());

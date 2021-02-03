@@ -49,7 +49,7 @@ public class BFuture extends NamedCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeNamedChildVariables() {
+    public Map<String, Value> computeChildVariables() {
         Map<String, Value> childVarMap = new LinkedHashMap<>();
         try {
             Optional<Value> isDone = VariableUtils.getFieldValue(jvmValue, FIELD_IS_DONE);

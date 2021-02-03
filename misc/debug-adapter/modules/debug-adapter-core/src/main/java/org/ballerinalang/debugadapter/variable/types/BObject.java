@@ -44,7 +44,7 @@ public class BObject extends NamedCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeNamedChildVariables() {
+    public Map<String, Value> computeChildVariables() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
                 return new LinkedHashMap<>();
