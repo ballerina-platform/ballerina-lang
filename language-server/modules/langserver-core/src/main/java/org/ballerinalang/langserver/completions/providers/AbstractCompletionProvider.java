@@ -191,7 +191,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         completionItems.add(new TypeCompletionItem(context, null, Snippet.TYPE_MAP.get().build(context)));
 
-        completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
         completionItems.addAll(Arrays.asList(
                 new SnippetCompletionItem(context, Snippet.KW_RECORD.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),

@@ -309,6 +309,7 @@ public class CommonUtil {
      * @param context LS Operation context
      * @return {@link LSCompletionItem} generated for error type
      */
+    @Deprecated
     public static LSCompletionItem getErrorTypeCompletionItem(BallerinaCompletionContext context) {
         CompletionItem errorTypeCItem = new CompletionItem();
         errorTypeCItem.setInsertText(ItemResolverConstants.ERROR);

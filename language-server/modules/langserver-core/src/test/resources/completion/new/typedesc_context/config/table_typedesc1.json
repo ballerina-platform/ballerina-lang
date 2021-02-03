@@ -219,14 +219,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Event",
-      "detail": "error",
-      "sortText": "Q",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
