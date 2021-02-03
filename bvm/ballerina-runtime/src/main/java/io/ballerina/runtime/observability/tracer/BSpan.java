@@ -71,7 +71,7 @@ public class BSpan {
     }
 
     /**
-     * Start a new with a parent using parent span.
+     * Start a new span with a parent using parent span.
      *
      * @param parentSpan    The parent span of the new span
      * @param serviceName   The name of the service the span belongs to
@@ -84,7 +84,7 @@ public class BSpan {
     }
 
     /**
-     * Start a new with a parent using parent trace context.
+     * Start a new span with a parent using parent trace context.
      * The started span is part of a trace which had spanned across multiple services and the parent is in the service
      * which called the current service.
      *
