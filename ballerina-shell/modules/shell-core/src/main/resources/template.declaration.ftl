@@ -26,19 +26,6 @@ ${varDcln.type} ${varDcln.name} = // value
 </#list>
 
 public function main() returns error? {
-    // Redefine to restrict user
-    <#list varDclns as varDcln>
-    <#if !varDcln.new>
-    <#if varDcln.isAny()>
-    ${varDcln.type} ${varDcln.name} = // value
-    <${varDcln.type}> checkpanic recall_h("x");
-    <#else>
-    ${varDcln.type} ${varDcln.name} = // value
-    <${varDcln.type}> recall_h("x");
-    </#if>
-    </#if>
-    </#list>
-
     ${lastVarDcln}
 
     _ = java:JavaClassNotFoundError;

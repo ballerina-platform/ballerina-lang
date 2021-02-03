@@ -245,8 +245,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 }
 
                 // Compile and execute the real program.
-                ClassLoadContext context = createExecutionContext((ExecutableSnippet) newSnippet,
-                        newVariables.values());
+                ClassLoadContext context = createExecutionContext((ExecutableSnippet) newSnippet, newVariables);
                 SingleFileProject project = timedOperation("building project",
                         () -> getProject(context, EXECUTION_TEMPLATE_FILE));
                 PackageCompilation compilation = timedOperation("compilation",
@@ -422,7 +421,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * @return Context with type information inferring code.
      */
     protected ClassLoadContext createVarTypeInferContext(VariableDeclarationSnippet newSnippet) {
-        List<VariableContext> varDclns = globalVariableContexts();
+        Collection<VariableContext> varDclns = globalVariableContexts().values();
 
         List<String> moduleDclnStrings = new ArrayList<>(moduleDclns.values());
         Set<String> importStrings = getRequiredImportStatements(newSnippet);
@@ -439,7 +438,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      */
     protected ClassLoadContext createModuleDclnNameInferContext(QuotedIdentifier moduleDeclarationName,
                                                                 ModuleMemberDeclarationSnippet newSnippet) {
-        List<VariableContext> varDclns = globalVariableContexts();
+        Collection<VariableContext> varDclns = globalVariableContexts().values();
         Map<QuotedIdentifier, String> moduleDclnStringsMap = new HashMap<>(moduleDclns);
         moduleDclnStringsMap.put(moduleDeclarationName, newSnippet.toString());
 
@@ -459,30 +458,29 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * @return Created context.
      */
     protected ClassLoadContext createExecutionContext(ExecutableSnippet newSnippet,
-                                                      Collection<GlobalVariable> newVariables) {
-        List<VariableContext> variableDeclarations = globalVariableContexts();
+                                                      Map<QuotedIdentifier, GlobalVariable> newVariables) {
+        Map<QuotedIdentifier, VariableContext> varDclnsMap = globalVariableContexts();
         Set<String> importStrings = getRequiredImportStatements(newSnippet);
 
         if (newSnippet.isVariableDeclaration()) {
-            newVariables.stream().map(VariableContext::newVar)
-                    .forEach(variableDeclarations::add);
+            newVariables.forEach((k, v) -> varDclnsMap.put(k, VariableContext.newVar(v)));
             return new ClassLoadContext(this.contextId, importStrings, moduleDclns.values(),
-                    variableDeclarations, newSnippet.toString(), null);
+                    varDclnsMap.values(), newSnippet.toString(), null);
         } else {
             StatementContext lastStatement = new StatementContext(newSnippet);
             return new ClassLoadContext(this.contextId, importStrings, moduleDclns.values(),
-                    variableDeclarations, null, lastStatement);
+                    varDclnsMap.values(), null, lastStatement);
         }
     }
 
     /**
      * Global variables as required by contexts.
      *
-     * @return Global variable declarations list.
+     * @return Global variable declarations map.
      */
-    private List<VariableContext> globalVariableContexts() {
-        List<VariableContext> varDclns = new ArrayList<>();
-        globalVars.values().stream().map(VariableContext::oldVar).forEach(varDclns::add);
+    private Map<QuotedIdentifier, VariableContext> globalVariableContexts() {
+        Map<QuotedIdentifier, VariableContext> varDclns = new HashMap<>();
+        globalVars.forEach((k, v) -> varDclns.put(k, VariableContext.oldVar(v)));
         return varDclns;
     }
 

@@ -18,8 +18,10 @@
 
 package io.ballerina.shell.invoker.classload;
 
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.shell.utils.StringUtils;
 
 import java.util.Objects;
@@ -34,6 +36,7 @@ import java.util.Objects;
 public class HashedSymbol {
     private final String name;
     private final SymbolKind kind;
+    private final String typeSymbol;
 
     /**
      * Wraps symbol with hashed symbol to make is hashable.
@@ -43,6 +46,13 @@ public class HashedSymbol {
     public HashedSymbol(Symbol symbol) {
         this.name = StringUtils.quoted(symbol.name());
         this.kind = symbol.kind();
+        if (symbol instanceof VariableSymbol) {
+            this.typeSymbol = ((VariableSymbol) symbol).typeDescriptor().signature();
+        } else if (symbol instanceof FunctionSymbol) {
+            this.typeSymbol = ((FunctionSymbol) symbol).typeDescriptor().signature();
+        } else {
+            this.typeSymbol = "";
+        }
     }
 
     @Override
@@ -53,13 +63,15 @@ public class HashedSymbol {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        HashedSymbol xSymbol = (HashedSymbol) o;
-        return name.equals(xSymbol.name) && kind == xSymbol.kind;
+        HashedSymbol that = (HashedSymbol) o;
+        return name.equals(that.name) &&
+                kind == that.kind &&
+                typeSymbol.equals(that.typeSymbol);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, kind);
+        return Objects.hash(name, kind, typeSymbol);
     }
 
     @Override
