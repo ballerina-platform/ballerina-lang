@@ -975,7 +975,6 @@ public class TestBuildProject {
                     dataItem).apply();
             TomlTableNode ballerinaToml = newBallerinaToml.tomlAstNode();
             Package newPackage = newBallerinaToml.packageInstance();
-            PackageCompilation compilation = newPackage.getCompilation();
         }
 
     }

@@ -39,6 +39,8 @@ public class Module {
     private final Map<DocumentId, Document> testSrcDocs;
     private final Function<DocumentId, Document> populateDocumentFunc;
 
+    private Optional<ModuleMd> moduleMd = null;
+
     Module(ModuleContext moduleContext, Package packageInstance) {
         this.moduleContext = moduleContext;
         this.packageInstance = packageInstance;
@@ -122,8 +124,13 @@ public class Module {
         return moduleContext;
     }
 
-    public Optional<MdDocument> moduleMd() {
-        return this.moduleContext.moduleMd();
+    public Optional<ModuleMd> moduleMd() {
+        if (null == this.moduleMd) {
+            this.moduleMd = this.moduleContext.moduleMdContext().map(c ->
+                    ModuleMd.from(c, this)
+            );
+        }
+        return this.moduleMd;
     }
 
     private static class DocumentIterable implements Iterable {
@@ -156,7 +163,7 @@ public class Module {
         private final List<ModuleDescriptor> dependencies;
         private Package packageInstance;
         private Project project;
-        private Optional<MdDocument> moduleMd;
+        private Optional<MdDocumentContext> moduleMdContext;
 
 
         private Modifier(Module oldModule) {
@@ -168,7 +175,7 @@ public class Module {
             dependencies = oldModule.moduleContext().moduleDescDependencies();
             packageInstance = oldModule.packageInstance;
             project = oldModule.project();
-            moduleMd = oldModule.moduleMd();
+            moduleMdContext = oldModule.moduleContext.moduleMdContext();
         }
 
         Modifier updateDocument(DocumentContext newDocContext) {
@@ -249,7 +256,7 @@ public class Module {
                 DocumentContext> testDocContextMap) {
             ModuleContext newModuleContext = new ModuleContext(this.project,
                     this.moduleId, this.moduleDescriptor, this.isDefaultModule, srcDocContextMap,
-                    testDocContextMap, this.moduleMd.orElse(null), this.dependencies);
+                    testDocContextMap, this.moduleMdContext.orElse(null), this.dependencies);
             Package newPackage = this.packageInstance.modify().updateModule(newModuleContext).apply();
             return newPackage.module(this.moduleId);
         }

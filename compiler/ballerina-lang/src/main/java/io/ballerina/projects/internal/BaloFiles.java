@@ -22,7 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph;
-import io.ballerina.projects.MdDocument;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDescriptor;
@@ -140,17 +139,9 @@ public class BaloFiles {
 
         List<DocumentData> srcDocs = loadDocuments(modulePath);
         List<DocumentData> testSrcDocs = Collections.emptyList();
-        MdDocument moduleMd = loadModuleMd(modulePath);
+        DocumentData moduleMd = loadDocument(modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
 
         return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd);
-    }
-
-    private static MdDocument loadModuleMd(Path modulePath) {
-        Path moduleMdPath = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-        if (Files.exists(moduleMdPath)) {
-            return new MdDocument(moduleMdPath);
-        }
-        return null;
     }
 
     private static List<ModuleData> loadOtherModules(String pkgName,

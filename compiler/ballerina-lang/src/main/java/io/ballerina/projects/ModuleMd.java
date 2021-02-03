@@ -16,39 +16,38 @@
  *  under the License.
  */
 
-
 package io.ballerina.projects;
 
 /**
- * Represents the 'Package.md' file in a package.
+ * Represents the 'Module.md' file of a module.
  *
  * @since 2.0.0
  */
-public class PackageMd {
+public class ModuleMd {
 
     private final MdDocumentContext mdDocumentContext;
-    private final Package packageInstance;
+    private final Module module;
 
-    PackageMd(MdDocumentContext documentContext, Package packageInstance) {
+    ModuleMd(MdDocumentContext documentContext, Module module) {
         this.mdDocumentContext = documentContext;
-        this.packageInstance = packageInstance;
+        this.module = module;
     }
 
-    public static PackageMd from(DocumentConfig documentConfig, Package aPackage) {
+    public static ModuleMd from(DocumentConfig documentConfig, Module module) {
         MdDocumentContext documentContext = MdDocumentContext.from(documentConfig);
-        return new PackageMd(documentContext, aPackage);
+        return new ModuleMd(documentContext, module);
     }
 
-    public static PackageMd from(MdDocumentContext documentContext, Package aPackage) {
-        return new PackageMd(documentContext, aPackage);
+    public static ModuleMd from(MdDocumentContext documentContext, Module module) {
+        return new ModuleMd(documentContext, module);
     }
 
     MdDocumentContext mdDocumentContext() {
         return mdDocumentContext;
     }
 
-    public Package packageInstance() {
-        return packageInstance;
+    public Module module() {
+        return module;
     }
 
     public String content() {
