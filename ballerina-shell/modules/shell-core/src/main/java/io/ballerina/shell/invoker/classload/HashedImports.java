@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
-import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
@@ -41,8 +40,8 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class HashedImports {
-    private static final String ANON_SOURCE = "'$";
-    private static final Collection<String> ANON_IMPORT_PREFIXES = List.of("java");
+    private static final QuotedIdentifier ANON_SOURCE = new QuotedIdentifier("$");
+    private static final Collection<QuotedIdentifier> ANON_IMPORT_PREFIXES = List.of(new QuotedIdentifier("java"));
     private static final String JAVA_IMPORT_SOURCE = "import ballerina/jballerina.java;";
     private static final ImportDeclarationSnippet JAVA_IMPORT;
 
@@ -60,18 +59,18 @@ public class HashedImports {
      * This is a map of import prefix to the import statement used.
      * Import prefix must be a quoted identifier.
      */
-    private final HashMap<String, String> imports;
+    private final HashMap<QuotedIdentifier, String> imports;
     /**
      * Reverse map to search the imported module.
      */
-    private final HashMap<String, String> reverseImports;
+    private final HashMap<String, QuotedIdentifier> reverseImports;
     /**
      * Import prefixes that are used in each module declaration/var declaration.
      * Key is the name of the module/var declaration. (quoted name)
      * Value is the prefixes used by that name. (quoted prefix)
      * All the implicit imports should be included under ANON_SOURCE name.
      */
-    private final Map<String, Set<String>> usedPrefixes;
+    private final Map<QuotedIdentifier, Set<QuotedIdentifier>> usedPrefixes;
 
     public HashedImports() {
         this.imports = new HashMap<>();
@@ -99,8 +98,7 @@ public class HashedImports {
      * @param prefix Prefix to search.
      * @return The import statement of the prefix.
      */
-    public String getImport(String prefix) {
-        prefix = StringUtils.quoted(prefix);
+    public String getImport(QuotedIdentifier prefix) {
         String moduleName = this.imports.get(prefix);
         if (moduleName == null) {
             return null;
@@ -114,8 +112,8 @@ public class HashedImports {
      * @param prefix Prefix to search.
      * @return If prefix was added.
      */
-    public boolean containsPrefix(String prefix) {
-        return this.imports.containsKey(StringUtils.quoted(prefix));
+    public boolean containsPrefix(QuotedIdentifier prefix) {
+        return this.imports.containsKey(prefix);
     }
 
     /**
@@ -135,7 +133,7 @@ public class HashedImports {
      * @param moduleName Module name to check in 'orgName/module' format.
      * @return Prefix of the import.
      */
-    public String prefix(String moduleName) {
+    public QuotedIdentifier prefix(String moduleName) {
         return this.reverseImports.get(moduleName);
     }
 
@@ -145,8 +143,8 @@ public class HashedImports {
      * @param snippet Import snippet to add.
      * @return The prefix the import was added as.
      */
-    public String storeImport(ImportDeclarationSnippet snippet) {
-        String quotedPrefix = StringUtils.quoted(snippet.getPrefix());
+    public QuotedIdentifier storeImport(ImportDeclarationSnippet snippet) {
+        QuotedIdentifier quotedPrefix = new QuotedIdentifier(snippet.getPrefix());
         String importedModule = snippet.getImportedModule();
         return storeImport(quotedPrefix, importedModule);
     }
@@ -158,7 +156,7 @@ public class HashedImports {
      * @param moduleName   Module name to add.
      * @return The prefix the import was added as.
      */
-    public String storeImport(String quotedPrefix, String moduleName) {
+    public QuotedIdentifier storeImport(QuotedIdentifier quotedPrefix, String moduleName) {
         this.imports.put(quotedPrefix, moduleName);
         this.reverseImports.put(moduleName, quotedPrefix);
         return quotedPrefix;
@@ -167,16 +165,15 @@ public class HashedImports {
     /**
      * Add prefixes to persisted list of imports.
      * The name will be linked with the import prefix.
-     * eg: {@code a:P? p = ()} will have {@code p} as name and {@code a} as prefix.
      *
      * @param name     Usage source declaration name of the import.
      * @param prefixes Used prefixes.
      */
-    public void storeImportUsages(String name, Collection<String> prefixes) {
+    public void storeImportUsages(QuotedIdentifier name, Collection<QuotedIdentifier> prefixes) {
         // Get the prefixes previously used by this name and add prefix this to it.
-        Set<String> sourcePrefixes = this.usedPrefixes.getOrDefault(name, new HashSet<>());
-        prefixes.stream().map(StringUtils::quoted).forEach(sourcePrefixes::add);
-        this.usedPrefixes.put(StringUtils.quoted(name), sourcePrefixes);
+        Set<QuotedIdentifier> sourcePrefixes = this.usedPrefixes.getOrDefault(name, new HashSet<>());
+        sourcePrefixes.addAll(prefixes);
+        this.usedPrefixes.put(name, sourcePrefixes);
     }
 
     /**
@@ -184,7 +181,7 @@ public class HashedImports {
      * at originated without a source.
      * Will be added as an import from ANON_SOURCE.
      */
-    public void storeAnonImplicitPrefixes(Collection<String> prefixes) {
+    public void storeAnonImplicitPrefixes(Collection<QuotedIdentifier> prefixes) {
         storeImportUsages(ANON_SOURCE, prefixes);
     }
 
@@ -193,7 +190,7 @@ public class HashedImports {
      *
      * @return Set of prefixes.
      */
-    public Set<String> prefixes() {
+    public Set<QuotedIdentifier> prefixes() {
         return this.imports.keySet();
     }
 
@@ -211,8 +208,8 @@ public class HashedImports {
      *
      * @return Set of import statements used in given names.
      */
-    public Set<String> getUsedImports(Collection<String> names) {
-        Set<String> allUsedImportPrefixes = new HashSet<>();
+    public Set<String> getUsedImports(Collection<QuotedIdentifier> names) {
+        Set<QuotedIdentifier> allUsedImportPrefixes = new HashSet<>();
         names.stream()
                 .map(this.usedPrefixes::get) // get used prefixes of names
                 .filter(Objects::nonNull) // discard null lists

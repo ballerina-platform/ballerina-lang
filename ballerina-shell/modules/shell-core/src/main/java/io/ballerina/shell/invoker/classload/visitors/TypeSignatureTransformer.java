@@ -43,6 +43,7 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.invoker.classload.ImportProcessor;
+import io.ballerina.shell.invoker.classload.QuotedIdentifier;
 import io.ballerina.shell.utils.StringUtils;
 
 import java.util.Arrays;
@@ -69,7 +70,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
     private static final String ANON_MODULE = "$anon";
 
     private final ImportProcessor importProcessor;
-    private final Set<String> implicitImportPrefixes;
+    private final Set<QuotedIdentifier> implicitImportPrefixes;
 
     public TypeSignatureTransformer(ImportProcessor importProcessor) {
         this.implicitImportPrefixes = new HashSet<>();
@@ -345,9 +346,9 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
             String moduleName = Arrays.stream(typeSymbol.moduleID().moduleName().split("\\."))
                     .map(StringUtils::quoted).collect(Collectors.joining("."));
             String fullModuleName = typeSymbol.moduleID().orgName() + "/" + moduleName;
-            String defaultPrefix = StringUtils.quoted(typeSymbol.moduleID().modulePrefix());
+            String defaultPrefix = typeSymbol.moduleID().modulePrefix();
             try {
-                String importPrefix = importProcessor.processImplicitImport(fullModuleName, defaultPrefix);
+                QuotedIdentifier importPrefix = importProcessor.processImplicitImport(fullModuleName, defaultPrefix);
                 implicitImportPrefixes.add(importPrefix);
                 return String.format("%s:%s", importPrefix, typeName);
             } catch (InvokerException e) {
@@ -361,7 +362,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
      *
      * @return Set of implicit prefixes.
      */
-    public Set<String> getImplicitImportPrefixes() {
+    public Set<QuotedIdentifier> getImplicitImportPrefixes() {
         return implicitImportPrefixes;
     }
 }

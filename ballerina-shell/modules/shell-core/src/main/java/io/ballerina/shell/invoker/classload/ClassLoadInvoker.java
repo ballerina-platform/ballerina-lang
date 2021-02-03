@@ -120,13 +120,13 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * List of module level declarations such as functions, classes, etc...
      * The snippets are saved as is.
      */
-    protected final Map<String, String> moduleDclns;
+    protected final Map<QuotedIdentifier, String> moduleDclns;
     /**
      * List of global variables used in the code.
      * This is a map of variable name to its type.
      * The variable name must be a quoted identifier.
      */
-    protected final Map<String, GlobalVariable> globalVars;
+    protected final Map<QuotedIdentifier, GlobalVariable> globalVars;
     /**
      * Flag to keep track of whether the invoker is initialized.
      */
@@ -146,9 +146,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * Stores all the newly found implicit imports.
      * Persisted at the end of iteration to `mustImportPrefixes`.
      * Key is the source snippet name (variable name/dcln name), value is the prefix.
-     * Both quoted.
      */
-    private final Map<String, Set<String>> newImports;
+    private final Map<QuotedIdentifier, Set<QuotedIdentifier>> newImports;
 
     /**
      * Creates a class load invoker from the given ballerina home.
@@ -214,7 +213,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 // Only compilation to find import validity and exit.
                 assert newSnippet instanceof ImportDeclarationSnippet;
                 ImportDeclarationSnippet importDcln = (ImportDeclarationSnippet) newSnippet;
-                String importPrefix = timedOperation("processing import", () -> processImport(importDcln));
+                QuotedIdentifier importPrefix = timedOperation("processing import", () -> processImport(importDcln));
                 Objects.requireNonNull(importPrefix, "Import prefix identification failed.");
                 addDiagnostic(Diagnostic.debug("Import prefix identified as: " + importPrefix));
                 return Optional.empty();
@@ -223,7 +222,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 // Only compilation to find dcln validity and exit.
                 assert newSnippet instanceof ModuleMemberDeclarationSnippet;
                 ModuleMemberDeclarationSnippet moduleDcln = (ModuleMemberDeclarationSnippet) newSnippet;
-                Map.Entry<String, String> newModuleDcln = timedOperation("processing module dcln",
+                Map.Entry<QuotedIdentifier, String> newModuleDcln = timedOperation("processing module dcln",
                         () -> processModuleDcln(moduleDcln));
                 this.knownSymbols.addAll(this.newSymbols);
                 this.newImports.forEach(imports::storeImportUsages);
@@ -238,7 +237,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             case STATEMENT:
             case EXPRESSION:
                 assert newSnippet instanceof ExecutableSnippet;
-                Map<String, GlobalVariable> newVariables = new HashMap<>();
+                Map<QuotedIdentifier, GlobalVariable> newVariables = new HashMap<>();
                 if (newSnippet.isVariableDeclaration()) {
                     assert newSnippet instanceof VariableDeclarationSnippet;
                     VariableDeclarationSnippet varDcln = (VariableDeclarationSnippet) newSnippet;
@@ -281,16 +280,17 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     }
 
     @Override
-    public String processImplicitImport(String moduleName, String defaultPrefix) throws InvokerException {
+    public QuotedIdentifier processImplicitImport(String moduleName, String defaultPrefix)
+            throws InvokerException {
         if (imports.moduleImported(moduleName)) {
             // If this module is already imported, use a previous prefix.
             return imports.prefix(moduleName);
         }
 
         // Try to find an available prefix
-        String quotedPrefix = StringUtils.quoted(defaultPrefix);
+        QuotedIdentifier quotedPrefix = new QuotedIdentifier(defaultPrefix);
         while (imports.containsPrefix(quotedPrefix)) {
-            quotedPrefix = StringUtils.quoted("prefix" + importIndex.incrementAndGet());
+            quotedPrefix = new QuotedIdentifier("prefix" + importIndex.incrementAndGet());
         }
 
         // Check if import is successful.
@@ -306,12 +306,12 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * Only compilation is done to verify package resolution.
      *
      * @param importSnippet New import snippet string.
-     * @return Whether import is a valid import.
+     * @return Imported prefix name.
      * @throws InvokerException If importing failed.
      */
-    public String processImport(ImportDeclarationSnippet importSnippet) throws InvokerException {
+    public QuotedIdentifier processImport(ImportDeclarationSnippet importSnippet) throws InvokerException {
         String moduleName = importSnippet.getImportedModule();
-        String quotedPrefix = StringUtils.quoted(importSnippet.getPrefix());
+        QuotedIdentifier quotedPrefix = new QuotedIdentifier(importSnippet.getPrefix());
 
         if (imports.moduleImported(moduleName) && imports.prefix(moduleName).equals(quotedPrefix)) {
             // Same module with same prefix. No need to check.
@@ -339,17 +339,18 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * @return Exported found variable information (name and type)
      * @throws InvokerException If type/name inferring failed.
      */
-    private Map<String, GlobalVariable> processVarDcln(VariableDeclarationSnippet newSnippet) throws InvokerException {
+    private Map<QuotedIdentifier, GlobalVariable> processVarDcln(VariableDeclarationSnippet newSnippet)
+            throws InvokerException {
         // No matter the approach, compile. This will confirm that syntax is valid.
         ClassLoadContext varTypeInferContext = createVarTypeInferContext(newSnippet);
         SingleFileProject project = getProject(varTypeInferContext, DECLARATION_TEMPLATE_FILE);
         Collection<Symbol> symbols = visibleUnknownSymbols(project);
 
-        Map<String, GlobalVariable> foundVariables = new HashMap<>();
+        Map<QuotedIdentifier, GlobalVariable> foundVariables = new HashMap<>();
         for (Symbol symbol : symbols) {
             HashedSymbol hashedSymbol = new HashedSymbol(symbol);
             // TODO: After name alternative is implemented use it.
-            String variableName = StringUtils.quoted(symbol.name());
+            QuotedIdentifier variableName = new QuotedIdentifier(symbol.name());
 
             boolean ignoreSymbol = knownSymbols.contains(hashedSymbol)
                     || foundVariables.containsKey(variableName)
@@ -386,14 +387,15 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * @return The newly found type name and its declaration.
      * @throws InvokerException If module dcln is invalid.
      */
-    private Map.Entry<String, String> processModuleDcln(ModuleMemberDeclarationSnippet newSnippet)
+    private Map.Entry<QuotedIdentifier, String> processModuleDcln(ModuleMemberDeclarationSnippet newSnippet)
             throws InvokerException {
         Optional<String> moduleDeclarationNameOp = newSnippet.name();
-        String moduleDeclarationName = moduleDeclarationNameOp
-                .orElseGet(() -> DOLLAR + unnamedModuleNameIndex.getAndIncrement());
-        moduleDeclarationName = StringUtils.quoted(moduleDeclarationName);
+        QuotedIdentifier moduleDeclarationName = moduleDeclarationNameOp.map(QuotedIdentifier::new)
+                .orElseGet(() -> new QuotedIdentifier(DOLLAR + unnamedModuleNameIndex.getAndIncrement()));
 
-        this.newImports.put(moduleDeclarationName, newSnippet.usedImports());
+        Set<QuotedIdentifier> usedPrefixes = new HashSet<>();
+        newSnippet.usedImports().forEach(p -> usedPrefixes.add(new QuotedIdentifier(p)));
+        this.newImports.put(moduleDeclarationName, usedPrefixes);
 
         ClassLoadContext varTypeInferContext = createModuleDclnNameInferContext(moduleDeclarationName, newSnippet);
         SingleFileProject project = getProject(varTypeInferContext, DECLARATION_TEMPLATE_FILE);
@@ -435,10 +437,10 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * @param newSnippet New snippet. Must be a module member dcln.
      * @return Context to infer dcln name.
      */
-    protected ClassLoadContext createModuleDclnNameInferContext(String moduleDeclarationName,
+    protected ClassLoadContext createModuleDclnNameInferContext(QuotedIdentifier moduleDeclarationName,
                                                                 ModuleMemberDeclarationSnippet newSnippet) {
         List<VariableContext> varDclns = globalVariableContexts();
-        Map<String, String> moduleDclnStringsMap = new HashMap<>(moduleDclns);
+        Map<QuotedIdentifier, String> moduleDclnStringsMap = new HashMap<>(moduleDclns);
         moduleDclnStringsMap.put(moduleDeclarationName, newSnippet.toString());
 
         ArrayList<String> moduleDclnStrings = new ArrayList<>(moduleDclnStringsMap.values());
@@ -642,6 +644,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         importStrings.addAll(imports.getUsedImports(moduleDclns.keySet())); // Imports from module dclns
         // Add all used imports in this snippet
         snippet.usedImports().stream()
+                .map(QuotedIdentifier::new)
                 .map(imports::getImport).filter(Objects::nonNull)
                 .forEach(importStrings::add);
         return importStrings;
@@ -683,7 +686,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     public List<String> availableImports() {
         // Imports with prefixes
         List<String> importStrings = new ArrayList<>();
-        for (String prefix : imports.prefixes()) {
+        for (QuotedIdentifier prefix : imports.prefixes()) {
             importStrings.add(String.format("(%s) %s", prefix, imports.getImport(prefix)));
         }
         return importStrings;
@@ -694,7 +697,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         // Available variables and values as string.
         List<String> varStrings = new ArrayList<>();
         for (GlobalVariable entry : globalVars.values()) {
-            Object obj = InvokerMemory.recall(contextId, entry.getVariableName());
+            Object obj = InvokerMemory.recall(contextId, entry.getVariableName().getName());
             String value = StringUtils.shortenedString(obj);
             String varString = String.format("(%s) %s %s = %s",
                     entry.getVariableName(), entry.getType(), entry.getVariableName(), value);
@@ -707,7 +710,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     public List<String> availableModuleDeclarations() {
         // Module level dclns.
         List<String> moduleDclnStrings = new ArrayList<>();
-        for (Map.Entry<String, String> entry : moduleDclns.entrySet()) {
+        for (Map.Entry<QuotedIdentifier, String> entry : moduleDclns.entrySet()) {
             String varString = String.format("(%s) %s", entry.getKey(),
                     StringUtils.shortenedString(entry.getValue()));
             moduleDclnStrings.add(varString);

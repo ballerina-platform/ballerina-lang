@@ -30,10 +30,10 @@ import java.util.Objects;
  */
 public class GlobalVariable {
     private final String type;
-    private final String variableName;
+    private final QuotedIdentifier variableName;
     private final ElevatedType elevatedType;
 
-    public GlobalVariable(String type, String variableName, ElevatedType elevatedType) {
+    public GlobalVariable(String type, QuotedIdentifier variableName, ElevatedType elevatedType) {
         this.type = type;
         this.variableName = variableName;
         this.elevatedType = elevatedType;
@@ -46,7 +46,7 @@ public class GlobalVariable {
      * @param variableName    Variable name to search.
      * @return Whether the variable is contained inside the collection.
      */
-    public static boolean isDefined(Collection<GlobalVariable> globalVariables, String variableName) {
+    public static boolean isDefined(Collection<GlobalVariable> globalVariables, QuotedIdentifier variableName) {
         return globalVariables.contains(new GlobalVariable("", variableName, null));
     }
 
@@ -54,7 +54,7 @@ public class GlobalVariable {
         return type;
     }
 
-    public String getVariableName() {
+    public QuotedIdentifier getVariableName() {
         return variableName;
     }
 

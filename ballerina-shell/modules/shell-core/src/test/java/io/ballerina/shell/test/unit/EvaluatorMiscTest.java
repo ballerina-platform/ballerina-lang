@@ -103,10 +103,10 @@ public class EvaluatorMiscTest {
         evaluator.evaluate("enum B{C, D}");
         Assert.assertEquals(new HashSet<>(evaluator.availableModuleDeclarations()),
                 Set.of(
-                        "(a) function a() {}",
-                        "(t) const t = 100;",
-                        "(A) class A{}",
-                        "(B) enum B{C, D}"
+                        "('a) function a() {}",
+                        "('t) const t = 100;",
+                        "('A) class A{}",
+                        "('B) enum B{C, D}"
                 )
         );
         Assert.assertEquals(evaluator.availableImports().size(), 1);
