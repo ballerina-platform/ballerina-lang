@@ -18,6 +18,7 @@
 
 package io.ballerina.shell.invoker.classload.visitors;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -336,18 +337,18 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
             typeName = typeSignature.substring(typeSignature.lastIndexOf(':') + 1);
         }
 
-        if (typeSymbol.moduleID().orgName().equals(ANON_MODULE)
-                || (typeSymbol.moduleID().moduleName().equals("lang.annotations")
-                && typeSymbol.moduleID().orgName().equals("ballerina"))) {
+        ModuleID moduleID = typeSymbol.getModule().isPresent() ? typeSymbol.getModule().get().id() : null;
+
+        if (moduleID == null || moduleID.orgName().equals(ANON_MODULE)
+                || (moduleID.moduleName().equals("lang.annotations") && moduleID.orgName().equals("ballerina"))) {
             // No import required. If the name is not found,
             // signature can be used without module parts.
             return typeName;
-
         } else {
-            String moduleName = Arrays.stream(typeSymbol.moduleID().moduleName().split("\\."))
+            String moduleName = Arrays.stream(moduleID.moduleName().split("\\."))
                     .map(StringUtils::quoted).collect(Collectors.joining("."));
-            String fullModuleName = typeSymbol.moduleID().orgName() + "/" + moduleName;
-            String defaultPrefix = StringUtils.quoted(typeSymbol.moduleID().modulePrefix());
+            String fullModuleName = moduleID.orgName() + "/" + moduleName;
+            String defaultPrefix = StringUtils.quoted(moduleID.modulePrefix());
             try {
                 String importPrefix = importProcessor.processImplicitImport(fullModuleName, defaultPrefix);
                 implicitImportPrefixes.add(importPrefix);

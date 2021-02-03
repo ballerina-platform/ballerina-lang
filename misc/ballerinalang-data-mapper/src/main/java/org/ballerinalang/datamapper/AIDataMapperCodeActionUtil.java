@@ -212,15 +212,17 @@ class AIDataMapperCodeActionUtil {
                 if (project.get().kind() == ProjectKind.BUILD_PROJECT) {
                     String moduleName = srcFile.get().module().moduleId().moduleName();
 
-                    ModuleID rhsModule = rhsTypeSymbol.moduleID();
-                    ModuleID lftModule = lftTypeSymbol.moduleID();
+                    ModuleID rhsModule =
+                            rhsTypeSymbol.getModule().isPresent() ? rhsTypeSymbol.getModule().get().id() : null;
+                    ModuleID lftModule =
+                            lftTypeSymbol.getModule().isPresent() ? lftTypeSymbol.getModule().get().id() : null;
 
-                    if (!moduleName.equals(rhsModule.moduleName())) {
+                    if (rhsModule != null && !moduleName.equals(rhsModule.moduleName())) {
                         String rhsType = rhsModule.modulePrefix() + ":" + foundTypeRight;
                         generatedRecordMappingFunction = generatedRecordMappingFunction.replaceAll("\\b" +
                                 foundTypeRight + "\\b", rhsType);
                     }
-                    if (!moduleName.equals(lftModule.moduleName())) {
+                    if (lftModule != null && !moduleName.equals(lftModule.moduleName())) {
                         String lftType = lftModule.modulePrefix() + ":" + foundTypeLeft;
                         generatedRecordMappingFunction = generatedRecordMappingFunction.replaceAll("\\b" +
                                 foundTypeLeft + "\\b", lftType);
