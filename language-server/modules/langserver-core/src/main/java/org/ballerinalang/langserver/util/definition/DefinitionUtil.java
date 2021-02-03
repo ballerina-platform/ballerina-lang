@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.util.definition;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.Document;
@@ -80,15 +81,20 @@ public class DefinitionUtil {
         Range range = new Range(start, end);
         String uri;
 
-        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT && symbol.moduleID().moduleName().equals(".")) {
-            uri = projectRoot.toUri().toString();
-        } else if (!project.get().currentPackage().packageOrg().value().equals(symbol.moduleID().orgName())) {
+        if (symbol.getModule().isEmpty()) {
             return Optional.empty();
-        } else if (project.get().currentPackage().packageName().value().equals(symbol.moduleID().moduleName())) {
+        }
+
+        ModuleID moduleID = symbol.getModule().get().id();
+        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT && moduleID.moduleName().equals(".")) {
+            uri = projectRoot.toUri().toString();
+        } else if (!project.get().currentPackage().packageOrg().value().equals(moduleID.orgName())) {
+            return Optional.empty();
+        } else if (project.get().currentPackage().packageName().value().equals(moduleID.moduleName())) {
             // Symbol is within the default module
             uri = projectRoot.resolve(symbol.location().lineRange().filePath()).toUri().toString();
         } else {
-            String moduleName = symbol.moduleID().modulePrefix();
+            String moduleName = moduleID.modulePrefix();
             String fileName = symbol.location().lineRange().filePath();
             uri = projectRoot.resolve("modules").resolve(moduleName).resolve(fileName).toUri().toString();
         }

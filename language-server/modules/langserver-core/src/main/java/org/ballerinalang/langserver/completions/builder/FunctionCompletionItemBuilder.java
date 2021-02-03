@@ -153,7 +153,7 @@ public final class FunctionCompletionItemBuilder {
     private static Either<String, MarkupContent> getDocumentation(FunctionSymbol functionSymbol,
                                                                   boolean skipFirstParam,
                                                                   BallerinaCompletionContext ctx) {
-        String pkgID = functionSymbol.moduleID().toString();
+        String pkgID = functionSymbol.getModule().get().id().toString();
         FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
 
         Optional<Documentation> docAttachment = functionSymbol.documentation();
@@ -293,7 +293,7 @@ public final class FunctionCompletionItemBuilder {
      */
     private static boolean skipFirstParam(BallerinaCompletionContext context, FunctionSymbol functionSymbol) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        return CommonUtil.isLangLib(functionSymbol.moduleID())
+        return CommonUtil.isLangLib(functionSymbol.getModule().get().id())
                 && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
     }
 

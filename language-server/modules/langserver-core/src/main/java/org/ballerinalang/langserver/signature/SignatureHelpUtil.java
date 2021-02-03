@@ -177,7 +177,8 @@ public class SignatureHelpUtil {
                 .forEach(param -> parameters.add(new Parameter(param, false, false, context)));
         Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
         restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
-        boolean skipFirstParam = functionSymbol.kind() == METHOD && CommonUtil.isLangLib(functionSymbol.moduleID());
+        boolean skipFirstParam = functionSymbol.kind() == METHOD
+                && CommonUtil.isLangLib(functionSymbol.getModule().get().id());
         // Create a list of param info models
         for (int i = 0; i < parameters.size(); i++) {
             if (i == 0 && skipFirstParam) {
