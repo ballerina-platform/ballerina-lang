@@ -12,6 +12,10 @@ seq:
 types:
   constant_pool_set:
     seq:
+      - id: magic
+        contents: [0xba, 0x10, 0xc0, 0xde]
+      - id: version
+        type: s4
       - id: constant_pool_count
         type: s4
       - id: constant_pool_entries

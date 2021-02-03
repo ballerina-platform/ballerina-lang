@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
-import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -247,26 +246,21 @@ public class BinaryFileWriter {
 
     private void addPackageBinaryContent(PackageID pkgId,
                                          CompiledBinaryFile.PackageFile packageFile,
-                                         CompiledPackage compiledPackage) throws IOException {
-        byte[] pkgBinaryContent = PackageFileWriter.writePackage(packageFile);
+                                         CompiledPackage compiledPackage) {
         ByteArrayBasedCompiledPackageEntry pkgBinaryEntry = new ByteArrayBasedCompiledPackageEntry(
-                pkgBinaryContent, getPackageBinaryName(pkgId), CompilerOutputEntry.Kind.OBJ);
+                packageFile.pkgBinaryContent, getPackageBinaryName(pkgId), CompilerOutputEntry.Kind.OBJ);
         compiledPackage.setPackageBinaryEntry(pkgBinaryEntry);
     }
 
-    private void addPackageBirContent(PackageID pkgId, BIRPackageFile birPackageFile,
-                                         CompiledPackage compiledPackage) throws IOException {
-        byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
+    private void addPackageBirContent(PackageID pkgId, BIRPackageFile birPackageFile, CompiledPackage compiledPackage) {
         ByteArrayBasedCompiledPackageEntry pkgBinaryEntry = new ByteArrayBasedCompiledPackageEntry(
-                pkgBirBinaryContent, getPackageBirName(pkgId), Kind.BIR);
+                birPackageFile.pkgBirBinaryContent, getPackageBirName(pkgId), Kind.BIR);
         compiledPackage.setPackageBirEntry(pkgBinaryEntry);
     }
 
-    private void addFileBirContent(String fileName, BIRPackageFile birPackageFile,
-                                   CompiledPackage compiledPackage) throws IOException {
-        byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
+    private void addFileBirContent(String fileName, BIRPackageFile birPackageFile, CompiledPackage compiledPackage) {
         ByteArrayBasedCompiledPackageEntry pkgBinaryEntry = new ByteArrayBasedCompiledPackageEntry(
-                pkgBirBinaryContent, fileName, Kind.BIR);
+                birPackageFile.pkgBirBinaryContent, fileName, Kind.BIR);
         compiledPackage.setPackageBirEntry(pkgBinaryEntry);
     }
 

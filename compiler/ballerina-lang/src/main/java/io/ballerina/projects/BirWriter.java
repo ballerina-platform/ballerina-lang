@@ -18,7 +18,6 @@
 package io.ballerina.projects;
 
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,7 +53,7 @@ class BirWriter {
      static void write(BLangPackage bLangPackage, Path birFilePath, boolean forceOverwrite) {
         try {
             //TODO: write our own utility for writePackage
-            byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);
+            byte[] pkgBirBinaryContent = bLangPackage.symbol.birPackageFile.pkgBirBinaryContent;
             if (forceOverwrite) {
                 Files.write(birFilePath, pkgBirBinaryContent);
             } else {

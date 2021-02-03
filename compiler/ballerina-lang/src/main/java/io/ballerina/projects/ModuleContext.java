@@ -34,10 +34,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -405,15 +403,8 @@ class ModuleContext {
 
         // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
-        try {
-            byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(
-                    moduleContext.bLangPackage.symbol.birPackageFile);
-            birContent.writeBytes(pkgBirBinaryContent);
-            moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
-        } catch (IOException e) {
-            // This path may never be executed
-            throw new RuntimeException("Failed to convert BIR model to a byte array", e);
-        }
+        birContent.writeBytes(moduleContext.bLangPackage.symbol.birPackageFile.pkgBirBinaryContent);
+        moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
     }
 
     static void loadBirBytesInternal(ModuleContext moduleContext) {

@@ -164,11 +164,7 @@ public class BIRPackageSymbolEnter {
                                         byte[] packageBinaryContent) {
         BPackageSymbol pkgSymbol = definePackage(packageId, packageRepositoryHierarchy,
                 new ByteArrayInputStream(packageBinaryContent));
-
-        // Strip magic value (4 bytes) and the version (2 bytes) off from the binary content of the package.
-        byte[] modifiedPkgBinaryContent = Arrays.copyOfRange(
-                packageBinaryContent, 8, packageBinaryContent.length);
-        pkgSymbol.birPackageFile = new CompiledBinaryFile.BIRPackageFile(modifiedPkgBinaryContent);
+        pkgSymbol.birPackageFile = new CompiledBinaryFile.BIRPackageFile(packageBinaryContent);
         SymbolEnv builtinEnv = this.symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol);
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(null, pkgSymbol.scope, builtinEnv);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
