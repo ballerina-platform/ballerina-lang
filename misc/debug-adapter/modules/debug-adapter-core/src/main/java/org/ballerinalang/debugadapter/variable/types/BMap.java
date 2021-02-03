@@ -42,13 +42,16 @@ public class BMap extends IndexedCompoundVariable {
     private ArrayReference loadedKeys = null;
     private Value[] loadedValues = null;
 
-    private static final String FIELD_MAP_DATA = "table";
-    private static final String FIELD_MAP_SIZE = "size";
+    private static final String FIELD_SIZE = "size";
     private static final String METHOD_GET_KEYS = "getKeys";
     private static final String METHOD_GET = "get";
 
     public BMap(SuspendedContext context, String name, Value value) {
-        super(context, name, BVariableType.MAP, value);
+        this(context, name, BVariableType.MAP, value);
+    }
+
+    public BMap(SuspendedContext context, String name, BVariableType type, Value value) {
+        super(context, name, type, value);
     }
 
     @Override
@@ -60,11 +63,6 @@ public class BMap extends IndexedCompoundVariable {
     public Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
         Map<String, Value> childVarMap = new LinkedHashMap<>();
         try {
-            Optional<Value> mapValues = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_DATA);
-            if (mapValues.isEmpty()) {
-                return Either.forLeft(childVarMap);
-            }
-
             // If count > 0, returns a sublist of the child variables
             // If count == 0, returns all child variables
             Map<Value, Value> mapEntries;
@@ -132,12 +130,14 @@ public class BMap extends IndexedCompoundVariable {
             loadedKeys = (ArrayReference) keyArray;
             loadedValues = new Value[getChildrenCount()];
         } catch (Exception ignored) {
+            loadedKeys = null;
+            loadedValues = new Value[0];
         }
     }
 
     private void populateMapSize() {
         try {
-            Optional<Value> mapSizeValue = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_SIZE);
+            Optional<Value> mapSizeValue = VariableUtils.getFieldValue(jvmValue, FIELD_SIZE);
             if (mapSizeValue.isEmpty() || !(mapSizeValue.get() instanceof IntegerValue)) {
                 mapSize = 0;
                 return;
