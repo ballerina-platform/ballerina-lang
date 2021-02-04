@@ -18,17 +18,15 @@
 
 package io.ballerina.projects.test;
 
-import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.MdDocument;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.ModuleMd;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageMd;
@@ -39,13 +37,10 @@ import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.repos.TempDirCompilationCache;
-import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -155,7 +150,7 @@ public class TestBaloProject {
         Assert.assertTrue(packageMd.isPresent());
         Assert.assertEquals(packageMd.get().content(), "# Package Md");
         // Get the Module.md
-        Optional<MdDocument> mdDocument = baloProject.currentPackage().getDefaultModule().moduleMd();
+        Optional<ModuleMd> mdDocument = baloProject.currentPackage().getDefaultModule().moduleMd();
         Assert.assertTrue(mdDocument.isPresent());
         Assert.assertEquals(mdDocument.get().content(), "# Default Module Md");
     }
