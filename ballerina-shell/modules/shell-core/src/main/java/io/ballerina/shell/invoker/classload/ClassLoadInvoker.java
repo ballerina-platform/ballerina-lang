@@ -531,7 +531,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     protected SingleFileProject getProject(String source) throws InvokerException {
         try {
             File mainBal = writeToFile(source);
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+            BuildOptions buildOptions = new BuildOptionsBuilder().shellMode(true).offline(true).build();
             return SingleFileProject.load(mainBal.toPath(), buildOptions);
         } catch (IOException e) {
             addDiagnostic(Diagnostic.error("File writing failed: " + e.getMessage()));

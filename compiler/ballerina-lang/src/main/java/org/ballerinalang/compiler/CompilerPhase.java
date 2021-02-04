@@ -30,7 +30,7 @@ public enum CompilerPhase {
 
     TYPE_CHECK("typeCheck"),
 
-    CODE_ANALYZE("codeAnalyze"), 
+    CODE_ANALYZE("codeAnalyze"),
 
     DATAFLOW_ANALYZE("dataflowAnalyze"),
 
@@ -45,6 +45,8 @@ public enum CompilerPhase {
     COMPILER_PLUGIN("compilerPlugin"),
 
     DESUGAR("desugar"),
+
+    SHELL_PLUGIN("shellPlugin"),
 
     BIR_GEN("birGen"),
 

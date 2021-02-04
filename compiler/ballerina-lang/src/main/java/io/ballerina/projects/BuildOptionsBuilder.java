@@ -83,6 +83,11 @@ public class BuildOptionsBuilder {
         return this;
     }
 
+    public BuildOptionsBuilder shellMode(Boolean value) {
+        compilationOptionsBuilder.shellMode(value);
+        return this;
+    }
+
     public BuildOptions build() {
         CompilationOptions compilationOptions = compilationOptionsBuilder.build();
         return new BuildOptions(testReport, codeCoverage, compilationOptions);

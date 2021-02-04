@@ -64,6 +64,8 @@ public enum CompilerOptionName {
 
     TAINT_CHECK("taintCheck"),
 
+    SHELL_MODE("shellMode"),
+
     /**
      * We've introduced this temporary option to support old-project structure and the new package structure.
      * If the option is set, then the compilation is initiated by the Project APT.

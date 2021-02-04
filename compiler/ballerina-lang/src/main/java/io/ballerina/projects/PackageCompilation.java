@@ -42,6 +42,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
+import static org.ballerinalang.compiler.CompilerOptionName.SHELL_MODE;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TAINT_CHECK;
 
@@ -87,6 +88,7 @@ public class PackageCompilation {
         options.put(DUMP_BIR_FILE, compilationOptions.getBirDumpFile());
         options.put(CLOUD, compilationOptions.getCloud());
         options.put(TAINT_CHECK, Boolean.toString(compilationOptions.getTaintCheck()));
+        options.put(SHELL_MODE, Boolean.toString(compilationOptions.getShellMode()));
     }
 
     static PackageCompilation from(PackageContext rootPackageContext) {

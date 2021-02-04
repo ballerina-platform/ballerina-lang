@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.shell.ShellPlugin;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -65,6 +66,7 @@ public class CompilerPhaseRunner {
     private final DocumentationAnalyzer documentationAnalyzer;
     private final CompilerPluginRunner compilerPluginRunner;
     private final ObservabilitySymbolCollector observabilitySymbolCollector;
+    private final ShellPlugin shellPlugin;
     private final Desugar desugar;
     private final BIRGen birGenerator;
     private final BIREmitter birEmitter;
@@ -98,6 +100,7 @@ public class CompilerPhaseRunner {
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
         this.observabilitySymbolCollector = ObservabilitySymbolCollectorRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
+        this.shellPlugin = ShellPlugin.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
         this.birEmitter = BIREmitter.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
@@ -156,6 +159,11 @@ public class CompilerPhaseRunner {
         }
 
         desugar(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.SHELL_PLUGIN)) {
+            return;
+        }
+
+        shellPlugin(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.BIR_GEN)) {
             return;
         }
@@ -249,6 +257,10 @@ public class CompilerPhaseRunner {
         return this.desugar.perform(pkgNode);
     }
 
+    public BLangPackage shellPlugin(BLangPackage pkgNode) {
+        return this.shellPlugin.perform(pkgNode);
+    }
+
     public BLangPackage birGen(BLangPackage pkgNode) {
         return this.birGenerator.genBIR(pkgNode);
     }
@@ -268,6 +280,7 @@ public class CompilerPhaseRunner {
         return (!isToolingCompilation && nextPhase == CompilerPhase.CODE_ANALYZE) ||
                 nextPhase == CompilerPhase.TAINT_ANALYZE ||
                 nextPhase == CompilerPhase.COMPILER_PLUGIN ||
-                nextPhase == CompilerPhase.DESUGAR;
+                nextPhase == CompilerPhase.DESUGAR ||
+                nextPhase == CompilerPhase.SHELL_PLUGIN;
     }
 }

@@ -33,10 +33,11 @@ class CompilationOptions {
     private String dumpBirFile;
     private String cloud;
     private Boolean taintCheck;
+    private Boolean shellMode;
 
     public CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental,
                               Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
-                              String cloud, Boolean taintCheck) {
+                              String cloud, Boolean taintCheck, Boolean shellMode) {
         this.skipTests = skipTests;
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
@@ -45,6 +46,7 @@ class CompilationOptions {
         this.dumpBirFile = dumpBirFile;
         this.cloud = cloud;
         this.taintCheck = taintCheck;
+        this.shellMode = shellMode;
     }
 
     boolean skipTests() {
@@ -77,6 +79,10 @@ class CompilationOptions {
 
     public boolean getTaintCheck() {
         return toBooleanDefaultIfNull(taintCheck);
+    }
+
+    public Boolean getShellMode() {
+        return toBooleanDefaultIfNull(shellMode);
     }
 
     /**
