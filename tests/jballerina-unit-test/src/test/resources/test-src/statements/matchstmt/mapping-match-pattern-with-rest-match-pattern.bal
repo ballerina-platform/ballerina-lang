@@ -142,7 +142,7 @@ function testMappingMatchPattern7() {
 
 function mappingMatchPattern8(any v) returns anydata {
     match v {
-        { x : { y : 1, ...var a } } => {
+        {x: {y: 1, ...var a}} => {
             return a["z"];
         }
     }
@@ -150,7 +150,7 @@ function mappingMatchPattern8(any v) returns anydata {
 }
 
 function testMappingMatchPattern8() {
-    assertEquals("z", mappingMatchPattern8({ x : { y : 1, z : "z" } }));
+    assertEquals("z", mappingMatchPattern8({x: {y: 1, z: "z"}}));
 }
 
 function assertEquals(anydata expected, anydata actual) {

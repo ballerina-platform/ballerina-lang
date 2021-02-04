@@ -123,6 +123,11 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testMappingBindingPattern16() {
+        BRunUtil.invoke(result, "testMappingBindingPattern16");
+    }
+
+    @Test
     public void testMappingBindingPatternWithRest1() {
         BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest1");
     }
@@ -147,7 +152,7 @@ public class MappingBindingPatternTest {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 20, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 27, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 38, 32);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 38, 28);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 42, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 46, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 54, 9);

@@ -16,10 +16,10 @@
 
 function mappingBindingPatternRest1(any v) returns anydata {
     match v {
-        var { w : a, x : b, y : c,  ...r } => {
+        var {w: a, x: b, y: c,  ...r} => {
             return r["z"];
         }
-        var { x : a, y : b, ...r } => {
+        var {x: a, y: b, ...r} => {
             return r["d"];
         }
         var _ => {
@@ -29,14 +29,14 @@ function mappingBindingPatternRest1(any v) returns anydata {
 }
 
 function testMappingBindingPatternWithRest1() {
-    assertEquals(3, mappingBindingPatternRest1({ x : 2, y : 3, z : 3, w : 4 }));
-    assertEquals(1, mappingBindingPatternRest1({ d : 1, x : 2, y : 3, z : "3" }));
-    assertEquals("No match", mappingBindingPatternRest1({ d : 3, y : 3, z : 3, w : 4 }));
+    assertEquals(3, mappingBindingPatternRest1({x: 2, y: 3, z: 3, w: 4}));
+    assertEquals(1, mappingBindingPatternRest1({d: 1, x: 2, y: 3, z: "3"}));
+    assertEquals("No match", mappingBindingPatternRest1({d: 3, y: 3, z: 3, w: 4}));
 }
 
 function mappingBindingPatternRest2(record { int x; int y; int z1; int z2; } v) returns anydata {
     match v {
-        var { x : a, y : b, z1 : c, ...r } => {
+        var {x: a, y: b, z1: c, ...r} => {
             return r["z2"];
         }
         var _ => {
@@ -46,15 +46,15 @@ function mappingBindingPatternRest2(record { int x; int y; int z1; int z2; } v) 
 }
 
 function testMappingBindingPatternWithRest2() {
-    assertEquals(22, mappingBindingPatternRest2({ x : 2, y : 3, z1 : 5, z2 : 22 }));
+    assertEquals(22, mappingBindingPatternRest2({x: 2, y: 3, z1: 5, z2: 22}));
 }
 
 function mappingBindingPatternRest3(map<int> v) returns anydata {
     match v {
-        var { x : a, y : b, z1 : c, ...r } => {
+        var {x: a, y: b, z1: c, ...r} => {
             return r["z2"];
         }
-        var { x : a, y : b, ...r } => {
+        var {x: a, y: b, ...r} => {
             return r["z2"];
         }
         var _ => {
@@ -64,14 +64,14 @@ function mappingBindingPatternRest3(map<int> v) returns anydata {
 }
 
 function testMappingBindingPatternWithRest3() {
-    assertEquals(22, mappingBindingPatternRest3({ x : 2, y : 3, z1 : 5, z2 : 22 }));
-    assertEquals(25, mappingBindingPatternRest3({ x : 2, y : 3, z3 : 6, z2 : 25 }));
-    assertEquals("No match", mappingBindingPatternRest3({ w : 2, y : 2, z1 : 6, z2 : 22 }));
+    assertEquals(22, mappingBindingPatternRest3({x: 2, y: 3, z1: 5, z2: 22}));
+    assertEquals(25, mappingBindingPatternRest3({x : 2, y: 3, z3: 6, z2: 25}));
+    assertEquals("No match", mappingBindingPatternRest3({w: 2, y: 2, z1: 6, z2: 22}));
 }
 
 function mappingBindingPatternRest4(any v) returns anydata {
     match v {
-        var { x : { y : a, ...r } } => {
+        var {x: {y: a, ...r}} => {
             return r["z"];
         }
     }
@@ -79,7 +79,7 @@ function mappingBindingPatternRest4(any v) returns anydata {
 }
 
 function testMappingBindingPatternWithRest4() {
-    assertEquals("z", mappingBindingPatternRest4({ x : { y : 1, z : "z" } }));
+    assertEquals("z", mappingBindingPatternRest4({x: {y: 1, z: "z" }}));
 }
 
 function assertEquals(anydata expected, anydata actual) {

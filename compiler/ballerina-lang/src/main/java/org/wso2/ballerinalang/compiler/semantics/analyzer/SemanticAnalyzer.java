@@ -2972,9 +2972,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMappingBindingPattern mappingBindingPattern) {
-        BRecordTypeSymbol recordSymbol =
-                Symbols.createRecordSymbol(0, names.fromString("$anonRecordType$" + recordCount++),
-                        env.enclPkg.symbol.pkgID, null, env.scope.owner, mappingBindingPattern.pos, VIRTUAL);
+        EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
+                env.enclPkg.symbol.pkgID, null, env.scope.owner, mappingBindingPattern.pos, VIRTUAL);
+        recordSymbol.name = names.fromString(anonModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
         for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
@@ -3179,51 +3180,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         wildCardMatchPattern.type = intersectionType;
     }
-
-    private BType getMatchPatternType(BLangMatchPattern matchPattern) {
-        NodeKind matchPatternKind = matchPattern.getKind();
-        switch (matchPatternKind) {
-            case WILDCARD_MATCH_PATTERN:
-                return symTable.anyType;
-            case VAR_BINDING_PATTERN_MATCH_PATTERN:
-                return symTable.anyOrErrorType;
-            case CONST_MATCH_PATTERN:
-                BLangConstPattern constPattern = (BLangConstPattern) matchPattern;
-                return constPattern.type;
-            case MAPPING_MATCH_PATTERN:
-                BLangMappingMatchPattern mappingMatchPattern = (BLangMappingMatchPattern) matchPattern;
-                BRecordTypeSymbol recordSymbol =
-                        Symbols.createRecordSymbol(0, names.fromString("$anonRecordType$" + recordCount++),
-                                env.enclPkg.symbol.pkgID, null, env.scope.owner, mappingMatchPattern.pos, VIRTUAL);
-
-                LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
-                for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
-                    String fieldName = fieldMatchPattern.fieldName.value;
-                    BType fieldType;
-                    if (fieldMatchPattern.matchPattern.type == null) {
-                        fieldType = getMatchPatternType(fieldMatchPattern.matchPattern);
-                    } else {
-                        fieldType = fieldMatchPattern.matchPattern.type;
-                    }
-                    BVarSymbol fieldSymbol = new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                            fieldType, recordSymbol, fieldMatchPattern.pos, COMPILED_SOURCE);
-                    BField field = new BField(names.fromString(fieldName), fieldMatchPattern.pos, fieldSymbol);
-                    fields.put(fieldName, field);
-                }
-
-                BRecordType recordVarType = new BRecordType(recordSymbol);
-                recordVarType.fields = fields;
-                // TODO : Handle rest fields
-                if (recordVarType.restFieldType == null) {
-                    recordVarType.restFieldType = symTable.anydataType;
-                }
-
-                return recordVarType;
-        }
-        return symTable.noType;
-    }
-
-
+    
     @Override
     public void visit(BLangMatchStaticBindingPatternClause patternClause) {
         checkStaticMatchPatternLiteralType(patternClause.literal);

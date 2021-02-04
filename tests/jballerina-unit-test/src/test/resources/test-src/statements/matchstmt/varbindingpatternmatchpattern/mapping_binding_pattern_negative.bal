@@ -17,14 +17,14 @@
 function testMappingBindingPatternNegative1() returns string {
     boolean v1 = true;
     match v1 {
-        var { a : b } => { // pattern will not be matched
+        var {a: b} => { // pattern will not be matched
             return "Match";
         }
     }
 
     record{| int a; |} v2 = { a : 2 };
     match v2 {
-        var { b : a }  => { // pattern will not be matched
+        var {b: a}  => { // pattern will not be matched
             return "Match";
         }
     }
@@ -35,29 +35,29 @@ function testMappingBindingPatternNegative1() returns string {
 function testSameMatchPatternsNegative1() {
     map<int|string> v = { l : "1", m : "2", x : 1, y : 2 };
     match v {
-        var { x : a, y : b } | var { x : a, y : b } => { // unreachable pattern
+        var {x: a, y: b} | var {x: a, y: b} => { // unreachable pattern
         }
-        var { l : a, m : b } => {
+        var {l: a, m: b} => {
         }
-        var { l : a, m : b } => { // unreachable pattern
+        var {l: a, m: b} => { // unreachable pattern
         }
-        var { x : a, y : b } if a is int => {
+        var {x: a, y: b} if a is int => {
         }
-        var { x : a, y : b } if a is int => { // unreachable pattern
+        var {x: a, y: b} if a is int => { // unreachable pattern
         }
     }
 }
 
 function testSameMatchPatternsNegative2(any v) {
     match v {
-        var { x : a, ...b } => {}
-        var { x : c, ...d } => {} // unreachable pattern
+        var {x: a, ...b} => {}
+        var {x: c, ...d} => {} // unreachable pattern
     }
 }
 
 function testSameMatchPatternsNegative3(any v) {
     match v {
-        var { x : a, ...b } => {}
-        var { x : a, y : b, ...c } => {} // unreachable pattern
+        var {x: a, ...b} => {}
+        var {x: a, y: b, ...c} => {} // unreachable pattern
     }
 }

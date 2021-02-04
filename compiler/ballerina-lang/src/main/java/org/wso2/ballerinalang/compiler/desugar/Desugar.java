@@ -3873,12 +3873,13 @@ public class Desugar extends BLangNodeVisitor {
                                                                    BLangSimpleVariableDef varDef,
                                                                    BLangBlockStmt blockStmt,
                                                                    Location pos) {
-        BLangExpression condition = null;
-        for (int i = 0; i < fieldBindingPatterns.size(); i++) {
-            if (i == 0) {
-                condition = createConditionForFieldBindingPattern(i, fieldBindingPatterns.get(i), varDef, blockStmt);
-                continue;
-            }
+        BLangExpression condition = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
+        if (fieldBindingPatterns.isEmpty()) {
+            return condition;
+        }
+
+        condition = createConditionForFieldBindingPattern(0, fieldBindingPatterns.get(0), varDef, blockStmt);
+        for (int i = 1; i < fieldBindingPatterns.size(); i++) {
             BLangExpression fieldMatchPatternCondition =
                     createConditionForFieldBindingPattern(i, fieldBindingPatterns.get(i), varDef, blockStmt);
             condition = ASTBuilderUtil.createBinaryExpr(pos, condition, fieldMatchPatternCondition,

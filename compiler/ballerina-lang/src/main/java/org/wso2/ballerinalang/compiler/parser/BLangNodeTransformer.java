@@ -4313,6 +4313,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangCaptureBindingPattern bLangCaptureBindingPatternInFieldBindingPattern =
                     (BLangCaptureBindingPattern) TreeBuilder.createCaptureBindingPattern();
             bLangCaptureBindingPatternInFieldBindingPattern.setIdentifier(fieldName);
+            bLangCaptureBindingPatternInFieldBindingPattern.pos = pos;
 
             bLangFieldBindingPattern.bindingPattern = bLangCaptureBindingPatternInFieldBindingPattern;
             return bLangFieldBindingPattern;
