@@ -76,7 +76,9 @@ public function stmts() returns any|error {
     ${lastVarDcln}
     memorize_h("${exprVarName?j_string}", ${exprVarName});
     <#list varDclns as varDcln>
+    <#if varDcln.new>
     memorize_h("${varDcln.name?j_string}", ${varDcln.name});
+    </#if>
     </#list>
     return ${exprVarName};
 }
