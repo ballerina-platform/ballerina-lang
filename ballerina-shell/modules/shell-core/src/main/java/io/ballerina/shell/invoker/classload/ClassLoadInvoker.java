@@ -43,6 +43,10 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.invoker.Invoker;
@@ -62,14 +66,11 @@ import io.ballerina.shell.utils.timeit.InvokerTimeIt;
 import io.ballerina.shell.utils.timeit.TimedOperation;
 import io.ballerina.tools.text.LinePosition;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -82,6 +83,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -97,6 +99,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     // Main class and method names to invoke
     public static final String MODULE_NOT_FOUND_CODE = "BCE2003";
     protected static final String MODULE_INIT_CLASS_NAME = "$_init";
+    protected static final String MODULE_INIT_METHOD_NAME = "$moduleInit";
     protected static final String MODULE_MAIN_METHOD_NAME = "main";
     protected static final String DOLLAR = "$";
     // Punctuations
@@ -148,11 +151,18 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     private final Set<String> newImplicitImports;
 
     /**
+     * Scheduler used to run the init and main methods
+     * of the generated classes.
+     */
+    private final Scheduler scheduler;
+
+    /**
      * Creates a class load invoker from the given ballerina home.
      * Ballerina home should be tha path that contains repo directory.
      * It is expected that the runtime is added in the class path.
      */
     public ClassLoadInvoker() {
+        this.scheduler = new Scheduler(false);
         this.initialized = new AtomicBoolean(false);
         this.contextId = UUID.randomUUID().toString();
         this.moduleDclns = new HashMap<>();
@@ -251,7 +261,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 JBallerinaBackend jBallerinaBackend = timedOperation("backend fetch",
                         () -> JBallerinaBackend.from(compilation, JvmTarget.JAVA_11));
                 boolean isExecutionSuccessful = timedOperation("project execution",
-                        () -> executeProject(project, jBallerinaBackend));
+                        () -> executeProject(jBallerinaBackend));
 
                 if (!isExecutionSuccessful) {
                     addDiagnostic(Diagnostic.error("Unhandled Runtime Error."));
@@ -543,41 +553,80 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * Executes a compiled project.
      * It is expected that the project had no compiler errors.
      * The process is run and the stdout is collected and printed.
-     * Due to ballerina calling system.exit(), we need to disable these calls and
-     * remove system error logs as well.
      *
-     * @param project           Project to run.
      * @param jBallerinaBackend Backed to use.
      * @return Whether process execution was successful.
      * @throws InvokerException If execution failed.
      */
-    protected boolean executeProject(Project project, JBallerinaBackend jBallerinaBackend) throws InvokerException {
+    protected boolean executeProject(JBallerinaBackend jBallerinaBackend) throws InvokerException {
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
+        ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
+        // First initialize the module
+        invokeMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
+        // Then call main method
+        Object result = invokeMethod(classLoader, getMethodClassName(), MODULE_MAIN_METHOD_NAME);
+        return result == null;
+    }
+
+    /**
+     * Invokes a method that is in the given class.
+     * The method must be a static method accepting only one parameter, a {@link Strand}.
+     *
+     * @param classLoader Class loader to find the class.
+     * @param className   Class name with the method.
+     * @param methodName  Method name to invoke.
+     * @return The result of the invocation.
+     * @throws InvokerException If invocation failed.
+     */
+    protected Object invokeMethod(ClassLoader classLoader, String className, String methodName)
+            throws InvokerException {
         try {
-            Module executableModule = project.currentPackage().getDefaultModule();
-            JarResolver jarResolver = jBallerinaBackend.jarResolver();
-            ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
+            // Get class and method references
+            Class<?> clazz = classLoader.loadClass(className);
+            Method method = clazz.getDeclaredMethod(methodName, Strand.class);
+            Function<Object[], Object> methodInvocation = createInvokerCallback(method);
 
-            String initClassName = JarResolver.getQualifiedClassName(
-                    executableModule.packageInstance().packageOrg().toString(),
-                    executableModule.packageInstance().packageName().toString(),
-                    executableModule.packageInstance().packageVersion().toString(),
-                    MODULE_INIT_CLASS_NAME);
-            Class<?> clazz = classLoader.loadClass(initClassName);
+            // Schedule and run the function and return if result is valid
+            BFuture out = scheduler.schedule(new Object[1], methodInvocation, null, null, null,
+                    PredefinedTypes.TYPE_ERROR, null, null);
+            scheduler.start();
 
-            Method method = clazz.getDeclaredMethod(MODULE_MAIN_METHOD_NAME, String[].class);
-            int exitCode = invokeMethod(method);
-            addDiagnostic(Diagnostic.debug("Exit code was " + exitCode));
-            return exitCode == 0;
+            Object result = out.getResult();
+            Throwable panic = out.getPanic();
+            if (panic != null) {
+                addDiagnostic(Diagnostic.debug("Panic: " + panic));
+                addDiagnostic(Diagnostic.debug("Result: " + result));
+                throw new InvokerException(panic);
+            }
+            return result;
         } catch (ClassNotFoundException e) {
-            addDiagnostic(Diagnostic.error("Main class not found: " + e.getMessage()));
+            addDiagnostic(Diagnostic.error(className + " class not found: " + e.getMessage()));
             throw new InvokerException(e);
         } catch (NoSuchMethodException e) {
-            addDiagnostic(Diagnostic.error("Main method not found: " + e.getMessage()));
+            addDiagnostic(Diagnostic.error(methodName + " method not found: " + e.getMessage()));
             throw new InvokerException(e);
-        } catch (IllegalAccessException e) {
-            addDiagnostic(Diagnostic.error("Access for the method failed: " + e.getMessage()));
+        } catch (RuntimeException e) {
+            addDiagnostic(Diagnostic.error("Unexpected error: " + e.getMessage()));
             throw new InvokerException(e);
         }
+    }
+
+    /**
+     * Creates a callback to the method to directly call it with given params.
+     *
+     * @param method Method to create invocation.
+     * @return Created callback.
+     */
+    private Function<Object[], Object> createInvokerCallback(Method method) {
+        return (params) -> {
+            try {
+                return method.invoke(null, params);
+            } catch (InvocationTargetException e) {
+                return e.getTargetException();
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Error while invoking function.", e);
+            }
+        };
     }
 
     /**
@@ -658,36 +707,6 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 .forEach(importStrings::add);
         // Process current snippet, module dclns and indirect imports
         return importStrings;
-    }
-
-    /**
-     * Runs a method given. Returns the exit code from the execution.
-     * Method should be a static method which returns an int.
-     * Its signature should be, {@code static int name(String[] args)}.
-     *
-     * @param method Method to run (should be a static method).
-     * @return Exit code of the method.
-     * @throws IllegalAccessException If interrupted.
-     */
-    protected int invokeMethod(Method method) throws IllegalAccessException {
-        String[] args = new String[0];
-
-        // STDERR is completely ignored because Security Exceptions are thrown
-        // So real errors will not be visible via STDERR.
-        // Security manager is set to stop VM exits.
-
-        PrintStream stdErr = System.err;
-        NoExitVmSecManager secManager = new NoExitVmSecManager(System.getSecurityManager());
-        try {
-            System.setErr(new PrintStream(new ByteArrayOutputStream(), true, Charset.defaultCharset()));
-            System.setSecurityManager(secManager);
-            return (int) method.invoke(null, new Object[]{args});
-        } catch (InvocationTargetException e) {
-            return secManager.getExitCode();
-        } finally {
-            System.setSecurityManager(null);
-            System.setErr(stdErr);
-        }
     }
 
     // Available statements

@@ -221,4 +221,19 @@ public abstract class Invoker extends DiagnosticReporter {
         }
         return this.bufferFile;
     }
+
+    /**
+     * @return the class name that contains all top level functions.
+     * This is always equal to the name of the file.
+     */
+    protected String getMethodClassName() throws InvokerException {
+        try {
+            String fileName = getBufferFile().getName();
+            // File name without the extension
+            return fileName.substring(0, fileName.length() - 4);
+        } catch (IOException e) {
+            addDiagnostic(Diagnostic.error("Temp File reading failed: " + e.getMessage()));
+            throw new InvokerException(e);
+        }
+    }
 }
