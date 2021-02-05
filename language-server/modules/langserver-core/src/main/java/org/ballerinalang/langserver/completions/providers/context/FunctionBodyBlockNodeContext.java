@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -44,10 +43,11 @@ public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<Funct
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletions(context, node));
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (!this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));
         }
-
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 

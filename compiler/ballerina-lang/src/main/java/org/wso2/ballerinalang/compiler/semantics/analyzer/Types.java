@@ -836,7 +836,7 @@ public class Types {
         }
 
         if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
-            return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint, unresolvedTypes);
+            return isAssignableStreamType((BStreamType) source, (BStreamType) target, unresolvedTypes);
         }
 
         if (isBuiltInTypeWidenPossible(source, target) == TypeTestResult.TRUE) {
@@ -967,6 +967,12 @@ public class Types {
                 throw new IllegalArgumentException("Incompatible target type: " + type.toString());
         }
         return recordFieldsAssignableToType(recordType, targetType, unresolvedTypes);
+    }
+
+    private boolean isAssignableStreamType(BStreamType sourceStreamType, BStreamType targetStreamType,
+                                           Set<TypePair> unresolvedTypes) {
+        return isAssignable(sourceStreamType.constraint, targetStreamType.constraint, unresolvedTypes)
+                && isAssignable(sourceStreamType.error, targetStreamType.error, unresolvedTypes);
     }
 
     private boolean recordFieldsAssignableToType(BRecordType recordType, BType targetType,
@@ -1525,6 +1531,16 @@ public class Types {
         return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType) && hasSameTypeElements;
     }
 
+    public boolean isSameStreamType(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        if (target.tag != TypeTags.STREAM || source.tag != TypeTags.STREAM) {
+            return false;
+        }
+        BStreamType lhsStreamType = (BStreamType) target;
+        BStreamType rhsStreamType = (BStreamType) source;
+        return isSameType(lhsStreamType.constraint, rhsStreamType.constraint, unresolvedTypes)
+                && isSameType(lhsStreamType.error, rhsStreamType.error, unresolvedTypes);
+    }
+
     public boolean checkSealedArraySizeEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {
         return lhsArrayType.size == rhsArrayType.size;
     }
@@ -1738,7 +1754,7 @@ public class Types {
                     break;
                 }
                 varType = streamType.constraint;
-                if (streamType.error != null) {
+                if (streamType.error.tag != TypeTags.NEVER) {
                     BType actualType = BUnionType.create(null, varType, streamType.error);
                     dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             varType, actualType);
@@ -1928,8 +1944,8 @@ public class Types {
             return false;
         }
 
-        List<BType> types = new ArrayList<>(((BUnionType) returnType).getMemberTypes());
-
+        List<BType> types = getAllTypes(returnType);
+        types.removeIf(type -> type.tag == TypeTags.NEVER);
         boolean containsCompletionType = types.removeIf(type -> type.tag == TypeTags.NIL);
         containsCompletionType = types.removeIf(type -> type.tag == TypeTags.ERROR) || containsCompletionType;
         if (!containsCompletionType) {
@@ -2566,7 +2582,7 @@ public class Types {
 
         @Override
         public Boolean visit(BStreamType t, BType s) {
-            return t == s;
+            return s.tag == TypeTags.STREAM && isSameStreamType(s, t, this.unresolvedTypes);
         }
 
         @Override

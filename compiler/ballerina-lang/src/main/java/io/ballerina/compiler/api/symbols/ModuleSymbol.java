@@ -55,6 +55,13 @@ public interface ModuleSymbol extends Symbol {
     List<ConstantSymbol> constants();
 
     /**
+     * Get the public enums defined within the module.
+     *
+     * @return {@link List} of enums
+     */
+    List<EnumSymbol> enums();
+
+    /**
      * Get all public the symbols within the module.
      *
      * @return {@link List} of type definitions

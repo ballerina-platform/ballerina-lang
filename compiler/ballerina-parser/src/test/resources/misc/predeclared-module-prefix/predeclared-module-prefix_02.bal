@@ -30,4 +30,5 @@ public function foo() returns map: {
             io:println("custom object error");
         }
     }
+    int:
 }

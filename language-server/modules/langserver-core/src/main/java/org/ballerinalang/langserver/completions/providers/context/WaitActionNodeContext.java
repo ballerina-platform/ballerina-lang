@@ -64,6 +64,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
             completionItems.addAll(this.actionKWCompletions(context));
             completionItems.addAll(this.expressionCompletions(context));
         }
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
