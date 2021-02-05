@@ -121,16 +121,17 @@ public class BallerinaSymbol implements Symbol {
         }
 
         Symbol symbol = (Symbol) obj;
-
         return isSameName(this.getName(), symbol.getName())
                 && isSameModule(this.getModule(), symbol.getModule())
-                && this.kind().equals(symbol.kind())
-                && this.location().lineRange().equals(symbol.location().lineRange());
+                && isSameLocation(this.getLocation(), symbol.getLocation())
+                && this.kind().equals(symbol.kind());
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getName().orElse(null), this.getModule(), this.kind(), this.location().lineRange());
+        return Objects.hash(this.getName().orElse(null), this.getModule().orElse(null), this.kind(),
+                            this.getLocation().isPresent() ? this.getLocation().get().lineRange() : null);
     }
 
     public BSymbol getInternalSymbol() {
@@ -155,6 +156,14 @@ public class BallerinaSymbol implements Symbol {
         }
 
         return mod1.get().id().equals(mod2.get().id());
+    }
+
+    private boolean isSameLocation(Optional<Location> loc1, Optional<Location> loc2) {
+        if (loc1.isEmpty() || loc2.isEmpty()) {
+            return false;
+        }
+
+        return loc1.get().lineRange().equals(loc2.get().lineRange());
     }
 
     /**

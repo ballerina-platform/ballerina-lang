@@ -274,7 +274,7 @@ public class TestProcessor {
         List<FunctionSymbol> functionSymbolList = getFunctionSymbolList(syntaxTreeMap, module);
         for (FunctionSymbol functionSymbol : functionSymbolList) {
             String functionName = functionSymbol.getName().get();
-            Location pos = functionSymbol.location();
+            Location pos = functionSymbol.getLocation().get();
             List<Qualifier> qualifiers = functionSymbol.qualifiers();
             boolean isUtility = true;
             for (Qualifier qualifier : qualifiers) {
@@ -284,7 +284,7 @@ public class TestProcessor {
                     break;
                 }
             }
-            if (pos != null && isUtility) {
+            if (isUtility) {
                 // Remove the duplicated annotations.
                 String className = pos.lineRange().filePath().replace(ProjectConstants.BLANG_SOURCE_EXT, "")
                         .replace("/", ProjectConstants.DOT);

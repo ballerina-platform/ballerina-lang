@@ -806,8 +806,12 @@ public class CommonUtil {
      * @return {@link NonTerminalNode}
      */
     public static NonTerminalNode findNode(Symbol symbol, SyntaxTree syntaxTree) {
+        if (symbol.getLocation().isEmpty()) {
+            return null;
+        }
+
         TextDocument textDocument = syntaxTree.textDocument();
-        LineRange symbolRange = symbol.location().lineRange();
+        LineRange symbolRange = symbol.getLocation().get().lineRange();
         int start = textDocument.textPositionFrom(symbolRange.startLine());
         int len = symbolRange.endLine().offset() - symbolRange.startLine().offset();
         return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, len));

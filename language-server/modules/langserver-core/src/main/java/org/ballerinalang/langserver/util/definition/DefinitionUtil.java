@@ -69,12 +69,13 @@ public class DefinitionUtil {
         Path projectRoot = context.workspace().projectRoot(context.filePath());
         Optional<Project> project = context.workspace().project(context.filePath());
 
-        if (project.isEmpty()) {
+        if (project.isEmpty() || symbol.getLocation().isEmpty()) {
             return Optional.empty();
         }
 
-        LinePosition startLine = symbol.location().lineRange().startLine();
-        LinePosition endLine = symbol.location().lineRange().endLine();
+        io.ballerina.tools.diagnostics.Location symbolLocation = symbol.getLocation().get();
+        LinePosition startLine = symbolLocation.lineRange().startLine();
+        LinePosition endLine = symbolLocation.lineRange().endLine();
         Position start = new Position(startLine.line(), startLine.offset());
 
         Position end = new Position(endLine.line(), endLine.offset());
@@ -92,10 +93,10 @@ public class DefinitionUtil {
             return Optional.empty();
         } else if (project.get().currentPackage().packageName().value().equals(moduleID.moduleName())) {
             // Symbol is within the default module
-            uri = projectRoot.resolve(symbol.location().lineRange().filePath()).toUri().toString();
+            uri = projectRoot.resolve(symbolLocation.lineRange().filePath()).toUri().toString();
         } else {
             String moduleName = moduleID.modulePrefix();
-            String fileName = symbol.location().lineRange().filePath();
+            String fileName = symbolLocation.lineRange().filePath();
             uri = projectRoot.resolve("modules").resolve(moduleName).resolve(fileName).toUri().toString();
         }
 

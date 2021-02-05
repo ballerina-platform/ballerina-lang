@@ -209,7 +209,7 @@ public class HoverUtil {
 
     private static Hover getTypeRefHoverMarkupContent(TypeReferenceTypeSymbol typeSymbol, SemanticModel model,
                                                       Document srcFile, HoverContext context) {
-        Optional<Symbol> associatedDef = model.symbol(srcFile, typeSymbol.location().lineRange().startLine());
+        Optional<Symbol> associatedDef = model.symbol(srcFile, typeSymbol.getLocation().get().lineRange().startLine());
 
         if (associatedDef.isEmpty()) {
             return getDefaultHoverObject();

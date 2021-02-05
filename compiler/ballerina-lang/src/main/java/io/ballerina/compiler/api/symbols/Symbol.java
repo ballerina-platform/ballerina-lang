@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.api.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Optional;

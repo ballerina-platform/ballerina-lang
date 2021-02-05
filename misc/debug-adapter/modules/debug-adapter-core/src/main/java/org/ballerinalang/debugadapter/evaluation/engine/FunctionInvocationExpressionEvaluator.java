@@ -102,7 +102,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
     }
 
     private String constructQualifiedClassNameFrom(FunctionSymbol functionDef) {
-        String className = functionDef.location().lineRange().filePath().replaceAll(BAL_FILE_EXT + "$", "");
+        String className = functionDef.getLocation().get().lineRange().filePath().replaceAll(BAL_FILE_EXT + "$", "");
         // for ballerina single source files,
         // qualified class name ::= <file_name>
         if (context.getSourceType() == DebugSourceType.SINGLE_FILE) {
