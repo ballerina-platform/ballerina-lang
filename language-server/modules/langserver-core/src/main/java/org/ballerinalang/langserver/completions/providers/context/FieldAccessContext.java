@@ -17,8 +17,10 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -47,6 +49,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Generic Completion provider for field access providers.
@@ -246,8 +249,12 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                     completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
                     completionItems.add(new ObjectFieldCompletionItem(context, fieldDescriptor, completionItem));
                 });
-                completionItems.addAll(
-                        this.getCompletionItemList(new ArrayList<>(objTypeDesc.methods().values()), context));
+                boolean isClient = SymbolUtil.isClient(objTypeDesc);
+                // If the object type desc is a client, then we avoid all the remote methods
+                List<MethodSymbol> nonRemoteMethods = objTypeDesc.methods().values().stream()
+                        .filter(methodSymbol -> !isClient || !methodSymbol.qualifiers().contains(Qualifier.REMOTE))
+                        .collect(Collectors.toList());
+                completionItems.addAll(this.getCompletionItemList(new ArrayList<>(nonRemoteMethods), context));
                 break;
             case UNION:
                 UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rawType;

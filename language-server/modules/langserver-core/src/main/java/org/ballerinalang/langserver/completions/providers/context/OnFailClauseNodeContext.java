@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -69,7 +68,6 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
                     .filter(errorPredicate)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(errEntries, context));
-            completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
         }
         this.sort(context, node, completionItems);
 

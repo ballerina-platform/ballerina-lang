@@ -29,6 +29,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -270,7 +271,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         LanguageServerContext serverContext = context.languageServercontext();
         List<Package> packageList = LSPackageLoader.getInstance(serverContext).getDistributionRepoPackages();
         packageList.forEach(ballerinaPackage -> {
-            if (isPreDeclaredLangLib(ballerinaPackage)) {
+            if (CommonUtil.isPreDeclaredLangLib(ballerinaPackage)) {
                 return;
             }
             String packageName = ballerinaPackage.packageName().value();
