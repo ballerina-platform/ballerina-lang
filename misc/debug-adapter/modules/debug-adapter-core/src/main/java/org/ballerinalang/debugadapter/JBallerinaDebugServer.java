@@ -766,7 +766,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         Collection<ThreadReference> threadReferences = context.getDebuggee().getVirtualMachine().allThreads();
         Map<Long, ThreadReferenceProxyImpl> breakPointThreads = new HashMap<>();
 
-        // Filter thread references which are at breakpoint, suspended and whose thread status is running.
+        // Filter thread references which are suspended, whose thread status is running, and which represents an active
+        // ballerina strand.
         for (ThreadReference threadReference : threadReferences) {
             if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
                     && !threadReference.name().equals("Reference Handler")

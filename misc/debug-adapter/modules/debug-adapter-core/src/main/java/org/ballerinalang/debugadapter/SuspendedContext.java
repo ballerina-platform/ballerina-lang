@@ -38,7 +38,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
 /**
- * Suspended debug context related information.
+ * Context holder for debug suspended state related information.
  */
 public class SuspendedContext {
 

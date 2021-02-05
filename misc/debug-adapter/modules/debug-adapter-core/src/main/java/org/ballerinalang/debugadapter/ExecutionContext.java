@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 /**
- * Debugging session context.
+ * Context holder for debug execution state related information.
  */
 public class ExecutionContext {
 
