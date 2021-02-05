@@ -1,0 +1,33 @@
+[
+  {
+    "description": "Define global var.",
+    "code": "int moduleA = 5;"
+  },
+  {
+    "description": "Define a basic closure.",
+    "code": "function basicClosure() returns (function (int) returns int) { int a = 3; var foo = function (int b) returns int { int c = 34; if (b == 3) { c = c + b + a + moduleA; } return c + a; }; return foo; }"
+  },
+  {
+    "description": "Define function with multiple level of anonymous fn.",
+    "code": "function multilevelClosure() returns (function (int) returns int) { int a = 2; var func1 = function (int x) returns int { int b = 23; a = a + 8; var func2 = function (int y) returns int { int c = 7; var func3 = function (int z) returns int { b = b + 1; return x + y + z + a + b + c; }; return func3(8) + y + x; }; return func2(4) + x; }; return func1; }"
+  },
+  {
+    "description": "Define anon function with outer scope access.",
+    "code": "function functionPointers(int a) returns (function (int) returns (function (int) returns int)) { return function (int b) returns (function (int) returns int) { return function (int c) returns int { return a + b + c; }; }; }"
+  },
+  {
+    "description": "Use basic closure.",
+    "code": "var foo = basicClosure(); foo(3)",
+    "expr": "48"
+  },
+  {
+    "description": "Use multilevel closure.",
+    "code": "var bar = multilevelClosure(); bar(5)",
+    "expr": "72"
+  },
+  {
+    "description": "Use basic closure.",
+    "code": "var baz1 = functionPointers(7); var baz2 = baz1(5);  baz2(3); ",
+    "expr": "15"
+  }
+]

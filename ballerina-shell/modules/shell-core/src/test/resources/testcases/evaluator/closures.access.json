@@ -1,0 +1,29 @@
+[
+  {
+    "description": "Define global var.",
+    "code": "int x = 5;"
+  },
+  {
+    "description": "Define a closure returning global.",
+    "code": "var f = function () returns int { return x; }"
+  },
+  {
+    "description": "Define a closure modifying global.",
+    "code": "var g = function () { x += 1; }"
+  },
+  {
+    "description": "Access I.",
+    "code": "f()",
+    "expr": "5"
+  },
+  {
+    "description": "Access II.",
+    "code": "g(); g(); f()",
+    "expr": "7"
+  },
+  {
+    "description": "Access III.",
+    "code": "g(); x",
+    "expr": "8"
+  }
+]

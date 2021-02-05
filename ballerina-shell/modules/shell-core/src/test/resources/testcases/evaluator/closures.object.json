@@ -1,0 +1,19 @@
+[
+  {
+    "description": "Define global var.",
+    "code": "int x = 5;"
+  },
+  {
+    "description": "Define a class modifying global.",
+    "code": "class A{ function f() { x += 1; } }"
+  },
+  {
+    "description": "Create object with class.",
+    "code": "A a = new()"
+  },
+  {
+    "description": "Invoke and check value.",
+    "code": "a.f(); a.f(); x",
+    "expr": "7"
+  }
+]
