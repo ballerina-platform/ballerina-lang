@@ -267,7 +267,7 @@ public class SourceDirectoryManager implements Project {
 
         return sourceDirectory.getPath()
                 .resolve(ProjectDirConstants.TARGET_DIR_NAME)
-                .resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)
+                .resolve(ProjectDirConstants.TARGET_BALA_DIRECTORY)
                 .resolve(balaFileName);
     }
 }

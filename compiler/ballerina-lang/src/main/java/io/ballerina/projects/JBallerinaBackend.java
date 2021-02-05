@@ -163,7 +163,7 @@ public class JBallerinaBackend extends CompilerBackend {
             case EXEC:
                 generatedArtifact = emitExecutable(filePath);
                 break;
-            case BALO:
+            case BALA:
                 generatedArtifact = emitBala(filePath);
                 break;
             default:
@@ -477,7 +477,7 @@ public class JBallerinaBackend extends CompilerBackend {
      */
     public enum OutputType {
         EXEC("exec"),
-        BALO("bala"),
+        BALA("bala"),
         ;
 
         private String value;

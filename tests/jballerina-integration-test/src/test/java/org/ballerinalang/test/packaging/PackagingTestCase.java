@@ -154,7 +154,7 @@ public class PackagingTestCase extends BaseTest {
                               + ProgramFileConstants.ANY_PLATFORM + "-"
                               + "0.1.0"
                               + BLANG_COMPILED_PKG_BINARY_EXT;
-        Path balaPath = Paths.get(ProjectDirConstants.BALO_CACHE_DIR_NAME,
+        Path balaPath = Paths.get(ProjectDirConstants.BALA_CACHE_DIR_NAME,
                                  orgName, moduleName, "0.1.0");
 
         given().with().pollInterval(Duration.TEN_SECONDS).and()

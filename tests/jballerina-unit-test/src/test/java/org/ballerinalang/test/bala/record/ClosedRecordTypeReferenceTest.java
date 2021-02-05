@@ -144,7 +144,7 @@ public class ClosedRecordTypeReferenceTest {
     }
 
     @Test(description = "Test case for type referencing in BALAs")
-    public void testTypeReferencingInBALOs() {
+    public void testTypeReferencingInBALAs() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testTypeReferencingInBALAs");
         BMap manager = (BMap) returns[0];
         assertEquals(manager.get("name").stringValue(), "John Doe");
@@ -166,7 +166,7 @@ public class ClosedRecordTypeReferenceTest {
     }
 
     @Test(description = "Test case for default value initializing in type referenced fields from a bala")
-    public void testDefaultValueInitInBALOs() {
+    public void testDefaultValueInitInBALAs() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDefaultValueInitInBALAs");
         BMap manager = (BMap) returns[0];
         assertEquals(manager.get("name").stringValue(), "anonymous");

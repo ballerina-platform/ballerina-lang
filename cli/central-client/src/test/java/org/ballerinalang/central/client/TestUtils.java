@@ -52,16 +52,16 @@ import static org.mockito.Mockito.when;
 public class TestUtils {
 
     private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
-    private static final String TEMP_BALO_CACHE = "temp-test-utils-bala-cache";
+    private static final String TEMP_BALA_CACHE = "temp-test-utils-bala-cache";
 
     @BeforeClass
     public void setUp() throws IOException {
-        Files.createDirectory(UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE));
+        Files.createDirectory(UTILS_TEST_RESOURCES.resolve(TEMP_BALA_CACHE));
     }
 
     @AfterClass
     public void cleanUp() throws IOException {
-        Files.deleteIfExists(UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE));
+        Files.deleteIfExists(UTILS_TEST_RESOURCES.resolve(TEMP_BALA_CACHE));
     }
 
     @DataProvider(name = "validatePackageVersion")
@@ -109,10 +109,10 @@ public class TestUtils {
         HttpURLConnection connection = mock(HttpURLConnection.class);
         when(connection.getInputStream()).thenReturn(targetStream);
 
-        writeBalaFile(connection, UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE).resolve(balaName), "wso2/sf:1.1.0",
+        writeBalaFile(connection, UTILS_TEST_RESOURCES.resolve(TEMP_BALA_CACHE).resolve(balaName), "wso2/sf:1.1.0",
                 10000, System.out, new LogFormatter());
 
-        Assert.assertTrue(UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE).resolve(balaName).toFile().exists());
+        Assert.assertTrue(UTILS_TEST_RESOURCES.resolve(TEMP_BALA_CACHE).resolve(balaName).toFile().exists());
         cleanBalaCache();
     }
 
@@ -147,10 +147,10 @@ public class TestUtils {
         when(connection.getInputStream()).thenReturn(targetStream);
 
         final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
-        createBalaInHomeRepo(connection, UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE).resolve("wso2").resolve("sf"),
+        createBalaInHomeRepo(connection, UTILS_TEST_RESOURCES.resolve(TEMP_BALA_CACHE).resolve("wso2").resolve("sf"),
                 "wso2/sf", false, balaUrl, "", System.out, new LogFormatter());
 
-        Assert.assertTrue(UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE).resolve("wso2").resolve("sf").resolve("1.3.5")
+        Assert.assertTrue(UTILS_TEST_RESOURCES.resolve(TEMP_BALA_CACHE).resolve("wso2").resolve("sf").resolve("1.3.5")
                 .resolve("sf-2020r2-any-1.3.5.bala").toFile().exists());
         cleanBalaCache();
     }
@@ -170,7 +170,7 @@ public class TestUtils {
         final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
         try {
             createBalaInHomeRepo(connection,
-                    UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE).resolve("wso2").resolve("sf"), "wso2/sf", false,
+                    UTILS_TEST_RESOURCES.resolve(TEMP_BALA_CACHE).resolve("wso2").resolve("sf"), "wso2/sf", false,
                     balaUrl, "", System.out, new LogFormatter());
         } catch (CentralClientException e) {
             Assert.assertTrue(e.getMessage().contains("package already exists in the home repository:"));
@@ -180,7 +180,7 @@ public class TestUtils {
     }
 
     private void cleanBalaCache() {
-        cleanDirectory(UTILS_TEST_RESOURCES.resolve(TEMP_BALO_CACHE));
+        cleanDirectory(UTILS_TEST_RESOURCES.resolve(TEMP_BALA_CACHE));
     }
 
     static void cleanDirectory(Path path) {

@@ -58,7 +58,7 @@ public class BalaConverter implements Converter<Path> {
 
     @Override
     public Path start() {
-        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
+        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALA_CACHE_DIR_NAME);
     }
 
     @Override

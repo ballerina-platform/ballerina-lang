@@ -61,8 +61,8 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
     private static final Path TMP_DIR = UTILS_TEST_RESOURCES.resolve("temp-test-central-api-client");
-    private static final String TEST_BALO_NAME = "sf-any.bala";
-    private static final String OUTPUT_BALO = "output.bala";
+    private static final String TEST_BALA_NAME = "sf-any.bala";
+    private static final String OUTPUT_BALA = "output.bala";
     private static final String WINERY = "winery";
     private static final String ACCESS_TOKEN = "273cc9f6-c333-36ab-aa2q-f08e9513ff5y";
 
@@ -110,7 +110,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     @Test(description = "Test pull package", enabled = false)
     public void testPullPackage() throws IOException, CentralClientException {
         final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
-        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
         File balaFile = new File(String.valueOf(balaPath));
         InputStream balaStream = null;
 
@@ -189,8 +189,8 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test push package", enabled = false)
     public void testPushPackage() throws IOException, CentralClientException {
-        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
-        File outputBala = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        File outputBala = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALA)));
 
         setBallerinaHome();
 
@@ -211,8 +211,8 @@ public class TestCentralApiClient extends CentralAPIClient {
             expectedExceptionsMessageRegExp = "package already exists: foo/github:1.8.3_2020r2_any")
     public void testPushExistingPackage() throws IOException, CentralClientException {
         String resString = "{\"message\": \"package already exists: foo/github:1.8.3_2020r2_any\"}";
-        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
-        File outputBala = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        File outputBala = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALA)));
 
         setBallerinaHome();
 
@@ -229,8 +229,8 @@ public class TestCentralApiClient extends CentralAPIClient {
             expectedExceptionsMessageRegExp = "error: failed to push the package: "
                     + "'foo/sf:1.3.5' to the remote repository 'https://api.central.ballerina.io/registry'")
     public void testPushPackageRequestFailure() throws IOException, CentralClientException {
-        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
-        File outputBala = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        File outputBala = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALA)));
 
         setBallerinaHome();
 

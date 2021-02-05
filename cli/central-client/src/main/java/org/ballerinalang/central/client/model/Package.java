@@ -46,11 +46,11 @@ public class Package {
     public static final String JSON_PROPERTY_U_R_L = "URL";
     @SerializedName(JSON_PROPERTY_U_R_L) private String url;
 
-    public static final String JSON_PROPERTY_BALO_VERSION = "balaVersion";
-    @SerializedName(JSON_PROPERTY_BALO_VERSION) private String balaVersion;
+    public static final String JSON_PROPERTY_BALA_VERSION = "balaVersion";
+    @SerializedName(JSON_PROPERTY_BALA_VERSION) private String balaVersion;
 
-    public static final String JSON_PROPERTY_BALO_U_R_L = "balaURL";
-    @SerializedName(JSON_PROPERTY_BALO_U_R_L) private String balaURL;
+    public static final String JSON_PROPERTY_BALA_U_R_L = "balaURL";
+    @SerializedName(JSON_PROPERTY_BALA_U_R_L) private String balaURL;
 
     public static final String JSON_PROPERTY_README = "readme";
     @SerializedName(JSON_PROPERTY_README) private String readme;

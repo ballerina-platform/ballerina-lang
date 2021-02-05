@@ -182,7 +182,7 @@ public class PackageResolutionTests {
         Path balrDir = testBuildDirectory.resolve("test_gen_balrs");
         Path balrPath = balrDir.resolve(balrName);
         Files.createDirectories(balrDir);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrDir);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balrDir);
 
         // Load the balr file now.
         BalaProject balaProject = BalaProject.loadProject(BCompileUtil.getTestProjectEnvironmentBuilder(), balrPath);

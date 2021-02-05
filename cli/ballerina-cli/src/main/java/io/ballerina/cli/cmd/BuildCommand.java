@@ -250,7 +250,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new RunTestsTask(outStream, errStream, args, includes),
                         project.buildOptions().skipTests() || isSingleFileBuild)
                     // run tests (projects only)
-                .addTask(new CreateBalaTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
+                .addTask(new CreateBalaTask(outStream), isSingleFileBuild) // create the BALA ( build projects only)
                 .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
                 .build();
 

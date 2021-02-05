@@ -210,7 +210,7 @@ public class PackageLoader {
         
         if (null != this.manifest) {
             // Skip checking home bir cache if there are dependencies to be resolved by path. This is because when a
-            // module is resolved by BIR, it cannot resolve it's imports using BALO source. This happens when replacing
+            // module is resolved by BIR, it cannot resolve it's imports using BALA source. This happens when replacing
             // transitive dependencies using bala path.
             Optional<Dependency> pathDependency = this.manifest.getDependencies().stream()
                     .filter(dep -> null != dep.getMetadata())

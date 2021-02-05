@@ -57,7 +57,7 @@ public class ObjectEquivalencyTest {
     @Test(description = "Test equivalence of public objects that are in the same package. " +
             "Equivalency test is performed in another package.")
     public void testEqOfPublicObjectsInBala() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjectsInbala");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjectsInBala");
         Assert.assertEquals(returns[0].stringValue(), "234-56-7890:employee");
     }
 

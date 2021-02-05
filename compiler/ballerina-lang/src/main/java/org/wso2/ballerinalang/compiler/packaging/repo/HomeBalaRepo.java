@@ -54,7 +54,7 @@ public class HomeBalaRepo implements Repo<Path> {
     private Map<PackageID, Manifest> dependencyManifests;
     
     public HomeBalaRepo(Map<PackageID, Manifest> dependencyManifests) {
-        this.repoLocation = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
+        this.repoLocation = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALA_CACHE_DIR_NAME);
         this.dependencyManifests = dependencyManifests;
         this.zipConverter = new ZipConverter(this.repoLocation);
         supportedPlatforms.add("any");

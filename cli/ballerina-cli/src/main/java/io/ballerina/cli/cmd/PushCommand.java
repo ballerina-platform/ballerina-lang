@@ -171,7 +171,7 @@ public class PushCommand implements BLauncherCmd {
 
         // Get bala output path
         Path balaOutputDir = project.currentPackage().project().sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.TARGET_BALO_DIR_NAME);
+                .resolve(ProjectConstants.TARGET_BALA_DIR_NAME);
 
         if (Files.notExists(balaOutputDir)) {
             throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "

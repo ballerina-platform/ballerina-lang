@@ -99,7 +99,7 @@ public class BuildLangLib {
                     .resolve(pkgDesc.name().value())
                     .resolve(pkgDesc.version().toString());
             Files.createDirectories(balrPath);
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath);
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balrPath);
 
             // Create zip file
             Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");

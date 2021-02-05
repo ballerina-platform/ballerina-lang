@@ -111,7 +111,7 @@ public class URIConverter implements Converter<URI> {
         String orgName = moduleID.getOrgName().getValue();
         String moduleName = moduleID.getName().getValue();
         Path modulePathInBalaCache = RepoUtils.createAndGetHomeReposPath()
-                .resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME)
+                .resolve(ProjectDirConstants.BALA_CACHE_DIR_NAME)
                 .resolve(orgName)
                 .resolve(moduleName);
         

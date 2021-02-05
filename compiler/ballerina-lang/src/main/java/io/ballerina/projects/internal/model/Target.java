@@ -49,7 +49,7 @@ public class Target {
 
         this.targetPath = sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
         this.cache = this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME);
-        this.balaCachePath = this.targetPath.resolve(ProjectConstants.TARGET_BALO_DIR_NAME);
+        this.balaCachePath = this.targetPath.resolve(ProjectConstants.TARGET_BALA_DIR_NAME);
         this.jarCachePath = this.cache.resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
         this.birCachePath = this.cache.resolve(ProjectConstants.BIR_CACHE_DIR_NAME);
         this.testsCachePath = this.cache.resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);

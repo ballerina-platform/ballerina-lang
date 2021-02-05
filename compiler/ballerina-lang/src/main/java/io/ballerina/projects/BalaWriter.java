@@ -51,7 +51,7 @@ import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static io.ballerina.projects.util.ProjectConstants.BALO_JSON;
+import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 import static io.ballerina.projects.util.ProjectUtils.getBalaName;
@@ -125,7 +125,7 @@ public abstract class BalaWriter {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String balaJson = gson.toJson(new BalaJson());
         try {
-            putZipEntry(balaOutputStream, Paths.get(BALO_JSON),
+            putZipEntry(balaOutputStream, Paths.get(BALA_JSON),
                     new ByteArrayInputStream(balaJson.getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new ProjectException("Failed to write 'bala.json' file: " + e.getMessage(), e);

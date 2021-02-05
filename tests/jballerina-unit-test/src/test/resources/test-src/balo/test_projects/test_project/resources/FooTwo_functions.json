@@ -1,1 +1,0 @@
-{"testorg/foo:1.0.0" : [{"function":{"name":"bar","requiredParams":[{"i":"int"},{"s":"string"}],"returnType":"testorg/foo:1.0.0:"}}]}
