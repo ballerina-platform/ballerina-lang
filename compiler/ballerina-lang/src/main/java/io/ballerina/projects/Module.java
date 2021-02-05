@@ -163,7 +163,7 @@ public class Module {
         private final List<ModuleDescriptor> dependencies;
         private Package packageInstance;
         private Project project;
-        private Optional<MdDocumentContext> moduleMdContext;
+        private MdDocumentContext moduleMdContext;
 
 
         private Modifier(Module oldModule) {
@@ -175,7 +175,7 @@ public class Module {
             dependencies = oldModule.moduleContext().moduleDescDependencies();
             packageInstance = oldModule.packageInstance;
             project = oldModule.project();
-            moduleMdContext = oldModule.moduleContext.moduleMdContext();
+            moduleMdContext = oldModule.moduleContext.moduleMdContext().orElse(null);
         }
 
         Modifier updateDocument(DocumentContext newDocContext) {
@@ -228,6 +228,16 @@ public class Module {
         }
 
         /**
+         * Creates a copy of the existing module and removes the Module.md from the new module.
+         *
+         * @return an instance of the Module.Modifier
+         */
+        public Modifier removeModuleMd() {
+            moduleMdContext = null;
+            return this;
+        }
+
+        /**
          * Returns the updated module created by a document add/remove/update operation.
          *
          * @return the updated module
@@ -256,9 +266,14 @@ public class Module {
                 DocumentContext> testDocContextMap) {
             ModuleContext newModuleContext = new ModuleContext(this.project,
                     this.moduleId, this.moduleDescriptor, this.isDefaultModule, srcDocContextMap,
-                    testDocContextMap, this.moduleMdContext.orElse(null), this.dependencies);
+                    testDocContextMap, this.moduleMdContext, this.dependencies);
             Package newPackage = this.packageInstance.modify().updateModule(newModuleContext).apply();
             return newPackage.module(this.moduleId);
+        }
+
+        Modifier updateModuleMd(MdDocumentContext moduleMd) {
+            this.moduleMdContext = moduleMd;
+            return this;
         }
     }
 }

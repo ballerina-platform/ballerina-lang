@@ -53,4 +53,54 @@ public class ModuleMd {
     public String content() {
         return mdDocumentContext.content();
     }
+
+
+    /**
+     * Returns an instance of the Document.Modifier.
+     *
+     * @return  module modifier
+     */
+    public Modifier modify() {
+        return new Modifier(this);
+    }
+
+    /**
+     * Inner class that handles Document modifications.
+     */
+    public static class Modifier {
+        private String content;
+        private String name;
+        private DocumentId documentId;
+        private Module oldModule;
+
+        private Modifier(ModuleMd oldDocument) {
+            this.content = oldDocument.mdDocumentContext.content();
+            this.oldModule = oldDocument.module();
+            this.name = oldDocument.mdDocumentContext.name();
+            this.documentId = oldDocument.mdDocumentContext.documentId();
+        }
+
+        /**
+         * Sets the content to be changed.
+         *
+         * @param content content to change with
+         * @return Document.Modifier that holds the content to be changed
+         */
+        public Modifier withContent(String content) {
+            this.content = content;
+            return this;
+        }
+
+        /**
+         * Returns a new document with updated content.
+         *
+         * @return document with updated content
+         */
+        public ModuleMd apply() {
+            MdDocumentContext moduleMd = MdDocumentContext.from(DocumentConfig.from(this.documentId,
+                    this.content, this.name));
+            Module newModule = oldModule.modify().updateModuleMd(moduleMd).apply();
+            return newModule.moduleMd().get();
+        }
+    }
 }

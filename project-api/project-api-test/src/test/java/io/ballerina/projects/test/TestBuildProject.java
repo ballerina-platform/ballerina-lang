@@ -40,6 +40,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageMd;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.PlatformLibraryScope;
@@ -844,8 +845,8 @@ public class TestBuildProject {
         Assert.assertEquals(kubernetesToml.entries().size(), 1);
     }
 
-    @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md", enabled = true)
-    public void testOtherDocumentEdit() {
+    @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md")
+    public void testOtherDocumentModify() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
         // 1) Initialize the project instance
@@ -856,9 +857,7 @@ public class TestBuildProject {
             Assert.fail(e.getMessage());
         }
         // 2) Check editing files
-        Package currentPackage = project.currentPackage();
-
-        BallerinaToml newBallerinaToml = currentPackage.ballerinaToml().get().modify().withContent("" +
+        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("" +
                 "[package]\n" +
                 "org = \"sameera\"\n" +
                 "name = \"yourproject\"\n" +
@@ -871,7 +870,7 @@ public class TestBuildProject {
         Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
         PackageCompilation compilation = newPackage.getCompilation();
 
-        DependenciesToml newDependenciesToml = currentPackage.dependenciesToml().get().modify().withContent("" +
+        DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml().get().modify().withContent("" +
                 "[[dependency]]\n" +
                 "org = \"samjs\"\n" +
                 "name = \"package_k\"\n" +
@@ -883,7 +882,7 @@ public class TestBuildProject {
         TomlTableNode dependenciesToml = newDependenciesToml.tomlAstNode();
         Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("dependency")).children().size(), 2);
 
-        KubernetesToml newKubernetesToml = currentPackage.kubernetesToml().get().modify().withContent("" +
+        KubernetesToml newKubernetesToml = project.currentPackage().kubernetesToml().get().modify().withContent("" +
                 "[test]\n" +
                 "attribute = \"value\"\n" +
                 "[test2]\n" +
@@ -891,6 +890,33 @@ public class TestBuildProject {
         TomlTableNode kubernetesToml = newKubernetesToml.tomlAstNode();
         Assert.assertEquals(kubernetesToml.entries().size(), 2);
 
+        // Check if PackageMd is editable
+        project.currentPackage().packageMd().get().modify().withContent("#Modified").apply();
+        String packageMdContent = project.currentPackage().packageMd().get().content();
+        Assert.assertEquals(packageMdContent, "#Modified");
+
+        // Check if ModuleMd is editable
+        project.currentPackage().getDefaultModule().moduleMd().get().modify().withContent("#Modified").apply();
+        String moduleMdContent = project.currentPackage().getDefaultModule().moduleMd().get().content();
+        Assert.assertEquals(packageMdContent, "#Modified");
+
+        // Check if ModuleMd is editable other than default module
+        // todo enable following after resolving package name edit bug
+        // ModuleName services = ModuleName.from(project.currentPackage().packageName(), "services");
+        // project.currentPackage().module(services).moduleMd().get().modify().withContent("#Modified").apply();
+        // moduleMdContent = project.currentPackage().module(services).moduleMd().get().content();
+        // Assert.assertEquals(packageMdContent, "#Modified");
+
+        // Test remove capability
+        project.currentPackage().modify().removePackageMd().apply();
+        project.currentPackage().modify().removeDependenciesToml().apply();
+        project.currentPackage().modify().removeKubernetesToml().apply();
+        project.currentPackage().getDefaultModule().modify().removeModuleMd().apply();
+
+        Assert.assertTrue(project.currentPackage().packageMd().isEmpty());
+        Assert.assertTrue(project.currentPackage().kubernetesToml().isEmpty());
+        Assert.assertTrue(project.currentPackage().dependenciesToml().isEmpty());
+        Assert.assertTrue(project.currentPackage().getDefaultModule().moduleMd().isEmpty());
     }
 
     @Test(description = "tests adding Dependencies.toml, Package.md", enabled = true)
