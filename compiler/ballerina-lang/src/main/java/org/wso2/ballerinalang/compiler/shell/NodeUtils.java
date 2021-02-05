@@ -46,6 +46,7 @@ public class NodeUtils {
         invocationNode.symbol = invokableSymbol;
         invocationNode.type = invokableSymbol.retType;
         invocationNode.requiredArgs = args;
+        invocationNode.argExprs = args;
         return invocationNode;
     }
 

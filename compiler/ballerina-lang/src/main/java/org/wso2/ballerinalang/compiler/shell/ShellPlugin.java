@@ -213,6 +213,10 @@ import static org.ballerinalang.compiler.CompilerOptionName.SHELL_MODE;
  */
 public class ShellPlugin extends BLangNodeVisitor {
     private static final CompilerContext.Key<ShellPlugin> SHELL_PLUGIN_KEY = new CompilerContext.Key<>();
+    private static final String INIT_FUNCTION_PREFIX = "..<init>";
+    private static final String CONTEXT_ID_NAME = "context_id";
+    private static final String DOLLAR = "$";
+
     private final SymbolTable symTable;
     private final Types types;
     private final Boolean inShellMode;
@@ -301,6 +305,16 @@ public class ShellPlugin extends BLangNodeVisitor {
         return node;
     }
 
+    private boolean shouldSkipPkgVariable(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
+        String packageVarRefName = packageVarRef.symbol.name.value;
+        return packageVarRef.internal || packageVarRefName.contains(DOLLAR)
+                || packageVarRefName.equals(CONTEXT_ID_NAME);
+    }
+
+    private boolean shouldSkipFunction(BLangFunction funcNode) {
+        return funcNode.name.value.startsWith(INIT_FUNCTION_PREFIX);
+    }
+
     // Visitor overrides
 
     @Override
@@ -310,6 +324,7 @@ public class ShellPlugin extends BLangNodeVisitor {
             return;
         }
         // Find the built-in mem/rem functions
+        // TODO: Use native methods - generate helpers
         for (BLangFunction function : pkgNode.functions) {
             String fnName = function.getName().getValue();
             if (fnName.equals("recall_any")) {
@@ -328,10 +343,6 @@ public class ShellPlugin extends BLangNodeVisitor {
         }
 
         // Rewrite all places that can contain pkg var assignment
-        rewrite(pkgNode.imports);
-        rewrite(pkgNode.xmlnsList);
-        rewrite(pkgNode.constants);
-        rewrite(pkgNode.globalVars);
         rewrite(pkgNode.services);
         rewrite(pkgNode.annotations);
         rewrite(pkgNode.typeDefinitions);
@@ -343,18 +354,20 @@ public class ShellPlugin extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        if (assignNode.varRef instanceof BLangSimpleVarRef.BLangPackageVarRef) {
-            result = memorizeInvocation((BLangSimpleVarRef.BLangPackageVarRef) assignNode.varRef, assignNode.expr);
-            return;
-        }
-
         assignNode.expr = rewrite(assignNode.expr);
+        if (assignNode.varRef instanceof BLangSimpleVarRef.BLangPackageVarRef) {
+            BLangSimpleVarRef.BLangPackageVarRef varRef = (BLangSimpleVarRef.BLangPackageVarRef) assignNode.varRef;
+            if (!shouldSkipPkgVariable(varRef)) {
+                result = memorizeInvocation(varRef, assignNode.expr);
+                return;
+            }
+        }
         assignNode.varRef = rewrite(assignNode.varRef);
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
-        if (packageVarRef.internal || packageVarRef.symbol.name.value.equals("context_id")) {
+        if (shouldSkipPkgVariable(packageVarRef)) {
             return;
         }
         BInvokableSymbol bInvokableSymbol = types.containsErrorType(packageVarRef.type)
@@ -371,6 +384,10 @@ public class ShellPlugin extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        if (shouldSkipFunction(funcNode)) {
+            return;
+        }
+
         rewrite(funcNode.annAttachments);
         rewrite(funcNode.requiredParams);
         funcNode.restParam = rewrite(funcNode.restParam);
@@ -1319,6 +1336,7 @@ public class ShellPlugin extends BLangNodeVisitor {
     @Override
     public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
         arrayIndexAccessExpr.expr = rewrite(arrayIndexAccessExpr.expr);
+        arrayIndexAccessExpr.indexExpr = rewrite(arrayIndexAccessExpr.indexExpr);
     }
 
     @Override
