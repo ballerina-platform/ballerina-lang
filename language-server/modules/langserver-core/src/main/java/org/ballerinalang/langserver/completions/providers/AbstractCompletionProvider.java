@@ -37,6 +37,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSPackageLoader;
+import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -58,15 +59,13 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
 
-
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
@@ -220,7 +219,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     String pkgName = importNode.moduleName().stream()
                             .map(Token::text)
                             .collect(Collectors.joining("."));
-                    String processedModuleHash = orgName.isEmpty() ? pkgName : orgName + "/" + pkgName;
+                    String processedModuleHash = orgName.isEmpty() ?
+                            pkgName : orgName + CommonKeys.SLASH_KEYWORD_KEY + pkgName;
                     String prefix;
                     if (importNode.prefix().isEmpty()) {
                         prefix = importNode.moduleName().get(importNode.moduleName().size() - 1).text();
@@ -238,7 +238,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
             String orgName = pkg.packageOrg().value();
-            if (!CommonUtil.matchingImportedModule(ctx, pkg) && !processedList.contains(orgName + "/" + name)) {
+            if (!CommonUtil.matchingImportedModule(ctx, pkg)
+                    && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)) {
                 String[] pkgNameComps = name.split("\\.");
                 String insertText = pkgNameComps[pkgNameComps.length - 1];
                 List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, ctx);
