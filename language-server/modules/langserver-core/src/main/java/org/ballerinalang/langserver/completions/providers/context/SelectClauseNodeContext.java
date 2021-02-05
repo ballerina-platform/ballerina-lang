@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,6 +45,7 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, SelectClauseNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
@@ -52,11 +54,12 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-            return this.getCompletionItemList(exprEntries, context);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_CONFLICT.get()));
         }
-
-        List<LSCompletionItem> completionItems = this.expressionCompletions(context);
-        completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_CONFLICT.get()));
+        this.sort(context, node, completionItems);
         
         return completionItems;
     }

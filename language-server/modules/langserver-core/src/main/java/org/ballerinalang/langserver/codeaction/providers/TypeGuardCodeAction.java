@@ -148,7 +148,7 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
             default:
                 return Optional.empty();
         }
-        if (varTypeSymbol.typeKind() != TypeDescKind.UNION) {
+        if (varTypeSymbol == null || varTypeSymbol.typeKind() != TypeDescKind.UNION) {
             return Optional.empty();
         }
         return Optional.of(new ImmutablePair<>((UnionTypeSymbol) varTypeSymbol, varTypeNode));
