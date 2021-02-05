@@ -13371,14 +13371,13 @@ public class BallerinaParser extends AbstractParser {
         while (!isEndOfListMatchPattern()) {
             STNode listMatchPatternMember = parseListMatchPatternMember();
             matchPatternList.add(listMatchPatternMember);
+            listMatchPatternMemberRhs = parseListMatchPatternMemberRhs();
 
             if (listMatchPatternMember.kind == SyntaxKind.REST_MATCH_PATTERN) {
-                listMatchPatternMemberRhs = parseListMatchPatternMemberRhs();
                 isEndOfFields = true;
                 break;
             }
 
-            listMatchPatternMemberRhs = parseListMatchPatternMemberRhs();
             if (listMatchPatternMemberRhs != null) {
                 matchPatternList.add(listMatchPatternMemberRhs);
             } else {
@@ -13398,7 +13397,7 @@ public class BallerinaParser extends AbstractParser {
             STNode invalidField = parseListMatchPatternMember();
             updateLastNodeInListWithInvalidNode(matchPatternList, invalidField,
                     DiagnosticErrorCode.ERROR_MATCH_PATTERN_AFTER_REST_MATCH_PATTERN);
-            listMatchPatternMemberRhs = parseFieldMatchPatternRhs();
+            listMatchPatternMemberRhs = parseListMatchPatternMemberRhs();
         }
 
         STNode matchPatternListNode = STNodeFactory.createNodeList(matchPatternList);
@@ -13483,18 +13482,19 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.MAPPING_MATCH_PATTERN);
         STNode openBraceToken = parseOpenBrace();
         List<STNode> fieldMatchPatternList = new ArrayList<>();
+        STNode fieldMatchPatternRhs = null;
         boolean isEndOfFields = false;
 
         while (!isEndOfMappingMatchPattern()) {
             STNode fieldMatchPatternMember = parseFieldMatchPatternMember();
             fieldMatchPatternList.add(fieldMatchPatternMember);
+            fieldMatchPatternRhs = parseFieldMatchPatternRhs();
 
             if (fieldMatchPatternMember.kind == SyntaxKind.REST_MATCH_PATTERN) {
                 isEndOfFields = true;
                 break;
             }
 
-            STNode fieldMatchPatternRhs = parseFieldMatchPatternRhs();
             if (fieldMatchPatternRhs != null) {
                 fieldMatchPatternList.add(fieldMatchPatternRhs);
             } else {
@@ -13504,11 +13504,10 @@ public class BallerinaParser extends AbstractParser {
 
         // Following loop will only run if there are more fields after the rest match pattern.
         // Try to parse them and mark as invalid.
-        STNode fieldMatchPatternRhs = parseFieldMatchPatternRhs();
         while (isEndOfFields && fieldMatchPatternRhs != null) {
             updateLastNodeInListWithInvalidNode(fieldMatchPatternList, fieldMatchPatternRhs, null);
 
-            if (peek().kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
+            if (peek().kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
                 break;
             }
 
