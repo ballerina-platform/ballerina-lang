@@ -4175,19 +4175,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     (BLangListMatchPattern) TreeBuilder.createListMatchPattern();
             bLangListMatchPattern.pos = matchPatternPos;
 
-            for (Node memberMatchPattern : listMatchPatternNode.matchPatterns()) {
-                BLangMatchPattern bLangMemberMatchPattern = transformMatchPattern(memberMatchPattern);
+            SeparatedNodeList<Node> matchPatterns = listMatchPatternNode.matchPatterns();
+            int matchPatternListSize = matchPatterns.size();
+            for (int i = 0; i < matchPatternListSize - 1; i++) {
+                BLangMatchPattern bLangMemberMatchPattern = transformMatchPattern(matchPatterns.get(i));
                 if (bLangMemberMatchPattern == null) {
                     continue;
                 }
                 bLangListMatchPattern.addMatchPattern(bLangMemberMatchPattern);
             }
 
-            if (listMatchPatternNode.restMatchPattern().isPresent()) {
-                RestMatchPatternNode restMatchPatternNode = listMatchPatternNode.restMatchPattern().get();
-                bLangListMatchPattern.setRestMatchPattern(
-                        (BLangRestMatchPattern) transformMatchPattern(restMatchPatternNode));
+            BLangMatchPattern lastMember = transformMatchPattern(matchPatterns.get(matchPatternListSize - 1));
+            if (lastMember.getKind() == NodeKind.REST_MATCH_PATTERN) {
+                bLangListMatchPattern.setRestMatchPattern((BLangRestMatchPattern) lastMember);
+            } else {
+                bLangListMatchPattern.addMatchPattern(lastMember);
             }
+
             return bLangListMatchPattern;
         }
 
@@ -4207,13 +4211,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     (BLangMappingMatchPattern) TreeBuilder.createMappingMatchPattern();
             bLangMappingMatchPattern.pos = matchPatternPos;
 
-            for (FieldMatchPatternNode fieldMatchPatternNode : mappingMatchPatternNode.fieldMatchPatterns()) {
+            SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns = mappingMatchPatternNode.fieldMatchPatterns();
+            int fieldMatchPatternListSize = fieldMatchPatterns.size();
+            for (int i = 0; i < fieldMatchPatternListSize - 1; i++) {
                 bLangMappingMatchPattern.fieldMatchPatterns.add((BLangFieldMatchPattern)
-                        transformMatchPattern(fieldMatchPatternNode));
+                        transformMatchPattern(fieldMatchPatterns.get(i)));
             }
-            if (mappingMatchPatternNode.restMatchPattern().isPresent()) {
-                bLangMappingMatchPattern.restMatchPattern =
-                        (BLangRestMatchPattern) transformMatchPattern(mappingMatchPatternNode.restMatchPattern().get());
+
+            BLangMatchPattern lastMember = transformMatchPattern(fieldMatchPatterns.get(fieldMatchPatternListSize - 1));
+            if (lastMember.getKind() == NodeKind.REST_MATCH_PATTERN) {
+                bLangMappingMatchPattern.restMatchPattern = (BLangRestMatchPattern) lastMember;
+            } else {
+                bLangMappingMatchPattern.fieldMatchPatterns.add((BLangFieldMatchPattern) lastMember);
             }
 
             return bLangMappingMatchPattern;
