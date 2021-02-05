@@ -21,7 +21,6 @@ import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -38,10 +37,9 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
     private TypeSymbol returnType;
     private List<AnnotationSymbol> annots;
 
-    private BallerinaWorkerSymbol(String name, PackageID moduleID, SymbolKind ballerinaSymbolKind,
-                                  TypeSymbol returnType, List<AnnotationSymbol> annots, BSymbol symbol,
-                                  CompilerContext context) {
-        super(name, moduleID, ballerinaSymbolKind, symbol, context);
+    private BallerinaWorkerSymbol(String name, SymbolKind ballerinaSymbolKind, TypeSymbol returnType,
+                                  List<AnnotationSymbol> annots, BSymbol symbol, CompilerContext context) {
+        super(name, ballerinaSymbolKind, symbol, context);
         this.returnType = returnType;
         this.annots = annots;
     }
@@ -69,14 +67,14 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
         protected TypeSymbol returnType;
         protected List<AnnotationSymbol> annots = new ArrayList<>();
 
-        public WorkerSymbolBuilder(String name, PackageID moduleID, BSymbol symbol, CompilerContext context) {
-            super(name, moduleID, SymbolKind.WORKER, symbol, context);
+        public WorkerSymbolBuilder(String name, BSymbol symbol, CompilerContext context) {
+            super(name, SymbolKind.WORKER, symbol, context);
         }
 
         @Override
         public BallerinaWorkerSymbol build() {
-            return new BallerinaWorkerSymbol(this.name, this.moduleID, this.ballerinaSymbolKind, this.returnType,
-                                             this.annots, this.bSymbol, this.context);
+            return new BallerinaWorkerSymbol(this.name, this.ballerinaSymbolKind, this.returnType, this.annots,
+                                             this.bSymbol, this.context);
         }
 
         public WorkerSymbolBuilder withReturnType(TypeSymbol typeDescriptor) {

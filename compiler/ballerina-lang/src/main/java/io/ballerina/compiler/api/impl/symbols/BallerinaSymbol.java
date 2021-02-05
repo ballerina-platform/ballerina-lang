@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -44,14 +43,11 @@ public class BallerinaSymbol implements Symbol {
     private final SymbolKind symbolKind;
     private final Location position;
     private final BSymbol internalSymbol;
-    private final PackageID moduleID;
     private ModuleSymbol module;
     private boolean moduleEvaluated;
 
-    protected BallerinaSymbol(String name, PackageID moduleID, SymbolKind symbolKind, BSymbol symbol,
-                              CompilerContext context) {
+    protected BallerinaSymbol(String name, SymbolKind symbolKind, BSymbol symbol, CompilerContext context) {
         this.name = name;
-        this.moduleID = moduleID;
         this.symbolKind = symbolKind;
         this.context = context;
 
@@ -169,7 +165,6 @@ public class BallerinaSymbol implements Symbol {
     protected abstract static class SymbolBuilder<T extends SymbolBuilder<T>> {
 
         protected String name;
-        protected PackageID moduleID;
         protected SymbolKind ballerinaSymbolKind;
         protected BSymbol bSymbol;
         protected CompilerContext context;
@@ -178,15 +173,12 @@ public class BallerinaSymbol implements Symbol {
          * Symbol Builder Constructor.
          *
          * @param name       Symbol Name
-         * @param moduleID   module ID of the symbol
          * @param symbolKind symbol kind
          * @param bSymbol    symbol to evaluate
          * @param context    context of the compilation
          */
-        public SymbolBuilder(String name, PackageID moduleID, SymbolKind symbolKind, BSymbol bSymbol,
-                             CompilerContext context) {
+        public SymbolBuilder(String name, SymbolKind symbolKind, BSymbol bSymbol, CompilerContext context) {
             this.name = name;
-            this.moduleID = moduleID;
             this.ballerinaSymbolKind = symbolKind;
             this.bSymbol = bSymbol;
             this.context = context;

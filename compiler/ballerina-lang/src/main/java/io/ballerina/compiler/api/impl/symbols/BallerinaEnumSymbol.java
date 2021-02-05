@@ -24,7 +24,6 @@ import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -42,10 +41,10 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
     private List<ConstantSymbol> members;
     private List<AnnotationSymbol> annots;
 
-    protected BallerinaEnumSymbol(String name, PackageID moduleID, List<ConstantSymbol> members,
-                                  List<Qualifier> qualifiers, List<AnnotationSymbol> annots, TypeSymbol typeDescriptor,
-                                  BSymbol bSymbol, CompilerContext context) {
-        super(name, moduleID, qualifiers, typeDescriptor, bSymbol, context);
+    protected BallerinaEnumSymbol(String name, List<ConstantSymbol> members, List<Qualifier> qualifiers,
+                                  List<AnnotationSymbol> annots, TypeSymbol typeDescriptor, BSymbol bSymbol,
+                                  CompilerContext context) {
+        super(name, qualifiers, typeDescriptor, bSymbol, context);
         this.members = Collections.unmodifiableList(members);
         this.annots = annots;
     }
@@ -77,8 +76,8 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
         protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
-        public EnumSymbolBuilder(String name, PackageID moduleID, BSymbol symbol, CompilerContext context) {
-            super(name, moduleID, SymbolKind.TYPE_DEFINITION, symbol, context);
+        public EnumSymbolBuilder(String name, BSymbol symbol, CompilerContext context) {
+            super(name, SymbolKind.TYPE_DEFINITION, symbol, context);
         }
 
         public EnumSymbolBuilder withMembers(List<ConstantSymbol> members) {
@@ -103,7 +102,7 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
 
         @Override
         public BallerinaEnumSymbol build() {
-            return new BallerinaEnumSymbol(this.name, this.moduleID, this.members, this.qualifiers, this.annots,
+            return new BallerinaEnumSymbol(this.name, this.members, this.qualifiers, this.annots,
                                            this.typeDescriptor, this.bSymbol, this.context);
         }
     }

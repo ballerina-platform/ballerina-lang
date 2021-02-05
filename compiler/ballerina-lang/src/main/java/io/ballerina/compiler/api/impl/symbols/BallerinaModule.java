@@ -28,7 +28,6 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -68,8 +67,8 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     private List<Symbol> allSymbols;
     private ModuleID id;
 
-    protected BallerinaModule(CompilerContext context, String name, PackageID moduleID, BPackageSymbol packageSymbol) {
-        super(name, moduleID, SymbolKind.MODULE, packageSymbol, context);
+    protected BallerinaModule(CompilerContext context, String name, BPackageSymbol packageSymbol) {
+        super(name, SymbolKind.MODULE, packageSymbol, context);
         this.packageSymbol = packageSymbol;
     }
 
@@ -266,11 +265,8 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
      */
     public static class ModuleSymbolBuilder extends SymbolBuilder<ModuleSymbolBuilder> {
 
-        private final CompilerContext context;
-
-        public ModuleSymbolBuilder(CompilerContext context, String name,
-                                   PackageID moduleID, BPackageSymbol packageSymbol) {
-            super(name, moduleID, SymbolKind.MODULE, packageSymbol, context);
+        public ModuleSymbolBuilder(CompilerContext context, String name, BPackageSymbol packageSymbol) {
+            super(name, SymbolKind.MODULE, packageSymbol, context);
             this.context = context;
         }
 
@@ -282,7 +278,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             if (this.bSymbol == null) {
                 throw new AssertionError("Package Symbol cannot be null");
             }
-            return new BallerinaModule(this.context, this.name, this.moduleID, (BPackageSymbol) this.bSymbol);
+            return new BallerinaModule(this.context, this.name, (BPackageSymbol) this.bSymbol);
         }
     }
 }

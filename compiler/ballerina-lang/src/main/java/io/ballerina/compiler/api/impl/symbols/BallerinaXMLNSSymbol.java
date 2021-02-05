@@ -19,7 +19,6 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -33,9 +32,8 @@ public class BallerinaXMLNSSymbol extends BallerinaSymbol implements XMLNamespac
 
     private final String namespaceUri;
 
-    private BallerinaXMLNSSymbol(String name, PackageID moduleID, BSymbol symbol, String namespaceUri,
-                                 CompilerContext context) {
-        super(name, moduleID, SymbolKind.XMLNS, symbol, context);
+    private BallerinaXMLNSSymbol(String name, BSymbol symbol, String namespaceUri, CompilerContext context) {
+        super(name, SymbolKind.XMLNS, symbol, context);
         this.namespaceUri = namespaceUri;
     }
 
@@ -54,19 +52,18 @@ public class BallerinaXMLNSSymbol extends BallerinaSymbol implements XMLNamespac
         /**
          * Symbol Builder's Constructor.
          *
-         * @param name     Symbol Name
-         * @param moduleID module ID of the symbol
-         * @param symbol   namespace symbol
-         * @param context  context of the compilation
+         * @param name    Symbol Name
+         * @param symbol  namespace symbol
+         * @param context context of the compilation
          */
-        public XmlNSSymbolBuilder(String name, PackageID moduleID, BXMLNSSymbol symbol, CompilerContext context) {
-            super(name, moduleID, SymbolKind.XMLNS, symbol, context);
+        public XmlNSSymbolBuilder(String name, BXMLNSSymbol symbol, CompilerContext context) {
+            super(name, SymbolKind.XMLNS, symbol, context);
             this.uri = symbol.namespaceURI;
         }
 
         @Override
         public BallerinaXMLNSSymbol build() {
-            return new BallerinaXMLNSSymbol(this.name, this.moduleID, this.bSymbol, this.uri, this.context);
+            return new BallerinaXMLNSSymbol(this.name, this.bSymbol, this.uri, this.context);
         }
     }
 }

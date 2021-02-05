@@ -47,10 +47,10 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
     private final TypeSymbol typeDescriptorImpl;
     private final boolean deprecated;
 
-    protected BallerinaVariableSymbol(String name, PackageID moduleID, SymbolKind ballerinaSymbolKind,
-                                      List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
-                                      TypeSymbol typeDescriptorImpl, BSymbol bSymbol, CompilerContext context) {
-        super(name, moduleID, ballerinaSymbolKind, bSymbol, context);
+    protected BallerinaVariableSymbol(String name, SymbolKind ballerinaSymbolKind, List<Qualifier> qualifiers,
+                                      List<AnnotationSymbol> annots, TypeSymbol typeDescriptorImpl, BSymbol bSymbol,
+                                      CompilerContext context) {
+        super(name, ballerinaSymbolKind, bSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
         this.docAttachment = getDocAttachment(bSymbol);
@@ -102,13 +102,13 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
         protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
-        public VariableSymbolBuilder(String name, PackageID moduleID, BSymbol bSymbol, CompilerContext context) {
-            super(name, moduleID, SymbolKind.VARIABLE, bSymbol, context);
+        public VariableSymbolBuilder(String name, BSymbol bSymbol, CompilerContext context) {
+            super(name, SymbolKind.VARIABLE, bSymbol, context);
         }
 
         @Override
         public BallerinaVariableSymbol build() {
-            return new BallerinaVariableSymbol(this.name, this.moduleID, this.ballerinaSymbolKind, this.qualifiers,
+            return new BallerinaVariableSymbol(this.name, this.ballerinaSymbolKind, this.qualifiers,
                                                this.annots, this.typeDescriptor, this.bSymbol, this.context);
         }
 

@@ -47,9 +47,9 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
     private final boolean deprecated;
     private final boolean readonly;
 
-    protected BallerinaTypeDefinitionSymbol(String name, PackageID moduleID, List<Qualifier> qualifiers,
-                                            TypeSymbol typeDescriptor, BSymbol bSymbol, CompilerContext context) {
-        super(name, moduleID, SymbolKind.TYPE_DEFINITION, bSymbol, context);
+    protected BallerinaTypeDefinitionSymbol(String name, List<Qualifier> qualifiers, TypeSymbol typeDescriptor,
+                                            BSymbol bSymbol, CompilerContext context) {
+        super(name, SymbolKind.TYPE_DEFINITION, bSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.docAttachment = getDocAttachment(bSymbol);
@@ -102,8 +102,8 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
-        public TypeDefSymbolBuilder(String name, PackageID moduleID, BSymbol symbol, CompilerContext context) {
-            super(name, moduleID, SymbolKind.TYPE_DEFINITION, symbol, context);
+        public TypeDefSymbolBuilder(String name, BSymbol symbol, CompilerContext context) {
+            super(name, SymbolKind.TYPE_DEFINITION, symbol, context);
         }
 
         public TypeDefSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
@@ -118,7 +118,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
 
         @Override
         public BallerinaTypeDefinitionSymbol build() {
-            return new BallerinaTypeDefinitionSymbol(this.name, this.moduleID, this.qualifiers, this.typeDescriptor,
+            return new BallerinaTypeDefinitionSymbol(this.name, this.qualifiers, this.typeDescriptor,
                                                      this.bSymbol, this.context);
         }
     }
