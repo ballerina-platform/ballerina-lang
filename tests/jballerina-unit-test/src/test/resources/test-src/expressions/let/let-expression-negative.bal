@@ -43,9 +43,9 @@ function invalidTypesWithAnonymousRecord() {
     record {
         string i;
         int j?;
-    } rec2 = let string v = "160" in {i: v};
+    } rec2 = let string v = "160" in {i: v, j: "invalid"};
     
-    rec2.j = "invalid";
+    rec2.j = 2.0;
 }
 
 class FooClass {
@@ -54,5 +54,5 @@ class FooClass {
 }
 
 function testLetWithClass() {
-    FooClass foo = let int m = 5 in new(m, m);
+    FooClass foo = let int m = 5 in new (m, m);
 }

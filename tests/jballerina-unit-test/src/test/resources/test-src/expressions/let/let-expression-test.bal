@@ -352,10 +352,10 @@ class FooClass {
 }
 
 function testLetWithClass() {
-    FooClass foo = let int m = 5 in new(m);
+    FooClass foo = let int m = 5 in new (m);
     assert(5, foo.m);
     
-    FooClass foo2 = new(let var arr = [1, 2, 3] in arr.reduce(function(int sum, int x) returns int {
+    FooClass foo2 = new (let var arr = [1, 2, 3] in arr.reduce(function(int sum, int x) returns int {
                                                                                 return sum + x;
                                                                             }, 0));
     assert(6, foo2.m);
