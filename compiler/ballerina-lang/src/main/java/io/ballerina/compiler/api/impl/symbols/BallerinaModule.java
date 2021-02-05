@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
@@ -58,7 +59,6 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.is
  */
 public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
 
-    private final CompilerContext context;
     private BPackageSymbol packageSymbol;
     private List<TypeDefinitionSymbol> typeDefs;
     private List<ClassSymbol> classes;
@@ -69,9 +69,13 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     private ModuleID id;
 
     protected BallerinaModule(CompilerContext context, String name, PackageID moduleID, BPackageSymbol packageSymbol) {
-        super(name, moduleID, SymbolKind.MODULE, packageSymbol);
-        this.context = context;
+        super(name, moduleID, SymbolKind.MODULE, packageSymbol, context);
         this.packageSymbol = packageSymbol;
+    }
+
+    @Override
+    public Optional<ModuleSymbol> getModule() {
+        return Optional.of(this);
     }
 
     @Override
@@ -266,7 +270,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
 
         public ModuleSymbolBuilder(CompilerContext context, String name,
                                    PackageID moduleID, BPackageSymbol packageSymbol) {
-            super(name, moduleID, SymbolKind.MODULE, packageSymbol);
+            super(name, moduleID, SymbolKind.MODULE, packageSymbol, context);
             this.context = context;
         }
 

@@ -175,7 +175,7 @@ public class SymbolFactory {
     public BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol, String name) {
         PackageID pkgID = invokableSymbol.pkgID;
         BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
-                new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol);
+                new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol, this.context);
         boolean isResourceMethod = isFlagOn(invokableSymbol.flags, Flags.RESOURCE);
         boolean isRemoteMethod = isFlagOn(invokableSymbol.flags, Flags.REMOTE);
 
@@ -247,7 +247,7 @@ public class SymbolFactory {
     public BallerinaVariableSymbol createVariableSymbol(BVarSymbol symbol, String name) {
         PackageID pkgID = symbol.pkgID;
         BallerinaVariableSymbol.VariableSymbolBuilder symbolBuilder =
-                new BallerinaVariableSymbol.VariableSymbolBuilder(name, pkgID, symbol);
+                new BallerinaVariableSymbol.VariableSymbolBuilder(name, pkgID, symbol, this.context);
 
         if (isFlagOn(symbol.flags, Flags.FINAL) || isFlagOn(symbol.flags, Flags.FUNCTION_FINAL)) {
             symbolBuilder.withQualifier(Qualifier.FINAL);
@@ -288,7 +288,7 @@ public class SymbolFactory {
 
     public BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol, String name) {
         BallerinaWorkerSymbol.WorkerSymbolBuilder builder =
-                new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol.pkgID, symbol);
+                new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol.pkgID, symbol, this.context);
 
         for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
             builder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
@@ -332,7 +332,8 @@ public class SymbolFactory {
      */
     public BallerinaTypeDefinitionSymbol createTypeDefinition(BTypeSymbol typeSymbol, String name) {
         BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder symbolBuilder =
-                new BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder(name, typeSymbol.pkgID, typeSymbol);
+                new BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder(name, typeSymbol.pkgID, typeSymbol,
+                                                                       this.context);
 
         if (isFlagOn(typeSymbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
@@ -343,7 +344,7 @@ public class SymbolFactory {
 
     public BallerinaEnumSymbol createEnumSymbol(BEnumSymbol enumSymbol, String name) {
         BallerinaEnumSymbol.EnumSymbolBuilder symbolBuilder =
-                new BallerinaEnumSymbol.EnumSymbolBuilder(name, enumSymbol.pkgID, enumSymbol);
+                new BallerinaEnumSymbol.EnumSymbolBuilder(name, enumSymbol.pkgID, enumSymbol, this.context);
 
         if (isFlagOn(enumSymbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
@@ -400,7 +401,8 @@ public class SymbolFactory {
      */
     public BallerinaConstantSymbol createConstantSymbol(BConstantSymbol constantSymbol, String name) {
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
-                new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID, constantSymbol);
+                new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID, constantSymbol,
+                                                                  this.context);
         symbolBuilder.withConstValue(constantSymbol.getConstValue())
                 .withTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.type))
                 .withBroaderTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.literalType));
@@ -424,7 +426,8 @@ public class SymbolFactory {
      */
     public BallerinaAnnotationSymbol createAnnotationSymbol(BAnnotationSymbol symbol) {
         BallerinaAnnotationSymbol.AnnotationSymbolBuilder symbolBuilder =
-                new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol);
+                new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol,
+                                                                      this.context);
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
@@ -447,7 +450,7 @@ public class SymbolFactory {
      */
     public BallerinaXMLNSSymbol createXMLNamespaceSymbol(BXMLNSSymbol symbol) {
         BallerinaXMLNSSymbol.XmlNSSymbolBuilder symbolBuilder =
-                new BallerinaXMLNSSymbol.XmlNSSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol);
+                new BallerinaXMLNSSymbol.XmlNSSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol, this.context);
 
         return symbolBuilder.build();
     }

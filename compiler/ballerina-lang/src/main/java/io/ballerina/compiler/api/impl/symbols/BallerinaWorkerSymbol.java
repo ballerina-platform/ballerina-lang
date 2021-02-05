@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +39,9 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
     private List<AnnotationSymbol> annots;
 
     private BallerinaWorkerSymbol(String name, PackageID moduleID, SymbolKind ballerinaSymbolKind,
-                                  TypeSymbol returnType, List<AnnotationSymbol> annots, BSymbol symbol) {
-        super(name, moduleID, ballerinaSymbolKind, symbol);
+                                  TypeSymbol returnType, List<AnnotationSymbol> annots, BSymbol symbol,
+                                  CompilerContext context) {
+        super(name, moduleID, ballerinaSymbolKind, symbol, context);
         this.returnType = returnType;
         this.annots = annots;
     }
@@ -67,14 +69,14 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
         protected TypeSymbol returnType;
         protected List<AnnotationSymbol> annots = new ArrayList<>();
 
-        public WorkerSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
-            super(name, moduleID, SymbolKind.WORKER, symbol);
+        public WorkerSymbolBuilder(String name, PackageID moduleID, BSymbol symbol, CompilerContext context) {
+            super(name, moduleID, SymbolKind.WORKER, symbol, context);
         }
 
         @Override
         public BallerinaWorkerSymbol build() {
             return new BallerinaWorkerSymbol(this.name, this.moduleID, this.ballerinaSymbolKind, this.returnType,
-                                             this.annots, this.bSymbol);
+                                             this.annots, this.bSymbol, this.context);
         }
 
         public WorkerSymbolBuilder withReturnType(TypeSymbol typeDescriptor) {

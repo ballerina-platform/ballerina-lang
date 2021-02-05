@@ -17,11 +17,15 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -41,6 +45,8 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private TypeSymbol typeDescriptorImpl;
     private Location location;
     private String signature;
+    private ModuleSymbol module;
+    private boolean moduleEvaluated;
 
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
                                             String definitionName) {
@@ -71,6 +77,30 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     @Override
     public Optional<String> getName() {
         return Optional.of(this.definitionName);
+    }
+
+    @Override
+    public Optional<ModuleSymbol> getModule() {
+        if (this.module != null || this.moduleEvaluated) {
+            return Optional.ofNullable(this.module);
+        }
+
+        this.moduleEvaluated = true;
+        BSymbol symbol = this.getBType().tsymbol.owner;
+        while (symbol != null) {
+            if (symbol instanceof BPackageSymbol) {
+                break;
+            }
+            symbol = symbol.owner;
+        }
+
+        if (symbol == null) {
+            return Optional.empty();
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        this.module = symbolFactory.createModuleSymbol((BPackageSymbol) symbol, symbol.name.value);
+        return Optional.of(this.module);
     }
 
     @Override

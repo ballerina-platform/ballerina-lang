@@ -87,7 +87,10 @@ public class TestSourcesTest {
     public void testVisibleSymbols(int line, int col, List<String> expSymbols) {
         List<Symbol> symbols = model.visibleSymbols(srcFile, from(line, col)).stream()
                 .filter(sym -> {
-                    String moduleName = sym.getModule().get().getName().get();
+                    if (sym.getModule().isEmpty()) {
+                        return false;
+                    }
+                    String moduleName = sym.getModule().get().id().moduleName();
                     return moduleName.equals("semapi.baz") || !moduleName.startsWith("lang.");
                 })
                 .collect(Collectors.toList());

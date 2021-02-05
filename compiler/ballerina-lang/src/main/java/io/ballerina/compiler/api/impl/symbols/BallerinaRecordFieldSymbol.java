@@ -47,7 +47,6 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
 
     private final Documentation docAttachment;
     private final BField bField;
-    private final CompilerContext context;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
     private List<Qualifier> qualifiers;
@@ -55,8 +54,7 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
     private boolean deprecated;
 
     public BallerinaRecordFieldSymbol(CompilerContext context, BField bField) {
-        super(bField.name.value, bField.symbol.pkgID, SymbolKind.RECORD_FIELD, bField.symbol);
-        this.context = context;
+        super(bField.name.value, bField.symbol.pkgID, SymbolKind.RECORD_FIELD, bField.symbol, context);
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
         this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);

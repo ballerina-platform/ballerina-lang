@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -24,7 +25,9 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -36,16 +39,21 @@ import java.util.Optional;
  */
 public class BallerinaSymbol implements Symbol {
 
+    protected final CompilerContext context;
     private final String name;
-    private final PackageID moduleID;
     private final SymbolKind symbolKind;
     private final Location position;
     private final BSymbol internalSymbol;
+    private final PackageID moduleID;
+    private ModuleSymbol module;
+    private boolean moduleEvaluated;
 
-    protected BallerinaSymbol(String name, PackageID moduleID, SymbolKind symbolKind, BSymbol symbol) {
+    protected BallerinaSymbol(String name, PackageID moduleID, SymbolKind symbolKind, BSymbol symbol,
+                              CompilerContext context) {
         this.name = name;
         this.moduleID = moduleID;
         this.symbolKind = symbolKind;
+        this.context = context;
 
         if (symbol == null) {
             throw new IllegalArgumentException("'symbol' cannot be null");
@@ -66,7 +74,26 @@ public class BallerinaSymbol implements Symbol {
 
     @Override
     public Optional<ModuleSymbol> getModule() {
-        return Optional.empty();
+        if (this.module != null || this.moduleEvaluated) {
+            return Optional.ofNullable(this.module);
+        }
+
+        this.moduleEvaluated = true;
+        BSymbol symbol = this.internalSymbol.owner;
+        while (symbol != null) {
+            if (symbol instanceof BPackageSymbol) {
+                break;
+            }
+            symbol = symbol.owner;
+        }
+
+        if (symbol == null) {
+            return Optional.empty();
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        this.module = symbolFactory.createModuleSymbol((BPackageSymbol) symbol, symbol.name.value);
+        return Optional.of(this.module);
     }
 
     /**
@@ -145,6 +172,7 @@ public class BallerinaSymbol implements Symbol {
         protected PackageID moduleID;
         protected SymbolKind ballerinaSymbolKind;
         protected BSymbol bSymbol;
+        protected CompilerContext context;
 
         /**
          * Symbol Builder Constructor.
@@ -153,12 +181,15 @@ public class BallerinaSymbol implements Symbol {
          * @param moduleID   module ID of the symbol
          * @param symbolKind symbol kind
          * @param bSymbol    symbol to evaluate
+         * @param context    context of the compilation
          */
-        public SymbolBuilder(String name, PackageID moduleID, SymbolKind symbolKind, BSymbol bSymbol) {
+        public SymbolBuilder(String name, PackageID moduleID, SymbolKind symbolKind, BSymbol bSymbol,
+                             CompilerContext context) {
             this.name = name;
             this.moduleID = moduleID;
             this.ballerinaSymbolKind = symbolKind;
             this.bSymbol = bSymbol;
+            this.context = context;
         }
 
         /**

@@ -67,7 +67,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     protected BallerinaClassSymbol(CompilerContext context, String name, PackageID moduleID, List<Qualifier> qualifiers,
                                    List<AnnotationSymbol> annots, ObjectTypeSymbol typeDescriptor,
                                    BClassSymbol classSymbol) {
-        super(name, moduleID, SymbolKind.CLASS, classSymbol);
+        super(name, moduleID, SymbolKind.CLASS, classSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
         this.docAttachment = getDocAttachment(classSymbol);
@@ -181,11 +181,9 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected ObjectTypeSymbol typeDescriptor;
-        protected CompilerContext context;
 
         public ClassSymbolBuilder(CompilerContext context, String name, PackageID moduleID, BSymbol symbol) {
-            super(name, moduleID, SymbolKind.CLASS, symbol);
-            this.context = context;
+            super(name, moduleID, SymbolKind.CLASS, symbol, context);
         }
 
         public BallerinaClassSymbol.ClassSymbolBuilder withTypeDescriptor(ObjectTypeSymbol typeDescriptor) {

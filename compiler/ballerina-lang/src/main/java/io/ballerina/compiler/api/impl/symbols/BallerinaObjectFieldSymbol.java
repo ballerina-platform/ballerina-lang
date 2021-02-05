@@ -49,15 +49,13 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
     protected final BField bField;
     protected List<Qualifier> qualifiers;
     private final Documentation docAttachment;
-    private final CompilerContext context;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
     private String signature;
     private boolean deprecated;
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField, SymbolKind kind) {
-        super(bField.name.value, bField.symbol.pkgID, kind, bField.symbol);
-        this.context = context;
+        super(bField.name.value, bField.symbol.pkgID, kind, bField.symbol, context);
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
         this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);
