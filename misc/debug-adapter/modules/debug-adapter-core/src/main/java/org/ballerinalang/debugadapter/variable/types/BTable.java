@@ -44,12 +44,13 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
  */
 public class BTable extends IndexedCompoundVariable {
 
+    private int tableSize = -1;
+    private ArrayReference tableKeys = null;
+
     private static final String FIELD_CONSTRAINT = "constraint";
     private static final String METHOD_SIZE = "size";
     private static final String METHOD_GETKEYS = "getKeys";
     private static final String METHOD_GET = "get";
-
-    private int tableSize = -1;
 
     public BTable(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.TABLE, value);
@@ -131,33 +132,45 @@ public class BTable extends IndexedCompoundVariable {
         }
     }
 
-    private Value[] getTableKeys(int start, int count) throws Exception {
-        Optional<Method> method = VariableUtils.getMethod(jvmValue, METHOD_GETKEYS);
-        if (method.isEmpty()) {
+    private Value[] getTableKeys(int start, int count) {
+        if (tableKeys == null) {
+            populateTableKeys();
+        }
+        if (tableKeys == null) {
             return new Value[0];
         }
-        Value keys = ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
-        if (!(keys instanceof ArrayReference)) {
-            return new Value[0];
-        }
-
         // If count > 0, returns a sublist of the child variables
         // If count == 0, returns all child variables
         if (count > 0) {
             Value[] keyArray = new Value[count];
             for (int index = start; index < start + count; index++) {
-                keyArray[index] = ((ArrayReference) keys).getValue(index);
+                keyArray[index - start] = tableKeys.getValue(index);
             }
             return keyArray;
         } else {
-            // returns only the first N entries of the table instead of fetching all the entries at once, to avoid OOMs.
             int variableLimit = getTableSize();
             Value[] keyArray = new Value[variableLimit];
             for (int index = 0; index < variableLimit; index++) {
-                keyArray[index] = ((ArrayReference) keys).getValue(index);
+                keyArray[index] = tableKeys.getValue(index);
             }
             return keyArray;
+        }
+    }
+
+    private void populateTableKeys() {
+        try {
+            Optional<Method> method = VariableUtils.getMethod(jvmValue, METHOD_GETKEYS);
+            if (method.isEmpty()) {
+                return;
+            }
+            Value keys = ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread().getThreadReference(),
+                    method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+            if (!(keys instanceof ArrayReference)) {
+                return;
+            }
+            tableKeys = (ArrayReference) keys;
+        } catch (Exception ignored) {
+            tableKeys = null;
         }
     }
 
