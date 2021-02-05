@@ -2776,7 +2776,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangRecordVariableDef varDefNode = (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
-        varDefNode.pos = getPosition(null);
+        varDefNode.pos = var.pos;
         varDefNode.setVariable(var);
         return varDefNode;
     }
