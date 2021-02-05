@@ -12,33 +12,19 @@ function memorize_h(string name, any|error value) { }
 function sprintf(string template, any|error... values) returns string { return ""; }
 
 {{#varDclns}}
-    {{^isNew }}
-        {{#isAny }}
-            {{{prefix}}} {{{type}}} {{{name}}} = // value
-            <{{{type}}}> checkpanic recall_h("x");
-        {{/isAny}}
-        {{^isAny }}
-            {{{prefix}}} {{{type}}} {{{name}}} = // value
-            <{{{type}}}> recall_h("x");
-        {{/isAny}}
-    {{/isNew}}
+    {{#isAny }}
+        {{{prefix}}} {{{type}}} {{{name}}} = // value
+        <{{{type}}}> checkpanic recall_h("x");
+    {{/isAny}}
+    {{^isAny }}
+        {{{prefix}}} {{{type}}} {{{name}}} = // value
+        <{{{type}}}> recall_h("x");
+    {{/isAny}}
 {{/varDclns}}
 any|error {{{exprVarName}}} = ();
 
 public function main() {
     // Redefine to restrict user
-    {{#varDclns}}
-        {{^isNew }}
-            {{#isAny }}
-                {{{type}}} {{{name}}} = // value
-                <{{{type}}}> checkpanic recall_h("x");
-            {{/isAny}}
-            {{^isAny }}
-                {{{type}}} {{{name}}} = // value
-                <{{{type}}}> recall_h("x");
-            {{/isAny}}
-        {{/isNew}}
-    {{/varDclns}}
     any|error {{{exprVarName}}} = ();
 
     // We have to define the variable in a function because

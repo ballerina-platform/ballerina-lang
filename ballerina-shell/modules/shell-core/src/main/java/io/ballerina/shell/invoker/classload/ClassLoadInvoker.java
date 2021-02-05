@@ -269,7 +269,6 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     }
 
     @Override
-<<<<<<<
     public Object executeDeclarations(Collection<DeclarationSnippet> newSnippets) throws InvokerException {
         // TODO: Implement a more better way to run all snippets at once
         for (DeclarationSnippet newSnippet : newSnippets) {
@@ -279,11 +278,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     }
 
     @Override
-    public String processImplicitImport(String moduleName, String defaultPrefix) throws InvokerException {
-=======
     public QuotedIdentifier processImplicitImport(String moduleName, String defaultPrefix)
             throws InvokerException {
->>>>>>>
         if (imports.moduleImported(moduleName)) {
             // If this module is already imported, use a previous prefix.
             return imports.prefix(moduleName);
@@ -349,15 +345,12 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         PackageCompilation compilation = compile(project);
         Collection<Symbol> symbols = visibleVarSymbols(project, compilation);
 
-<<<<<<<
         String qualifiersAndMetadata = newSnippet.qualifiersAndMetadata();
-        Set<GlobalVariable> foundVariables = new HashSet<>();
-=======
         Set<QuotedIdentifier> definedVariables = newSnippet.names().stream()
                 .map(QuotedIdentifier::new).collect(Collectors.toSet());
         Map<QuotedIdentifier, GlobalVariable> foundVariables = new HashMap<>();
         addDiagnostic(Diagnostic.debug("Found variable nodes: " + definedVariables));
->>>>>>>
+
         for (Symbol symbol : symbols) {
             // TODO: After name alternative is implemented use it.
             QuotedIdentifier variableName = new QuotedIdentifier(symbol.name());
@@ -380,17 +373,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             String variableType = signatureTransformer.transformType(typeSymbol);
             this.newImports.put(variableName, signatureTransformer.getImplicitImportPrefixes());
 
-<<<<<<<
-                TypeSignatureTransformer signatureTransformer = new TypeSignatureTransformer(this);
-                String variableType = signatureTransformer.transformType(typeSymbol);
-                this.newImplicitImports.addAll(signatureTransformer.getImplicitImportPrefixes());
-
-                foundVariables.add(new GlobalVariable(variableType, variableName, elevatedType, qualifiersAndMetadata));
-                this.newSymbols.add(hashedSymbol);
-            }
-=======
-            foundVariables.put(variableName, new GlobalVariable(variableType, variableName, elevatedType));
->>>>>>>
+            foundVariables.put(variableName, new GlobalVariable(variableType, variableName,
+                    elevatedType, qualifiersAndMetadata));
         }
 
         return foundVariables;
@@ -443,16 +427,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         Set<String> importStrings = getRequiredImportStatements(newSnippet);
         String lastVarDclnString = newSnippet.toString();
 
-<<<<<<<
-        // Imports = snippet imports + module def imports
-        Set<String> importStrings = getUsedImportStatements(newSnippet);
-        importStrings.addAll(imports.getImplicitImports());
-        String lastVarDcln = newSnippet.withoutQualifiers();
-
-        return new ClassLoadContext(this.contextId, importStrings, moduleDclnStrings, varDclns, lastVarDcln);
-=======
         return new ClassLoadContext(this.contextId, importStrings, moduleDclnStrings, varDclns, lastVarDclnString);
->>>>>>>
     }
 
     /**

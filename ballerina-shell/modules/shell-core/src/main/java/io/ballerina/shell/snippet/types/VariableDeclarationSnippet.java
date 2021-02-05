@@ -21,25 +21,18 @@ package io.ballerina.shell.snippet.types;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
-<<<<<<<
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
-=======
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
->>>>>>>
 import io.ballerina.shell.snippet.SnippetSubKind;
 
-<<<<<<<
-import java.util.stream.Collectors;
-
-=======
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
->>>>>>>
 /**
  * These will be variable declarations.
  * Currently only module level variable declarations are accepted.
@@ -50,7 +43,6 @@ public class VariableDeclarationSnippet extends AbstractSnippet implements Execu
     public VariableDeclarationSnippet(ModuleVariableDeclarationNode rootNode) {
         super(SnippetSubKind.VARIABLE_DECLARATION, rootNode);
     }
-<<<<<<<
 
     /**
      * This will remove all the qualifiers from a declaration and
@@ -80,7 +72,6 @@ public class VariableDeclarationSnippet extends AbstractSnippet implements Execu
                 .map(Node::toSourceCode).collect(Collectors.joining(" "));
         return metadata + qualifiers;
     }
-=======
 
     /**
      * Variable names that are defined in this snippet.
@@ -123,5 +114,4 @@ public class VariableDeclarationSnippet extends AbstractSnippet implements Execu
             foundVariableIdentifiers.add(unescapedIdentifier);
         }
     }
->>>>>>>
 }

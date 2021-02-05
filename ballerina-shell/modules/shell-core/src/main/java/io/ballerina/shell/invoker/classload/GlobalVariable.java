@@ -34,20 +34,15 @@ public class GlobalVariable {
     private final ElevatedType elevatedType;
     private final String qualifiersAndMetadata;
 
-<<<<<<<
-    public GlobalVariable(String type, String variableName,
+    public GlobalVariable(String type, QuotedIdentifier variableName,
                           ElevatedType elevatedType, String qualifiersAndMetadata) {
         this.type = Objects.requireNonNull(type);
         this.elevatedType = Objects.requireNonNull(elevatedType);
         this.qualifiersAndMetadata = Objects.requireNonNull(qualifiersAndMetadata);
-=======
-    public GlobalVariable(String type, QuotedIdentifier variableName, ElevatedType elevatedType) {
-        this.type = type;
->>>>>>>
         this.variableName = variableName;
     }
 
-    private GlobalVariable(String variableName) {
+    private GlobalVariable(QuotedIdentifier variableName) {
         // This constructor is only used to create a temp global
         // variable to search in a hashmap using the variable name.
         this.type = null;
@@ -63,13 +58,8 @@ public class GlobalVariable {
      * @param variableName    Variable name to search.
      * @return Whether the variable is contained inside the collection.
      */
-<<<<<<<
-    public static boolean isDefined(Collection<GlobalVariable> globalVariables, String variableName) {
-        return globalVariables.contains(new GlobalVariable(variableName));
-=======
     public static boolean isDefined(Collection<GlobalVariable> globalVariables, QuotedIdentifier variableName) {
-        return globalVariables.contains(new GlobalVariable("", variableName, null));
->>>>>>>
+        return globalVariables.contains(new GlobalVariable(variableName));
     }
 
     public String getType() {

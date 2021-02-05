@@ -24,14 +24,9 @@ import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
-<<<<<<<
-
-=======
 import io.ballerina.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerina.shell.snippet.Snippet;
->>>>>>>
 import io.ballerina.shell.snippet.SnippetSubKind;
 
 import java.util.Optional;

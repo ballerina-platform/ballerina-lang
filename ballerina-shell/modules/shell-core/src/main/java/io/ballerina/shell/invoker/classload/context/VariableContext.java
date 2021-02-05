@@ -50,12 +50,8 @@ public class VariableContext {
      * @return Context for a new variable.
      */
     public static VariableContext newVar(GlobalVariable variableEntry) {
-<<<<<<<
         return new VariableContext(variableEntry.getQualifiersAndMetadata(),
-                variableEntry.getVariableName(), variableEntry.getType(), true,
-=======
-        return new VariableContext(variableEntry.getVariableName().getName(), variableEntry.getType(), true,
->>>>>>>
+                variableEntry.getVariableName().getName(), variableEntry.getType(), true,
                 variableEntry.getElevatedType().isAssignableToAny());
     }
 
@@ -66,12 +62,8 @@ public class VariableContext {
      * @return Context for a old variable.
      */
     public static VariableContext oldVar(GlobalVariable variableEntry) {
-<<<<<<<
         return new VariableContext(variableEntry.getQualifiersAndMetadata(),
-                variableEntry.getVariableName(), variableEntry.getType(), false,
-=======
-        return new VariableContext(variableEntry.getVariableName().getName(), variableEntry.getType(), false,
->>>>>>>
+                variableEntry.getVariableName().getName(), variableEntry.getType(), false,
                 variableEntry.getElevatedType().isAssignableToAny());
     }
 
