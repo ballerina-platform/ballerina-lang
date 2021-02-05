@@ -372,7 +372,10 @@ public class BallerinaDocGenerator {
 
         for (DocPackage docPackage: packageLib.packages) {
             for (Module module : docPackage.modules) {
-                if (module.summary != null) {
+                if (module.summary == null) {
+                    searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version,
+                            getFirstLine(docPackage.summary)));
+                } else {
                     searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version,
                             getFirstLine(module.summary)));
                 }
