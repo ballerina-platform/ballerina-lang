@@ -410,8 +410,8 @@ public class EnvironmentResolver extends BLangNodeVisitor {
         if (PositionUtil.withinBlock(this.linePosition, whileNode.getPosition())) {
             this.scope = this.symbolEnv;
             this.acceptNode(whileNode.body, this.symbolEnv);
+            this.acceptNode(whileNode.onFailClause, symbolEnv);
         }
-        this.acceptNode(whileNode.onFailClause, symbolEnv);
     }
 
     @Override
@@ -478,8 +478,8 @@ public class EnvironmentResolver extends BLangNodeVisitor {
         if (PositionUtil.withinBlock(this.linePosition, matchNode.getPosition())) {
             this.scope = this.symbolEnv;
             matchNode.patternClauses.forEach(patternClause -> acceptNode(patternClause, this.symbolEnv));
+            this.acceptNode(matchNode.onFailClause, symbolEnv);
         }
-        this.acceptNode(matchNode.onFailClause, symbolEnv);
     }
 
     @Override
@@ -1206,8 +1206,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
-        SymbolEnv onFailEnv = SymbolEnv.createOnFailEnv(onFailClause, this.symbolEnv);
-        this.acceptNode(onFailClause.body, onFailEnv);
+        this.acceptNode(onFailClause.body, this.symbolEnv);
     }
 
     @Override
