@@ -215,11 +215,11 @@ public class ShellPlugin extends BLangNodeVisitor {
     private static final CompilerContext.Key<ShellPlugin> SHELL_PLUGIN_KEY = new CompilerContext.Key<>();
     private final SymbolTable symTable;
     private final Types types;
-
     private final Boolean inShellMode;
-    private BLangNode result;
-    private BInvokableSymbol recallFunction;
+    private BInvokableSymbol recallAnyFunction;
+    private BInvokableSymbol recallAnyErrorFunction;
     private BInvokableSymbol memorizeFunction;
+    private BLangNode result;
 
     private ShellPlugin(CompilerContext context) {
         context.put(SHELL_PLUGIN_KEY, this);
@@ -258,21 +258,22 @@ public class ShellPlugin extends BLangNodeVisitor {
         // Prepare parameters of the invocation
         ArrayList<BLangExpression> parameters = new ArrayList<>();
         parameters.add(NodeUtils.createStringLiteral(symTable, variable.varSymbol.name.value));
-        parameters.add(NodeUtils.createTypeCastExpr(types, expression, symTable.anyOrErrorType));
+        parameters.add(NodeUtils.createTypeCastExpr(expression, symTable.anyOrErrorType));
 
         // Statement with the memorize invocation: MEM(a, b)
         BLangExpression memorizeExpr = NodeUtils.createInvocation(memorizeFunction, parameters);
         return NodeUtils.createStatement(memorizeExpr);
     }
 
-    private BLangExpression recallInvocation(BLangSimpleVarRef.BLangPackageVarRef variable) {
+    private BLangExpression recallInvocation(BInvokableSymbol invokableSymbol,
+                                             BLangSimpleVarRef.BLangPackageVarRef variable) {
         // Prepare parameters of the invocation
         ArrayList<BLangExpression> parameters = new ArrayList<>();
         parameters.add(NodeUtils.createStringLiteral(symTable, variable.varSymbol.name.value));
 
         // Cast and return expression
-        BLangExpression expression = NodeUtils.createInvocation(recallFunction, parameters);
-        return NodeUtils.createTypeCastExpr(types, expression, variable.type);
+        BLangExpression expression = NodeUtils.createInvocation(invokableSymbol, parameters);
+        return NodeUtils.createTypeCastExpr(expression, variable.type);
     }
 
     // Rewrite functions
@@ -311,14 +312,18 @@ public class ShellPlugin extends BLangNodeVisitor {
         // Find the built-in mem/rem functions
         for (BLangFunction function : pkgNode.functions) {
             String fnName = function.getName().getValue();
-            if (fnName.equals("recall_h")) {
-                recallFunction = function.symbol;
+            if (fnName.equals("recall_any")) {
+                recallAnyFunction = function.symbol;
+            } else if (fnName.equals("recall_any_error")) {
+                recallAnyErrorFunction = function.symbol;
             } else if (fnName.equals("memorize_h")) {
                 memorizeFunction = function.symbol;
             }
         }
 
-        if (recallFunction == null || memorizeFunction == null) {
+        if (recallAnyFunction == null
+                || recallAnyErrorFunction == null
+                || memorizeFunction == null) {
             return;
         }
 
@@ -348,11 +353,21 @@ public class ShellPlugin extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangSimpleVarRef varRefExpr) {
-        if (varRefExpr instanceof BLangSimpleVarRef.BLangPackageVarRef) {
-            result = recallInvocation((BLangSimpleVarRef.BLangPackageVarRef) varRefExpr);
+    public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
+        if (packageVarRef.internal || packageVarRef.symbol.name.value.equals("context_id")) {
+            return;
         }
+        BInvokableSymbol bInvokableSymbol = types.containsErrorType(packageVarRef.type)
+                ? recallAnyErrorFunction : recallAnyFunction;
+        result = recallInvocation(bInvokableSymbol, packageVarRef);
     }
+
+    @Override
+    public void visit(BLangSimpleVariableDef varDefNode) {
+        // Do not visit children, otherwise var ref can get written on
+    }
+
+    // Visitors to simply visit all children
 
     @Override
     public void visit(BLangFunction funcNode) {
@@ -454,12 +469,6 @@ public class ShellPlugin extends BLangNodeVisitor {
     public void visit(BLangLock.BLangUnLockStmt unLockNode) {
         unLockNode.body = rewrite(unLockNode.body);
         unLockNode.onFailClause = rewrite(unLockNode.onFailClause);
-    }
-
-    @Override
-    public void visit(BLangSimpleVariableDef varDefNode) {
-        varDefNode.var = rewrite(varDefNode.var);
-        result = varDefNode;
     }
 
     @Override
@@ -1203,6 +1212,146 @@ public class ShellPlugin extends BLangNodeVisitor {
         restMatchPattern.matchExpr = rewrite(restMatchPattern.matchExpr);
     }
 
+    @Override
+    public void visit(BLangMappingMatchPattern mappingMatchPattern) {
+        rewrite(mappingMatchPattern.fieldMatchPatterns);
+        mappingMatchPattern.restMatchPattern = rewrite(mappingMatchPattern.restMatchPattern);
+    }
+
+    @Override
+    public void visit(BLangFieldMatchPattern fieldMatchPattern) {
+        fieldMatchPattern.matchPattern = rewrite(fieldMatchPattern.matchPattern);
+    }
+
+    @Override
+    public void visit(BLangErrorMatchPattern errorMatchPattern) {
+        errorMatchPattern.errorCauseMatchPattern = rewrite(errorMatchPattern.errorCauseMatchPattern);
+        errorMatchPattern.errorFieldMatchPatterns = rewrite(errorMatchPattern.errorFieldMatchPatterns);
+        errorMatchPattern.errorMessageMatchPattern = rewrite(errorMatchPattern.errorMessageMatchPattern);
+        errorMatchPattern.errorTypeReference = rewrite(errorMatchPattern.errorTypeReference);
+    }
+
+    @Override
+    public void visit(BLangErrorMessageMatchPattern errorMessageMatchPattern) {
+        errorMessageMatchPattern.simpleMatchPattern = rewrite(errorMessageMatchPattern.simpleMatchPattern);
+    }
+
+    @Override
+    public void visit(BLangErrorCauseMatchPattern errorCauseMatchPattern) {
+        errorCauseMatchPattern.simpleMatchPattern = rewrite(errorCauseMatchPattern.simpleMatchPattern);
+        errorCauseMatchPattern.errorMatchPattern = rewrite(errorCauseMatchPattern.errorMatchPattern);
+    }
+
+    @Override
+    public void visit(BLangErrorFieldMatchPatterns errorFieldMatchPatterns) {
+        rewrite(errorFieldMatchPatterns.namedArgMatchPatterns);
+        errorFieldMatchPatterns.restMatchPattern = rewrite(errorFieldMatchPatterns.restMatchPattern);
+    }
+
+    @Override
+    public void visit(BLangSimpleMatchPattern simpleMatchPattern) {
+        simpleMatchPattern.constPattern = rewrite(simpleMatchPattern.constPattern);
+        simpleMatchPattern.varVariableName = rewrite(simpleMatchPattern.varVariableName);
+        simpleMatchPattern.wildCardMatchPattern = rewrite(simpleMatchPattern.wildCardMatchPattern);
+    }
+
+    @Override
+    public void visit(BLangNamedArgMatchPattern namedArgMatchPattern) {
+        namedArgMatchPattern.matchPattern = rewrite(namedArgMatchPattern.matchPattern);
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
+        rewrite(tupleLiteral.exprs);
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangArrayLiteral arrayLiteral) {
+        rewrite(arrayLiteral.exprs);
+    }
+
+    @Override
+    public void visit(BLangDynamicArgExpr dynamicParamExpr) {
+        dynamicParamExpr.condition = rewrite(dynamicParamExpr.condition);
+        dynamicParamExpr.conditionalArgument = rewrite(dynamicParamExpr.conditionalArgument);
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
+        localVarRef.expr = rewrite(localVarRef.expr);
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
+        fieldVarRef.expr = rewrite(fieldVarRef.expr);
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef varRefExpr) {
+        varRefExpr.expr = rewrite(varRefExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
+        functionVarRef.expr = rewrite(functionVarRef.expr);
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
+        typeLoad.expr = rewrite(typeLoad.expr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
+        fieldAccessExpr.expr = rewrite(fieldAccessExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
+        functionVarRef.expr = rewrite(functionVarRef.expr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
+        mapKeyAccessExpr.expr = rewrite(mapKeyAccessExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
+        arrayIndexAccessExpr.expr = rewrite(arrayIndexAccessExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlAccessExpr) {
+        xmlAccessExpr.expr = rewrite(xmlAccessExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
+        bFunctionPointerInvocation.expr = rewrite(bFunctionPointerInvocation.expr);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
+        iExpr.expr = rewrite(iExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
+        jsonAccessExpr.expr = rewrite(jsonAccessExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
+        stringAccessExpr.expr = rewrite(stringAccessExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangStatementExpression bLangStatementExpression) {
+        bLangStatementExpression.expr = rewrite(bLangStatementExpression.expr);
+        bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt);
+    }
+
     // Unimplemented
 
 
@@ -1227,43 +1376,11 @@ public class ShellPlugin extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMappingMatchPattern mappingMatchPattern) {
-    }
-
-    @Override
-    public void visit(BLangFieldMatchPattern fieldMatchPattern) {
-    }
-
-    @Override
     public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
     }
 
     @Override
     public void visit(BLangRestBindingPattern restBindingPattern) {
-    }
-
-    @Override
-    public void visit(BLangErrorMatchPattern errorMatchPattern) {
-    }
-
-    @Override
-    public void visit(BLangErrorMessageMatchPattern errorMessageMatchPattern) {
-    }
-
-    @Override
-    public void visit(BLangErrorCauseMatchPattern errorCauseMatchPattern) {
-    }
-
-    @Override
-    public void visit(BLangErrorFieldMatchPatterns errorFieldMatchPatterns) {
-    }
-
-    @Override
-    public void visit(BLangSimpleMatchPattern simpleMatchPattern) {
-    }
-
-    @Override
-    public void visit(BLangNamedArgMatchPattern namedArgMatchPattern) {
     }
 
     @Override
@@ -1275,19 +1392,7 @@ public class ShellPlugin extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
-    }
-
-    @Override
-    public void visit(BLangListConstructorExpr.BLangArrayLiteral arrayLiteral) {
-    }
-
-    @Override
     public void visit(BLangIgnoreExpr ignoreExpr) {
-    }
-
-    @Override
-    public void visit(BLangDynamicArgExpr dynamicParamExpr) {
     }
 
     @Override
@@ -1307,47 +1412,7 @@ public class ShellPlugin extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
-    }
-
-    @Override
-    public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
-    }
-
-    @Override
-    public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
-    }
-
-    @Override
-    public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
-    }
-
-    @Override
-    public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
-    }
-
-    @Override
     public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableKeyAccessExpr) {
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlAccessExpr) {
     }
 
     @Override
@@ -1363,23 +1428,7 @@ public class ShellPlugin extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
-    }
-
-    @Override
-    public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
-    }
-
-    @Override
     public void visit(BLangListConstructorExpr.BLangJSONArrayLiteral jsonArrayLiteral) {
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
     }
 
     @Override
@@ -1388,10 +1437,6 @@ public class ShellPlugin extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-    }
-
-    @Override
-    public void visit(BLangStatementExpression bLangStatementExpression) {
     }
 
     @Override

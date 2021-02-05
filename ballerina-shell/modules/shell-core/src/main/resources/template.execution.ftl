@@ -26,8 +26,11 @@ function sprintfh(handle template, any|error... values) returns handle = @java:M
 } external;
 
 // Helper methods
-function recall_h(string name) returns any|error {
+function recall_any_error(string name) returns any|error {
     return trap recall(context_id, java:fromString(name));
+}
+function recall_any(string name) returns any {
+    return checkpanic recall_any_error(name);
 }
 function memorize_h(string name, any|error value) {
     memorize(context_id, java:fromString(name), value);
@@ -48,9 +51,9 @@ ${dcln}
 (${varDcln.type})? ${varDcln.name} = (); // There is an issue with the name or type
 <#else>
 <#if varDcln.isAny()>
-${varDcln.type} ${varDcln.name} = <${varDcln.type}> checkpanic recall_h("${varDcln.name?j_string}");
+${varDcln.type} ${varDcln.name} = <${varDcln.type}> recall_any("${varDcln.name?j_string}");
 <#else>
-${varDcln.type} ${varDcln.name} = <${varDcln.type}> recall_h("${varDcln.name?j_string}");
+${varDcln.type} ${varDcln.name} = <${varDcln.type}> recall_any_error("${varDcln.name?j_string}");
 </#if>
 </#if>
 </#list>

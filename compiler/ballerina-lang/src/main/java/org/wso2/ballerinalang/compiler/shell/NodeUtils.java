@@ -18,12 +18,10 @@
 
 package org.wso2.ballerinalang.compiler.shell;
 
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -58,15 +56,7 @@ public class NodeUtils {
         return stringVarParam;
     }
 
-    public static BLangExpression createTypeCastExpr(Types types, BLangExpression expr, BType targetType) {
-        // Include a check if necessary
-        if (types.containsErrorType(expr.type) && !types.containsErrorType(targetType)) {
-            BLangCheckPanickedExpr checkedExpr = new BLangCheckPanickedExpr();
-            checkedExpr.expr = expr;
-            checkedExpr.pos = expr.pos;
-            expr = checkedExpr;
-        }
-
+    public static BLangExpression createTypeCastExpr(BLangExpression expr, BType targetType) {
         BLangTypeConversionExpr conversionExpr = new BLangTypeConversionExpr();
         conversionExpr.pos = expr.pos;
         conversionExpr.expr = expr;
