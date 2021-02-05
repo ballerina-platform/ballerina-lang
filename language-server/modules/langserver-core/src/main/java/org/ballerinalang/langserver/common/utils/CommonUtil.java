@@ -871,16 +871,17 @@ public class CommonUtil {
      *
      * @param context completion context
      * @param pkg     Package to be evaluated against
-     * @return {@link Boolean}
+     * @return {@link Optional}
      */
-    public static boolean matchingImportedModule(CompletionContext context, Package pkg) {
+    public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context, Package pkg) {
         String name = pkg.packageName().value();
         String orgName = pkg.packageOrg().value();
         List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
         return currentDocImports.stream()
-                .anyMatch(importPkg -> importPkg.orgName().isPresent()
+                .filter(importPkg -> importPkg.orgName().isPresent()
                         && importPkg.orgName().get().orgName().text().equals(orgName)
-                        && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(name));
+                        && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(name))
+                .findFirst();
     }
 
     /**
@@ -895,8 +896,8 @@ public class CommonUtil {
                                                                          String modName) {
         List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
         return currentDocImports.stream()
-                .filter(importPkg -> importPkg.orgName().isPresent()
-                        && importPkg.orgName().get().orgName().text().equals(orgName)
+                .filter(importPkg -> (importPkg.orgName().isEmpty()
+                        || importPkg.orgName().get().orgName().text().equals(orgName))
                         && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(modName))
                 .findFirst();
     }

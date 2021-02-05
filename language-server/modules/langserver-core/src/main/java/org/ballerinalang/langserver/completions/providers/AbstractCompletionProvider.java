@@ -239,7 +239,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
             String orgName = pkg.packageOrg().value();
-            if (!CommonUtil.matchingImportedModule(ctx, pkg)
+            if (CommonUtil.matchingImportedModule(ctx, pkg).isEmpty()
                     && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)) {
                 String[] pkgNameComps = name.split("\\.");
                 String insertText = pkgNameComps[pkgNameComps.length - 1];
