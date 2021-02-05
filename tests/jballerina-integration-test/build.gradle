@@ -55,7 +55,7 @@ dependencies {
 //    implementation project(':ballerina-transactions')
     implementation project(':ballerina-observability')
     implementation project(':ballerina-observability-internal')
-    implementation project(':ballerina-lang:java')
+    implementation project(':ballerina-lang:jballerina.java')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation 'io.netty:netty-tcnative-boringssl-static'

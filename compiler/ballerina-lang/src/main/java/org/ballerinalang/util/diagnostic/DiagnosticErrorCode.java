@@ -351,7 +351,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ERROR_MATCH_PATTERN("BCE2618", "invalid.error.match.pattern"),
     DUPLICATE_VARIABLE_IN_BINDING_PATTERN("BCE2619", "duplicate.variable.in.binding.pattern"),
     INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN("BCE2620", "invalid.variable.reference.in.binding.pattern"),
-    MISSING_REQUIRED_ARG_BINDING_PATTERN_ERROR_MESSAGE("BCE2621", "missing.error.arg.binding.pattern.error.message"),
 
     INVALID_NAMESPACE_PREFIX("BCE2622", "invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("BCE2623", "mismatching.xml.start.end.tags"),
@@ -684,7 +683,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3985", "multiple.receive.action.not.yet.supported"),
 
-    INVALID_READONLY_FIELD_TYPE("BCE3986", "invalid.readonly.field.type")
+    INVALID_READONLY_FIELD_TYPE("BCE3986", "invalid.readonly.field.type"),
+
+    CONTINUE_NOT_ALLOWED("BCE3987", "continue.not.allowed"),
+    BREAK_NOT_ALLOWED("BCE3988", "break.not.allowed")
     ;
 
     private String diagnosticId;

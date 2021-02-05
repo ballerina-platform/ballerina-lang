@@ -78,7 +78,7 @@ public class BuildProject extends Project {
 
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
-        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(projectPath, buildOptions);
+        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions);
         buildProject.addPackage(packageConfig);
         return buildProject;

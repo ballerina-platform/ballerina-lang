@@ -32,6 +32,8 @@ import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.KubernetesToml;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
@@ -74,13 +76,15 @@ public class AddResourceToK8sCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve(TomlSyntaxTreeUtil.KUBERNETES_TOML);
-        Optional<SyntaxTree> tomlSyntaxTreeOptional = TomlSyntaxTreeUtil.getTomlSyntaxTree(k8sPath);
-        if (tomlSyntaxTreeOptional.isEmpty()) {
+        Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve(ProjectConstants.KUBERNETES_TOML);
+        Optional<KubernetesToml> kubernetesToml =
+                context.workspace().project(context.filePath()).orElseThrow().currentPackage().kubernetesToml();
+
+        if (kubernetesToml.isEmpty()) {
             return Collections.emptyList();
         }
 
-        SyntaxTree tomlSyntaxTree = tomlSyntaxTreeOptional.get();
+        SyntaxTree tomlSyntaxTree = kubernetesToml.get().tomlDocument().syntaxTree();
         DocumentNode documentNode = tomlSyntaxTree.rootNode();
 
         List<ProbeType> probs = getAvailableProbes(documentNode);

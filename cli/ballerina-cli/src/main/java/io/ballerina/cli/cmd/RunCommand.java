@@ -82,7 +82,7 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--taint-check", description = "perform taint flow analysis")
     private Boolean taintCheck;
 
-    private static final String runCmd = "ballerina run [--experimental] [--offline] [--taint-check]\n" +
+    private static final String runCmd = "bal run [--experimental] [--offline] [--taint-check]\n" +
             "                  <executable-jar | ballerina-file | . | package-path> [program-args] [(--key=value)...]";
 
     public RunCommand() {
@@ -167,14 +167,14 @@ public class RunCommand implements BLauncherCmd {
         out.append("If a Ballerina source file is given, \n");
         out.append("run command compiles and runs it. \n");
         out.append("\n");
-        out.append("By default, 'ballerina run' executes the main function. \n");
+        out.append("By default, 'bal run' executes the main function. \n");
         out.append("If the main function is not there, it executes services. \n");
         out.append("\n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina run {<balfile> | <project-path> | executable-jar}[--offline]\n" +
+        out.append("  bal run {<balfile> | <project-path> | executable-jar}[--offline]\n" +
                 "                 [(--key=value)...] "
                 + "[--] [args...] \n");
     }

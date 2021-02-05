@@ -86,6 +86,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -271,6 +273,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private final SymbolResolver symResolver;
     private int loopCount;
+    private boolean loopAlterNotAllowed;
     private int transactionCount;
     private boolean statementReturns;
     private boolean failureHandled;
@@ -529,6 +532,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockFunctionBody body) {
         boolean prevWithinTxScope = withinTransactionScope;
+        boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
+        loopAlterNotAllowed = loopCount > 0;
         if (!transactionalFuncCheckStack.empty() && !withinTransactionScope) {
             withinTransactionScope = transactionalFuncCheckStack.peek();
         }
@@ -540,6 +545,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
             withinTransactionScope = prevWithinTxScope;
         }
+        loopAlterNotAllowed = prevLoopAlterNotAllowed;
     }
 
     @Override
@@ -1113,19 +1119,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (firstListMatchPatterns.size() != secondListMatchPatterns.size()) {
                 return false;
             }
-            return checkSimilarListMemberPatterns(firstListMatchPatterns, secondListMatchPatterns);
+            return checkSimilarListMemberMatchPatterns(firstListMatchPatterns, secondListMatchPatterns);
         }
         if (firstListMatchPatterns.size() > secondListMatchPatterns.size()) {
             return false;
         }
         if (firstListMatchPatterns.size() == secondListMatchPatterns.size()) {
-            return checkSimilarListMemberPatterns(firstListMatchPatterns, secondListMatchPatterns);
+            return checkSimilarListMemberMatchPatterns(firstListMatchPatterns, secondListMatchPatterns);
         }
         return checkSimilarMatchPatterns(firstListMatchPattern.restMatchPattern,
                 secondListMatchPattern.restMatchPattern);
     }
 
-    private boolean checkSimilarListMemberPatterns(List<BLangMatchPattern> firstListMatchPatterns,
+    private boolean checkSimilarListMemberMatchPatterns(List<BLangMatchPattern> firstListMatchPatterns,
                                                    List<BLangMatchPattern> secondListMatchPatterns) {
         for (int i = 0; i < firstListMatchPatterns.size(); i++) {
             if (!checkSimilarMatchPatterns(firstListMatchPatterns.get(i), secondListMatchPatterns.get(i))) {
@@ -1193,14 +1199,55 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         switch (firstBindingPatternKind) {
+            case WILDCARD_BINDING_PATTERN:
+            case REST_BINDING_PATTERN:
             case CAPTURE_BINDING_PATTERN:
                 return true;
+            case LIST_BINDING_PATTERN:
+                return checkSimilarListBindingPatterns((BLangListBindingPattern) firstBidingPattern,
+                        (BLangListBindingPattern) secondBindingPattern);
             default:
                 return false;
         }
     }
 
-    // a is int && b is int, b is int && a is int -> create an issue
+    private boolean checkSimilarListBindingPatterns(BLangListBindingPattern firstBindingPattern,
+                                                    BLangListBindingPattern secondBindingPattern) {
+        if (firstBindingPattern.restBindingPattern != null && secondBindingPattern.restBindingPattern == null) {
+            return false;
+        }
+        if (firstBindingPattern.restBindingPattern == null && secondBindingPattern.restBindingPattern != null) {
+            return false;
+        }
+
+        List<BLangBindingPattern> firstListMatchPatterns = firstBindingPattern.bindingPatterns;
+        List<BLangBindingPattern> secondListMatchPatterns = secondBindingPattern.bindingPatterns;
+        if (firstBindingPattern.restBindingPattern == null) {
+            if (firstListMatchPatterns.size() != secondListMatchPatterns.size()) {
+                return false;
+            }
+            return checkSimilarListMemberBindingPatterns(firstListMatchPatterns, secondListMatchPatterns);
+        }
+        if (firstListMatchPatterns.size() > secondListMatchPatterns.size()) {
+            return false;
+        }
+        if (firstListMatchPatterns.size() == secondListMatchPatterns.size()) {
+            return checkSimilarListMemberBindingPatterns(firstListMatchPatterns, secondListMatchPatterns);
+        }
+        return checkSimilarBindingPatterns(firstBindingPattern.restBindingPattern,
+                secondBindingPattern.restBindingPattern);
+    }
+
+    private boolean checkSimilarListMemberBindingPatterns(List<BLangBindingPattern> firstListBindingPatterns,
+                                                   List<BLangBindingPattern> secondListBindingPatterns) {
+        for (int i = 0; i < firstListBindingPatterns.size(); i++) {
+            if (!checkSimilarBindingPatterns(firstListBindingPatterns.get(i), secondListBindingPatterns.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private boolean checkSimilarMatchGuard(BLangMatchGuard firstMatchGuard, BLangMatchGuard secondMatchGuard) {
         if (firstMatchGuard == null && secondMatchGuard == null) {
             return true;
@@ -1240,11 +1287,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangConstPattern constMatchPattern) {
-        analyzeNode(constMatchPattern.expr, env);
-    }
-
-    @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
         wildCardMatchPattern.isLastPattern =
                 wildCardMatchPattern.matchExpr != null && types.isAssignable(wildCardMatchPattern.matchExpr.type,
@@ -1252,15 +1294,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangConstPattern constMatchPattern) {
+        analyzeNode(constMatchPattern.expr, env);
+    }
+
+    @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         BLangBindingPattern bindingPattern = varBindingPattern.getBindingPattern();
         analyzeNode(bindingPattern, env);
-
-        // This switch-case will be extended when implementing other binding-patterns
         switch (bindingPattern.getKind()) {
+            case WILDCARD_BINDING_PATTERN:
+                return;
             case CAPTURE_BINDING_PATTERN:
                 varBindingPattern.isLastPattern =
                         varBindingPattern.matchExpr != null && !varBindingPattern.matchGuardIsAvailable;
+                return;
+            case LIST_BINDING_PATTERN:
+                if (varBindingPattern.matchExpr == null) {
+                    return;
+                }
+                varBindingPattern.isLastPattern = types.isSameType(varBindingPattern.matchExpr.type,
+                        varBindingPattern.type) || types.isAssignable(varBindingPattern.matchExpr.type,
+                        varBindingPattern.type);
         }
     }
 
@@ -1299,7 +1354,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCaptureBindingPattern captureBindingPattern) {
+    }
 
+    @Override
+    public void visit(BLangListBindingPattern listBindingPattern) {
+    }
+
+    @Override
+    public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
     }
 
     @Override
@@ -2041,6 +2103,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(continueNode.pos, DiagnosticErrorCode.CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
+        if (loopAlterNotAllowed) {
+            this.dlog.error(continueNode.pos, DiagnosticErrorCode.CONTINUE_NOT_ALLOWED);
+            return;
+        }
         this.lastStatement = true;
     }
 
@@ -2388,6 +2454,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         if (checkNextBreakValidityInTransaction()) {
             this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            return;
+        }
+        if (loopAlterNotAllowed) {
+            this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_NOT_ALLOWED);
             return;
         }
         this.lastStatement = true;
@@ -3883,12 +3953,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             LinkedHashSet<BType> errTypes = new LinkedHashSet<>();
             Set<BType> memTypes = ((BUnionType) bType).getMemberTypes();
             for (BType memType : memTypes) {
-                if (memType.tag == TypeTags.ERROR) {
-                    errTypes.add(memType);
+                BType memErrType = getErrorTypes(memType);
+
+                if (memErrType != symTable.semanticError) {
+                    errTypes.add(memErrType);
                 }
             }
 
-            errorType = errTypes.size() == 1 ? errTypes.iterator().next() : BUnionType.create(null, errTypes);
+            if (!errTypes.isEmpty()) {
+                errorType = errTypes.size() == 1 ? errTypes.iterator().next() : BUnionType.create(null, errTypes);
+            }
         }
 
         return errorType;

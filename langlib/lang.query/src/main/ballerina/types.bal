@@ -32,21 +32,24 @@ type Type any|error;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type ErrorType error?;
+type ErrorType error|never;
 
+# An abstract `_Iterator` object.
 type _Iterator object {
-    public isolated function next() returns record {|Type value;|}|error?;
+    public isolated function next() returns record {|Type value;|}|ErrorType?;
 };
 
+# An abstract `_CloseableIterator` object.
 type _CloseableIterator object {
-    public isolated function next() returns record {|Type value;|}|error?;
-    public isolated function close() returns error?;
+    public isolated function next() returns record {|Type value;|}|ErrorType?;
+    public isolated function close() returns ErrorType?;
 };
 
+# An abstract `_Iterable` object.
 type _Iterable object {
     public function __iterator() returns
         object {
-            public isolated function next() returns record {|Type value;|}|error?;
+            public isolated function next() returns record {|Type value;|}|ErrorType?;
         };
 };
 
@@ -65,7 +68,7 @@ class _StreamPipeline {
     typedesc<Type> resType;
 
     function init(
-            (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,
+            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection,
             typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
         self.resType = resType;
@@ -90,7 +93,7 @@ class _StreamPipeline {
         self.streamFunction = streamFunction;
     }
 
-    public function getStream() returns stream <Type, error?> {
+    public function getStream() returns stream <Type, ErrorType> {
         IterHelper itrObj = new (self, self.resType);
         var strm = internal:construct(self.resType, itrObj);
         return strm;
@@ -101,10 +104,10 @@ class _InitFunction {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection;
+    Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection;
 
     function init(
-            (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection) {
+            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection) {
         self.prevFunc = ();
         self.itr = ();
         self.collection = collection;
@@ -130,19 +133,19 @@ class _InitFunction {
     }
 
     function _getIterator(
-            (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection)
+            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection)
                 returns _Iterator {
-        if (collection is (any|error)[]) {
+        if (collection is Type[]) {
             return lang_array:iterator(collection);
         } else if (collection is record {}) {
             return lang_map:iterator(collection);
-        } else if (collection is map<any|error>) {
+        } else if (collection is map<Type>) {
             return lang_map:iterator(collection);
         } else if (collection is string) {
             return lang_string:iterator(collection);
         } else if (collection is xml) {
             return lang_xml:iterator(collection);
-        } else if (collection is table<map<any|error>>) {
+        } else if (collection is table<map<Type>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
             return collection.__iterator();
@@ -252,21 +255,21 @@ class _NestedFromFunction {
     }
 
     function _getIterator(any collection) returns _Iterator {
-        if (collection is (any|error)[]) {
+        if (collection is Type[]) {
             return lang_array:iterator(collection);
         } else if (collection is record {}) {
             return lang_map:iterator(collection);
-        } else if (collection is map<any|error>) {
+        } else if (collection is map<Type>) {
             return lang_map:iterator(collection);
         } else if (collection is string) {
             return lang_string:iterator(collection);
         } else if (collection is xml) {
             return lang_xml:iterator(collection);
-        } else if (collection is table<map<any|error>>) {
+        } else if (collection is table<map<Type>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
             return collection.__iterator();
-        } else if (collection is stream <any|error, error?>) {
+        } else if (collection is stream <Type, ErrorType>) {
             return lang_stream:iterator(collection);
         }
         panic error("Unsuppored collection", message = "unsuppored collection type.");

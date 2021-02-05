@@ -165,6 +165,17 @@ public class ConfigurableTest extends BaseTest {
         errorLeecher.waitForText(5000);
     }
 
+    //Need to provide proper error messages after fixing #28018
+    @Test
+    public void testNoModuleInTOML() throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "NoModuleConfig").toAbsolutePath();
+        LogLeecher errorLeecher =
+                new LogLeecher("Value not provided for required configurable variable 'intVar'", ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
+                new LogLeecher[]{errorLeecher}, projectPath.toString());
+        errorLeecher.waitForText(5000);
+    }
+
     /**
      * Get environment variables and add config file path as an env variable.
      *

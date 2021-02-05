@@ -50,8 +50,6 @@ public class ClosedRecordEquivalencyRulesTest {
         int i = 0;
         validateError(negative, i++, "incompatible types: expected 'AnotherPerson', found 'Person1'", 28, 24);
         validateError(negative, i++, "incompatible types: expected 'AnotherPerson', found 'Person2'", 38, 24);
-        validateError(negative, i++, "incompatible types: expected 'AnotherPerson3', found 'Person1'", 49, 25);
-        validateError(negative, i++, "incompatible types: expected 'AnotherPerson3', found 'Person1'", 55, 25);
         assertEquals(negative.getErrorCount(), i);
     }
 

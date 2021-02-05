@@ -174,11 +174,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/java",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "120",
-      "insertText": "ballerina/java",
+      "insertText": "ballerina/jballerina.java",
       "insertTextFormat": "Snippet"
     },
     {

@@ -105,13 +105,14 @@ function requiredParamTest() {
     functionWithNoRestParam(100, "string", false, 2.2); // incompatible types:
     functionWithNoRestParam(); // not enough arguments in call to 'functionWithNoRestParam()'
     functionWithNoRestParam(f = 1.2); // not enough arguments in call to 'functionWithNoRestParam()'
-    functionWithNoRestParam(b = false, f = 1.2); // missing required parameter 'x' in call to 'functionWithNoRestParam'()
-    // missing required parameter 'y' in call to 'functionWithNoRestParam'()
+    functionWithNoRestParam(b = false, f = 1.2); // missing required parameter 'x' in call to
+    'functionWithNoRestParam()'
+    // missing required parameter 'y' in call to 'functionWithNoRestParam()'
 }
 
 function testDefaultExprEvaluation() {
     functionWithNoRestParam(1, "2", f = getFloat());
-    functionWithNoRestParam(1, f = getFloat()); // missing required parameter 'y' in call to 'functionWithNoRestParam'()
+    functionWithNoRestParam(1, f = getFloat()); // missing required parameter 'y' in call to 'functionWithNoRestParam()'
     functionWithNoRestParam(1, f = getFloat(2.2)); // too many arguments in call to 'getFloat()'
 }
 

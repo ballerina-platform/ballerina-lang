@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public function interopWithAnydataReturn() returns boolean {
     var a = acceptIntAnydataReturn(1);

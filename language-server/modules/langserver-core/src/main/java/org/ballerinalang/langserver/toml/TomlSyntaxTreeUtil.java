@@ -24,15 +24,9 @@ import io.ballerina.toml.syntax.tree.TableNode;
 import io.ballerina.toml.syntax.tree.ValueNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.Position;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
 
 /**
  * Utility class used as a helper for Toml Syntax tree related actions.
@@ -40,31 +34,12 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class TomlSyntaxTreeUtil {
-    public static final String KUBERNETES_TOML = "Kubernetes.toml";
 
     public static final String NUMBER = "Number";
     public static final String STRING = "String";
     public static final String BOOLEAN = "Boolean";
     public static final String TABLE_ARRAY = "Table Array";
     public static final String TABLE = "Table";
-
-    //TODO Replace the with the Toml Syntax Tree when supported by context.
-    public static Optional<SyntaxTree> getTomlSyntaxTree(Path tomlFilePath) {
-        if (tomlFilePath != null) {
-            try {
-                TextDocument textDocument = TextDocuments.from(Files.readString(tomlFilePath));
-                Path filePath = tomlFilePath.getFileName();
-                if (filePath != null) {
-                    String path = filePath.toString();
-                    SyntaxTree st = SyntaxTree.from(textDocument, path);
-                    return Optional.of(st);
-                }
-            } catch (IOException ignored) {
-                return Optional.empty();
-            }
-        }
-        return Optional.empty();
-    }
 
     public static String toDottedString(SeparatedNodeList<ValueNode> nodeList) {
         StringBuilder output = new StringBuilder();

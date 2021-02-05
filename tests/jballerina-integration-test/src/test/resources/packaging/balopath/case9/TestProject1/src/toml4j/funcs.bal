@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public function getToml() returns handle = @java:Constructor {
     'class: "com.moandjiezana.toml.Toml"
