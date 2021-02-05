@@ -28,7 +28,7 @@ package org.ballerinalang.test.bala.functions;
 //import org.testng.annotations.Test;
 
 /**
- * Test cases for Function pointers and lambda in BALO.
+ * Test cases for Function pointers and lambda in BALA.
  *
  * @since 0.975.0
  */

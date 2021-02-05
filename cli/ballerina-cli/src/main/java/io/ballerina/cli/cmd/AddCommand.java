@@ -272,7 +272,7 @@ public class AddCommand implements BLauncherCmd {
 //
 //        String balaGlob = "glob:**/" + orgName + "/" + moduleName + "/" + version + "/*.bala";
 //        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(balaGlob);
-//        Path balaCache = this.homeCache.resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
+//        Path balaCache = this.homeCache.resolve(ProjectConstants.BALA_CACHE_DIR_NAME);
 //        // Iterate directories
 //        try (Stream<Path> walk = Files.walk(balaCache)) {
 //
@@ -295,7 +295,7 @@ public class AddCommand implements BLauncherCmd {
 //            Runtime.getRuntime().exit(1);
 //        }
 //
-//        return homeCache.resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
+//        return homeCache.resolve(ProjectConstants.BALA_CACHE_DIR_NAME);
 //    }
 //
 //    /**
@@ -306,7 +306,7 @@ public class AddCommand implements BLauncherCmd {
 //    private List<String> getBalaTemplates() {
 //        List<String> templates = new ArrayList<>();
 //        // get the path to home cache
-//        Path balaCache = this.homeCache.resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
+//        Path balaCache = this.homeCache.resolve(ProjectConstants.BALA_CACHE_DIR_NAME);
 //        final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:**/*.bala");
 //        // Iterate directories
 //        try (Stream<Path> walk = Files.walk(balaCache)) {

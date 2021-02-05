@@ -58,7 +58,7 @@ import java.util.stream.Stream;
 
 import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBuilder;
 import static io.ballerina.projects.internal.ProjectFiles.loadDocuments;
-import static io.ballerina.projects.util.ProjectConstants.BALO_DOCS_DIR;
+import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
@@ -82,7 +82,7 @@ public class BalaFiles {
             String pkgName = packageManifest.name().toString();
             Path packageRoot = zipFileSystem.getPath("/");
             ModuleData defaultModule = loadModule(pkgName, pkgName, packageRoot);
-            DocumentData packageMd = loadDocument(zipFileSystem.getPath(BALO_DOCS_DIR)
+            DocumentData packageMd = loadDocument(zipFileSystem.getPath(BALA_DOCS_DIR)
                     .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
             // load other modules
             List<ModuleData> otherModules = loadOtherModules(pkgName, packageRoot);
@@ -120,7 +120,7 @@ public class BalaFiles {
 
     private static ModuleData loadModule(String pkgName, String fullModuleName,  Path packagePath) {
         Path modulePath = packagePath.resolve(MODULES_ROOT).resolve(fullModuleName);
-        Path moduleDocPath = packagePath.resolve(BALO_DOCS_DIR).resolve(MODULES_ROOT).resolve(fullModuleName);
+        Path moduleDocPath = packagePath.resolve(BALA_DOCS_DIR).resolve(MODULES_ROOT).resolve(fullModuleName);
         // check module path exists
         if (Files.notExists(modulePath)) {
             throw new ProjectException("The 'modules' directory does not exists in '" + modulePath + "'");

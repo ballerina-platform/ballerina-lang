@@ -45,7 +45,7 @@ public class ProjectDirConstants {
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
     public static final String TARGET_DIR_NAME = "target";
-    public static final String TARGET_BALO_DIRECTORY = "bala";
+    public static final String TARGET_BALA_DIRECTORY = "bala";
     public static final String TARGET_API_DOC_DIRECTORY = "apidocs";
 
     public static final String RESOURCE_DIR_NAME = "resources";
@@ -85,13 +85,13 @@ public class ProjectDirConstants {
     public static final String FILE_NAME_DELIMITER = "-";
 
     // Bala specific constants
-    public static final String BALO_METADATA_DIR_NAME = "metadata";
-    public static final String BALO_METADATA_FILE = "BALO.toml";
-    public static final String BALO_MODULE_METADATA_FILE = "MODULE.toml";
-    public static final String BALO_DOC_DIR_NAME = "docs";
-    public static final String BALO_PLATFORM_LIB_DIR_NAME = "platform-libs";
+    public static final String BALA_METADATA_DIR_NAME = "metadata";
+    public static final String BALA_METADATA_FILE = "BALA.toml";
+    public static final String BALA_MODULE_METADATA_FILE = "MODULE.toml";
+    public static final String BALA_DOC_DIR_NAME = "docs";
+    public static final String BALA_PLATFORM_LIB_DIR_NAME = "platform-libs";
 
-    public static final String BALO_CACHE_DIR_NAME = "bala_cache";
+    public static final String BALA_CACHE_DIR_NAME = "bala_cache";
     public static final String BIR_CACHE_DIR_NAME = "bir_cache";
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
     public static final String JSON_CACHE_DIR_NAME = "json_cache";

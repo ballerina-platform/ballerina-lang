@@ -129,17 +129,17 @@ public class TestBalaProject {
         }
 
         Target target = new Target(project.sourceRoot());
-        Path baloPath = target.getBaloPath();
+        Path baloPath = target.getBalaPath();
         // invoke write balo method
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
-        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, baloPath);
 
         // Load the balo as a project
-        BaloProject baloProject = null;
+        BalaProject baloProject = null;
         try {
             ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
             defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-            baloProject = BaloProject.loadProject(defaultBuilder, emitResult.generatedArtifactPath());
+            baloProject = BalaProject.loadProject(defaultBuilder, emitResult.generatedArtifactPath());
         } catch (Exception e) {
             Assert.fail(e.getMessage(), e);
         }

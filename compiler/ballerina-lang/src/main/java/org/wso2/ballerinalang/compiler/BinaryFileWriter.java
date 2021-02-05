@@ -168,7 +168,7 @@ public class BinaryFileWriter {
     public void writeLibraryPackage(BPackageSymbol symbol, String compiledPackageFileName) {
         PackageID packageID = symbol.pkgID;
 
-        // Filter out packages which loaded from BALOs
+        // Filter out packages which loaded from BALAs
         CompiledPackage compiledPackage = symbol.compiledPackage;
         if (compiledPackage.getKind() == CompiledPackage.Kind.FROM_BINARY) {
             return;

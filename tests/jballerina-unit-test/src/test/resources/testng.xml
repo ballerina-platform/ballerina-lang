@@ -149,7 +149,7 @@
         <classes>
             <class name="org.ballerinalang.test.parser.ResilientParserTest"/>
             <class name="org.ballerinalang.test.typedefs.DistinctTypeDefTest"/>
-            <class name="org.ballerinalang.test.bala.constant.SimpleConstantBaloNegativeTests"></class>
+            <class name="org.ballerinalang.test.bala.constant.SimpleConstantBalaNegativeTests"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest"></class>

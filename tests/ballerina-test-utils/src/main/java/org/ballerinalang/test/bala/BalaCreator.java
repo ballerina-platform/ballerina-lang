@@ -42,7 +42,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAR_CACHE
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
- * Class containing utility methods for creating BALO.
+ * Class containing utility methods for creating BALA.
  * 
  * @since 0.975.0
  * @deprecated use {@link org.ballerinalang.test.BCompileUtil} instead.
@@ -53,7 +53,7 @@ public class BalaCreator {
     private static final Path TEST_RESOURCES_SOURCE_PATH = Paths.get("src", "test", "resources");
 
     /**
-     * Generates BALO from the provided package and copy it to the ballerina.home directory.
+     * Generates BALA from the provided package and copy it to the ballerina.home directory.
      * 
      * @param projectPath Path to the project
      * @param packageId Package ID

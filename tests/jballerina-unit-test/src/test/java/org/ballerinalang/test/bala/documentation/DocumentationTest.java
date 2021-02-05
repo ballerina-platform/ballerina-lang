@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 /**
- * Test cases for Documentation in BALO.
+ * Test cases for Documentation in BALA.
  */
 public class DocumentationTest {
 

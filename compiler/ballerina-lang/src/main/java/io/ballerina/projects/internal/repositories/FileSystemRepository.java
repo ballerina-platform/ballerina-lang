@@ -74,7 +74,7 @@ public class FileSystemRepository implements PackageRepository {
     // TODO Refactor this when we do repository/cache split
     public FileSystemRepository(Environment environment, Path cacheDirectory) {
         this.cacheDir = cacheDirectory;
-        this.bala = cacheDirectory.resolve(ProjectConstants.REPO_BALO_DIR_NAME);
+        this.bala = cacheDirectory.resolve(ProjectConstants.REPO_BALA_DIR_NAME);
         this.environment = environment;
     }
 

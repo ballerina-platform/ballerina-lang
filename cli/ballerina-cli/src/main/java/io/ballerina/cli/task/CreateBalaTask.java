@@ -65,12 +65,12 @@ public class CreateBalaTask implements Task {
         try {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
-            emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balaPath);
+            emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
         } catch (ProjectException e) {
-            throw createLauncherException("BALO creation failed:" + e.getMessage());
+            throw createLauncherException("BALA creation failed:" + e.getMessage());
         }
 
-        // Print the path of the BALO file
+        // Print the path of the BALA file
         Path relativePathToExecutable = project.sourceRoot().relativize(emitResult.generatedArtifactPath());
         if (relativePathToExecutable.toString().contains("..") ||
                 relativePathToExecutable.toString().contains("." + File.separator)) {

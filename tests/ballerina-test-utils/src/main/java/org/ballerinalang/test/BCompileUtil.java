@@ -130,7 +130,7 @@ public class BCompileUtil {
 
         Path balaCachePath = balaCachePath(currentPackage.packageOrg().toString(),
                 currentPackage.packageName().toString(), currentPackage.packageVersion().toString());
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balaCachePath);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaCachePath);
 
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);

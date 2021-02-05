@@ -245,7 +245,7 @@ public class CompilerDriver {
     private void compilePackageSymbol(BPackageSymbol packageSymbol) {
         BLangPackage pkgNode = this.pkgCache.get(packageSymbol.pkgID);
         if (pkgNode == null) {
-            // This is a package loaded from a BALO.
+            // This is a package loaded from a BALA.
             return;
         }
 
