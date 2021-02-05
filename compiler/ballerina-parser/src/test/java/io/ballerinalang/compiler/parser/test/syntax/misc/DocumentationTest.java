@@ -110,6 +110,11 @@ public class DocumentationTest extends AbstractMiscTest {
         testFile("documentation/doc_source_20.bal", "documentation/doc_assert_20.json");
     }
 
+    @Test
+    public void testHashInCodeReferences() {
+        testFile("documentation/doc_source_21.bal", "documentation/doc_assert_21.json");
+    }
+
     // Invalid Syntax
 
     @Test
