@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,30 +18,22 @@
 
 package io.ballerina.shell.invoker.classload;
 
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.shell.utils.StringUtils;
 
 import java.util.Objects;
 
 /**
- * A symbol that can be hashed to search back.
- * The symbol name and kind is used to hash the symbol.
- * No other use than to remember the symbols that were seen earlier.
+ * A string name that is quoted.
+ * Supports hashing.
  *
  * @since 2.0.0
  */
-public class HashedSymbol {
+public class QuotedIdentifier {
     private final String name;
-    private final SymbolKind kind;
 
-    /**
-     * Wraps symbol with hashed symbol to make is hashable.
-     *
-     * @param symbol Symbol to wrap.
-     */
-    public HashedSymbol(Symbol symbol) {
-        this.name = symbol.name();
-        this.kind = symbol.kind();
+    protected QuotedIdentifier(String name) {
+        Objects.requireNonNull(name);
+        this.name = StringUtils.quoted(name);
     }
 
     @Override
@@ -52,17 +44,25 @@ public class HashedSymbol {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        HashedSymbol xSymbol = (HashedSymbol) o;
-        return name.equals(xSymbol.name) && kind == xSymbol.kind;
+        QuotedIdentifier that = (QuotedIdentifier) o;
+        return name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, kind);
+        return Objects.hash(name);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean contains(String substring) {
+        return name.contains(substring);
     }
 
     @Override
     public String toString() {
-        return String.format("%s %s", kind, name);
+        return name;
     }
 }

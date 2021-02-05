@@ -35,5 +35,5 @@ public interface ImportProcessor {
      * @return The prefix for the import.
      * @throws InvokerException If compilation failed.
      */
-    String processImplicitImport(String moduleName, String defaultPrefix) throws InvokerException;
+    QuotedIdentifier processImplicitImport(String moduleName, String defaultPrefix) throws InvokerException;
 }

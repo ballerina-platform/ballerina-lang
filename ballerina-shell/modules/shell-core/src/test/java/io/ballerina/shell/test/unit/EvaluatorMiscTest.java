@@ -78,14 +78,15 @@ public class EvaluatorMiscTest {
         evaluator.evaluate("string t = \"Hello\"");
         evaluator.evaluate("var f = function () returns int {return 1;}");
         evaluator.evaluate("[int, string] [a, b] = [1, \"World\"]");
+        //
         Assert.assertEquals(new HashSet<>(evaluator.availableVariables()),
                 Set.of(
-                        "(a) int a = 1",
-                        "(k) string? k = null",
-                        "(t) string t = Hello",
-                        "(f) function () returns int f = ",
-                        "(i) int i = 23",
-                        "(b) string b = World"
+                        "('a) int 'a = 1",
+                        "('k) string? 'k = null",
+                        "('t) string 't = Hello",
+                        "('f) function () returns int 'f = ",
+                        "('i) int 'i = 23",
+                        "('b) string 'b = World"
                 )
         );
         Assert.assertEquals(evaluator.availableImports().size(), 1);
@@ -102,10 +103,10 @@ public class EvaluatorMiscTest {
         evaluator.evaluate("enum B{C, D}");
         Assert.assertEquals(new HashSet<>(evaluator.availableModuleDeclarations()),
                 Set.of(
-                        "(a) function a() {}",
-                        "(t) const t = 100;",
-                        "(A) class A{}",
-                        "(B) enum B{C, D}"
+                        "('a) function a() {}",
+                        "('t) const t = 100;",
+                        "('A) class A{}",
+                        "('B) enum B{C, D}"
                 )
         );
         Assert.assertEquals(evaluator.availableImports().size(), 1);
