@@ -101,6 +101,10 @@ public class AbstractSnippet implements Snippet {
         return this.getKind() == SnippetKind.VARIABLE_DECLARATION;
     }
 
+    @Override
+    public String toString() {
+        return rootNode.toSourceCode();
+    }
 
     /**
      * A helper class to find the imports used in a snippet.
