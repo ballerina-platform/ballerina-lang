@@ -1,0 +1,17 @@
+{{#imports }}
+    {{{.}}}
+{{/imports}}
+
+{{#moduleDclns }}
+    {{{.}}}
+{{/moduleDclns}}
+
+{{#varDclns}}
+    {{{.}}}
+{{/varDclns}}
+
+public function main(){
+    {{#varDclns}}
+        memorize_h("{{{encodedName}}}", {{{name}}});
+    {{/varDclns}}
+}

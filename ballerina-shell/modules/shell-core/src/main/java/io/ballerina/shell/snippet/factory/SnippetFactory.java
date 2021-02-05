@@ -23,6 +23,7 @@ import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.SnippetException;
 import io.ballerina.shell.snippet.Snippet;
+import io.ballerina.shell.snippet.types.DeclarationSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
 import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.StatementSnippet;
@@ -56,6 +57,32 @@ public abstract class SnippetFactory extends DiagnosticReporter {
         functions.add(this::createExpressionSnippet);
         Snippet snippet;
         for (SnippetCreator function : functions) {
+            snippet = function.create(node);
+            if (snippet != null) {
+                String message = String.format("Node identified as a %s snippet.", snippet.getKind());
+                addDiagnostic(Diagnostic.debug(message));
+                return snippet;
+            }
+        }
+        throw new SnippetException();
+    }
+
+
+    /**
+     * Creates a declaration snippet from the given node.
+     * This will throw and error if the resultant snippet is an not a valid declaration snippet.
+     *
+     * @param node Root node to create snippet from.
+     * @return Snippet that contains the node.
+     * @throws SnippetException If couldn't identify the snippet.
+     */
+    public DeclarationSnippet createDeclarationSnippet(Node node) throws SnippetException {
+        List<DeclarationSnippetCreator> functions = new ArrayList<>();
+        functions.add(this::createImportSnippet);
+        functions.add(this::createVariableDeclarationSnippet);
+        functions.add(this::createModuleMemberDeclarationSnippet);
+        DeclarationSnippet snippet;
+        for (DeclarationSnippetCreator function : functions) {
             snippet = function.create(node);
             if (snippet != null) {
                 String message = String.format("Node identified as a %s snippet.", snippet.getKind());
@@ -119,5 +146,14 @@ public abstract class SnippetFactory extends DiagnosticReporter {
      */
     private interface SnippetCreator {
         Snippet create(Node node) throws SnippetException;
+    }
+
+    /**
+     * Declaration Snippet creation helper interface.
+     *
+     * @since 2.0.0
+     */
+    private interface DeclarationSnippetCreator {
+        DeclarationSnippet create(Node node) throws SnippetException;
     }
 }

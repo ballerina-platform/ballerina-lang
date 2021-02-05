@@ -18,6 +18,9 @@
 
 package io.ballerina.shell.parser;
 
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.TreeParserException;
@@ -26,11 +29,14 @@ import io.ballerina.shell.parser.trials.ExpressionTrial;
 import io.ballerina.shell.parser.trials.GetErrorMessageTrial;
 import io.ballerina.shell.parser.trials.ImportDeclarationTrial;
 import io.ballerina.shell.parser.trials.ModuleMemberTrial;
+import io.ballerina.shell.parser.trials.ModulePartTrial;
 import io.ballerina.shell.parser.trials.ParserRejectedException;
 import io.ballerina.shell.parser.trials.ParserTrialFailedException;
 import io.ballerina.shell.parser.trials.StatementTrial;
 import io.ballerina.shell.parser.trials.TreeParserTrial;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -76,5 +82,37 @@ public class SerialTreeParser extends TrialTreeParser {
         addDiagnostic(Diagnostic.error(errorMessage));
         addDiagnostic(Diagnostic.error("Parsing aborted because of errors."));
         throw new TreeParserException();
+    }
+
+    @Override
+    public Collection<Node> parseDeclarations(String source) throws TreeParserException {
+        try {
+            ModulePartTrial modulePartTrial = new ModulePartTrial(this);
+            ModulePartNode modulePartNode = (ModulePartNode) modulePartTrial.parse(source);
+            List<Node> declarationNodes = new ArrayList<>();
+            modulePartNode.imports().forEach(declarationNodes::add);
+            modulePartNode.members().stream().filter(this::isModuleDeclarationAllowed)
+                    .forEach(declarationNodes::add);
+            return declarationNodes;
+        } catch (ParserTrialFailedException e) {
+            addDiagnostic(Diagnostic.error(e.getMessage()));
+            addDiagnostic(Diagnostic.error("Parsing aborted because of errors."));
+            throw new TreeParserException();
+        }
+    }
+
+    /**
+     * Whether the declaration is allowed to be parsed.
+     */
+    private boolean isModuleDeclarationAllowed(ModuleMemberDeclarationNode declarationNode) {
+        if (declarationNode instanceof FunctionDefinitionNode) {
+            String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
+            if (functionName.equals("main")) {
+                addDiagnostic(Diagnostic.warn("Found main function in the declarations." +
+                        "Discarded main function without loading."));
+                return false;
+            }
+        }
+        return true;
     }
 }

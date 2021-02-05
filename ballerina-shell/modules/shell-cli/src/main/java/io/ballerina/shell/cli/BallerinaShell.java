@@ -23,6 +23,7 @@ import io.ballerina.shell.DiagnosticKind;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.cli.handlers.CommandHandler;
 import io.ballerina.shell.cli.handlers.ExitCommand;
+import io.ballerina.shell.cli.handlers.FileCommand;
 import io.ballerina.shell.cli.handlers.HelpCommand;
 import io.ballerina.shell.cli.handlers.ResetStateCommand;
 import io.ballerina.shell.cli.handlers.StringListCommand;
@@ -30,6 +31,7 @@ import io.ballerina.shell.cli.handlers.ToggleDebugCommand;
 import io.ballerina.shell.cli.utils.FileUtils;
 import io.ballerina.shell.exceptions.BallerinaShellException;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Duration;
@@ -38,6 +40,7 @@ import java.time.Instant;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_DCLNS;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_DEBUG;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_EXIT;
+import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_FILE;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_HELP;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_IMPORTS;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_RESET;
@@ -121,6 +124,23 @@ public class BallerinaShell {
     }
 
     /**
+     * Runs a file to load declarations.
+     *
+     * @param fileName File path relative to the cwd.
+     */
+    public void runFile(String fileName) {
+        try {
+            File file = new File(fileName);
+            evaluator.executeFile(file);
+        } catch (BallerinaShellException e) {
+            if (!evaluator.hasErrors()) {
+                terminal.fatalError("Something went wrong: " + e.getMessage());
+            }
+            outputException(e);
+        }
+    }
+
+    /**
      * Output a diagnostic to the terminal.
      *
      * @param diagnostic Diagnostic to output.
@@ -166,6 +186,7 @@ public class BallerinaShell {
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_HELP), new HelpCommand(this));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_RESET), new ResetStateCommand(this));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_DEBUG), new ToggleDebugCommand(this));
+        commandHandler.attach(PropertiesLoader.getProperty(COMMAND_FILE), new FileCommand(this));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_VARS),
                 new StringListCommand(this, evaluator::availableVariables));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_IMPORTS),

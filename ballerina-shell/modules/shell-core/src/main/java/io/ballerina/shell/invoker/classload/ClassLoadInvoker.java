@@ -52,6 +52,7 @@ import io.ballerina.shell.invoker.classload.visitors.ElevatedTypeTransformer;
 import io.ballerina.shell.invoker.classload.visitors.TypeSignatureTransformer;
 import io.ballerina.shell.rt.InvokerMemory;
 import io.ballerina.shell.snippet.Snippet;
+import io.ballerina.shell.snippet.types.DeclarationSnippet;
 import io.ballerina.shell.snippet.types.ExecutableSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
 import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
@@ -273,6 +274,12 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 addDiagnostic(Diagnostic.error("Unexpected snippet type."));
                 throw new UnsupportedOperationException();
         }
+    }
+
+    @Override
+    public Object executeDeclarations(Collection<DeclarationSnippet> newSnippets) throws InvokerException {
+        // TODO: Implement
+        return null;
     }
 
     @Override

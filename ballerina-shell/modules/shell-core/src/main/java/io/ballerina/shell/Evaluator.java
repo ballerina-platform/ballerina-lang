@@ -25,9 +25,12 @@ import io.ballerina.shell.parser.TreeParser;
 import io.ballerina.shell.preprocessor.Preprocessor;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.factory.SnippetFactory;
+import io.ballerina.shell.snippet.types.DeclarationSnippet;
 import io.ballerina.shell.utils.timeit.TimeIt;
 import io.ballerina.shell.utils.timeit.TimedOperation;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -97,6 +100,37 @@ public class Evaluator extends DiagnosticReporter {
                 }
             }
             return response;
+        } finally {
+            addAllDiagnostics(preprocessor.diagnostics());
+            addAllDiagnostics(treeParser.diagnostics());
+            addAllDiagnostics(snippetFactory.diagnostics());
+            addAllDiagnostics(invoker.diagnostics());
+            preprocessor.resetDiagnostics();
+            treeParser.resetDiagnostics();
+            snippetFactory.resetDiagnostics();
+            invoker.resetDiagnostics();
+        }
+    }
+
+    /**
+     * Executes a ballerina file as if it was entered to the shell.
+     * Some functions, (eg: main) are skipped.
+     * All other top level declarations will be processed.
+     * Whole file will run as a one whole snippet.
+     * Main function will be skipped.
+     *
+     * @param file File to execute.
+     */
+    public void executeFile(File file) throws BallerinaShellException {
+        try {
+            addDiagnostic(Diagnostic.debug("Loading file: " + file.getAbsolutePath()));
+            String statements = timedOperation("preprocessor", () -> preprocessor.processFile(file));
+            Collection<Node> nodes = timedOperation("tree parser", () -> treeParser.parseDeclarations(statements));
+            List<DeclarationSnippet> declarationSnippets = new ArrayList<>();
+            for (Node node : nodes) {
+                declarationSnippets.add(snippetFactory.createDeclarationSnippet(node));
+            }
+            timedOperation("invoker", () -> invoker.executeDeclarations(declarationSnippets));
         } finally {
             addAllDiagnostics(preprocessor.diagnostics());
             addAllDiagnostics(treeParser.diagnostics());

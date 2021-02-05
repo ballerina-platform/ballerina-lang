@@ -31,12 +31,14 @@ import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.snippet.Snippet;
+import io.ballerina.shell.snippet.types.DeclarationSnippet;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,6 +92,16 @@ public abstract class Invoker extends DiagnosticReporter {
      * @return Execution output result.
      */
     public abstract Optional<Object> execute(Snippet newSnippet) throws InvokerException;
+
+
+    /**
+     * Load all the declarations given.
+     * If any declaration is skipped, a warning is emitted.
+     *
+     * @param newSnippets Declarations to load.
+     * @throws InvokerException If loading failed.
+     */
+    public abstract Object executeDeclarations(Collection<DeclarationSnippet> newSnippets) throws InvokerException;
 
     /**
      * Returns available imports in the module.

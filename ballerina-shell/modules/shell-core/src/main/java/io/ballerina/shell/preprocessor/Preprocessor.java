@@ -21,6 +21,7 @@ package io.ballerina.shell.preprocessor;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.PreprocessorException;
 
+import java.io.File;
 import java.util.Collection;
 
 /**
@@ -46,4 +47,14 @@ public abstract class Preprocessor extends DiagnosticReporter {
      * @throws PreprocessorException If the preprocessing failed.
      */
     public abstract Collection<String> process(String input) throws PreprocessorException;
+
+    /**
+     * Preprocesses the content of a file and output the result.
+     * Outputs as if the whole file contained one statement.
+     *
+     * @param file Input file
+     * @return Processed resultant string
+     * @throws PreprocessorException If the preprocessing failed.
+     */
+    public abstract String processFile(File file) throws PreprocessorException;
 }

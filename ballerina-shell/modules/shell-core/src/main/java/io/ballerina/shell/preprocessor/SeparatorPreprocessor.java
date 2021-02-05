@@ -33,7 +33,7 @@ import java.util.Stack;
  *
  * @since 2.0.0
  */
-public class SeparatorPreprocessor extends Preprocessor {
+public class SeparatorPreprocessor extends FilePreprocessor {
     private static final char ESCAPE_CHAR = '\\';
     private static final char BACK_TICK = '`';
     private static final char DOUBLE_QUOTE = '\"';
