@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,12 +44,11 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, TableConstructorExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-
-        if (this.withinKeySpecifier(ctx, node)) {
-            return Collections.singletonList(new SnippetCompletionItem(ctx, Snippet.KW_KEY.get()));
-        }
         int cursor = ctx.getCursorPositionInTree();
-        if (node.keySpecifier().isPresent() && node.keySpecifier().get().textRange().endOffset() < cursor) {
+        
+        if (this.withinKeySpecifier(ctx, node)) {
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_KEY.get()));
+        } else if (node.keySpecifier().isPresent() && node.keySpecifier().get().textRange().endOffset() < cursor) {
             /*
             Covers the following
             (1) var test = table key(id) f<cursor>
@@ -60,6 +58,7 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_FROM.get()));
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.CLAUSE_FROM.get()));
         }
+        this.sort(ctx, node, completionItems);
 
         return completionItems;
     }

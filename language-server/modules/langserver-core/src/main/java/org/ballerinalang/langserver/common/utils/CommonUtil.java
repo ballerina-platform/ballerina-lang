@@ -87,6 +87,8 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER_KEYWORD;
 import static org.ballerinalang.langserver.common.utils.CommonKeys.SEMI_COLON_SYMBOL_KEY;
@@ -104,8 +106,6 @@ public class CommonUtil {
 
     public static final String FILE_SEPARATOR = File.separator;
 
-    public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
-
     public static final Pattern MD_NEW_LINE_PATTERN = Pattern.compile("\\s\\s\\r\\n?|\\s\\s\\n|\\r\\n?|\\n");
 
     public static final String BALLERINA_HOME;
@@ -116,19 +116,13 @@ public class CommonUtil {
 
     public static final String BALLERINA_ORG_NAME = "ballerina";
 
-    public static final String BALLERINAX_ORG_NAME = "ballerinax";
-
     public static final String SDK_VERSION = System.getProperty("ballerina.version");
-
-    private static final String BUILT_IN_PACKAGE_PREFIX = "lang.annotations";
 
     public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
-    public static final Path LS_CONNECTOR_CACHE_DIR = TEMP_DIR.resolve("ls_connector_cache").resolve(SDK_VERSION);
-
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
-            "lang.string", "lang.table", "lang.typedesc", "lang.xml", "lang.annotations");
+            "lang.string", "lang.table", "lang.typedesc", "lang.xml", "lang.annotations", "lang.transaction");
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
@@ -168,7 +162,7 @@ public class CommonUtil {
      * @param context Language server context
      * @return {@link List}     List of Text Edits to apply
      */
-    public static List<TextEdit> getAutoImportTextEdits(String orgName, String pkgName,
+    public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName,
                                                         DocumentServiceContext context) {
         List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
         Position start = new Position(0, 0);
@@ -185,7 +179,8 @@ public class CommonUtil {
             pkgNameComponent = pkgName;
         }
         String importStatement = ItemResolverConstants.IMPORT + " "
-                + orgName + SLASH_KEYWORD_KEY + pkgNameComponent + SEMI_COLON_SYMBOL_KEY
+                + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
+                + pkgNameComponent + SEMI_COLON_SYMBOL_KEY
                 + CommonUtil.LINE_SEPARATOR;
         return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
     }
@@ -314,6 +309,7 @@ public class CommonUtil {
      * @param context LS Operation context
      * @return {@link LSCompletionItem} generated for error type
      */
+    @Deprecated
     public static LSCompletionItem getErrorTypeCompletionItem(BallerinaCompletionContext context) {
         CompletionItem errorTypeCItem = new CompletionItem();
         errorTypeCItem.setInsertText(ItemResolverConstants.ERROR);
@@ -592,8 +588,7 @@ public class CommonUtil {
      * @return {@link Boolean} whether langlib or not
      */
     public static boolean isLangLib(ModuleID moduleID) {
-        return moduleID.orgName().equals("ballerina")
-                && moduleID.moduleName().startsWith("lang.");
+        return moduleID.orgName().equals("ballerina") && moduleID.moduleName().startsWith("lang.");
     }
 
     private static String generateVariableName(int suffix, String name, Set<String> names) {
@@ -904,5 +899,10 @@ public class CommonUtil {
                         && importPkg.orgName().get().orgName().text().equals(orgName)
                         && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(modName))
                 .findFirst();
+    }
+
+    public static boolean isPreDeclaredLangLib(Package pkg) {
+        return "ballerina".equals(pkg.packageOrg().value())
+                && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkg.packageName().value());
     }
 }

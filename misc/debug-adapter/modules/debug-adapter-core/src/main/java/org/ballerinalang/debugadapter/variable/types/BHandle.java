@@ -19,14 +19,14 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
@@ -35,7 +35,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValu
 /**
  * Ballerina handle variable type.
  */
-public class BHandle extends BCompoundVariable {
+public class BHandle extends NamedCompoundVariable {
 
     public BHandle(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.HANDLE, value);
@@ -57,12 +57,18 @@ public class BHandle extends BCompoundVariable {
     @Override
     public Map<String, Value> computeChildVariables() {
         try {
-            Map<String, Value> childVarMap = new TreeMap<>();
-            Optional<Value> isDone = VariableUtils.getFieldValue(jvmValue, FIELD_VALUE);
-            isDone.ifPresent(value -> childVarMap.put(FIELD_VALUE, value));
+            Map<String, Value> childVarMap = new LinkedHashMap<>();
+            Optional<Value> value = VariableUtils.getFieldValue(jvmValue, FIELD_VALUE);
+            value.ifPresent(val -> childVarMap.put(FIELD_VALUE, val));
             return childVarMap;
         } catch (Exception ignored) {
             return new HashMap<>();
         }
+    }
+
+    @Override
+    public int getChildrenCount() {
+        // maximum children size will be 1 (value).
+        return 1;
     }
 }

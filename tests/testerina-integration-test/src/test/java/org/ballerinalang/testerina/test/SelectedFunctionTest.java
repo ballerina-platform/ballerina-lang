@@ -44,43 +44,45 @@ public class SelectedFunctionTest extends BaseTestCase {
 
     @Test
     public void testSingleFunctionExecution() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test",
-                new String[]{"--tests", "testFunc", "single-test-execution.bal"},
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc", "single-test-execution.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(errorOutput, "single function execution failure");
+        AssertionUtils.assertForTestFailures(output, "single function execution failure");
     }
 
     @Test
     public void testDependentFunctionExecution() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test",
-                new String[]{"--tests", "testFunc2", "single-test-execution.bal"},
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc2", "single-test-execution.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(errorOutput, "dependant function execution failure");
+        AssertionUtils.assertForTestFailures(output, "dependant function execution failure");
     }
 
     @Test
     public void testMultipleFunctionExecution() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test",
-                new String[]{"--tests", "testFunc,testFunc2", "single-test-execution.bal"},
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc,testFunc2", "single-test-execution.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(errorOutput, "multiple function execution failure");
+        AssertionUtils.assertForTestFailures(output, "multiple function execution failure");
     }
 
     @Test
     public void testNonExistingFunctionExecution() throws BallerinaTestException {
         String msg = "No tests found";
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"--tests", "nonExistingFunc", "single-test-execution.bal"},
+
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "nonExistingFunc", "single-test-execution.bal"});
+        balClient.runMain("test", args,
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(20000);
     }
 
     @Test
     public void testDisabledFunctionExecution() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test",
-                new String[]{"--tests", "testDisabledFunc", "single-test-execution.bal"},
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "testDisabledFunc", "single-test-execution.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(errorOutput, "disabled function execution failure");
+        AssertionUtils.assertForTestFailures(output, "disabled function execution failure");
     }
 
     @Test
@@ -88,8 +90,10 @@ public class SelectedFunctionTest extends BaseTestCase {
         String errMsg = "error: Test [testDependentDisabledFunc] depends on function [testDisabledFunc], " +
                 "but it is either disabled or not included.";
         LogLeecher clientLeecher = new LogLeecher(errMsg, ERROR);
-        balClient.runMain("test", new String[]{"--tests", "testDependentDisabledFunc",
-                        "single-test-execution.bal"}, null, new String[]{}, new LogLeecher[]{clientLeecher},
+
+        String[] args = mergeCoverageArgs(
+                new String[]{"--tests", "testDependentDisabledFunc", "single-test-execution.bal"});
+        balClient.runMain("test", args, null, new String[]{}, new LogLeecher[]{clientLeecher},
                 projectPath);
         clientLeecher.waitForText(20000);
     }
