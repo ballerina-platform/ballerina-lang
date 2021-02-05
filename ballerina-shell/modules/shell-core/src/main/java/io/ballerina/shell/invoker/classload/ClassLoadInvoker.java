@@ -278,7 +278,10 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
     @Override
     public Object executeDeclarations(Collection<DeclarationSnippet> newSnippets) throws InvokerException {
-        // TODO: Implement
+        // TODO: Implement a more better way to run all snippets at once
+        for (DeclarationSnippet newSnippet : newSnippets) {
+            execute(newSnippet);
+        }
         return null;
     }
 
