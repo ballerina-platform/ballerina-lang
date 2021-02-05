@@ -14,11 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object as lang;
 import ballerina/jballerina.java;
 
 type Annot record {|
-   service myService;
    object {} myObject;
    handle myHandle;
    typedesc myTypedesc;
@@ -51,7 +49,6 @@ var fn = function () {
 DummyImpl dummyImpl = new();
 
 @v1 {
-    myService: ser,
     myObject: dummyImpl,
     myHandle: dummyHandle,
     myTypedesc: T,
@@ -71,23 +68,14 @@ function testReadonlyTypeAnnotationAttachment()  {
 
 listener Listener lis = new;
 
-service ser on lis {
-
-    resource function res(int intVal) returns () {
-        return;
-    }
-}
-
 class Listener {
-    *lang:Listener;
-
     public function init() {
     }
 
-    public function attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
     }
 
-    public function __detach(service s) returns error? {
+     public function detach(service object {} s) returns error? {
     }
 
     public function 'start() returns error? {
