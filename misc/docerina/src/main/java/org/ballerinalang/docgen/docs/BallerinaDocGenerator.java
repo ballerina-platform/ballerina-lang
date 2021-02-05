@@ -78,7 +78,6 @@ public class BallerinaDocGenerator {
     private static final String DATA_DIR = "data";
 
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
-            .setPrettyPrinting()
             .excludeFieldsWithoutExposeAnnotation().create();
 
     /**
