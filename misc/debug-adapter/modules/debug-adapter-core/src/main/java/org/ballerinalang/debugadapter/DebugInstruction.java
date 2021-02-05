@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.variable.types;
-
-import com.sun.jdi.Value;
-import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BVariableType;
+package org.ballerinalang.debugadapter;
 
 /**
- * Ballerina json variable type.
+ * Debug control flow instructions supported by the ballerina debugger.
+ *
+ * @since 2.0.0
  */
-public class BJson extends BMap {
-
-    public BJson(SuspendedContext context, String name, Value value) {
-        super(context, name, BVariableType.JSON, value);
-    }
-
-    @Override
-    public String computeValue() {
-        return "map<json>";
-    }
+public enum DebugInstruction {
+    STEP_IN,
+    STEP_OUT,
+    STEP_OVER,
+    CONTINUE
 }
