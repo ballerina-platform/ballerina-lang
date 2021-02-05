@@ -2000,8 +2000,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangErrorDestructure errorDeStmt) {
         BLangErrorVarRef varRef = errorDeStmt.varRef;
         if (varRef.message != null) {
-            if (varRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
-                    names.fromIdNode(((BLangSimpleVarRef) varRef.message).variableName) != Names.IGNORE) {
+            if (names.fromIdNode(((BLangSimpleVarRef) varRef.message).variableName) != Names.IGNORE) {
                 setTypeOfVarRefInErrorBindingAssignment(varRef.message);
             } else {
                 // set message var refs type to no type if the variable name is '_'
