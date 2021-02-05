@@ -108,7 +108,7 @@ public class SerialTreeParser extends TrialTreeParser {
         if (declarationNode instanceof FunctionDefinitionNode) {
             String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
             if (functionName.equals("main")) {
-                addDiagnostic(Diagnostic.warn("Found main function in the declarations." +
+                addDiagnostic(Diagnostic.warn("Found main function in the declarations. " +
                         "Discarded main function without loading."));
                 return false;
             }
