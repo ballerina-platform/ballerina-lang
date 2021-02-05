@@ -13397,7 +13397,7 @@ public class BallerinaParser extends AbstractParser {
 
             STNode invalidField = parseListMatchPatternMember();
             updateLastNodeInListWithInvalidNode(matchPatternList, invalidField,
-                    DiagnosticErrorCode.ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN);
+                    DiagnosticErrorCode.ERROR_MATCH_PATTERN_AFTER_REST_MATCH_PATTERN);
             listMatchPatternMemberRhs = parseFieldMatchPatternRhs();
         }
 
@@ -13514,7 +13514,7 @@ public class BallerinaParser extends AbstractParser {
 
             STNode invalidField = parseFieldMatchPatternMember();
             updateLastNodeInListWithInvalidNode(fieldMatchPatternList, invalidField,
-                    DiagnosticErrorCode.ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD);
+                    DiagnosticErrorCode.ERROR_FIELD_MATCH_PATTERN_AFTER_REST_FIELD);
             fieldMatchPatternRhs = parseFieldMatchPatternRhs();
         }
 
