@@ -14,12 +14,9 @@
 # specific language governing permissions and limitations
 # under the License.
 
-key"value"
+key = "first"
+key = "second"
+foo.mow = "test"
 
-key1 = 12
-
-="value"
-
-key2 = 33
-
-key3 =
+[foo]
+mow = "wew"
