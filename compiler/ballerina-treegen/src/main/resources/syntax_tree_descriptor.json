@@ -3932,7 +3932,7 @@
                 },
                 {
                     "name": "fieldMatchPatterns",
-                    "type": "FieldMatchPatternNode",
+                    "type": "Node",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {

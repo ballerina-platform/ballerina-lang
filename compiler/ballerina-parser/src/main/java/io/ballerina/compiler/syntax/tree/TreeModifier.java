@@ -2920,7 +2920,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             MappingMatchPatternNode mappingMatchPatternNode) {
         Token openBraceToken =
                 modifyToken(mappingMatchPatternNode.openBraceToken());
-        SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns =
+        SeparatedNodeList<Node> fieldMatchPatterns =
                 modifySeparatedNodeList(mappingMatchPatternNode.fieldMatchPatterns());
         Token closeBraceToken =
                 modifyToken(mappingMatchPatternNode.closeBraceToken());

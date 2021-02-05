@@ -2839,7 +2839,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static MappingMatchPatternNode createMappingMatchPatternNode(
             Token openBraceToken,
-            SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns,
+            SeparatedNodeList<Node> fieldMatchPatterns,
             Token closeBraceToken) {
         Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
         Objects.requireNonNull(fieldMatchPatterns, "fieldMatchPatterns must not be null");

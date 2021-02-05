@@ -2020,7 +2020,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public MappingMatchPatternNode transform(MappingMatchPatternNode mappingMatchPatternNode) {
         Token openBraceToken = formatToken(mappingMatchPatternNode.openBraceToken(), 1, 0);
-        SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns =
+        SeparatedNodeList<Node> fieldMatchPatterns =
                 formatSeparatedNodeList(mappingMatchPatternNode.fieldMatchPatterns(), 0, 0, 1, 0);
         Token closeBraceToken =
                 formatToken(mappingMatchPatternNode.closeBraceToken(), env.trailingWS, env.trailingNL);

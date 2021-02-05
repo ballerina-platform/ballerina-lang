@@ -36,7 +36,7 @@ public class MappingMatchPatternNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns() {
+    public SeparatedNodeList<Node> fieldMatchPatterns() {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
@@ -64,7 +64,7 @@ public class MappingMatchPatternNode extends NonTerminalNode {
 
     public MappingMatchPatternNode modify(
             Token openBraceToken,
-            SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns,
+            SeparatedNodeList<Node> fieldMatchPatterns,
             Token closeBraceToken) {
         if (checkForReferenceEquality(
                 openBraceToken,
@@ -91,7 +91,7 @@ public class MappingMatchPatternNode extends NonTerminalNode {
     public static class MappingMatchPatternNodeModifier {
         private final MappingMatchPatternNode oldNode;
         private Token openBraceToken;
-        private SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns;
+        private SeparatedNodeList<Node> fieldMatchPatterns;
         private Token closeBraceToken;
 
         public MappingMatchPatternNodeModifier(MappingMatchPatternNode oldNode) {
@@ -109,7 +109,7 @@ public class MappingMatchPatternNode extends NonTerminalNode {
         }
 
         public MappingMatchPatternNodeModifier withFieldMatchPatterns(
-                SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns) {
+                SeparatedNodeList<Node> fieldMatchPatterns) {
             Objects.requireNonNull(fieldMatchPatterns, "fieldMatchPatterns must not be null");
             this.fieldMatchPatterns = fieldMatchPatterns;
             return this;

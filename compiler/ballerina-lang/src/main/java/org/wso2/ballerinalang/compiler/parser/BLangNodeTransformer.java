@@ -4177,6 +4177,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             SeparatedNodeList<Node> matchPatterns = listMatchPatternNode.matchPatterns();
             int matchPatternListSize = matchPatterns.size();
+
+            if (matchPatternListSize < 1) {
+                return bLangListMatchPattern;
+            }
+
             for (int i = 0; i < matchPatternListSize - 1; i++) {
                 BLangMatchPattern bLangMemberMatchPattern = transformMatchPattern(matchPatterns.get(i));
                 if (bLangMemberMatchPattern == null) {
@@ -4211,8 +4216,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     (BLangMappingMatchPattern) TreeBuilder.createMappingMatchPattern();
             bLangMappingMatchPattern.pos = matchPatternPos;
 
-            SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns = mappingMatchPatternNode.fieldMatchPatterns();
+            SeparatedNodeList<Node> fieldMatchPatterns = mappingMatchPatternNode.fieldMatchPatterns();
             int fieldMatchPatternListSize = fieldMatchPatterns.size();
+
+            if (fieldMatchPatternListSize < 1) {
+                return bLangMappingMatchPattern;
+            }
+
             for (int i = 0; i < fieldMatchPatternListSize - 1; i++) {
                 bLangMappingMatchPattern.fieldMatchPatterns.add((BLangFieldMatchPattern)
                         transformMatchPattern(fieldMatchPatterns.get(i)));
@@ -4220,9 +4230,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             BLangMatchPattern lastMember = transformMatchPattern(fieldMatchPatterns.get(fieldMatchPatternListSize - 1));
             if (lastMember.getKind() == NodeKind.REST_MATCH_PATTERN) {
-                bLangMappingMatchPattern.restMatchPattern = (BLangRestMatchPattern) lastMember;
+                bLangMappingMatchPattern.setRestMatchPattern((BLangRestMatchPattern) lastMember);
             } else {
-                bLangMappingMatchPattern.fieldMatchPatterns.add((BLangFieldMatchPattern) lastMember);
+                bLangMappingMatchPattern.addFieldMatchPattern((BLangFieldMatchPattern) lastMember);
             }
 
             return bLangMappingMatchPattern;
