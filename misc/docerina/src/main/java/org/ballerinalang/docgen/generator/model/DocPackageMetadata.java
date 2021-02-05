@@ -20,6 +20,8 @@ import com.google.gson.annotations.Expose;
 
 /**
  * Represents a Ballerina Package Metadata.
+ *
+ * @since 2.0.0
  */
 public class DocPackageMetadata {
     @Expose

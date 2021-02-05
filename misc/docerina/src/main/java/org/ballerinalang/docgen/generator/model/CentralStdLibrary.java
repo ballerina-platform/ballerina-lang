@@ -23,6 +23,8 @@ import java.util.List;
 
 /**
  * Holds data needed by central api docs.
+ *
+ * @since 2.0.0
  */
 public class CentralStdLibrary {
     @Expose

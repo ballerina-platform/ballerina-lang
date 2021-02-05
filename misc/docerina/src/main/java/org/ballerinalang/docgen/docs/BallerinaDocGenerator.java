@@ -109,7 +109,7 @@ public class BallerinaDocGenerator {
             try (BufferedReader br = Files.newBufferedReader(langLibsJsonPath, StandardCharsets.UTF_8)) {
                 langLib = gson.fromJson(br, PackageLibrary.class);
                 if (langLib.packages.isEmpty()) {
-                    out.println("No langlibs found at: " + langLibsJsonPath.toString());
+                    out.printf("No langlibs found at: %s%n", langLibsJsonPath.toString());
                     return;
                 }
             } catch (IOException e) {
@@ -195,9 +195,8 @@ public class BallerinaDocGenerator {
                 StandardCharsets.UTF_8)) {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the " + CENTRAL_DOC_DATA_JSON + ". Cause: %s",
-                    e.getMessage()));
-            log.error("Failed to create " + CENTRAL_DOC_DATA_JSON + " file.", e);
+            out.printf("docerina: failed to create the %s. Cause: %s%n", CENTRAL_DOC_DATA_JSON, e.getMessage());
+            log.error("Failed to create {} file.", CENTRAL_DOC_DATA_JSON, e);
         }
     }
 
@@ -231,7 +230,7 @@ public class BallerinaDocGenerator {
         }
     }
 
-    public static void writeAPIDocs(PackageLibrary packageLib, String output, boolean isMerge) {
+    private static void writeAPIDocs(PackageLibrary packageLib, String output, boolean isMerge) {
         if (packageLib.packages.size() == 0) {
             return;
         }
@@ -327,15 +326,15 @@ public class BallerinaDocGenerator {
         File jsFile = new File(dataDir + File.separator + DOC_DATA_JS);
         File jsonFile = new File(dataDir + File.separator + DOC_DATA_JSON);
         if (jsFile.exists()) {
-            boolean deleted = jsFile.delete();
-            if (!deleted) {
-                out.println("docerina: failed to delete " + jsFile.toString());
+            if (!jsFile.delete()) {
+                out.printf("docerina: failed to delete %s%n", jsFile.toString());
+                log.error("docerina: failed to delete {}", jsFile.toString());
             }
         }
         if (jsonFile.exists()) {
-            boolean deleted = jsonFile.delete();
-            if (!deleted) {
-                out.println("docerina: failed to delete " + jsonFile.toString());
+            if (!jsonFile.delete()) {
+                out.printf("docerina: failed to delete %s%n", jsonFile.toString());
+                log.error("docerina: failed to delete {}", jsonFile.toString());
             }
         }
         String json = gson.toJson(packageLib);
@@ -344,18 +343,16 @@ public class BallerinaDocGenerator {
             String js = "var docData = " + json + ";";
             writer.write(new String(js.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the " + DOC_DATA_JS + ". Cause: %s",
-                    e.getMessage()));
-            log.error("Failed to create " + DOC_DATA_JS + " file.", e);
+            out.printf("docerina: failed to create the %s. Cause: %s%n", DOC_DATA_JS, e.getMessage());
+            log.error("Failed to create {} file.", DOC_DATA_JS, e);
         }
 
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),
                 StandardCharsets.UTF_8)) {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the " + DOC_DATA_JSON + ". Cause: %s",
-                    e.getMessage()));
-            log.error("Failed to create " + DOC_DATA_JSON + " file.", e);
+            out.printf("docerina: failed to create the %s. Cause: %s%n", DOC_DATA_JSON, e.getMessage());
+            log.error("Failed to create {} file.", DOC_DATA_JSON, e);
         }
     }
 
@@ -432,15 +429,15 @@ public class BallerinaDocGenerator {
         File jsonFile = new File(searchDir + File.separator + SEARCH_DATA_JSON);
         File jsFile = new File(searchDir + File.separator + SEARCH_DATA_JS);
         if (jsFile.exists()) {
-            boolean deleted = jsFile.delete();
-            if (!deleted) {
-                out.println("docerina: failed to delete " + jsFile.toString());
+            if (!jsFile.delete()) {
+                out.printf("docerina: failed to delete %s%n", jsFile.toString());
+                log.error("docerina: failed to delete {}", jsFile.toString());
             }
         }
         if (jsonFile.exists()) {
-            boolean deleted = jsonFile.delete();
-            if (!deleted) {
-                out.println("docerina: failed to delete " + jsonFile.toString());
+            if (!jsonFile.delete()) {
+                out.printf("docerina: failed to delete %s%n", jsonFile.toString());
+                log.error("docerina: failed to delete {}", jsonFile.toString());
             }
         }
         String json = gson.toJson(searchJson);
@@ -448,9 +445,8 @@ public class BallerinaDocGenerator {
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the " + SEARCH_DATA_JSON
-                    + ". Cause: %s", e.getMessage()));
-            log.error("Failed to create " + SEARCH_DATA_JSON + " file.", e);
+            out.printf("docerina: failed to create the %s. Cause: %s%n", SEARCH_DATA_JSON, e.getMessage());
+            log.error("Failed to create {} file.", SEARCH_DATA_JSON, e);
         }
 
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsFile),
@@ -458,9 +454,8 @@ public class BallerinaDocGenerator {
             String js = "var searchData = " + json + ";";
             writer.write(new String(js.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the " + SEARCH_DATA_JS + ". Cause: %s",
-                    e.getMessage()));
-            log.error("Failed to create " + SEARCH_DATA_JS + " file.", e);
+            out.printf("docerina: failed to create the %s. Cause: %s%n", SEARCH_DATA_JS, e.getMessage());
+            log.error("Failed to create {} file.", SEARCH_DATA_JS, e);
         }
 
     }
@@ -583,19 +578,5 @@ public class BallerinaDocGenerator {
                     .toList());
         }
         return resources;
-    }
-
-    private static Path getModuleDocPath(Path absolutePkgPath, String mdFileName) throws IOException {
-        Path packageMd;
-        Optional<Path> o = Files.find(absolutePkgPath, 1, (path, attr) -> {
-            Path fileName = path.getFileName();
-            if (fileName != null) {
-                return fileName.toString().equals(mdFileName);
-            }
-            return false;
-        }).findFirst();
-
-        packageMd = o.isPresent() ? o.get() : null;
-        return packageMd;
     }
 }
