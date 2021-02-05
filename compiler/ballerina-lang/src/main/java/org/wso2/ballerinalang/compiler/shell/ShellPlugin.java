@@ -178,6 +178,7 @@ public class ShellPlugin extends NodeRewriter {
                 case MEMORIZE_NAME:
                     memorizeFunction = function.symbol;
                     break;
+                default:
             }
         }
         return recallAnyFunction != null && recallAnyErrorFunction != null
