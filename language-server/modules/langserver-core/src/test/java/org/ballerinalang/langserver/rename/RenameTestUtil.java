@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.rename;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.File;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * An abstract implementation of any rename test.
@@ -30,32 +32,24 @@ public class RenameTestUtil {
 
     public static void alterExpectedUri(JsonObject expected, Path sourceRoot) throws IOException {
         JsonObject newChanges = new JsonObject();
-        expected.getAsJsonObject("changes").entrySet().forEach(jEntry -> {
+        for (Map.Entry<String, JsonElement> jEntry : expected.getAsJsonObject("changes").entrySet()) {
             String[] uriComponents = jEntry.getKey().replace("\"", "").split("/");
             Path expectedPath = Paths.get(sourceRoot.toUri());
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }
-            try {
-                newChanges.add(expectedPath.toFile().getCanonicalPath(), jEntry.getValue());
-            } catch (IOException e) {
-                // Ignore the exception
-            }
-        });
+            newChanges.add(expectedPath.toFile().getCanonicalPath(), jEntry.getValue());
+        }
         expected.add("changes", newChanges);
     }
 
     public static void alterActualUri(JsonObject actual) throws IOException {
         JsonObject newChanges = new JsonObject();
-        actual.getAsJsonObject("changes").entrySet().forEach(jEntry -> {
+        for (Map.Entry<String, JsonElement> jEntry : actual.getAsJsonObject("changes").entrySet()) {
             String uri = jEntry.getKey().replace("\"", "");
-            try {
-                String canonicalPath = new File(URI.create(uri)).getCanonicalPath();
-                newChanges.add(canonicalPath, jEntry.getValue());
-            } catch (IOException e) {
-                // Ignore exception
-            }
-        });
+            String canonicalPath = new File(URI.create(uri)).getCanonicalPath();
+            newChanges.add(canonicalPath, jEntry.getValue());
+        }
         actual.add("changes", newChanges);
     }
 }
