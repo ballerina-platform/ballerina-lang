@@ -263,6 +263,9 @@ public class JDIEventProcessor {
     private void createStepRequest(long threadId, int stepType) {
         context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
         ThreadReference threadReference = getThreadsMap().get(threadId);
+        if (threadReference == null) {
+            return;
+        }
         StepRequest request = context.getDebuggee().eventRequestManager().createStepRequest(threadReference,
                 StepRequest.STEP_LINE, stepType);
         request.setSuspendPolicy(StepRequest.SUSPEND_ALL);

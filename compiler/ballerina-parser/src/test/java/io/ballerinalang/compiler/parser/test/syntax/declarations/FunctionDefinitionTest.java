@@ -166,4 +166,9 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     public void testMissingTokensWithQualifiers() {
         testFile("func-definition/func_def_source_27.bal", "func-definition/func_def_assert_27.json");
     }
+
+    @Test
+    public void testTopLevelFunctionKeywordRecovery() {
+        testFile("func-definition/func_def_source_28.bal", "func-definition/func_def_assert_28.json");
+    }
 }

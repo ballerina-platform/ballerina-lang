@@ -1,4 +1,4 @@
-name: Publish Ballerina Snapshot
+name: Build and Publish Snapshot Artifacts
 
 on:
     push:
@@ -20,15 +20,6 @@ jobs:
                 with:
                     java-version: 11
 
-            -   name: Cache Gradle packages
-                uses: actions/cache@v2
-                with:
-                    path: |
-                        ~/.gradle/caches
-                        ~/.gradle/wrapper
-                    key: ${{ runner.os }}-gradle-${{ github.sha }}
-                    restore-keys: ${{ runner.os }}-gradle-
-
             -   name: Initialize Sub Modules
                 run: git submodule update --init
 
@@ -37,8 +28,7 @@ jobs:
                     packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
                     packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
                 run: |
-                    ./gradlew build -x test -x check -x createJavadoc --scan
-                    ./gradlew publish
+                    ./gradlew clean build -x createJavadoc --scan publish --continue --rerun-tasks
 
             -   name: Trigger Standard Library Module Builds
                 run: |

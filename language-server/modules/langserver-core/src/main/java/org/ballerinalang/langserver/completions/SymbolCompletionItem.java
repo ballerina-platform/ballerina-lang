@@ -35,9 +35,14 @@ public class SymbolCompletionItem extends AbstractLSCompletionItem {
 
     public SymbolCompletionItem(BallerinaCompletionContext lsContext, @Nullable Symbol bSymbol,
                                 CompletionItem completionItem) {
-        super(lsContext, completionItem);
-        this.bSymbol = bSymbol;
+        this(lsContext, bSymbol, completionItem, CompletionItemType.SYMBOL);
     }
+    
+    protected SymbolCompletionItem(BallerinaCompletionContext lsContext, @Nullable Symbol bSymbol,
+                                   CompletionItem completionItem, CompletionItemType type) {
+        super(lsContext, completionItem, type);
+        this.bSymbol = bSymbol;
+    } 
 
     public Symbol getSymbol() {
         return bSymbol;
