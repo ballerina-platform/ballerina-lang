@@ -18,12 +18,8 @@
 
 package io.ballerina.shell.snippet;
 
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeVisitor;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TreeModifier;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -47,25 +43,13 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public abstract class Snippet {
-    protected final SnippetSubKind subKind;
-    protected Node rootNode;
-
-    protected Snippet(SnippetSubKind subKind, Node rootNode) {
-        this.subKind = subKind;
-        this.rootNode = rootNode;
-    }
-
+public interface Snippet {
     /**
      * Finds all the used imports in this snippet.
      *
      * @return Set of all the used import module prefixes.
      */
-    public Set<String> usedImports() {
-        Set<String> imports = new HashSet<>();
-        rootNode.accept(new ImportNameFinder(imports));
-        return imports;
-    }
+    Set<String> usedImports();
 
     /**
      * Kind is the category of the snippet.
@@ -73,60 +57,22 @@ public abstract class Snippet {
      *
      * @return Snippet kind value.
      */
-    public SnippetKind getKind() {
-        return subKind.getKind();
-    }
+    SnippetKind getKind();
 
     /**
      * Modifies the tree of the snippet.
      *
      * @param treeModifier Modifier to use.
      */
-    public void modify(TreeModifier treeModifier) {
-        this.rootNode = this.rootNode.apply(treeModifier);
-    }
+    void modify(TreeModifier treeModifier);
 
-    public boolean isImport() {
-        return this.getKind() == SnippetKind.IMPORT_DECLARATION;
-    }
+    boolean isImport();
 
-    public boolean isModuleMemberDeclaration() {
-        return this.getKind() == SnippetKind.MODULE_MEMBER_DECLARATION;
-    }
+    boolean isModuleMemberDeclaration();
 
-    public boolean isStatement() {
-        return this.getKind() == SnippetKind.STATEMENT;
-    }
+    boolean isStatement();
 
-    public boolean isExpression() {
-        return this.getKind() == SnippetKind.EXPRESSION;
-    }
+    boolean isExpression();
 
-    public boolean isVariableDeclaration() {
-        return this.getKind() == SnippetKind.VARIABLE_DECLARATION;
-    }
-
-    @Override
-    public String toString() {
-        return rootNode.toSourceCode();
-    }
-
-    /**
-     * A helper class to find the imports used in a snippet.
-     *
-     * @since 2.0.0
-     */
-    protected static class ImportNameFinder extends NodeVisitor {
-        private final Set<String> imports;
-
-        public ImportNameFinder(Set<String> imports) {
-            this.imports = imports;
-        }
-
-        @Override
-        public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
-            super.visit(qualifiedNameReferenceNode);
-            imports.add(qualifiedNameReferenceNode.modulePrefix().text());
-        }
-    }
+    boolean isVariableDeclaration();
 }

@@ -20,7 +20,6 @@ package io.ballerina.shell.snippet.types;
 
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.utils.StringUtils;
 
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class ImportDeclarationSnippet extends Snippet {
+public class ImportDeclarationSnippet extends AbstractSnippet implements DeclarationSnippet {
     public ImportDeclarationSnippet(ImportDeclarationNode rootNode) {
         super(SnippetSubKind.IMPORT_DECLARATION, rootNode);
     }

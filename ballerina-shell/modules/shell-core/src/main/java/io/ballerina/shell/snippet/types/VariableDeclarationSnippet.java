@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class VariableDeclarationSnippet extends ExecutableSnippet {
+public class VariableDeclarationSnippet extends AbstractSnippet implements ExecutableSnippet, DeclarationSnippet {
     public VariableDeclarationSnippet(ModuleVariableDeclarationNode rootNode) {
         super(SnippetSubKind.VARIABLE_DECLARATION, rootNode);
     }

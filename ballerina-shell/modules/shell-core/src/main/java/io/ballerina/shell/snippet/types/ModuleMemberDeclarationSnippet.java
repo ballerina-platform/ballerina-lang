@@ -20,7 +20,6 @@ package io.ballerina.shell.snippet.types;
 
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
-import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.SnippetSubKind;
 
 import java.util.Optional;
@@ -31,7 +30,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ModuleMemberDeclarationSnippet extends Snippet {
+public class ModuleMemberDeclarationSnippet extends AbstractSnippet implements DeclarationSnippet {
     public ModuleMemberDeclarationSnippet(SnippetSubKind subKind, ModuleMemberDeclarationNode rootNode) {
         super(subKind, rootNode);
     }

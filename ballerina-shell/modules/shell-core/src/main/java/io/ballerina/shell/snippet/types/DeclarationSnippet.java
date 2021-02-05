@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,17 +18,13 @@
 
 package io.ballerina.shell.snippet.types;
 
-import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.shell.snippet.SnippetSubKind;
+import io.ballerina.shell.snippet.Snippet;
 
 /**
- * These are expressions that are executable. These do not have to contain semicolons.
- * If the expression is a Expression Statement, the semicolon will be stripped.
+ * Represents a snippet that is a declaration.
+ * These are module dclns, var dclns and imports
  *
  * @since 2.0.0
  */
-public class ExpressionSnippet extends AbstractSnippet implements ExecutableSnippet {
-    public ExpressionSnippet(ExpressionNode rootNode) {
-        super(SnippetSubKind.EXPRESSION, rootNode);
-    }
+public interface DeclarationSnippet extends Snippet {
 }
