@@ -6,31 +6,36 @@
     {{{.}}}
 {{/moduleDclns}}
 
+// Define built-in functions
+any|error {{{exprVarName}}} = ();
+handle context_id = java:fromString("");
+function recall(handle context_id, handle name) returns any|error { }
+function memorize(handle context_id, handle name, any|error value) { }
+function sprintfh(handle template, any|error... values) returns handle { return context_id;  }
 function println(any|error... values) { }
 function recall_h(string name) returns any|error { }
 function memorize_h(string name, any|error value) { }
 function sprintf(string template, any|error... values) returns string { return ""; }
+public function run() { }
+function init() { }
 
 {{#varDclns}}
     {{#isAny }}
         {{{prefix}}} {{{type}}} {{{name}}} = // value
-        <{{{type}}}> checkpanic recall_h("x");
+        <{{{type}}}> checkpanic recall_h("");
     {{/isAny}}
     {{^isAny }}
         {{{prefix}}} {{{type}}} {{{name}}} = // value
-        <{{{type}}}> recall_h("x");
+        <{{{type}}}> recall_h("");
     {{/isAny}}
 {{/varDclns}}
-any|error {{{exprVarName}}} = ();
 
 public function main() {
-    // Redefine to restrict user
+    // Define variables at function level to restrict user
     any|error {{{exprVarName}}} = ();
+    handle context_id = java:fromString("");
 
     // We have to define the variable in a function because
-    // some expressions are not allowed in module elevel as initializers
+    // some expressions are not allowed in module level as initializers
     {{{lastVarDcln}}}
-
-    // Use the java module to suppress import not used error
-    _ = java:JavaClassNotFoundError;
 }

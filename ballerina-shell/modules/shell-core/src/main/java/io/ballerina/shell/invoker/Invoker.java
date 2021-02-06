@@ -87,6 +87,7 @@ public abstract class Invoker extends DiagnosticReporter {
      * Executes a snippet and returns the output lines.
      * Snippets parameter should only include newly added snippets.
      * Old snippets should be managed as necessary by the implementation.
+     * TODO: Support executing multiple snippets at once.
      *
      * @param newSnippet New snippet to execute.
      * @return Execution output result.
