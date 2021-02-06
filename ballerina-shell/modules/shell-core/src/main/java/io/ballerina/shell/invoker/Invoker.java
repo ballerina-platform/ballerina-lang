@@ -42,6 +42,7 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Invoker that invokes a command to evaluate a list of snippets.
@@ -83,6 +84,13 @@ public abstract class Invoker extends DiagnosticReporter {
      * Reset executor state so that the execution can be start over.
      */
     public abstract void reset();
+
+    /**
+     * Deletes a collection of names from the evaluator state.
+     * If any of the names did not exist, this will throw an error.
+     * A compilation will be done to make sure that no new errors are there.
+     */
+    public abstract void delete(Set<String> declarationNames) throws InvokerException;
 
     /**
      * Executes a snippet and returns the output lines.

@@ -32,6 +32,7 @@ import io.ballerina.shell.utils.timeit.TimedOperation;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -139,6 +140,25 @@ public class Evaluator extends DiagnosticReporter {
             preprocessor.resetDiagnostics();
             treeParser.resetDiagnostics();
             snippetFactory.resetDiagnostics();
+            invoker.resetDiagnostics();
+        }
+    }
+
+    /**
+     * Deletes a collection of names from the evaluator state.
+     * If any of the names did not exist, this will throw an error.
+     * A compilation will be done to make sure that no new errors are there.
+     * This cannot be undone.
+     *
+     * @param declarationNames Names to delete.
+     * @throws BallerinaShellException if deletion failed.
+     */
+    public void delete(Collection<String> declarationNames) throws BallerinaShellException {
+
+        try {
+            invoker.delete(new HashSet<>(declarationNames));
+        } finally {
+            addAllDiagnostics(invoker.diagnostics());
             invoker.resetDiagnostics();
         }
     }

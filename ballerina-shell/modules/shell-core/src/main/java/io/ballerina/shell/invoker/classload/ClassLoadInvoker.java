@@ -204,6 +204,33 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     }
 
     @Override
+    public void delete(Set<String> declarationNames) throws InvokerException {
+        Map<QuotedIdentifier, GlobalVariable> queuedGlobalVars = new HashMap<>();
+        Map<QuotedIdentifier, String> queuedModuleDclns = new HashMap<>();
+        for (String declarationName : declarationNames) {
+            QuotedIdentifier identifier = new QuotedIdentifier(declarationName);
+            if (globalVars.containsKey(identifier)) {
+                queuedGlobalVars.put(identifier, globalVars.get(identifier));
+            } else if (moduleDclns.containsKey(identifier)) {
+                queuedModuleDclns.put(identifier, moduleDclns.get(identifier));
+            } else {
+                addDiagnostic(Diagnostic.error(declarationName + " is not defined.\n" +
+                        "Please enter names of declarations that are already defined."));
+                throw new InvokerException();
+            }
+        }
+
+        try {
+            queuedGlobalVars.keySet().forEach(globalVars::remove);
+            queuedModuleDclns.keySet().forEach(moduleDclns::remove);
+            processCurrentState();
+        } catch (InvokerException e) {
+            globalVars.putAll(queuedGlobalVars);
+            moduleDclns.putAll(queuedModuleDclns);
+        }
+    }
+
+    @Override
     public Optional<Object> execute(Snippet newSnippet) throws InvokerException {
         if (!this.initialized.get()) {
             throw new IllegalStateException("Invoker execution not initialized.");
@@ -414,6 +441,19 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         SingleFileProject project = getProject(varTypeInferContext, DECLARATION_TEMPLATE_FILE);
         compile(project);
         return Map.entry(moduleDeclarationName, newSnippet.toString());
+    }
+
+    /**
+     * Processes current state by compiling. Throws an error if compilation fails.
+     *
+     * @throws InvokerException If state is invalid.
+     */
+    private void processCurrentState() throws InvokerException {
+        Set<String> importStrings = getRequiredImportStatements();
+        ClassLoadContext context = new ClassLoadContext(this.contextId, importStrings,
+                moduleDclns.values(), globalVariableContexts().values(), null);
+        Project project = getProject(context, DECLARATION_TEMPLATE_FILE);
+        compile(project);
     }
 
     /**
@@ -687,14 +727,24 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * @return List of imports.
      */
     protected Set<String> getRequiredImportStatements(Snippet snippet) {
-        Set<String> importStrings = new HashSet<>(imports.getUsedImports()); // Anon imports
-        importStrings.addAll(imports.getUsedImports(globalVars.keySet())); // Imports from vars
-        importStrings.addAll(imports.getUsedImports(moduleDclns.keySet())); // Imports from module dclns
+        Set<String> importStrings = getRequiredImportStatements();
         // Add all used imports in this snippet
         snippet.usedImports().stream()
                 .map(QuotedIdentifier::new)
                 .map(imports::getImport).filter(Objects::nonNull)
                 .forEach(importStrings::add);
+        return importStrings;
+    }
+
+    /**
+     * Return import strings used.
+     *
+     * @return List of imports.
+     */
+    protected Set<String> getRequiredImportStatements() {
+        Set<String> importStrings = new HashSet<>(imports.getUsedImports()); // Anon imports
+        importStrings.addAll(imports.getUsedImports(globalVars.keySet())); // Imports from vars
+        importStrings.addAll(imports.getUsedImports(moduleDclns.keySet())); // Imports from module dclns
         return importStrings;
     }
 

@@ -22,6 +22,7 @@ import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticKind;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.cli.handlers.CommandHandler;
+import io.ballerina.shell.cli.handlers.DeleteCommand;
 import io.ballerina.shell.cli.handlers.ExitCommand;
 import io.ballerina.shell.cli.handlers.FileCommand;
 import io.ballerina.shell.cli.handlers.HelpCommand;
@@ -36,9 +37,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_DCLNS;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_DEBUG;
+import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_DELETE;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_EXIT;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_FILE;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_HELP;
@@ -127,9 +130,20 @@ public class BallerinaShell {
             File file = new File(fileName);
             evaluator.executeFile(file);
         } catch (BallerinaShellException e) {
-            if (!evaluator.hasErrors()) {
-                terminal.fatalError("Something went wrong: " + e.getMessage());
-            }
+            outputException(e);
+        }
+    }
+
+    /**
+     * Deletes a collection of declaration names from REPL.
+     * All must be defined names.
+     *
+     * @param declarationNames Names to delete.
+     */
+    public void delete(List<String> declarationNames) {
+        try {
+            evaluator.delete(declarationNames);
+        } catch (BallerinaShellException e) {
             outputException(e);
         }
     }
@@ -181,6 +195,7 @@ public class BallerinaShell {
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_RESET), new ResetStateCommand(this));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_DEBUG), new ToggleDebugCommand(this));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_FILE), new FileCommand(this));
+        commandHandler.attach(PropertiesLoader.getProperty(COMMAND_DELETE), new DeleteCommand(this));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_VARS),
                 new StringListCommand(this, evaluator::availableVariables));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_IMPORTS),
