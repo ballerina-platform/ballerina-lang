@@ -62,6 +62,8 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
         }
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 

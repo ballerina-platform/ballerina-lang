@@ -25,9 +25,9 @@ public class ProgramFileConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
     public static final short VERSION_NUMBER = 50;
-    public static final int BIR_VERSION_NUMBER = 54;
-    public static final short MIN_SUPPORTED_VERSION = 54;
-    public static final short MAX_SUPPORTED_VERSION = 54;
+    public static final int BIR_VERSION_NUMBER = 55;
+    public static final short MIN_SUPPORTED_VERSION = 55;
+    public static final short MAX_SUPPORTED_VERSION = 55;
 
     // todo move this to a proper place
     public static final String IMPLEMENTATION_VERSION = "2020r2";

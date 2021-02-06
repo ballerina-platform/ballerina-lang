@@ -21,6 +21,7 @@ package org.ballerinalang.test.observability;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.Utils;
 import org.testng.Assert;
 
 import java.io.IOException;
@@ -74,6 +75,7 @@ public class ObservabilityBaseTest extends BaseTest {
         // Don't use 9898 port here. It is used in metrics test cases.
         servicesServerInstance = new BServerInstance(balServer);
         servicesServerInstance.startServer(sourcesDir, packageName, null, null, env, requiredPorts);
+        Utils.waitForPortsToOpen(requiredPorts, 1000 * 60, false, "localhost");
     }
 
     protected void cleanupServer() throws BallerinaTestException {

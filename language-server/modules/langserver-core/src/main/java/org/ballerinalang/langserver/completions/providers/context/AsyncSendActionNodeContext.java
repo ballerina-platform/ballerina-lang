@@ -38,6 +38,9 @@ public class AsyncSendActionNodeContext extends RightArrowActionNodeContext<Asyn
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, AsyncSendActionNode node)
             throws LSCompletionException {
-        return this.getFilteredItems(context, node.expression());
+        List<LSCompletionItem> completionItems = this.getFilteredItems(context, node.expression());
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 }
