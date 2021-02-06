@@ -186,12 +186,12 @@ public class VariableVisibilityTest extends BaseTestCase {
         // xml children variable visibility test
         Map<String, Variable> xmlChildrenVariables =
             debugTestRunner.fetchChildVariables(xmlChildVariables.get("children"));
-        debugTestRunner.assertVariable(xmlChildrenVariables, "0", "<firstname>Praveen</firstname>", "xml");
-        debugTestRunner.assertVariable(xmlChildrenVariables, "1", "<lastname>Nada</lastname>", "xml");
+        debugTestRunner.assertVariable(xmlChildrenVariables, "[0]", "<firstname>Praveen</firstname>", "xml");
+        debugTestRunner.assertVariable(xmlChildrenVariables, "[1]", "<lastname>Nada</lastname>", "xml");
 
         // xml grand children variable visibility test
         Map<String, Variable> xmlGrandChildrenVariables =
-            debugTestRunner.fetchChildVariables(xmlChildrenVariables.get("0"));
+            debugTestRunner.fetchChildVariables(xmlChildrenVariables.get("[0]"));
         debugTestRunner.assertVariable(xmlGrandChildrenVariables, "children", "Praveen", "xml");
 
         // array child variable visibility test
@@ -281,9 +281,9 @@ public class VariableVisibilityTest extends BaseTestCase {
 
         // table child variable visibility test
         Map<String, Variable> tableChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("tableVar"));
+        debugTestRunner.assertVariable(tableChildVariables, "[0]", "Employee", "record");
         debugTestRunner.assertVariable(tableChildVariables, "[1]", "Employee", "record");
         debugTestRunner.assertVariable(tableChildVariables, "[2]", "Employee", "record");
-        debugTestRunner.assertVariable(tableChildVariables, "[3]", "Employee", "record");
     }
 
     @AfterClass(alwaysRun = true)

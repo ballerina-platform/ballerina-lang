@@ -16,27 +16,36 @@
 
 package org.ballerinalang.debugadapter;
 
-import com.sun.jdi.VirtualMachine;
+import com.sun.jdi.request.EventRequestManager;
 import io.ballerina.projects.Project;
+import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
-/**
- * Debugging session context.
- */
-public class DebugContext {
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
-    private Process launchedProcess;
+/**
+ * Context holder for debug execution state related information.
+ */
+public class ExecutionContext {
+
     private IDebugProtocolClient client;
     private final JBallerinaDebugServer adapter;
-    private VirtualMachine debuggee;
+    private VirtualMachineProxyImpl debuggee;
     private Project sourceProject;
+    private Process launchedProcess;
 
-    DebugContext(JBallerinaDebugServer adapter) {
+    ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
+        this.client = null;
+        this.debuggee = null;
+        this.launchedProcess = null;
     }
 
-    public Process getLaunchedProcess() {
-        return launchedProcess;
+    public Optional<Process> getLaunchedProcess() {
+        return Optional.ofNullable(launchedProcess);
     }
 
     public void setLaunchedProcess(Process launchedProcess) {
@@ -55,11 +64,11 @@ public class DebugContext {
         return adapter;
     }
 
-    public VirtualMachine getDebuggee() {
+    public VirtualMachineProxyImpl getDebuggee() {
         return debuggee;
     }
 
-    public void setDebuggee(VirtualMachine debuggee) {
+    public void setDebuggee(VirtualMachineProxyImpl debuggee) {
         this.debuggee = debuggee;
     }
 
@@ -69,5 +78,17 @@ public class DebugContext {
 
     public void setSourceProject(Project sourceProject) {
         this.sourceProject = sourceProject;
+    }
+
+    public EventRequestManager getEventManager() {
+        return debuggee.eventRequestManager();
+    }
+
+    public BufferedReader getInputStream() {
+        return new BufferedReader(new InputStreamReader(launchedProcess.getInputStream(), StandardCharsets.UTF_8));
+    }
+
+    public BufferedReader getErrorStream() {
+        return new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(), StandardCharsets.UTF_8));
     }
 }

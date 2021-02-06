@@ -367,6 +367,7 @@ public class RunTestsTask implements Task {
                     + target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
                     .resolve(TesterinaConstants.EXEC_FILE_NAME).toString();
             if (!TesterinaConstants.DOT.equals(packageName) && this.includesInCoverage == null) {
+                // add user defined classes for generating the jacoco exec file
                 agentCommand += ",includes=" + orgName + ".*";
             } else {
                 agentCommand += ",includes=" + this.includesInCoverage;

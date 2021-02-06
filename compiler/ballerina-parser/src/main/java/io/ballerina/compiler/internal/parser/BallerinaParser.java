@@ -13236,7 +13236,7 @@ public class BallerinaParser extends AbstractParser {
             }
             matchClauses.add(clause);
 
-            STNode seperator = parseMatchPatternEnd();
+            STNode seperator = parseMatchPatternListMemberRhs();
             if (seperator == null) {
                 break;
             }
@@ -13304,7 +13304,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseMatchPatternEnd() {
+    private STNode parseMatchPatternListMemberRhs() {
         switch (peek().kind) {
             case PIPE_TOKEN:
                 return parsePipeToken();
@@ -13313,8 +13313,8 @@ public class BallerinaParser extends AbstractParser {
                 // Returning null indicates the end of the match-patterns list
                 return null;
             default:
-                recover(peek(), ParserRuleContext.MATCH_PATTERN_RHS);
-                return parseMatchPatternEnd();
+                recover(peek(), ParserRuleContext.MATCH_PATTERN_LIST_MEMBER_RHS);
+                return parseMatchPatternListMemberRhs();
         }
     }
 
@@ -13677,6 +13677,11 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG);
         STNode firstArg = parseErrorArgListMatchPattern(ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_START);
         endContext();
+
+        if (firstArg == null) {
+            return STNodeFactory.createNodeList(argListMatchPatterns);
+        }
+
         if (isSimpleMatchPattern(firstArg.kind)) {
 
             argListMatchPatterns.add(firstArg);
@@ -13813,6 +13818,8 @@ public class BallerinaParser extends AbstractParser {
                 STNode varKeyword = consume();
                 STNode variableName = createCaptureOrWildcardBP(parseVariableName());
                 return STNodeFactory.createTypedBindingPatternNode(varKeyword, variableName);
+            case CLOSE_PAREN_TOKEN:
+                return null;
             default:
                 recover(nextToken, context);
                 return parseErrorArgListMatchPattern(context);
