@@ -38,7 +38,9 @@ public class ConfigurableConstants {
     public static final String FIELD_TYPE_NOT_SUPPORTED = "Configurable feature is yet to be supported for " +
             "complex record field type '%s' in variable '%s' of type %s";
     public static final String REQUIRED_FIELD_NOT_PROVIDED = "Value not provided for non-defaultable required field" +
-            " '%s' of record type %s in configurable variable '%s'";
+            " '%s' of record type '%s' in configurable variable '%s'";
+    public static final String TABLE_KEY_NOT_PROVIDED = "Value required for key field '%s' of type '%s' in " +
+            "configurable variable '%s'";
 
     private ConfigurableConstants() {
     }

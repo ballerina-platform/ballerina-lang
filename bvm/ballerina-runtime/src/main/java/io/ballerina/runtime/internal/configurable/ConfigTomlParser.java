@@ -20,23 +20,29 @@ package io.ballerina.runtime.internal.configurable;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BTableType;
+import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
+import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBasicValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
+import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
@@ -56,6 +62,7 @@ import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.I
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_VARIABLE_TYPE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.REQUIRED_FIELD_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.SUBMODULE_DELIMITER;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.TABLE_KEY_NOT_PROVIDED;
 
 /**
  * Toml parser for configurable implementation.
@@ -140,6 +147,11 @@ public class ConfigTomlParser {
                         checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
                         value = retrieveArrayValues((TomlArrayValueNode) tomlValue, variableName,
                                 (ArrayType) effectiveType);
+                    } else if (typeTag == TypeTags.TABLE_TAG) {
+                        tomlValue = valueMap.get(variableName);
+                        checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
+                        value = retrieveTableValues((TomlTableArrayNode) tomlValue, variableName,
+                                (TableType) effectiveType);
                     } else {
                         throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, effectiveType.toString()));
                     }
@@ -196,11 +208,13 @@ public class ConfigTomlParser {
             Object objectValue;
             switch (fieldType.getTag()) {
                 case TypeTags.ARRAY_TAG:
+                    checkTypeAndThrowError(value.kind(), variableName + "." + fieldName, fieldType);
                     objectValue = retrieveArrayValues((TomlArrayValueNode) value, variableName, (ArrayType) fieldType);
                     break;
                 case TypeTags.INTERSECTION_TAG:
-                    objectValue = retrieveArrayValues((TomlArrayValueNode) value, variableName,
-                            (ArrayType) ((IntersectionType) fieldType).getEffectiveType());
+                    ArrayType arrayType = (ArrayType) ((IntersectionType) fieldType).getEffectiveType();
+                    checkTypeAndThrowError(value.kind(), variableName + "." + fieldName, arrayType);
+                    objectValue = retrieveArrayValues((TomlArrayValueNode) value, variableName, arrayType);
                     break;
                 default:
                     objectValue = retrievePrimitiveValue(value, fieldName, fieldType);
@@ -239,6 +253,34 @@ public class ConfigTomlParser {
                 typeTag == TypeTags.STRING_TAG || typeTag == TypeTags.DECIMAL_TAG);
     }
 
+    private static Object retrieveTableValues(TomlTableArrayNode tomlValue, String variableName,
+                                              TableType tableType) {
+        List<TomlTableNode> tableNodeList = tomlValue.children();
+        Type constraintType = tableType.getConstrainedType();
+        int tableSize = tableNodeList.size();
+        ListInitialValueEntry.ExpressionEntry[] tableEntries = new ListInitialValueEntry.ExpressionEntry[tableSize];
+        for (int i = 0; i < tableSize; i++) {
+            validateKeyField(tableNodeList.get(i), tableType.getFieldNames(), tableType, variableName);
+            Object value = retrieveRecordValues(tableNodeList.get(i), variableName,
+                    (RecordType) ((BIntersectionType) constraintType).getConstituentTypes().get(0));
+            tableEntries[i] = new ListInitialValueEntry.ExpressionEntry(value);
+        }
+        ArrayValue tableData =
+                new ArrayValueImpl(TypeCreator.createArrayType(constraintType), tableSize, tableEntries);
+        return new TableValueImpl<>((BTableType) tableType, tableData,
+                (ArrayValue) StringUtils.fromStringArray(tableType.getFieldNames()));
+    }
+
+    private static void validateKeyField(TomlTableNode recordTable, String[] fieldNames, Type tableType,
+                                         String variableName) {
+        for (String key : fieldNames) {
+            if (recordTable.entries().get(key) == null) {
+                throw new TomlException(
+                        String.format(TABLE_KEY_NOT_PROVIDED, key, tableType.toString(), variableName));
+            }
+        }
+    }
+
     private static Object getBalValue(int typeTag, Object tomlValue) {
         if (typeTag == TypeTags.DECIMAL_TAG) {
             return ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) tomlValue));
@@ -270,6 +312,9 @@ public class ConfigTomlParser {
                 break;
             case TypeTags.RECORD_TYPE_TAG:
                 tomlType = TomlType.TABLE;
+                break;
+            case TypeTags.TABLE_TAG:
+                tomlType = TomlType.TABLE_ARRAY;
                 break;
             default:
                 throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, expectedType.toString()));
