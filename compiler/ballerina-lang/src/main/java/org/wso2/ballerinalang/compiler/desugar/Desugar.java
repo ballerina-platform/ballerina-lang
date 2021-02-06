@@ -5606,8 +5606,7 @@ public class Desugar extends BLangNodeVisitor {
 
         List<BVarSymbol> params = ((BInvokableSymbol) iExpr.symbol).params;
 
-        // Start from index `1`, since for langlib methods index `0` will be the value itself.
-        for (int i = 1; i < requiredArgs.size(); i++) {
+        for (int i = 0; i < requiredArgs.size(); i++) {
             requiredArgs.set(i, addConversionExprIfRequired(requiredArgs.get(i), params.get(i).type));
         }
     }
@@ -5625,28 +5624,16 @@ public class Desugar extends BLangNodeVisitor {
     */
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
         var returnTypeOfInvokable = ((BInvokableSymbol) iExpr.symbol).retType;
-        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(returnTypeOfInvokable)) {
-            // why we dont consider whole action invocation
-            BType originalInvType = genIExpr.type;
-            if (!genIExpr.async) {
-                genIExpr.type = returnTypeOfInvokable;
-            }
-            BLangExpression expr = addConversionExprIfRequired(genIExpr, originalInvType);
-
-            // Prevent adding another type conversion
-            if (expr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
-                this.result = expr;
-                return;
-            }
-
-            BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
-            conversionExpr.expr = genIExpr;
-            conversionExpr.targetType = originalInvType;
-            conversionExpr.type = originalInvType;
-            conversionExpr.pos = genIExpr.pos;
-
-            this.result = conversionExpr;
+        if (!iExpr.langLibInvocation || !TypeParamAnalyzer.containsTypeParam(returnTypeOfInvokable)) {
+            return;
         }
+
+        // why we dont consider whole action invocation
+        BType originalInvType = genIExpr.type;
+        if (!genIExpr.async) {
+            genIExpr.type = returnTypeOfInvokable;
+        }
+        this.result = addConversionExprIfRequired(genIExpr, originalInvType);
     }
 
     private void fixStreamTypeCastsInInvocationParams(BLangInvocation iExpr) {
