@@ -27,6 +27,7 @@ import io.ballerina.shell.cli.test.base.TestIntegrator;
 import org.jline.reader.EndOfFileException;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
@@ -38,9 +39,17 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class AbstractIntegrationTest {
+public abstract class AbstractIntegrationTest {
+    private static final String TEST_HEADER = "test.bal";
+
     protected void test(String fileName) throws Exception {
         List<TestCase> testCases = TestUtils.loadTestCases(fileName, TestCases.class);
+
+        File declarationFile = TestUtils.getFile(TEST_HEADER);
+        TestCase declarationTest = new TestCase();
+        declarationTest.setCode("/file " + declarationFile.getAbsolutePath());
+        declarationTest.setDescription("Loading declarations");
+        testCases.add(0, declarationTest);
 
         PipedOutputStream testOut = new PipedOutputStream();
         PipedInputStream shellIn = new PipedInputStream(testOut);
