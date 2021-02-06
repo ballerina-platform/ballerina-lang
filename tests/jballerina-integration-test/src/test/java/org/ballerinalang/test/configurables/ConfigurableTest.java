@@ -105,6 +105,15 @@ public class ConfigurableTest extends BaseTest {
         runLeecher.waitForText(5000);
     }
 
+    @Test
+    public void testRecordValueWithModuleClash() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "recordModuleProject").toAbsolutePath();
+        LogLeecher runLeecher = new LogLeecher("Tests passed");
+        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
+                new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
     /** Negative test cases. */
     @Test
     public void testNoConfigFile() throws BallerinaTestException {
@@ -171,6 +180,61 @@ public class ConfigurableTest extends BaseTest {
         Path projectPath = Paths.get(negativeTestFileLocation, "NoModuleConfig").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Value not provided for required configurable variable 'intVar'", ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
+                new LogLeecher[]{errorLeecher}, projectPath.toString());
+        errorLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testUnsupportedRecordField() throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "InvalidRecordField").toAbsolutePath();
+        LogLeecher errorLeecher =
+                new LogLeecher("Configurable feature is yet to be supported for field type " +
+                        "'string[][]' in variable 'testUser' of record 'main:AuthInfo'", ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
+                new LogLeecher[]{errorLeecher}, projectPath.toString());
+        errorLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testInvalidAdditionalRecordField() throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "AdditionalField").toAbsolutePath();
+        LogLeecher errorLeecher =
+                new LogLeecher("Additional field 'scopes' provided for configurable variable 'testUser' of record " +
+                        "'main:AuthInfo' is not supported", ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
+                new LogLeecher[]{errorLeecher}, projectPath.toString());
+        errorLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testRequiredFieldNotFound() throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "MissingRequiredField").toAbsolutePath();
+        LogLeecher errorLeecher =
+                new LogLeecher("Value not provided for non-defaultable required field 'username' of " +
+                        "record 'main:AuthInfo' in configurable variable 'testUser'", ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
+                new LogLeecher[]{errorLeecher}, projectPath.toString());
+        errorLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testTableKeyNotFound() throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "MissingTableKey").toAbsolutePath();
+        LogLeecher errorLeecher =
+                new LogLeecher("Value required for key 'username' of type " +
+                        "'table<(main:AuthInfo & readonly)> key(username) & readonly'" +
+                        " in configurable variable 'users'", ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
+                new LogLeecher[]{errorLeecher}, projectPath.toString());
+        errorLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testUnsupportedMap() throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "InvalidMapType").toAbsolutePath();
+        LogLeecher errorLeecher =
+                new LogLeecher("Configurable feature is yet to be supported for type 'map<int> & readonly'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);

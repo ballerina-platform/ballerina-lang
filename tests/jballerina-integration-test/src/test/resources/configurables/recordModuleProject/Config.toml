@@ -1,0 +1,21 @@
+[main.employee]
+empId = 111
+name = "Jane Doe"
+salary = 150000.00
+isPermanent = true
+
+[[main.empTable]]
+empId = 101
+name = "Alice"
+salary = 120000.0
+isPermanent = false
+
+[[main.empTable]]
+empId = 102
+name = "Bob"
+isPermanent = true
+
+[[main.empTable]]
+empId = 103
+name = "Edward"
+salary = 175000.0
