@@ -49,6 +49,7 @@ public abstract class AbstractEvaluatorTest {
                 .invoker(invoker).build();
         try {
             evaluator.initialize();
+            evaluator.executeFile(TestUtils.getFile("test.bal"));
         } catch (Exception e) {
             Assert.fail(evaluator.diagnostics().toString());
         }

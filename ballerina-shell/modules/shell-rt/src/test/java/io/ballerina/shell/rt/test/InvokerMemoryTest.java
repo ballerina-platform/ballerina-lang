@@ -22,10 +22,6 @@ import io.ballerina.shell.rt.InvokerMemory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.Charset;
-
 /**
  * Test Invoker memory functions.
  *
@@ -66,38 +62,5 @@ public class InvokerMemoryTest {
         InvokerMemory.forgetAll(contextId);
         Assert.assertNull(InvokerMemory.recall(contextId, "var3"));
         Assert.assertNull(InvokerMemory.recall(contextId2, "var3"));
-    }
-
-    @Test
-    public void testPrinterr() {
-        PrintStream origOut = System.out;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream out = new PrintStream(baos, true, Charset.defaultCharset());
-        System.setOut(out);
-        InvokerMemory.printerr(new IllegalStateException("Error Object"));
-        Assert.assertEquals(fixLineEnds(baos.toString()),
-                "Exception occurred: java.lang.IllegalStateException: Error Object\n");
-        System.setOut(origOut);
-    }
-
-    @Test
-    public void testSprintf() {
-        String result = InvokerMemory.sprintf("Hello %s %s!", "World", "Sunera");
-        Assert.assertEquals(result, "Hello World Sunera!");
-    }
-
-    @Test
-    public void testPrintln() {
-        PrintStream origOut = System.out;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream out = new PrintStream(baos, true, Charset.defaultCharset());
-        System.setOut(out);
-        InvokerMemory.println("Hello", 1, "no", false);
-        Assert.assertEquals(fixLineEnds(baos.toString()), "Hello1nofalse\n");
-        System.setOut(origOut);
-    }
-
-    private String fixLineEnds(String input) {
-        return input.replace("\r\n", "\n");
     }
 }
