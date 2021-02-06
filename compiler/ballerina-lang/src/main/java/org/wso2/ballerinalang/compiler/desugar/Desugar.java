@@ -65,11 +65,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -4435,8 +4438,9 @@ public class Desugar extends BLangNodeVisitor {
         // However, we are within the while loop. hence the $result$ can never be nil nor error.
         // Therefore cast $result$ to non-nilable type. i.e `int item = <>$result$.value;`
         BLangFieldBasedAccess valueAccessExpr = getValueAccessExpression(foreach.pos, foreach.varType, resultSymbol);
-        valueAccessExpr.expr = addConversionExprIfRequired(valueAccessExpr.expr,
-                types.getSafeType(valueAccessExpr.expr.type, true, false));
+
+        BLangExpression expr = valueAccessExpr.expr;
+        valueAccessExpr.expr = addConversionExprIfRequired(expr, symTable.mapAllType);
         variableDefinitionNode.getVariable()
                 .setInitialExpression(addConversionExprIfRequired(valueAccessExpr, foreach.varType));
         whileNode.body.stmts.add(0, (BLangStatement) variableDefinitionNode);
@@ -5624,7 +5628,7 @@ public class Desugar extends BLangNodeVisitor {
     */
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
         var returnTypeOfInvokable = ((BInvokableSymbol) iExpr.symbol).retType;
-        if (!iExpr.langLibInvocation || !TypeParamAnalyzer.containsTypeParam(returnTypeOfInvokable)) {
+        if (!iExpr.langLibInvocation && !TypeParamAnalyzer.containsTypeParam(returnTypeOfInvokable)) {
             return;
         }
 
@@ -6096,6 +6100,11 @@ public class Desugar extends BLangNodeVisitor {
             result = rewriteExpr(conversionExpr.expr);
             return;
         }
+
+        BType targetType = conversionExpr.targetType;
+        validateIsNotCastToAnImportedAnonType(targetType == null ? conversionExpr.type : targetType,
+                                              conversionExpr.expr);
+
         conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
         if (types.isXMLExprCastableToString(conversionExpr.expr.type, conversionExpr.type)) {
             result = convertXMLTextToString(conversionExpr);
@@ -9119,6 +9128,95 @@ public class Desugar extends BLangNodeVisitor {
         fields.clear();
         return type.tag == TypeTags.RECORD ? new BLangStructLiteral(pos, type, rewrittenFields) :
                 new BLangMapLiteral(pos, type, rewrittenFields);
+    }
+
+    private void validateIsNotCastToAnImportedAnonType(BType targetType, BLangExpression expr) {
+        validateIsNotCastToAnImportedAnonType(targetType, expr, new HashSet<>());
+    }
+
+    private void validateIsNotCastToAnImportedAnonType(BType targetType, BLangExpression expr,
+                                                       Set<BType> unresolvedTypes) {
+        if (!unresolvedTypes.add(targetType)) {
+            return;
+        }
+
+        switch (targetType.tag) {
+            case TypeTags.TABLE:
+                validateIsNotCastToAnImportedAnonType(((BTableType) targetType).constraint, expr,
+                                                      unresolvedTypes);
+                return;
+            case TypeTags.TYPEDESC:
+                validateIsNotCastToAnImportedAnonType(((BTypedescType) targetType).constraint, expr,
+                                                      unresolvedTypes);
+                return;
+            case TypeTags.STREAM:
+                validateIsNotCastToAnImportedAnonType(((BStreamType) targetType).constraint, expr,
+                                                      unresolvedTypes);
+                return;
+            case TypeTags.MAP:
+                validateIsNotCastToAnImportedAnonType(((BMapType) targetType).constraint, expr, unresolvedTypes);
+                return;
+            case TypeTags.INVOKABLE:
+                BInvokableType invokableType = (BInvokableType) targetType;
+                for (BType paramType : invokableType.paramTypes) {
+                    validateIsNotCastToAnImportedAnonType(paramType, expr, unresolvedTypes);
+                }
+
+                BType restType = invokableType.restType;
+                if (restType != null) {
+                    validateIsNotCastToAnImportedAnonType(restType, expr, unresolvedTypes);
+                }
+
+                BType retType = invokableType.retType;
+                if (retType != null) {
+                    validateIsNotCastToAnImportedAnonType(retType, expr, unresolvedTypes);
+                }
+                return;
+            case TypeTags.ARRAY:
+                validateIsNotCastToAnImportedAnonType(((BArrayType) targetType).eType, expr, unresolvedTypes);
+                return;
+            case TypeTags.UNION:
+                for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
+                    validateIsNotCastToAnImportedAnonType(memberType, expr, unresolvedTypes);
+                }
+                return;
+            case TypeTags.INTERSECTION:
+                for (BType constituentType : ((BIntersectionType) targetType).getConstituentTypes()) {
+                    validateIsNotCastToAnImportedAnonType(constituentType, expr, unresolvedTypes);
+                }
+                return;
+            case TypeTags.ERROR:
+                validateIsNotCastToAnImportedAnonType(((BErrorType) targetType).detailType, expr,
+                                                      unresolvedTypes);
+                return;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) targetType;
+                for (BType tupleMemberType : tupleType.tupleTypes) {
+                    validateIsNotCastToAnImportedAnonType(tupleMemberType, expr, unresolvedTypes);
+                }
+
+                BType tupleRestType = tupleType.restType;
+                if (tupleRestType != null) {
+                    validateIsNotCastToAnImportedAnonType(tupleRestType, expr, unresolvedTypes);
+                }
+                return;
+            case TypeTags.FUTURE:
+                BType constraint = ((BFutureType) targetType).constraint;
+                if (constraint != null) {
+                    validateIsNotCastToAnImportedAnonType(constraint, expr, unresolvedTypes);
+                }
+                return;
+            case TypeTags.RECORD:
+            case TypeTags.OBJECT:
+                boolean notACastToImportedAnonType = !Symbols.isFlagOn(targetType.flags, Flags.ANONYMOUS) ||
+                        targetType.tsymbol.pkgID == env.enclPkg.packageID;
+                if (!notACastToImportedAnonType) {
+                    throw new IllegalStateException(
+                            "Invalid cast to imported anon type '" + targetType.toString() + "' with package ID '" +
+                                    targetType.tsymbol.pkgID.toString() + "', source type '" + expr.toString() +
+                                    "' at " + expr.pos);
+                }
+        }
     }
 
     protected void addTransactionInternalModuleImport() {
