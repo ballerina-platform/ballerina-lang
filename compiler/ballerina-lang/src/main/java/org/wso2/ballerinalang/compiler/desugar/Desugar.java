@@ -4440,6 +4440,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangFieldBasedAccess valueAccessExpr = getValueAccessExpression(foreach.pos, foreach.varType, resultSymbol);
 
         BLangExpression expr = valueAccessExpr.expr;
+        // Since `$result$` is always a record (with a single `value` field), add a cast to `map<any|error>`
+        // to avoid casting to an anonymous type - https://github.com/ballerina-platform/ballerina-lang/issues/28262.
         valueAccessExpr.expr = addConversionExprIfRequired(expr, symTable.mapAllType);
         variableDefinitionNode.getVariable()
                 .setInitialExpression(addConversionExprIfRequired(valueAccessExpr, foreach.varType));
@@ -9130,6 +9132,15 @@ public class Desugar extends BLangNodeVisitor {
                 new BLangMapLiteral(pos, type, rewrittenFields);
     }
 
+    /**
+     * This in intended to be a temporary validation to avoid casting to anonymous types from imported packages,
+     * because such casts can cause backward compatibility issues since anonymous type names can change per compilation.
+     * The current alternative in such a scenario is to cast to a compatible in-line type. For example, a cast to an
+     * anonymous record type can be replaced with a cast to a map type.
+     * If this is not possible due to some reason, we need to introduce an approach to uniquely identify anonymous
+     * types across compilations.
+     * See https://github.com/ballerina-platform/ballerina-lang/issues/28262.
+     */
     private void validateIsNotCastToAnImportedAnonType(BType targetType, BLangExpression expr) {
         validateIsNotCastToAnImportedAnonType(targetType, expr, new HashSet<>());
     }
