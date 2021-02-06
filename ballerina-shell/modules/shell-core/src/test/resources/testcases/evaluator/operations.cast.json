@@ -40,6 +40,6 @@
     "description": "Casting to incorrect type.",
     "code": "Department department = <Department>value;",
     "stdout": "Panic: {ballerina}TypeCastError\n",
-    "error": "InvokerException"
+    "error": "InvokerPanicException"
   }
 ]

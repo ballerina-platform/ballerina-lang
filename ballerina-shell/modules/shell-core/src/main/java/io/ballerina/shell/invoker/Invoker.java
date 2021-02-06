@@ -37,6 +37,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
@@ -242,5 +243,12 @@ public abstract class Invoker extends DiagnosticReporter {
             addDiagnostic(Diagnostic.error("Temp File reading failed: " + e.getMessage()));
             throw new InvokerException(e);
         }
+    }
+
+    /**
+     * @return Error stream to print out error messages.
+     */
+    protected PrintStream getErrorStream() {
+        return System.err;
     }
 }

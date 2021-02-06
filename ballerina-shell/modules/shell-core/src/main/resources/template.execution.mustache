@@ -45,12 +45,11 @@ function memorize(string name, any|error value) {
 any|error {{{exprVarName}}} = recall_any_error("{{{exprVarName}}}");
 handle context_id = java:fromString("{{contextId}}");
 
-// This will execute the statement and initialize and save var dcln.
-// The variable is declared in local context to enable various expressions.
-public function run() returns error? {
-    // Handle statements/expressions
-    do {
-        {{#lastStmt}}
+// Handle statements/expressions
+// We put statements separately to trap any panics
+function stmts() returns any {
+    {{#lastStmt}}
+        do {
             // Statement evaluation
             {{#statement}}
                 if (true) {
@@ -65,30 +64,27 @@ public function run() returns error? {
                     {{{code}}}
                 );
             {{/statement}}
-        {{/lastStmt}}
-    } on fail error e {
-        return e;
-    }
-
-    // Variable declaration and save new vars
-    {{{lastVarDcln}}}
-    {{#varDclns}}
-        {{#isNew }}
-            memorize("{{{encodedName}}}", {{{name}}});
-        {{/isNew}}
-    {{/varDclns}}
+        } on fail error e {
+            {{{exprVarName}}} = ();
+            return e.message();
+        }
+    {{/lastStmt}}
 }
 
-public function main() returns error? {
-    error? failRet = run();
+// This will execute the statement and initialize and save var dcln.
+// The variable is declared in local context to enable various expressions.
+function run() returns any {
+    any|error retValue = trap stmts();
 
-    // Save old variables
+    // Variable declaration and save vars
+    {{{lastVarDcln}}}
     memorize("{{{exprVarName}}}", {{{exprVarName}}});
     {{#varDclns}}
-        {{^isNew }}
-            memorize("{{{encodedName}}}", {{{name}}});
-        {{/isNew}}
+        memorize("{{{encodedName}}}", {{{name}}});
     {{/varDclns}}
 
-    return failRet;
+    return checkpanic retValue;
+}
+
+public function main() {
 }

@@ -35,6 +35,8 @@ import org.testng.Assert;
  * @since 2.0.0
  */
 public abstract class AbstractEvaluatorTest {
+    private static final String TEST_HEADER = "test.bal";
+
     /**
      * Tests a json file containing test case session.
      * This is a E2E test of the evaluator.
@@ -49,7 +51,7 @@ public abstract class AbstractEvaluatorTest {
                 .invoker(invoker).build();
         try {
             evaluator.initialize();
-            evaluator.executeFile(TestUtils.getFile("test.bal"));
+            evaluator.executeFile(TestUtils.getFile(TEST_HEADER));
         } catch (Exception e) {
             Assert.fail(evaluator.diagnostics().toString());
         }
@@ -58,7 +60,7 @@ public abstract class AbstractEvaluatorTest {
         for (TestCase testCase : testSession) {
             try {
                 String expr = evaluator.evaluate(testCase.getCode());
-                Assert.assertEquals(invoker.getOutput(), testCase.getStdout(), testCase.getDescription());
+                Assert.assertEquals(invoker.getStdOut(), testCase.getStdout(), testCase.getDescription());
                 Assert.assertEquals(expr, testCase.getExpr(), testCase.getDescription());
                 Assert.assertNull(testCase.getError(), testCase.getDescription());
                 Assert.assertFalse(evaluator.hasErrors(), testCase.getDescription());
@@ -66,7 +68,7 @@ public abstract class AbstractEvaluatorTest {
                 Assert.assertTrue(evaluator.hasErrors(), testCase.getDescription());
                 String errorClass = e.getClass().getSimpleName();
                 if (testCase.getError() != null) {
-                    Assert.assertEquals(invoker.getOutput(), testCase.getStdout(), testCase.getDescription());
+                    Assert.assertEquals(invoker.getStdOut(), testCase.getStdout(), testCase.getDescription());
                     Assert.assertEquals(testCase.getError(), errorClass, testCase.getDescription());
                     continue;
                 }
@@ -74,6 +76,7 @@ public abstract class AbstractEvaluatorTest {
                         testCase.getDescription(), e.getMessage(), evaluator.diagnostics()));
             } finally {
                 evaluator.resetDiagnostics();
+                invoker.reset();
             }
         }
     }

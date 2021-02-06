@@ -57,7 +57,7 @@
     "description": "Cannot update immutables.",
     "code": "addEntryToMap(m2, \"intValTwo\", 10);",
     "stdout": "Panic: {ballerina/lang.map}InvalidUpdate\n",
-    "error": "InvokerException"
+    "error": "InvokerPanicException"
   },
   {
     "description": "Clone immutable and check ref eq.",

@@ -14,7 +14,8 @@ function java_memorize(handle context_id, handle name, any|error value) { }
 function recall_any(string name) returns any { }
 function recall_any_error(string name) returns any|error { }
 function memorize(string name, any|error value) { }
-public function run() { }
+function stmts() returns any { }
+public function main() { }
 function init() { }
 
 {{#varDclns}}
@@ -28,7 +29,7 @@ function init() { }
     {{/isAny}}
 {{/varDclns}}
 
-public function main() {
+public function run() returns any {
     // Define variables at function level to restrict user
     any|error {{{exprVarName}}} = ();
     handle context_id = java:fromString("");

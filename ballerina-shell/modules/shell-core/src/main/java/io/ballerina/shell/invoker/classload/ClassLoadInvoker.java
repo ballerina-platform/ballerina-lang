@@ -47,6 +47,7 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.InvokerException;
+import io.ballerina.shell.exceptions.InvokerPanicException;
 import io.ballerina.shell.invoker.Invoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.invoker.classload.context.StatementContext;
@@ -67,6 +68,7 @@ import io.ballerina.tools.text.LinePosition;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -99,7 +101,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     public static final String MODULE_NOT_FOUND_CODE = "BCE2003";
     protected static final String MODULE_INIT_CLASS_NAME = "$_init";
     protected static final String MODULE_INIT_METHOD_NAME = "$moduleInit";
-    protected static final String MODULE_MAIN_METHOD_NAME = "main";
+    protected static final String MODULE_RUN_METHOD_NAME = "run";
     protected static final String DOLLAR = "$";
     // Punctuations
     private static final String DECLARATION_TEMPLATE_FILE = "template.declaration.mustache";
@@ -541,13 +543,24 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * @throws InvokerException If execution failed.
      */
     protected boolean executeProject(JBallerinaBackend jBallerinaBackend) throws InvokerException {
-        JarResolver jarResolver = jBallerinaBackend.jarResolver();
-        ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
-        // First initialize the module
-        invokeMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
-        // Then call main method
-        Object result = invokeMethod(classLoader, getMethodClassName(), MODULE_MAIN_METHOD_NAME);
-        return result == null;
+        PrintStream errorStream = getErrorStream();
+        try {
+            JarResolver jarResolver = jBallerinaBackend.jarResolver();
+            ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
+            // First initialize the module
+            invokeMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
+            // Then call main method
+            Object failError = invokeMethod(classLoader, getMethodClassName(), MODULE_RUN_METHOD_NAME);
+            if (failError != null) {
+                errorStream.println("Fail: " + failError);
+            }
+            return true;
+        } catch (InvokerPanicException panicError) {
+            Throwable panicCause = panicError.getCause();
+            errorStream.println("Panic: " + panicCause.getMessage());
+            addDiagnostic(Diagnostic.error("Unhandled Runtime Error."));
+            throw panicError;
+        }
     }
 
     /**
@@ -557,7 +570,6 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * @param classLoader Class loader to find the class.
      * @param className   Class name with the method.
      * @param methodName  Method name to invoke.
-     * @return The result of the invocation.
      * @throws InvokerException If invocation failed.
      */
     protected Object invokeMethod(ClassLoader classLoader, String className, String methodName)
@@ -570,15 +582,18 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
             // Schedule and run the function and return if result is valid
             BFuture out = scheduler.schedule(new Object[1], methodInvocation, null, null, null,
-                    PredefinedTypes.TYPE_ERROR, null, null);
+                    PredefinedTypes.TYPE_ANY, null, null);
             scheduler.start();
 
             Object result = out.getResult();
             Throwable panic = out.getPanic();
             if (panic != null) {
-                addDiagnostic(Diagnostic.debug("Panic: " + panic));
-                addDiagnostic(Diagnostic.debug("Result: " + result));
-                throw new InvokerException(panic);
+                // Unexpected runtime error
+                throw new InvokerPanicException(panic);
+            }
+            if (result instanceof Throwable) {
+                // Function returned error (panic)
+                throw new InvokerPanicException((Throwable) result);
             }
             return result;
         } catch (ClassNotFoundException e) {
