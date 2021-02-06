@@ -37,9 +37,8 @@ public abstract class FilePreprocessor extends Preprocessor {
 
     @Override
     public String processFile(File file) throws PreprocessorException {
-        try (Scanner scanner = new Scanner(file, StandardCharsets.UTF_8).useDelimiter(SPECIAL_DELIMITER)) {
-            // No processing actually done in this implementation
-            // Assumes the syntax is correct
+        try {
+            Scanner scanner = new Scanner(file, StandardCharsets.UTF_8).useDelimiter(SPECIAL_DELIMITER);
             return scanner.hasNext() ? scanner.next() : "";
         } catch (IOException e) {
             addDiagnostic(Diagnostic.error("File reading failed: " + file));
