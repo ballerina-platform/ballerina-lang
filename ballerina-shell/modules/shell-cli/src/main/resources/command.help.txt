@@ -10,6 +10,7 @@ Or type one of the following commands:
 /imports        - List the available imports.
 /vars           - List the declared variables and their values.
 /dclns          - List the user defined module level declarations.
+/file <FILE>    - Load declarations defined in <FILE>. eg: /file my_file.bal
 /help           - Get this message.
 /help <TOPIC>   - Get help on <TOPIC>. eg: /help var
 /help topics    - See all available topic names.
