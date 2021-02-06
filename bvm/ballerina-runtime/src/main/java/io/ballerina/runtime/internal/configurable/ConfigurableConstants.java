@@ -33,6 +33,12 @@ public class ConfigurableConstants {
     public static final String DEFAULT_MODULE = ".";
     public static final String SUBMODULE_DELIMITER = ".";
     public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
+    public static final String INVALID_FIELD_IN_RECORD =
+            "Additional field '%s' provided for configurable variable '%s' of record type %s is yet to be supported";
+    public static final String FIELD_TYPE_NOT_SUPPORTED = "Configurable feature is yet to be supported for " +
+            "complex record field type '%s' in variable '%s' of type %s";
+    public static final String REQUIRED_FIELD_NOT_PROVIDED = "Value not provided for non-defaultable required field" +
+            " '%s' of record type %s in configurable variable '%s'";
 
     private ConfigurableConstants() {
     }
