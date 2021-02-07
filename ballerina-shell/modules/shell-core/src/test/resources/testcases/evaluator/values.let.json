@@ -25,7 +25,7 @@
   },
   {
     "description": "Let variable declarations can include tuple binding patterns.",
-    "code": "[int, int] v1 = [10, 20]; int tupleBindingResult = let [int, int] [d1, d2] = v1, int d3 = d1 + d2 in  d3 * 2; tupleBindingResult",
+    "code": "int tupleBindingResult = let [int, int] [d1, d2] = [10, 20], int d3 = d1 + d2 in  d3 * 2; tupleBindingResult",
     "expr": "60"
   },
   {

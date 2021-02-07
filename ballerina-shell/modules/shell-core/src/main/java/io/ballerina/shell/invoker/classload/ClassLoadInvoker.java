@@ -23,20 +23,11 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
-import io.ballerina.compiler.syntax.tree.FunctionBodyNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
-import io.ballerina.projects.Document;
-import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
@@ -64,7 +55,6 @@ import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.shell.utils.timeit.InvokerTimeIt;
 import io.ballerina.shell.utils.timeit.TimedOperation;
-import io.ballerina.tools.text.LinePosition;
 
 import java.io.File;
 import java.io.IOException;
@@ -378,15 +368,16 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      */
     private Map<QuotedIdentifier, GlobalVariable> processVarDcln(VariableDeclarationSnippet newSnippet)
             throws InvokerException {
+        Set<QuotedIdentifier> definedVariables = newSnippet.names().stream()
+                .map(QuotedIdentifier::new).collect(Collectors.toSet());
+
         // No matter the approach, compile. This will confirm that syntax is valid.
-        ClassLoadContext varTypeInferContext = createVarTypeInferContext(newSnippet);
+        ClassLoadContext varTypeInferContext = createVarTypeInferContext(newSnippet, definedVariables);
         SingleFileProject project = getProject(varTypeInferContext, DECLARATION_TEMPLATE_FILE);
         PackageCompilation compilation = compile(project);
         Collection<Symbol> symbols = visibleVarSymbols(project, compilation);
 
         String qualifiersAndMetadata = newSnippet.qualifiersAndMetadata();
-        Set<QuotedIdentifier> definedVariables = newSnippet.names().stream()
-                .map(QuotedIdentifier::new).collect(Collectors.toSet());
         Map<QuotedIdentifier, GlobalVariable> foundVariables = new HashMap<>();
         addDiagnostic(Diagnostic.debug("Found variable nodes: " + definedVariables));
 
@@ -469,11 +460,15 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     /**
      * Creates a context which can be used to identify new variables.
      *
-     * @param newSnippet New snippet. Must be a var dcln.
+     * @param newSnippet       New snippet. Must be a var dcln.
+     * @param newVariableNames Variable names in newSnippet.
      * @return Context with type information inferring code.
      */
-    protected ClassLoadContext createVarTypeInferContext(VariableDeclarationSnippet newSnippet) {
-        Collection<VariableContext> varDclns = globalVariableContexts().values();
+    protected ClassLoadContext createVarTypeInferContext(VariableDeclarationSnippet newSnippet,
+                                                         Collection<QuotedIdentifier> newVariableNames) {
+        Map<QuotedIdentifier, VariableContext> varDclnsMap = globalVariableContexts();
+        newVariableNames.forEach(varDclnsMap::remove);
+        Collection<VariableContext> varDclns = varDclnsMap.values();
 
         List<String> moduleDclnStrings = new ArrayList<>(moduleDclns.values());
         Set<String> importStrings = getRequiredImportStatements(newSnippet);
@@ -689,7 +684,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     }
 
     /**
-     * Gets the symbols that are visible to main method.
+     * Gets the symbols that are visible globally.
      * Returns only function symbols and variable symbols.
      *
      * @param project     Project to get symbols.
@@ -698,24 +693,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      */
     protected Collection<Symbol> visibleVarSymbols(Project project, PackageCompilation compilation) {
         // Get the document associated with project
-        Module module = project.currentPackage().getDefaultModule();
-        ModuleId moduleId = module.moduleId();
-        Optional<DocumentId> documentId = module.documentIds().stream().findFirst();
-        assert documentId.isPresent();
-        Document document = module.document(documentId.get());
-
-        // Find the position of cursor to find the symbols
-        // Get the position of the main function, line start of the close brace (after anything in main body)
-        ModulePartNode modulePartNode = document.syntaxTree().rootNode();
-        NodeList<ModuleMemberDeclarationNode> declarationNodes = modulePartNode.members();
-        ModuleMemberDeclarationNode declarationSnippet = declarationNodes.get(declarationNodes.size() - 1);
-        assert declarationSnippet instanceof FunctionDefinitionNode;
-        FunctionBodyNode bodyNode = ((FunctionDefinitionNode) declarationSnippet).functionBody();
-        assert bodyNode instanceof FunctionBodyBlockNode;
-        LinePosition cursorPos = ((FunctionBodyBlockNode) bodyNode).closeBraceToken().lineRange().startLine();
-
-        return compilation.getSemanticModel(moduleId)
-                .visibleSymbols(document, cursorPos).stream()
+        ModuleId moduleId = project.currentPackage().getDefaultModule().moduleId();
+        return compilation.getSemanticModel(moduleId).moduleSymbols().stream()
                 .filter(s -> s instanceof VariableSymbol || s instanceof FunctionSymbol)
                 .collect(Collectors.toList());
     }

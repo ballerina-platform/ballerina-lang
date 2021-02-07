@@ -28,9 +28,6 @@ function memorize(string name, any|error value) {
 
 // Variable declarations
 {{#varDclns}}
-    {{#isNew }}
-        {{{prefix}}} ({{{type}}})? {{{name}}} = (); // There is an issue with the name or type
-    {{/isNew}}
     {{^isNew }}
         {{#isAny }}
             {{{prefix}}} {{{type}}} {{{name}}} = <{{{type}}}> recall_any("{{{encodedName}}}");
@@ -40,6 +37,7 @@ function memorize(string name, any|error value) {
         {{/isAny}}
     {{/isNew}}
 {{/varDclns}}
+{{{lastVarDcln}}}
 
 // Global expression variable (previous evaluation value)
 any|error {{{exprVarName}}} = recall_any_error("{{{exprVarName}}}");
@@ -71,18 +69,13 @@ function stmts() returns any {
     {{/lastStmt}}
 }
 
-// This will execute the statement and initialize and save var dcln.
-// The variable is declared in local context to enable various expressions.
+// This will execute the statement and initialize and save vars.
 function run() returns any {
     any|error retValue = trap stmts();
-
-    // Variable declaration and save vars
-    {{{lastVarDcln}}}
     memorize("{{{exprVarName}}}", {{{exprVarName}}});
     {{#varDclns}}
         memorize("{{{encodedName}}}", {{{name}}});
     {{/varDclns}}
-
     return checkpanic retValue;
 }
 

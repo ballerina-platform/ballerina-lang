@@ -6,18 +6,6 @@
     {{{.}}}
 {{/moduleDclns}}
 
-// Define built-in functions
-any|error {{{exprVarName}}} = ();
-handle context_id = java:fromString("");
-function java_recall(handle context_id, handle name) returns any|error { }
-function java_memorize(handle context_id, handle name, any|error value) { }
-function recall_any(string name) returns any { }
-function recall_any_error(string name) returns any|error { }
-function memorize(string name, any|error value) { }
-function stmts() returns any { }
-public function main() { }
-function init() { }
-
 {{#varDclns}}
     {{#isAny }}
         {{{prefix}}} {{{type}}} {{{name}}} = // value
@@ -28,13 +16,17 @@ function init() { }
         <{{{type}}}> recall_any_error("");
     {{/isAny}}
 {{/varDclns}}
+{{{lastVarDcln}}}
 
-public function run() returns any {
-    // Define variables at function level to restrict user
-    any|error {{{exprVarName}}} = ();
-    handle context_id = java:fromString("");
-
-    // We have to define the variable in a function because
-    // some expressions are not allowed in module level as initializers
-    {{{lastVarDcln}}}
-}
+// Define built-in functions
+any|error {{{exprVarName}}} = ();
+handle context_id = java:fromString("");
+function java_recall(handle context_id, handle name) returns any|error { }
+function java_memorize(handle context_id, handle name, any|error value) { }
+function recall_any(string name) returns any { }
+function recall_any_error(string name) returns any|error { }
+function memorize(string name, any|error value) { }
+public function run() returns any { }
+function stmts() returns any { }
+public function main() { }
+function init() { }

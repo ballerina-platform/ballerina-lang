@@ -77,7 +77,7 @@ public class EvaluatorMiscTest {
         evaluator.evaluate("string? k = ()");
         evaluator.evaluate("string t = \"Hello\"");
         evaluator.evaluate("var f = function () returns int {return 1;}");
-        evaluator.evaluate("[int, string] [a, b] = [1, \"World\"]");
+        evaluator.evaluate("int a = 1; string b = \"World\"");
         //
         Assert.assertEquals(new HashSet<>(evaluator.availableVariables()),
                 Set.of(
