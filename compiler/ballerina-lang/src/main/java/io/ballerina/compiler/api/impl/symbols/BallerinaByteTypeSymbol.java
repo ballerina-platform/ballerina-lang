@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaByteTypeSymbol extends AbstractTypeSymbol implements ByteTypeSymbol {
 
     public BallerinaByteTypeSymbol(CompilerContext context, ModuleID moduleID, BType byteType) {
-        super(context, TypeDescKind.BYTE, moduleID, byteType);
+        super(context, TypeDescKind.BYTE, byteType);
     }
 
     @Override

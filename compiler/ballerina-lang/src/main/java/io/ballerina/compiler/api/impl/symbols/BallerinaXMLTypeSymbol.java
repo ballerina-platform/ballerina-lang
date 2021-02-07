@@ -38,7 +38,7 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
     private String typeName;
 
     public BallerinaXMLTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLType xmlType) {
-        super(context, TypeDescKind.XML, moduleID, xmlType);
+        super(context, TypeDescKind.XML, xmlType);
     }
 
     @Override

@@ -16,7 +16,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.LangLibrary;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -44,13 +43,11 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     protected List<FunctionSymbol> langLibFunctions;
 
     private final TypeDescKind typeDescKind;
-    private final ModuleID moduleID;
     private final BType bType;
 
-    public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
+    public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, BType bType) {
         this.context = context;
         this.typeDescKind = typeDescKind;
-        this.moduleID = moduleID;
         this.bType = bType;
     }
 

@@ -34,7 +34,7 @@ import java.util.Optional;
 public class BallerinaIntUnsigned16TypeSymbol extends AbstractTypeSymbol implements IntUnsigned16TypeSymbol {
 
     public BallerinaIntUnsigned16TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType unsigned16Type) {
-        super(context, TypeDescKind.INT_UNSIGNED16, moduleID, unsigned16Type);
+        super(context, TypeDescKind.INT_UNSIGNED16, unsigned16Type);
     }
 
     @Override

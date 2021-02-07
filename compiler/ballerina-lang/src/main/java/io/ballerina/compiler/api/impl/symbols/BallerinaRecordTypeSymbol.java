@@ -47,7 +47,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
     private List<TypeSymbol> typeInclusions;
 
     public BallerinaRecordTypeSymbol(CompilerContext context, ModuleID moduleID, BRecordType recordType) {
-        super(context, TypeDescKind.RECORD, moduleID, recordType);
+        super(context, TypeDescKind.RECORD, recordType);
         this.isInclusive = !recordType.sealed;
     }
 

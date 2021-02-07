@@ -35,7 +35,7 @@ import java.util.Optional;
 public class BallerinaXMLTextTypeSymbol extends AbstractTypeSymbol implements XMLTextTypeSymbol {
 
     public BallerinaXMLTextTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLSubType textType) {
-        super(context, TypeDescKind.XML_TEXT, moduleID, textType);
+        super(context, TypeDescKind.XML_TEXT, textType);
     }
 
     @Override

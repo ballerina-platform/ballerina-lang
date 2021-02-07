@@ -37,7 +37,7 @@ public class BallerinaXMLProcessingInstructionTypeSymbol extends AbstractTypeSym
 
     public BallerinaXMLProcessingInstructionTypeSymbol(CompilerContext context, ModuleID moduleID,
                                                        BXMLSubType piType) {
-        super(context, TypeDescKind.XML_PROCESSING_INSTRUCTION, moduleID, piType);
+        super(context, TypeDescKind.XML_PROCESSING_INSTRUCTION, piType);
     }
 
     @Override

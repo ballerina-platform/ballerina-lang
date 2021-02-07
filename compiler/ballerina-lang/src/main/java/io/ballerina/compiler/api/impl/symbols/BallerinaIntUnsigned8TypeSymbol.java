@@ -34,7 +34,7 @@ import java.util.Optional;
 public class BallerinaIntUnsigned8TypeSymbol extends AbstractTypeSymbol implements IntUnsigned8TypeSymbol {
 
     public BallerinaIntUnsigned8TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType unsigned8Type) {
-        super(context, TypeDescKind.INT_UNSIGNED8, moduleID, unsigned8Type);
+        super(context, TypeDescKind.INT_UNSIGNED8, unsigned8Type);
     }
 
     @Override

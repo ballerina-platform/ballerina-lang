@@ -53,7 +53,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     private List<TypeSymbol> typeInclusions;
 
     public BallerinaObjectTypeSymbol(CompilerContext context, ModuleID moduleID, BObjectType objectType) {
-        super(context, TypeDescKind.OBJECT, moduleID, objectType);
+        super(context, TypeDescKind.OBJECT, objectType);
     }
 
     @Override

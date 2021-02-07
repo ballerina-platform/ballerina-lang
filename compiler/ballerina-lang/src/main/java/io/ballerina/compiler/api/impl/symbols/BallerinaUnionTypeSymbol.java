@@ -54,11 +54,11 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     private String signature;
 
     public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BUnionType unionType) {
-        super(context, TypeDescKind.UNION, moduleID, unionType);
+        super(context, TypeDescKind.UNION, unionType);
     }
 
     public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BFiniteType finiteType) {
-        super(context, TypeDescKind.UNION, moduleID, finiteType);
+        super(context, TypeDescKind.UNION, finiteType);
     }
 
     @Override

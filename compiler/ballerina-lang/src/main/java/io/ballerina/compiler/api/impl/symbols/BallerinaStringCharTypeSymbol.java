@@ -34,7 +34,7 @@ import java.util.Optional;
 public class BallerinaStringCharTypeSymbol extends AbstractTypeSymbol implements StringCharTypeSymbol {
 
     public BallerinaStringCharTypeSymbol(CompilerContext context, ModuleID moduleID, BStringSubType charType) {
-        super(context, TypeDescKind.STRING_CHAR, moduleID, charType);
+        super(context, TypeDescKind.STRING_CHAR, charType);
     }
 
     @Override

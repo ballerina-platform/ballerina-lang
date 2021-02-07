@@ -35,7 +35,7 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
     private String signature;
 
     public BallerinaErrorTypeSymbol(CompilerContext context, ModuleID moduleID, BErrorType errorType) {
-        super(context, TypeDescKind.ERROR, moduleID, errorType);
+        super(context, TypeDescKind.ERROR, errorType);
     }
 
     /**

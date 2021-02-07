@@ -34,7 +34,7 @@ import java.util.Optional;
 public class BallerinaIntSigned32TypeSymbol extends AbstractTypeSymbol implements IntSigned32TypeSymbol {
 
     public BallerinaIntSigned32TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType signed32Type) {
-        super(context, TypeDescKind.INT_SIGNED32, moduleID, signed32Type);
+        super(context, TypeDescKind.INT_SIGNED32, signed32Type);
     }
 
     @Override

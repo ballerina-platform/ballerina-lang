@@ -50,7 +50,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
 
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
                                             String definitionName) {
-        super(context, TypeDescKind.TYPE_REFERENCE, moduleID, bType);
+        super(context, TypeDescKind.TYPE_REFERENCE, bType);
         this.definitionName = definitionName;
     }
 

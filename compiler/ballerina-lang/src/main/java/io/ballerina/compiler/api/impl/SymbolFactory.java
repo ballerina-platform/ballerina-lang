@@ -45,7 +45,6 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -173,7 +172,6 @@ public class SymbolFactory {
      * @return {@link Symbol} generated
      */
     public BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol, String name) {
-        PackageID pkgID = invokableSymbol.pkgID;
         BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
                 new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, invokableSymbol, this.context);
         boolean isResourceMethod = isFlagOn(invokableSymbol.flags, Flags.RESOURCE);
@@ -245,7 +243,6 @@ public class SymbolFactory {
      * @return {@link BallerinaVariableSymbol} generated
      */
     public BallerinaVariableSymbol createVariableSymbol(BVarSymbol symbol, String name) {
-        PackageID pkgID = symbol.pkgID;
         BallerinaVariableSymbol.VariableSymbolBuilder symbolBuilder =
                 new BallerinaVariableSymbol.VariableSymbolBuilder(name, symbol, this.context);
 
