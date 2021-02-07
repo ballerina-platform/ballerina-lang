@@ -20,7 +20,7 @@ package io.ballerina.shell.invoker.classload;
 
 import com.github.mustachejava.Mustache;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.BuildOptions;
@@ -43,7 +43,6 @@ import io.ballerina.shell.invoker.Invoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.invoker.classload.context.StatementContext;
 import io.ballerina.shell.invoker.classload.context.VariableContext;
-import io.ballerina.shell.invoker.classload.visitors.ElevatedTypeTransformer;
 import io.ballerina.shell.invoker.classload.visitors.TypeSignatureTransformer;
 import io.ballerina.shell.rt.InvokerMemory;
 import io.ballerina.shell.snippet.Snippet;
@@ -100,6 +99,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
     private static final AtomicInteger importIndex = new AtomicInteger(0);
     private static final AtomicInteger unnamedModuleNameIndex = new AtomicInteger(0);
+    private static TypeSymbol anyTypeSymbol;
 
 
     /**
@@ -174,8 +174,17 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         ClassLoadContext emptyContext = new ClassLoadContext(contextId, imports.getUsedImports());
         SingleFileProject project = getProject(emptyContext, DECLARATION_TEMPLATE_FILE);
         PackageCompilation compilation = compile(project);
-        initialIdentifiers.addAll(visibleVarSymbols(project, compilation).stream()
-                .map(s -> new QuotedIdentifier(s.name())).collect(Collectors.toList()));
+        // Remember all the visible var symbols
+        // Also use this to cache ANY type symbol
+        QuotedIdentifier runFunctionName = new QuotedIdentifier(MODULE_RUN_METHOD_NAME);
+        for (GlobalVariableSymbol symbol : globalVariableSymbols(project, compilation)) {
+            initialIdentifiers.add(symbol.getName());
+            if (symbol.getName().equals(runFunctionName)) {
+                assert symbol.getTypeSymbol() instanceof FunctionTypeSymbol;
+                FunctionTypeSymbol runFunctionType = (FunctionTypeSymbol) symbol.getTypeSymbol();
+                anyTypeSymbol = runFunctionType.returnTypeDescriptor().orElseThrow();
+            }
+        }
         JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         this.initialized.set(true);
         addDiagnostic(Diagnostic.debug("Added initial identifiers: " + initialIdentifiers));
@@ -375,15 +384,15 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         ClassLoadContext varTypeInferContext = createVarTypeInferContext(newSnippet, definedVariables);
         SingleFileProject project = getProject(varTypeInferContext, DECLARATION_TEMPLATE_FILE);
         PackageCompilation compilation = compile(project);
-        Collection<Symbol> symbols = visibleVarSymbols(project, compilation);
+        Collection<GlobalVariableSymbol> globalVariableSymbols = globalVariableSymbols(project, compilation);
 
         String qualifiersAndMetadata = newSnippet.qualifiersAndMetadata();
         Map<QuotedIdentifier, GlobalVariable> foundVariables = new HashMap<>();
-        addDiagnostic(Diagnostic.debug("Found variable nodes: " + definedVariables));
+        addDiagnostic(Diagnostic.debug("Found variables: " + definedVariables));
 
-        for (Symbol symbol : symbols) {
-            // TODO: After name alternative is implemented use it.
-            QuotedIdentifier variableName = new QuotedIdentifier(symbol.name());
+        for (GlobalVariableSymbol globalVariableSymbol : globalVariableSymbols) {
+            QuotedIdentifier variableName = globalVariableSymbol.getName();
+            TypeSymbol typeSymbol = globalVariableSymbol.getTypeSymbol();
             if (initialIdentifiers.contains(variableName)) {
                 continue;
             }
@@ -391,20 +400,15 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 continue;
             }
 
-            assert symbol instanceof VariableSymbol || symbol instanceof FunctionSymbol;
-            TypeSymbol typeSymbol = (symbol instanceof VariableSymbol)
-                    ? ((VariableSymbol) symbol).typeDescriptor()
-                    : ((FunctionSymbol) symbol).typeDescriptor();
-
-            ElevatedTypeTransformer elevatedTypeTransformer = new ElevatedTypeTransformer();
-            ElevatedType elevatedType = elevatedTypeTransformer.transformType(typeSymbol);
+            boolean isAssignableToAny = typeSymbol.assignableTo(anyTypeSymbol);
 
             TypeSignatureTransformer signatureTransformer = new TypeSignatureTransformer(this);
             String variableType = signatureTransformer.transformType(typeSymbol);
             this.newImports.put(variableName, signatureTransformer.getImplicitImportPrefixes());
 
-            foundVariables.put(variableName, new GlobalVariable(variableType, variableName,
-                    elevatedType, qualifiersAndMetadata));
+            GlobalVariable globalVariable = new GlobalVariable(variableType, variableName,
+                    isAssignableToAny, qualifiersAndMetadata);
+            foundVariables.put(variableName, globalVariable);
         }
 
         return foundVariables;
@@ -691,11 +695,12 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * @param compilation Compilation object.
      * @return All the visible symbols.
      */
-    protected Collection<Symbol> visibleVarSymbols(Project project, PackageCompilation compilation) {
+    protected Collection<GlobalVariableSymbol> globalVariableSymbols(Project project, PackageCompilation compilation) {
         // Get the document associated with project
         ModuleId moduleId = project.currentPackage().getDefaultModule().moduleId();
         return compilation.getSemanticModel(moduleId).moduleSymbols().stream()
                 .filter(s -> s instanceof VariableSymbol || s instanceof FunctionSymbol)
+                .map(GlobalVariableSymbol::fromSymbol)
                 .collect(Collectors.toList());
     }
 

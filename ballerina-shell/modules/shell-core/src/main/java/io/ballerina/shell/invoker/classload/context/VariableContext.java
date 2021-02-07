@@ -52,7 +52,7 @@ public class VariableContext {
     public static VariableContext newVar(GlobalVariable variableEntry) {
         return new VariableContext(variableEntry.getQualifiersAndMetadata(),
                 variableEntry.getVariableName().getName(), variableEntry.getType(), true,
-                variableEntry.getElevatedType().isAssignableToAny());
+                variableEntry.isAssignableToAny());
     }
 
     /**
@@ -64,7 +64,7 @@ public class VariableContext {
     public static VariableContext oldVar(GlobalVariable variableEntry) {
         return new VariableContext(variableEntry.getQualifiersAndMetadata(),
                 variableEntry.getVariableName().getName(), variableEntry.getType(), false,
-                variableEntry.getElevatedType().isAssignableToAny());
+                variableEntry.isAssignableToAny());
     }
 
     public String prefix() {

@@ -31,13 +31,13 @@ import java.util.Objects;
 public class GlobalVariable {
     private final String type;
     private final QuotedIdentifier variableName;
-    private final ElevatedType elevatedType;
+    private final boolean isAssignableToAny;
     private final String qualifiersAndMetadata;
 
     public GlobalVariable(String type, QuotedIdentifier variableName,
-                          ElevatedType elevatedType, String qualifiersAndMetadata) {
+                          boolean isAssignableToAny, String qualifiersAndMetadata) {
         this.type = Objects.requireNonNull(type);
-        this.elevatedType = Objects.requireNonNull(elevatedType);
+        this.isAssignableToAny = isAssignableToAny;
         this.qualifiersAndMetadata = Objects.requireNonNull(qualifiersAndMetadata);
         this.variableName = variableName;
     }
@@ -47,7 +47,7 @@ public class GlobalVariable {
         // variable to search in a hashmap using the variable name.
         this.type = null;
         this.variableName = variableName;
-        this.elevatedType = null;
+        this.isAssignableToAny = false;
         this.qualifiersAndMetadata = null;
     }
 
@@ -70,8 +70,8 @@ public class GlobalVariable {
         return variableName;
     }
 
-    public ElevatedType getElevatedType() {
-        return elevatedType;
+    public boolean isAssignableToAny() {
+        return isAssignableToAny;
     }
 
     public String getQualifiersAndMetadata() {
@@ -97,6 +97,7 @@ public class GlobalVariable {
 
     @Override
     public String toString() {
-        return String.format("<%s> %s %s %s", elevatedType, qualifiersAndMetadata, type, variableName);
+        String elevType = isAssignableToAny ? "any" : "any|error";
+        return String.format("<%s> %s %s %s", elevType, qualifiersAndMetadata, type, variableName);
     }
 }
