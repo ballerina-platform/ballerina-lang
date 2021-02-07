@@ -255,11 +255,11 @@ public class BuildCommandTest extends BaseCommandTest {
                 "\ttarget/balo/foo-winery-java11-0.1.0.balo\n" +
                 "\n" +
                 "Generating executable\n" +
-                "\ttarget/bin/winery.jar\n");
+                "\ttarget/bin/winery-0.1.0.jar\n");
 
         Assert.assertTrue(projectPath.resolve("target").resolve("balo").resolve("foo-winery-java11-0.1.0.balo")
                                   .toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery-0.1.0.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                                   .resolve("winery").resolve("0.1.0").resolve("java11")
                                   .resolve("winery.jar").toFile().exists());
