@@ -159,14 +159,16 @@ function testMemberAccessWithInvalidSingleKey() {
     table<Customer> key(id) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable[18];
+    Customer? customer = customerTable[18];
+    assertEquality((), customer);
 }
 
 function testMemberAccessWithInvalidMultiKey() {
     table<Customer> key(id, name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable[18, "Mohan"];
+    Customer? customer = customerTable[18, "Mohan"];
+    assertEquality((), customer);
 }
 
 function runTableTestcasesWithVarType() {
@@ -246,7 +248,8 @@ function testVarTypeTableInvalidMemberAccess() {
     var customerTable = table key(id, name) [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable[18, "Mohan"];
+    Customer? customer = customerTable[18, "Mohan"];
+    assertEquality((), customer);
 }
 
 type Details record {|
