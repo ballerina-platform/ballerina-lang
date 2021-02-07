@@ -18,14 +18,8 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
-import io.ballerina.toml.semantic.TomlType;
-import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
-import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
-import io.ballerina.toml.semantic.ast.TomlStringValueNode;
-import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
