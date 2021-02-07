@@ -22,6 +22,7 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import org.ballerinalang.debugadapter.DebugExecutionManager;
 import org.ballerinalang.debugadapter.JBallerinaDebugServer;
+import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,7 +145,7 @@ public abstract class Launcher {
             EventRequestManager erm = attachedVm.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
             classPrepareRequest.enable();
-            server.setDebuggeeVM(attachedVm);
+            server.getContext().setDebuggee(new VirtualMachineProxyImpl(attachedVm));
             server.setExecutionManager(execManager);
         } catch (IOException | IllegalConnectorArgumentsException e) {
             LOGGER.error("Debugger failed to attach");

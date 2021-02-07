@@ -59,8 +59,8 @@ public class CustomErrorTest {
         Assert.assertEquals(customDiagMessage.message(), "org cant be empty");
 
         Diagnostic defaultDiagMessage = toml.diagnostics().get(1);
-        Assert.assertEquals(defaultDiagMessage.message(),
-                "key 'version' value does not match the regex provided in schema ^(?!\\s*$).+");
+        Assert.assertEquals(defaultDiagMessage.message(), "value for key 'version' expected to match the regex: ^" +
+                "(?!\\s*$).+");
     }
 
     @Test
@@ -74,7 +74,8 @@ public class CustomErrorTest {
         Assert.assertEquals(customDiagMessage.message(), "invalid type");
 
         Diagnostic defaultDiagMessage = toml.diagnostics().get(1);
-        Assert.assertEquals(defaultDiagMessage.message(), "key 'org' expects STRING . found INTEGER");
+        Assert.assertEquals(defaultDiagMessage.message(),
+                "incompatible type for key 'org': expected 'STRING', found 'INTEGER'");
     }
 
     @Test

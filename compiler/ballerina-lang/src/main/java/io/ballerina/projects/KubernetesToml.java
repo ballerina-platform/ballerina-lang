@@ -60,7 +60,8 @@ public class KubernetesToml {
         return this.kubernetesTomlContext.tomlDocument();
     }
 
-    /** Returns an instance of the Document.Modifier.
+    /**
+     * Returns an instance of the Document.Modifier.
      *
      * @return  module modifier
      */

@@ -59,9 +59,11 @@ public class SchemaValidator extends TomlNodeVisitor {
 
     private AbstractSchema schema;
     private String key;
+    private String schemaTitle;
 
     public SchemaValidator(Schema schema) {
         this.schema = schema;
+        this.schemaTitle = schema.title();
     }
 
     @Override
@@ -115,7 +117,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         Map<String, String> message = this.schema.message();
         String typeCustomMessage = message.get(SchemaDeserializer.ADDITIONAL_PROPERTIES);
         if (typeCustomMessage == null) {
-            return "unexpected property '" + key + "'";
+            return String.format("key '%s' not supported in schema '%s'", key, schemaTitle);
         }
         return typeCustomMessage.replace(PROPERTY_HOLDER, key);
     }
@@ -152,7 +154,8 @@ public class SchemaValidator extends TomlNodeVisitor {
         Map<String, String> message = this.schema.message();
         String typeCustomMessage = message.get(SchemaDeserializer.TYPE);
         if (typeCustomMessage == null) {
-            return String.format("key '%s' expects %s . found %s", this.key, schema.type(), found);
+            return String.format("incompatible type for key '%s': expected '%s', found '%s'", this.key, schema.type(),
+                    found);
         }
         return typeCustomMessage;
     }
@@ -161,8 +164,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         Map<String, String> message = this.schema.message();
         String typeCustomMessage = message.get(SchemaDeserializer.PATTERN);
         if (typeCustomMessage == null) {
-            return String.format("key '%s' value does not match the regex provided in schema %s", this.key,
-                    pattern);
+            return String.format("value for key '%s' expected to match the regex: %s", this.key, pattern);
         }
         return typeCustomMessage;
     }
@@ -236,7 +238,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         Map<String, String> message = this.schema.message();
         String maxCustomMessage = message.get(SchemaDeserializer.MAXIMUM);
         if (maxCustomMessage == null) {
-            return String.format("key '%s' value can't be higher than %f", this.key,
+            return String.format("value for key '%s' can't be higher than %f", this.key,
                     max);
         }
         return maxCustomMessage;
@@ -246,7 +248,7 @@ public class SchemaValidator extends TomlNodeVisitor {
         Map<String, String> message = this.schema.message();
         String minCustomMessage = message.get(SchemaDeserializer.MINIMUM);
         if (minCustomMessage == null) {
-            return String.format("key '%s' value can't be lower than %f", this.key,
+            return String.format("value for key '%s' can't be lower than %f", this.key,
                     min);
         }
         return minCustomMessage;

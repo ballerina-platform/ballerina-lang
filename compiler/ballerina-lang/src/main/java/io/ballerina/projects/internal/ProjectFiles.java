@@ -19,7 +19,6 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
-import io.ballerina.projects.MdDocument;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
@@ -112,19 +111,10 @@ public class ProjectFiles {
             testSrcDocs = Collections.emptyList();
         }
 
-        MdDocument moduleMd = loadModuleMd(moduleDirPath);
+        DocumentData moduleMd = loadDocument(moduleDirPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
         // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
         return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd);
     }
-
-    private static MdDocument loadModuleMd(Path modulePath) {
-        Path moduleMdPath = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-        if (Files.exists(moduleMdPath)) {
-            return new MdDocument(moduleMdPath);
-        }
-        return null;
-    }
-
 
     public static List<DocumentData> loadDocuments(Path dirPath) {
         try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
