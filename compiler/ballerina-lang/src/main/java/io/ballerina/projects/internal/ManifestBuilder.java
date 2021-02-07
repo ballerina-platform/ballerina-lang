@@ -33,7 +33,6 @@ import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
-import io.ballerina.toml.semantic.ast.Node;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
@@ -42,22 +41,15 @@ import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
-import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
-import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticCode;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.compiler.CompilerOptionName;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -83,9 +75,6 @@ public class ManifestBuilder {
     private PackageManifest packageManifest;
     private BuildOptions buildOptions;
     private Path projectPath;
-
-    private static final Path DEPENDENCIES_TOML_SCHEMA = Paths
-            .get("src", "main", "resources", "dependencies-toml-schema.json");
 
     private static final String PACKAGE = "package";
     private static final String VERSION = "version";
@@ -114,6 +103,7 @@ public class ManifestBuilder {
 
         // Add toml syntax diagnostics
         this.diagnosticList.addAll(ballerinaToml.toml().diagnostics());
+        dependenciesToml.ifPresent(tomlDocument -> this.diagnosticList.addAll(tomlDocument.toml().diagnostics()));
         diagnostics = new DefaultDiagnosticResult(this.diagnosticList);
         return diagnostics;
     }
@@ -136,14 +126,13 @@ public class ManifestBuilder {
         return this.buildOptions;
     }
 
-    @SuppressWarnings("unchecked")
     private PackageManifest parseAsPackageManifest() {
         TomlValidator ballerinaTomlValidator;
         try {
             ballerinaTomlValidator = new TomlValidator(
                     Schema.from(FileUtils.readFileAsString("ballerina-toml-schema.json")));
         } catch (IOException e) {
-            throw new ProjectException("Failed to read the TOML validator schema file.");
+            throw new ProjectException("Failed to read the Ballerina.toml validator schema file.");
         }
 
         // Validate ballerinaToml using ballerina toml schema
@@ -162,17 +151,6 @@ public class ManifestBuilder {
                 }
                 otherEntries.put(entry.getKey(), entry.getValue());
             }
-
-            TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
-            if (pkgNode != null && pkgNode.kind() != TomlType.NONE && !pkgNode.entries().isEmpty()) {
-                // TODO add package properties which is not available in the `PackageDescriptor` to `otherEntries`
-                // TODO we need to fix this properly later
-                otherEntries.put(LICENSE, pkgNode.entries().get(LICENSE));
-                otherEntries.put(AUTHORS, pkgNode.entries().get(AUTHORS));
-                otherEntries.put(REPOSITORY, pkgNode.entries().get(REPOSITORY));
-                otherEntries.put(KEYWORDS, pkgNode.entries().get(KEYWORDS));
-                validateOtherEntries(otherEntries);
-            }
         }
 
         // Process dependencies
@@ -189,71 +167,59 @@ public class ManifestBuilder {
         // set defaults
         PackageOrg defaultOrg = PackageOrg.from(guessOrgName());
         PackageName defaultName = PackageName.from(guessPkgName(Optional.ofNullable(this.projectPath.getFileName())
-                .map(n -> n.toString()).orElse("")));
+                                                                        .map(Path::toString).orElse("")));
         PackageVersion defaultVersion = PackageVersion.from(ProjectConstants.INTERNAL_VERSION);
         String org;
         String name;
         String version;
-        try {
-            if (tomlTableNode.entries().isEmpty()) {
-                return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
-            }
+        List<String> license;
+        List<String> authors;
+        List<String> keywords;
+        String repository;
 
-            TomlTableNode pkgNode = (TomlTableNode) tomlTableNode.entries().get(PACKAGE);
-            if (pkgNode == null || pkgNode.kind() == TomlType.NONE) {
-                addDiagnostic(null, DiagnosticSeverity.ERROR, tomlTableNode,
-                        "invalid Ballerina.toml file: cannot find [package]");
-                return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
-            }
+        if (tomlTableNode.entries().isEmpty()) {
+            return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
+        }
 
-            if (pkgNode.entries().isEmpty()) {
-                addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                        "invalid Ballerina.toml file: organization, name and the version of the "
-                                + "package is missing. example: \n" + "[package]\n" + "org=\"my_org\"\n"
-                                + "name=\"my_package\"\n" + "version=\"1.0.0\"\n");
-                return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
-            }
+        TomlTableNode pkgNode = (TomlTableNode) tomlTableNode.entries().get(PACKAGE);
+        if (pkgNode == null || pkgNode.kind() == TomlType.NONE) {
+            return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
+        }
 
-            org = getStringValueFromPackageNode(pkgNode, "org", defaultOrg.value());
-            name = getStringValueFromPackageNode(pkgNode, "name", defaultName.value());
-            version = getStringValueFromPackageNode(pkgNode, VERSION, defaultVersion.value().toString());
+        if (pkgNode.entries().isEmpty()) {
+            return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
+        }
 
-            // check org is valid identifier
-            boolean isValidOrg = ProjectUtils.validateOrgName(org);
-            if (!isValidOrg) {
-                addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                        "invalid Ballerina.toml file: Invalid 'org' under [package]: '" + org + "' :\n"
-                                + "'org' can only contain alphanumerics, underscores and periods "
-                                + "and the maximum length is 256 characters");
-                org = defaultOrg.value();
-            }
+        org = getStringValueFromPackageNode(pkgNode, "org", defaultOrg.value());
+        name = getStringValueFromPackageNode(pkgNode, "name", defaultName.value());
+        version = getStringValueFromPackageNode(pkgNode, VERSION, defaultVersion.value().toString());
+        license = getStringArrayFromPackageNode(pkgNode, LICENSE);
+        authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
+        keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
+        repository = getStringValueFromPackageNode(pkgNode, REPOSITORY, "");
 
-            // check that the package name is valid
-            boolean isValidPkg = ProjectUtils.validatePackageName(name);
-            if (!isValidPkg) {
-                addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                        "invalid Ballerina.toml file: Invalid 'name' under [package]: '" + name + "' :\n"
-                                + "'name' can only contain alphanumerics, underscores "
-                                + "and the maximum length is 256 characters");
-                name = defaultName.value();
-            }
-
-            // check version is compatible with semver
-            try {
-                SemanticVersion.from(version);
-            } catch (ProjectException e) {
-                addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                        "invalid package version in Ballerina.toml. " + e.getMessage());
-                version = defaultVersion.value().toString();
-            }
-        } catch (RuntimeException e) {
-            // This was put in as a temporary fix to prevent update breaking from possible errors
+        // check org is valid identifier
+        boolean isValidOrg = ProjectUtils.validateOrgName(org);
+        if (!isValidOrg) {
             org = defaultOrg.value();
+        }
+
+        // check that the package name is valid
+        boolean isValidPkg = ProjectUtils.validatePackageName(name);
+        if (!isValidPkg) {
             name = defaultName.value();
+        }
+
+        // check version is compatible with semver
+        try {
+            SemanticVersion.from(version);
+        } catch (ProjectException e) {
             version = defaultVersion.value().toString();
         }
 
-        return PackageDescriptor.from(PackageOrg.from(org), PackageName.from(name), PackageVersion.from(version));
+        return PackageDescriptor
+                .from(PackageOrg.from(org), PackageName.from(name), PackageVersion.from(version), license, authors,
+                      keywords, repository);
     }
 
     private BuildOptions parseBuildOptions() {
@@ -268,10 +234,10 @@ public class ManifestBuilder {
 
         TomlValidator dependenciesTomlValidator;
         try {
-            dependenciesTomlValidator = new TomlValidator(Schema.from(DEPENDENCIES_TOML_SCHEMA));
+            dependenciesTomlValidator = new TomlValidator(
+                    Schema.from(FileUtils.readFileAsString("dependencies-toml-schema.json")));
         } catch (IOException e) {
-            throw new ProjectException(
-                    "Failed to read the TOML validator schema file from the path:" + DEPENDENCIES_TOML_SCHEMA);
+            throw new ProjectException("Failed to read the Dependencies.toml validator schema file.");
         }
         // Validate dependencies toml using dependencies toml schema
         dependenciesTomlValidator.validate(dependenciesToml.get().toml());
@@ -280,15 +246,11 @@ public class ManifestBuilder {
         TomlTableNode tomlTableNode = dependenciesToml.get().toml().rootNode();
 
         if (tomlTableNode.entries().isEmpty()) {
-            addDiagnostic(null, DiagnosticSeverity.ERROR, tomlTableNode,
-                    "invalid Ballerina.toml file: cannot find [package]");
             return Collections.emptyList();
         }
 
         TopLevelNode dependencyEntries = tomlTableNode.entries().get("dependency");
         if (dependencyEntries == null || dependencyEntries.kind() == TomlType.NONE) {
-            addDiagnostic(null, DiagnosticSeverity.ERROR, tomlTableNode,
-                    "invalid Ballerina.toml file: cannot find [package]");
             return Collections.emptyList();
         }
 
@@ -303,15 +265,10 @@ public class ManifestBuilder {
 
                 dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion));
             }
-
-        } else {
-            addDiagnostic(null, DiagnosticSeverity.ERROR, dependencyEntries,
-                    "invalid Ballerina.toml file: 'dependency' should be a table array");
         }
         return dependencies;
     }
 
-    @SuppressWarnings("unchecked")
     private Map<String, PackageManifest.Platform> getPlatforms(TopLevelNode platformNode) {
         Map<String, PackageManifest.Platform> platforms = new HashMap<>();
         if (platformNode == null || platformNode.kind() == TomlType.NONE) {
@@ -321,8 +278,7 @@ public class ManifestBuilder {
                 TomlTableNode platformTable = (TomlTableNode) platformNode;
                 Set<String> platformCodes = platformTable.entries().keySet();
                 if (platformCodes.size() != 1) {
-                    addDiagnostic(null, DiagnosticSeverity.ERROR, platformTable,
-                            "invalid Ballerina.toml file: cannot find platform code under 'platform'");
+                    return platforms;
                 }
 
                 String platformCode = platformCodes.stream().findFirst().get();
@@ -333,8 +289,7 @@ public class ManifestBuilder {
                     TopLevelNode dependencyNode = platformCodeTable.entries().get("dependency");
 
                     if (dependencyNode.kind() == TomlType.NONE) {
-                        addDiagnostic(null, DiagnosticSeverity.ERROR, dependencyNode,
-                                "invalid Ballerina.toml file: cannot find 'dependency' under 'platform'");
+                        return platforms;
                     }
 
                     if (dependencyNode.kind() == TomlType.TABLE_ARRAY) {
@@ -348,20 +303,15 @@ public class ManifestBuilder {
                                 if (!platformEntryTable.entries().isEmpty()) {
                                     Map<String, Object> platformEntryMap = new HashMap<>();
                                     platformEntryMap.put("path",
-                                            getStringValueFromPlatformEntry(platformEntryTable,
-                                                    "path"));
+                                            getStringValueFromPlatformEntry(platformEntryTable, "path"));
                                     platformEntryMap.put("groupId",
-                                            getStringValueFromPlatformEntry(platformEntryTable,
-                                                    "groupId"));
+                                            getStringValueFromPlatformEntry(platformEntryTable, "groupId"));
                                     platformEntryMap.put("artifactId",
-                                            getStringValueFromPlatformEntry(platformEntryTable,
-                                                    "artifactId"));
+                                            getStringValueFromPlatformEntry(platformEntryTable, "artifactId"));
                                     platformEntryMap.put(VERSION,
-                                            getStringValueFromPlatformEntry(platformEntryTable,
-                                                    VERSION));
+                                            getStringValueFromPlatformEntry(platformEntryTable, VERSION));
                                     platformEntryMap.put("scope",
-                                            getStringValueFromPlatformEntry(platformEntryTable,
-                                                    "scope"));
+                                            getStringValueFromPlatformEntry(platformEntryTable, "scope"));
                                     platformEntry.add(platformEntryMap);
                                 }
                             }
@@ -369,17 +319,8 @@ public class ManifestBuilder {
                             PackageManifest.Platform platform = new PackageManifest.Platform(platformEntry);
                             platforms.put(platformCode, platform);
                         }
-                    } else {
-                        addDiagnostic(null, DiagnosticSeverity.ERROR, dependencyNode, "invalid Ballerina.toml file: "
-                                + "'dependency' under 'platform' should be a table array");
                     }
-                } else {
-                    addDiagnostic(null, DiagnosticSeverity.ERROR, platformCodeNode,
-                            "invalid Ballerina.toml file: platform code under 'platform' should be a table");
                 }
-            } else {
-                addDiagnostic(null, DiagnosticSeverity.ERROR, platformNode,
-                        "invalid Ballerina.toml file: 'platform' should be a table");
             }
         }
 
@@ -405,8 +346,7 @@ public class ManifestBuilder {
         final TopLevelNode topLevelNode = tableNode.entries().get(CompilerOptionName.CLOUD.toString());
         String cloud = "";
         if (topLevelNode != null) {
-            cloud = getStringFromTomlTableNode(topLevelNode,
-                    CompilerOptionName.CLOUD.toString(), "[build-options]");
+            cloud = getStringFromTomlTableNode(topLevelNode);
         }
         boolean taintCheck =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.TAINT_CHECK.toString());
@@ -436,30 +376,42 @@ public class ManifestBuilder {
                 return tomlBooleanValueNode.getValue();
             }
         }
-        addDiagnostic(null, DiagnosticSeverity.ERROR, topLevelNode,
-                "invalid Ballerina.toml file: at '" + key + "' under [build-options]");
         return false;
     }
 
     private String getStringValueFromPackageNode(TomlTableNode pkgNode, String key, String defaultValue) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
-            addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                    "invalid Ballerina.toml file: cannot find '" + key + "' under [package]");
             // return default value
             return defaultValue;
         }
-        return getStringFromTomlTableNode(topLevelNode, key, "[[package]]");
+        String value = getStringFromTomlTableNode(topLevelNode);
+        if (value == null) {
+            return defaultValue;
+        }
+        return value;
+    }
+
+    private List<String> getStringArrayFromPackageNode(TomlTableNode pkgNode, String key) {
+        List<String> elements = new ArrayList<>();
+        TopLevelNode topLevelNode = pkgNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return elements;
+        }
+        TomlValueNode valueNode = ((TomlKeyValueNode) topLevelNode).value();
+        if (valueNode.kind() == TomlType.NONE) {
+            return elements;
+        }
+        TomlArrayValueNode arrayValueNode = (TomlArrayValueNode) valueNode;
+        for (TomlValueNode value: arrayValueNode.elements()) {
+            elements.add(((TomlStringValueNode) value).getValue());
+        }
+        return elements;
     }
 
     private String getStringValueFromDependencyNode(TomlTableNode pkgNode, String key) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
-        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
-            addDiagnostic(null, DiagnosticSeverity.ERROR, pkgNode,
-                    "invalid Ballerina.toml file: cannot find '" + key + "' under [[dependency]]");
-            return null;
-        }
-        return getStringFromTomlTableNode(topLevelNode, key, "[[dependency]]");
+        return getStringFromTomlTableNode(topLevelNode);
     }
 
     private String getStringValueFromPlatformEntry(TomlTableNode pkgNode, String key) {
@@ -467,10 +419,10 @@ public class ManifestBuilder {
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
             return null;
         }
-        return getStringFromTomlTableNode(topLevelNode, key, "[[platform]]");
+        return getStringFromTomlTableNode(topLevelNode);
     }
 
-    private String getStringFromTomlTableNode(TopLevelNode topLevelNode, String key, String tableNodeName) {
+    private String getStringFromTomlTableNode(TopLevelNode topLevelNode) {
         if (topLevelNode.kind() == TomlType.KEY_VALUE) {
             TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
             TomlValueNode value = keyValueNode.value();
@@ -479,77 +431,7 @@ public class ManifestBuilder {
                 return stringValueNode.getValue();
             }
         }
-        addDiagnostic(null, DiagnosticSeverity.ERROR, topLevelNode,
-                "invalid Ballerina.toml file: cannot find '" + key + "' under " + tableNodeName);
         return null;
-    }
-
-    private void validateOtherEntries(Map<String, TopLevelNode> otherEntries) {
-        validateOtherEntriesArrayNode(otherEntries.get(LICENSE), LICENSE);
-        validateOtherEntriesArrayNode(otherEntries.get(AUTHORS), AUTHORS);
-        validateOtherEntriesArrayNode(otherEntries.get(KEYWORDS), KEYWORDS);
-        validateOtherEntriesStringNode(otherEntries.get(REPOSITORY), REPOSITORY);
-    }
-
-    private void validateOtherEntriesArrayNode(TopLevelNode topLevelArrayNode, String key) {
-        if (topLevelArrayNode != null && topLevelArrayNode.kind() != TomlType.NONE) {
-            if (topLevelArrayNode.kind() == TomlType.KEY_VALUE) {
-                TomlKeyValueNode licenseKeyValueNode = (TomlKeyValueNode) topLevelArrayNode;
-                TomlValueNode valueNode = licenseKeyValueNode.value();
-                if (valueNode.kind() == TomlType.NONE) {
-                    return;
-                } else if (valueNode.kind() == TomlType.ARRAY) {
-                    TomlArrayValueNode array = (TomlArrayValueNode) valueNode;
-                    for (TomlValueNode value : array.elements()) {
-                        if (value.kind() != TomlType.STRING) {
-                            addDiagnostic(null, DiagnosticSeverity.ERROR, topLevelArrayNode,
-                                    "invalid Ballerina.toml file: '" + key + "' should have string elements");
-                        }
-                    }
-                    return;
-                }
-            }
-            addDiagnostic(null, DiagnosticSeverity.ERROR, topLevelArrayNode,
-                    "invalid Ballerina.toml file: at '" + key + "'");
-        }
-    }
-
-    private void validateOtherEntriesStringNode(TopLevelNode topLevelStringNode, String key) {
-        if (topLevelStringNode != null && topLevelStringNode.kind() != TomlType.NONE) {
-            if (topLevelStringNode.kind() == TomlType.KEY_VALUE) {
-                TomlKeyValueNode licenseKeyValueNode = (TomlKeyValueNode) topLevelStringNode;
-                TomlValueNode valueNode = licenseKeyValueNode.value();
-                if (valueNode.kind() != TomlType.NONE && valueNode.kind() == TomlType.STRING) {
-                    return;
-                }
-            }
-            addDiagnostic(null, DiagnosticSeverity.ERROR, topLevelStringNode,
-                    "invalid Ballerina.toml file: at '" + key + "'");
-        }
-    }
-
-    private void addDiagnostic(DiagnosticCode diagnosticCode, DiagnosticSeverity severity, Node node, String message) {
-        DiagnosticInfo diagInfo;
-        if (diagnosticCode != null) {
-            diagInfo = new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.messageKey(),
-                    diagnosticCode.severity());
-        } else {
-            diagInfo = new DiagnosticInfo(null, message, severity);
-        }
-
-        TomlNodeLocation tomlNodeLocation;
-        if (node.location() != null) {
-            tomlNodeLocation = new TomlNodeLocation(node.location().lineRange(), node.location().textRange());
-        } else {
-            LineRange lineRange = LineRange.from(ProjectConstants.BALLERINA_TOML,
-                    LinePosition.from(0, 0),
-                    LinePosition.from(0, 0));
-            TextRange textRange = TextRange.from(0, 0);
-            tomlNodeLocation = new TomlNodeLocation(lineRange, textRange);
-        }
-        TomlDiagnostic tomlDiagnostic = new TomlDiagnostic(tomlNodeLocation, diagInfo, message);
-
-        this.diagnosticList.add(tomlDiagnostic);
     }
 
     private String convertDiagnosticToString(Diagnostic diagnostic) {

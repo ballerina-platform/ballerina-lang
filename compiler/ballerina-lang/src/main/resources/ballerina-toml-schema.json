@@ -11,15 +11,24 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^(lang|jballerina).[a-z0-9_]*$|^[a-zA-Z0-9_]*$"
+          "pattern": "^(lang|jballerina).[a-z0-9_]*$|^[a-zA-Z0-9_]*$",
+          "message" : {
+            "pattern" : "invalid 'name' under [package]: 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
+          }
         },
         "org": {
           "type": "string",
-          "pattern": "^[a-zA-Z0-9_]*$"
+          "pattern": "^[a-zA-Z0-9_]*$",
+          "message" : {
+            "pattern" : "invalid 'org' under [package]: 'org' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+          }
         },
         "version": {
           "type": "string",
-          "pattern": "^(\\d+)\\.(\\d+)\\.(\\d+)(?:-([a-zA-Z0-9]+))?$"
+          "pattern": "^(\\d+)\\.(\\d+)\\.(\\d+)(?:-([a-zA-Z0-9]+))?$",
+          "message": {
+            "pattern": "invalid 'version' under [package]: 'version' should be compatible with semver"
+          }
         },
         "license": {
           "type": "array",
@@ -42,6 +51,10 @@
         "repository": {
           "type": "string"
         }
+      },
+      "required": ["name", "org", "version"],
+      "message": {
+        "required": "'${property}' under [package] is missing"
       }
     },
     "platform": {
@@ -69,12 +82,23 @@
                   },
                   "version": {
                     "type": "string"
+                  },
+                  "scope": {
+                    "type": "string"
                   }
                 }
               }
             }
+          },
+          "required": ["dependency"],
+          "message": {
+            "required": "cannot find '${property}' under 'platform.java11'"
           }
         }
+      },
+      "required": ["java11"],
+      "message": {
+        "required": "cannot find '${property}' under 'platform'"
       }
     },
     "build-options": {
@@ -94,8 +118,18 @@
         },
         "codeCoverage": {
           "type": "boolean"
+        },
+        "cloud": {
+          "type": "string"
+        },
+        "taintCheck": {
+          "type": "boolean"
         }
       }
     }
+  },
+  "required": ["package"],
+  "message" : {
+    "required" : "cannot find '${property}'"
   }
 }

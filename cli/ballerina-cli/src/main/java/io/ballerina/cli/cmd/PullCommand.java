@@ -100,11 +100,11 @@ public class PullCommand implements BLauncherCmd {
         String packageName;
         String version;
 
-        if (!validPackageName(resourceName)) {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the org name ",
-                    "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}", false);
-            return;
-        }
+//        if (!validPackageName(resourceName)) {
+//            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the org name ",
+//                    "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}", false);
+//            return;
+//        }
 
         // Get org name
         String[] moduleInfo = resourceName.split("/");

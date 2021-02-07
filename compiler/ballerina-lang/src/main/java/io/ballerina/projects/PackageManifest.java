@@ -107,15 +107,15 @@ public class PackageManifest {
     }
 
     public List<String> license() {
-        return getOtherEntry("license");
+        return packageDesc.license();
     }
 
     public List<String> authors() {
-        return getOtherEntry("authors");
+        return packageDesc.authors();
     }
 
     public List<String> keywords() {
-        return getOtherEntry("keywords");
+        return packageDesc.keywords();
     }
 
     public DiagnosticResult diagnostics() {
@@ -123,33 +123,7 @@ public class PackageManifest {
     }
 
     public String repository() {
-        TopLevelNode entryNode = getValue("repository");
-        if (entryNode == null || entryNode.kind() == TomlType.NONE) {
-            return null;
-        }
-        TomlValueNode valueNode = ((TomlKeyValueNode) entryNode).value();
-        if (valueNode.kind() == TomlType.NONE) {
-            return null;
-        }
-        TomlStringValueNode stringValueNode = (TomlStringValueNode) valueNode;
-        return stringValueNode.getValue();
-    }
-
-    private List<String> getOtherEntry(String key) {
-        List<String> elements = new ArrayList<>();
-        TopLevelNode entryNode = getValue(key);
-        if (entryNode == null || entryNode.kind() == TomlType.NONE) {
-            return elements;
-        }
-        TomlValueNode valueNode = ((TomlKeyValueNode) entryNode).value();
-        if (valueNode.kind() == TomlType.NONE) {
-            return elements;
-        }
-        TomlArrayValueNode arrayValueNode = (TomlArrayValueNode) valueNode;
-        for (TomlValueNode value: arrayValueNode.elements()) {
-            elements.add(((TomlStringValueNode) value).getValue());
-        }
-        return elements;
+        return packageDesc.repository();
     }
 
     /**
