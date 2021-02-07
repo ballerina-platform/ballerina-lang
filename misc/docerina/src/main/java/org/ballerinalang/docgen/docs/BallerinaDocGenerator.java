@@ -23,7 +23,6 @@ import com.google.gson.GsonBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
-import io.ballerina.projects.ModuleMd;
 import io.ballerina.projects.PackageMd;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;

@@ -40,7 +40,6 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
-import io.ballerina.projects.PackageMd;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.PlatformLibraryScope;
@@ -870,7 +869,8 @@ public class TestBuildProject {
         Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
         PackageCompilation compilation = newPackage.getCompilation();
 
-        DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml().get().modify().withContent("" +
+        DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
+                .get().modify().withContent("" +
                 "[[dependency]]\n" +
                 "org = \"samjs\"\n" +
                 "name = \"package_k\"\n" +

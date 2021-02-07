@@ -383,7 +383,7 @@ public class Package {
             this.packageManifest = manifestBuilder.packageManifest();
         }
 
-        public Modifier updatePackageMd(MdDocumentContext packageMd) {
+        Modifier updatePackageMd(MdDocumentContext packageMd) {
             this.packageMdContext = packageMd;
             return this;
         }

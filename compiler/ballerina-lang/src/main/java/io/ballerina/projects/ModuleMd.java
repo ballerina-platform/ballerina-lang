@@ -33,17 +33,8 @@ public class ModuleMd {
         this.module = module;
     }
 
-    public static ModuleMd from(DocumentConfig documentConfig, Module module) {
-        MdDocumentContext documentContext = MdDocumentContext.from(documentConfig);
+    static ModuleMd from(MdDocumentContext documentContext, Module module) {
         return new ModuleMd(documentContext, module);
-    }
-
-    public static ModuleMd from(MdDocumentContext documentContext, Module module) {
-        return new ModuleMd(documentContext, module);
-    }
-
-    MdDocumentContext mdDocumentContext() {
-        return mdDocumentContext;
     }
 
     public Module module() {
