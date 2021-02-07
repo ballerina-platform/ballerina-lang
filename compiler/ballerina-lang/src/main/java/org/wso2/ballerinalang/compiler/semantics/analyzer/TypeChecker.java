@@ -6721,9 +6721,23 @@ public class TypeChecker extends BLangNodeVisitor {
                 return symTable.semanticError;
             }
 
+            if (varRefType.tag == TypeTags.UNION) {
+                Set<BType> memTypes = ((BUnionType) varRefType).getMemberTypes();
+                if (memTypes.contains(symTable.xmlTextType) || memTypes.contains(symTable.xmlType)) {
+                    indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+                            indexBasedAccessExpr.expr.type);
+                    return symTable.semanticError;
+                }
+            }
             indexBasedAccessExpr.originalType = symTable.stringType;
             actualType = symTable.stringType;
-        } else if (varRefType.tag == TypeTags.XML) {
+
+            if (TypeTags.isXMLTypeTag(varRefType.tag)) {
+                indexBasedAccessExpr.originalType = varRefType;
+                actualType = varRefType;
+            }
+        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             if (indexBasedAccessExpr.lhsVar) {
                 indexExpr.type = symTable.semanticError;
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_XML_SEQUENCE);

@@ -87,6 +87,7 @@ class InstructionEmitter {
             case OBJECT_STORE:
             case XML_ATTRIBUTE_LOAD:
             case XML_ATTRIBUTE_STORE:
+            case XML_SEQ_LOAD:
                 return emitInsFieldAccess((BIRNonTerminator.FieldAccess) ins, tabs);
             case TYPE_CAST:
                 return emitInsTypeCast((BIRNonTerminator.TypeCast) ins, tabs);
