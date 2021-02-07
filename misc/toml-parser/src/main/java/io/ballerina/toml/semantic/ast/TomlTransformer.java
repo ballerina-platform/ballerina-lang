@@ -62,10 +62,10 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     }
 
     @Override
-    public TomlNode transform(DocumentNode modulePartNode) {
-        TomlTableNode rootTable = createRootTable();
+    public TomlNode transform(DocumentNode documentNode) {
+        TomlTableNode rootTable = createRootTable(documentNode);
 
-        NodeList<DocumentMemberDeclarationNode> members = modulePartNode.members();
+        NodeList<DocumentMemberDeclarationNode> members = documentNode.members();
         for (DocumentMemberDeclarationNode rootNode : members) {
             TomlNode transformedChild = rootNode.apply(this);
             addChildNodeToParent(rootTable, transformedChild);
@@ -73,9 +73,9 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return rootTable;
     }
 
-    private TomlTableNode createRootTable() {
+    private TomlTableNode createRootTable(DocumentNode modulePartNode) {
         TomlKeyNode tomlKeyNode = new TomlKeyNode(null);
-        return new TomlTableNode(tomlKeyNode, null);
+        return new TomlTableNode(tomlKeyNode, getPosition(modulePartNode));
     }
 
     private void addChildNodeToParent(TomlTableNode rootTable, TomlNode transformedChild) {
