@@ -18,8 +18,12 @@
 
 package org.ballerinalang.langlib.value;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
+
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.FROM_BAL_STRING_ERROR;
 
 /**
  * Returns the result of evaluating a Ballerina expression syntax.
@@ -32,6 +36,10 @@ public class FromBalString {
         if (str.equals("null")) {
             return null;
         }
-        return StringUtils.parseExpressionStringValue(str, null);
+        try {
+            return StringUtils.parseExpressionStringValue(str, null);
+        } catch (BError e) {
+            return ErrorCreator.createError(FROM_BAL_STRING_ERROR, StringUtils.fromString(e.getMessage()));
+        }
     }
 }

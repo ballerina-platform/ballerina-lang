@@ -263,6 +263,7 @@ public class LangLibValueTest {
         BRunUtil.invokeFunction(file, "testXmlFromBalString");
         BRunUtil.invokeFunction(file, "testObjectFromString");
         BRunUtil.invokeFunction(file, "testFromBalStringOnCycles");
+        BRunUtil.invokeFunction(file, "testFromBalStringNegative");
     }
 
     @DataProvider(name = "mergeJsonFunctions")
