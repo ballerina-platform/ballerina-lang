@@ -41,10 +41,10 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.invoker.classload.ImportProcessor;
+import io.ballerina.shell.invoker.classload.QuotedIdentifier;
 import io.ballerina.shell.utils.StringUtils;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -72,7 +72,7 @@ public class ImportableTypeSymbolVisitor extends TypeSymbolVisitor {
             "anydata...;", "");
 
     private final ImportProcessor importProcessor;
-    private final Set<String> implicitImportPrefixes;
+    private final Set<QuotedIdentifier> implicitImportPrefixes;
     private final Map<String, String> inTypeReplacements;
     private final Set<Symbol> visitedSymbols;
 
@@ -255,7 +255,7 @@ public class ImportableTypeSymbolVisitor extends TypeSymbolVisitor {
      */
     private void addImportedReplacement(String signature, String module, String defaultPrefix, String typeName) {
         try {
-            String importPrefix = importProcessor.processImplicitImport(module, defaultPrefix);
+            QuotedIdentifier importPrefix = importProcessor.processImplicitImport(module, defaultPrefix);
             implicitImportPrefixes.add(importPrefix);
             String importedName = String.format("%s:%s", importPrefix, typeName);
             inTypeReplacements.put(signature, importedName);
@@ -289,7 +289,7 @@ public class ImportableTypeSymbolVisitor extends TypeSymbolVisitor {
      *
      * @return Set of implicit prefixes.
      */
-    public Collection<String> getImplicitImportPrefixes() {
+    public Set<QuotedIdentifier> getImplicitImportPrefixes() {
         return implicitImportPrefixes;
     }
 }

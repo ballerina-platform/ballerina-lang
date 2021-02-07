@@ -43,7 +43,7 @@ import io.ballerina.shell.invoker.Invoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.invoker.classload.context.StatementContext;
 import io.ballerina.shell.invoker.classload.context.VariableContext;
-import io.ballerina.shell.invoker.classload.visitors.TypeSignatureTransformer;
+import io.ballerina.shell.invoker.classload.visitors.ImportableTypeSymbolVisitor;
 import io.ballerina.shell.rt.InvokerMemory;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.types.DeclarationSnippet;
@@ -402,8 +402,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
             boolean isAssignableToAny = typeSymbol.assignableTo(anyTypeSymbol);
 
-            TypeSignatureTransformer signatureTransformer = new TypeSignatureTransformer(this);
-            String variableType = signatureTransformer.transformType(typeSymbol);
+            ImportableTypeSymbolVisitor signatureTransformer = new ImportableTypeSymbolVisitor(this);
+            String variableType = signatureTransformer.computeType(typeSymbol);
             this.newImports.put(variableName, signatureTransformer.getImplicitImportPrefixes());
 
             GlobalVariable globalVariable = new GlobalVariable(variableType, variableName,
