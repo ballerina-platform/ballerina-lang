@@ -1,0 +1,26 @@
+[
+  {
+    "description": "Define cyclic dependency.",
+    "code": "type A A[]|()"
+  },
+  {
+    "description": "Use cyclic type.",
+    "code": "A a = ()"
+  },
+  {
+    "description": "Define another type using A",
+    "code": "type B B[]|A|()"
+  },
+  {
+    "description": "Use cyclic type.",
+    "code": "B b = a"
+  },
+  {
+    "description": "Imports module lang.value.",
+    "code": "import ballerina/lang.value"
+  },
+  {
+    "description": "Use cyclic type Cloneable.",
+    "code": "value:Cloneable? x = ()"
+  }
+]
