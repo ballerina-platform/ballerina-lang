@@ -16,40 +16,35 @@
  *  under the License.
  */
 
-
 package io.ballerina.projects;
 
 /**
- * Represents the 'Package.md' file in a package.
+ * Represents the 'Module.md' file of a module.
  *
  * @since 2.0.0
  */
-public class PackageMd {
+public class ModuleMd {
 
     private final MdDocumentContext mdDocumentContext;
-    private final Package packageInstance;
+    private final Module module;
 
-    PackageMd(MdDocumentContext documentContext, Package packageInstance) {
+    ModuleMd(MdDocumentContext documentContext, Module module) {
         this.mdDocumentContext = documentContext;
-        this.packageInstance = packageInstance;
+        this.module = module;
     }
 
-    public static PackageMd from(DocumentConfig documentConfig, Package aPackage) {
-        MdDocumentContext documentContext = MdDocumentContext.from(documentConfig);
-        return new PackageMd(documentContext, aPackage);
+    static ModuleMd from(MdDocumentContext documentContext, Module module) {
+        return new ModuleMd(documentContext, module);
     }
 
-    public static PackageMd from(MdDocumentContext documentContext, Package aPackage) {
-        return new PackageMd(documentContext, aPackage);
-    }
-
-    public Package packageInstance() {
-        return packageInstance;
+    public Module module() {
+        return module;
     }
 
     public String content() {
         return mdDocumentContext.content();
     }
+
 
     /**
      * Returns an instance of the Document.Modifier.
@@ -57,7 +52,7 @@ public class PackageMd {
      * @return  module modifier
      */
     public Modifier modify() {
-        return new PackageMd.Modifier(this);
+        return new Modifier(this);
     }
 
     /**
@@ -67,11 +62,11 @@ public class PackageMd {
         private String content;
         private String name;
         private DocumentId documentId;
-        private Package oldPackage;
+        private Module oldModule;
 
-        private Modifier(PackageMd oldDocument) {
+        private Modifier(ModuleMd oldDocument) {
             this.content = oldDocument.mdDocumentContext.content();
-            this.oldPackage = oldDocument.packageInstance();
+            this.oldModule = oldDocument.module();
             this.name = oldDocument.mdDocumentContext.name();
             this.documentId = oldDocument.mdDocumentContext.documentId();
         }
@@ -92,11 +87,11 @@ public class PackageMd {
          *
          * @return document with updated content
          */
-        public PackageMd apply() {
-            MdDocumentContext packageMd = MdDocumentContext.from(DocumentConfig.from(this.documentId,
+        public ModuleMd apply() {
+            MdDocumentContext moduleMd = MdDocumentContext.from(DocumentConfig.from(this.documentId,
                     this.content, this.name));
-            Package newPackage = oldPackage.modify().updatePackageMd(packageMd).apply();
-            return newPackage.packageMd().get();
+            Module newModule = oldModule.modify().updateModuleMd(moduleMd).apply();
+            return newModule.moduleMd().get();
         }
     }
 }
