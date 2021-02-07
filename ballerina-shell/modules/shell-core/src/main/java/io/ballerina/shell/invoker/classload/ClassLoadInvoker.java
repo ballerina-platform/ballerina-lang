@@ -99,8 +99,6 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
     private static final AtomicInteger importIndex = new AtomicInteger(0);
     private static final AtomicInteger unnamedModuleNameIndex = new AtomicInteger(0);
-    private static TypeSymbol anyTypeSymbol;
-
 
     /**
      * Set of identifiers that are known or seen at the initialization.
@@ -144,6 +142,12 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * of the generated classes.
      */
     private final Scheduler scheduler;
+
+    /**
+     * Type symbol of ANY. This is found at initialization.
+     * This is used to check is a type symbol can be assigned to any.
+     */
+    private TypeSymbol anyTypeSymbol;
 
     /**
      * Creates a class load invoker from the given ballerina home.
