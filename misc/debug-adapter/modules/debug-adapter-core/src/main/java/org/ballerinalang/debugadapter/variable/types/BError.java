@@ -18,14 +18,14 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
@@ -33,7 +33,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
 /**
  * Ballerina error variable type.
  */
-public class BError extends BCompoundVariable {
+public class BError extends NamedCompoundVariable {
 
     private static final String FIELD_MESSAGE = "message";
     private static final String FIELD_CAUSE = "cause";
@@ -56,7 +56,7 @@ public class BError extends BCompoundVariable {
     @Override
     public Map<String, Value> computeChildVariables() {
         try {
-            Map<String, Value> childVarMap = new TreeMap<>();
+            Map<String, Value> childVarMap = new LinkedHashMap<>();
             // Fetches message, cause and details of the error.
             Optional<Value> message = VariableUtils.getFieldValue(jvmValue, FIELD_MESSAGE);
             Optional<Value> cause = VariableUtils.getFieldValue(jvmValue, FIELD_CAUSE);
@@ -69,5 +69,11 @@ public class BError extends BCompoundVariable {
         } catch (Exception ignored) {
             return new HashMap<>();
         }
+    }
+
+    @Override
+    public int getChildrenCount() {
+        // maximum children size will be 3 (error message, cause and details).
+        return 3;
     }
 }

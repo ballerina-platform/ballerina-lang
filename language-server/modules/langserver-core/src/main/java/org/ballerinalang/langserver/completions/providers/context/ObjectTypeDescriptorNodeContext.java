@@ -44,17 +44,19 @@ public class ObjectTypeDescriptorNodeContext
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectTypeDescriptorNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         if (this.onSuggestionsAfterQualifier(context, node)) {
-            return Arrays.asList(
+            completionItems.addAll(Arrays.asList(
                     new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()),
                     new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get())
-            );
+            ));
+        } else if (this.onSuggestionsWithinObjectBody(context, node)) {
+            completionItems.addAll(this.getObjectBodyCompletions(context));
         }
-        if (this.onSuggestionsWithinObjectBody(context, node)) {
-            return this.getObjectBodyCompletions(context);
-        }
-        
-        return new ArrayList<>();
+        this.sort(context, node, completionItems);
+
+        return completionItems;
     }
 
     private boolean onSuggestionsAfterQualifier(BallerinaCompletionContext context, ObjectTypeDescriptorNode node) {
@@ -76,11 +78,11 @@ public class ObjectTypeDescriptorNodeContext
         int cursor = context.getCursorPositionInTree();
         Token openBrace = node.openBrace();
         Token closeBrace = node.closeBrace();
-        
+
         if (openBrace.isMissing() || closeBrace.isMissing()) {
             return false;
         }
-        
+
         return cursor > openBrace.textRange().startOffset() && cursor < closeBrace.textRange().endOffset();
     }
 

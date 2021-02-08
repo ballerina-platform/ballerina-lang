@@ -869,6 +869,71 @@ function testFromJsonWithTypeTable() {
 
 }
 
+type IntVal record {int? x;};
+
+type PostGradStudent record {|
+    boolean employed;
+    string first_name;
+    string last_name?;
+    PermanentAddress? address;
+|};
+
+type PermanentAddress record {
+    string city;
+    string? country;
+};
+
+type PostGradStudentArray PostGradStudent[];
+
+json[] jStudentArr = [
+    {
+        "first_name": "Radha",
+        "address": {
+            "apartment_no": 123,
+            "street": "Perera Mawatha",
+            "city": "Colombo",
+            "country": "Sri Lanka"
+        },
+        "employed": false
+    },
+    {
+        "first_name": "Nilu",
+        "last_name": "Peiris",
+        "address": null,
+        "employed": true
+    },
+    {
+        "first_name": "Meena",
+        "address": {
+            "street": "Main Street",
+            "city": "Colombo",
+            "country": null
+        },
+        "employed": false
+    }
+];
+
+function testFromJsonWithTypeWithNullValues() {
+    json j1 = {x: null};
+    IntVal val = checkpanic j1.fromJsonWithType(IntVal);
+    assert(val, {x:()});
+
+    PostGradStudent[] studentArr = checkpanic jStudentArr.fromJsonWithType(PostGradStudentArray);
+    assert(studentArr, [{employed:false,first_name:"Radha",address:{city:"Colombo",country:"Sri Lanka",
+    apartment_no:123,street:"Perera Mawatha"}},{employed:true,first_name:"Nilu",last_name:"Peiris",address:()},
+    {employed:false,first_name:"Meena",address:{city:"Colombo",country:(),street:"Main Street"}}]);
+}
+
+function testFromJsonWithTypeWithNullValuesNegative() {
+    json jVal = ();
+    PostGradStudent|error val = jVal.fromJsonWithType(PostGradStudent);
+    assert(val is error, true);
+    if (val is error) {
+        assert(val.message(), "{ballerina/lang.value}ConversionError");
+        assert(val.detail()["message"].toString(), "cannot convert '()' to type 'PostGradStudent'");
+    }
+}
+
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
 
 function testFromJsonStringWithTypeJson() {

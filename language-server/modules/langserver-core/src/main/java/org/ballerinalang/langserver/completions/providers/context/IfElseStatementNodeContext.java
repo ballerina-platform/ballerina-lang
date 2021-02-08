@@ -50,6 +50,7 @@ public class IfElseStatementNodeContext extends AbstractCompletionProvider<IfEls
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getModuleCompletionItems(context));
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }

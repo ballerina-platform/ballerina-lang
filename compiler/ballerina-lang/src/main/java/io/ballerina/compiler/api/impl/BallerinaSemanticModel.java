@@ -217,6 +217,20 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
+    public Optional<TypeSymbol> type(Node node) {
+        Optional<Location> nodeIdentifierLocation = node.apply(new SyntaxNodeToLocationMapper());
+
+        if (nodeIdentifierLocation.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return type(node.location().lineRange());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public List<Diagnostic> diagnostics(LineRange range) {
         List<Diagnostic> allDiagnostics = this.bLangPackage.getDiagnostics();
         List<Diagnostic> filteredDiagnostics = new ArrayList<>();

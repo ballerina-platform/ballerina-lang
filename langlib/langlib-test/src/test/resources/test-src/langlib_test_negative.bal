@@ -56,6 +56,11 @@ function testToStringNegative() {
     var x6 = foo().toBalString();
 }
 
+function testUndefinedLanLibFunction() {
+    int value = 5;
+    xml s = value.toXML();
+}
+
 function foo() returns int|error {
     return error("Error");
 }

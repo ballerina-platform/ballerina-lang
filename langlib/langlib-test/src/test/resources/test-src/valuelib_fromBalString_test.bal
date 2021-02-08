@@ -87,12 +87,15 @@ function testIntValueFromBalString() {
 function testStringValueFromBalString() {
     string a = "Anne";
     strings:Char b = "m";
+    string c = "";
 
     string aa = a.toBalString();
     string bb = b.toBalString();
+    string cc = c.toBalString();
 
     assert(aa.fromBalString(), a);
     assert(bb.fromBalString(), b);
+    assert(cc.fromBalString(), c);
 }
 
 function testFloatingPointNumbersFromBalString() {
@@ -130,12 +133,15 @@ function testMapFromBalString() {
     map<string> mapVal1 = {"name":"ABC", "school":"City College"};
     map<anydata|error> mapVal2 = {"1":12, "2":"James", "3":{"x":"AA","y":(1.0/0.0)}, "4":(),
             "5":error("Failed to get account balance", details = true)};
+    map<int> mapVal3 = {};
 
     string s1 = "{\"name\":\"ABC\",\"school\":\"City College\"}";
     string s2 = "{\"1\":12,\"2\":\"James\",\"3\":{\"x\":\"AA\",\"y\":float:Infinity},\"4\":()}";
+    string s3 = "{}";
 
     anydata|error result1 = s1.fromBalString();
     anydata|error result2 = s2.fromBalString();
+    anydata|error result3 = s3.fromBalString();
 
     if (result1 is map<string>) {
         assert(result1, mapVal1);
@@ -154,6 +160,8 @@ function testMapFromBalString() {
         assert(result2.get("3"), mapVal2.get("3"));
         assert(result2.get("4"), mapVal2.get("4"));
     }
+
+    assert(result3, mapVal3);
 }
 
 
@@ -162,11 +170,15 @@ function testTableFromBalString() {
                       "{\"id\":2,\"name\":\"John\",\"grade\":13}]";
     string s2 = "table key() [{\"id\":1,\"name\":\"Mary\",\"grade\":12}," +
                        "{\"id\":2,\"name\":\"John\",\"grade\":13}]";
+    string s3 = "table key(id,name) []";
 
     anydata|error tbl = s1.fromBalString();
     if (tbl is table<any|error>) {
         tbl.add({ id: 3, name: "Jane", grade: 13 });
     }
+
+    table<UndergradStudent> underGradTable = table key(id,name) [];
+    assert(s3.fromBalString(), underGradTable);
 }
 
 function testArrayFromBalString() {
@@ -187,6 +199,7 @@ function testArrayFromBalString() {
     decimal[] arr6 = [12.65, 1, 2, 90.0];
     anydata[] arr7 = ["str", 23, 23.4, true, {"x":"AA","y":(1.0/0.0),"z":1.23}, x1, ["X", (0.0/0.0),
     x1], underGradTable, xmlVal];
+    string[] arr8 = [];
 
     string s1 = "[1,2,3,4,5]";
     string s2 = "[12.0,12.34,float:NaN,float:Infinity]";
@@ -197,6 +210,7 @@ function testArrayFromBalString() {
     string s7 = "[\"str\",23,23.4,true,{\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23},345.2425341d," +
       "[\"X\",float:NaN,345.2425341d],xml`<CATALOG><CD>" +
       "<TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD></CATALOG>`]";
+    string s8 = "[]";
 
     assert(s1.fromBalString(), arr1);
     assert(s2.fromBalString(), arr2);
@@ -216,18 +230,24 @@ function testArrayFromBalString() {
         assert(result[6], arr7[6]);
         assert(result[7], arr7[8]);
     }
+
+    assert(s8.fromBalString(), arr8);
 }
 
 function testTupleFromBalString() {
     [string, int, decimal, float] tupleVal = ["TOM", 10, 90.12, (0.0/0.0)];
+    [string, int, decimal, float] tupleVal2 = [];
 
     string s1 = "\"TOM\" 10 90.12d float:NaN";
+    string s2 = "\"\" 0 0.0d 0.0";
 
     anydata|error result = s1.fromBalString();
 
     if (result is [string, int, decimal, float]) {
         assert(result, tupleVal);
     }
+
+    assert(s2.fromBalString(), tupleVal2);
 }
 
 function testJsonFromBalString() {
@@ -291,6 +311,18 @@ function testFromBalStringOnCycles() {
 
      anydata result = checkpanic s1.fromBalString();
      assert(result.toBalString(), s1);
+}
+
+function testFromBalStringNegative() {
+    string a = "Mike";
+    string b = "009 abd []";
+    string c = " 009%abd {gf& *";
+    string d = "0.34t.\"";
+    error err = error("{ballerina/lang.value}FromBalStringError",message="invalid expression style string value");
+    assert(a.fromBalString(), err);
+    assert(b.fromBalString(), err);
+    assert(c.fromBalString(), err);
+    assert(d.fromBalString(), err);
 }
 
 function assert(anydata|error actual, anydata|error expected) {

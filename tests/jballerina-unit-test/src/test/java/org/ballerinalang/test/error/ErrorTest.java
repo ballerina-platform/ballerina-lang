@@ -422,4 +422,9 @@ public class ErrorTest {
     public void testUnionErrorTypeDescriptionInferring() {
         BRunUtil.invoke(errorTestResult, "testUnionErrorTypeDescriptionInferring");
     }
+
+    @Test
+    public void testErrorBindingPattern() {
+        BRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
+    }
 }

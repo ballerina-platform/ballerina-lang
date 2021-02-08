@@ -59,6 +59,7 @@ public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<
                 mod:a<cursor>
             };
          */
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
@@ -66,12 +67,12 @@ public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<
                     symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> types = QNameReferenceUtil.getModuleContent(context,
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
-            return this.getCompletionItemList(types, context);
+            completionItems.addAll(this.getCompletionItemList(types, context));
+        } else {
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.addAll(this.getTypeItems(context));
         }
-
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(this.getTypeItems(context));
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
