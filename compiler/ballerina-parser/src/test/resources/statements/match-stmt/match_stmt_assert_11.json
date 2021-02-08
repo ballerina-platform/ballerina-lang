@@ -1362,8 +1362,8 @@
                                       "kind": "REST_MATCH_PATTERN",
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_FIELD_MATCH_PATTERN_AFTER_REST_FIELD",
-                                        "ERROR_FIELD_MATCH_PATTERN_AFTER_REST_FIELD"
+                                        "ERROR_MATCH_PATTERN_AFTER_REST_MATCH_PATTERN",
+                                        "ERROR_MATCH_PATTERN_AFTER_REST_MATCH_PATTERN"
                                       ],
                                       "children": [
                                         {

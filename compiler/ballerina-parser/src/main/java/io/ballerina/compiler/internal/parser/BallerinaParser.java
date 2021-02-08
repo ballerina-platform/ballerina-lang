@@ -13513,7 +13513,7 @@ public class BallerinaParser extends AbstractParser {
 
             STNode invalidField = parseFieldMatchPatternMember();
             updateLastNodeInListWithInvalidNode(fieldMatchPatternList, invalidField,
-                    DiagnosticErrorCode.ERROR_FIELD_MATCH_PATTERN_AFTER_REST_FIELD);
+                    DiagnosticErrorCode.ERROR_MATCH_PATTERN_AFTER_REST_MATCH_PATTERN);
             fieldMatchPatternRhs = parseFieldMatchPatternRhs();
         }
 
