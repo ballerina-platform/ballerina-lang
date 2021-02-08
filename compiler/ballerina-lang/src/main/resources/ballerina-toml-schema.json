@@ -11,9 +11,9 @@
       "properties": {
         "name": {
           "type": "string",
-          "pattern": "^(lang|jballerina).[a-z0-9_]*$|^[a-zA-Z0-9_]*$",
+          "pattern": "^[a-zA-Z0-9_.]*$",
           "message" : {
-            "pattern" : "invalid 'name' under [package]: 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
+            "pattern" : "invalid 'name' under [package]: 'name' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
           }
         },
         "org": {

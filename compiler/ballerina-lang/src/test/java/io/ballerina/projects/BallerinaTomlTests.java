@@ -194,8 +194,8 @@ public class BallerinaTomlTests {
         Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
 
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "invalid 'name' under [package]: "
-                + "'org' can only contain alphanumerics, underscores and the maximum length is 256 characters");
+        Assert.assertEquals(firstDiagnostic.message(), "invalid 'name' under [package]: 'name' can only contain "
+                + "alphanumerics, underscores and periods and the maximum length is 256 characters");
         Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:23)");
         Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(17,33)");
 
