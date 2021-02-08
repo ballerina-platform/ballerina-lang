@@ -282,7 +282,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
@@ -4259,47 +4261,108 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         SyntaxKind patternKind = bindingPattern.kind();
         switch (patternKind) {
             case WILDCARD_BINDING_PATTERN:
-                BLangWildCardBindingPattern bLangWildCardBindingPattern =
-                        (BLangWildCardBindingPattern) TreeBuilder.createWilCardBindingPattern();
-                bLangWildCardBindingPattern.pos = pos;
-                return bLangWildCardBindingPattern;
+                return transformWildCardBindingPattern(pos);
             case CAPTURE_BINDING_PATTERN:
-                // TODO : check whether why cant we call the existing transform method
-                CaptureBindingPatternNode captureBindingPattern = (CaptureBindingPatternNode) bindingPattern;
-                BLangCaptureBindingPattern bLangCaptureBindingPattern =
-                        (BLangCaptureBindingPattern) TreeBuilder.createCaptureBindingPattern();
-                bLangCaptureBindingPattern.setIdentifier(createIdentifier(captureBindingPattern.variableName()));
-                bLangCaptureBindingPattern.pos = getPosition(captureBindingPattern);
-                return bLangCaptureBindingPattern;
-            case LIST_BINDING_PATTERN:
-                ListBindingPatternNode listBindingPatternNode = (ListBindingPatternNode) bindingPattern;
-                BLangListBindingPattern bLangListBindingPattern =
-                        (BLangListBindingPattern) TreeBuilder.createListBindingPattern();
-                bLangListBindingPattern.pos = pos;
-
-                for (Node listMemberBindingPattern : listBindingPatternNode.bindingPatterns()) {
-                    if (listMemberBindingPattern.kind() != SyntaxKind.REST_BINDING_PATTERN) {
-                        bLangListBindingPattern.addBindingPattern(transformBindingPattern(listMemberBindingPattern));
-                        continue;
-                    }
-                    bLangListBindingPattern.restBindingPattern =
-                            (BLangRestBindingPattern) transformBindingPattern(listMemberBindingPattern);
-                }
-                return bLangListBindingPattern;
+                return transformCaptureBindingPattern((CaptureBindingPatternNode) bindingPattern, pos);
             case REST_BINDING_PATTERN:
-                RestBindingPatternNode restBindingPatternNode = (RestBindingPatternNode) bindingPattern;
-                BLangRestBindingPattern bLangRestBindingPattern =
-                        (BLangRestBindingPattern) TreeBuilder.createRestBindingPattern();
-                bLangRestBindingPattern.pos = pos;
-
-                SimpleNameReferenceNode variableName = restBindingPatternNode.variableName();
-                bLangRestBindingPattern.setIdentifier(createIdentifier(getPosition(variableName), variableName.name()));
-                return bLangRestBindingPattern;
+                return transformRestBindingPattern((RestBindingPatternNode) bindingPattern, pos);
+            case LIST_BINDING_PATTERN:
+                return transformListBindingPattern((ListBindingPatternNode) bindingPattern, pos);
+            case MAPPING_BINDING_PATTERN:
+                return transformMappingBindingPattern((MappingBindingPatternNode) bindingPattern, pos);
+            case FIELD_BINDING_PATTERN:
+                return transformFieldBindingPattern(bindingPattern, pos);
             default:
                 // TODO : Remove this after all binding patterns are implemented
                 dlog.error(pos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
                 return null;
         }
+    }
+
+    private BLangWildCardBindingPattern transformWildCardBindingPattern(Location pos) {
+        BLangWildCardBindingPattern bLangWildCardBindingPattern =
+                (BLangWildCardBindingPattern) TreeBuilder.createWildCardBindingPattern();
+        bLangWildCardBindingPattern.pos = pos;
+        return bLangWildCardBindingPattern;
+    }
+
+    private BLangCaptureBindingPattern transformCaptureBindingPattern(CaptureBindingPatternNode captureBindingPattern,
+                                                                      Location pos) {
+        BLangCaptureBindingPattern bLangCaptureBindingPattern =
+                (BLangCaptureBindingPattern) TreeBuilder.createCaptureBindingPattern();
+        bLangCaptureBindingPattern.setIdentifier(createIdentifier(captureBindingPattern.variableName()));
+        bLangCaptureBindingPattern.pos = pos;
+        return bLangCaptureBindingPattern;
+    }
+
+    private BLangRestBindingPattern transformRestBindingPattern(RestBindingPatternNode restBindingPatternNode,
+                                                                Location pos) {
+        BLangRestBindingPattern bLangRestBindingPattern =
+                (BLangRestBindingPattern) TreeBuilder.createRestBindingPattern();
+        bLangRestBindingPattern.pos = pos;
+        SimpleNameReferenceNode variableName = restBindingPatternNode.variableName();
+        bLangRestBindingPattern.setIdentifier(createIdentifier(getPosition(variableName), variableName.name()));
+        return bLangRestBindingPattern;
+    }
+
+    private BLangMappingBindingPattern transformMappingBindingPattern(MappingBindingPatternNode
+                                                                              mappingBindingPatternNode,
+                                                                      Location pos) {
+        BLangMappingBindingPattern bLangMappingBindingPattern =
+                (BLangMappingBindingPattern) TreeBuilder.createMappingBindingPattern();
+        bLangMappingBindingPattern.pos = pos;
+
+        for (Node fieldBindingPattern : mappingBindingPatternNode.fieldBindingPatterns()) {
+            if (fieldBindingPattern.kind() == SyntaxKind.REST_BINDING_PATTERN) {
+                bLangMappingBindingPattern.restBindingPattern =
+                        (BLangRestBindingPattern) transformBindingPattern(fieldBindingPattern);
+                continue;
+            }
+            bLangMappingBindingPattern.fieldBindingPatterns.add(
+                    (BLangFieldBindingPattern) transformBindingPattern(fieldBindingPattern));
+        }
+        return bLangMappingBindingPattern;
+    }
+
+    private BLangFieldBindingPattern transformFieldBindingPattern(Node bindingPattern, Location pos) {
+        BLangFieldBindingPattern bLangFieldBindingPattern =
+                (BLangFieldBindingPattern) TreeBuilder.createFieldBindingPattern();
+        bLangFieldBindingPattern.pos = pos;
+        if (bindingPattern instanceof FieldBindingPatternVarnameNode) {
+            FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode =
+                    (FieldBindingPatternVarnameNode) bindingPattern;
+            BLangIdentifier fieldName = createIdentifier(fieldBindingPatternVarnameNode.variableName().name());
+            bLangFieldBindingPattern.fieldName = fieldName;
+            BLangCaptureBindingPattern bLangCaptureBindingPatternInFieldBindingPattern =
+                    (BLangCaptureBindingPattern) TreeBuilder.createCaptureBindingPattern();
+            bLangCaptureBindingPatternInFieldBindingPattern.setIdentifier(fieldName);
+            bLangCaptureBindingPatternInFieldBindingPattern.pos = pos;
+
+            bLangFieldBindingPattern.bindingPattern = bLangCaptureBindingPatternInFieldBindingPattern;
+            return bLangFieldBindingPattern;
+        }
+        FieldBindingPatternFullNode fieldBindingPatternNode = (FieldBindingPatternFullNode) bindingPattern;
+        bLangFieldBindingPattern.fieldName = createIdentifier(fieldBindingPatternNode.variableName().name());
+        bLangFieldBindingPattern.bindingPattern =
+                transformBindingPattern(fieldBindingPatternNode.bindingPattern());
+        return bLangFieldBindingPattern;
+    }
+
+    private BLangListBindingPattern transformListBindingPattern(ListBindingPatternNode listBindingPatternNode,
+                                                                Location pos) {
+        BLangListBindingPattern bLangListBindingPattern =
+                (BLangListBindingPattern) TreeBuilder.createListBindingPattern();
+        bLangListBindingPattern.pos = pos;
+
+        for (Node listMemberBindingPattern : listBindingPatternNode.bindingPatterns()) {
+            if (listMemberBindingPattern.kind() != SyntaxKind.REST_BINDING_PATTERN) {
+                bLangListBindingPattern.addBindingPattern(transformBindingPattern(listMemberBindingPattern));
+                continue;
+            }
+            bLangListBindingPattern.restBindingPattern =
+                    (BLangRestBindingPattern) transformBindingPattern(listMemberBindingPattern);
+        }
+        return bLangListBindingPattern;
     }
 
     private boolean isErrorFieldMatchPattern(Node node) {
@@ -4374,16 +4437,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 break;
         }
         return bLangSimpleMatchPattern;
-    }
-
-    private BLangCaptureBindingPattern createCaptureBindingPattern(CaptureBindingPatternNode
-                                                                           captureBindingPatternNode) {
-        BLangCaptureBindingPattern bLangCaptureBindingPattern =
-                (BLangCaptureBindingPattern) TreeBuilder.createCaptureBindingPattern();
-        bLangCaptureBindingPattern.setIdentifier(createIdentifier(captureBindingPatternNode
-                .variableName()));
-        bLangCaptureBindingPattern.pos = getPosition(captureBindingPatternNode);
-        return bLangCaptureBindingPattern;
     }
 
     private BLangXMLElementFilter createXMLElementFilter(Node node) {
