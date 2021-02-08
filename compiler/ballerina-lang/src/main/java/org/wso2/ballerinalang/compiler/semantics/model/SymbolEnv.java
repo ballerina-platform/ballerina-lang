@@ -222,13 +222,15 @@ public class SymbolEnv {
     }
 
     public static SymbolEnv createOnFailEnv(BLangOnFailClause node, SymbolEnv env) {
-        SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
+        Scope scope = node.body.scope;
+        if (scope == null) {
+            scope = new Scope(env.scope.owner);
+            node.body.scope = scope;
+        }
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
         env.copyTo(symbolEnv);
         symbolEnv.envCount = env.envCount + 1;
-        symbolEnv.enclEnv = env;
-        symbolEnv.enclInvokable = env.enclInvokable;
-        symbolEnv.node = node;
-        symbolEnv.enclPkg = env.enclPkg;
+        symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
         return symbolEnv;
     }
 

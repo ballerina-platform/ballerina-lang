@@ -217,6 +217,8 @@ function testToStringMethod() {
     error err1 = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
                val3 = {"x":"AA","y":(1.0/0.0)});
     FirstError err2 = error FirstError(REASON_1, message = "Test passing error union to a function");
+    error err3 = error("first error", detail=(1.0/0.0));
+    error err4 = error("second error", err3);
 
     assertEquality("4", a.toString());
     assertEquality("4", b.toString());
@@ -226,6 +228,7 @@ function testToStringMethod() {
                                                             + "val3={\"x\":\"AA\",\"y\":Infinity})", err1.toString());
     assertEquality("error FirstError (\"Reason1\",message=\"Test passing error union to a function\")",
                                                                                                     err2.toString());
+    assertEquality("error(\"second error\",error(\"first error\",detail=Infinity))", err4.toString());
 }
 
 /////////////////////////// Tests for `mergeJson()` ///////////////////////////
@@ -428,7 +431,8 @@ function testToString() returns string[] {
     map<any|error> varMap = {};
     json varJson = {a: "STRING", b: 12, c: 12.4, d: true, e: {x:"x", y: ()}};
     any[] varArr = ["str", 23, 23.4, true];
-    FirstError varErr = error FirstError(REASON_1, message = "Test passing error union to a function");
+    error err = error("ExampleError");
+    FirstError varErr = error FirstError(REASON_1, err, message = "Test passing error union to a function");
     Student varObj = new("Alaa", "MMV");
     Teacher varObj2 = new("Rola", "MMV");
     any[] varObjArr = [varObj, varObj2];
@@ -862,6 +866,71 @@ function testFromJsonWithTypeTable() {
     table<Foo6>|error tabJ6 = jj.fromJsonWithType(TableFoo6);
     assert(tabJ6 is table<Foo6>, true);
 
+}
+
+type IntVal record {int? x;};
+
+type PostGradStudent record {|
+    boolean employed;
+    string first_name;
+    string last_name?;
+    PermanentAddress? address;
+|};
+
+type PermanentAddress record {
+    string city;
+    string? country;
+};
+
+type PostGradStudentArray PostGradStudent[];
+
+json[] jStudentArr = [
+    {
+        "first_name": "Radha",
+        "address": {
+            "apartment_no": 123,
+            "street": "Perera Mawatha",
+            "city": "Colombo",
+            "country": "Sri Lanka"
+        },
+        "employed": false
+    },
+    {
+        "first_name": "Nilu",
+        "last_name": "Peiris",
+        "address": null,
+        "employed": true
+    },
+    {
+        "first_name": "Meena",
+        "address": {
+            "street": "Main Street",
+            "city": "Colombo",
+            "country": null
+        },
+        "employed": false
+    }
+];
+
+function testFromJsonWithTypeWithNullValues() {
+    json j1 = {x: null};
+    IntVal val = checkpanic j1.fromJsonWithType(IntVal);
+    assert(val, {x:()});
+
+    PostGradStudent[] studentArr = checkpanic jStudentArr.fromJsonWithType(PostGradStudentArray);
+    assert(studentArr, [{employed:false,first_name:"Radha",address:{city:"Colombo",country:"Sri Lanka",
+    apartment_no:123,street:"Perera Mawatha"}},{employed:true,first_name:"Nilu",last_name:"Peiris",address:()},
+    {employed:false,first_name:"Meena",address:{city:"Colombo",country:(),street:"Main Street"}}]);
+}
+
+function testFromJsonWithTypeWithNullValuesNegative() {
+    json jVal = ();
+    PostGradStudent|error val = jVal.fromJsonWithType(PostGradStudent);
+    assert(val is error, true);
+    if (val is error) {
+        assert(val.message(), "{ballerina/lang.value}ConversionError");
+        assert(val.detail()["message"].toString(), "cannot convert '()' to type 'PostGradStudent'");
+    }
 }
 
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////

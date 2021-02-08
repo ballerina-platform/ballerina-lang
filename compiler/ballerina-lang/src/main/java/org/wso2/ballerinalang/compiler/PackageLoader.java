@@ -44,9 +44,9 @@ import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.BirRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.HomeBalaRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBirRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.PathBaloRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.PathBalaRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
@@ -90,7 +90,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MODULE_MD
 
 /**
  * This class contains methods to load a given package symbol.
- * It knows how to load source package as well as a package from a compiled version (.balo).
+ * It knows how to load source package as well as a package from a compiled version (.bala).
  *
  * @since 0.94
  */
@@ -116,7 +116,7 @@ public class PackageLoader {
     private final SymbolEnter symbolEnter;
     private final BIRPackageSymbolEnter birPackageSymbolEnter;
     private final Names names;
-    private static final boolean shouldReadBalo = true;
+    private static final boolean shouldReadBala = true;
     private final CompilerPhase compilerPhase;
     
     /**
@@ -188,30 +188,30 @@ public class PackageLoader {
                                          this.dependencyManifests, ballerinaHome);
         Repo remoteDryRepo = new RemoteRepo(new URIDryConverter(URI.create(RepoUtils.getRemoteRepoURL()),
                 this.dependencyManifests), ballerinaHome);
-        Repo homeBaloCache = new HomeBaloRepo(this.dependencyManifests);
+        Repo homeBalaCache = new HomeBalaRepo(this.dependencyManifests);
         Repo homeBirRepo = new HomeBirRepo();
         Repo secondarySystemRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
 
         RepoNode homeCacheNode;
 
         if (offline) {
-            homeCacheNode = node(homeBaloCache,
+            homeCacheNode = node(homeBalaCache,
                                 node(systemBirRepo,
                                     node(systemZipRepo)));
         } else {
-            homeCacheNode = node(homeBaloCache,
+            homeCacheNode = node(homeBalaCache,
                                 node (systemBirRepo,
                                     node(systemZipRepo,
                                         node(remoteRepo,
-                                            node(homeBaloCache,
+                                            node(homeBalaCache,
                                                 node(systemBirRepo,
                                                     node(secondarySystemRepo)))))));
         }
         
         if (null != this.manifest) {
             // Skip checking home bir cache if there are dependencies to be resolved by path. This is because when a
-            // module is resolved by BIR, it cannot resolve it's imports using BALO source. This happens when replacing
-            // transitive dependencies using balo path.
+            // module is resolved by BIR, it cannot resolve it's imports using BALA source. This happens when replacing
+            // transitive dependencies using bala path.
             Optional<Dependency> pathDependency = this.manifest.getDependencies().stream()
                     .filter(dep -> null != dep.getMetadata())
                     .filter(dep -> null != dep.getMetadata().getPath())
@@ -298,8 +298,8 @@ public class PackageLoader {
      * @return The resolution.
      */
     private Resolution resolveModuleByPath(PackageID moduleID) {
-        Repo pathBaloRepo = new PathBaloRepo(this.manifest, this.dependencyManifests);
-        RepoHierarchy pathRepoHierarchy = RepoHierarchyBuilder.build(node(pathBaloRepo));
+        Repo pathBalaRepo = new PathBalaRepo(this.manifest, this.dependencyManifests);
+        RepoHierarchy pathRepoHierarchy = RepoHierarchyBuilder.build(node(pathBalaRepo));
         return pathRepoHierarchy.resolve(moduleID);
     }
     
@@ -307,7 +307,7 @@ public class PackageLoader {
      * Update the version of a moduleID if a version is available. Priority order:
      * 1. If a version is available in the Ballerina.lock file.
      * 2. If a version is available on the Ballerina.toml
-     * 3. If a version is available in the Ballerina.toml of the enclosing module's balo.
+     * 3. If a version is available in the Ballerina.toml of the enclosing module's bala.
      *
      * @param moduleID      The ID of the module.
      * @param enclPackageId The ID of the parent module.
@@ -345,7 +345,7 @@ public class PackageLoader {
             }
         }
 
-        // Set the version from Ballerina.toml found in dependent balos.
+        // Set the version from Ballerina.toml found in dependent balas.
         if (enclPackageId != null && this.dependencyManifests.size() > 0
                 && this.dependencyManifests.containsKey(enclPackageId)) {
 

@@ -43,16 +43,19 @@ public class ReturnStatementNodeContext extends AbstractCompletionProvider<Retur
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ReturnStatementNode node)
             throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         if (node.expression().isPresent() && this.onQualifiedNameIdentifier(context, node.expression().get())) {
             List<Symbol> entries = QNameReferenceUtil.getExpressionContextEntries(context,
                     (QualifiedNameReferenceNode) node.expression().get());
 
-            return this.getCompletionItemList(entries, context);
+            completionItems.addAll(this.getCompletionItemList(entries, context));
+        } else {
+            completionItems.addAll(this.actionKWCompletions(context));
+            completionItems.addAll(this.expressionCompletions(context));
         }
-
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.actionKWCompletions(context));
-        completionItems.addAll(this.expressionCompletions(context));
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 }

@@ -428,3 +428,115 @@ function testOptionalFieldAccessOnMethodCall() {
         panic error("ASSERTION_ERROR_REASON", message = "expected '()', found '" + c2.toString() + "'");
     }
 }
+
+type Config record {|
+    StartUp b?;
+|};
+
+type StartUp record {|
+    int i?;
+|};
+
+function testUnavailableFinalAccessInNestedAccess() {
+    Config f = {b: {}}; // `b` is present, but `b` doesn't have `i`.
+    int? i = f?.b?.i;
+    int? j = f?.b["i"];
+    int? k = f["b"]["i"];
+    int? l = f["b"]?.i;
+    int? m = (f["b"])?.i;
+    int? n = ((f?.b))["i"];
+    int? o = (f["b"]?.i);
+    int? p = ((f?.b["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+    assertTrue(l is ());
+    assertTrue(m is ());
+    assertTrue(n is ());
+    assertTrue(o is ());
+    assertTrue(p is ());
+}
+
+function testAvailableFinalAccessInNestedAccess() {
+    Config f = {b: {i: 1234}}; // `b` is present, and has `i`.
+    int? i = f?.b?.i;
+    int? j = f?.b["i"];
+    int? k = f["b"]["i"];
+    int? l = f["b"]?.i;
+    int? m = (f["b"])?.i;
+    int? n = ((f?.b))["i"];
+    int? o = (f["b"]?.i);
+    int? p = ((f?.b["i"]));
+
+    assertEquality(1234, i);
+    assertEquality(1234, j);
+    assertEquality(1234, k);
+    assertEquality(1234, l);
+    assertEquality(1234, m);
+    assertEquality(1234, n);
+    assertEquality(1234, o);
+    assertEquality(1234, p);
+}
+
+function testUnavailableIntermediateAccessInNestedAccess() {
+    Config f = {};
+    int? i = f?.b?.i;
+    int? j = f?.b["i"];
+    int? k = f["b"]["i"];
+    int? l = f["b"]?.i;
+    int? m = (f["b"])?.i;
+    int? n = ((f?.b))["i"];
+    int? o = (f["b"]?.i);
+    int? p = ((f?.b["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+    assertTrue(l is ());
+    assertTrue(m is ());
+    assertTrue(n is ());
+    assertTrue(o is ());
+    assertTrue(p is ());
+}
+
+type RecordWithNilableFieldConfig record {
+    NilableFieldConfig? rec;
+};
+
+type NilableFieldConfig record {|
+    int? i = ();
+|};
+
+function testNilValuedFinalAccessInNestedAccess() {
+    RecordWithNilableFieldConfig f = {rec: {}};
+    int? i = f?.rec?.i;
+    int? j = f?.rec["i"];
+    int? k = f["rec"]["i"];
+    int? l = f["rec"]?.i;
+    int? m = (f["rec"])?.i;
+    int? n = ((f?.rec))["i"];
+    int? o = (f["rec"]?.i);
+    int? p = ((f?.rec["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+    assertTrue(l is ());
+    assertTrue(m is ());
+    assertTrue(n is ());
+    assertTrue(o is ());
+    assertTrue(p is ());
+}
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}

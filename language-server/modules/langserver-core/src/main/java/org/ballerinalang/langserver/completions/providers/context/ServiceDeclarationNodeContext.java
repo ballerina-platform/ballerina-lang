@@ -38,7 +38,6 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -59,13 +58,13 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ServiceDeclarationNode node)
             throws LSCompletionException {
-        if (this.onMemberContext(context, node)) {
-            return this.getMemberContextCompletions(context, node);
-        }
-
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         Token onKeyword = node.onKeyword();
         Position cursor = context.getCursorPosition();
-        if (this.onTypeDescContext(context, node)) {
+
+        if (this.onMemberContext(context, node)) {
+            completionItems.addAll(this.getMemberContextCompletions(context, node));
+        } else if (this.onTypeDescContext(context, node)) {
             /*
             Covers the following cases
             Eg:
@@ -82,13 +81,10 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
                 return this.getCompletionItemList(moduleContent, context);
             }
             List<Symbol> typeDescs = ModulePartNodeContextUtil.serviceTypeDescContextSymbols(context);
-            List<LSCompletionItem> cItems = this.getCompletionItemList(typeDescs, context);
-            cItems.addAll(this.getModuleCompletionItems(context));
-            cItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
-
-            return cItems;
-        }
-        if (!onKeyword.isMissing() && cursor.getCharacter() > onKeyword.lineRange().endLine().offset()) {
+            completionItems.addAll(this.getCompletionItemList(typeDescs, context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+        } else if (!onKeyword.isMissing() && cursor.getCharacter() > onKeyword.lineRange().endLine().offset()) {
             /*
             Covers the following case
             (1) service typedesc on <cursor>
@@ -101,28 +97,29 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
             if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context,
                         (QualifiedNameReferenceNode) nodeAtCursor, predicate);
-                return this.getCompletionItemList(moduleContent, context);
+                completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            } else {
+                List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+                List<Symbol> listeners = visibleSymbols.stream()
+                        .filter(predicate)
+                        .collect(Collectors.toList());
+                completionItems.addAll(this.getCompletionItemList(listeners, context));
+                completionItems.addAll(this.getModuleCompletionItems(context));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
             }
-
-            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-            List<Symbol> listeners = visibleSymbols.stream()
-                    .filter(predicate)
-                    .collect(Collectors.toList());
-            List<LSCompletionItem> completionItems = new ArrayList<>();
-            completionItems.addAll(this.getCompletionItemList(listeners, context));
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
-
-            return completionItems;
-        }
+        } else {
         
-        /*
-        Covers the following cases
-        Eg:
-        (1) service / m<cursor>
-        function ...
-         */
-        return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+            /*
+            Covers the following cases
+            Eg:
+            (1) service / m<cursor>
+            function ...
+             */
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+        }
+        this.sort(context, node, completionItems);
+
+        return completionItems;
     }
 
     private boolean onTypeDescContext(BallerinaCompletionContext context, ServiceDeclarationNode node) {

@@ -60,7 +60,7 @@ public class ZipConverter extends PathConverter {
 
     private static Path resolveIntoArchive(Path newPath) {
         String pathPart = newPath.toString();
-        if ((pathPart.endsWith(".zip") || pathPart.endsWith(".jar") || pathPart.endsWith(".balo")) &&
+        if ((pathPart.endsWith(".zip") || pathPart.endsWith(".jar") || pathPart.endsWith(".bala")) &&
             Files.isRegularFile(newPath)) {
             return pathWithinZip(newPath.toUri());
         } else {
@@ -77,7 +77,7 @@ public class ZipConverter extends PathConverter {
             initFS(pathInZip);
             return Paths.get(pathInZip);
         } catch (URISyntaxException ignore) {
-            // This exception occurs when trying to read the balo which is inside the package zip. An exception can
+            // This exception occurs when trying to read the bala which is inside the package zip. An exception can
             // occur when creating the URI needed to create the zip file system provider which will be used to read the
             // content inside the zip/jar file. So if such an error occurs, we just return the path to the zip/jar file
             // instead of throwing the exception.
@@ -96,7 +96,7 @@ public class ZipConverter extends PathConverter {
             // Since we have no way to check if a filesystem is already created for a particular zip/jar, we have
             // ignored this exception.
         } catch (IOException | ZipError e) {
-            throw new BLangCompilerException("Error loading balo " + uri.getPath(), e);
+            throw new BLangCompilerException("Error loading bala " + uri.getPath(), e);
         }
     }
 
@@ -141,11 +141,11 @@ public class ZipConverter extends PathConverter {
     /**
      * Check if the module in caches in invalid.
      *
-     * @param baloPath Path to the parent folder of the balo file.
+     * @param balaPath Path to the parent folder of the bala file.
      * @return if the module cached is invalid or not.
      */
-    private boolean checkForCacheInvalidity(Path baloPath) {
-        Path nightlyFilePath = baloPath.resolve(ProjectDirConstants.NIGHTLY_BUILD);
+    private boolean checkForCacheInvalidity(Path balaPath) {
+        Path nightlyFilePath = balaPath.resolve(ProjectDirConstants.NIGHTLY_BUILD);
         // Check if the cached module was pulled from a nightly, if not return false
         if (!Files.exists(nightlyFilePath)) {
             return false;
@@ -168,9 +168,9 @@ public class ZipConverter extends PathConverter {
         // The module cached has been invalidated so clean the directory and pull again.
         try {
             //Delete the metadata file
-            deleteFiles(baloPath);
+            deleteFiles(balaPath);
             // Delete all the empty directories
-            deleteEmptyParentDirs(baloPath, this.getRoot());
+            deleteEmptyParentDirs(balaPath, this.getRoot());
         } catch (IOException ignore) {
             // An I/O exception occurs when deleting the files inside the downloaded mod. Since
             // this is done during dependency resolution, we don't throw an exception to the user so instead we
