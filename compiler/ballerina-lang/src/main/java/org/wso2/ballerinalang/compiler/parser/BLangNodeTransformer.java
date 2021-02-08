@@ -4178,7 +4178,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             SeparatedNodeList<Node> matchPatterns = listMatchPatternNode.matchPatterns();
             int matchPatternListSize = matchPatterns.size();
 
-            if (matchPatternListSize < 1) {
+            if (matchPatternListSize == 0) {
                 return bLangListMatchPattern;
             }
 
@@ -4219,7 +4219,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             SeparatedNodeList<Node> fieldMatchPatterns = mappingMatchPatternNode.fieldMatchPatterns();
             int fieldMatchPatternListSize = fieldMatchPatterns.size();
 
-            if (fieldMatchPatternListSize < 1) {
+            if (fieldMatchPatternListSize == 0) {
                 return bLangMappingMatchPattern;
             }
 
