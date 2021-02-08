@@ -411,8 +411,8 @@ public class ObjectInBaloTest {
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
                 "/object_new_in_return_negative.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "missing required parameter 'addVal' in call to 'new'()", 8, 12);
-        BAssertUtil.validateError(result, i++, "missing required parameter 'addVal' in call to 'new'()", 12, 33);
+        BAssertUtil.validateError(result, i++, "missing required parameter 'addVal' in call to 'new()'", 8, 12);
+        BAssertUtil.validateError(result, i++, "missing required parameter 'addVal' in call to 'new()'", 12, 33);
         BAssertUtil.validateError(result, i++, "cannot infer type of the object from 'other'", 13, 19);
         BAssertUtil.validateError(result, i++, "invalid variable definition; can not infer the assignment type.",
                 13, 19);

@@ -41,6 +41,8 @@ public class MatchStatementNodeContext extends AbstractCompletionProvider<MatchS
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.actionKWCompletions(context));
         completionItems.addAll(this.expressionCompletions(context));
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 }

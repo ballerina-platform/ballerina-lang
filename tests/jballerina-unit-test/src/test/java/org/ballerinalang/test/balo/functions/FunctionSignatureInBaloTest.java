@@ -330,7 +330,7 @@ public class FunctionSignatureInBaloTest {
     @Test(groups = { "brokenOnNewParser" })
     public void testNegativeFunctionInvocations() {
         int i = 0;
-        validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams'()",
+        validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams()'",
                 4, 12);
         validateError(resultNegative, i++, "too many arguments in call to 'functionWithAllTypesParams()'", 4, 12);
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'float'", 4, 56);
@@ -339,7 +339,7 @@ public class FunctionSignatureInBaloTest {
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 4, 72);
         validateError(resultNegative, i++, "positional argument not allowed after named arguments", 4, 72);
         validateError(resultNegative, i++, "positional argument not allowed after named arguments", 4, 76);
-        validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams'()",
+        validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams()'",
                 9, 12);
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'float'", 9, 56);
         validateError(resultNegative, i++, "positional argument not allowed after named arguments", 9, 56);

@@ -316,6 +316,51 @@ function getRecordConstrainedError() returns FooError {
     return e;
 }
 
+public function testAnonymousRecordWithLetExpression() {
+    record {
+        int i;
+        int j?;
+    } rec = let int v = 1 in {i: v};
+    
+    assert(1, rec.i);
+    
+    rec.j = 5;
+    assert(5, rec?.j);
+}
+
+type Rec record {|
+    int i;
+    int j = 100;
+|};
+    
+public function testRecordWithLetExpression() {
+    Rec rec1 = let int v = 160 in {i: v};
+    assert(160, rec1.i);
+    assert(100, rec1.j);
+    
+    Rec rec2 = let int v = 161 in {i: v, j: v};
+    assert(161, rec2.i);
+    assert(161, rec2.j);
+}
+
+class FooClass {
+    int m;
+    
+    public function init(int m) {
+        self.m = m;
+    }
+}
+
+function testLetWithClass() {
+    FooClass foo = let int m = 5 in new (m);
+    assert(5, foo.m);
+    
+    FooClass foo2 = new (let var arr = [1, 2, 3] in arr.reduce(function(int sum, int x) returns int {
+                                                                                return sum + x;
+                                                                            }, 0));
+    assert(6, foo2.m);
+}
+
 //// Util functions
 
 function assert(anydata expected, anydata actual) {

@@ -841,7 +841,6 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        lookupNode(tableMultiKeyExpr.expr);
         lookupNodes(tableMultiKeyExpr.multiKeyIndexExprs);
     }
 
