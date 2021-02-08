@@ -66,6 +66,12 @@ public class StringUtils {
 
     /**
      * Highlight and show the error position.
+     * The highlighted text would follow format,
+     * <pre>
+     * incompatible types: expected 'string', found 'int'
+     *     int i = "Hello";
+     *             ^-----^
+     * </pre>
      *
      * @param textDocument Text document to extract source code.
      * @param diagnostic   Diagnostic to show.
@@ -82,7 +88,7 @@ public class StringUtils {
 
         if (startLine.line() != endLine.line()) {
             // Error spans for line, will not highlight error
-            return String.format("%s%n%s", diagnostic.message(), sourceLine);
+            return String.format("%s%n\t%s", diagnostic.message(), sourceLine.strip());
         }
 
         // Error is same line, can highlight using ^-----^
@@ -91,7 +97,13 @@ public class StringUtils {
         int length = Math.max(endLine.offset() - startLine.offset(), 1);
         String caretUnderline = length == 1
                 ? CARET : CARET + DASH.repeat(length - 2) + CARET;
-        return String.format("%s%n%s%n%s%s", diagnostic.message(), sourceLine,
-                SPACE.repeat(position), caretUnderline);
+
+        // Count leading spaces
+        int leadingSpaces = sourceLine.length() - sourceLine.stripLeading().length();
+        String strippedSourceLine = sourceLine.substring(leadingSpaces);
+
+        // Result should be padded with a tab
+        return String.format("%s%n\t%s%n\t%s%s", diagnostic.message(), strippedSourceLine,
+                SPACE.repeat(position - leadingSpaces), caretUnderline);
     }
 }
