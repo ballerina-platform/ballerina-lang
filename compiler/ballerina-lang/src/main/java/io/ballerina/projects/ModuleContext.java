@@ -421,7 +421,7 @@ class ModuleContext {
         moduleContext.birBytes = moduleContext.compilationCache.getBir(moduleContext.moduleName());
     }
 
-    static void resolveDependenciesFromBALOInternal(ModuleContext moduleContext) {
+    static void resolveDependenciesFromBALAInternal(ModuleContext moduleContext) {
         // TODO implement
     }
 

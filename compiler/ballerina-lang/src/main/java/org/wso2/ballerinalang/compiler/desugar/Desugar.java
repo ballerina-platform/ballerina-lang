@@ -1222,7 +1222,7 @@ public class Desugar extends BLangNodeVisitor {
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         annAttachmentNode.expr = rewrite(annAttachmentNode.expr, env);
-        // TODO: need to check this. Balo creation in java module fails in java11 migration.
+        // TODO: need to check this. Bala creation in java module fails in java11 migration.
 //        if (annAttachmentNode.expr != null) {
 //            annAttachmentNode.expr = visitCloneReadonly(annAttachmentNode.expr, annAttachmentNode.expr.type);
 //        }
