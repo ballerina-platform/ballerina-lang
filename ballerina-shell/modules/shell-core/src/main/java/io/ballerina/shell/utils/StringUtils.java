@@ -21,6 +21,8 @@ package io.ballerina.shell.utils;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 
+import java.util.StringJoiner;
+
 /**
  * Utility functions required by invokers.
  * Static class.
@@ -72,6 +74,10 @@ public class StringUtils {
      *     int i = "Hello";
      *             ^-----^
      * </pre>
+     * However if the error is multiline, it would follow following format,
+     * <pre>
+     *
+     * </pre>
      *
      * @param textDocument Text document to extract source code.
      * @param diagnostic   Diagnostic to show.
@@ -79,16 +85,17 @@ public class StringUtils {
      */
     public static String highlightDiagnostic(TextDocument textDocument,
                                              io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
-        // Get the source code
-        String sourceLine = textDocument.line(diagnostic.location().lineRange().startLine().line()).text();
-
-
         LinePosition startLine = diagnostic.location().lineRange().startLine();
         LinePosition endLine = diagnostic.location().lineRange().endLine();
 
         if (startLine.line() != endLine.line()) {
-            // Error spans for line, will not highlight error
-            return String.format("%s%n\t%s", diagnostic.message(), sourceLine.strip());
+            // Error spans for several lines, will not highlight error
+            StringJoiner errorMessage = new StringJoiner("\n\t");
+            errorMessage.add(diagnostic.message());
+            for (int i = startLine.line(); i <= endLine.line(); i++) {
+                errorMessage.add(textDocument.line(i).text().strip());
+            }
+            return errorMessage.toString();
         }
 
         // Error is same line, can highlight using ^-----^
@@ -97,6 +104,9 @@ public class StringUtils {
         int length = Math.max(endLine.offset() - startLine.offset(), 1);
         String caretUnderline = length == 1
                 ? CARET : CARET + DASH.repeat(length - 2) + CARET;
+
+        // Get the source code
+        String sourceLine = textDocument.line(startLine.line()).text();
 
         // Count leading spaces
         int leadingSpaces = sourceLine.length() - sourceLine.stripLeading().length();
