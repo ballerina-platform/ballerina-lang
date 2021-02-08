@@ -65,11 +65,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -4656,8 +4659,11 @@ public class Desugar extends BLangNodeVisitor {
         // However, we are within the while loop. hence the $result$ can never be nil nor error.
         // Therefore cast $result$ to non-nilable type. i.e `int item = <>$result$.value;`
         BLangFieldBasedAccess valueAccessExpr = getValueAccessExpression(foreach.pos, foreach.varType, resultSymbol);
-        valueAccessExpr.expr = addConversionExprIfRequired(valueAccessExpr.expr,
-                types.getSafeType(valueAccessExpr.expr.type, true, false));
+
+        BLangExpression expr = valueAccessExpr.expr;
+        // Since `$result$` is always a record (with a single `value` field), add a cast to `map<any|error>`
+        // to avoid casting to an anonymous type - https://github.com/ballerina-platform/ballerina-lang/issues/28262.
+        valueAccessExpr.expr = addConversionExprIfRequired(expr, symTable.mapAllType);
         variableDefinitionNode.getVariable()
                 .setInitialExpression(addConversionExprIfRequired(valueAccessExpr, foreach.varType));
         whileNode.body.stmts.add(0, (BLangStatement) variableDefinitionNode);
@@ -5827,8 +5833,7 @@ public class Desugar extends BLangNodeVisitor {
 
         List<BVarSymbol> params = ((BInvokableSymbol) iExpr.symbol).params;
 
-        // Start from index `1`, since for langlib methods index `0` will be the value itself.
-        for (int i = 1; i < requiredArgs.size(); i++) {
+        for (int i = 0; i < requiredArgs.size(); i++) {
             requiredArgs.set(i, addConversionExprIfRequired(requiredArgs.get(i), params.get(i).type));
         }
     }
@@ -5846,28 +5851,16 @@ public class Desugar extends BLangNodeVisitor {
     */
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
         var returnTypeOfInvokable = ((BInvokableSymbol) iExpr.symbol).retType;
-        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(returnTypeOfInvokable)) {
-            // why we dont consider whole action invocation
-            BType originalInvType = genIExpr.type;
-            if (!genIExpr.async) {
-                genIExpr.type = returnTypeOfInvokable;
-            }
-            BLangExpression expr = addConversionExprIfRequired(genIExpr, originalInvType);
-
-            // Prevent adding another type conversion
-            if (expr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
-                this.result = expr;
-                return;
-            }
-
-            BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
-            conversionExpr.expr = genIExpr;
-            conversionExpr.targetType = originalInvType;
-            conversionExpr.type = originalInvType;
-            conversionExpr.pos = genIExpr.pos;
-
-            this.result = conversionExpr;
+        if (!iExpr.langLibInvocation && !TypeParamAnalyzer.containsTypeParam(returnTypeOfInvokable)) {
+            return;
         }
+
+        // why we dont consider whole action invocation
+        BType originalInvType = genIExpr.type;
+        if (!genIExpr.async) {
+            genIExpr.type = returnTypeOfInvokable;
+        }
+        this.result = addConversionExprIfRequired(genIExpr, originalInvType);
     }
 
     private void fixStreamTypeCastsInInvocationParams(BLangInvocation iExpr) {
@@ -6330,6 +6323,10 @@ public class Desugar extends BLangNodeVisitor {
             result = rewriteExpr(conversionExpr.expr);
             return;
         }
+
+        BType targetType = conversionExpr.targetType;
+        validateIsNotCastToAnImportedAnonType(targetType == null ? conversionExpr.type : targetType);
+
         conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
         if (types.isXMLExprCastableToString(conversionExpr.expr.type, conversionExpr.type)) {
             result = convertXMLTextToString(conversionExpr);
@@ -9353,6 +9350,96 @@ public class Desugar extends BLangNodeVisitor {
         fields.clear();
         return type.tag == TypeTags.RECORD ? new BLangStructLiteral(pos, type, rewrittenFields) :
                 new BLangMapLiteral(pos, type, rewrittenFields);
+    }
+
+    /**
+     * This in intended to be a temporary validation to avoid casting to anonymous types from imported packages,
+     * because such casts can cause backward compatibility issues since anonymous type names can change per compilation.
+     * The current alternative in such a scenario is to cast to a compatible in-line type. For example, a cast to an
+     * anonymous record type can be replaced with a cast to a map type.
+     * If this is not possible due to some reason, we need to introduce an approach to uniquely identify anonymous
+     * types across compilations.
+     * See https://github.com/ballerina-platform/ballerina-lang/issues/28262.
+     */
+    private void validateIsNotCastToAnImportedAnonType(BType targetType) {
+        validateIsNotCastToAnImportedAnonType(targetType, new HashSet<>());
+    }
+
+    private void validateIsNotCastToAnImportedAnonType(BType targetType, Set<BType> unresolvedTypes) {
+        if (!unresolvedTypes.add(targetType)) {
+            return;
+        }
+
+        switch (targetType.tag) {
+            case TypeTags.TABLE:
+                validateIsNotCastToAnImportedAnonType(((BTableType) targetType).constraint, unresolvedTypes);
+                return;
+            case TypeTags.TYPEDESC:
+                validateIsNotCastToAnImportedAnonType(((BTypedescType) targetType).constraint, unresolvedTypes);
+                return;
+            case TypeTags.STREAM:
+                validateIsNotCastToAnImportedAnonType(((BStreamType) targetType).constraint, unresolvedTypes);
+                return;
+            case TypeTags.MAP:
+                validateIsNotCastToAnImportedAnonType(((BMapType) targetType).constraint, unresolvedTypes);
+                return;
+            case TypeTags.INVOKABLE:
+                BInvokableType invokableType = (BInvokableType) targetType;
+                for (BType paramType : invokableType.paramTypes) {
+                    validateIsNotCastToAnImportedAnonType(paramType, unresolvedTypes);
+                }
+
+                BType restType = invokableType.restType;
+                if (restType != null) {
+                    validateIsNotCastToAnImportedAnonType(restType, unresolvedTypes);
+                }
+
+                BType retType = invokableType.retType;
+                if (retType != null) {
+                    validateIsNotCastToAnImportedAnonType(retType, unresolvedTypes);
+                }
+                return;
+            case TypeTags.ARRAY:
+                validateIsNotCastToAnImportedAnonType(((BArrayType) targetType).eType, unresolvedTypes);
+                return;
+            case TypeTags.UNION:
+                for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
+                    validateIsNotCastToAnImportedAnonType(memberType, unresolvedTypes);
+                }
+                return;
+            case TypeTags.INTERSECTION:
+                for (BType constituentType : ((BIntersectionType) targetType).getConstituentTypes()) {
+                    validateIsNotCastToAnImportedAnonType(constituentType, unresolvedTypes);
+                }
+                return;
+            case TypeTags.ERROR:
+                validateIsNotCastToAnImportedAnonType(((BErrorType) targetType).detailType, unresolvedTypes);
+                return;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) targetType;
+                for (BType tupleMemberType : tupleType.tupleTypes) {
+                    validateIsNotCastToAnImportedAnonType(tupleMemberType, unresolvedTypes);
+                }
+
+                BType tupleRestType = tupleType.restType;
+                if (tupleRestType != null) {
+                    validateIsNotCastToAnImportedAnonType(tupleRestType, unresolvedTypes);
+                }
+                return;
+            case TypeTags.FUTURE:
+                BType constraint = ((BFutureType) targetType).constraint;
+                if (constraint != null) {
+                    validateIsNotCastToAnImportedAnonType(constraint, unresolvedTypes);
+                }
+                return;
+            case TypeTags.RECORD:
+            case TypeTags.OBJECT:
+                if (Symbols.isFlagOn(targetType.flags, Flags.ANONYMOUS) &&
+                        !targetType.tsymbol.pkgID.equals(env.enclPkg.packageID)) {
+                    throw new IllegalStateException("Invalid cast to anonymous type imported from '" +
+                                                            targetType.tsymbol.pkgID.toString() + "'");
+                }
+        }
     }
 
     protected void addTransactionInternalModuleImport() {

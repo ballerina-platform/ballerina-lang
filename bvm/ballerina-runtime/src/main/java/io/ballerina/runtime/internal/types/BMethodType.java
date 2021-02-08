@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 
 import java.util.StringJoiner;
 
@@ -63,7 +64,8 @@ public class BMethodType extends BFunctionType implements MethodType {
 
     @Override
     public String getAnnotationKey() {
-        return parentObjectType.getAnnotationKey() + "." + funcName;
+        return IdentifierUtils.decodeIdentifier(parentObjectType.getAnnotationKey()) + "." +
+                IdentifierUtils.decodeIdentifier(funcName);
     }
 
     @Override
