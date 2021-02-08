@@ -165,6 +165,65 @@ public class ConfigurableTest extends BaseTest {
         errorLeecher.waitForText(5000);
     }
 
+    // Encrypted Config related tests
+    @Test
+    public void testSingleBalFileWithEncryptedConfigs() throws BallerinaTestException {
+        String secretFilePath = Paths.get(testFileLocation, "Secrets", "correctSecret.txt").toString();
+        Path singleBalFilePath = Paths.get(testFileLocation, "encryptedSingleBalFile").toAbsolutePath();
+        LogLeecher runLeecher = new LogLeecher("Tests passed");
+        bMainInstance.runMain("run", new String[]{"encryptedConfig.bal"}, addSecretEnvVariable(secretFilePath),
+                              new String[]{}, new LogLeecher[]{runLeecher}, singleBalFilePath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testEncryptedConfigs() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "encryptedConfigProject").toAbsolutePath();
+        String secretFilePath = Paths.get(testFileLocation, "Secrets", "correctSecret.txt").toString();
+        LogLeecher runLeecher = new LogLeecher("Tests passed");
+        bMainInstance.runMain("run", new String[]{"main"}, addSecretEnvVariable(secretFilePath), new String[]{},
+                              new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testEncryptedConfigsWithIncorrectSecret() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "encryptedConfigProject").toAbsolutePath();
+        String secretFilePath = Paths.get(testFileLocation, "Secrets", "incorrectSecret.txt").toString();
+        LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
+                                                       "'password' :Given final block not properly padded. Such " +
+                                                       "issues can arise if a bad key is used during decryption.",
+                                               LogLeecher.LeecherType.ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, addSecretEnvVariable(secretFilePath), new String[]{},
+                              new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testEncryptedConfigsWithEmptySecret() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "encryptedConfigProject").toAbsolutePath();
+        String secretFilePath = Paths.get(testFileLocation, "Secrets", "emptySecret.txt").toString();
+        LogLeecher runLeecher = new LogLeecher("error: failed to initialize the cipher tool due to empty secret text",
+                                               LogLeecher.LeecherType.ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, addSecretEnvVariable(secretFilePath), new String[]{},
+                              new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testInvalidAccessEncryptedConfigs() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "encryptedConfigProject").toAbsolutePath();
+        String configFilePath = Paths.get(testFileLocation, "ConfigFiles", "InvalidEncryptedConfig.toml").toString();
+        String secretFilePath = Paths.get(testFileLocation, "Secrets", "correctSecret.txt").toString();
+        LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
+                                                       "'password' :Input byte array has wrong 4-byte ending unit",
+                                               LogLeecher.LeecherType.ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, addEnvVariables(configFilePath, secretFilePath),
+                              new String[]{},
+                              new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
     /**
      * Get environment variables and add config file path as an env variable.
      *
@@ -175,5 +234,19 @@ public class ConfigurableTest extends BaseTest {
         envVariables.put(ConfigurableConstants.CONFIG_ENV_VARIABLE, configFilePath);
         return envVariables;
     }
+
+    private Map<String, String> addSecretEnvVariable(String secretFilePath) {
+        Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
+        envVariables.put(ConfigurableConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
+        return envVariables;
+    }
+
+    private Map<String, String> addEnvVariables(String configFilePath, String secretFilePath) {
+        Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
+        envVariables.put(ConfigurableConstants.CONFIG_ENV_VARIABLE, configFilePath);
+        envVariables.put(ConfigurableConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
+        return envVariables;
+    }
+
 
 }
