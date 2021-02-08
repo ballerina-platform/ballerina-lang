@@ -38,7 +38,7 @@ public class PathConverterIntegrationTest {
         Files.createDirectories(semVer);
         Path semVerLatest = tempDirectory.resolve(Paths.get("1.5.0", "path#to the", "dir.bal"));
         Files.createDirectories(semVerLatest);
-        tempNonSourceFile = Files.createFile(deep.resolve("my.balo"));
+        tempNonSourceFile = Files.createFile(deep.resolve("my.bala"));
         tempFile = Files.createFile(deep.resolve("tempFile.bal"));
         tempSemVerFile = Files.createFile(semVerLatest.resolve("tempFile.bal"));
     }

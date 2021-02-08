@@ -25,7 +25,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * Dump Ballerina {@code PackageFile} model (BALO) to a file.
+ * Dump Ballerina {@code PackageFile} model (BALA) to a file.
  *
  * @since 0.963.0
  */

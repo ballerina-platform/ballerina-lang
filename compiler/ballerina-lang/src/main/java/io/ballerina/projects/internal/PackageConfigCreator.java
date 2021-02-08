@@ -84,9 +84,9 @@ public class PackageConfigCreator {
 
     public static PackageConfig createBalrProjectConfig(Path balrPath) {
         ProjectFiles.validateBalrProjectPath(balrPath);
-        PackageManifest packageManifest = BaloFiles.createPackageManifest(balrPath);
-        PackageData packageData = BaloFiles.loadPackageData(balrPath, packageManifest);
-        BaloFiles.DependencyGraphResult packageDependencyGraph = BaloFiles
+        PackageManifest packageManifest = BalaFiles.createPackageManifest(balrPath);
+        PackageData packageData = BalaFiles.loadPackageData(balrPath, packageManifest);
+        BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles
                 .createPackageDependencyGraph(balrPath, packageManifest.name().value());
 
         return createPackageConfig(packageData, packageManifest,

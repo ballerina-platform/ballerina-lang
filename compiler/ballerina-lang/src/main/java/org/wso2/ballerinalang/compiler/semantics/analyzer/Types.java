@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -143,6 +144,8 @@ public class Types {
     private int finiteTypeCount = 0;
     private BUnionType expandedXMLBuiltinSubtypes;
     private final BLangAnonymousModelHelper anonymousModelHelper;
+    private int recordCount = 0;
+    private SymbolEnv env;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -505,6 +508,21 @@ public class Types {
             return patternType;
         }
         BType intersectionType = getTypeIntersection(mappingMatchPattern.matchExpr.type, patternType, env);
+        if (intersectionType == symTable.semanticError) {
+            return symTable.noType;
+        }
+        return intersectionType;
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BLangMappingBindingPattern mappingBindingPattern,
+                                                 BLangVarBindingPatternMatchPattern varBindingPatternMatchPattern,
+                                                 SymbolEnv env) {
+        BRecordType mappingBindingPatternType = (BRecordType) mappingBindingPattern.type;
+        if (varBindingPatternMatchPattern.matchExpr == null) {
+            return mappingBindingPatternType;
+        }
+        BType intersectionType = getTypeIntersection(varBindingPatternMatchPattern.matchExpr.type,
+                mappingBindingPatternType, env);
         if (intersectionType == symTable.semanticError) {
             return symTable.noType;
         }
@@ -4523,6 +4541,30 @@ public class Types {
 
     private boolean isIsolated(BType type) {
         return Symbols.isFlagOn(type.flags, Flags.ISOLATED);
+    }
+
+    BType getTypeWithoutNil(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return type;
+        }
+
+        BUnionType unionType = (BUnionType) type;
+        if (!unionType.isNullable()) {
+            return unionType;
+        }
+
+        List<BType> nonNilTypes = new ArrayList<>();
+        for (BType memberType : unionType.getMemberTypes()) {
+            if (!isAssignable(memberType, symTable.nilType)) {
+                nonNilTypes.add(memberType);
+            }
+        }
+
+        if (nonNilTypes.size() == 1) {
+            return nonNilTypes.get(0);
+        }
+
+        return BUnionType.create(null, new LinkedHashSet<>(nonNilTypes));
     }
 
     private static class ListenerValidationModel {
