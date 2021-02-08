@@ -263,7 +263,7 @@ public abstract class BalaWriter {
         List<Dependency> dependencies = new ArrayList<>();
         for (ResolvedPackageDependency resolvedDep : dependencyGraph.getNodes()) {
             if (resolvedDep.scope() == PackageDependencyScope.TEST_ONLY) {
-                // We don't add the test dependencies to the balr file.
+                // We don't add the test dependencies to the bala file.
                 continue;
             }
 
@@ -275,7 +275,7 @@ public abstract class BalaWriter {
             Collection<ResolvedPackageDependency> pkgDependencies = dependencyGraph.getDirectDependencies(resolvedDep);
             for (ResolvedPackageDependency resolvedTransitiveDep : pkgDependencies) {
                 if (resolvedTransitiveDep.scope() == PackageDependencyScope.TEST_ONLY) {
-                    // We don't add the test dependencies to the balr file.
+                    // We don't add the test dependencies to the bala file.
                     continue;
                 }
                 PackageContext dependencyPkgContext = resolvedTransitiveDep.packageInstance().packageContext();
