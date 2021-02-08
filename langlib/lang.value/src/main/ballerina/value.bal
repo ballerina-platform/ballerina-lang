@@ -92,7 +92,7 @@ public isolated function cloneWithType(anydata v, typedesc<AnydataType> t) retur
 # + v - the value to be cast
 # + t - a typedesc for the type to which to cast it
 # return - `v` cast to the type described by `t`, or an error, if the cast cannot be done
-public isolated function ensureType(any|error v, typedesc<any> t) returns t|error =  @java:Method {
+public isolated function ensureType(any|error v, typedesc<any> t) returns any|error =  @java:Method {
     'class: "org.ballerinalang.langlib.value.EnsureType",
     name: "ensureType"
 } external;
