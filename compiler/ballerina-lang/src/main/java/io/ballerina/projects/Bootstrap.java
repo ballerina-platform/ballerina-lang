@@ -110,6 +110,8 @@ public class Bootstrap {
             symbolTable.langTableModuleSymbol = loadLangLibFromBala(TABLE, compilerContext);
             symbolTable.langStreamModuleSymbol = loadLangLibFromBala(STREAM, compilerContext);
             symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
+            symbolTable.updateStringSubtypeOwners();
+            symbolTable.updateXMLSubtypeOwners();
         }
 
         if (langLib.equals(TRANSACTION)) {
@@ -119,6 +121,7 @@ public class Bootstrap {
             symbolTable.langStringModuleSymbol = loadLangLibFromBala(STRING, compilerContext);
             symbolTable.langErrorModuleSymbol = loadLangLibFromBala(ERROR, compilerContext);
             symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
+            symbolTable.updateStringSubtypeOwners();
         }
 
         if (langLib.equals(ERROR)) {
@@ -162,6 +165,7 @@ public class Bootstrap {
         symbolTable.langQueryModuleSymbol = loadLangLibFromBala(QUERY, compilerContext);
         symbolTable.langTransactionModuleSymbol = loadLangLibFromBala(TRANSACTION, compilerContext);
         symbolTable.loadPredeclaredModules();
+        symbolTable.updateBuiltinSubtypeOwners();
         symResolver.defineOperators();
     }
 

@@ -24,7 +24,6 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -134,16 +133,13 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
             return this.signature;
         }
 
-        // TODO: depending on PackageID due to https://github.com/ballerina-platform/ballerina-lang/issues/28482
-        BType type = this.getBType();
-        PackageID pkgID = type.tsymbol.pkgID;
-
-        if (pkgID == null || ("lang.annotations".equals(pkgID.getName().getValue()) &&
-                "ballerina".equals(pkgID.getOrgName().getValue()))) {
+        ModuleID moduleID = this.getModule().get().id();
+        if (moduleID == null || (moduleID.moduleName().equals("lang.annotations") &&
+                moduleID.orgName().equals("ballerina"))) {
             this.signature = this.definitionName;
         } else {
-            this.signature = !this.isAnonOrg(pkgID) ? pkgID.getOrgName().getValue() + Names.ORG_NAME_SEPARATOR +
-                    pkgID.getName().getValue() + Names.VERSION_SEPARATOR + pkgID.getPackageVersion().getValue() + ":" +
+            this.signature = !this.isAnonOrg(moduleID) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +
+                    moduleID.moduleName() + Names.VERSION_SEPARATOR + moduleID.version() + ":" +
                     this.definitionName
                     : this.definitionName;
         }
@@ -151,7 +147,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         return this.signature;
     }
 
-    private boolean isAnonOrg(PackageID moduleID) {
-        return ANON_ORG.equals(moduleID.getOrgName().getValue());
+    private boolean isAnonOrg(ModuleID moduleID) {
+        return ANON_ORG.equals(moduleID.orgName());
     }
 }
