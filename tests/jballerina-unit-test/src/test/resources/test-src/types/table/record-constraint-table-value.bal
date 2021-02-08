@@ -49,6 +49,17 @@ string cutomerListString = "[{\"id\":13,\"name\":\"Sanjiva\",\"lname\":\"Weerawa
 
 type CustomerTableWithKS table<Customer> key(id);
 
+type Student record {|
+    readonly string name;
+    int id?;
+    Address address;
+|};
+
+type Address record {
+    string city;
+    string? country;
+};
+
 function runKeySpecifierTestCases() {
     testTableTypeWithKeySpecifier();
     testTableConstructorWithKeySpecifier();
@@ -398,6 +409,22 @@ function testTableEqualityWithKeyV2() {
     ];
 
     assertEquality(true, employeeTab1 != employeeTab2);
+}
+
+function testMemberAccessHavingNilableFields() {
+    table<Student> key(name) tab = table [
+        {name: "Amy", id: 1234, address:{"street": "Main Street", "city": "Colombo", "country": ()}},
+        {name: "John", address:{"city": "Colombo", "country": "Sri Lanka"}}
+    ];
+
+    int? val1 = tab["John"]["id"];
+    assertEquality(true, val1 is ());
+
+    string? val2 = tab["Amy"]["address"]["country"];
+    assertEquality(true, val2 is ());
+
+    anydata val3 = tab["John"]["address"]["street"];
+    assertEquality(true, val3 is ());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
