@@ -26,7 +26,6 @@ import org.ballerinalang.model.tree.Node;
  * @since 2.0.0
  */
 public interface FieldMatchPatternNode extends Node {
-
     IdentifierNode getFieldName();
 
     void setFieldName(IdentifierNode fieldName);

@@ -90,7 +90,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
@@ -955,13 +957,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resolveTupleType(BLangTupleVariable varNode) {
         List<BType> memberTypes = new ArrayList<>(varNode.memberVariables.size());
         for (BLangVariable memberVariable : varNode.memberVariables) {
-            if (memberVariable.getKind() == NodeKind.TUPLE_VARIABLE) {
-                memberTypes.add(resolveTupleType((BLangTupleVariable) memberVariable));
-            } else {
-                memberTypes.add(symTable.noType);
-            }
+            memberTypes.add(getTupleMemberType(memberVariable));
         }
-        return new BTupleType(memberTypes);
+
+        BLangVariable restVariable = varNode.restVariable;
+        if (restVariable == null) {
+            return new BTupleType(memberTypes);
+        }
+
+        return new BTupleType(null, memberTypes, getTupleMemberType(restVariable), 0);
+    }
+
+    private BType getTupleMemberType(BLangVariable memberVariable) {
+        if (memberVariable.getKind() == NodeKind.TUPLE_VARIABLE) {
+            return resolveTupleType((BLangTupleVariable) memberVariable);
+        }
+        return symTable.noType;
     }
 
     public void visit(BLangErrorVariable varNode) {
@@ -2800,6 +2811,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         switch (patternKind) {
             case WILDCARD_BINDING_PATTERN:
+                BLangWildCardBindingPattern wildCardBindingPattern = (BLangWildCardBindingPattern) bindingPattern;
+                wildCardBindingPattern.type = patternType;
+                analyzeNode(wildCardBindingPattern, env);
+                varBindingPattern.matchesAll = types.isAssignable(wildCardBindingPattern.type, symTable.anyType);
                 break;
             case CAPTURE_BINDING_PATTERN:
                 BLangCaptureBindingPattern captureBindingPattern = (BLangCaptureBindingPattern) bindingPattern;
@@ -2812,6 +2827,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 listBindingPattern.type = types.resolvePatternTypeFromMatchExpr(listBindingPattern, varBindingPattern,
                         this.env);
                 assignTypesToMemberPatterns(listBindingPattern, listBindingPattern.type);
+                break;
+            case MAPPING_BINDING_PATTERN:
+                BLangMappingBindingPattern mappingBindingPattern = (BLangMappingBindingPattern) bindingPattern;
+                analyzeNode(mappingBindingPattern, env);
+                mappingBindingPattern.type = types.resolvePatternTypeFromMatchExpr(mappingBindingPattern,
+                        varBindingPattern, env);
+                assignTypesToMemberPatterns(mappingBindingPattern, mappingBindingPattern.type);
+                break;
+            default:
         }
         varBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
         varBindingPattern.type = bindingPattern.type;
@@ -2819,7 +2843,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
-        wildCardBindingPattern.type = symTable.anyType;
+        if (wildCardBindingPattern.type == null) {
+            wildCardBindingPattern.type = symTable.anyType;
+            return;
+        }
+        BType bindingPatternType = wildCardBindingPattern.type;
+        BType intersectionType = types.getTypeIntersection(bindingPatternType, symTable.anyType, this.env);
+        if (intersectionType == symTable.semanticError) {
+            wildCardBindingPattern.type = symTable.noType;
+            return;
+        }
+        wildCardBindingPattern.type = intersectionType;
     }
 
     @Override
@@ -2949,6 +2983,42 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangMappingBindingPattern mappingBindingPattern) {
+        EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
+                env.enclPkg.symbol.pkgID, null, env.scope.owner, mappingBindingPattern.pos, VIRTUAL);
+        recordSymbol.name = names.fromString(anonModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+
+        for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
+            fieldBindingPattern.accept(this);
+            String fieldName = fieldBindingPattern.fieldName.value;
+            BVarSymbol fieldSymbol = new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                    fieldBindingPattern.bindingPattern.type, recordSymbol, fieldBindingPattern.pos, COMPILED_SOURCE);
+            BField field = new BField(names.fromString(fieldName), fieldBindingPattern.pos, fieldSymbol);
+            fields.put(fieldName, field);
+            mappingBindingPattern.declaredVars.putAll(fieldBindingPattern.declaredVars);
+        }
+        BRecordType recordVarType = new BRecordType(recordSymbol);
+        recordVarType.fields = fields;
+        recordVarType.restFieldType = symTable.anydataType;
+        if (mappingBindingPattern.restBindingPattern != null) {
+            BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;
+            restBindingPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
+            restBindingPattern.accept(this);
+            mappingBindingPattern.declaredVars.put(restBindingPattern.variableName.value, restBindingPattern.symbol);
+        }
+        mappingBindingPattern.type = recordVarType;
+    }
+
+    @Override
+    public void visit(BLangFieldBindingPattern fieldBindingPattern) {
+        BLangBindingPattern bindingPattern = fieldBindingPattern.bindingPattern;
+        bindingPattern.accept(this);
+        fieldBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
+    }
+
+    @Override
     public void visit(BLangConstPattern constMatchPattern) {
         BLangExpression constPatternExpr = constMatchPattern.expr;
         typeChecker.checkExpr(constPatternExpr, env);
@@ -3070,6 +3140,35 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 tupleType.restType = restType;
                 bindingPattern.type = tupleType;
                 return;
+            case MAPPING_BINDING_PATTERN:
+                BLangMappingBindingPattern mappingBindingPattern = (BLangMappingBindingPattern) bindingPattern;
+                if (bindingPatternType.tag == TypeTags.UNION) {
+                    for (BType type : ((BUnionType) bindingPatternType).getMemberTypes()) {
+                        assignTypesToMemberPatterns(mappingBindingPattern, type);
+                    }
+                    return;
+                }
+                if (bindingPatternType.tag != TypeTags.RECORD) {
+                    return;
+                }
+                BRecordType recordType = (BRecordType) bindingPatternType;
+                LinkedHashMap<String, BField> fields = recordType.fields;
+                for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
+                    assignTypesToMemberPatterns(fieldBindingPattern.bindingPattern,
+                            fields.get(fieldBindingPattern.fieldName.value).type);
+                }
+
+                if (mappingBindingPattern.restBindingPattern == null) {
+                    return;
+                }
+                BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;
+                BMapType restPatternMapType = (BMapType) restBindingPattern.type;
+                BVarSymbol restVarSymbol =
+                        restBindingPattern.declaredVars.get(restBindingPattern.getIdentifier().getValue());
+                BMapType restVarSymbolMapType = (BMapType) restVarSymbol.type;
+                restPatternMapType.constraint = restVarSymbolMapType.constraint =
+                        this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
+                return;
             default:
         }
     }
@@ -3093,7 +3192,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         wildCardMatchPattern.type = intersectionType;
     }
-
+    
     @Override
     public void visit(BLangMatchStaticBindingPatternClause patternClause) {
         checkStaticMatchPatternLiteralType(patternClause.literal);

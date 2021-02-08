@@ -461,7 +461,7 @@
     {
       "label": "lst",
       "kind": "Variable",
-      "detail": "ballerina/module1:0.1.0:Listener",
+      "detail": "module1:Listener",
       "sortText": "B",
       "insertText": "lst",
       "insertTextFormat": "Snippet"

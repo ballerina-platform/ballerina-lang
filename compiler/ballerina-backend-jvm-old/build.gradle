@@ -15,15 +15,15 @@
  *
  */
  
-apply from: "$rootDir/gradle/baloProject.gradle"
+apply from: "$rootDir/gradle/balaProject.gradle"
 
 configurations {
-    baloOldImpl
-    baloImplementation
-    genBalo
+    balaOldImpl
+    balaImplementation
+    genBala
 }
 
 dependencies {
-    balo  project(path: ':ballerina-bootstrapper', configuration: 'pack3')
+    bala  project(path: ':ballerina-bootstrapper', configuration: 'pack3')
 }
 

@@ -82,10 +82,10 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
         PackerinaTestUtils.copyFolder(projectV1.resolve("src").resolve("print"), testProjV1ModulePath);
         deleteFiles(projectV1.resolve("src").resolve("print"));
 
-        String printModuleV1BaloFileName = printModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION +
+        String printModuleV1BalaFileName = printModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION +
                 "-any-1.0.0" + BLANG_COMPILED_PKG_BINARY_EXT;
 
-        String module1BuildMsg = "target" + File.separator + "balo" + File.separator + printModuleV1BaloFileName;
+        String module1BuildMsg = "target" + File.separator + "bala" + File.separator + printModuleV1BalaFileName;
         LogLeecher printModV1BuildLeecher = new LogLeecher(module1BuildMsg);
         balClient.runMain("build", new String[]{"-c", "--skip-tests=true", printModuleName}, envVariables,
                           new String[]{},
@@ -108,9 +108,9 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
         PackerinaTestUtils.copyFolder(projectV2.resolve("src").resolve("print"), testProjV2ModulePath);
         deleteFiles(projectV2.resolve("src").resolve("print"));
 
-        String printModuleV2BaloFileName = printModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION +
+        String printModuleV2BalaFileName = printModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION +
                 "-any-2.0.0" + BLANG_COMPILED_PKG_BINARY_EXT;
-        module1BuildMsg = "target" + File.separator + "balo" + File.separator + printModuleV2BaloFileName;
+        module1BuildMsg = "target" + File.separator + "bala" + File.separator + printModuleV2BalaFileName;
         LogLeecher printModV2BuildLeecher = new LogLeecher(module1BuildMsg);
         balClient.runMain("build", new String[]{"-c", "--skip-tests=true", printModuleName}, envVariables,
                           new String[]{},
@@ -135,17 +135,17 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
                 .collect(Collectors.toList());
         Files.write(multiVersionBalPath, replaced);
 
-        String printerModuleBaloFileName = printerModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION +
+        String printerModuleBalaFileName = printerModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION +
                 "-any-0.1.0" + BLANG_COMPILED_PKG_BINARY_EXT;
         String printerModuleJar = printerModuleName + BLANG_COMPILED_JAR_EXT;
-        String printerBaloFilePath = "target" + File.separator + "balo" + File.separator + printerModuleBaloFileName;
+        String printerBalaFilePath = "target" + File.separator + "bala" + File.separator + printerModuleBalaFileName;
         String printerJarFilePath = "target" + File.separator + "bin" + File.separator + printerModuleJar;
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
             balClient.runMain("build", new String[]{printerModuleName}, envVariables, new String[]{},
                               new LogLeecher[]{}, multiVersionsProject.toString());
-            return Files.exists(multiVersionsProject.resolve(Paths.get(printerBaloFilePath)));
+            return Files.exists(multiVersionsProject.resolve(Paths.get(printerBalaFilePath)));
         });
 
         // Test multiple versions of same module output at runtime.

@@ -25,7 +25,7 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    baloCreat project(':lib-creator')
+    balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-io')
@@ -42,11 +42,11 @@ dependencies {
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
 
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    balaImplementation project(path: ':ballerina-io', configuration: 'balaImplementation')
 
 }
 
-createBalo {
+createBala {
     jvmTarget = 'true'
 }
 
