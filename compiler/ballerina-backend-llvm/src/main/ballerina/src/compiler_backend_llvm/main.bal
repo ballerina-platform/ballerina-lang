@@ -43,10 +43,10 @@ function checkValidBirChannel(bir:ChannelReader reader) {
 }
 
 function checkMagic(bir:ChannelReader reader) {
-    byte[] baloCodeHexSpeak = [0xba, 0x10, 0xc0, 0xde];
+    byte[] balaCodeHexSpeak = [0xba, 0x10, 0xc0, 0xde];
     var magic = reader.readByteArray(4);
 
-    if (!arrayEq(baloCodeHexSpeak, magic)){
+    if (!arrayEq(balaCodeHexSpeak, magic)){
         error err = error( "Invalid BIR binary content, unexptected header" );
         panic err;
     }

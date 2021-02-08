@@ -2463,6 +2463,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        markLeafNode(fieldAccessExpr);
+
         // First analyze the accessible expression.
         BLangExpression containerExpression = fieldAccessExpr.expr;
 
@@ -2591,6 +2593,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
+        markLeafNode(indexBasedAccessExpr);
+
         // First analyze the variable reference expression.
         BLangExpression containerExpression = indexBasedAccessExpr.expr;
         if (containerExpression.getKind() ==  NodeKind.TYPEDESC_EXPRESSION) {
@@ -2821,7 +2825,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, letExpression.env);
         }
-        BType exprType = checkExpr(letExpression.expr, letExpression.env);
+        BType exprType = checkExpr(letExpression.expr, letExpression.env, this.expType);
         types.checkType(letExpression, exprType, this.expType);
     }
 
@@ -3116,13 +3120,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BStreamType actualStreamType = (BStreamType) actualType;
-                if (actualStreamType.error != null) {
-                    BType error = actualStreamType.error;
-                    if (error != symTable.neverType && !types.containsErrorType(error)) {
-                        dlog.error(cIExpr.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, error.toString());
-                        resultType = symTable.semanticError;
-                        return;
-                    }
+                BType error = actualStreamType.error;
+                if (error.tag != TypeTags.NEVER && !types.containsErrorType(error)) {
+                    dlog.error(cIExpr.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, error.toString());
+                    resultType = symTable.semanticError;
+                    return;
                 }
 
                 if (!cIExpr.initInvocation.argExprs.isEmpty()) {
@@ -3220,8 +3222,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
         retTypeMembers.add(recordType);
-        if (streamType.error != symTable.neverType && streamType.error != null) {
-            retTypeMembers.add(streamType.error);
+        List<BType> errorTypes = getTypesList(streamType.error);
+        errorTypes.removeIf(type -> type.tag == TypeTags.NEVER);
+        if (!errorTypes.isEmpty()) {
+            retTypeMembers.addAll(errorTypes);
         }
         retTypeMembers.add(symTable.nilType);
 
@@ -4476,14 +4480,15 @@ public class TypeChecker extends BLangNodeVisitor {
             BType errorType = getErrorType(collectionType);
             selectType = selectTypes.get(0);
             if (queryExpr.isStream) {
-                return new BStreamType(TypeTags.STREAM, selectType, errorType, null);
+                return new BStreamType(TypeTags.STREAM, selectType,
+                        errorType != null ? errorType : symTable.neverType, null);
             } else if (queryExpr.isTable) {
                 actualType = getQueryTableType(queryExpr, selectType);
             } else {
                 actualType = resolvedTypes.get(0);
             }
 
-            if (errorType != null) {
+            if (errorType != null && errorType.tag != TypeTags.NEVER) {
                 return BUnionType.create(null, actualType, errorType);
             } else {
                 return actualType;
@@ -6569,7 +6574,8 @@ public class TypeChecker extends BLangNodeVisitor {
                         varRefType, fieldName);
             }
             fieldAccessExpr.nilSafeNavigation = nillableExprType;
-            fieldAccessExpr.originalType = getSafeType(actualType, fieldAccessExpr);
+            fieldAccessExpr.originalType = fieldAccessExpr.leafNode || !nillableExprType ? actualType :
+                    types.getTypeWithoutNil(actualType);
         } else if (types.isLax(effectiveType)) {
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
             actualType = accessCouldResultInError(effectiveType) ?
@@ -6691,7 +6697,8 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             indexBasedAccessExpr.nilSafeNavigation = nillableExprType;
-            indexBasedAccessExpr.originalType = getSafeType(actualType, indexBasedAccessExpr);
+            indexBasedAccessExpr.originalType = indexBasedAccessExpr.leafNode || !nillableExprType ? actualType :
+                    types.getTypeWithoutNil(actualType);
         } else if (types.isSubTypeOfList(varRefType)) {
             checkExpr(indexExpr, this.env, symTable.intType);
 
@@ -6797,9 +6804,10 @@ public class TypeChecker extends BLangNodeVisitor {
                     return symTable.semanticError;
                 }
             }
-
-            indexBasedAccessExpr.originalType = tableType.constraint;
-            actualType = tableType.constraint;
+            BType constraint = tableType.constraint;
+            actualType = addNilForNillableAccessType(constraint);
+            indexBasedAccessExpr.originalType = indexBasedAccessExpr.leafNode || !nillableExprType ? actualType :
+                    types.getTypeWithoutNil(actualType);
         } else if (varRefType == symTable.semanticError) {
             indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
             return symTable.semanticError;
@@ -7152,43 +7160,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         BUnionType.create(null, possibleTypesByMember);
         }
         return actualType;
-    }
-
-    private BType getSafeType(BType type, BLangAccessExpression accessExpr) {
-        if (type.tag != TypeTags.UNION) {
-            return type;
-        }
-
-        // Extract the types without the error and null, and revisit access expression
-        List<BType> lhsTypes = new ArrayList<>(((BUnionType) type).getMemberTypes());
-
-        if (accessExpr.errorSafeNavigation) {
-            if (!lhsTypes.contains(symTable.errorType)) {
-                dlog.error(accessExpr.pos, DiagnosticErrorCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
-                return symTable.semanticError;
-            }
-
-            lhsTypes = lhsTypes.stream()
-                    .filter(memberType -> memberType != symTable.errorType)
-                    .collect(Collectors.toList());
-
-            if (lhsTypes.isEmpty()) {
-                dlog.error(accessExpr.pos, DiagnosticErrorCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
-                return symTable.semanticError;
-            }
-        }
-
-        if (accessExpr.nilSafeNavigation) {
-            lhsTypes = lhsTypes.stream()
-                    .filter(memberType -> memberType != symTable.nilType)
-                    .collect(Collectors.toList());
-        }
-
-        if (lhsTypes.size() == 1) {
-            return lhsTypes.get(0);
-        }
-
-        return BUnionType.create(null, new LinkedHashSet<>(lhsTypes));
     }
 
     private List<BType> getTypesList(BType type) {
@@ -7680,6 +7651,31 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         markTypeAsIsolated(actualObjectType);
+    }
+
+    private void markLeafNode(BLangAccessExpression accessExpression) {
+        BLangNode parent = accessExpression.parent;
+        if (parent == null) {
+            accessExpression.leafNode = true;
+            return;
+        }
+
+        NodeKind kind = parent.getKind();
+
+        while (kind == NodeKind.GROUP_EXPR) {
+            parent = parent.parent;
+
+            if (parent == null) {
+                accessExpression.leafNode = true;
+                break;
+            }
+
+            kind = parent.getKind();
+        }
+
+        if (kind != NodeKind.FIELD_BASED_ACCESS_EXPR && kind != NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            accessExpression.leafNode = true;
+        }
     }
 
     private static class FieldInfo {

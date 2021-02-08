@@ -3898,11 +3898,6 @@
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
-                    "name": "restMatchPattern",
-                    "type": "RestMatchPatternNode",
-                    "isOptional": true
-                },
-                {
                     "name": "closeBracket",
                     "type": "Token"
                 }
@@ -3938,13 +3933,8 @@
                 },
                 {
                     "name": "fieldMatchPatterns",
-                    "type": "FieldMatchPatternNode",
+                    "type": "Node",
                     "occurrences": "MULTIPLE_SEPARATED"
-                },
-                {
-                    "name": "restMatchPattern",
-                    "type": "RestMatchPatternNode",
-                    "isOptional": true
                 },
                 {
                     "name": "closeBraceToken",

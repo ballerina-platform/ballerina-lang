@@ -40,6 +40,7 @@ import org.eclipse.lsp4j.debug.StackTraceResponse;
 import org.eclipse.lsp4j.debug.StepInArguments;
 import org.eclipse.lsp4j.debug.StepOutArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
+import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.eclipse.lsp4j.debug.Variable;
 import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
@@ -413,6 +414,29 @@ public class DebugTestRunner {
             throw new BallerinaTestException("Error occurred when fetching stack frames", e);
         }
         return stackFrames;
+    }
+
+    /**
+     * Can be used to fetch threads when a debug hit is occurred.
+     *
+     * @return Thread array with threads information.
+     * @throws BallerinaTestException if an error occurs when fetching threads.
+     */
+    public org.eclipse.lsp4j.debug.Thread[] fetchThreads() throws BallerinaTestException {
+        if (!listener.getConnector().isConnected()) {
+            throw new BallerinaTestException("DAP Client connector is not connected");
+        }
+        org.eclipse.lsp4j.debug.Thread[] threads;
+        ThreadsResponse threadsResponse;
+
+        try {
+            threadsResponse = listener.getConnector().getRequestManager().threads();
+            threads = threadsResponse.getThreads();
+        } catch (Exception e) {
+            LOGGER.warn("Error occurred when fetching threads", e);
+            throw new BallerinaTestException("Error occurred when fetching threads", e);
+        }
+        return threads;
     }
 
     /**
