@@ -44,6 +44,8 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
     public static final String NUMBER = "number";
     public static final String STRING = "string";
     public static final String BOOLEAN = "boolean";
+    public static final String TITLE = "title";
+    public static final String SCHEMA = "$schema";
     public static final String DESCRIPTION = "description";
     public static final String ADDITIONAL_PROPERTIES = "additionalProperties";
     public static final String PROPERTIES = "properties";
@@ -52,6 +54,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
     public static final String PATTERN = "pattern";
     public static final String MINIMUM = "minimum";
     public static final String MAXIMUM = "maximum";
+    public static final String MESSAGE = "message";
 
     @Override
     public AbstractSchema deserialize(JsonElement jsonElement, java.lang.reflect.Type refType,
@@ -70,13 +73,18 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
             case STRING:
                 return getStringSchema(jsonObj);
             case BOOLEAN:
-                return new BooleanSchema(Type.BOOLEAN);
+                Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
+                return new BooleanSchema(Type.BOOLEAN, customMessages);
             default:
                 throw new JsonSchemaException(type + " is not supported type in json schema");
         }
     }
 
-    private ObjectSchema getObjectSchema(JsonDeserializationContext jsonDeserializationContext, JsonObject jsonObj) {
+    private Schema getObjectSchema(JsonDeserializationContext jsonDeserializationContext, JsonObject jsonObj) {
+        JsonElement titleProp = jsonObj.get(TITLE);
+        String title = titleProp != null ? titleProp.getAsString() : null;
+        JsonElement schemaProp = jsonObj.get(SCHEMA);
+        String schema = schemaProp != null ? schemaProp.getAsString() : null;
         JsonElement descriptionProperty = jsonObj.get(DESCRIPTION);
         String description = descriptionProperty != null ? descriptionProperty.getAsString() : null;
         boolean additionalProperties = parseOptionalBooleanFromJson(jsonObj, ADDITIONAL_PROPERTIES);
@@ -90,24 +98,29 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
             propertiesList.put(key, abstractSchema);
         }
         List<String> requiredList = parseOptionalListFromJson(jsonObj, REQUIRED);
-        return new ObjectSchema(Type.OBJECT, description, additionalProperties, propertiesList, requiredList);
+        Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
+        return new Schema(schema, title, Type.OBJECT, customMessages, description, additionalProperties,
+                propertiesList, requiredList);
     }
 
     private AbstractSchema getArraySchema(JsonDeserializationContext jsonDeserializationContext, JsonObject jsonObj) {
         JsonElement items = jsonObj.get(ITEMS).getAsJsonObject();
         AbstractSchema abstractSchema = jsonDeserializationContext.deserialize(items, AbstractSchema.class);
-        return new ArraySchema(Type.ARRAY, abstractSchema);
+        Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
+        return new ArraySchema(Type.ARRAY, customMessages, abstractSchema);
     }
 
     private StringSchema getStringSchema(JsonObject jsonObj) {
         String pattern = parseOptionalStringFromJson(jsonObj, PATTERN);
-        return new StringSchema(Type.STRING, pattern);
+        Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
+        return new StringSchema(Type.STRING, customMessages, pattern);
     }
 
     private NumericSchema getNumericSchema(JsonObject jsonObj, Type type) {
         Double minimum = parseOptionalDoubleFromJson(jsonObj, MINIMUM);
         Double maximum = parseOptionalDoubleFromJson(jsonObj, MAXIMUM);
-        return new NumericSchema(type, minimum, maximum);
+        Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
+        return new NumericSchema(type, customMessages, minimum, maximum);
     }
 
     private Double parseOptionalDoubleFromJson(JsonObject jsonObject, String key) {
@@ -161,6 +174,32 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
             return jsonElement.getAsString();
         }
         throw new JsonSchemaException(key + " should always be a string");
+    }
+
+    private Map<String, String> parseOptionalMapFromMessageJson(JsonObject jsonObject) {
+        Map<String, String> customMessages = new HashMap<>();
+        JsonObject customMessageJson = jsonObject.getAsJsonObject(SchemaDeserializer.MESSAGE);
+        if (customMessageJson == null) {
+            return new HashMap<>();
+        }
+
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, TYPE);
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, PATTERN);
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, REQUIRED);
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, ADDITIONAL_PROPERTIES);
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, MINIMUM);
+        addFieldToCustomMessagesMap(customMessages, customMessageJson, MAXIMUM);
+
+        return customMessages;
+    }
+
+    private void addFieldToCustomMessagesMap(Map<String, String> customMessages, JsonObject customMessageJson,
+                                             String field) {
+        JsonElement type = customMessageJson.get(field);
+        if (!(type == null || type.isJsonNull())) {
+            String customTypeMessage = type.getAsString();
+            customMessages.put(field, customTypeMessage);
+        }
     }
 }
 

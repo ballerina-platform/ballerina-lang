@@ -1638,15 +1638,17 @@ public class Desugar extends BLangNodeVisitor {
             convertedErrorVarSymbol = errorVariableSymbol;
         }
 
-        parentErrorVariable.message.expr = generateErrorMessageBuiltinFunction(parentErrorVariable.message.pos,
-                parentErrorVariable.message.type, convertedErrorVarSymbol, null);
+        if (parentErrorVariable.message != null) {
+            parentErrorVariable.message.expr = generateErrorMessageBuiltinFunction(parentErrorVariable.message.pos,
+                    parentErrorVariable.message.type, convertedErrorVarSymbol, null);
 
-        if (names.fromIdNode((parentErrorVariable.message).name) == Names.IGNORE) {
-            parentErrorVariable.message = null;
-        } else {
-            BLangSimpleVariableDef reasonVariableDef =
-                    ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.message.pos, parentBlockStmt);
-            reasonVariableDef.var = parentErrorVariable.message;
+            if (names.fromIdNode(parentErrorVariable.message.name) == Names.IGNORE) {
+                parentErrorVariable.message = null;
+            } else {
+                BLangSimpleVariableDef messageVariableDef =
+                        ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.message.pos, parentBlockStmt);
+                messageVariableDef.var = parentErrorVariable.message;
+            }
         }
 
         if (parentErrorVariable.cause != null) {
@@ -2576,7 +2578,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void createVarRefAssignmentStmts(BLangErrorVarRef parentErrorVarRef, BLangBlockStmt parentBlockStmt,
                                              BVarSymbol errorVarySymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
-        if (parentErrorVarRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+        if (parentErrorVarRef.message != null &&
                 names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.message).variableName) != Names.IGNORE) {
             BLangAssignment message = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos, parentBlockStmt);
             message.expr = generateErrorMessageBuiltinFunction(parentErrorVarRef.message.pos,

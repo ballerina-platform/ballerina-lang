@@ -173,7 +173,11 @@ public class PackageConfigCreator {
 
         List<DocumentConfig> srcDocs = getDocumentConfigs(moduleId, moduleData.sourceDocs());
         List<DocumentConfig> testSrcDocs = getDocumentConfigs(moduleId, moduleData.testSourceDocs());
-        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleData.moduleMd(), dependencies);
+
+        DocumentConfig moduleMd = moduleData.moduleMd()
+                .map(data -> createDocumentConfig(data, null)).orElse(null);
+
+        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
     }
 
     private static List<DocumentConfig> getDocumentConfigs(ModuleId moduleId, List<DocumentData> documentData) {
