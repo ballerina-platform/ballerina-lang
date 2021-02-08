@@ -79,10 +79,10 @@ public class ConfigSecurityUtils {
                     stderr.println("ballerina: enter secret for config value decryption:");
                     cipherTool = new AESCipherTool(new String(System.console().readPassword()));
                 }
-            } catch ( IOException | AESCipherToolException e) {
+            } catch (IOException | AESCipherToolException e) {
                 String msg = "failed to initialize the cipher tool: " + e.getMessage();
                 throw ErrorCreator.createError(StringUtils.fromString(msg));
-            } catch (IndexOutOfBoundsException e){
+            } catch (IndexOutOfBoundsException e) {
                 throw ErrorCreator.createError(StringUtils.fromString("failed to initialize the cipher tool due to " +
                                                                               "empty secret text"));
             }
