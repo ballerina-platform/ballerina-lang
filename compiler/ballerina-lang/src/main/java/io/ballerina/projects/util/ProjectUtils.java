@@ -201,7 +201,7 @@ public class ProjectUtils {
     }
 
     public static String getExecutableName(Package pkg) {
-        // <packagename>.jar
+        // <packagename>-<version>.jar
         return pkg.packageName().toString() + "-" + pkg.packageVersion() + BLANG_COMPILED_JAR_EXT;
     }
 
