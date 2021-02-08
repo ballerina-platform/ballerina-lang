@@ -35,7 +35,7 @@ function testTableMemberAccessLoad() returns boolean {
       { m: {"AAA":"DDDD"}, age: 31 },
       { m: {"BBB":"DDDD"}, age: 34 }
     ];
-    Foo aaa = tab[{"AAA":"DDDD"}];
+    Foo? aaa = tab[{"AAA":"DDDD"}];
     return aaa.toString() == "{\"m\":{\"AAA\":\"DDDD\"},\"age\":31}";
 }
 
@@ -117,7 +117,7 @@ function testMemberAccessWithSingleStringKey() {
     table<Customer> key(name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable["Sanjiva"];
+    Customer? customer = customerTable["Sanjiva"];
     assertEquality("Weerawarana", customer["lname"]);
 }
 
@@ -125,7 +125,7 @@ function testMemberAccessWithSingleIntKey() {
     table<Customer> key(id) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable[13];
+    Customer? customer = customerTable[13];
     assertEquality("Weerawarana", customer["lname"]);
 }
 
@@ -133,7 +133,7 @@ function testMemberAccessWithMultiKeyAsTuple() {
     table<Customer> key(id, name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable[[13, "Sanjiva"]];
+    Customer? customer = customerTable[[13, "Sanjiva"]];
     assertEquality("Weerawarana", customer["lname"]);
 }
 
@@ -141,7 +141,7 @@ function testMemberAccessWithMultiKey() {
     table<Customer> key(id, name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable[13, "Sanjiva"];
+    Customer? customer = customerTable[13, "Sanjiva"];
     assertEquality("Weerawarana", customer["lname"]);
 }
 
