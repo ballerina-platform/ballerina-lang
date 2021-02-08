@@ -126,4 +126,9 @@ public class DocumentationTest extends AbstractMiscTest {
     public void testDocWithInitialDiagnostics() {
         testFile("documentation/doc_source_18.bal", "documentation/doc_assert_18.json");
     }
+
+    @Test
+    public void testCodeBlockNegative() {
+        testFile("documentation/doc_source_22.bal", "documentation/doc_assert_22.json");
+    }
 }

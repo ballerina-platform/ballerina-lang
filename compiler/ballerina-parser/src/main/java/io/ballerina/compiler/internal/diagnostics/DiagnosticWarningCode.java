@@ -27,6 +27,10 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
  */
 public enum DiagnosticWarningCode implements DiagnosticCode {
     WARNING_INVALID_BALLERINA_NAME_REFERENCE("BCE10000", "warning.invalid.ballerina.name.reference"),
+    WARNING_CANNOT_HAVE_DOCUMENTATION_INLINE_WITH_A_CODE_REFERENCE_BLOCK("BCE10001",
+            "warning.cannot.have.documentation.inline.with.a.code.reference.block"),
+    WARNING_INLINE_CODE_REFERENCE_NOT_ENDED_WITH_BACKTICKS("BCE10002",
+            "warning.inline.code.reference.not.ended.with.backticks"),
     ;
 
     String diagnosticId;
