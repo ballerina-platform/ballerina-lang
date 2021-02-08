@@ -6325,7 +6325,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BType targetType = conversionExpr.targetType;
-        validateIsNotCastToAnImportedAnonType(targetType == null ? conversionExpr.type : targetType);
+        // validateIsNotCastToAnImportedAnonType(targetType == null ? conversionExpr.type : targetType);
 
         conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
         if (types.isXMLExprCastableToString(conversionExpr.expr.type, conversionExpr.type)) {
