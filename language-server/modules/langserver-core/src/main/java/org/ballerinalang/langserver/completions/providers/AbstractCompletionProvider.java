@@ -146,12 +146,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             if (symbol.kind() == FUNCTION || symbol.kind() == METHOD) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbol, ctx));
             } else if (symbol.kind() == SymbolKind.CONSTANT) {
-                CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol);
+                CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, ctx);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, constantCItem));
             } else if (symbol.kind() == SymbolKind.VARIABLE) {
                 VariableSymbol varSymbol = (VariableSymbol) symbol;
                 TypeSymbol typeDesc = (varSymbol).typeDescriptor();
-                String typeName = typeDesc == null ? "" : typeDesc.signature();
+                String typeName = typeDesc == null ? "" : CommonUtil.getModifiedTypeName(ctx, typeDesc);
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
