@@ -2614,6 +2614,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         endContext();
                         return ParserRuleContext.XML_NAME_PATTERN_RHS;
                     case REQUIRED_PARAM:
+                    case DEFAULTABLE_PARAM:
                         return ParserRuleContext.TYPE_DESC_IN_PARAM;
                     default:
                         return ParserRuleContext.TYPE_REFERENCE_IN_TYPE_INCLUSION;
@@ -3987,7 +3988,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_SERVICE:
             case TYPE_DESC_IN_PATH_PARAM:
             case STMT_START_BRACKETED_LIST:
-            case DEFAULTABLE_PARAM:
             case BRACKETED_LIST:
             case TYPE_REFERENCE_IN_TYPE_INCLUSION:
                 return true;
