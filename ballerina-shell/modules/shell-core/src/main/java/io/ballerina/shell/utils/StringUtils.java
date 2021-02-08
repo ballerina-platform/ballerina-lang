@@ -116,4 +116,14 @@ public class StringUtils {
         return String.format("%s%n\t%s%n\t%s%s", diagnostic.message(), strippedSourceLine,
                 SPACE.repeat(position - leadingSpaces), caretUnderline);
     }
+
+    /**
+     * Converts a Ballerina object to its `toBalString` counterpart.
+     *
+     * @param object Object to convert.
+     * @return Converted string.
+     */
+    public static String getExpressionStringValue(Object object) {
+        return io.ballerina.runtime.api.utils.StringUtils.getExpressionStringValue(object, null);
+    }
 }

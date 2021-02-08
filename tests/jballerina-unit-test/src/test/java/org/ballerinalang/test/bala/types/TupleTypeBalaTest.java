@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.balo.types;
+package org.ballerinalang.test.bala.types;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -34,13 +34,13 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  *
  * @since 2.0.0
  */
-public class TupleTypeBaloTest {
+public class TupleTypeBalaTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/tuple_type_project");
+        BCompileUtil.compileAndCacheBala("test-src/balo/test_projects/tuple_type_project");
         result = BCompileUtil.compile("test-src/balo/test_balo/types/test_tuple_type.bal");
     }
 
