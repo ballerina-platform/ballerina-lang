@@ -324,7 +324,8 @@ public class BuildCommandTest extends BaseCommandTest {
         } catch (BLauncherException e) {
             Assert.assertFalse(projectPath.resolve("target").resolve("balo").resolve("foo-winery-any-0.1.0.balo")
                     .toFile().exists());
-            Assert.assertFalse(projectPath.resolve("target").resolve("bin").resolve("winery-0.1.0.jar").toFile().exists());
+            Assert.assertFalse(projectPath.resolve("target").resolve("bin").resolve("winery-0.1.0.jar").toFile()
+                    .exists());
         }
     }
 
@@ -500,8 +501,8 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("balo")
                                   .resolve("john-validProjectWithEmptyBallerinaToml-any-0.1.0.balo").toFile().exists());
         Assert.assertTrue(
-                projectPath.resolve("target").resolve("bin").resolve("validProjectWithEmptyBallerinaToml-0.1.0.jar").toFile()
-                        .exists());
+                projectPath.resolve("target").resolve("bin").resolve("validProjectWithEmptyBallerinaToml-0.1.0.jar")
+                        .toFile().exists());
     }
 
     static class Copy extends SimpleFileVisitor<Path> {
