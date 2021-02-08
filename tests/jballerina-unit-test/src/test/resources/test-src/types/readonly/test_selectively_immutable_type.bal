@@ -292,7 +292,8 @@ function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
         department: "HR"
     };
     any n = m;
-    any|error o = m.cloneReadOnly();
+    any o = m.cloneReadOnly();
+    assertFalse(n is readonly);
     assertTrue(o is readonly);
 }
 
@@ -316,6 +317,7 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     anydata a2 = b;
     any an2 = b;
     assertFalse(an2 is [Employee, Employee] & readonly);
+    assertFalse(an2 is readonly);
     assertFalse(a2.isReadOnly());
 
     [Employee, Employee] empTup = <[Employee, Employee]> a2;
@@ -370,6 +372,7 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     anydata a4 = f;
     any an4 = f;
     assertFalse(an4 is map<boolean> & readonly);
+    assertFalse(an4 is readonly);
     assertFalse(a4.isReadOnly());
 
     json g = [1, {a: "abc", b: true}];
@@ -378,12 +381,14 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertTrue(an5 is json);
     assertFalse(an5 is json & readonly);
     assertFalse(an5 is json[] & readonly);
+    assertFalse(an5 is readonly);
     assertFalse(a5.isReadOnly());
 
     json[] jsonVal = <json[]> an5;
     map<json> a8 = <map<json>> jsonVal[1];
     any an8 = a8;
     assertFalse(a8 is map<json> & readonly);
+    assertFalse(an8 is readonly);
     assertFalse(a8.isReadOnly());
 
     map<int>|boolean[] h = [true, false];
@@ -393,6 +398,7 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertTrue(an6 is map<int>|boolean[]);
     assertFalse(an6 is map<int>|boolean[] & readonly);
     assertFalse(an6 is boolean[] & readonly);
+    assertFalse(an6 is readonly);
     assertFalse(a6.isReadOnly());
 
     'xml:Element i = xml `<Student><name>Emma</name><id>6040</id></Student>`;
@@ -400,6 +406,7 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     any an7 = i;
     assertTrue(an7 is 'xml:Element);
     assertFalse(an7 is 'xml:Element & readonly);
+    assertFalse(an7 is readonly);
     assertFalse(a7.isReadOnly());
 
     table<Identifier> key(name) j = table [
