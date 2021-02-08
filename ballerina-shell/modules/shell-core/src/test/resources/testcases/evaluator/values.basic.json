@@ -27,7 +27,7 @@
   {
     "description": "Uses i in a string template.",
     "code": "string template = string `Hello ${i}!!!`; template",
-    "expr": "Hello 100!!!"
+    "expr": "\"Hello 100!!!\""
   },
   {
     "description": "Range expression x...y format.",
