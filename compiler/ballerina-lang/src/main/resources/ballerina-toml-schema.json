@@ -50,6 +50,12 @@
         },
         "repository": {
           "type": "string"
+        },
+        "exported": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": ["name", "org", "version"],

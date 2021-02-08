@@ -34,8 +34,11 @@ public class PackageManifest {
     private final List<Dependency> dependencies;
     private final Map<String, Platform> platforms;
     private final DiagnosticResult diagnostics;
-
-    // move other entries here
+    private final List<String> license;
+    private final List<String> authors;
+    private final List<String> keywords;
+    private final String repository;
+    private final List<String> exported;
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
@@ -51,6 +54,33 @@ public class PackageManifest {
         this.platforms = Collections.unmodifiableMap(platforms);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
         this.diagnostics = diagnostics;
+        this.license = Collections.emptyList();
+        this.authors = Collections.emptyList();
+        this.keywords = Collections.emptyList();
+        this.exported = Collections.emptyList();
+        this.repository = "";
+    }
+
+    private PackageManifest(PackageDescriptor packageDesc,
+                            List<Dependency> dependencies,
+                            Map<String, Platform> platforms,
+                            Map<String, TopLevelNode> otherEntries,
+                            DiagnosticResult diagnostics,
+                            List<String> license,
+                            List<String> authors,
+                            List<String> keywords,
+                            List<String> exported,
+                            String repository) {
+        this.packageDesc = packageDesc;
+        this.dependencies = Collections.unmodifiableList(dependencies);
+        this.platforms = Collections.unmodifiableMap(platforms);
+        this.otherEntries = Collections.unmodifiableMap(otherEntries);
+        this.diagnostics = diagnostics;
+        this.license = license;
+        this.authors = authors;
+        this.keywords = keywords;
+        this.exported = exported;
+        this.repository = repository;
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc) {
@@ -69,8 +99,14 @@ public class PackageManifest {
                                        List<Dependency> dependencies,
                                        Map<String, Platform> platforms,
                                        Map<String, TopLevelNode> otherEntries,
-                                       DiagnosticResult diagnostics) {
-        return new PackageManifest(packageDesc, dependencies, platforms, otherEntries, diagnostics);
+                                       DiagnosticResult diagnostics,
+                                       List<String> license,
+                                       List<String> authors,
+                                       List<String> keywords,
+                                       List<String> exported,
+                                       String repository) {
+        return new PackageManifest(packageDesc, dependencies, platforms, otherEntries, diagnostics, license, authors,
+                                   keywords, exported, repository);
     }
 
     public PackageName name() {
@@ -103,23 +139,27 @@ public class PackageManifest {
     }
 
     public List<String> license() {
-        return packageDesc.license();
+        return license;
     }
 
     public List<String> authors() {
-        return packageDesc.authors();
+        return authors;
     }
 
     public List<String> keywords() {
-        return packageDesc.keywords();
+        return keywords;
+    }
+
+    public List<String> exported() {
+        return exported;
+    }
+
+    public String repository() {
+        return repository;
     }
 
     public DiagnosticResult diagnostics() {
         return diagnostics;
-    }
-
-    public String repository() {
-        return packageDesc.repository();
     }
 
     /**

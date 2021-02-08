@@ -82,6 +82,7 @@ public class ManifestBuilder {
     private static final String AUTHORS = "authors";
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
+    private static final String EXPORTED = "exported";
 
     private ManifestBuilder(TomlDocument ballerinaToml, TomlDocument dependenciesToml, Path projectPath) {
         this.projectPath = projectPath;
@@ -141,6 +142,23 @@ public class ManifestBuilder {
         TomlTableNode tomlAstNode = ballerinaToml.toml().rootNode();
         PackageDescriptor packageDescriptor = getPackageDescriptor(tomlAstNode);
 
+        List<String> license = Collections.emptyList();
+        List<String> authors = Collections.emptyList();
+        List<String> keywords = Collections.emptyList();
+        List<String> exported = Collections.emptyList();
+        String repository = "";
+
+        if (!tomlAstNode.entries().isEmpty()) {
+            TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
+            if (pkgNode != null && pkgNode.kind() != TomlType.NONE && pkgNode.kind() == TomlType.TABLE) {
+                license = getStringArrayFromPackageNode(pkgNode, LICENSE);
+                authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
+                keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
+                exported = getStringArrayFromPackageNode(pkgNode, EXPORTED);
+                repository = getStringValueFromPackageNode(pkgNode, REPOSITORY, "");
+            }
+        }
+
         // Do not mutate toml tree
         Map<String, TopLevelNode> otherEntries = new HashMap<>();
         if (!tomlAstNode.entries().isEmpty()) {
@@ -160,7 +178,8 @@ public class ManifestBuilder {
         TopLevelNode platformNode = otherEntries.remove("platform");
         Map<String, PackageManifest.Platform> platforms = getPlatforms(platformNode);
 
-        return PackageManifest.from(packageDescriptor, dependencies, platforms, otherEntries, diagnostics());
+        return PackageManifest.from(packageDescriptor, dependencies, platforms, otherEntries, diagnostics(), license,
+                                    authors, keywords, exported, repository);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -172,10 +191,6 @@ public class ManifestBuilder {
         String org;
         String name;
         String version;
-        List<String> license;
-        List<String> authors;
-        List<String> keywords;
-        String repository;
 
         if (tomlTableNode.entries().isEmpty()) {
             return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
@@ -193,10 +208,6 @@ public class ManifestBuilder {
         org = getStringValueFromPackageNode(pkgNode, "org", defaultOrg.value());
         name = getStringValueFromPackageNode(pkgNode, "name", defaultName.value());
         version = getStringValueFromPackageNode(pkgNode, VERSION, defaultVersion.value().toString());
-        license = getStringArrayFromPackageNode(pkgNode, LICENSE);
-        authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
-        keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
-        repository = getStringValueFromPackageNode(pkgNode, REPOSITORY, "");
 
         // check org is valid identifier
         boolean isValidOrg = ProjectUtils.validateOrgName(org);
@@ -217,9 +228,7 @@ public class ManifestBuilder {
             version = defaultVersion.value().toString();
         }
 
-        return PackageDescriptor
-                .from(PackageOrg.from(org), PackageName.from(name), PackageVersion.from(version), license, authors,
-                      keywords, repository);
+        return PackageDescriptor.from(PackageOrg.from(org), PackageName.from(name), PackageVersion.from(version));
     }
 
     private BuildOptions parseBuildOptions() {
