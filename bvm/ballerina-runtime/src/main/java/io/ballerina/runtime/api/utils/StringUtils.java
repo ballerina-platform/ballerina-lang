@@ -296,7 +296,7 @@ public class StringUtils {
      * @return Ballerina value represented by Ballerina expression syntax
      * @throws BError for any parsing error
      */
-    public static Object parseExpressionStringValue(String value, BLink parent) throws BError {
+    public static Object parseExpressionStringValue(String value, BLink parent) throws BallerinaException {
         String exprValue = value.trim();
         int endIndex = exprValue.length() - 1;
         if (exprValue.equals("()")) {
@@ -340,7 +340,7 @@ public class StringUtils {
         if (exprValue.indexOf(' ') != -1) {
             return BalStringUtils.parseTupleExpressionStringValue(exprValue, parent);
         }
-        throw ErrorCreator.createError(fromString("invalid expression style string value"));
+        throw new BallerinaException("invalid expression style string value");
     }
 
     /**

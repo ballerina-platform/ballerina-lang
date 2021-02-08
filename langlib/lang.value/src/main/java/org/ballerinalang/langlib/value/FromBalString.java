@@ -20,8 +20,8 @@ package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.FROM_BAL_STRING_ERROR;
 
@@ -38,7 +38,7 @@ public class FromBalString {
         }
         try {
             return StringUtils.parseExpressionStringValue(str, null);
-        } catch (BError e) {
+        } catch (BallerinaException e) {
             return ErrorCreator.createError(FROM_BAL_STRING_ERROR, StringUtils.fromString(e.getMessage()));
         }
     }
