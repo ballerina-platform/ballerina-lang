@@ -149,6 +149,10 @@ service S / on lsn {
             }
         };
     }
+
+    @RAnnot { val: "anot-on-dot" }  resource function get .() returns json {
+
+    }
 }
 
 int i = 0;
@@ -176,6 +180,11 @@ function testServiceDecl() {
     map<any> m = <map<any>> val;
     string s = <string> m["val"];
     assertEquality(s, "anot-val");
+
+    val = getResourceAnnotation("get", ["."], "RAnnot");
+    m = <map<any>> val;
+    s = <string> m["val"];
+    assertEquality(s, "anot-on-dot");
 
     // Test annotation on service decl
     map<any> annots = getAnnotationsAtServiceAttach();

@@ -26,9 +26,12 @@ public enum Language {
     SI = "Sinhala"
 }
 
+const string beatles = "The " + "Beatles";
+
 public enum Bands {
     QUEEN,
-    PF = "Pink " + "Floyd"
+    PF = "Pink " + "Floyd",
+    BEATLES = beatles
 }
 
 string colorOfSky = BLUE;
@@ -48,6 +51,9 @@ function testBasicEnumSupport() {
 
     string q = QUEEN;
     assert(q, "QUEEN");
+
+    string b = BEATLES;
+    assert(b, "The Beatles");
 }
 
 function testEnumAsType() {
@@ -59,6 +65,9 @@ function testEnumAsType() {
 
     PF pf = "Pink Floyd";
     assert(pf, "Pink Floyd");
+    
+    BEATLES btl = "The Beatles";
+    assert(btl, "The Beatles");
 }
 
 function testEnumAsGlobalRef() {

@@ -22,14 +22,13 @@ import com.sun.jdi.IntegerValue;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
@@ -38,7 +37,9 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
 /**
  * Ballerina array variable type.
  */
-public class BArray extends BCompoundVariable {
+public class BArray extends IndexedCompoundVariable {
+
+    int arraySize = -1;
 
     public BArray(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.ARRAY, value);
@@ -60,10 +61,10 @@ public class BArray extends BCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeChildVariables() {
+    protected Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return new HashMap<>();
+                return Either.forRight(new ArrayList<>());
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             List<Field> fields = jvmValueRef.referenceType().allFields();
@@ -71,19 +72,24 @@ public class BArray extends BCompoundVariable {
                     fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))
                     .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
 
-            List<Value> valueList = ((ArrayReference) jvmValueRef.getValue(arrayValueField)).getValues();
-            // List length is 100 by default. Create a sub list with actual array size.
-            List<Value> valueSubList = valueList.subList(0, getArraySize(jvmValueRef));
-            Map<String, Value> values = new TreeMap<>();
-            AtomicInteger nextVarIndex = new AtomicInteger(0);
-            valueSubList.forEach(item -> {
-                int varIndex = nextVarIndex.getAndIncrement();
-                values.put(String.format("[%d]", varIndex), valueSubList.get(varIndex));
-            });
-            return values;
+            // If count > 0, returns a sublist of the child variables
+            // If count == 0, returns all child variables
+            List<Value> children;
+            if (count > 0) {
+                children = ((ArrayReference) jvmValueRef.getValue(arrayValueField)).getValues(start, count);
+            } else {
+                children = ((ArrayReference) jvmValueRef.getValue(arrayValueField)).getValues(0,
+                        getArraySize(jvmValueRef));
+            }
+            return Either.forRight(children);
         } catch (Exception ignored) {
-            return new HashMap<>();
+            return Either.forRight(new ArrayList<>());
         }
+    }
+
+    @Override
+    public int getChildrenCount() {
+        return getArraySize((ObjectReference) jvmValue);
     }
 
     /**
@@ -107,10 +113,20 @@ public class BArray extends BCompoundVariable {
      * @return size of the array.
      */
     private int getArraySize(ObjectReference arrayRef) {
+        if (arraySize < 0) {
+            populateArraySize(arrayRef);
+        }
+        return arraySize;
+    }
+
+    private void populateArraySize(ObjectReference arrayRef) {
         List<Field> fields = arrayRef.referenceType().allFields();
-        Field arraySizeField = arrayRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
-                fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
-                .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
-        return ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
+        Field arraySizeField = arrayRef.getValues(fields).entrySet()
+                .stream()
+                .filter(fieldValueEntry -> fieldValueEntry.getValue() != null &&
+                        fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList()).get(0);
+        arraySize = ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
     }
 }

@@ -46,7 +46,7 @@ function test() {
 
     table<Person> key(id, name) tbl = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                              { id: 23 , name: "James" , lname: "Clark" }];
-    Person p = tbl[13, "Sanjiva"];
+    Person? p = tbl[13, "Sanjiva"];
 
     xml x = xml `<root attr="attr-val"><a></a><b></b></root>`;
     string|error val1 = x.attr;

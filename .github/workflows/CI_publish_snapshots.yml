@@ -1,4 +1,4 @@
-name: Publish Ballerina Snapshot
+name: Build and Publish Snapshot Artifacts
 
 on:
     push:
