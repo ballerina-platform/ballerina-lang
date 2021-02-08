@@ -47,7 +47,7 @@ public class BallerinaLogFormatter extends Formatter {
         if (source.equals("")) {
             source = "\"\"";
         }
-        if (BLogManager.isJsonFormat()) {
+        if (BLogManager.logOutputFormat().equals(BLogManager.OUTPUT_FORMAT_JSON)) {
             format = jsonFormat;
         }
         return String.format(format,

@@ -65,7 +65,9 @@ public class BLogManager extends LogManager {
     public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";
     public static final int LOGGER_PREFIX_LENGTH = BALLERINA_ROOT_LOGGER_NAME.length() + 1; // +1 to account for the .
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
-    private static boolean jsonFormat = false;
+    public static final String OUTPUT_FORMAT_LOGFMT = "LOGFMT";
+    public static final String OUTPUT_FORMAT_JSON = "JSON";
+    private static String outputFormat = OUTPUT_FORMAT_LOGFMT;
 
     private Map<String, BLogLevel> loggerLevels = new HashMap<>();
     private BLogLevel ballerinaUserLogLevel = BLogLevel.INFO; // default to INFO
@@ -280,18 +282,20 @@ public class BLogManager extends LogManager {
     }
 
     /**
-     * Checks if the output format of logs is set to json.
+     * Returns the output format of logs.
      *
-     * @return true if the output format is json, false otherwise
+     * @return outputFormat
      */
-    public static boolean isJsonFormat() {
-        return jsonFormat;
+    public static String logOutputFormat() {
+        return BLogManager.outputFormat;
     }
 
     /**
-     * Sets the output format of logs to json.
+     * Sets the output format of logs.
+     *
+     * @param outputFormat a predefined output format
      */
-    public static void setBallerinaJsonLogFormat() {
-        BLogManager.jsonFormat = true;
+    public static void setLogOutputFormat(String outputFormat) {
+        BLogManager.outputFormat = outputFormat;
     }
 }
