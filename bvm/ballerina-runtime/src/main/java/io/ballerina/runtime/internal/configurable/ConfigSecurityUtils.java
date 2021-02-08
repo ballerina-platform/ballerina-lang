@@ -42,7 +42,7 @@ import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.S
  */
 public class ConfigSecurityUtils {
 
-    private static final Pattern encryptedFieldPattern = Pattern.compile("@encrypted:\\{(.*)\\}");
+    private static final Pattern encryptedFieldPattern = Pattern.compile("^@encrypted:\\{(.*)\\}$");
 
     private static AESCipherTool cipherTool = null;
 
@@ -93,7 +93,7 @@ public class ConfigSecurityUtils {
         } catch (IllegalArgumentException | AESCipherToolException e) {
             throw ErrorCreator
                     .createError(StringUtils.fromString("failed to retrieve the encrypted value for variable: '" +
-                                                                variableName + "' :" + e.getMessage()));
+                                                                variableName + "' : " + e.getMessage()));
         }
     }
 

@@ -202,7 +202,7 @@ public class ConfigurableTest extends BaseTest {
         Path projectPath = Paths.get(testFileLocation, "encryptedConfigProject").toAbsolutePath();
         String secretFilePath = Paths.get(testFileLocation, "Secrets", "incorrectSecret.txt").toString();
         LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
-                                                       "'password' :Given final block not properly padded. Such " +
+                                                       "'password' : Given final block not properly padded. Such " +
                                                        "issues can arise if a bad key is used during decryption.",
                                                LogLeecher.LeecherType.ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, addSecretEnvVariable(secretFilePath), new String[]{},
@@ -227,7 +227,7 @@ public class ConfigurableTest extends BaseTest {
         String configFilePath = Paths.get(testFileLocation, "ConfigFiles", "InvalidEncryptedConfig.toml").toString();
         String secretFilePath = Paths.get(testFileLocation, "Secrets", "correctSecret.txt").toString();
         LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
-                                                       "'password' :Input byte array has wrong 4-byte ending unit",
+                                                       "'password' : Input byte array has wrong 4-byte ending unit",
                                                LogLeecher.LeecherType.ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, addEnvVariables(configFilePath, secretFilePath),
                               new String[]{},
