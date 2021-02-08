@@ -96,6 +96,7 @@ public class TypeByAccessExprTest extends TypeByNodeTest {
                     assertEquals(members.get(0).typeKind(), TYPE_REFERENCE);
                     assertEquals(((TypeReferenceTypeSymbol) members.get(0)).name(), "Person");
                     assertEquals(((TypeReferenceTypeSymbol) members.get(0)).typeDescriptor().typeKind(), RECORD);
+                    assertEquals(members.get(1).typeKind(), NIL);
                 }
             }
 

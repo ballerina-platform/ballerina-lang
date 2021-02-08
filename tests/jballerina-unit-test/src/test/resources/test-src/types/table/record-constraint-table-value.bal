@@ -425,6 +425,9 @@ function testMemberAccessHavingNilableFields() {
 
     anydata val3 = tab["John"]["address"]["street"];
     assertEquality(true, val3 is ());
+
+    int? val4 = tab["Mike"]["id"];
+    assertEquality(true, val4 is ());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
