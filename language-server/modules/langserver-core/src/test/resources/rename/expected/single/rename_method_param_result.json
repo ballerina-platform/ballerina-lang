@@ -1,6 +1,6 @@
 {
   "source": {
-    "file": "renameFl1.bal"
+    "file": "renameTest1.bal"
   },
   "position": {
     "line": 0,
@@ -8,7 +8,7 @@
   },
   "result": {
     "changes": {
-      "renameFl1.bal": [
+      "renameTest1.bal": [
         {
           "range": {
             "start": {
@@ -20,7 +20,7 @@
               "character": 32
             }
           },
-          "newText": "renamedVal"
+          "newText": "newA"
         },
         {
           "range": {
@@ -33,7 +33,7 @@
               "character": 9
             }
           },
-          "newText": "renamedVal"
+          "newText": "newA"
         },
         {
           "range": {
@@ -46,7 +46,7 @@
               "character": 14
             }
           },
-          "newText": "renamedVal"
+          "newText": "newA"
         },
         {
           "range": {
@@ -59,7 +59,7 @@
               "character": 32
             }
           },
-          "newText": "renamedVal"
+          "newText": "newA"
         },
         {
           "range": {
@@ -72,7 +72,7 @@
               "character": 16
             }
           },
-          "newText": "renamedVal"
+          "newText": "newA"
         }
       ]
     }
