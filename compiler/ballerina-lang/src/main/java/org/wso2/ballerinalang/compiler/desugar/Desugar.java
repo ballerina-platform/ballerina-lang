@@ -860,12 +860,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private List<BLangVariable> desugarGlobalVariables(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
-        List<BLangVariable> globalVars = pkgNode.globalVars;
         List<BLangVariable> desugaredGlobalVarList = new ArrayList<>();
         SymbolEnv initFunctionEnv =
                 SymbolEnv.createFunctionEnv(pkgNode.initFunction, pkgNode.initFunction.symbol.scope, env);
 
-        globalVars.forEach(globalVar -> {
+        for (BLangVariable globalVar : pkgNode.globalVars) {
             this.env.enclPkg.topLevelNodes.remove(globalVar);
             // This will convert complex variables to simple variables.
             switch (globalVar.getKind()) {
@@ -916,7 +915,8 @@ public class Desugar extends BLangNodeVisitor {
                     desugaredGlobalVarList.add(simpleGlobalVar);
                     break;
             }
-        });
+        }
+
         this.env.enclPkg.topLevelNodes.addAll(desugaredGlobalVarList);
         return desugaredGlobalVarList;
     }
