@@ -16,19 +16,33 @@
 package org.ballerinalang.langserver.command.executors;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.Document;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
@@ -42,8 +56,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents the command executor for creating a function.
@@ -63,18 +77,11 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
     @Override
     public Object execute(ExecuteCommandContext context) throws LSCommandExecutorException {
         String uri = null;
-//        String returnType;
-//        String returnValue;
-//        String funcArgs = "";
-        VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
-
         Position position = null;
-
         for (CommandArgument arg : context.getArguments()) {
             switch (arg.key()) {
                 case CommandConstants.ARG_KEY_DOC_URI:
                     uri = arg.valueAs(String.class);
-                    textDocumentIdentifier.setUri(uri);
                     break;
                 case CommandConstants.ARG_KEY_NODE_POS:
                     position = arg.valueAs(Position.class);
@@ -89,152 +96,106 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         }
 
         SyntaxTree syntaxTree = context.workspace().syntaxTree(filePath.get()).orElseThrow();
-        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(position, position), syntaxTree);
-        Node identifier = null;
-        while (matchedNode != null) {
-            if (matchedNode.kind() == SyntaxKind.FUNCTION_CALL) {
-                FunctionCallExpressionNode callExprNode = (FunctionCallExpressionNode) matchedNode;
-                identifier = callExprNode.functionName();
-                break;
+        NonTerminalNode cursorNode = CommonUtil.findNode(new Range(position, position), syntaxTree);
+        FunctionCallExpressionNode fnCallExprNode = null;
+        if (cursorNode != null) {
+            if (cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
+                fnCallExprNode = (FunctionCallExpressionNode) cursorNode;
+            } else if (cursorNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
+                VariableDeclarationNode varNode = (VariableDeclarationNode) cursorNode;
+                Optional<ExpressionNode> initializer = varNode.initializer();
+                if (initializer.isPresent() && initializer.get().kind() == SyntaxKind.FUNCTION_CALL) {
+                    fnCallExprNode = (FunctionCallExpressionNode) initializer.get();
+                }
+            } else if (cursorNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
+                AssignmentStatementNode assignmentNode = (AssignmentStatementNode) cursorNode;
+                if (assignmentNode.expression().kind() == SyntaxKind.FUNCTION_CALL) {
+                    fnCallExprNode = (FunctionCallExpressionNode) assignmentNode.expression();
+                }
+            } else if (cursorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) cursorNode;
+                if (nameReferenceNode.parent().kind() == SyntaxKind.FUNCTION_CALL) {
+                    fnCallExprNode = (FunctionCallExpressionNode) nameReferenceNode.parent();
+                }
             }
-            matchedNode = matchedNode.parent();
         }
 
-        if (matchedNode == null) {
+        if (fnCallExprNode == null) {
             return new LSCommandExecutorException("Couldn't find a matching node");
         }
+
         SemanticModel semanticModel = context.workspace().semanticModel(filePath.get()).orElseThrow();
-        TypeSymbol matchedTypeSymbol = semanticModel.type(identifier.lineRange()).orElse(null);
-        if (matchedTypeSymbol == null) {
+
+        TypeSymbol returnTypeSymbol = semanticModel.type(fnCallExprNode.functionName()).orElse(null);
+        if (returnTypeSymbol == null || returnTypeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR) {
+            returnTypeSymbol = semanticModel.type(fnCallExprNode).orElse(null);
+        }
+
+        if (returnTypeSymbol == null || returnTypeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR) {
+            NonTerminalNode parent = fnCallExprNode.parent();
+            if (parent.kind() == SyntaxKind.LOCAL_VAR_DECL || parent.kind() == SyntaxKind.ASSIGNMENT_STATEMENT ||
+                    parent.kind() == SyntaxKind.MODULE_VAR_DECL) {
+                returnTypeSymbol = semanticModel.type(parent).orElse(null);
+            }
+        }
+
+        if (returnTypeSymbol == null) {
             return Collections.emptyList();
         }
-        //TODO: Need to get return type of the function invocation blocked due to #27211
-//        Path path = CommonUtil.getPathFromURI(uri).get();
-//        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-//        SyntaxTree syntaxTree;
-//        try {
-//            syntaxTree = docManager.getTree(path);
-//        } catch (WorkspaceDocumentException e) {
-//            throw new LSCommandExecutorException("Error while retrieving syntax tree for path: " + path.toString());
-//        }
 
-//        BLangInvocation functionNode = null;
-//        Position pos = new Position(line, column + 1);
-//        PositionDetails cursorDetails = CodeActionUtil.findCursorDetails(new Range(pos, pos), syntaxTree, context);
+        LineRange rootLineRange = syntaxTree.rootNode().lineRange();
+        int endLine = rootLineRange.endLine().line() + 1;
+        int endCol = 0;
+        // If the file ends with a new line
+        boolean newLineAtEnd = rootLineRange.endLine().offset() == 0;
 
-//        if (functionNode == null) {
-//            throw new LSCommandExecutorException("Couldn't find the function node!");
-//        }
-//        String functionName = functionNode.name.getValue();
+        Document document = context.workspace().document(filePath.get()).orElseThrow();
+        LinePosition linePosition = LinePosition.from(endLine, endCol);
+        Set<String> visibleSymbolNames = semanticModel.visibleSymbols(document, linePosition).stream()
+                .map(Symbol::getName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
 
-//        BLangNode parent = functionNode.parent;
-//        BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
+        CodeActionContext codeActionContext = ContextBuilder.buildCodeActionContext(uri, context.workspace(),
+                context.languageServercontext(), new CodeActionParams());
 
-        int eLine = 0;
-        int eCol = 0;
+        List<String> args = new ArrayList<>();
+        int argIndex = 1;
+        for (FunctionArgumentNode fnArgNode : fnCallExprNode.arguments()) {
+            TypeSymbol type = semanticModel.type(fnArgNode).orElse(null);
 
-//        BLangCompilationUnit cUnit = getCurrentCUnit(context, packageNode);
-//        for (TopLevelNode topLevelNode : cUnit.topLevelNodes) {
-//            if (topLevelNode.getPosition().lineRange().endLine().line() > eLine) {
-//                eLine = topLevelNode.getPosition().lineRange().endLine().line();
-//            }
-//        }
+            String varName = CommonUtil.generateName(argIndex, visibleSymbolNames);
+            if (type != null && type.typeKind() != TypeDescKind.COMPILATION_ERROR) {
+                args.add(FunctionGenerator.getParameterTypeAsString(codeActionContext, type) + " " + varName);
+            } else {
+                args.add(FunctionGenerator.getParameterTypeAsString(codeActionContext, null) + " " + varName);
+            }
 
-        List<TextEdit> edits = new ArrayList<>();
-//        if (parent != null && packageNode != null) {
-//            PackageID currentPkgId = packageNode.packageID;
-//            ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        //TODO: Fix this when #26382 is avaialble
+            visibleSymbolNames.add(varName);
+            argIndex++;
+        }
 
-//            returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent, context);
-//            returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, parent,
-//                                                                "    return {%1};", context);
-//            List<String> arguments = FunctionGenerator.getFuncArguments(importsAcceptor, currentPkgId, functionNode,
-//                                                                        context);
-//            if (arguments != null) {
-//                funcArgs = String.join(", ", arguments);
-//            }
-//            edits.addAll(importsAcceptor.getNewImportTextEdits());
-//        } else {
-//            throw new LSCommandExecutorException("Error occurred when retrieving function node!");
-//        }
+        if (fnCallExprNode.functionName().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return Collections.emptyList();
+        }
+
+        String functionName = ((SimpleNameReferenceNode) fnCallExprNode.functionName()).name().text();
+        if (functionName == null || functionName.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // return
+        String function = FunctionGenerator.generateFunction(codeActionContext, !newLineAtEnd, functionName,
+                args, returnTypeSymbol);
+
         LanguageClient client = context.getLanguageClient();
-//        String modifiers = "";
-//        boolean prependLineFeed = true;
-//        String padding = "";
-//        if (functionNode.expr != null) {
-//            padding = StringUtils.repeat(' ', 4);
-//            BTypeSymbol tSymbol = functionNode.expr.type.tsymbol;
-//            Triple<Location, PackageID, Boolean> nodeLocation =
-//                    getNodeLocationAndHasFunctions(tSymbol.name.value, context);
-//            if (!nodeLocation.getRight()) {
-//                prependLineFeed = false;
-//            }
-//            eLine = nodeLocation.getLeft().lineRange().endLine().line() - 1;
-//            String cUnitName = nodeLocation.getLeft().lineRange().filePath();
-//            String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
-//            String pkgName = tSymbol.pkgID.name.value;
-//            String docUri = new File(sourceRoot).toPath().resolve("src").resolve(pkgName)
-//                    .resolve(cUnitName).toUri().toString();
-//            textDocumentIdentifier.setUri(docUri);
-//            if (!nodeLocation.getMiddle().equals(packageNode.packageID)) {
-//                modifiers += "public ";
-//            }
-//        }
-        //TODO: Fix this
-//        String editText = FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue, modifiers,
-//                                                           prependLineFeed, padding);
-        String editText = "";
-        Range range = new Range(new Position(eLine, eCol), new Position(eLine, eCol));
-        edits.add(new TextEdit(range, editText));
-        TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
-        return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
+        List<TextEdit> edits = new ArrayList<>();
+        Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
+        edits.add(new TextEdit(range, function));
+        TextDocumentEdit textDocumentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits);
+        return CommandUtil.applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
     }
-
-//    private BLangCompilationUnit getCurrentCUnit(LSContext context, BLangPackage packageNode) {
-//    /*
-//    In windows platform, relative file path key components are separated with "\" while antlr always uses "/"
-//     */
-//        String relativePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-//        String currentCUnitName = relativePath.replace("\\", "/");
-//        BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, packageNode);
-//
-//        Optional<BLangCompilationUnit> currentCUnit = sourceOwnerPkg.getCompilationUnits().stream()
-//                .filter(cUnit -> cUnit.name.equals(currentCUnitName))
-//                .findAny();
-//
-//        if (!currentCUnit.isPresent()) {
-//            throw new UserErrorException("Not supported due to compilation failures!");
-//        }
-//        return currentCUnit.get();
-//    }
-
-//    private Triple<Location, PackageID, Boolean> getNodeLocationAndHasFunctions(String name,
-//                                                                                               LSContext context) {
-//        List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
-//        Location pos;
-//        PackageID pkgId;
-//        boolean hasFunctions = false;
-//        for (BLangPackage bLangPackage : bLangPackages) {
-//            for (BLangCompilationUnit cUnit : bLangPackage.getCompilationUnits()) {
-//                for (TopLevelNode node : cUnit.getTopLevelNodes()) {
-//                    if (node instanceof BLangTypeDefinition) {
-//                        BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
-//                        if (typeDefinition.name.value.equals(name)) {
-//                            pos = typeDefinition.getPosition();
-//                            pkgId = bLangPackage.packageID;
-//                            if (typeDefinition.symbol instanceof BObjectTypeSymbol) {
-//                                BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) typeDefinition.symbol;
-//                                hasFunctions = typeSymbol.attachedFuncs.size() > 0;
-//                            }
-//                            return new ImmutableTriple<>(pos, pkgId, hasFunctions);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return new ImmutableTriple<>(null, null, hasFunctions);
-//    }
 
     /**
      * {@inheritDoc}

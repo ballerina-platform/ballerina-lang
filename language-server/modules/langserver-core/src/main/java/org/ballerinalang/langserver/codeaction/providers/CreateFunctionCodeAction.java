@@ -15,9 +15,12 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -36,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 /**
@@ -49,8 +53,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
 
     @Override
     public boolean isEnabled(LanguageServerContext serverContext) {
-        //TODO: Need to get return type of the function invocation blocked due to #27211
-        return false;
+        return true;
     }
 
     /**
@@ -73,8 +76,26 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
         String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
         Node cursorNode = context.positionDetails().matchedNode();
-        if (cursorNode != null && cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
-            FunctionCallExpressionNode callExpr = (FunctionCallExpressionNode) cursorNode;
+
+        FunctionCallExpressionNode callExpr = null;
+        if (cursorNode != null) {
+            if (cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
+                callExpr = (FunctionCallExpressionNode) cursorNode;
+            } else if (cursorNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
+                VariableDeclarationNode varNode = (VariableDeclarationNode) cursorNode;
+                Optional<ExpressionNode> initializer = varNode.initializer();
+                if (initializer.isPresent() && initializer.get().kind() == SyntaxKind.FUNCTION_CALL) {
+                    callExpr = (FunctionCallExpressionNode) initializer.get();
+                }
+            } else if (cursorNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
+                AssignmentStatementNode assignmentNode = (AssignmentStatementNode) cursorNode;
+                if (assignmentNode.expression().kind() == SyntaxKind.FUNCTION_CALL) {
+                    callExpr = (FunctionCallExpressionNode) assignmentNode.expression();
+                }
+            }
+        }
+        
+        if (callExpr != null) {
             boolean isWithinFile = callExpr.functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
             if (isWithinFile) {
                 String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);

@@ -607,8 +607,8 @@ class NodeFinder extends BaseVisitor {
             return;
         }
 
-        lookupNodes(invocationExpr.requiredArgs);
-        lookupNodes(invocationExpr.restArgs);
+        // Looking up args expressions since requiredArgs and restArgs get set only when compilation is successful
+        lookupNodes(invocationExpr.argExprs);
         lookupNode(invocationExpr.expr);
     }
 
