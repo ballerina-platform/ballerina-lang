@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type AuthInfo record {|
+type AuthInfo record {
    readonly string username = "";
    string password;
    string[][] invalidField;
-|};
+};
 
 configurable AuthInfo & readonly testUser = ?;
 

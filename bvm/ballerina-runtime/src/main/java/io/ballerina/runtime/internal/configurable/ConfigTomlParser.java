@@ -119,48 +119,50 @@ public class ConfigTomlParser {
 
     private static Object validateNodeAndExtractValue(VariableKey key, Map<String, TopLevelNode> valueMap) {
         String variableName = key.variable;
-        TomlNode tomlValue;
         Type type = key.type;
         Object value;
-        try {
-            switch (type.getTag()) {
-                case TypeTags.INT_TAG:
-                case TypeTags.BOOLEAN_TAG:
-                case TypeTags.FLOAT_TAG:
-                case TypeTags.DECIMAL_TAG:
-                case TypeTags.STRING_TAG:
-                    value = retrievePrimitiveValue(((TomlKeyValueNode) valueMap.get(variableName)).value(),
-                            variableName,
-                            type);
-                    break;
-                case TypeTags.INTERSECTION_TAG:
-                    Type effectiveType = ((BIntersectionType) type).getEffectiveType();
-                    int typeTag = effectiveType.getTag();
-                    if (typeTag == TypeTags.RECORD_TYPE_TAG) {
-                        tomlValue = valueMap.get(variableName);
-                        Type mutableType = ((BIntersectionType) type).getConstituentTypes().get(0);
-                        checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
-                        value = retrieveRecordValues((TomlTableNode) tomlValue, variableName,
-                                (RecordType) mutableType);
-                    } else if (typeTag == TypeTags.ARRAY_TAG) {
-                        tomlValue = ((TomlKeyValueNode) valueMap.get(variableName)).value();
-                        checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
-                        value = retrieveArrayValues((TomlArrayValueNode) tomlValue, variableName,
-                                (ArrayType) effectiveType);
-                    } else if (typeTag == TypeTags.TABLE_TAG) {
-                        tomlValue = valueMap.get(variableName);
-                        checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
-                        value = retrieveTableValues((TomlTableArrayNode) tomlValue, variableName,
-                                (TableType) effectiveType);
-                    } else {
-                        throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, effectiveType.toString()));
-                    }
-                    break;
-                default:
-                    throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, type.toString()));
-            }
-        } catch (ClassCastException e) {
-            throw new TomlException(INVALID_TOML_FILE + e.getMessage(), e);
+        switch (type.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
+            case TypeTags.STRING_TAG:
+                value = retrievePrimitiveValue(((TomlKeyValueNode) valueMap.get(variableName)).value(),
+                        variableName,
+                        type);
+                break;
+            case TypeTags.INTERSECTION_TAG:
+                value = retrieveComplexValue((BIntersectionType) type, valueMap, variableName);
+                break;
+            default:
+                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, type.toString()));
+        }
+        return value;
+    }
+
+    private static Object retrieveComplexValue(BIntersectionType type, Map<String, TopLevelNode> valueMap,
+                                               String variableName) {
+        Type effectiveType = type.getEffectiveType();
+        Object value;
+        TomlNode tomlValue;
+        switch (effectiveType.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                tomlValue = ((TomlKeyValueNode) valueMap.get(variableName)).value();
+                checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
+                value = retrieveArrayValues((TomlArrayValueNode) tomlValue, variableName, (ArrayType) effectiveType);
+                break;
+            case TypeTags.RECORD_TYPE_TAG:
+                tomlValue = valueMap.get(variableName);
+                checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
+                value = retrieveRecordValues((TomlTableNode) tomlValue, variableName, type);
+                break;
+            case TypeTags.TABLE_TAG:
+                tomlValue = valueMap.get(variableName);
+                checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
+                value = retrieveTableValues((TomlTableArrayNode) tomlValue, variableName, (TableType) effectiveType);
+                break;
+            default:
+                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, effectiveType.toString()));
         }
         return value;
     }
@@ -190,7 +192,8 @@ public class ConfigTomlParser {
     }
 
     private static Object retrieveRecordValues(TomlTableNode tomlValue, String variableName,
-                                               RecordType effectiveType) {
+                                               BIntersectionType intersectionType) {
+        RecordType effectiveType = (RecordType) intersectionType.getConstituentTypes().get(0);
         Map<String, Object> initialValueEntries = new HashMap<>();
         for (Map.Entry<String, TopLevelNode> tomlField : tomlValue.entries().entrySet()) {
             String fieldName = tomlField.getKey();
@@ -217,7 +220,7 @@ public class ConfigTomlParser {
                     objectValue = retrieveArrayValues((TomlArrayValueNode) value, variableName, arrayType);
                     break;
                 default:
-                    objectValue = retrievePrimitiveValue(value, fieldName, fieldType);
+                    objectValue = retrievePrimitiveValue(value, variableName + "." + fieldName, fieldType);
             }
             initialValueEntries.put(fieldName, objectValue);
         }
@@ -261,8 +264,7 @@ public class ConfigTomlParser {
         ListInitialValueEntry.ExpressionEntry[] tableEntries = new ListInitialValueEntry.ExpressionEntry[tableSize];
         for (int i = 0; i < tableSize; i++) {
             validateKeyField(tableNodeList.get(i), tableType.getFieldNames(), tableType, variableName);
-            Object value = retrieveRecordValues(tableNodeList.get(i), variableName,
-                    (RecordType) ((BIntersectionType) constraintType).getConstituentTypes().get(0));
+            Object value = retrieveRecordValues(tableNodeList.get(i), variableName, (BIntersectionType) constraintType);
             tableEntries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         ArrayValue tableData =

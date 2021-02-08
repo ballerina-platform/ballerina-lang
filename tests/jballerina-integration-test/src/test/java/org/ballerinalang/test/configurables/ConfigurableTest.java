@@ -41,7 +41,7 @@ public class ConfigurableTest extends BaseTest {
     private static final String testFileLocation = Paths.get("src", "test", "resources", "configurables")
             .toAbsolutePath().toString();
     private static final String negativeTestFileLocation =
-            Paths.get(testFileLocation, "NegativeTests").toAbsolutePath().toString();
+            Paths.get(testFileLocation, "negative_tests").toAbsolutePath().toString();
     private BMainInstance bMainInstance;
     private final String errorMsg = "error: Invalid `Config.toml` file : ";
 
@@ -88,7 +88,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testEnvironmentVariableBasedConfigFile() throws BallerinaTestException {
-        String configFilePath = Paths.get(testFileLocation, "ConfigFiles", "Config.toml").toString();
+        String configFilePath = Paths.get(testFileLocation, "config_files", "Config.toml").toString();
         Path projectPath = Paths.get(testFileLocation).toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("Tests passed");
         bMainInstance.runMain("run", new String[]{"envVarPkg"}, addEnvVariables(configFilePath),
@@ -117,17 +117,17 @@ public class ConfigurableTest extends BaseTest {
     /** Negative test cases. */
     @Test
     public void testNoConfigFile() throws BallerinaTestException {
-        Path filePath = Paths.get(negativeTestFileLocation, "noConfig.bal").toAbsolutePath();
+        Path filePath = Paths.get(negativeTestFileLocation, "no_config.bal").toAbsolutePath();
         LogLeecher errorLeecher = new LogLeecher("error: Value not provided for required configurable variable 'name'",
                 ERROR);
         bMainInstance.runMain("run", new String[]{filePath.toString()}, null, new String[]{},
-                new LogLeecher[]{errorLeecher}, testFileLocation + "/NegativeTests");
+                new LogLeecher[]{errorLeecher}, testFileLocation + "/negative_tests");
         errorLeecher.waitForText(5000);
     }
 
     @Test
     public void testInvalidTomlFile() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "InvalidTomlFile").toAbsolutePath();
+        Path projectPath = Paths.get(negativeTestFileLocation, "invalidTomlFile").toAbsolutePath();
         String tomlError1 = "missing identifier [Config.toml:(0:9,0:9)]";
         String tomlError2 = "missing identifier [Config.toml:(0:20,0:20)]";
         String tomlError3 = "missing identifier [Config.toml:(0:21,0:21)]";
@@ -146,7 +146,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testInvalidOrganizationName() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "InvalidOrgName").toAbsolutePath();
+        Path projectPath = Paths.get(negativeTestFileLocation, "invalidOrgName").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Value not provided for required configurable variable 'booleanVar'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
@@ -156,7 +156,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testInvalidType() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "InvalidType").toAbsolutePath();
+        Path projectPath = Paths.get(negativeTestFileLocation, "invalidType").toAbsolutePath();
         String typeError = "invalid type found for variable 'intVar', expected type is 'int', found 'DOUBLE'";
         LogLeecher errorLeecher = new LogLeecher(errorMsg + typeError, ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
@@ -166,7 +166,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testRequiredVariableNotFound() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "RequiredNegative").toAbsolutePath();
+        Path projectPath = Paths.get(negativeTestFileLocation, "requiredNegative").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Value not provided for required configurable variable 'stringVar'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
@@ -177,7 +177,7 @@ public class ConfigurableTest extends BaseTest {
     //Need to provide proper error messages after fixing #28018
     @Test
     public void testNoModuleInTOML() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "NoModuleConfig").toAbsolutePath();
+        Path projectPath = Paths.get(negativeTestFileLocation, "noModuleConfig").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Value not provided for required configurable variable 'intVar'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
@@ -187,7 +187,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testUnsupportedRecordField() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "InvalidRecordField").toAbsolutePath();
+        Path projectPath = Paths.get(negativeTestFileLocation, "invalidRecordField").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Configurable feature is yet to be supported for field type " +
                         "'string[][]' in variable 'testUser' of record 'main:AuthInfo'", ERROR);
@@ -198,7 +198,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testInvalidAdditionalRecordField() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "AdditionalField").toAbsolutePath();
+        Path projectPath = Paths.get(negativeTestFileLocation, "additionalField").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Additional field 'scopes' provided for configurable variable 'testUser' of record " +
                         "'main:AuthInfo' is not supported", ERROR);
@@ -209,7 +209,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testRequiredFieldNotFound() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "MissingRequiredField").toAbsolutePath();
+        Path projectPath = Paths.get(negativeTestFileLocation, "missingRequiredField").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Value not provided for non-defaultable required field 'username' of " +
                         "record 'main:AuthInfo' in configurable variable 'testUser'", ERROR);
@@ -220,7 +220,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testTableKeyNotFound() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "MissingTableKey").toAbsolutePath();
+        Path projectPath = Paths.get(negativeTestFileLocation, "missingTableKey").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Value required for key 'username' of type " +
                         "'table<(main:AuthInfo & readonly)> key(username) & readonly'" +
@@ -232,7 +232,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testUnsupportedMap() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "InvalidMapType").toAbsolutePath();
+        Path projectPath = Paths.get(negativeTestFileLocation, "invalidMapType").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Configurable feature is yet to be supported for type 'map<int> & readonly'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
