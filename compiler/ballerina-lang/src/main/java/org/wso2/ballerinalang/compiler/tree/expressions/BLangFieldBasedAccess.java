@@ -57,7 +57,7 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
 
     @Override
     public String toString() {
-        return String.valueOf(expr) + "." + String.valueOf(field);
+        return expr + (optionalFieldAccess ? "?." : ".") + field;
     }
 
     @Override
