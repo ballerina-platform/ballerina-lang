@@ -195,7 +195,7 @@ public class TestCommand implements BLauncherCmd {
             displayWarning = true;
         }
 
-        // Skip --include-all flag if it is set without code coverage
+        // Skip --includes flag if it is set without code coverage
         if (!project.buildOptions().codeCoverage() && includes != null) {
             this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
         }

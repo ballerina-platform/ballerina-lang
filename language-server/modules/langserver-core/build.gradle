@@ -15,7 +15,7 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations.all {
@@ -32,7 +32,7 @@ configurations {
         transitive false
     }
     libs
-    distributionBalo
+    distributionBala
 }
 
 dependencies {
@@ -79,7 +79,7 @@ dependencies {
     implementation 'com.github.jknack:handlebars:4.0.6'
     implementation 'com.moandjiezana.toml:toml4j'
     
-    distributionBalo project(path: ':language-server:language-server-stdlib', configuration: 'distributionBalo')
+    distributionBala project(path: ':language-server:language-server-stdlib', configuration: 'distributionBala')
 
     dependency 'com.h2database:h2:1.4.199'
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.10.0'

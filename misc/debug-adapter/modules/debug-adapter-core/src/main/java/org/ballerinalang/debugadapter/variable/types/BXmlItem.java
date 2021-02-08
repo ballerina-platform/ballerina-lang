@@ -18,10 +18,10 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,7 +32,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringVal
 /**
  * Ballerina xml variable type.
  */
-public class BXmlItem extends BCompoundVariable {
+public class BXmlItem extends NamedCompoundVariable {
 
     private static final String FIELD_CHILDREN = "children";
     private static final String FIELD_ATTRIBUTES = "attributes";
@@ -52,7 +52,7 @@ public class BXmlItem extends BCompoundVariable {
 
     @Override
     public Map<String, Value> computeChildVariables() {
-        Map<String, Value> childMap = new HashMap<>();
+        Map<String, Value> childMap = new LinkedHashMap<>();
         try {
             Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
             Optional<Value> attributes = getFieldValue(jvmValue, FIELD_ATTRIBUTES);
@@ -62,5 +62,11 @@ public class BXmlItem extends BCompoundVariable {
         } catch (Exception e) {
             return childMap;
         }
+    }
+
+    @Override
+    public int getChildrenCount() {
+        // maximum children size will be 2 (children and attributes).
+        return 2;
     }
 }

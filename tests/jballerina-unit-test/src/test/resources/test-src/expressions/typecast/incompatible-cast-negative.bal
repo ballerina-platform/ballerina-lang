@@ -36,10 +36,3 @@ function intToFloatImpCast() {
     int d = 0;
     float val3 = d;
 }
-
-function testAnyArrayToJson() returns (json|error) {
-    any[] a = [8,4,6];
-    json value;
-    value = check trap <json> a;
-    return value;
-}

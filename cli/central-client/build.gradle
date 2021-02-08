@@ -25,7 +25,7 @@ configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
-    distributionBalo
+    distributionBala
 }
 
 dependencies {
@@ -42,8 +42,8 @@ dependencies {
 }
 
 task createTestDistributionCache(type: Copy) {
-    dependsOn configurations.distributionBalo
-    from configurations.distributionBalo
+    dependsOn configurations.distributionBala
+    from configurations.distributionBala
     into "$buildDir/repo"
 }
 
