@@ -119,7 +119,7 @@ public class ConfigTomlParser {
                 value = retrieveArrayValues((TomlArrayValueNode) tomlValue, variableName, (ArrayType) effectiveType);
             } else {
                 checkTypeAndThrowError(tomlValue.kind(), variableName, type);
-                value = getBalValue(type.getTag(), ((TomlBasicValueNode<?>) tomlValue).getValue());
+                value = getBalValue(variableName, type.getTag(), ((TomlBasicValueNode<?>) tomlValue).getValue());
             }
         } catch (ClassCastException e) {
             throw new TomlException(INVALID_TOML_FILE, e);
@@ -132,26 +132,31 @@ public class ConfigTomlParser {
         Type elementType = effectiveType.getElementType();
         List<TomlValueNode> arrayList = arrayNode.elements();
         checkTypeAndThrowError(arrayList.get(0).kind(), variableName, elementType);
-        return new ArrayValueImpl(effectiveType, arrayList.size(), createArray(arrayList, elementType.getTag()));
+        return new ArrayValueImpl(effectiveType, arrayList.size(), createArray(variableName, arrayList,
+                                                                               elementType.getTag()));
     }
 
-    private static ListInitialValueEntry.ExpressionEntry[] createArray(List<TomlValueNode> arrayList, int typeTag) {
+    private static ListInitialValueEntry.ExpressionEntry[] createArray(String variableName,
+                                                                       List<TomlValueNode> arrayList, int typeTag) {
         int arraySize = arrayList.size();
         ListInitialValueEntry.ExpressionEntry[] arrayEntries =
                 new ListInitialValueEntry.ExpressionEntry[arraySize];
         for (int i = 0; i < arraySize; i++) {
-            Object value = ((TomlBasicValueNode<?>) arrayList.get(i)).getValue();
-            arrayEntries[i] = new ListInitialValueEntry.ExpressionEntry(getBalValue(typeTag, value));
+            TomlBasicValueNode<?> tomlBasicValueNode = (TomlBasicValueNode<?>) arrayList.get(i);
+            Object value = tomlBasicValueNode.getValue();
+            arrayEntries[i] = new ListInitialValueEntry.ExpressionEntry(getBalValue(variableName, typeTag, value));
         }
         return arrayEntries;
     }
 
-    private static Object getBalValue(int typeTag, Object tomlValue) {
+    private static Object getBalValue(String variableName, int typeTag, Object tomlValue) {
         if (typeTag == TypeTags.DECIMAL_TAG) {
             return ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) tomlValue));
         }
         if (typeTag == TypeTags.STRING_TAG) {
-            return  StringUtils.fromString((String) tomlValue);
+            String stringVal = (String) tomlValue;
+            ConfigSecurityUtils.handleEncryptedValues(variableName, stringVal);
+            return StringUtils.fromString(stringVal);
         }
         return tomlValue;
     }

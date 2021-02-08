@@ -33,6 +33,8 @@ public class ConfigurableConstants {
     public static final String DEFAULT_MODULE = ".";
     public static final String SUBMODULE_DELIMITER = ".";
     public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
+    public static final String CONFIG_SECRET_ENV_VARIABLE = "BALSECRETFILE";
+    public static final String SECRET_FILE_NAME = "secret.txt";
 
     private ConfigurableConstants() {
     }
