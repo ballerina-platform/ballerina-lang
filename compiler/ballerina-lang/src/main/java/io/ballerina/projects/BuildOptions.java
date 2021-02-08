@@ -59,6 +59,10 @@ public class BuildOptions {
         return this.compilationOptions.observabilityIncluded();
     }
 
+    public String cloud() {
+        return this.compilationOptions.getCloud();
+    }
+
     CompilationOptions compilationOptions() {
         return compilationOptions;
     }
