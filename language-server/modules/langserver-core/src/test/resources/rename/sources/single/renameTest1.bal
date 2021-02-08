@@ -32,24 +32,29 @@ type RecData1 record {
     string v;
 };
 
-
-type Client client  object {
+class Client {
     Client? secondaryStore;
 
     public function init(Client? failoverStore) {
         self.secondaryStore = failoverStore;
     }
-};
+}
 
-type person record {
+const int globalVal = 10;
+type Person record {
     string name = "";
     int age = globalVal;
 };
 
+type SampleErrorData record {
+    string message;
+};
+
+type SampleError error<SampleErrorData>;
+
 function testFunction() {
-    person newPerson = {};
+    Person newPerson = {};
     newPerson.name = "Bob";
-    SampleError e = error("the reason", message="msg");
+    SampleError e = error SampleError("the reason", message="msg");
 }
 
-error SampleError = error("errorCode", message = "");

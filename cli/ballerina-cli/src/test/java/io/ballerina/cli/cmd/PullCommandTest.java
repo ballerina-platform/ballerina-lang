@@ -66,7 +66,50 @@ public class PullCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(
-                actual.contains("ballerina: invalid package name. Provide the package name with the org name"));
+                actual.contains("ballerina: invalid package name. Provide the package name with the organization"));
+        Assert.assertTrue(
+                actual.contains("bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}"));
+    }
+
+    @Test(description = "Pull package with invalid org")
+    public void testPullPackageWithInvalidOrg() throws IOException {
+        PullCommand pullCommand = new PullCommand(printStream);
+        new CommandLine(pullCommand).parse("wso2-dev/winery");
+        pullCommand.execute();
+
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertTrue(
+                actual.contains("ballerina: invalid organization. Provide the package name with the organization"));
+        Assert.assertTrue(
+                actual.contains("bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}"));
+    }
+
+    @Test(description = "Pull package with invalid name")
+    public void testPullPackageWithInvalidName() throws IOException {
+        PullCommand pullCommand = new PullCommand(printStream);
+        new CommandLine(pullCommand).parse("wso2/winery$:1.0.0");
+        pullCommand.execute();
+
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertTrue(
+                actual.contains("ballerina: invalid package name. Provide the package name with the organization "));
+        Assert.assertTrue(
+                actual.contains("bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}"));
+    }
+
+    @Test(description = "Pull package with invalid version")
+    public void testPullPackageWithInvalidVersion() throws IOException {
+        PullCommand pullCommand = new PullCommand(printStream);
+        new CommandLine(pullCommand).parse("wso2/winery:1.0.0.0");
+        pullCommand.execute();
+
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertTrue(actual.contains("ballerina: invalid package version. Invalid version: '1.0.0.0'. "
+                                                  + "Unexpected character 'DOT(.)' at position '5', "
+                                                  + "expecting '[HYPHEN, PLUS, EOI]'"));
         Assert.assertTrue(
                 actual.contains("bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}"));
     }

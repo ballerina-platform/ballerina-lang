@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,15 +43,19 @@ public class IndexedExpressionNodeContext extends AbstractCompletionProvider<Ind
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, IndexedExpressionNode node)
             throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> entries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
 
-            return this.getCompletionItemList(entries, context);
+            completionItems.addAll(this.getCompletionItemList(entries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
         }
-
-        return this.expressionCompletions(context);
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 }

@@ -21,22 +21,32 @@ package io.ballerina.projects.test;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.EmitResult;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ModuleMd;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageMd;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.balo.BaloProject;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Contains cases to test the load balo project.
@@ -99,5 +109,49 @@ public class TestBaloProject {
         Assert.assertEquals(packageDescriptorDependencyGraph.getNodes().size(), 1);
         DependencyGraph<ModuleId> moduleIdDependencyGraph = currentPackage.moduleDependencyGraph();
         Assert.assertEquals(moduleIdDependencyGraph.getNodes().size(), 3);
+    }
+
+    @Test (description = "test balo project load with newly created balo")
+    public void testBaloProjectAPIWithNewBaloBuild() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        if (packageCompilation.diagnosticResult().hasErrors()) {
+            Assert.fail("compilation failed:" + packageCompilation.diagnosticResult().errors());
+        }
+
+        Target target = new Target(project.sourceRoot());
+        Path baloPath = target.getBaloPath();
+        // invoke write balo method
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
+
+        // Load the balo as a project
+        BaloProject baloProject = null;
+        try {
+            ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+            defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            baloProject = BaloProject.loadProject(defaultBuilder, emitResult.generatedArtifactPath());
+        } catch (Exception e) {
+            Assert.fail(e.getMessage(), e);
+        }
+
+        Package currentPackage = baloProject.currentPackage();
+        // Get the Package.md
+        Optional<PackageMd> packageMd = currentPackage.packageMd();
+        Assert.assertTrue(packageMd.isPresent());
+        Assert.assertEquals(packageMd.get().content(), "# Package Md");
+        // Get the Module.md
+        Optional<ModuleMd> mdDocument = baloProject.currentPackage().getDefaultModule().moduleMd();
+        Assert.assertTrue(mdDocument.isPresent());
+        Assert.assertEquals(mdDocument.get().content(), "# Default Module Md");
     }
 }

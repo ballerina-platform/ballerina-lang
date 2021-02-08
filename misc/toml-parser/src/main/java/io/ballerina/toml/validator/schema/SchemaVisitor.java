@@ -24,9 +24,6 @@ package io.ballerina.toml.validator.schema;
  * @since 2.0.0
  */
 public abstract class SchemaVisitor {
-    public void visit(Schema rootSchema) {
-        throw new AssertionError();
-    }
 
     public void visit(ArraySchema arraySchema) {
         throw new AssertionError();
@@ -40,7 +37,7 @@ public abstract class SchemaVisitor {
         throw new AssertionError();
     }
 
-    public void visit(ObjectSchema objectSchema) {
+    public void visit(Schema objectSchema) {
         throw new AssertionError();
     }
 

@@ -89,13 +89,6 @@ public class ProjectConstants {
     public static final String REPO_CACHE_DIR_NAME = "cache";
     public static final String REPO_BIR_CACHE_NAME = "bir";
 
-    //module name format : <org-name>/<pkg-name> | <org-name>/<pkg-name>:<version>
-    //version format : 1, 1.*, 1.*.*
-    public static final String PKG_NAME_REGEX = "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+|" +
-            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+|" +
-            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+|" +
-            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+\\.[*\\d]+";
-
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
     public static final String TEST_CORE_JAR_PREFIX = "testerina-core-";

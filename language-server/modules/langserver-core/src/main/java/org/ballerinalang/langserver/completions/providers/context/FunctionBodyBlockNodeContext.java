@@ -46,7 +46,8 @@ public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<Funct
         if (!this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));
         }
-
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 
