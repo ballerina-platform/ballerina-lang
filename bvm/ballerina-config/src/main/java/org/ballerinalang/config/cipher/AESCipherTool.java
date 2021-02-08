@@ -160,7 +160,7 @@ public class AESCipherTool {
         }
     }
 
-    private static String encodeBase64(byte[] bytes) {
+    private String encodeBase64(byte[] bytes) {
         return Base64.getEncoder().encodeToString(bytes);
     }
 

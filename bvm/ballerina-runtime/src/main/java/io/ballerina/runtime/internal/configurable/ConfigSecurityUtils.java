@@ -75,7 +75,7 @@ public class ConfigSecurityUtils {
                 if (Files.exists(userSecretFile)) {
                     cipherTool = new AESCipherTool(userSecretFile);
                 } else {
-                    // Prompting should not happen when secret file is explicitly set by the user
+                    // Prompting when secret file is explicitly not set by the user
                     stderr.println("ballerina: enter secret for config value decryption:");
                     cipherTool = new AESCipherTool(new String(System.console().readPassword()));
                 }
