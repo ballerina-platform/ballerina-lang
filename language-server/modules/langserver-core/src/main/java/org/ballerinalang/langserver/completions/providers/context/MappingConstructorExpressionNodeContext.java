@@ -77,7 +77,7 @@ public class MappingConstructorExpressionNodeContext extends
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
                                                  MappingConstructorExpressionNode node) throws LSCompletionException {
-
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         NonTerminalNode evalNode = (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
                 || nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE)
@@ -85,32 +85,33 @@ public class MappingConstructorExpressionNodeContext extends
 
         if (this.withinValueExpression(context, evalNode)) {
             if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-                return this.getExpressionsCompletionsForQNameRef(context, (QualifiedNameReferenceNode) nodeAtCursor);
+                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+                completionItems.addAll(this.getExpressionsCompletionsForQNameRef(context, qNameRef));
+            } else {
+                completionItems.addAll(this.expressionCompletions(context));
             }
-            return this.expressionCompletions(context);
-        }
-
-        if (this.withinComputedNameContext(context, evalNode)) {
+        } else if (this.withinComputedNameContext(context, evalNode)) {
             if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-                return this.getExpressionsCompletionsForQNameRef(context, (QualifiedNameReferenceNode) nodeAtCursor);
+                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+                completionItems.addAll(this.getExpressionsCompletionsForQNameRef(context, qNameRef));
+            } else {
+                completionItems.addAll(getComputedNameCompletions(context));
             }
-            return getComputedNameCompletions(context);
-        }
-
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-
-        if (!this.hasReadonlyKW(evalNode)) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
-        }
-        Optional<RecordTypeSymbol> recordTypeDesc = this.getRecordTypeDesc(context, node);
-        if (recordTypeDesc.isPresent()) {
-            Map<String, RecordFieldSymbol> fields = new LinkedHashMap<>(recordTypeDesc.get().fieldDescriptors());
-            // TODO: Revamp the implementation
+        } else {
+            if (!this.hasReadonlyKW(evalNode)) {
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
+            }
+            Optional<RecordTypeSymbol> recordTypeDesc = this.getRecordTypeDesc(context, node);
+            if (recordTypeDesc.isPresent()) {
+                Map<String, RecordFieldSymbol> fields = new LinkedHashMap<>(recordTypeDesc.get().fieldDescriptors());
+                // TODO: Revamp the implementation
 //            completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
-            completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields));
-            completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields));
-            completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
+                completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields));
+                completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields));
+                completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
+            }
         }
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
@@ -223,7 +224,7 @@ public class MappingConstructorExpressionNodeContext extends
                     && recFields.get(symbolName).typeDescriptor().typeKind() == typeDescriptor.typeKind()) {
                 String bTypeName = typeDescriptor.signature();
                 CompletionItem cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbolName,
-                                                                           bTypeName);
+                        bTypeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
             }
         });

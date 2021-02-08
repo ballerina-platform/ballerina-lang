@@ -295,6 +295,22 @@ types:
         type: s4
         repeat: expr
         repeat-expr: member_types_count
+      - id: is_enum_type
+        type: u1
+      - id: pkg_cp_index
+        type: s4
+        if: is_enum_type == 1
+      - id: enum_name
+        type: s4
+        if: is_enum_type == 1
+      - id: enum_members_size
+        type: s4
+        if: is_enum_type == 1
+      - id: enum_members
+        type: s4
+        repeat: expr
+        repeat-expr: enum_members_size
+        if: is_enum_type == 1
   type_tuple:
     seq:
       - id: tuple_types_count

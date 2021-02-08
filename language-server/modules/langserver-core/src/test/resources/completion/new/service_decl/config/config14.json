@@ -9,6 +9,7 @@
       "label": "function name . () {}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "sortText": "O",
       "insertText": "function ${1:name} ${2:.} (${3}) {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -16,6 +17,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     }

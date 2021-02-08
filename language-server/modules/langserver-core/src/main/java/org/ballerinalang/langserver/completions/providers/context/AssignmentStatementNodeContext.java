@@ -55,10 +55,11 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, AssignmentStatementNode node)
             throws LSCompletionException {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.cursorWithinLHS(context, node)) {
             return CompletionUtil.route(context, node.parent());
         }
+
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.onQualifiedNameIdentifier(context, node.expression())) {
             /*
             Captures the following cases
@@ -81,6 +82,8 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             completionItems.addAll(this.getNewExprCompletionItems(context, node));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IS.get()));
         }
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 

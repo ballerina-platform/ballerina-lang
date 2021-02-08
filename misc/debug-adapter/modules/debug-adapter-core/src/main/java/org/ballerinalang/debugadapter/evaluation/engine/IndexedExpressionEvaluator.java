@@ -27,6 +27,7 @@ import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.List;
@@ -99,14 +100,13 @@ public class IndexedExpressionEvaluator extends Evaluator {
                                         keyVar.getBType() + "'"));
                     }
                     int index = Integer.parseInt(keyVar.getDapVariable().getValue());
-                    int childSize = ((BCompoundVariable) containerVar).getChildVariables().size();
+                    int childSize = ((BCompoundVariable) containerVar).getChildrenCount();
                     // Validates for IndexOutOfRange errors.
                     if (index < 0 || index >= childSize) {
                         throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                                 "String index out of range: index=" + index + ", size=" + childSize));
                     }
-                    String indexAsKey = String.format("[%d]", index);
-                    Value child = ((BCompoundVariable) containerVar).getChildByName(indexAsKey);
+                    Value child = ((IndexedCompoundVariable) containerVar).getChildByIndex(index);
                     return new BExpressionValue(context, child);
                 }
                 // Index access of mappings (map, json)
@@ -125,7 +125,7 @@ public class IndexedExpressionEvaluator extends Evaluator {
                     }
                     String keyString = keyVar.getDapVariable().getValue();
                     try {
-                        Value child = ((BCompoundVariable) containerVar).getChildByName(keyString);
+                        Value child = ((IndexedCompoundVariable) containerVar).getChildByName(keyString);
                         return new BExpressionValue(context, child);
                     } catch (DebugVariableException e) {
                         return new BExpressionValue(context, null);
