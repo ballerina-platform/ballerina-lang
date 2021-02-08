@@ -1,0 +1,66 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Ballerina Manifest Spec",
+    "description": "Schema for Ballerina Manifest",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "package": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "message" : {
+                        "type" : "invalid type"
+                    }
+                },
+                "org": {
+                    "type": "string",
+                    "pattern": "^(?!\\s*$).+",
+                    "message" : {
+                        "pattern" : "org cant be empty"
+                    }
+                },
+                "version": {
+                    "type": "string",
+                    "pattern": "^(?!\\s*$).+"
+                },
+                "port": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "message" : {
+                        "minimum" : "port should be positive int"
+                    }
+                },
+                "capacity": {
+                    "type": "integer",
+                    "maximum": 5,
+                    "message" : {
+                        "maximum" : "max capacity is 5"
+                    }
+                },
+                "repository": {
+                    "type": "string"
+                },
+                "keywords": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "exported": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": ["name","org"],
+            "message" : {
+                "required" : "field '${property}' is required",
+                "additionalProperties" : "field '${property}' is not supported"
+            }
+        }
+    }
+}

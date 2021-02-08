@@ -278,13 +278,13 @@ public class RepoUtils {
     }
     
     /**
-     * Get the Ballerina.toml from a balo file.
+     * Get the Ballerina.toml from a bala file.
      *
-     * @param baloPath The path to balo file.
+     * @param balaPath The path to bala file.
      * @return Ballerina.toml contents.
      */
-    public static Manifest getManifestFromBalo(Path baloPath) {
-        try (JarFile jar = new JarFile(baloPath.toString())) {
+    public static Manifest getManifestFromBala(Path balaPath) {
+        try (JarFile jar = new JarFile(balaPath.toString())) {
             java.util.Enumeration enumEntries = jar.entries();
             while (enumEntries.hasMoreElements()) {
                 JarEntry file = (JarEntry) enumEntries.nextElement();
@@ -302,15 +302,15 @@ public class RepoUtils {
                 }
             }
         } catch (IOException e) {
-            throw new BLangCompilerException("unable to read balo file: " + baloPath +
-                                             ". balo file seems to be corrupted.");
+            throw new BLangCompilerException("unable to read bala file: " + balaPath +
+                                             ". bala file seems to be corrupted.");
         } catch (TomlException e) {
-            throw new BLangCompilerException("unable to read balo file: " + baloPath +
-                                             ". balo file seems to be corrupted: " + e.getMessage());
+            throw new BLangCompilerException("unable to read bala file: " + balaPath +
+                                             ". bala file seems to be corrupted: " + e.getMessage());
         }
     
-        throw new BLangCompilerException("unable to find '/metadata/Ballerina.toml' file in balo file: " +
-                                         baloPath + "");
+        throw new BLangCompilerException("unable to find '/metadata/Ballerina.toml' file in bala file: " +
+                                         balaPath + "");
     }
     
 }

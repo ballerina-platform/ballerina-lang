@@ -2131,13 +2131,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createListMatchPatternNode(
             STNode openBracket,
             STNode matchPatterns,
-            STNode restMatchPattern,
             STNode closeBracket) {
 
         return new STListMatchPatternNode(
                 openBracket,
                 matchPatterns,
-                restMatchPattern,
                 closeBracket);
     }
 
@@ -2155,13 +2153,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createMappingMatchPatternNode(
             STNode openBraceToken,
             STNode fieldMatchPatterns,
-            STNode restMatchPattern,
             STNode closeBraceToken) {
 
         return new STMappingMatchPatternNode(
                 openBraceToken,
                 fieldMatchPatterns,
-                restMatchPattern,
                 closeBraceToken);
     }
 

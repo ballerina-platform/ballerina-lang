@@ -27,12 +27,12 @@
   {
     "description": "Run instance method.",
     "code": "p.dpt",
-    "expr": "HR"
+    "expr": "\"HR\""
   },
   {
     "description": "Run instance method.",
     "code": "p.getFullName()",
-    "expr": "John Doe"
+    "expr": "\"John Doe\""
   },
   {
     "description": "Run instance method.",
