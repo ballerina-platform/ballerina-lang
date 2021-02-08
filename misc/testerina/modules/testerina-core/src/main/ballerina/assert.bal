@@ -22,8 +22,6 @@ const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 const int maxArgLength = 80;
 const int mapValueDiffLimit = 5;
 
-public type Comparable anydata|error|Comparable[]|map<Comparable>;
-
 # The error struct for assertion errors.
 #
 # + message - The assertion error message
@@ -71,8 +69,8 @@ public isolated function assertFalse(boolean condition, string msg = "Assertion 
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public isolated function assertEquals(Comparable actual, Comparable expected, string msg = "Assertion Failed!") {
-    if (!isEqual(actual, expected)) {
+public isolated function assertEquals(anydata|error actual, anydata expected, string msg = "Assertion Failed!") {
+    if (actual is error || actual != expected) {
         string errorMsg = getInequalityErrorMsg(actual, expected, msg);
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
@@ -83,45 +81,12 @@ public isolated function assertEquals(Comparable actual, Comparable expected, st
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public isolated function assertNotEquals(Comparable actual, Comparable expected, string msg = "Assertion Failed!") {
-    if (isEqual(actual, expected)) {
+public isolated function assertNotEquals(anydata actual, anydata expected, string msg = "Assertion Failed!") {
+    if (actual == expected) {
         string expectedStr = sprintf("%s", expected);
         string actualStr = sprintf("%s", actual);
         string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
-    }
-}
-
-isolated function isEqual(Comparable actual, Comparable expected) returns boolean {
-    if (actual is anydata && expected is anydata) {
-        return (actual == expected);
-    } else if (actual is error && expected is error) {
-        return actual.message() == expected.message() &&
-            isEqual(actual.cause(), expected.cause()) &&
-            isEqual(actual.detail(), expected.detail());
-    } else if (actual is map<Comparable> && expected is map<Comparable>) {
-        return isEqual(actual.keys(), expected.keys()) && isEqual(actual.toArray(), actual.toArray());
-    } else if (actual is Comparable[] && expected is Comparable[]) {
-        var ai = actual.iterator();
-        var ei = expected.iterator();
-        var nextA = ai.next();
-        while (nextA !== ()) {
-            var nextE = ei.next();
-            if (nextE is ()) {
-                return false;
-            } else {
-                if (!(nextA is ()) && isEqual(nextA.value, nextE.value)) {
-                    continue;
-                }
-            }
-        }
-
-        if (ei.next() is ()) {
-            return true;
-        }
-        return false;
-    } else {
-        return (actual === expected);
     }
 }
 
