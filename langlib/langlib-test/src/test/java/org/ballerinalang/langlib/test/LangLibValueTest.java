@@ -329,7 +329,8 @@ public class LangLibValueTest {
                 { "testFromJsonWithTypeTable" },
                 { "tesFromJsonWithTypeMapWithDecimal" },
                 { "testConvertJsonToAmbiguousType" },
-                { "testFromJsonWithTypeWithNullValues" }
+                { "testFromJsonWithTypeWithNullValues" },
+                { "testFromJsonWithTypeWithNullValuesNegative" }
         };
     }
 

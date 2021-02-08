@@ -923,6 +923,15 @@ function testFromJsonWithTypeWithNullValues() {
     {employed:false,first_name:"Meena",address:{city:"Colombo",country:(),street:"Main Street"}}]);
 }
 
+function testFromJsonWithTypeWithNullValuesNegative() {
+    json jVal = ();
+    PostGradStudent|error val = jVal.fromJsonWithType(PostGradStudent);
+    if (val is error) {
+        assert(val.message(), "{ballerina/lang.value}ConversionError");
+        assert(val.detail()["message"].toString(), "cannot convert '()' to type 'PostGradStudent'");
+    }
+}
+
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
 
 function testFromJsonStringWithTypeJson() {
