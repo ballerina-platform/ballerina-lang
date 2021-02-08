@@ -360,9 +360,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 case RECORD_VARIABLE:
                     BLangRecordVariable recordVariable = (BLangRecordVariable) globalVar;
                     List<BLangVariable> memberVariables = new ArrayList<>();
-                    recordVariable.variableList.forEach(memberKeyValue -> {
+                    for (BLangRecordVariable.BLangRecordVariableKeyValue memberKeyValue : recordVariable.variableList) {
                         memberVariables.add(memberKeyValue.valueBindingPattern);
-                    });
+                    }
                     checkForUninitializedGlobalVars(memberVariables);
                     break;
             }
@@ -1717,20 +1717,20 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             analyzeNode(bLangRecordVariable.expr, env);
             this.currDependentSymbol.pop();
             return;
-        } else {
-            for (BLangRecordVariable.BLangRecordVariableKeyValue memberKeyValue: bLangRecordVariable.variableList) {
-                BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
-                if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
-                    addUninitializedVar(valueBindingPattern);
-                    continue;
-                }
-                analyzeNode(valueBindingPattern, env);
-            }
+        }
 
-            BLangSimpleVariable restParam = (BLangSimpleVariable) bLangRecordVariable.restParam;
-            if (restParam != null) {
-                addUninitializedVar(restParam);
+        for (BLangRecordVariable.BLangRecordVariableKeyValue memberKeyValue : bLangRecordVariable.variableList) {
+            BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
+            if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
+                addUninitializedVar(valueBindingPattern);
+                continue;
             }
+            analyzeNode(valueBindingPattern, env);
+        }
+
+        BLangSimpleVariable restParam = (BLangSimpleVariable) bLangRecordVariable.restParam;
+        if (restParam != null) {
+            addUninitializedVar(restParam);
         }
     }
 
@@ -1746,30 +1746,31 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.currDependentSymbol.push(bLangErrorVariable.symbol);
             analyzeNode(bLangErrorVariable.expr, env);
             this.currDependentSymbol.pop();
-        } else {
-            BLangSimpleVariable message = bLangErrorVariable.message;
-            if (message != null) {
-                addUninitializedVar(message);
-            }
+            return;
+        }
 
-            BLangVariable cause = bLangErrorVariable.cause;
-            if (cause != null) {
-                analyzeNode(cause, env);
-            }
+        BLangSimpleVariable message = bLangErrorVariable.message;
+        if (message != null) {
+            addUninitializedVar(message);
+        }
 
-            for (BLangErrorVariable.BLangErrorDetailEntry memberKeyValue: bLangErrorVariable.detail) {
-                BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
-                if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
-                    addUninitializedVar(valueBindingPattern);
-                    continue;
-                }
-                analyzeNode(valueBindingPattern, env);
-            }
+        BLangVariable cause = bLangErrorVariable.cause;
+        if (cause != null) {
+            analyzeNode(cause, env);
+        }
 
-            BLangSimpleVariable restDetail = bLangErrorVariable.restDetail;
-            if (restDetail != null) {
-                addUninitializedVar(restDetail);
+        for (BLangErrorVariable.BLangErrorDetailEntry memberKeyValue : bLangErrorVariable.detail) {
+            BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
+            if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
+                addUninitializedVar(valueBindingPattern);
+                continue;
             }
+            analyzeNode(valueBindingPattern, env);
+        }
+
+        BLangSimpleVariable restDetail = bLangErrorVariable.restDetail;
+        if (restDetail != null) {
+            addUninitializedVar(restDetail);
         }
     }
 

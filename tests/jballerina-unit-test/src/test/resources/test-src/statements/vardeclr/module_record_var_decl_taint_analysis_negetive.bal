@@ -15,7 +15,7 @@
 // under the License.
 
 // Test taint analysis
-record {int a;} {a:myA} = {a:5};
+record {int a;} {a: myA} = {a: 5};
 
 public function main(int x) {
     myA = x;

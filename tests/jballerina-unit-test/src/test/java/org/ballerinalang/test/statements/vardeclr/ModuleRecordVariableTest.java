@@ -64,7 +64,7 @@ public class ModuleRecordVariableTest {
         CompileResult compileResultNegetive =
                 BCompileUtil.compile("test-src/statements/vardeclr/module_record_var_decl_negetive.bal");
         int index = 0;
-        validateError(compileResultNegetive, index++, "redeclared symbol 'Fname'", 23, 14);
+        validateError(compileResultNegetive, index++, "redeclared symbol 'Fname'", 23, 15);
         validateError(compileResultNegetive, index++, "redeclared symbol 'Married'", 25, 9);
         validateError(compileResultNegetive, index++,
                 "invalid record binding pattern; unknown field 'age' in record type 'Person'", 31, 1);
@@ -75,9 +75,9 @@ public class ModuleRecordVariableTest {
         validateError(compileResultNegetive, index++,
                 "annotation 'annot' is not allowed on var", 41, 1);
         validateError(compileResultNegetive, index++,
-                "missing non-defaultable required record field 'married'", 42, 23);
+                "missing non-defaultable required record field 'married'", 42, 24);
         validateError(compileResultNegetive, index++,
-                "incompatible types: expected 'string', found 'other'", 44, 47);
+                "incompatible types: expected 'string', found 'other'", 44, 50);
         assertEquals(compileResultNegetive.getErrorCount(), index);
     }
 
@@ -107,8 +107,8 @@ public class ModuleRecordVariableTest {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_record_var_decl.bal");
         int index = 0;
-        validateError(compileResult, index++, "uninitialized variable 'carId'", 22, 9);
-        validateError(compileResult, index++, "uninitialized variable 'carColor'", 22, 22);
+        validateError(compileResult, index++, "uninitialized variable 'carId'", 22, 10);
+        validateError(compileResult, index++, "uninitialized variable 'carColor'", 22, 24);
         validateError(compileResult, index++, "variable 'carColor' is not initialized", 25, 24);
         assertEquals(compileResult.getErrorCount(), index);
     }

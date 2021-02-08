@@ -417,10 +417,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Update globalVar for endpoints.
         for (BLangVariable var : pkgNode.globalVars) {
             if (var.getKind() == NodeKind.VARIABLE) {
-                if (var.symbol != null) {
-                    BTypeSymbol tSymbol = var.symbol.type.tsymbol;
+                BVarSymbol varSymbol = var.symbol;
+                if (varSymbol != null) {
+                    BTypeSymbol tSymbol = varSymbol.type.tsymbol;
                     if (tSymbol != null && Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT)) {
-                        var.symbol.tag = SymTag.ENDPOINT;
+                        varSymbol.tag = SymTag.ENDPOINT;
                     }
                 }
             }
@@ -2064,6 +2065,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             return;
         }
+
         if (recordVar.type == null) {
             recordVar.type = symResolver.resolveTypeNode(recordVar.typeNode, env);
         }
@@ -2110,34 +2112,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
 
                 if (possibleTypes.size() > 1) {
-                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS,
-                            names.fromString(ANONYMOUS_RECORD_NAME),
-                            env.enclPkg.symbol.pkgID, null,
-                            env.scope.owner, recordVar.pos, SOURCE);
-                    recordVarType = (BRecordType) symTable.recordType;
-
-                    LinkedHashMap<String, BField> fields =
-                            populateAndGetPossibleFieldsForRecVar(recordVar, possibleTypes, recordSymbol, env);
-
-                    if (recordVar.restParam != null) {
-                        LinkedHashSet<BType> memberTypes = possibleTypes.stream()
-                                .map(possibleType -> {
-                                    if (possibleType.tag == TypeTags.RECORD) {
-                                        return ((BRecordType) possibleType).restFieldType;
-                                    } else if (possibleType.tag == TypeTags.MAP) {
-                                        return ((BMapType) possibleType).constraint;
-                                    } else {
-                                        return possibleType;
-                                    }
-                                })
-                                .collect(Collectors.toCollection(LinkedHashSet::new));
-                        recordVarType.restFieldType = memberTypes.size() > 1 ?
-                                BUnionType.create(null, memberTypes) :
-                                memberTypes.iterator().next();
-                    }
-                    recordVarType.tsymbol = recordSymbol;
-                    recordVarType.fields = fields;
-                    recordSymbol.type = recordVarType;
+                    recordVarType = populatePossibleFields(recordVar, possibleTypes, env);
                     break;
                 }
 
@@ -2169,68 +2144,42 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return false;
         }
 
-        LinkedHashMap<String, BField> recordVarTypeFields = recordVarType.fields;
-
-        boolean validRecord = true;
-        int ignoredCount = 0;
-        for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
-            // Infer the type of each variable in recordVariable from the given record type
-            // so that symbol enter is done recursively
-            if (names.fromIdNode(variable.getKey()) == Names.IGNORE) {
-                dlog.error(recordVar.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
-                continue;
-            }
-
-            BLangVariable value = variable.getValue();
-            if (value.getKind() == NodeKind.VARIABLE) {
-                // '_' is allowed in record variables. Not allowed if all variables are named as '_'
-                BLangSimpleVariable simpleVar = (BLangSimpleVariable) value;
-                Name varName = names.fromIdNode(simpleVar.name);
-                if (varName == Names.IGNORE) {
-                    ignoredCount++;
-                    simpleVar.type = symTable.anyType;
-                    if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
-                        continue;
-                    }
-                    types.checkType(variable.valueBindingPattern.pos,
-                            recordVarTypeFields.get((variable.getKey().getValue())).type, simpleVar.type,
-                            DiagnosticErrorCode.INCOMPATIBLE_TYPES);
-                    continue;
-                }
-            }
-            if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
-                if (recordVarType.sealed) {
-                    validRecord = false;
-                    dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
-                            variable.getKey().getValue(), recordVar.type);
-                } else {
-                    BType restType;
-                    if (recordVarType.restFieldType.tag == TypeTags.ANYDATA ||
-                            recordVarType.restFieldType.tag == TypeTags.ANY) {
-                        restType = recordVarType.restFieldType;
-                    } else {
-                        restType = BUnionType.create(null, recordVarType.restFieldType, symTable.nilType);
-                    }
-                    defineMemberNode(value, env, restType);
-                }
-                continue;
-            }
-            defineMemberNode(value, env, recordVarTypeFields.get((variable.getKey().getValue())).type);
-        }
-
-        if (!recordVar.variableList.isEmpty() && ignoredCount == recordVar.variableList.size()
-                && recordVar.restParam == null) {
-            dlog.error(recordVar.pos, DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
-            return false;
-        }
-
-        if (recordVar.restParam != null) {
-            defineMemberNode(((BLangSimpleVariable) recordVar.restParam), env, getRestParamType(recordVarType));
-        }
-
-        return validRecord;
+        return defineVariableList(recordVar, recordVarType, env);
     }
 
+    private BRecordType populatePossibleFields(BLangRecordVariable recordVar, List<BType> possibleTypes,
+                                               SymbolEnv env) {
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS,
+                names.fromString(ANONYMOUS_RECORD_NAME),
+                env.enclPkg.symbol.pkgID, null,
+                env.scope.owner, recordVar.pos, SOURCE);
+        BRecordType recordVarType = (BRecordType) symTable.recordType;
+
+        LinkedHashMap<String, BField> fields =
+                populateAndGetPossibleFieldsForRecVar(recordVar, possibleTypes, recordSymbol, env);
+
+        if (recordVar.restParam != null) {
+            LinkedHashSet<BType> memberTypes = possibleTypes.stream()
+                    .map(possibleType -> {
+                        if (possibleType.tag == TypeTags.RECORD) {
+                            return ((BRecordType) possibleType).restFieldType;
+                        } else if (possibleType.tag == TypeTags.MAP) {
+                            return ((BMapType) possibleType).constraint;
+                        } else {
+                            return possibleType;
+                        }
+                    })
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            recordVarType.restFieldType = memberTypes.size() > 1 ?
+                    BUnionType.create(null, memberTypes) :
+                    memberTypes.iterator().next();
+        }
+
+        recordVarType.tsymbol = recordSymbol;
+        recordVarType.fields = fields;
+        recordSymbol.type = recordVarType;
+        return recordVarType;
+    }
 
     /**
      * This method will resolve field types based on a list of possible types.
@@ -2267,6 +2216,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                     continue;
                 }
+
                 if (possibleType.tag == TypeTags.MAP) {
                     BMapType possibleMapType = (BMapType) possibleType;
                     memberTypes.add(possibleMapType.constraint);
@@ -2318,6 +2268,70 @@ public class SymbolEnter extends BLangNodeVisitor {
         recordVarType.restFieldType = fieldTypes; // TODO: 7/26/19 Check if this should be `fieldType`
 
         return recordVarType;
+    }
+
+    private boolean defineVariableList(BLangRecordVariable recordVar, BRecordType recordVarType, SymbolEnv env) {
+        LinkedHashMap<String, BField> recordVarTypeFields = recordVarType.fields;
+
+        boolean validRecord = true;
+        int ignoredCount = 0;
+        for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
+            // Infer the type of each variable in recordVariable from the given record type
+            // so that symbol enter is done recursively
+            if (names.fromIdNode(variable.getKey()) == Names.IGNORE) {
+                dlog.error(recordVar.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
+                continue;
+            }
+
+            BLangVariable value = variable.getValue();
+            if (value.getKind() == NodeKind.VARIABLE) {
+                // '_' is allowed in record variables. Not allowed if all variables are named as '_'
+                BLangSimpleVariable simpleVar = (BLangSimpleVariable) value;
+                Name varName = names.fromIdNode(simpleVar.name);
+                if (varName == Names.IGNORE) {
+                    ignoredCount++;
+                    simpleVar.type = symTable.anyType;
+                    if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
+                        continue;
+                    }
+                    types.checkType(variable.valueBindingPattern.pos,
+                            recordVarTypeFields.get((variable.getKey().getValue())).type, simpleVar.type,
+                            DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                    continue;
+                }
+            }
+
+            if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
+                if (recordVarType.sealed) {
+                    validRecord = false;
+                    dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
+                            variable.getKey().getValue(), recordVar.type);
+                } else {
+                    BType restType;
+                    if (recordVarType.restFieldType.tag == TypeTags.ANYDATA ||
+                            recordVarType.restFieldType.tag == TypeTags.ANY) {
+                        restType = recordVarType.restFieldType;
+                    } else {
+                        restType = BUnionType.create(null, recordVarType.restFieldType, symTable.nilType);
+                    }
+                    defineMemberNode(value, env, restType);
+                }
+                continue;
+            }
+            defineMemberNode(value, env, recordVarTypeFields.get((variable.getKey().getValue())).type);
+        }
+
+        if (!recordVar.variableList.isEmpty() && ignoredCount == recordVar.variableList.size()
+                && recordVar.restParam == null) {
+            dlog.error(recordVar.pos, DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+            return false;
+        }
+
+        if (recordVar.restParam != null) {
+            defineMemberNode(((BLangSimpleVariable) recordVar.restParam), env, getRestParamType(recordVarType));
+        }
+
+        return validRecord;
     }
 
     private boolean doesRecordContainKeys(BType varType,
@@ -2423,6 +2437,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             return;
         }
+
         if (errorVar.type == null) {
             errorVar.type = symResolver.resolveTypeNode(errorVar.typeNode, env);
         }
@@ -2451,11 +2466,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .filter(type -> TypeTags.ERROR == type.tag)
                         .map(BErrorType.class::cast)
                         .collect(Collectors.toList());
+
                 if (possibleTypes.isEmpty()) {
                     dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN,
                             errorVariable.type);
                     return false;
                 }
+
                 if (possibleTypes.size() > 1) {
                     LinkedHashSet<BType> detailType = new LinkedHashSet<>();
                     for (BErrorType possibleErrType : possibleTypes) {
@@ -2514,7 +2531,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private boolean validateErrorVariable(BLangErrorVariable errorVariable, BErrorType errorType, SymbolEnv env) {
         BLangSimpleVariable errorMsg = errorVariable.message;
-        if (errorMsg !=null && errorMsg.symbol == null) {
+        if (errorMsg != null && errorMsg.symbol == null) {
             defineMemberNode(errorMsg, env, symTable.stringType);
         }
 

@@ -18,4 +18,4 @@
 # # Deprecated
 # This record is deprecated.
 @deprecated
-record {int a;} {a:myA} = {a:5};
+record {int a;} {a: myA} = {a: 5};

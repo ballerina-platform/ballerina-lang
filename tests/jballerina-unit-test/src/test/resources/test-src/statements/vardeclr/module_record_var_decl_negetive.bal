@@ -20,7 +20,7 @@ type Person record {|
 |};
 string Fname = "myfirst name";
 // Redeclare Fname inside record variable
-Person {name:Fname, married:Married} = {name:"Jhone", married:true};
+Person {name: Fname, married: Married} = {name: "Jhone", married: true};
 // Redeclare Married which is already declared inside record
 boolean Married = false;
 public function testBasic() returns [string, boolean] {
@@ -28,23 +28,23 @@ public function testBasic() returns [string, boolean] {
 }
 
 // Invalid field name age which is not in Person type
-Person {name:Fname2, married:Married2, age:Age2} = {name:"Jhone", married:true};
+Person {name: Fname2, married: Married2, age: Age2} = {name: "Jhone", married: true};
 
 // Only simple variables are allowed to be isolated
-isolated Person {name:name3, married:married3} = {name:"Jhone", married:true};
+isolated Person {name: name3, married: married3} = {name: "Jhone", married: true};
 
 // Only simple variables are allowed to be configurable
-configurable Person {name:name4, married:married4} = {name:"Jhone", married:true};
+configurable Person {name: name4, married: married4} = {name: "Jhone", married: true};
 
 const annotation annot on source function;
 
 @annot
-Person {name:name5} = {name:"Mack"};
+Person {name: name5} = {name: "Mack"};
 
-Person {name:name6, married:married6} = {name:name7, married:n};
-var {name:name7} = getVarValues();
+Person {name: name6, married: married6} = {name: name7, married: n};
+var {name: name7} = getVarValues();
 boolean n = false;
 
 function getVarValues() returns record {string name;} {
-    return {name:"Sam"};
+    return {name: "Sam"};
 }

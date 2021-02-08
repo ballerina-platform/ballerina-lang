@@ -63,7 +63,7 @@ type userDefinedErrorDetail2 record {
 };
 
 userDefinedError2 error (message4, recordVar = {firstValue, secondValue}) = error userDefinedError2(
-                                        "error message four", recordVar = {firstValue:5, secondValue:"Second value"});
+                                        "error message four", recordVar = {firstValue: 5, secondValue: "Second value"});
 
 function testRecordVarInsideErrorVar() {
     assertEquality("error message four", message4);

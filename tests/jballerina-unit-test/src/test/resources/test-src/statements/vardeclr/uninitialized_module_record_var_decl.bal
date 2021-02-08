@@ -19,7 +19,7 @@ type Car record {
     string color;
 };
 
-Car {id:carId, color:carColor};
+Car {id: carId, color: carColor};
 
 public function main() {
    string myCarColor = carColor;

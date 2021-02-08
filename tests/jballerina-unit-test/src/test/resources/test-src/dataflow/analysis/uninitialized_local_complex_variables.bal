@@ -28,7 +28,7 @@ type myRecord record {|
 |};
 
 function testUninitializedRecordVar() {
-    myRecord {id:studentId, name:studentName, ...otherData};
+    myRecord {id: studentId, name: studentName, ...otherData};
     int a = studentId;
     string b = studentName;
     map<anydata> other = otherData;
