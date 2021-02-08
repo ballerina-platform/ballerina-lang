@@ -34,7 +34,8 @@ function test() {
 
     var res4 =  from int i in arr1
                 join int j in arr2
-                on i equals
+                on i equals j
+                select i + j;
 
     type Person record {|
         string firstName;
