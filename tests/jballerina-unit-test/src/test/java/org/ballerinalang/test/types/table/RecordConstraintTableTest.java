@@ -18,7 +18,6 @@ package org.ballerinalang.test.types.table;
 
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -74,20 +73,14 @@ public class RecordConstraintTableTest {
         BRunUtil.invoke(result, "testKeylessTable");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
-                    "find key '18'.*")
+    @Test(description = "Test invalid member access in table with a single key field")
     public void testMemberAccessWithInvalidSingleKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidSingleKey");
-        Assert.fail();
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
-                    "find key '18 Mohan'.*")
+    @Test(description = "Test invalid member access in table with multiple key fields")
     public void testMemberAccessWithInvalidMultiKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
-        Assert.fail();
     }
 
     @Test(description = "Test Table with var type")
@@ -95,12 +88,9 @@ public class RecordConstraintTableTest {
         BRunUtil.invoke(result, "runTableTestcasesWithVarType");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
-                    "find key '18 Mohan'.*")
+    @Test(description = "Test invalid member access in table")
     public void testVarTypeTableInvalidMemberAccess() {
         BRunUtil.invoke(result, "testVarTypeTableInvalidMemberAccess");
-        Assert.fail();
     }
 
     @Test(description = "Test member access in table in store operation")
@@ -123,6 +113,11 @@ public class RecordConstraintTableTest {
     @Test(description = "Test table equality")
     public void testTableEquality() {
         BRunUtil.invoke(result, "testTableEquality", new BValue[]{});
+    }
+
+    @Test(description = "Test member access in table having members with nilable/optional fields")
+    public void testMemberAccessHavingNilableFields() {
+        BRunUtil.invoke(result, "testMemberAccessHavingNilableFields");
     }
 
     @AfterClass

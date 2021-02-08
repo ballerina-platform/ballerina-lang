@@ -91,9 +91,12 @@ public class TypeByAccessExprTest extends TypeByNodeTest {
                 if (indexedExpressionNode.keyExpression().size() == 1) {
                     assertType(indexedExpressionNode, model, STRING);
                 } else {
-                    Optional<TypeSymbol> type = assertType(indexedExpressionNode, model, TYPE_REFERENCE);
-                    assertEquals(((TypeReferenceTypeSymbol) type.get()).name(), "Person");
-                    assertEquals(((TypeReferenceTypeSymbol) type.get()).typeDescriptor().typeKind(), RECORD);
+                    Optional<TypeSymbol> type = assertType(indexedExpressionNode, model, UNION);
+                    List<TypeSymbol> members = ((UnionTypeSymbol) type.get()).memberTypeDescriptors();
+                    assertEquals(members.get(0).typeKind(), TYPE_REFERENCE);
+                    assertEquals(((TypeReferenceTypeSymbol) members.get(0)).name(), "Person");
+                    assertEquals(((TypeReferenceTypeSymbol) members.get(0)).typeDescriptor().typeKind(), RECORD);
+                    assertEquals(members.get(1).typeKind(), NIL);
                 }
             }
 

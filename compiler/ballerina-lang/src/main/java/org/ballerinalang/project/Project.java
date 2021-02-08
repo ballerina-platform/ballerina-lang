@@ -40,11 +40,11 @@ public interface Project {
     public boolean isModuleExists(PackageID moduleId);
 
     /**
-     * Returns the .balo path.
+     * Returns the .bala path.
      *
      * @param moduleId Module Id
-     * @return Path to the .balo.
+     * @return Path to the .bala.
      * @throws InvalidModuleException when project does not contains the module.
      */
-    public Path getBaloPath(PackageID moduleId) throws InvalidModuleException;
+    public Path getBalaPath(PackageID moduleId) throws InvalidModuleException;
 }

@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
@@ -166,7 +167,7 @@ public class ServiceValue {
         for (int i = 0; i < path.size(); i++) {
             funcName.append("$").append(path.getBString(i).getValue());
         }
-        return funcName.toString();
+        return IdentifierUtils.encodeFunctionIdentifier(funcName.toString());
     }
 
     public static BArray getServicePath() {

@@ -46,11 +46,11 @@ public class Package {
     public static final String JSON_PROPERTY_U_R_L = "URL";
     @SerializedName(JSON_PROPERTY_U_R_L) private String url;
 
-    public static final String JSON_PROPERTY_BALO_VERSION = "baloVersion";
-    @SerializedName(JSON_PROPERTY_BALO_VERSION) private String baloVersion;
+    public static final String JSON_PROPERTY_BALA_VERSION = "balaVersion";
+    @SerializedName(JSON_PROPERTY_BALA_VERSION) private String balaVersion;
 
-    public static final String JSON_PROPERTY_BALO_U_R_L = "baloURL";
-    @SerializedName(JSON_PROPERTY_BALO_U_R_L) private String baloURL;
+    public static final String JSON_PROPERTY_BALA_U_R_L = "balaURL";
+    @SerializedName(JSON_PROPERTY_BALA_U_R_L) private String balaURL;
 
     public static final String JSON_PROPERTY_README = "readme";
     @SerializedName(JSON_PROPERTY_README) private String readme;
@@ -165,32 +165,32 @@ public class Package {
         this.url = url;
     }
 
-    public Package baloVersion(String baloVersion) {
+    public Package balaVersion(String balaVersion) {
 
-        this.baloVersion = baloVersion;
+        this.balaVersion = balaVersion;
         return this;
     }
 
-    public String getBaloVersion() {
-        return baloVersion;
+    public String getBalaVersion() {
+        return balaVersion;
     }
 
-    public void setBaloVersion(String baloVersion) {
-        this.baloVersion = baloVersion;
+    public void setBalaVersion(String balaVersion) {
+        this.balaVersion = balaVersion;
     }
 
-    public Package baloURL(String baloURL) {
+    public Package balaURL(String balaURL) {
 
-        this.baloURL = baloURL;
+        this.balaURL = balaURL;
         return this;
     }
 
-    public String getBaloURL() {
-        return baloURL;
+    public String getBalaURL() {
+        return balaURL;
     }
 
-    public void setBaloURL(String baloURL) {
-        this.baloURL = baloURL;
+    public void setBalaURL(String balaURL) {
+        this.balaURL = balaURL;
     }
 
     public Package summary(String summary) {
@@ -367,8 +367,8 @@ public class Package {
                 && Objects.equals(this.platform, packageJsonSchema.platform) && Objects
                 .equals(this.languageSpecificationVersion, packageJsonSchema.languageSpecificationVersion) && Objects
                 .equals(this.url, packageJsonSchema.url) && Objects
-                .equals(this.baloVersion, packageJsonSchema.baloVersion) && Objects
-                .equals(this.baloURL, packageJsonSchema.baloURL) && Objects
+                .equals(this.balaVersion, packageJsonSchema.balaVersion) && Objects
+                .equals(this.balaURL, packageJsonSchema.balaURL) && Objects
                 .equals(this.readme, packageJsonSchema.readme) && Objects
                 .equals(this.template, packageJsonSchema.template) && Objects
                 .equals(this.licenses, packageJsonSchema.licenses) && Objects
@@ -383,7 +383,7 @@ public class Package {
     @Override
     public int hashCode() {
         return Objects
-                .hash(organization, name, version, platform, languageSpecificationVersion, url, baloVersion, baloURL,
+                .hash(organization, name, version, platform, languageSpecificationVersion, url, balaVersion, balaURL,
                         readme, template, licenses, authors, sourceCodeLocation, keywords, ballerinaVersion,
                         createdDate, modules);
     }
@@ -399,8 +399,8 @@ public class Package {
         sb.append("    languageSpecificationVersion: ").append(toIndentedString(languageSpecificationVersion))
                 .append("\n");
         sb.append("    url: ").append(toIndentedString(url)).append("\n");
-        sb.append("    baloVersion: ").append(toIndentedString(baloVersion)).append("\n");
-        sb.append("    baloURL: ").append(toIndentedString(baloURL)).append("\n");
+        sb.append("    balaVersion: ").append(toIndentedString(balaVersion)).append("\n");
+        sb.append("    balaURL: ").append(toIndentedString(balaURL)).append("\n");
         sb.append("    readme: ").append(toIndentedString(readme)).append("\n");
         sb.append("    template: ").append(toIndentedString(template)).append("\n");
         sb.append("    licenses: ").append(toIndentedString(licenses)).append("\n");

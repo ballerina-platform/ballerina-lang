@@ -1,0 +1,6 @@
+[project]
+org-name= "bar"
+version= "0.1.0"
+
+[dependencies]
+"bar/Z" = {path= "../TestProject2/target/bala/Z-2020r2-any-0.1.0.bala"}

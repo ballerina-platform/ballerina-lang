@@ -62,18 +62,18 @@ public class DirectoryTestCase extends BaseTest {
     public void testRunDirectory() throws BallerinaTestException {
         testProjectPath = Paths.get("src", "test", "resources", "packaging", "executable", "TestProject")
                                .toAbsolutePath();
-        String fooModuleBaloFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-9.9.9"
+        String fooModuleBalaFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-9.9.9"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
         String fooModuleJarFileName = "foo" + BLANG_COMPILED_JAR_EXT;
         // Run and see output
-        String buildMsg1 = "target" + File.separator + "balo" + File.separator + fooModuleBaloFileName;
+        String buildMsg1 = "target" + File.separator + "bala" + File.separator + fooModuleBalaFileName;
         String buildMsg2 = "target" + File.separator + "bin" + File.separator + fooModuleJarFileName;
 
-        LogLeecher fooBaloLeecher = new LogLeecher(buildMsg1);
+        LogLeecher fooBalaLeecher = new LogLeecher(buildMsg1);
         LogLeecher fooJarLeecher = new LogLeecher(buildMsg2);
         balClient.runMain("build", new String[] { "foo" }, new HashMap<>(), new String[0],
-                          new LogLeecher[] { fooBaloLeecher, fooJarLeecher}, testProjectPath.toString());
-        fooBaloLeecher.waitForText(10000);
+                          new LogLeecher[] { fooBalaLeecher, fooJarLeecher}, testProjectPath.toString());
+        fooBalaLeecher.waitForText(10000);
         fooJarLeecher.waitForText(10000);
     }
 

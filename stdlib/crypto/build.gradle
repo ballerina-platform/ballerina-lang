@@ -19,16 +19,16 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 dependencies {
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    balaImplementation project(path: ':ballerina-time', configuration: 'balaImplementation')
+    balaImplementation project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
+    balaImplementation project(path: ':ballerina-runtime-api', configuration: 'balaImplementation')
 
 
     interopImports project(':ballerina-time')
 
     implementation 'commons-codec:commons-codec'
 
-    baloCreat project(':lib-creator')
+    balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-time')
@@ -59,7 +59,7 @@ configurations {
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
-createBalo {
+createBala {
     jvmTarget = 'true'
 }
 
