@@ -6801,9 +6801,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
             BType constraint = tableType.constraint;
+            indexBasedAccessExpr.originalType = indexBasedAccessExpr.leafNode || !nillableExprType ? constraint :
+                    types.getTypeWithoutNil(constraint);
             actualType = addNilForNillableAccessType(constraint);
-            indexBasedAccessExpr.originalType = indexBasedAccessExpr.leafNode || !nillableExprType ? actualType :
-                    types.getTypeWithoutNil(actualType);;
         } else if (varRefType == symTable.semanticError) {
             indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
             return symTable.semanticError;
