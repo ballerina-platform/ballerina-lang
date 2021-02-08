@@ -402,9 +402,13 @@ public class ManifestBuilder {
         if (valueNode.kind() == TomlType.NONE) {
             return elements;
         }
-        TomlArrayValueNode arrayValueNode = (TomlArrayValueNode) valueNode;
-        for (TomlValueNode value: arrayValueNode.elements()) {
-            elements.add(((TomlStringValueNode) value).getValue());
+        if (valueNode.kind() == TomlType.ARRAY) {
+            TomlArrayValueNode arrayValueNode = (TomlArrayValueNode) valueNode;
+            for (TomlValueNode value : arrayValueNode.elements()) {
+                if (value.kind() == TomlType.STRING) {
+                    elements.add(((TomlStringValueNode) value).getValue());
+                }
+            }
         }
         return elements;
     }

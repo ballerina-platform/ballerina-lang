@@ -212,8 +212,8 @@ public class BallerinaTomlTests {
         Assert.assertTrue(diagnostics.hasErrors());
 
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
-        Assert.assertEquals(iterator.next().message(), "invalid token '='");
-        Assert.assertEquals(iterator.next().message(), "key 'dependency' expects OBJECT . found STRING");
+        Assert.assertEquals(iterator.next().message(),
+                            "incompatible type for key 'dependency': expected 'OBJECT', found 'STRING'");
 
     }
 
@@ -223,7 +223,7 @@ public class BallerinaTomlTests {
         DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
         Assert.assertEquals(diagnostics.errors().iterator().next().message(),
-                            "key 'java11' expects OBJECT . found ARRAY");
+                            "incompatible type for key 'java11': expected 'OBJECT', found 'ARRAY'");
     }
 
     @Test(description = "Test Ballerina.toml having invalid types for entries in package and build options")
@@ -234,10 +234,14 @@ public class BallerinaTomlTests {
         Assert.assertEquals(diagnostics.errors().size(), 4);
 
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
-        Assert.assertEquals(iterator.next().message(), "key 'license' expects ARRAY . found STRING");
-        Assert.assertEquals(iterator.next().message(), "key 'repository' expects STRING . found BOOLEAN");
-        Assert.assertEquals(iterator.next().message(), "key 'observabilityIncluded' expects BOOLEAN . found ARRAY");
-        Assert.assertEquals(iterator.next().message(), "key 'offline' expects BOOLEAN . found STRING");
+        Assert.assertEquals(iterator.next().message(),
+                            "incompatible type for key 'license': expected 'ARRAY', found 'STRING'");
+        Assert.assertEquals(iterator.next().message(),
+                            "incompatible type for key 'repository': expected 'STRING', found 'BOOLEAN'");
+        Assert.assertEquals(iterator.next().message(),
+                            "incompatible type for key 'observabilityIncluded': expected 'BOOLEAN', found 'ARRAY'");
+        Assert.assertEquals(iterator.next().message(),
+                            "incompatible type for key 'offline': expected 'BOOLEAN', found 'STRING'");
     }
 
     @Test
@@ -256,7 +260,7 @@ public class BallerinaTomlTests {
                                                              BAL_TOML_REPO.resolve("dependencies-non-array.toml"));
         Assert.assertTrue(packageManifest.diagnostics().hasErrors());
         Assert.assertEquals(packageManifest.diagnostics().errors().iterator().next().message(),
-                            "key 'dependency' expects ARRAY . found OBJECT");
+                            "incompatible type for key 'dependency': expected 'ARRAY', found 'OBJECT'");
     }
 
     private PackageManifest getPackageManifest(Path tomlPath) throws IOException {

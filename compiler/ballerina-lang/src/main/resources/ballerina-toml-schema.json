@@ -127,9 +127,5 @@
         }
       }
     }
-  },
-  "required": ["package"],
-  "message" : {
-    "required" : "cannot find '${property}'"
   }
 }

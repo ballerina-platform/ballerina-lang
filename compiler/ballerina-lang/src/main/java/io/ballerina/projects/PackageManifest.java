@@ -35,6 +35,8 @@ public class PackageManifest {
     private final Map<String, Platform> platforms;
     private final DiagnosticResult diagnostics;
 
+    // move other entries here
+
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
     private final Map<String, TopLevelNode> otherEntries;
