@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
@@ -33,6 +34,7 @@ import java.util.StringJoiner;
  * @since 1.2.0
  */
 public class BLangLetClause extends BLangNode implements LetClauseNode {
+    public SymbolEnv env;
 
     public List<BLangLetVariable> getLetVarDeclarations() {
         return letVarDeclarations;
