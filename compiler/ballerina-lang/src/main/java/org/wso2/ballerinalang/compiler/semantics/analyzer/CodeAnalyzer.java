@@ -86,7 +86,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
@@ -1206,9 +1208,64 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             case LIST_BINDING_PATTERN:
                 return checkSimilarListBindingPatterns((BLangListBindingPattern) firstBidingPattern,
                         (BLangListBindingPattern) secondBindingPattern);
+            case MAPPING_BINDING_PATTERN:
+                return checkSimilarMappingBindingPattern((BLangMappingBindingPattern) firstBidingPattern,
+                        (BLangMappingBindingPattern) secondBindingPattern);
             default:
                 return false;
         }
+    }
+
+    private boolean checkSimilarMappingBindingPattern(BLangMappingBindingPattern firstMappingBindingPattern,
+                                                      BLangMappingBindingPattern secondMappingBindingPattern) {
+        if (firstMappingBindingPattern.restBindingPattern != null &&
+                secondMappingBindingPattern.restBindingPattern == null) {
+            return false;
+        }
+        if (firstMappingBindingPattern.restBindingPattern == null &&
+                secondMappingBindingPattern.restBindingPattern != null) {
+            return false;
+        }
+        List<BLangFieldBindingPattern> firstFieldBindingPatterns = firstMappingBindingPattern.fieldBindingPatterns;
+        List<BLangFieldBindingPattern> secondFieldBindingPatterns = secondMappingBindingPattern.fieldBindingPatterns;
+        if (firstMappingBindingPattern.restBindingPattern == null) {
+            if (firstFieldBindingPatterns.size() != secondFieldBindingPatterns.size()) {
+                return false;
+            }
+            return checkSimilarFieldBindingPatterns(firstFieldBindingPatterns, secondFieldBindingPatterns);
+        }
+        if (firstFieldBindingPatterns.size() > secondFieldBindingPatterns.size()) {
+            return false;
+        }
+        if (firstFieldBindingPatterns.size() == secondFieldBindingPatterns.size()) {
+            return checkSimilarFieldBindingPatterns(firstFieldBindingPatterns, secondFieldBindingPatterns);
+        }
+        return checkSimilarBindingPatterns(firstMappingBindingPattern.restBindingPattern,
+                secondMappingBindingPattern.restBindingPattern);
+    }
+
+    private boolean checkSimilarFieldBindingPatterns(List<BLangFieldBindingPattern> firstFieldBindingPatterns,
+                                                     List<BLangFieldBindingPattern> secondFieldBindingPatterns) {
+        for (BLangFieldBindingPattern firstFieldBindingPattern : firstFieldBindingPatterns) {
+            boolean isSamePattern = false;
+            for (BLangFieldBindingPattern secondFieldBindingPattern : secondFieldBindingPatterns) {
+                if (checkSimilarFieldBindingPattern(firstFieldBindingPattern, secondFieldBindingPattern)) {
+                    isSamePattern = true;
+                    break;
+                }
+            }
+            if (!isSamePattern) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkSimilarFieldBindingPattern(BLangFieldBindingPattern firstFieldBindingPattern,
+                                                    BLangFieldBindingPattern secondFieldBindingPattern) {
+        return firstFieldBindingPattern.fieldName.value.equals(secondFieldBindingPattern.fieldName.value) &&
+                checkSimilarBindingPatterns(firstFieldBindingPattern.bindingPattern,
+                        secondFieldBindingPattern.bindingPattern);
     }
 
     private boolean checkSimilarListBindingPatterns(BLangListBindingPattern firstBindingPattern,
@@ -1304,6 +1361,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeNode(bindingPattern, env);
         switch (bindingPattern.getKind()) {
             case WILDCARD_BINDING_PATTERN:
+                varBindingPattern.isLastPattern =
+                        varBindingPattern.matchExpr != null && types.isAssignable(varBindingPattern.matchExpr.type,
+                        symTable.anyType);
                 return;
             case CAPTURE_BINDING_PATTERN:
                 varBindingPattern.isLastPattern =
@@ -1317,6 +1377,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         varBindingPattern.type) || types.isAssignable(varBindingPattern.matchExpr.type,
                         varBindingPattern.type);
         }
+    }
+
+    @Override
+    public void visit(BLangMappingBindingPattern mappingBindingPattern) {
+
+    }
+
+    @Override
+    public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
+
     }
 
     @Override
@@ -1358,10 +1428,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangListBindingPattern listBindingPattern) {
-    }
-
-    @Override
-    public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
     }
 
     @Override
@@ -3674,6 +3740,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             case TypeTags.FINITE:
                 return types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) testType, expressionType) !=
                         symTable.semanticError;
+        }
+
+        // any and readonly has a intersection
+        if (expressionType.tag == TypeTags.ANY && testType.tag == TypeTags.READONLY) {
+            return true;
         }
         return false;
     }

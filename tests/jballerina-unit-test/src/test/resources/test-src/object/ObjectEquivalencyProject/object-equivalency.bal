@@ -156,7 +156,7 @@ function testObjectEquivalenceWhenFieldsHavePublicVisibility() returns string {
 }
 
 
-function testEqOfPublicObjectsInBalo() returns string {
+function testEqOfPublicObjectsInBala() returns string {
     eq:employee e = new (14, "rat");
     e.setSSN("234-56-7890");
 

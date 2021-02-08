@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
@@ -54,6 +55,12 @@ public class LangLibValueTest {
             Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
             Assert.fail("Compilation contains error");
         }
+    }
+
+    @Test void testNegativeCases() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/valuelib_test_negative.bal");
+        assertEquals(negativeResult.getErrorCount(), 1);
+        validateError(negativeResult, 0, "incompatible types: expected 'any', found 'Cloneable'", 21, 13);
     }
 
     @Test
@@ -263,6 +270,7 @@ public class LangLibValueTest {
         BRunUtil.invokeFunction(file, "testXmlFromBalString");
         BRunUtil.invokeFunction(file, "testObjectFromString");
         BRunUtil.invokeFunction(file, "testFromBalStringOnCycles");
+        BRunUtil.invokeFunction(file, "testFromBalStringNegative");
     }
 
     @DataProvider(name = "mergeJsonFunctions")
@@ -311,6 +319,11 @@ public class LangLibValueTest {
         BRunUtil.invoke(compileResult, function);
     }
 
+    @Test
+    public void testAssigningCloneableToAnyOrError() {
+        BRunUtil.invokeFunction(compileResult, "testAssigningCloneableToAnyOrError");
+    }
+
     @DataProvider(name = "fromJsonWithTypeFunctions")
     public Object[][] fromJsonWithTypeFunctions() {
         return new Object[][] {
@@ -328,7 +341,9 @@ public class LangLibValueTest {
                 { "testFromJsonWithTypeArrayNegative" },
                 { "testFromJsonWithTypeTable" },
                 { "tesFromJsonWithTypeMapWithDecimal" },
-                { "testConvertJsonToAmbiguousType" }
+                { "testConvertJsonToAmbiguousType" },
+                { "testFromJsonWithTypeWithNullValues" },
+                { "testFromJsonWithTypeWithNullValuesNegative" }
         };
     }
 
