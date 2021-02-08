@@ -110,8 +110,8 @@ class AIDataMapperCodeActionUtil {
             Symbol lftTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
             Symbol rhsTypeSymbol = (Symbol) props.get(RIGHT_SYMBOL_INDEX).value();
 
-            String foundTypeLeft = lftTypeSymbol.getName().get();
-            String foundTypeRight = rhsTypeSymbol.getName().get();
+            String foundTypeLeft = lftTypeSymbol.getName().orElse("");
+            String foundTypeRight = rhsTypeSymbol.getName().orElse("");
 
             // Get the semantic model
             SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
@@ -123,7 +123,7 @@ class AIDataMapperCodeActionUtil {
 
             // get the symbol at cursor type
             Symbol symbolAtCursor = semanticModel.symbol(srcFile.get(), linePosition).get();
-            String symbolAtCursorName = symbolAtCursor.getName().get();
+            String symbolAtCursorName = symbolAtCursor.getName().orElse("");
             String symbolAtCursorType = "";
             // Check if function return a record type in multi-module project
             if (SymbolUtil.getTypeDescriptor(symbolAtCursor).isEmpty()) {
@@ -151,14 +151,14 @@ class AIDataMapperCodeActionUtil {
                     if ("".equals(foundTypeLeft)) {
                         List<TypeSymbol> leftTypeSymbols = ((UnionTypeSymbol) lftTypeSymbol).memberTypeDescriptors();
                         lftTypeSymbol = findSymbol(leftTypeSymbols);
-                        foundTypeLeft = lftTypeSymbol.getName().get();
+                        foundTypeLeft = lftTypeSymbol.getName().orElse("");
                         foundErrorLeft = true;
                     }
                     // If the check or checkpanic is used
                     if ("".equals(foundTypeRight)) {
                         List<TypeSymbol> rightTypeSymbols = ((UnionTypeSymbol) rhsTypeSymbol).memberTypeDescriptors();
                         rhsTypeSymbol = findSymbol(rightTypeSymbols);
-                        foundTypeRight = rhsTypeSymbol.getName().get();
+                        foundTypeRight = rhsTypeSymbol.getName().orElse("");
                         foundErrorRight = true;
                     }
 
