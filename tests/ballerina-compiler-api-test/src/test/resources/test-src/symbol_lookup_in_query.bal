@@ -20,7 +20,7 @@ function test() {
 
     var res1 = from int i in arr1
                from int j in arr2
-               let string str = "abc"
+               where i == j
                select i+j;
 
     var res2 = from int i in arr1
@@ -35,4 +35,17 @@ function test() {
     var res4 =  from int i in arr1
                 join int j in arr2
                 on i equals
+
+    type Person record {|
+        string firstName;
+        string lastName;
+        int age;
+    |};
+
+    Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+    Person[] personList = [p1, p2];
+
+    var res4 =  from Person p in personList
+                order by
 }

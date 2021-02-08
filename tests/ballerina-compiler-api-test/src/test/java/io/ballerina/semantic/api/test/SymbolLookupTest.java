@@ -258,7 +258,7 @@ public class SymbolLookupTest {
         BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
 
-        Map<String, Symbol> symbolsForWhere = getSymbolsInFile(model, srcFile, 22, 19, moduleID);
+        Map<String, Symbol> symbolsForWhere = getSymbolsInFile(model, srcFile, 22, 21, moduleID);
         assertList(symbolsForWhere, Arrays.asList("test", "arr1", "arr2", "i", "j"));
 
         Map<String, Symbol> symbolsForSelect = getSymbolsInFile(model, srcFile, 28, 21, moduleID);
@@ -272,5 +272,9 @@ public class SymbolLookupTest {
 
         Map<String, Symbol> symbolsForJoinRHS = getSymbolsInFile(model, srcFile, 36, 28, moduleID);
         assertList(symbolsForJoinRHS, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "j"));
+
+        Map<String, Symbol> symbolsForOrderBy = getSymbolsInFile(model, srcFile, 49, 25, moduleID);
+        assertList(symbolsForOrderBy, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "p2",
+                "personList", "p"));
     }
 }

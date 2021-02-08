@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -416,14 +417,11 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, this.symbolEnv);
-        this.acceptNode(transactionNode.transactionBody, transactionEnv);
-
-        if (transactionNode.transactionBody != null) {
+        if (PositionUtil.withinBlock(this.linePosition, transactionNode.getPosition())) {
+            SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, this.symbolEnv);
             this.acceptNode(transactionNode.transactionBody, transactionEnv);
+            this.acceptNode(transactionNode.onFailClause, symbolEnv);
         }
-
-        this.acceptNode(transactionNode.onFailClause, symbolEnv);
     }
 
     @Override
@@ -1233,13 +1231,13 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnClause onClause) {
         if (PositionUtil.withinBlock(this.linePosition, onClause.getPosition())) {
-            if(onClause.equalsKeywordPos == null ||
+            if (onClause.equalsKeywordPos == null ||
                     onClause.equalsKeywordPos.lineRange().startLine().offset() > this.linePosition.offset()) {
                 this.scope = onClause.lhsEnv;
                 this.acceptNode(onClause.lhsExpr, onClause.lhsEnv);
 
             }
-            if(onClause.equalsKeywordPos != null && onClause.equalsKeywordPos
+            if (onClause.equalsKeywordPos != null && onClause.equalsKeywordPos
                     .lineRange().endLine().offset() < this.linePosition.offset()) {
                 this.scope = onClause.rhsEnv;
                 this.acceptNode(onClause.rhsExpr, onClause.rhsEnv);
@@ -1253,6 +1251,12 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOrderByClause orderByClause) {
+        if (PositionUtil.withinBlock(this.linePosition, orderByClause.getPosition())) {
+            this.scope = orderByClause.env;
+            for (OrderKeyNode key: orderByClause.orderByKeyList) {
+                this.acceptNode((BLangNode) key.getOrderKey(), orderByClause.env);
+            }
+        }
     }
 
     @Override
