@@ -19,11 +19,20 @@ package org.ballerinalang.model.tree.bindingpattern;
 
 import org.ballerinalang.model.tree.Node;
 
+import java.util.List;
+
 /**
- * The interface with the APIs to implement the wild-card-binding-pattern.
+ * The interface with the APIs to implement the error-field-binding-pattern.
  *
  * @since 2.0.0
  */
-public interface WildCardBindingPatternNode extends Node {
+public interface ErrorFieldBindingPatternsNode extends Node {
 
+    List<? extends NamedArgBindingPatternNode> getNamedArgMatchPatterns();
+
+    void addNamedArgBindingPattern(NamedArgBindingPatternNode namedArgBindingPatternNode);
+
+    RestBindingPatternNode getRestBindingPattern();
+
+    void setRestBindingPattern(RestBindingPatternNode restBindingPattern);
 }

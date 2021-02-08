@@ -20,10 +20,13 @@ package org.ballerinalang.model.tree.bindingpattern;
 import org.ballerinalang.model.tree.Node;
 
 /**
- * The interface with the APIs to implement the wild-card-binding-pattern.
+ * The interface with the APIs to implement the error-message-binding-pattern.
  *
  * @since 2.0.0
  */
-public interface WildCardBindingPatternNode extends Node {
+public interface ErrorMessageBindingPatternNode extends Node {
 
+    SimpleBindingPatternNode getSimpleBindingPattern();
+
+    void setSimpleBindingPattern(SimpleBindingPatternNode simpleBindingPattern);
 }
