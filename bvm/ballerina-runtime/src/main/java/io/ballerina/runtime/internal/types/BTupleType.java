@@ -145,16 +145,20 @@ public class BTupleType extends BType implements TupleType {
         }
         BTupleType that = (BTupleType) o;
 
+        if (this.readonly != that.readonly) {
+            return false;
+        }
+
         if ((this.restType == null || that.restType == null) && this.restType != that.restType) {
+            // If the rest type is null in only one tuple type.
             return false;
         }
 
         if (this.restType == null) {
-            return this.readonly == that.readonly && Objects.equals(tupleTypes, that.tupleTypes);
+            return Objects.equals(tupleTypes, that.tupleTypes);
         }
 
-        return this.readonly == that.readonly && Objects.equals(tupleTypes, that.tupleTypes) &&
-                this.restType.equals(that.restType);
+        return Objects.equals(tupleTypes, that.tupleTypes) && this.restType.equals(that.restType);
     }
 
     @Override
