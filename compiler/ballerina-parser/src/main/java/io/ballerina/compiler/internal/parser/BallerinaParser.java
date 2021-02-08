@@ -1171,6 +1171,13 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFunctionKeywordRhs(STNode metadata, STNode visibilityQualifier, List<STNode> qualifiers,
                                            STNode functionKeyword, boolean isObjectMember, boolean isObjectTypeDesc) {
         switch (peek().kind) {
+            case QUESTION_MARK_TOKEN:
+            case OPEN_BRACKET_TOKEN:
+            case PIPE_TOKEN:
+            case BITWISE_AND_TOKEN:
+                endContext();
+                return parseVarDeclWithFunctionType(metadata, visibilityQualifier, qualifiers, functionKeyword,
+                        STNodeFactory.createEmptyNode(), isObjectMember, isObjectTypeDesc, false);
             case IDENTIFIER_TOKEN:
                 return parseFuncDefOrFuncTypeDesc(metadata, visibilityQualifier, qualifiers,
                                                   functionKeyword, isObjectMember, isObjectTypeDesc);
@@ -10283,6 +10290,7 @@ public class BallerinaParser extends AbstractParser {
                 qualifierList = createFuncTypeQualNodeList(qualifiers, false);
                 break;
         }
+
         endContext();
         return STNodeFactory.createFunctionTypeDescriptorNode(qualifierList, functionKeyword, signature);
     }

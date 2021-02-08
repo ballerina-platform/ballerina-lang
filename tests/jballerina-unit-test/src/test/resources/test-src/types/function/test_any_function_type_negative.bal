@@ -39,13 +39,12 @@ function testFunctionTypedescWithTransactionalQualifier() {
     transactional function func;
 }
 
-function castFunctionVariable() {
-    function func = bar;
-    function(int) returns string val= <function(int) returns string> func;
-}
-
 function functionPointerInvocation() {
     function func = bar;
-    function(int) returns string val= func();
-    function(int) returns string val2= func(2, 2, "name");
+    function(int) returns string val = func();
+    function(int) returns string val2 = func(2, 2, "name");
+}
+
+function testFunctionTypedesc1() {
+    function f = (i, j) => i + j;
 }

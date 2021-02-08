@@ -28,19 +28,21 @@ import org.testng.annotations.Test;
 
 /**
  * Test class for ballerina `function` type.
+ *
+ *  @since 2.0.0
  */
-public class FunctionTypeTest {
+public class AnyFunctionTypeTest {
     private CompileResult functionTypeTestResult;
-    private CompileResult negativeCompileResult;
 
     @BeforeClass
     public void setup() {
-        functionTypeTestResult = BCompileUtil.compile("test-src/types/function/function-type.bal");
-        negativeCompileResult = BCompileUtil.compile("test-src/types/function/function-type-negative.bal");
+        functionTypeTestResult = BCompileUtil.compile("test-src/types/function/test_any_function_type.bal");
     }
 
     @Test
     public void testNeverTypeNegative() {
+        CompileResult negativeCompileResult =
+                BCompileUtil.compile("test-src/types/function/test_any_function_type_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'function', found 'string'", 31, 12);
@@ -49,16 +51,16 @@ public class FunctionTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "'transactional' qualifier not allowed", 39, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "function pointer with function type cannot be invoked", 49, 39);
+                "cannot invoke function pointer of type function", 44, 40);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'function (int) returns (string)', found 'other'", 49, 39);
+                "incompatible types: expected 'function (int) returns (string)', found 'other'", 44, 40);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "function pointer with function type cannot be invoked", 50, 40);
+                "cannot invoke function pointer of type function", 45, 41);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'function (int) returns (string)', found 'other'", 50, 40);
-
+                "incompatible types: expected 'function (int) returns (string)', found 'other'", 45, 41);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "cannot infer types of the arrow expression with unknown invokable type", 49, 18);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
-
     }
 
     @Test

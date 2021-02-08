@@ -3047,7 +3047,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             // Set Parameters
             for (ParameterNode child : funcSignature.parameters()) {
                 SimpleVariableNode param = (SimpleVariableNode) child.apply(this);
-                if (child instanceof RestParameterNode) {
+                if (child.kind() == SyntaxKind.REST_PARAM) {
                     functionTypeNode.restParam = (BLangSimpleVariable) param;
                 } else {
                     functionTypeNode.params.add((BLangVariable) param);

@@ -1500,9 +1500,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         boolean foundDefaultableParam = false;
         List<String> paramNames = new ArrayList<>();
-        BInvokableType bInvokableType;
         if (Symbols.isFlagOn(flags, Flags.ANY_FUNCTION)) {
-            bInvokableType = new BInvokableType(paramTypes, null, symTable.anyOrErrorType, null);
+            BInvokableType bInvokableType = new BInvokableType(paramTypes, null, symTable.anyOrErrorType, null);
             bInvokableType.flags = flags;
             BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                                                                              env.enclPkg.symbol.pkgID, bInvokableType,
@@ -1575,7 +1574,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                        env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos, SOURCE);
         }
 
-        bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
+        BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
         bInvokableType.flags = flags;
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                                                                          env.enclPkg.symbol.pkgID, bInvokableType,

@@ -76,10 +76,15 @@ function functionWithFunctionReturnType8() {
     function(int) returns int f = <function(int) returns int> func;
 }
 
+function functionWithFunctionReturnType9() returns function? {
+    function? func = bar;
+    return func;
+}
 
 function testFunctionWithFunctionReturnType() {
     error|() e1 = trap functionWithFunctionReturnType7();
     error|() e2 = trap functionWithFunctionReturnType8();
+    function f = <function> functionWithFunctionReturnType9();
     assertEquality(true, functionWithFunctionReturnType1() is function(int) returns int);
     assertEquality(true, functionWithFunctionReturnType2(bar) is function(int) returns int);
     assertEquality(true, functionWithFunctionReturnType3(bar) is function(int) returns int);
@@ -87,6 +92,7 @@ function testFunctionWithFunctionReturnType() {
     assertEquality(true, functionWithFunctionReturnType5(bar2) is function(int) returns int);
     assertEquality(true, functionWithFunctionReturnType6() is function(int) returns int);
     assertEquality(true, functionWithFunctionReturnType6() is function(int) returns int|string);
+    assertEquality(true, functionWithFunctionReturnType9() is function);
     assertEquality(true, e1 is error);
     assertEquality(false, e2 is error);
 }
@@ -161,8 +167,11 @@ function testObjectWithFunctionTypeField() {
 
 function testFunctionWithUnionType() {
     string|function j = "sample";
+    function|string m = "sample";
     string h = <string> j;
+    string n = <string> m;
     assertEquality("sample", h);
+    assertEquality("sample", n);
 
     string|function k = bar;
     function l = <function> k;
