@@ -49,7 +49,7 @@ public class ProjectFiles {
     public static final PathMatcher BAL_EXTENSION_MATCHER =
             FileSystems.getDefault().getPathMatcher("glob:**.bal");
     public static final PathMatcher BALR_EXTENSION_MATCHER =
-            FileSystems.getDefault().getPathMatcher("glob:**.balo");
+            FileSystems.getDefault().getPathMatcher("glob:**.bala");
 
     private ProjectFiles() {
     }
@@ -112,7 +112,7 @@ public class ProjectFiles {
         }
 
         DocumentData moduleMd = loadDocument(moduleDirPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
-        // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
+        // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md
         return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd);
     }
 
@@ -237,7 +237,7 @@ public class ProjectFiles {
         }
 
         if (!balrPath.toFile().canRead()) {
-            throw new ProjectException("insufficient privileges to balo: " + balrPath);
+            throw new ProjectException("insufficient privileges to bala: " + balrPath);
         }
     }
 }

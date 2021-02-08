@@ -236,7 +236,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                     CompletionItem completionItem = new CompletionItem();
                     completionItem.setLabel(name);
                     completionItem.setInsertText(name);
-                    completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
+                    completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldDescriptor.typeDescriptor()));
                     completionItems.add(new RecordFieldCompletionItem(context, fieldDescriptor, completionItem));
                 });
                 break;
@@ -246,7 +246,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                     CompletionItem completionItem = new CompletionItem();
                     completionItem.setLabel(name);
                     completionItem.setInsertText(name);
-                    completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
+                    completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldDescriptor.typeDescriptor()));
                     completionItems.add(new ObjectFieldCompletionItem(context, fieldDescriptor, completionItem));
                 });
                 boolean isClient = SymbolUtil.isClient(objTypeDesc);

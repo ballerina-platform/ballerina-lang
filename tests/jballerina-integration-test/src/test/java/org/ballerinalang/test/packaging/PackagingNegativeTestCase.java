@@ -257,12 +257,12 @@ public class PackagingNegativeTestCase extends BaseTest {
             writeToFile(manifestFilePath, content);
         }
 
-        String moduleBaloFileName = moduleName + "-"
+        String moduleBalaFileName = moduleName + "-"
                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                 + ProgramFileConstants.ANY_PLATFORM + "-"
                 + "0.0.2"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
-        String moduleBuildMsg = "target" + File.separator + "balo" + File.separator + moduleBaloFileName;
+        String moduleBuildMsg = "target" + File.separator + "bala" + File.separator + moduleBalaFileName;
         LogLeecher moduleBuildLeecher = new LogLeecher(moduleBuildMsg);
         balClient.runMain("build", new String[]{"-c", "-a"}, envVariables, new String[]{},
                 new LogLeecher[]{moduleBuildLeecher}, projectPath.toString());
