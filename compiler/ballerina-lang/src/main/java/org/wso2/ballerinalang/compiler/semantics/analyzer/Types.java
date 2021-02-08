@@ -4461,6 +4461,30 @@ public class Types {
         return Symbols.isFlagOn(type.flags, Flags.ISOLATED);
     }
 
+    BType getTypeWithoutNil(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return type;
+        }
+
+        BUnionType unionType = (BUnionType) type;
+        if (!unionType.isNullable()) {
+            return unionType;
+        }
+
+        List<BType> nonNilTypes = new ArrayList<>();
+        for (BType memberType : unionType.getMemberTypes()) {
+            if (!isAssignable(memberType, symTable.nilType)) {
+                nonNilTypes.add(memberType);
+            }
+        }
+
+        if (nonNilTypes.size() == 1) {
+            return nonNilTypes.get(0);
+        }
+
+        return BUnionType.create(null, new LinkedHashSet<>(nonNilTypes));
+    }
+
     private static class ListenerValidationModel {
         private final Types types;
         private final SymbolTable symtable;
