@@ -127,8 +127,7 @@ public class ConfigTomlParser {
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.STRING_TAG:
-                value = retrievePrimitiveValue(((TomlKeyValueNode) valueMap.get(variableName)).value(),
-                        variableName,
+                value = retrievePrimitiveValue(((TomlKeyValueNode) valueMap.get(variableName)).value(), variableName,
                         type);
                 break;
             case TypeTags.INTERSECTION_TAG:
