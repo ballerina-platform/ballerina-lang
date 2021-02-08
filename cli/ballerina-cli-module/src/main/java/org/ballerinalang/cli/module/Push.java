@@ -73,10 +73,10 @@ public class Push {
      * @param orgName       org name
      * @param moduleName    module name
      * @param version       module version
-     * @param baloPath      path to the balo
+     * @param balaPath      path to the bala
      */
     public static void execute(String url, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword,
-            String accessToken, String orgName, String moduleName, String version, Path baloPath) {
+            String accessToken, String orgName, String moduleName, String version, Path balaPath) {
         initializeSsl();
         HttpURLConnection conn = createHttpUrlConnection(convertToUrl(url), proxyHost, proxyPort, proxyUsername,
                 proxyPassword);
@@ -92,13 +92,13 @@ public class Push {
         conn.setChunkedStreamingMode(BUFFER_SIZE);
 
         try (DataOutputStream outputStream = new DataOutputStream(conn.getOutputStream())) {
-            // Send balo content by 1 kb chunks
+            // Send bala content by 1 kb chunks
             byte[] buffer = new byte[BUFFER_SIZE];
             int count;
             try (ProgressBar progressBar = new ProgressBar(
                     orgName + "/" + moduleName + ":" + version + " [project repo -> central]",
-                    getTotalFileSizeInKB(baloPath), 1000, outStream, ProgressBarStyle.ASCII, " KB", 1);
-                    FileInputStream fis = new FileInputStream(baloPath.toFile())) {
+                    getTotalFileSizeInKB(balaPath), 1000, outStream, ProgressBarStyle.ASCII, " KB", 1);
+                    FileInputStream fis = new FileInputStream(balaPath.toFile())) {
                 while ((count = fis.read(buffer)) > 0) {
                     outputStream.write(buffer, 0, count);
                     outputStream.flush();
@@ -106,7 +106,7 @@ public class Push {
                 }
             }
         } catch (IOException e) {
-            throw ErrorUtil.createCommandException("error occurred while uploading balo to central: " + e.getMessage());
+            throw ErrorUtil.createCommandException("error occurred while uploading bala to central: " + e.getMessage());
         }
 
         handleResponse(conn, orgName, moduleName, version);
@@ -168,12 +168,12 @@ public class Push {
      * @return size of the file in kb
      */
     private static long getTotalFileSizeInKB(Path filePath) {
-        byte[] baloContent;
+        byte[] balaContent;
         try {
-            baloContent = Files.readAllBytes(filePath);
-            return baloContent.length / 1024;
+            balaContent = Files.readAllBytes(filePath);
+            return balaContent.length / 1024;
         } catch (IOException e) {
-            throw ErrorUtil.createCommandException("cannot read the balo content");
+            throw ErrorUtil.createCommandException("cannot read the bala content");
         }
     }
 }

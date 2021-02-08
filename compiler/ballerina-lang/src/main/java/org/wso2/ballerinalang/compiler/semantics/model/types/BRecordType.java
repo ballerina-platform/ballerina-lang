@@ -74,7 +74,7 @@ public class BRecordType extends BStructureType implements RecordType {
     @Override
     public String toString() {
 
-        if (shouldPrintShape(tsymbol.name)) {
+        if (shouldPrintShape()) {
             // Try to print possible shape. But this may fail with self reference hence avoid .
             StringBuilder sb = new StringBuilder();
             sb.append(RECORD).append(SPACE).append(CLOSE_LEFT);

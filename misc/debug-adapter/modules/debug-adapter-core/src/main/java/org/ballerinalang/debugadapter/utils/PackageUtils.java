@@ -131,7 +131,7 @@ public class PackageUtils {
      */
     public static List<String> getModuleClassNames(SuspendedContext context) throws EvaluationException {
         try {
-            // Todo - use balo reader to derive module class names by accessing module balo files.
+            // Todo - use bala reader to derive module class names by accessing module bala files.
             return new ArrayList<>();
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +

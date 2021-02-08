@@ -149,14 +149,14 @@ public class PullCommand implements BLauncherCmd {
             }
         }
 
-        Path packagePathInBaloCache = ProjectUtils.createAndGetHomeReposPath()
-                .resolve(ProjectConstants.BALO_DIR_NAME).resolve(orgName).resolve(packageName);
-        // create directory path in balo cache
+        Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
+                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(orgName).resolve(packageName);
+        // create directory path in bala cache
         try {
-            createDirectories(packagePathInBaloCache);
+            createDirectories(packagePathInBalaCache);
         } catch (IOException e) {
             throw createLauncherException(
-                    "unexpected error occurred while creating package repository in balo cache: " + e.getMessage());
+                    "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
         }
 
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
@@ -164,7 +164,7 @@ public class PullCommand implements BLauncherCmd {
                 Settings settings = readSettings();
                 Proxy proxy = initializeProxy(settings.getProxy());
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
-                client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform,
+                client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                                    RepoUtils.getBallerinaVersion(), false);
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
