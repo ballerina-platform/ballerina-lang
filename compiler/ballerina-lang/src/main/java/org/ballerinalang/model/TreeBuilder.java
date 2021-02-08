@@ -60,7 +60,6 @@ import org.ballerinalang.model.tree.bindingpattern.ErrorMessageBindingPatternNod
 import org.ballerinalang.model.tree.bindingpattern.FieldBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.ListBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.MappingBindingPatternNode;
-import org.ballerinalang.model.tree.bindingpattern.ListBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.NamedArgBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.RestBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.SimpleBindingPatternNode;

@@ -3381,20 +3381,6 @@ public class Desugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createIfElseStmt(pos, condition, successBody, null);
     }
 
-    private BLangExpression createConditionForWildCardBindingPattern(boolean matchesAll, Location pos) {
-        return ASTBuilderUtil.createLiteral(pos, symTable.booleanType, matchesAll);
-    }
-
-    private BLangExpression createConditionForCaptureBindingPattern(BLangCaptureBindingPattern captureBindingPattern,
-                                                                    BLangSimpleVarRef matchExprVarRef) {
-        Location pos = captureBindingPattern.pos;
-        BLangSimpleVarRef captureBindingPatternVarRef =
-                declaredVarDef.get(captureBindingPattern.getIdentifier().getValue());
-        matchStmtsForPattern.add(ASTBuilderUtil.createAssignmentStmt(pos,
-                captureBindingPatternVarRef, matchExprVarRef));
-        return ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
-    }
-
     private BLangExpression createConditionForMatchPattern(BLangMatchPattern matchPattern,
                                                            BLangSimpleVarRef matchExprVarRef) {
         NodeKind patternKind = matchPattern.getKind();
