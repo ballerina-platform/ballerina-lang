@@ -868,43 +868,59 @@ function testFromJsonWithTypeTable() {
 
 }
 
-type IntVal record { int? x;};
+type IntVal record {int? x;};
 
-type Cases record {
-    Case[] Data;
-    string LastData;
-    string Source;
-    string DevBy;
+type PostGradStudent record {|
+    boolean employed;
+    string first_name;
+    string last_name?;
+    PermanentAddress? address;
+|};
+
+type PermanentAddress record {
+    string city;
+    string? country;
 };
 
-type Case record {
-  string ConfirmDate;
-  string No;
-  int? Age;
-  string Nation;
-  string? Detail;
-};
+type PostGradStudentArray PostGradStudent[];
+
+json[] jStudentArr = [
+    {
+        "first_name": "Radha",
+        "address": {
+            "apartment_no": 123,
+            "street": "Perera Mawatha",
+            "city": "Colombo",
+            "country": "Sri Lanka"
+        },
+        "employed": false
+    },
+    {
+        "first_name": "Nilu",
+        "last_name": "Peiris",
+        "address": null,
+        "employed": true
+    },
+    {
+        "first_name": "Meena",
+        "address": {
+            "street": "Main Street",
+            "city": "Colombo",
+            "country": null
+        },
+        "employed": false
+    }
+];
 
 function testFromJsonWithTypeWithNullValues() {
     json j1 = {x: null};
     IntVal val = checkpanic j1.fromJsonWithType(IntVal);
-    assert(val.toString(), "{\"x\":null}");
+    assert(val, {x:()});
 
-    json j2 =  {"Data":
-    [{"ConfirmDate":"2021-01-14 00:00:00","No":"11262","Age":(),
-    "Nation":"\u{0e44}\u{0e21}\u{0e48}\u{0e17}\u{0e23}\u{0e32}\u{0e1a}","Detail":()},
-    {"ConfirmDate":"2021-01-14 00:00:00","No":"11261","Age":23,
-    "Nation":"\u{0e44}\u{0e21}\u{0e48}\u{0e17}\u{0e23}\u{0e32}\u{0e1a}","Detail":()},
-    {"ConfirmDate":"2021-01-14 00:00:00","No":"11260","Age":(),
-    "Nation":"\u{0e44}\u{0e21}\u{0e48}\u{0e17}\u{0e23}\u{0e32}\u{0e1a}","Detail":"Some Detail"}
-    ],"LastData":"2021-01-14 00:00:00","Source":"https://data.go.th/dataset/covid-19-daily",
-    "DevBy":"https://www.kidkarnmai.com/"};
-    Cases cases = checkpanic j2.fromJsonWithType(Cases);
-    assert(cases.toString(), "{\"Data\":[{\"ConfirmDate\":\"2021-01-14 00:00:00\",\"No\":\"11262\",\"Age\":null," +
-    "\"Nation\":\"ไม่ทราบ\",\"Detail\":null},{\"ConfirmDate\":\"2021-01-14 00:00:00\",\"No\":\"11261\",\"Age\":23," +
-    "\"Nation\":\"ไม่ทราบ\",\"Detail\":null},{\"ConfirmDate\":\"2021-01-14 00:00:00\",\"No\":\"11260\",\"Age\":null," +
-    "\"Nation\":\"ไม่ทราบ\",\"Detail\":\"Some Detail\"}],\"LastData\":\"2021-01-14 00:00:00\"," +
-    "\"Source\":\"https://data.go.th/dataset/covid-19-daily\",\"DevBy\":\"https://www.kidkarnmai.com/\"}");
+    PostGradStudent[] studentArr = checkpanic jStudentArr.fromJsonWithType(PostGradStudentArray);
+    assert(studentArr, [{employed:false,first_name:"Radha",address:{city:"Colombo",country:"Sri Lanka",
+    apartment_no:123,street:"Perera Mawatha"}},{employed:true,first_name:"Nilu",last_name:"Peiris",address:()},
+    {employed:false,first_name:"Meena",address:{city:"Colombo",country:(),street:"Main Street"}}]);
 }
 
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
