@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Contains all the packages of the Ballerina Standard Library.
+ * Represents ballerina builtin types.
+ *
+ * @since 2.0.0
  */
-public class PackageLibrary {
+public class BuiltInType {
     @Expose
-    public String libVersion;
+    public String name = "";
     @Expose
     public String description;
-    @Expose
-    public List<DocPackage> packages = new ArrayList<>();
-    @Expose
-    public List<BuiltInType> builtinTypesAndKeywords = new ArrayList<>();
+
+    public BuiltInType(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 }

@@ -226,11 +226,13 @@ public class Type {
         } else if (node instanceof ObjectTypeDescriptorNode) {
             ObjectTypeDescriptorNode objectType = (ObjectTypeDescriptorNode) node;
             type.name = objectType.toString();
-            type.category = "builtin";
+            type.category = "other";
+            type.generateUserDefinedTypeLink = false;
         } else if (node instanceof SingletonTypeDescriptorNode) {
             SingletonTypeDescriptorNode singletonTypeDesc = (SingletonTypeDescriptorNode) node;
             type.name = singletonTypeDesc.simpleContExprNode().toString();
-            type.category = "builtin";
+            type.category = "other";
+            type.generateUserDefinedTypeLink = false;
         } else if (node instanceof ParenthesisedTypeDescriptorNode) {
             ParenthesisedTypeDescriptorNode parenthesisedNode = (ParenthesisedTypeDescriptorNode) node;
             type.elementType = fromNode(parenthesisedNode.typedesc(), semanticModel);

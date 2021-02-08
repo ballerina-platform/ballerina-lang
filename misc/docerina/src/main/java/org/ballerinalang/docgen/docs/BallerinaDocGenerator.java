@@ -31,6 +31,7 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.docs.utils.PathToJson;
+import org.ballerinalang.docgen.generator.model.BuiltInType;
 import org.ballerinalang.docgen.generator.model.CentralStdLibrary;
 import org.ballerinalang.docgen.generator.model.DocPackage;
 import org.ballerinalang.docgen.generator.model.DocPackageMetadata;
@@ -47,12 +48,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -60,6 +65,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Main class to generate a ballerina documentation.
@@ -76,6 +83,7 @@ public class BallerinaDocGenerator {
     private static final String SEARCH_DATA_JS = "search-data.js";
     private static final String SEARCH_DIR = "doc-search";
     private static final String DATA_DIR = "data";
+    private static final String BUILTIN_TYPES_KEYWORDS_DESCRIPTION_DIR = "builtin-types-keywords-descriptions";
 
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
             .excludeFieldsWithoutExposeAnnotation().create();
@@ -188,6 +196,7 @@ public class BallerinaDocGenerator {
         writeAPIDocs(packageLib, apiDocsRoot, true);
 
         // Create the central json
+        centralLib.builtinTypesAndKeywords.addAll(packageLib.builtinTypesAndKeywords);
         String json = gson.toJson(centralLib);
         File jsonFile = new File(apiDocsRoot + File.separator + DATA_DIR + File.separator + CENTRAL_DOC_DATA_JSON);
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),
@@ -233,6 +242,7 @@ public class BallerinaDocGenerator {
         if (packageLib.packages.size() == 0) {
             return;
         }
+        packageLib.builtinTypesAndKeywords = getBuiltInTypesAndKeywords();
         if (packageLib.packages.get(0).modules.size() != 0) {
             if (!isMerge) {
                 output = packageLib.packages.get(0).name.equals("") ? output + File.separator +
@@ -507,6 +517,43 @@ public class BallerinaDocGenerator {
             moduleDocMap.put(moduleName, moduleDoc);
         }
         return moduleDocMap;
+    }
+
+    private static List<BuiltInType> getBuiltInTypesAndKeywords() {
+
+        List<BuiltInType> builtInTypesAndKeywords = new ArrayList<>();
+        // Iterate through JAR resources and add builtin types and descriptions
+        CodeSource src = BallerinaDocGenerator.class.getProtectionDomain().getCodeSource();
+        if (src != null) {
+            URL jar = src.getLocation();
+            try {
+                ZipInputStream zip = new ZipInputStream(jar.openStream());
+                while (true) {
+                    ZipEntry e = zip.getNextEntry();
+                    if (e == null) {
+                        break;
+                    }
+                    String name = e.getName();
+                    if (name.startsWith(BUILTIN_TYPES_KEYWORDS_DESCRIPTION_DIR + "/")
+                            && !name.equals(BUILTIN_TYPES_KEYWORDS_DESCRIPTION_DIR + "/")) {
+                        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
+                        if (in != null) {
+                            String desc = new BufferedReader(new InputStreamReader(in)).lines()
+                                    .collect(Collectors.joining("\n"));
+                            builtInTypesAndKeywords.add(new BuiltInType(name
+                                    .replace(BUILTIN_TYPES_KEYWORDS_DESCRIPTION_DIR + "/", "")
+                                    .replace(".md", ""), desc));
+                        }
+                    }
+                }
+            } catch (IOException exp) {
+                out.printf("docerina: API documentation generation failed at getting builtin type mds %n",
+                        exp.getMessage());
+                log.error("API documentation generation failed at getting builtin type mds:", exp);
+            }
+        }
+        builtInTypesAndKeywords.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+        return builtInTypesAndKeywords;
     }
 
     public static void setPrintStream(PrintStream out) {

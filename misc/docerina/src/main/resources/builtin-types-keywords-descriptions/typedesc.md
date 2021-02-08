@@ -1,0 +1,1 @@
+A type descriptor. A type descriptor value is an immutable value representing a resolved type descriptor. The type typedesc contains all values with basic type typedesc. A typedesc value t belongs to a type typedesc<T> if and only if the type described by t is a subtype of T. The typedesc type is thus covariant with its type parameter.
