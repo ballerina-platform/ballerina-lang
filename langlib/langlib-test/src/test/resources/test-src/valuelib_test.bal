@@ -955,7 +955,7 @@ function testFromJsonWithTypeWithNullValuesNegative() {
         var message = val.detail()["message"];
         string messageString = message is error? message.toString(): message.toString();
         assert(val.message(), "{ballerina/lang.value}ConversionError");
-        assert(messageString, "cannot convert '()' to type 'PostGradStudent'");
+        assert(<string> checkpanic val.detail()["message"], "cannot convert '()' to type 'PostGradStudent'");
     }
 }
 
