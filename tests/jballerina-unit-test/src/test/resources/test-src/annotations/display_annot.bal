@@ -33,14 +33,35 @@ type Rec record {|
     int i;
 |};
 
-@display {iconPath: "service.icon", label: "service", misc: "Other info"}
-service on new L() {
+@display {iconPath: "service.icon", label: "service", "misc": "Other info"}
+service on new Listener() {
     @display {iconPath: "k-func.icon", label: "k method"}
     function k() {
     }
 
     @display {iconPath: "k.icon", label: "resource method"}
-    function resource get k() {
+    resource function get k() {
     }
 }
 
+class Listener {
+    public function init() {
+    }
+
+    public function attach(service object {} s, string|string[]? name = ()) returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+        return ();
+    }
+
+    public function immediateStop() returns error? {
+        return ();
+    }
+}

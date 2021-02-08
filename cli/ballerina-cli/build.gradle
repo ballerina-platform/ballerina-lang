@@ -22,7 +22,7 @@ configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
-    distributionBalo
+    distributionBala
     distributionBirJar
     balRt
     testRt
@@ -49,8 +49,8 @@ dependencies {
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
 
-    distributionBalo project(path: ':ballerina-langlib:test', configuration: 'distributionBalo')
-    distributionBalo project(path: ':testerina:testerina-core', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-langlib:test', configuration: 'distributionBala')
+    distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
     distributionBirJar project(path: ':testerina:testerina-core', configuration: 'distributionBirJar')
 
     testRuntime project(":ballerina-lang-test")
@@ -62,8 +62,8 @@ dependencies {
 }
 
 task createTestDistributionCache(type: Copy) {
-    dependsOn configurations.distributionBalo
-    from configurations.distributionBalo
+    dependsOn configurations.distributionBala
+    from configurations.distributionBala
     into "$buildDir/repo"
 }
 

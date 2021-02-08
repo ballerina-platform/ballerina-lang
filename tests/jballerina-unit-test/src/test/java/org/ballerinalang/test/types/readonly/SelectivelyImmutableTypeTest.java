@@ -71,7 +71,8 @@ public class SelectivelyImmutableTypeTest {
                 {"testReadOnlyCastConstructingReadOnlyValues"},
                 {"testReadOnlyCastConstructingReadOnlyValuesPropagation"},
                 {"testValidInitializationOfReadOnlyClassIntersectionWithReadOnly"},
-                {"testValidInitializationOfNonReadOnlyClassIntersectionWithReadOnly"}
+                {"testValidInitializationOfNonReadOnlyClassIntersectionWithReadOnly"},
+                {"testFunctionWithReturnTypeAnyToReadonly"}
         };
     }
 

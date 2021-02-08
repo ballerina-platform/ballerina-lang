@@ -126,7 +126,7 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + ": 12 Ballerina");
         Assert.assertEquals(results.getString(++i), msg + ": 15 Ballerina");
         Assert.assertEquals(results.getString(++i), msg + ": 20 Ballerina");
-        Assert.assertEquals(results.getString(++i), msg + ": 20 Balo");
+        Assert.assertEquals(results.getString(++i), msg + ": 20 bala");
         Assert.assertEquals(results.getString(++i), "Default Value is : 20 NothingToMatch");
         Assert.assertEquals(results.getString(++i), msg + ": 15 Bal 100");
         Assert.assertEquals(results.getString(++i), "Default Value is : 15 Bal 200 230");

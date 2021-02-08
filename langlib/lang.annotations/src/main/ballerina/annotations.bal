@@ -87,4 +87,4 @@ public const annotation record {
     string iconPath?;
 } display on source type, source class,
       source function, source return, source parameter, source field, source listener,
-      source var, source const, source annotation;
+      source var, source const, source annotation, source service;

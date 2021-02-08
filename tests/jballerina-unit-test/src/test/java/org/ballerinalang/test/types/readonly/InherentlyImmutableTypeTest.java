@@ -18,9 +18,11 @@
 
 package org.ballerinalang.test.types.readonly;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,6 +44,16 @@ public class InherentlyImmutableTypeTest {
     @Test
     public void testReadonlyType() {
         BRunUtil.invoke(result, "testReadonlyType");
+    }
+
+    @Test
+    public void testReadonlyTypeNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/types/readonly" +
+                "/test_inherently_immutable_type_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'any', found 'readonly'", 19, 14);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @AfterClass

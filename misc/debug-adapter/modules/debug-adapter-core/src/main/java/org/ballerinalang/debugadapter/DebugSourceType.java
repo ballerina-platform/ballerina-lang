@@ -20,5 +20,6 @@ package org.ballerinalang.debugadapter;
  * Ballerina source types.
  */
 public enum DebugSourceType {
-    PACKAGE, SINGLE_FILE
+    PACKAGE,
+    SINGLE_FILE
 }
