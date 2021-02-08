@@ -93,7 +93,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -548,10 +547,6 @@ public class JvmPackageGen {
         // link module functions with class names
 
         linkModuleFunctions(module, initClass, isEntry, jvmClassMap);
-
-
-        // link module init function that will be generated
-        linkModuleFunction(module.packageID, initClass, CURRENT_MODULE_INIT);
 
         // link module stop function that will be generated
         linkModuleFunction(module.packageID, initClass, MODULE_STOP);
