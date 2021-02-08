@@ -957,13 +957,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resolveTupleType(BLangTupleVariable varNode) {
         List<BType> memberTypes = new ArrayList<>(varNode.memberVariables.size());
         for (BLangVariable memberVariable : varNode.memberVariables) {
-            if (memberVariable.getKind() == NodeKind.TUPLE_VARIABLE) {
-                memberTypes.add(resolveTupleType((BLangTupleVariable) memberVariable));
-            } else {
-                memberTypes.add(symTable.noType);
-            }
+            memberTypes.add(getTupleMemberType(memberVariable));
         }
-        return new BTupleType(memberTypes);
+
+        BLangVariable restVariable = varNode.restVariable;
+        if (restVariable == null) {
+            return new BTupleType(memberTypes);
+        }
+
+        return new BTupleType(null, memberTypes, getTupleMemberType(restVariable), 0);
+    }
+
+    private BType getTupleMemberType(BLangVariable memberVariable) {
+        if (memberVariable.getKind() == NodeKind.TUPLE_VARIABLE) {
+            return resolveTupleType((BLangTupleVariable) memberVariable);
+        }
+        return symTable.noType;
     }
 
     public void visit(BLangErrorVariable varNode) {
