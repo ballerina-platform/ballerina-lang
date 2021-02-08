@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
@@ -635,6 +636,15 @@ public class TypeChecker {
 
             return checkIsType(((BParameterizedType) sourceType).getParamValueType(),
                                ((BParameterizedType) targetType).getParamValueType(), unresolvedTypes);
+        }
+
+        if (sourceTypeTag == TypeTags.READONLY_TAG) {
+            return checkIsType(PredefinedTypes.ANY_AND_READONLY_OR_ERROR_TYPE,
+                    targetType, unresolvedTypes);
+        }
+
+        if (targetTypeTag == TypeTags.READONLY_TAG) {
+            return checkIsType(sourceType, PredefinedTypes.ANY_AND_READONLY_OR_ERROR_TYPE, unresolvedTypes);
         }
 
         switch (targetTypeTag) {
@@ -1538,6 +1548,7 @@ public class TypeChecker {
     private static boolean checkIsAnyType(Type sourceType) {
         switch (sourceType.getTag()) {
             case TypeTags.ERROR_TAG:
+            case TypeTags.READONLY_TAG:
                 return false;
             case TypeTags.UNION_TAG:
             case TypeTags.ANYDATA_TAG:

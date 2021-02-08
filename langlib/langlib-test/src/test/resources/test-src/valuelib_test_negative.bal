@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,7 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function cloneWithParams() {
-    int a = 4;
-    int x = a.clone(true);
+import ballerina/lang.'value as value;
+
+function testCyclicCloneableTypeWithAny() {
+    value:Cloneable x = error("x");
+    any y = x; // Should fail since `value:Cloneable` includes `error` and `x` can hold an error.
 }
