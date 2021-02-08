@@ -6,6 +6,14 @@
   "source": "type_def/source/source1.bal",
   "items": [
     {
+      "label": "TEST_TYPE",
+      "kind": "TypeParameter",
+      "detail": "Function",
+      "sortText": "M",
+      "insertText": "TEST_TYPE",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error",
       "kind": "Event",
       "detail": "Error",
