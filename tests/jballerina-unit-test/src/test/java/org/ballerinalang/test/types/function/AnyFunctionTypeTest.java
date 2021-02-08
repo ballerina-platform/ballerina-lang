@@ -53,11 +53,7 @@ public class AnyFunctionTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot invoke function pointer of type function", 44, 40);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'function (int) returns (string)', found 'other'", 44, 40);
-        BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot invoke function pointer of type function", 45, 41);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'function (int) returns (string)', found 'other'", 45, 41);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot infer types of the arrow expression with unknown invokable type", 49, 18);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
