@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -36,4 +37,5 @@ public abstract class BLangMatchPattern extends BLangNode implements MatchPatter
     public boolean matchGuardIsAvailable;
     public boolean isLastPattern;
     public Map<String, BVarSymbol> declaredVars = new HashMap<>();
+    public Scope scope;
 }

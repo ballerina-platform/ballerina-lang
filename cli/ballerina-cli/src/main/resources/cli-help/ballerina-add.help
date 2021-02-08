@@ -2,7 +2,7 @@ NAME
        ballerina-add - Add a new module to the current Ballerina package
 
 SYNOPSIS
-       ballerina add <module-name> [-t <template-name> | --template <template-name>]
+       bal add <module-name> [-t <template-name> | --template <template-name>]
 
 
 DESCRIPTION
@@ -22,7 +22,7 @@ OPTIONS
 
 EXAMPLES
        Add a module
-          $ ballerina add hello
+          $ bal add hello
 
        Add a module with a Ballerina service.
-          $ ballerina add helloservice -t service
+          $ bal add helloservice -t service

@@ -1,0 +1,42 @@
+[
+  {
+    "description": "Define a Person type.",
+    "code": "type Person object { public int age; public string firstName; public string lastName; function getFullName() returns string; };"
+  },
+  {
+    "description": "Define a Employee type.",
+    "code": "type Employee object {  *Person; public float|string salary;  function getSalary() returns float|string; };"
+  },
+  {
+    "description": "Define a Owner class.",
+    "code": "class Owner { public string status = \"\"; }"
+  },
+  {
+    "description": "Define a Manager class.",
+    "code": "class Manager { *Employee; *Owner; public string dpt; public float salary; function init(int age, string firstName, string lastName, string status) { self.age = age; self.firstName = firstName; self.lastName = lastName; self.status = status; self.salary = 2000.0; self.dpt = \"HR\"; } function getFullName() returns string { return self.firstName + \" \" + self.lastName; } function getSalary() returns float { return self.salary; } }"
+  },
+  {
+    "description": "Create new person object.",
+    "code": "Manager p = new Manager(5, \"John\", \"Doe\", \"Senior\");"
+  },
+  {
+    "description": "Run instance method.",
+    "code": "p.age",
+    "expr": "5"
+  },
+  {
+    "description": "Run instance method.",
+    "code": "p.dpt",
+    "expr": "\"HR\""
+  },
+  {
+    "description": "Run instance method.",
+    "code": "p.getFullName()",
+    "expr": "\"John Doe\""
+  },
+  {
+    "description": "Run instance method.",
+    "code": "p.getSalary()",
+    "expr": "2000.0"
+  }
+]

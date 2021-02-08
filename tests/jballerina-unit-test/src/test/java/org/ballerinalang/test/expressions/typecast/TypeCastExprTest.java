@@ -31,6 +31,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -297,13 +298,12 @@ public class TypeCastExprTest {
     @Test
     public void testIncompatibleCast() {
         CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/incompatible-cast-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 6);
+        Assert.assertEquals(res.getErrorCount(), 5);
         BAssertUtil.validateError(res, 0, "incompatible types: expected 'Person', found 'Student'", 24, 16);
         BAssertUtil.validateError(res, 1, "incompatible types: expected 'float', found 'int'", 33, 16);
         BAssertUtil.validateError(res, 2, "incompatible types: expected 'float', found 'int'", 33, 19);
         BAssertUtil.validateError(res, 3, "incompatible types: expected 'float', found 'int'", 33, 22);
         BAssertUtil.validateError(res, 4, "incompatible types: expected 'float', found 'int'", 37, 18);
-        BAssertUtil.validateError(res, 5, "incompatible types: 'any[]' cannot be cast to 'json'", 43, 24);
     }
 
     @Test(description = "Test casting a JSON integer to a string")
@@ -703,5 +703,10 @@ public class TypeCastExprTest {
     public void testAnonRecordInCast() {
         BValue[] returns = BRunUtil.invoke(result, "testAnonRecordInCast");
         Assert.assertEquals(returns[0].stringValue(), "{name:\"Pubudu\"}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

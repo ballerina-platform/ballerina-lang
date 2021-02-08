@@ -1,4 +1,5 @@
 import ballerina/lang.'error;
+import ballerina/lang.'value;
 
 function errorConstructReasonTest() returns [error, error, error, string, any, string] {
     error er1 = error("error1");
@@ -45,19 +46,19 @@ function errorTrapTest(int i) returns string|error {
     return val;
 }
 
-type TrxErrorData record {
+type TrxErrorData record {|
     string message = "";
     error cause?;
     string data = "";
-};
+|};
 
 type TrxError error<TrxErrorData>;
 
-type TrxErrorData2 record {
+type TrxErrorData2 record {|
     string message = "";
     error cause?;
     map<string> data = {};
-};
+|};
 
 public function testCustomErrorDetails() returns error {
     TrxError err = error TrxError("trxErr", data = "test");
@@ -125,7 +126,8 @@ function testOneLinePanic() returns string[] {
         results[3] = error3.message();
         var detail = error3.detail();
         results[4] = <string> checkpanic detail.get("message");
-        results[5] = detail.get("statusCode").toString();
+        var statusCode = detail.get("statusCode");
+        results[5] = statusCode is error? statusCode.toString() : statusCode.toString();
     }
 
     return results;
@@ -154,7 +156,7 @@ function testGenericErrorWithDetailRecord() returns boolean {
     int detailStatusCode = 123;
     error e = error(reason, message = detailMessage, statusCode = detailStatusCode);
     string errReason = e.message();
-    map<anydata|readonly> errDetail = e.detail();
+    map<value:Cloneable> errDetail = e.detail();
     return errReason == reason && <string> checkpanic errDetail.get("message") == detailMessage &&
             <int> checkpanic errDetail.get("statusCode") == detailStatusCode;
 }
@@ -201,7 +203,7 @@ function testErrorConstrWithConstLiteralForConstReason() returns error {
 
 function testUnspecifiedErrorDetailFrozenness() returns boolean {
     error e1 = error("reason 1");
-    map<anydata|readonly> m1 = e1.detail();
+    map<value:Cloneable> m1 = e1.detail();
     error? err = trap addValueToMap(m1, "k", 1);
     return err is error && err.message() == "{ballerina/lang.map}InvalidUpdate";
 }
@@ -279,8 +281,8 @@ public function testStackTraceInNative() {
 const C1 = "x";
 const C2 = "y";
 
-type C1E error<record { string message?; error cause?; }>;
-type C2E error<record { string message?; error cause?; int code; }>;
+type C1E error<record {| string message?; error cause?; |}>;
+type C2E error<record {| string message?; error cause?; int code; |}>;
 
 public function testPanicOnErrorUnion(int i) returns string {
     var res = testFunc(i);
@@ -368,6 +370,23 @@ function testUnionErrorTypeDescriptionInferring() {
     error|TrxError e = error("IAmAInferedUnionErr");
     error<*> err = e;
     assertEquality(err.detail().toString(), e.detail().toString());
+}
+
+type SampleErrorData record {
+    string message?;
+    error cause?;
+    string info;
+    boolean fatal;
+};
+
+type SampleError error<SampleErrorData>;
+
+function testErrorBindingPattern() {
+    string i;
+    boolean b;
+    error(info=i,fatal=b) = error SampleError("Sample Error", info = "Some Info", fatal = false);
+    assertEquality(i, "Some Info");
+    assertEquality(b, false);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

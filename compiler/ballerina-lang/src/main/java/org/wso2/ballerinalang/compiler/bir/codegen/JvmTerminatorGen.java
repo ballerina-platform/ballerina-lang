@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JavaMethodCall;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -128,6 +129,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_E
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_LOCAL_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_TRANSACTIONAL_FUNCTION_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_TRANSACTIONAL_LOCAL_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
@@ -231,6 +234,7 @@ public class JvmTerminatorGen {
             case TypeTags.HANDLE:
             case TypeTags.TYPEDESC:
             case TypeTags.READONLY:
+            case TypeTags.STREAM:
                 mv.visitInsn(ACONST_NULL);
                 break;
             case JTypeTags.JTYPE:
@@ -470,7 +474,7 @@ public class JvmTerminatorGen {
         int argsCount = callIns.args.size();
         while (argIndex < argsCount) {
             BIROperand arg = callIns.args.get(argIndex);
-            this.visitArg(arg);
+            this.loadVar(arg.variableDcl);
             argIndex += 1;
         }
 
@@ -551,7 +555,7 @@ public class JvmTerminatorGen {
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
         while (argIndex < argsCount) {
             BIROperand arg = callIns.args.get(argIndex);
-            this.visitArg(arg);
+            this.loadVar(arg.variableDcl);
             argIndex += 1;
         }
         if (callIns.varArgExist) {
@@ -616,7 +620,7 @@ public class JvmTerminatorGen {
         int argsCount = callIns.args.size();
         while (argIndex < argsCount) {
             BIROperand arg = callIns.args.get(argIndex);
-            this.visitArg(arg);
+            this.loadVar(arg.variableDcl);
             argIndex += 1;
         }
 
@@ -709,11 +713,10 @@ public class JvmTerminatorGen {
         int argsCount = callIns.args.size();
         int i = 0;
         while (i < argsCount) {
-            BIROperand arg = callIns.args.get(i);
-            boolean userProvidedArg = this.visitArg(arg);
-            this.loadBooleanArgToIndicateUserProvidedArg(
-                    JvmCodeGenUtil.isBallerinaBuiltinModule(packageID.orgName.getValue(), packageID.name.getValue()),
-                    userProvidedArg);
+            BIRArgument arg = callIns.args.get(i);
+            this.loadArgument(arg);
+            this.loadStateOfArgument(arg, JvmCodeGenUtil.isBallerinaBuiltinModule(packageID.orgName.getValue(),
+                                     packageID.name.getValue()));
             i += 1;
         }
         BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
@@ -778,8 +781,8 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(L2I);
             j += 1;
             // i + 1 is used since we skip the first argument (self)
-            BIROperand arg = callIns.args.get(i + 1);
-            boolean userProvidedArg = this.visitArg(arg);
+            BIRArgument arg = callIns.args.get(i + 1);
+            this.loadArgument(arg);
 
             // Add the to the rest params array
             jvmCastGen.addBoxInsn(this.mv, arg.variableDcl.type);
@@ -790,7 +793,7 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(L2I);
             j += 1;
 
-            this.loadBooleanArgToIndicateUserProvidedArg(isBuiltInModule, userProvidedArg);
+            this.loadStateOfArgument(arg, isBuiltInModule);
             jvmCastGen.addBoxInsn(this.mv, symbolTable.booleanType);
             this.mv.visitInsn(AASTORE);
 
@@ -805,28 +808,36 @@ public class JvmTerminatorGen {
         jvmCastGen.addUnboxInsn(this.mv, returnType);
     }
 
-    private void loadBooleanArgToIndicateUserProvidedArg(boolean isBuiltInModule, boolean userProvided) {
+    private void loadStateOfArgument(BIRArgument arg, boolean isBuiltInModule) {
         if (isBuiltInModule) {
             return;
         }
         // Extra boolean is not gen for extern functions for now until the wrapper function is implemented.
         // We need to refactor this method. I am not sure whether userProvided flag make sense
-        if (userProvided) {
-            this.mv.visitInsn(ICONST_1);
-        } else {
-            this.mv.visitInsn(ICONST_0);
+        switch (arg.argState) {
+            case PROVIDED:
+                this.mv.visitInsn(ICONST_1);
+                break;
+            case NOT_PROVIDED:
+                this.mv.visitInsn(ICONST_0);
+                break;
+            case CONDITIONALLY_PROVIDED:
+                this.loadVar(arg.condition.variableDcl);
+                break;
         }
     }
 
-    private boolean visitArg(BIROperand arg) {
+    private void loadArgument(BIRArgument arg) {
         BIRNode.BIRVariableDcl varDcl = arg.variableDcl;
-        if (varDcl.name.value.startsWith("_")) {
-            loadDefaultValue(this.mv, varDcl.type);
-            return false;
+        switch (arg.argState) {
+            case PROVIDED:
+            case CONDITIONALLY_PROVIDED:
+                this.loadVar(varDcl);
+                break;
+            case NOT_PROVIDED:
+                loadDefaultValue(this.mv, varDcl.type);
+                break;
         }
-
-        this.loadVar(varDcl);
-        return true;
     }
 
     private void genAsyncCallTerm(BIRTerminator.AsyncCall callIns, int localVarOffset, String moduleClassName,
@@ -858,12 +869,12 @@ public class JvmTerminatorGen {
         this.mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
         int paramIndex = 1;
-        for (BIROperand arg : callIns.args) {
+        for (BIRArgument arg : callIns.args) {
             this.mv.visitInsn(DUP);
             this.mv.visitLdcInsn((long) paramIndex);
             this.mv.visitInsn(L2I);
 
-            boolean userProvidedArg = this.visitArg(arg);
+            this.loadArgument(arg);
             // Add the to the rest params array
             jvmCastGen.addBoxInsn(this.mv, arg.variableDcl.type);
             this.mv.visitInsn(AASTORE);
@@ -873,8 +884,7 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn((long) paramIndex);
             this.mv.visitInsn(L2I);
 
-            this.loadBooleanArgToIndicateUserProvidedArg(JvmCodeGenUtil.isBallerinaBuiltinModule(orgName, moduleName),
-                                                         userProvidedArg);
+            this.loadStateOfArgument(arg, JvmCodeGenUtil.isBallerinaBuiltinModule(orgName, moduleName));
             jvmCastGen.addBoxInsn(this.mv, symbolTable.booleanType);
             this.mv.visitInsn(AASTORE);
             paramIndex += 1;
@@ -943,7 +953,8 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn(workerName);
         }
 
-        this.submitToScheduler(callIns.lhsOp, moduleClassName, attachedType, parentFunction, concurrent);
+        this.submitToScheduler(callIns.lhsOp, moduleClassName, attachedType, parentFunction, concurrent,
+                callIns.transactional);
     }
 
     private void generateWaitIns(BIRTerminator.Wait waitInst, int localVarOffset) {
@@ -1051,7 +1062,7 @@ public class JvmTerminatorGen {
 
         // load args
         int paramIndex = 1;
-        for (BIROperand arg : fpCall.args) {
+        for (BIRArgument arg : fpCall.args) {
             this.mv.visitInsn(DUP);
             this.mv.visitIntInsn(BIPUSH, paramIndex);
             this.loadVar(arg.variableDcl);
@@ -1064,7 +1075,7 @@ public class JvmTerminatorGen {
             paramIndex += 1;
         }
 
-        // if async, we submit this to sceduler (worker scenario)
+        // if async, we submit this to scheduler (worker scenario)
 
         if (fpCall.isAsync) {
             String workerName = fpCall.lhsOp.variableDcl.metaVarName;
@@ -1089,7 +1100,7 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName",
                                     String.format("(L%s;L%s;)L%s;", FUNCTION_POINTER, STRING_VALUE, STRING_VALUE),
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, true);
+            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, true, fpCall.transactional);
             Label afterSubmit = new Label();
             this.mv.visitJumpInsn(GOTO, afterSubmit);
             this.mv.visitLabel(notConcurrent);
@@ -1105,7 +1116,7 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName",
                                     String.format("(L%s;L%s;)L%s;", FUNCTION_POINTER, STRING_VALUE, STRING_VALUE),
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, false);
+            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, false, fpCall.transactional);
             this.mv.visitLabel(afterSubmit);
         } else {
             this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply",
@@ -1205,7 +1216,7 @@ public class JvmTerminatorGen {
     }
 
     private void submitToScheduler(BIROperand lhsOp, String moduleClassName, BType attachedType,
-                                   String parentFunction, boolean concurrent) {
+                                   String parentFunction, boolean concurrent, boolean transactional) {
 
         String metaDataVarName;
         ScheduleFunctionInfo strandMetaData;
@@ -1220,7 +1231,15 @@ public class JvmTerminatorGen {
         }
         asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, strandMetaData);
         this.mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, String.format("L%s;", STRAND_METADATA));
-        if (concurrent) {
+        if (transactional && concurrent) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_TRANSACTIONAL_FUNCTION_METHOD,
+                    String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, B_FUNCTION_POINTER,
+                            STRAND_CLASS, TYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
+        } else if (transactional) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_TRANSACTIONAL_LOCAL_METHOD,
+                    String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, B_FUNCTION_POINTER,
+                            STRAND_CLASS, TYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
+        } else if (concurrent) {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
                                String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, B_FUNCTION_POINTER,
                                              STRAND_CLASS, TYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);

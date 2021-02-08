@@ -55,27 +55,27 @@ public class ObjectTypeReferenceTest {
                 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[Foo, Foo]'", 52, 1);
+                                  "invalid cyclic type reference in '[Foo, Foo]'", 52, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[A, B, C, D, A]'", 57, 1);
+                                  "invalid cyclic type reference in '[A, B, C, D, A]'", 57, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[C, E, C]'", 57, 1);
+                                  "invalid cyclic type reference in '[C, E, C]'", 57, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[B, C, D, A, B]'", 61, 1);
+                                  "invalid cyclic type reference in '[B, C, D, A, B]'", 61, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                "cyclic type reference in '[C, E, C]'", 61, 1);
+                                "invalid cyclic type reference in '[C, E, C]'", 61, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[C, D, A, B, C]'", 65, 1);
+                                  "invalid cyclic type reference in '[C, D, A, B, C]'", 65, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[C, E, C]'", 65, 1);
+                                  "invalid cyclic type reference in '[C, E, C]'", 65, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[C, E, C]'", 70, 1);
+                                  "invalid cyclic type reference in '[C, E, C]'", 70, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[D, A, B, C, D]'", 70, 1);
+                                  "invalid cyclic type reference in '[D, A, B, C, D]'", 70, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[C, D, A, B, C]'", 74, 1);
+                                  "invalid cyclic type reference in '[C, D, A, B, C]'", 74, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "cyclic type reference in '[E, C, E]'", 74, 1);
+                                  "invalid cyclic type reference in '[E, C, E]'", 74, 1);
         // Disable as new class definition will replace objects that can have method implementations.
 //        BAssertUtil.validateError(negativeResult, i++,
 //                                  "no implementation found for the function 'getName' of non-abstract object " +
@@ -119,17 +119,17 @@ public class ObjectTypeReferenceTest {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-cyclic-dependency" +
                                                                     "-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[Foo, Foo]'", 18, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[A, B, C, D, A]'", 23, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 23, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[B, C, D, A, B]'", 27, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 27, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, D, A, B, C]'", 31, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 31, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, E, C]'", 36, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[D, A, B, C, D]'", 36, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[C, D, A, B, C]'", 40, 1);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[E, C, E]'", 40, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[Foo, Foo]'", 18, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[A, B, C, D, A]'", 23, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 23, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[B, C, D, A, B]'", 27, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 27, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, D, A, B, C]'", 31, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 31, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 36, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[D, A, B, C, D]'", 36, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, D, A, B, C]'", 40, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[E, C, E]'", 40, 1);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -137,11 +137,10 @@ public class ObjectTypeReferenceTest {
     public void testSimpleObjectTypeReferenceSemanticsNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-semantics" +
                 "-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions",
                 18, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Bar'", 19, 6);
         BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions", 20, 6);
         BAssertUtil.validateError(negativeResult, i, "unknown type 'YYY'", 29, 6);
     }
@@ -152,6 +151,7 @@ public class ObjectTypeReferenceTest {
         Assert.assertEquals(result.getErrorCount(), 0);
 
         BRunUtil.invoke(result, "testObjectConstructorWithReadOnlyReference");
+        BRunUtil.invoke(result, "testReadOnlyAndObjectIntersectionInclusion");
     }
 
     @Test
@@ -204,16 +204,22 @@ public class ObjectTypeReferenceTest {
                 "'readonly' reference: 'stream<int>' can never be 'readonly'", 119, 9);
         BAssertUtil.validateError(negativeResult, i++, "invalid field in an object constructor expression with a " +
                 "'readonly' reference: 'future' can never be 'readonly'", 120, 9);
+        BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
+                "descriptor in a 'class' that is not 'readonly'", 135, 6);
+        BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
+                "descriptor in an 'object' type descriptor", 141, 6);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
     public void testSimpleObjectTypeReferenceNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'x'", 18, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'y'", 18, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'value'", 33, 6);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'value' is not initialized", 35, 56);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
@@ -319,6 +325,12 @@ public class ObjectTypeReferenceTest {
                                           ". bars) returns int:Signed16', found 'function test8(int:Signed16 anInt, " +
                                           "Bar... bars) returns int'",
                                   84, 5);
+        BAssertUtil.validateError(result, index++, "no implementation found for the method 'toString' of class " +
+                "'InvalidReadOnlyClassWithMissingImpl'", 93, 1);
+        BAssertUtil.validateError(result, index++, "no implementation found for the method 'toFloat' of class " +
+                "'InvalidReadOnlyClassWithMissingImpls'", 101, 1);
+        BAssertUtil.validateError(result, index++, "no implementation found for the method 'toString' of class " +
+                "'InvalidReadOnlyClassWithMissingImpls'", 101, 1);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 

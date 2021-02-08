@@ -440,7 +440,8 @@ public class ObjectTest {
     public void testSelfReferenceType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cyclic type reference in " + "'[Person, Employee, Foo, Bar]'", 32, 5);
+        BAssertUtil.validateError(result, 0, "invalid cyclic type reference in " + "'[Person, Employee, Foo, Bar]'",
+                32, 5);
     }
 
     @Test(description = "Negative test to test self reference types")
@@ -726,7 +727,7 @@ public class ObjectTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected '(PersonRec|EmployeeRec)', found 'string'", 71, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "missing required parameter 'i' in call to 'new'()", 114, 38);
+                "missing required parameter 'i' in call to 'new()'", 114, 38);
         BAssertUtil.validateError(resultNegative, i++,
                 "positional argument not allowed after named arguments", 114, 53);
         BAssertUtil.validateError(resultNegative, i++,

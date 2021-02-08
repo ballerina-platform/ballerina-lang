@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
@@ -39,7 +40,9 @@ import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Optional;
 
 /**
  * Helper methods to test properties of service values.
@@ -164,7 +167,7 @@ public class ServiceValue {
         for (int i = 0; i < path.size(); i++) {
             funcName.append("$").append(path.getBString(i).getValue());
         }
-        return funcName.toString();
+        return IdentifierUtils.encodeFunctionIdentifier(funcName.toString());
     }
 
     public static BArray getServicePath() {
@@ -185,5 +188,26 @@ public class ServiceValue {
             }
         }
         return null;
+    }
+
+    public static BArray getParamDefaultability(BObject service, BString name) {
+        ServiceType serviceType = (ServiceType) service.getType();
+        Optional<ResourceMethodType> func = Arrays.stream(serviceType.getResourceMethods())
+                .filter(r -> r.getName().equals(name.getValue())).findAny();
+
+        if (func.isEmpty()) {
+            return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, 0), 0);
+        }
+
+        ResourceMethodType rt = func.get();
+
+        int len = rt.getParamDefaultability().length;
+        BArray arrayValue = ValueCreator.createArrayValue(
+                TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, len), len);
+        for (int i = 0; i < len; i++) {
+            boolean d = rt.getParamDefaultability()[i];
+            arrayValue.add(i, d);
+        }
+        return arrayValue;
     }
 }

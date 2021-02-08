@@ -15,12 +15,12 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import com.google.gson.JsonObject;
 import org.apache.commons.io.IOUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -64,15 +64,13 @@ public class PullModuleExecutor implements LSCommandExecutor {
             // Derive module name and document uri
             String moduleName = "";
             String documentUri = "";
-            for (Object arg : context.getArguments()) {
-                String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
-                String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
-                switch (argKey) {
+            for (CommandArgument arg : context.getArguments()) {
+                switch (arg.key()) {
                     case CommandConstants.ARG_KEY_MODULE_NAME:
-                        moduleName = argVal;
+                        moduleName = arg.valueAs(String.class);
                         break;
                     case CommandConstants.ARG_KEY_DOC_URI:
-                        documentUri = argVal;
+                        documentUri = arg.valueAs(String.class);
                         break;
                 }
             }
@@ -80,7 +78,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
             if (moduleName.isEmpty() || documentUri.isEmpty()) {
                 return;
             }
-            // Execute `ballerina pull` command
+            // Execute `bal pull` command
             String ballerinaCmd = Paths.get(CommonUtil.BALLERINA_CMD).toString();
             ProcessBuilder processBuilder = new ProcessBuilder(ballerinaCmd, "pull", moduleName);
             LanguageClient client = context.getLanguageClient();

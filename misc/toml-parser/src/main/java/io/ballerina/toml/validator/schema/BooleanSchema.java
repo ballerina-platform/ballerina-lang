@@ -18,6 +18,8 @@
 
 package io.ballerina.toml.validator.schema;
 
+import java.util.Map;
+
 /**
  * Represents boolean schema in JSON schema.
  *
@@ -25,7 +27,12 @@ package io.ballerina.toml.validator.schema;
  */
 public class BooleanSchema extends AbstractSchema {
 
-    public BooleanSchema(Type type) {
-        super(type);
+    public BooleanSchema(Type type, Map<String, String> message) {
+        super(type, message);
+    }
+
+    @Override
+    public void accept(SchemaVisitor visitor) {
+        visitor.visit(this);
     }
 }

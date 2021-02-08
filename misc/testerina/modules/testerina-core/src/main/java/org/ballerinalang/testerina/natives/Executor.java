@@ -22,17 +22,12 @@ import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
-import io.ballerina.runtime.internal.values.ArrayValue;
-import io.ballerina.runtime.internal.values.ArrayValueImpl;
-import io.ballerina.runtime.internal.values.MapValue;
-import io.ballerina.runtime.internal.values.ObjectValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
@@ -66,17 +61,13 @@ public class Executor {
         try {
             Class<?> clazz = classLoader.loadClass(className);
             int paramCount = paramValues.length * 2 + 1;
-            Class<?>[] jvmParamTypes = new Class[paramCount];
             Object[] jvmArgs = new Object[paramCount];
-            jvmParamTypes[0] = Strand.class;
             jvmArgs[0] = scheduler;
             for (int i = 0, j = 1; i < paramValues.length; i++) {
-                jvmArgs[j] = paramValues[i];
-                jvmParamTypes[j++] = getJvmType(paramValues[i]);
-                jvmArgs[j] = true;
-                jvmParamTypes[j++] = boolean.class;
+                jvmArgs[j++] = paramValues[i];
+                jvmArgs[j++] = true;
             }
-            Method method = clazz.getDeclaredMethod(methodName, jvmParamTypes);
+            Method method = getMethod(methodName, clazz);
             Function<Object[], Object> func = args -> {
                 try {
                     return method.invoke(null, args);
@@ -103,30 +94,17 @@ public class Executor {
         }
     }
 
-    private static Class<?> getJvmType(Object paramValue) {
-        if (paramValue instanceof MapValue) {
-            return MapValue.class;
-        } else if (paramValue instanceof ObjectValue) {
-            return ObjectValue.class;
-        } else if (paramValue instanceof Boolean) {
-            return boolean.class;
-        } else if (paramValue instanceof BString) {
-            return BString.class;
-        } else if (paramValue instanceof String) {
-            return String.class;
-        } else if (paramValue instanceof Integer) {
-            return int.class;
-        } else if (paramValue instanceof Long) {
-            return long.class;
-        } else if (paramValue instanceof Double) {
-            return double.class;
-        } else if (paramValue instanceof Float) {
-            return double.class;
-        } else if (paramValue instanceof ArrayValueImpl) {
-            return ArrayValue.class;
+    private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {
+        Method declaredMethod = Arrays.stream(funcClass.getDeclaredMethods())
+                .filter(method -> functionName.equals(method.getName()))
+                .findAny()
+                .orElse(null);
+
+        if (declaredMethod != null) {
+            return declaredMethod;
         } else {
-            // This is done temporarily, until blocks are added here for all possible cases.
-            throw new RuntimeException("unknown param type: " + paramValue.getClass());
+            throw new NoSuchMethodException(functionName + " is not found");
         }
     }
+
 }

@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -45,13 +46,13 @@ public class FunctionWithIncludedRecordParam {
         BAssertUtil.validateError(result, i++, "redeclared symbol 'firstName'", 47, 82);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'secondName'", 47, 82);
         BAssertUtil.validateError(result, i++, "missing required parameter 'b' in call to " +
-                                "'functionWithIncludedRecordParam1'()", 56, 16);
+                                "'functionWithIncludedRecordParam1()'", 56, 16);
         BAssertUtil.validateError(result, i++, "too many arguments in call to " +
                                             "'functionWithIncludedRecordParam2()'", 57, 105);
         BAssertUtil.validateError(result, i++, "missing required parameter 'firstName' in call to " +
-                                "'functionWithIncludedRecordParam2'()", 58, 19);
+                                "'functionWithIncludedRecordParam2()'", 58, 19);
         BAssertUtil.validateError(result, i++, "missing required parameter 'secondName' in call to " +
-                                "'functionWithIncludedRecordParam2'()", 58, 19);
+                                "'functionWithIncludedRecordParam2()'", 58, 19);
         BAssertUtil.validateError(result, i++, "too many arguments in call to " +
                                             "'functionWithIncludedRecordParam3()'", 59, 95);
         BAssertUtil.validateError(result, i++, "invalid operation: type 'Address' does not support field access" +
@@ -62,7 +63,7 @@ public class FunctionWithIncludedRecordParam {
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 104, 75);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 122, 71);
         BAssertUtil.validateError(result, i++, "missing required parameter 'c' in call to " +
-                                "'functionWithIncludedRecordParam8'()", 136, 18);
+                                "'functionWithIncludedRecordParam8()'", 136, 18);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 136, 71);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 144, 63);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'id'", 161, 53);
@@ -189,5 +190,10 @@ public class FunctionWithIncludedRecordParam {
     @Test
     public void testFuctionWithIncludedRecordParameters23() {
         BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters23");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

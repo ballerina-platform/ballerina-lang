@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -72,6 +73,9 @@ public class BalStringUtils {
     public static Object parseArrayExpressionStringValue(String exprValue, BLink parent) {
         List<String> list = getElements(exprValue);
         ArrayValueImpl arr = new ArrayValueImpl(new BArrayType(bUnionType));
+        if (list.size() == 0) {
+            return arr;
+        }
         CycleUtils.Node node = new CycleUtils.Node(arr, parent);
         Set<Type> typeSet = new HashSet<>();
         for (int i = 0; i < list.size(); i++) {
@@ -152,6 +156,9 @@ public class BalStringUtils {
     public static Object parseMapExpressionStringValue(String exprValue, BLink parent) {
         List<String> list = getElements(exprValue);
         MapValueImpl eleMap = new MapValueImpl(new BMapType(bUnionType));
+        if (list.size() == 0) {
+            return eleMap;
+        }
         CycleUtils.Node node = new CycleUtils.Node(eleMap, parent);
         Set<Type> typeSet = new HashSet<>();
         for (int i = 0; i < list.size(); i++) {
@@ -204,7 +211,7 @@ public class BalStringUtils {
         ArrayValueImpl data = (ArrayValueImpl) StringUtils.parseExpressionStringValue(exprValue.substring
                 (exprValue.indexOf(')') + 2), parent);
 
-        BType typeAnydata = new BAnydataType(TypeConstants.ANYDATA_TNAME, new Module(null, null, null),
+        BType typeAnydata = new BAnydataType((BUnionType) PredefinedTypes.TYPE_ANYDATA, TypeConstants.ANYDATA_TNAME,
                 false);
         BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, new Module(null, null, null), false);
         BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, new Module(null, null, null));

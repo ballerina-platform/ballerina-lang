@@ -4882,6 +4882,10 @@ public class BallerinaParser extends AbstractParser {
             return lhsExpr;
         }
 
+        if (isInConditionalExpr && lhsExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            lhsExpr = generateQualifiedNameRef(lhsExpr);
+        }
+
         STNode newLhsExpr;
         STNode operator;
         switch (nextTokenKind) {
@@ -12117,19 +12121,9 @@ public class BallerinaParser extends AbstractParser {
         } else {
             // Case identifier:identifier : expr or preDeclaredPrefix:identifier : expr
             if (middleExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) middleExpr;
-                STNode modulePrefix =  qualifiedNameRef.modulePrefix;
-                // modulePrefix will be a STBuiltinSimpleNameReferenceNode if the module prefix is a predeclared prefix
-                // hence convert it to an identifier (case : preDeclaredPrefix:identifier : expr)
-                if (modulePrefix.kind != SyntaxKind.IDENTIFIER_TOKEN) {
-                    STBuiltinSimpleNameReferenceNode builtInType = (STBuiltinSimpleNameReferenceNode) modulePrefix;
-                    STToken nameToken = (STToken) builtInType.name;
-                    STNode preDeclaredPrefix = STNodeFactory.createIdentifierToken(nameToken.text(),
-                            nameToken.leadingMinutiae(), nameToken.trailingMinutiae());
-                    middleExpr = STNodeFactory.createQualifiedNameReferenceNode(preDeclaredPrefix,
-                            qualifiedNameRef.colon, qualifiedNameRef.identifier);
-                }
+                middleExpr = generateQualifiedNameRef(middleExpr);
             }
+
             colon = parseColon();
             endContext();
             // start parsing end-expr, by giving higher-precedence to the end-expr, over currently
@@ -12138,6 +12132,23 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
+    }
+
+    private STNode generateQualifiedNameRef(STNode qualifiedName) {
+        STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) qualifiedName;
+        STNode modulePrefix =  qualifiedNameRef.modulePrefix;
+        // modulePrefix will be a STBuiltinSimpleNameReferenceNode if the module prefix is a predeclared prefix
+        // hence convert it to an identifier
+        if (modulePrefix.kind != SyntaxKind.IDENTIFIER_TOKEN) {
+            STBuiltinSimpleNameReferenceNode builtInType = (STBuiltinSimpleNameReferenceNode) modulePrefix;
+            STToken nameToken = (STToken) builtInType.name;
+            STNode preDeclaredPrefix = STNodeFactory.createIdentifierToken(nameToken.text(),
+                    nameToken.leadingMinutiae(), nameToken.trailingMinutiae());
+            return STNodeFactory.createQualifiedNameReferenceNode(preDeclaredPrefix,
+                    qualifiedNameRef.colon, qualifiedNameRef.identifier);
+        } else {
+            return qualifiedName;
+        }
     }
 
     /**
@@ -13225,7 +13236,7 @@ public class BallerinaParser extends AbstractParser {
             }
             matchClauses.add(clause);
 
-            STNode seperator = parseMatchPatternEnd();
+            STNode seperator = parseMatchPatternListMemberRhs();
             if (seperator == null) {
                 break;
             }
@@ -13293,7 +13304,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseMatchPatternEnd() {
+    private STNode parseMatchPatternListMemberRhs() {
         switch (peek().kind) {
             case PIPE_TOKEN:
                 return parsePipeToken();
@@ -13302,8 +13313,8 @@ public class BallerinaParser extends AbstractParser {
                 // Returning null indicates the end of the match-patterns list
                 return null;
             default:
-                recover(peek(), ParserRuleContext.MATCH_PATTERN_RHS);
-                return parseMatchPatternEnd();
+                recover(peek(), ParserRuleContext.MATCH_PATTERN_LIST_MEMBER_RHS);
+                return parseMatchPatternListMemberRhs();
         }
     }
 
@@ -13354,20 +13365,18 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.LIST_MATCH_PATTERN);
         STNode openBracketToken = parseOpenBracket();
         List<STNode> matchPatternList = new ArrayList<>();
-        STNode restMatchPattern = null;
         STNode listMatchPatternMemberRhs = null;
         boolean isEndOfFields = false;
 
         while (!isEndOfListMatchPattern()) {
             STNode listMatchPatternMember = parseListMatchPatternMember();
+            matchPatternList.add(listMatchPatternMember);
+            listMatchPatternMemberRhs = parseListMatchPatternMemberRhs();
+
             if (listMatchPatternMember.kind == SyntaxKind.REST_MATCH_PATTERN) {
-                restMatchPattern = listMatchPatternMember;
-                listMatchPatternMemberRhs = parseListMatchPatternMemberRhs();
                 isEndOfFields = true;
                 break;
             }
-            matchPatternList.add(listMatchPatternMember);
-            listMatchPatternMemberRhs = parseListMatchPatternMemberRhs();
 
             if (listMatchPatternMemberRhs != null) {
                 matchPatternList.add(listMatchPatternMemberRhs);
@@ -13379,25 +13388,23 @@ public class BallerinaParser extends AbstractParser {
         // Following loop will only run if there are more fields after the rest match pattern.
         // Try to parse them and mark as invalid.
         while (isEndOfFields && listMatchPatternMemberRhs != null) {
-            STNode invalidField = parseListMatchPatternMember();
-            restMatchPattern =
-                    SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restMatchPattern, listMatchPatternMemberRhs);
-            restMatchPattern = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restMatchPattern, invalidField);
-            restMatchPattern = SyntaxErrors.addDiagnostic(restMatchPattern,
-                    DiagnosticErrorCode.ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN);
-            listMatchPatternMemberRhs = parseListMatchPatternMemberRhs();
-        }
+            updateLastNodeInListWithInvalidNode(matchPatternList, listMatchPatternMemberRhs, null);
 
-        if (restMatchPattern == null) {
-            restMatchPattern = STNodeFactory.createEmptyNode();
+            if (peek().kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
+                break;
+            }
+
+            STNode invalidField = parseListMatchPatternMember();
+            updateLastNodeInListWithInvalidNode(matchPatternList, invalidField,
+                    DiagnosticErrorCode.ERROR_MATCH_PATTERN_AFTER_REST_MATCH_PATTERN);
+            listMatchPatternMemberRhs = parseListMatchPatternMemberRhs();
         }
 
         STNode matchPatternListNode = STNodeFactory.createNodeList(matchPatternList);
         STNode closeBracketToken = parseCloseBracket();
         endContext();
 
-        return STNodeFactory.createListMatchPatternNode(openBracketToken, matchPatternListNode, restMatchPattern,
-                closeBracketToken);
+        return STNodeFactory.createListMatchPatternNode(openBracketToken, matchPatternListNode, closeBracketToken);
     }
 
     public boolean isEndOfListMatchPattern() {
@@ -13475,18 +13482,18 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.MAPPING_MATCH_PATTERN);
         STNode openBraceToken = parseOpenBrace();
         List<STNode> fieldMatchPatternList = new ArrayList<>();
-        STNode restMatchPattern = null;
+        STNode fieldMatchPatternRhs = null;
         boolean isEndOfFields = false;
 
         while (!isEndOfMappingMatchPattern()) {
             STNode fieldMatchPatternMember = parseFieldMatchPatternMember();
+            fieldMatchPatternList.add(fieldMatchPatternMember);
+            fieldMatchPatternRhs = parseFieldMatchPatternRhs();
+
             if (fieldMatchPatternMember.kind == SyntaxKind.REST_MATCH_PATTERN) {
-                restMatchPattern = fieldMatchPatternMember;
                 isEndOfFields = true;
                 break;
             }
-            fieldMatchPatternList.add(fieldMatchPatternMember);
-            STNode fieldMatchPatternRhs = parseFieldMatchPatternRhs();
 
             if (fieldMatchPatternRhs != null) {
                 fieldMatchPatternList.add(fieldMatchPatternRhs);
@@ -13497,27 +13504,24 @@ public class BallerinaParser extends AbstractParser {
 
         // Following loop will only run if there are more fields after the rest match pattern.
         // Try to parse them and mark as invalid.
-        STNode fieldMatchPatternRhs = parseFieldMatchPatternRhs();
         while (isEndOfFields && fieldMatchPatternRhs != null) {
-            STNode invalidField = parseFieldMatchPatternMember();
-            restMatchPattern =
-                    SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restMatchPattern, fieldMatchPatternRhs);
-            restMatchPattern = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restMatchPattern, invalidField);
-            restMatchPattern = SyntaxErrors.addDiagnostic(restMatchPattern,
-                    DiagnosticErrorCode.ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD);
-            fieldMatchPatternRhs = parseFieldMatchPatternRhs();
-        }
+            updateLastNodeInListWithInvalidNode(fieldMatchPatternList, fieldMatchPatternRhs, null);
 
-        if (restMatchPattern == null) {
-            restMatchPattern = STNodeFactory.createEmptyNode();
+            if (peek().kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
+                break;
+            }
+
+            STNode invalidField = parseFieldMatchPatternMember();
+            updateLastNodeInListWithInvalidNode(fieldMatchPatternList, invalidField,
+                    DiagnosticErrorCode.ERROR_MATCH_PATTERN_AFTER_REST_MATCH_PATTERN);
+            fieldMatchPatternRhs = parseFieldMatchPatternRhs();
         }
 
         STNode fieldMatchPatterns = STNodeFactory.createNodeList(fieldMatchPatternList);
         STNode closeBraceToken = parseCloseBrace();
         endContext();
 
-        return STNodeFactory.createMappingMatchPatternNode(openBraceToken, fieldMatchPatterns, restMatchPattern,
-                closeBraceToken);
+        return STNodeFactory.createMappingMatchPatternNode(openBraceToken, fieldMatchPatterns, closeBraceToken);
     }
 
     private STNode parseFieldMatchPatternMember() {
@@ -13666,6 +13670,11 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG);
         STNode firstArg = parseErrorArgListMatchPattern(ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_START);
         endContext();
+
+        if (firstArg == null) {
+            return STNodeFactory.createNodeList(argListMatchPatterns);
+        }
+
         if (isSimpleMatchPattern(firstArg.kind)) {
 
             argListMatchPatterns.add(firstArg);
@@ -13800,8 +13809,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseMatchPattern();
             case VAR_KEYWORD:
                 STNode varKeyword = consume();
-                STNode variableName = parseVariableName();
+                STNode variableName = createCaptureOrWildcardBP(parseVariableName());
                 return STNodeFactory.createTypedBindingPatternNode(varKeyword, variableName);
+            case CLOSE_PAREN_TOKEN:
+                return null;
             default:
                 recover(nextToken, context);
                 return parseErrorArgListMatchPattern(context);

@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.Module;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.formatter.core.Formatter;
@@ -56,6 +57,7 @@ import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
@@ -67,17 +69,20 @@ import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
+import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
+import org.eclipse.lsp4j.SignatureHelpParams;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.services.TextDocumentService;
@@ -85,7 +90,9 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -143,18 +150,18 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
+    public CompletableFuture<Hover> hover(HoverParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            String fileUri = position.getTextDocument().getUri();
+            String fileUri = params.getTextDocument().getUri();
             HoverContext context = ContextBuilder
-                    .buildHoverContext(fileUri, this.workspaceManager, this.serverContext, position.getPosition());
+                    .buildHoverContext(fileUri, this.workspaceManager, this.serverContext, params.getPosition());
             Hover hover;
             try {
                 hover = HoverUtil.getHover(context);
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/hover' failed!";
-                this.clientLogger.logError(msg, e, position.getTextDocument(), position.getPosition());
+                this.clientLogger.logError(msg, e, params.getTextDocument(), params.getPosition());
                 hover = HoverUtil.getDefaultHoverObject();
             }
 
@@ -163,9 +170,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<SignatureHelp> signatureHelp(TextDocumentPositionParams position) {
+    public CompletableFuture<SignatureHelp> signatureHelp(SignatureHelpParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            String uri = position.getTextDocument().getUri();
+            String uri = params.getTextDocument().getUri();
             Optional<Path> sigFilePath = CommonUtil.getPathFromURI(uri);
 
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
@@ -177,10 +184,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     this.workspaceManager,
                     this.clientCapabilities.getTextDocCapabilities().getSignatureHelp(),
                     this.serverContext,
-                    position.getPosition());
+                    params.getPosition());
             try {
                 // Find token at cursor position
-                Token cursorToken = TokensUtil.findTokenAtPosition(context, position.getPosition());
+                Token cursorToken = TokensUtil.findTokenAtPosition(context, params.getPosition());
                 int activeParamIndex = 0;
                 //TODO: Once https://git.io/JJIFp fixed, can get docs directly from the node of syntaxTree
                 NonTerminalNode sNode = cursorToken.parent();
@@ -202,8 +209,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 }
 
                 // Find parameter index
-                int cLine = position.getPosition().getLine();
-                int cCol = position.getPosition().getCharacter();
+                int cLine = params.getPosition().getLine();
+                int cCol = params.getPosition().getCharacter();
                 for (Node child : sNode.children()) {
                     int sLine = child.lineRange().startLine().line();
                     int sCol = child.lineRange().startLine().offset();
@@ -229,7 +236,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return new SignatureHelp();
             } catch (Throwable e) {
                 String msg = "Operation 'text/signature' failed!";
-                this.clientLogger.logError(msg, e, position.getTextDocument(), position.getPosition());
+                this.clientLogger.logError(msg, e, params.getTextDocument(), params.getPosition());
                 return new SignatureHelp();
             }
         });
@@ -237,20 +244,20 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition
-            (TextDocumentPositionParams position) {
+            (DefinitionParams params) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                DocumentServiceContext defContext = ContextBuilder.buildBaseContext(position.getTextDocument().getUri(),
+                DocumentServiceContext defContext = ContextBuilder.buildBaseContext(params.getTextDocument().getUri(),
                         this.workspaceManager,
                         LSContextOperation.TXT_DEFINITION,
                         this.serverContext);
-                return Either.forLeft(DefinitionUtil.getDefinition(defContext, position.getPosition()));
+                return Either.forLeft(DefinitionUtil.getDefinition(defContext, params.getPosition()));
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Goto Definition", e);
                 return Either.forLeft(Collections.emptyList());
             } catch (Throwable e) {
                 String msg = "Operation 'text/definition' failed!";
-                this.clientLogger.logError(msg, e, position.getTextDocument(), position.getPosition());
+                this.clientLogger.logError(msg, e, params.getTextDocument(), params.getPosition());
                 return Either.forLeft(Collections.emptyList());
             }
         });
@@ -259,14 +266,24 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            String fileUri = params.getTextDocument().getUri();
-
             try {
                 ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
                         params.getPosition());
-                return ReferencesUtil.getReferences(context);
+
+                Map<Module, List<io.ballerina.tools.diagnostics.Location>> referencesMap = 
+                        ReferencesUtil.getReferences(context);
+                Path projectRoot = context.workspace().projectRoot(context.filePath());
+
+                List<Location> references = new ArrayList<>();
+                referencesMap.forEach((module, locations) ->
+                        locations.forEach(location -> {
+                            String uri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
+                            references.add(new Location(uri, ReferencesUtil.getRange(location)));
+                        }));
+                
+                return references;
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Find References", e);
                 return new ArrayList<>();
@@ -443,6 +460,40 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 this.clientLogger.logError(msg, e, params.getTextDocument(), (Position) null);
                 return Collections.singletonList(textEdit);
             }
+        });
+    }
+
+    @Override
+    public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
+            Map<String, List<TextEdit>> changes = new HashMap<>();
+
+            try {
+                ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
+                        this.workspaceManager,
+                        this.serverContext,
+                        params.getPosition());
+
+                Map<Module, List<io.ballerina.tools.diagnostics.Location>> locationMap = 
+                        ReferencesUtil.getReferences(context);
+                Path projectRoot = context.workspace().projectRoot(context.filePath());
+
+                locationMap.forEach((module, locations) ->
+                        locations.forEach(location -> {
+                            String uri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
+                            List<TextEdit> textEdits = changes.computeIfAbsent(uri, k -> new ArrayList<>());
+                            textEdits.add(new TextEdit(ReferencesUtil.getRange(location), params.getNewName()));
+                        }));
+            } catch (UserErrorException e) {
+                this.clientLogger.notifyUser("Rename", e);
+            } catch (Throwable e) {
+                String msg = "Operation 'text/rename' failed!";
+                this.clientLogger.logError(msg, e, params.getTextDocument(), params.getPosition());
+            }
+
+            workspaceEdit.setChanges(changes);
+            return workspaceEdit;
         });
     }
 

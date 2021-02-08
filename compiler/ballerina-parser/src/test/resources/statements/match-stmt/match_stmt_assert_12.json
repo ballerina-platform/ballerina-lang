@@ -408,8 +408,13 @@
                                           ]
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "c"
+                                          "kind": "CAPTURE_BINDING_PATTERN",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "c"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },

@@ -67,28 +67,12 @@ public class ObservabilityConstants {
     public static final String PROPERTY_HTTP_HOST = "host";
     public static final String PROPERTY_HTTP_PORT = "port";
 
-    public static final String PROPERTY_TRACE_PROPERTIES = "trace_properties";
-    public static final String PROPERTY_KEY_HTTP_STATUS_CODE = "http.status_code";
-    public static final String PROPERTY_ERROR_MESSAGE = "error_message";
-    public static final String PROPERTY_BSTRUCT_ERROR = "bstruct_error";
+    public static final String PROPERTY_TRACE_PROPERTIES = "_trace_properties_";
+    public static final String PROPERTY_KEY_HTTP_STATUS_CODE = "_http_status_code_";
+    public static final String PROPERTY_ERROR_VALUE = "_ballerina_error_value_";
 
     public static final String TAG_TRUE_VALUE = "true";
     public static final String STATUS_CODE_GROUP_SUFFIX = "xx";
-
-    // TOML Configs
-    public static final String CONFIG_TABLE_OBSERVABILITY = "b7a.observability";
-    public static final String CONFIG_TABLE_METRICS = CONFIG_TABLE_OBSERVABILITY + ".metrics";
-    public static final String CONFIG_TABLE_TRACING = CONFIG_TABLE_OBSERVABILITY + ".tracing";
-
-    // Observability Configs
-    public static final String CONFIG_OBSERVABILITY_ENABLED = CONFIG_TABLE_OBSERVABILITY + ".enabled";
-    public static final String CONFIG_OBSERVABILITY_PROVIDER = CONFIG_TABLE_OBSERVABILITY + ".provider";
-
-    // Metrics Configs
-    public static final String CONFIG_METRICS_ENABLED = CONFIG_TABLE_METRICS + ".enabled";
-
-    // Tracing Configs
-    public static final String CONFIG_TRACING_ENABLED = CONFIG_TABLE_TRACING + ".enabled";
 
     // Checkpoint Configs
     public static final String CHECKPOINT_EVENT_NAME = "CHECKPOINT";

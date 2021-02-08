@@ -16,10 +16,11 @@
 package org.ballerinalang.langserver.signature;
 
 import io.ballerina.compiler.api.symbols.Documentation;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -135,7 +136,7 @@ public class SignatureHelpUtil {
         Map<String, String> paramToDesc = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
-        Optional<Documentation> documentation = functionSymbol.docAttachment();
+        Optional<Documentation> documentation = functionSymbol.documentation();
         List<Parameter> parameters = new ArrayList<>();
         // TODO: Handle the error constructor in the next phase
         // Handle error constructors
@@ -172,9 +173,9 @@ public class SignatureHelpUtil {
         }
         // Add parameters and rest params
         functionSymbol.typeDescriptor().parameters()
-                .forEach(param -> parameters.add(new Parameter(param, false, false)));
+                .forEach(param -> parameters.add(new Parameter(param, false, false, context)));
         Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
-        restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true)));
+        restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
         boolean skipFirstParam = functionSymbol.kind() == METHOD && CommonUtil.isLangLib(functionSymbol.moduleID());
         // Create a list of param info models
         for (int i = 0; i < parameters.size(); i++) {
@@ -187,7 +188,7 @@ public class SignatureHelpUtil {
             if (param.getName().isPresent() && paramToDesc.containsKey(param.getName().get())) {
                 desc = paramToDesc.get(param.getName().get());
             }
-            paramModels.add(new ParameterInfoModel(param, desc));
+            paramModels.add(new ParameterInfoModel(param, desc, context));
         }
         signatureInfoModel.setParameterInfoModels(paramModels);
         return signatureInfoModel;
@@ -222,11 +223,16 @@ public class SignatureHelpUtil {
         private final boolean isRestArg;
         private final boolean isOptional;
         private final ParameterSymbol parameterSymbol;
+        private final SignatureContext signatureContext;
 
-        public Parameter(ParameterSymbol parameterSymbol, boolean isOptional, boolean isRestArg) {
+        public Parameter(ParameterSymbol parameterSymbol,
+                         boolean isOptional,
+                         boolean isRestArg,
+                         SignatureContext signatureContext) {
             this.parameterSymbol = parameterSymbol;
             this.isOptional = isOptional;
             this.isRestArg = isRestArg;
+            this.signatureContext = signatureContext;
         }
 
         public Optional<String> getName() {
@@ -235,7 +241,7 @@ public class SignatureHelpUtil {
         }
 
         public String getType() {
-            String type = parameterSymbol.typeDescriptor().signature();
+            String type = CommonUtil.getModifiedTypeName(this.signatureContext, parameterSymbol.typeDescriptor());
             if (this.isRestArg && !"".equals(type)) {
                 // Rest Arg type sometimes appear as array [], sometimes not eg. 'error()'
                 if (type.contains("[]")) {
@@ -256,7 +262,7 @@ public class SignatureHelpUtil {
         private final String description;
         private final Parameter parameter;
 
-        public ParameterInfoModel(Parameter parameter, String desc) {
+        public ParameterInfoModel(Parameter parameter, String desc, SignatureContext signatureContext) {
             this.parameter = parameter;
             this.description = desc;
         }
@@ -433,20 +439,17 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
 
-        List<FieldSymbol> fieldSymbols = new ArrayList<>();
-
-        if (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.OBJECT) {
-            fieldSymbols.addAll(((ObjectTypeSymbol) CommonUtil
-                    .getRawType(typeDescriptor.get())).fieldDescriptors());
-        } else if (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.RECORD) {
-            fieldSymbols.addAll(((RecordTypeSymbol) CommonUtil
-                    .getRawType(typeDescriptor.get())).fieldDescriptors());
+        TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
+        switch (rawType.typeKind()) {
+            case OBJECT:
+                ObjectFieldSymbol objField = ((ObjectTypeSymbol) rawType).fieldDescriptors().get(fieldName);
+                return objField != null ? Optional.of(objField.typeDescriptor()) : Optional.empty();
+            case RECORD:
+                RecordFieldSymbol recField = ((RecordTypeSymbol) rawType).fieldDescriptors().get(fieldName);
+                return recField != null ? Optional.of(recField.typeDescriptor()) : Optional.empty();
+            default:
+                return Optional.empty();
         }
-
-        return fieldSymbols.stream()
-                .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
-                .map(FieldSymbol::typeDescriptor)
-                .findAny();
     }
 
     private static Optional<? extends TypeSymbol> getTypeDescForNameRef(SignatureContext context,
@@ -493,7 +496,7 @@ public class SignatureHelpUtil {
 
         List<FunctionSymbol> visibleMethods = fieldTypeDesc.get().langLibMethods();
         if (CommonUtil.getRawType(fieldTypeDesc.get()).typeKind() == TypeDescKind.OBJECT) {
-            visibleMethods.addAll(((ObjectTypeSymbol) CommonUtil.getRawType(fieldTypeDesc.get())).methods());
+            visibleMethods.addAll(((ObjectTypeSymbol) CommonUtil.getRawType(fieldTypeDesc.get())).methods().values());
         }
         Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
@@ -510,7 +513,7 @@ public class SignatureHelpUtil {
         List<FunctionSymbol> functionSymbols = new ArrayList<>();
         if (CommonUtil.getRawType(typeDescriptor).typeKind() == TypeDescKind.OBJECT) {
             ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) CommonUtil.getRawType(typeDescriptor);
-            functionSymbols.addAll(objTypeDesc.methods());
+            functionSymbols.addAll(objTypeDesc.methods().values());
         }
         functionSymbols.addAll(typeDescriptor.langLibMethods());
 

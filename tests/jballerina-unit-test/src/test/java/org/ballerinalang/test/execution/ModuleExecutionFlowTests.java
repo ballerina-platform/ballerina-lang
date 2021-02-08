@@ -52,10 +52,10 @@ public class ModuleExecutionFlowTests {
                 "Initializing module b\n" +
                 "Initializing module c\n" +
                 "Module c main function invoked\n" +
-                "a:ABC listener __start called, service name - ModA\n" +
-                "a:ABC listener __start called, service name - ModB\n" +
-                "a:ABC listener __gracefulStop called, service name - ModB\n" +
-                "a:ABC listener __gracefulStop called, service name - ModA";
+                "a:ABC listener start called, service name - ModA\n" +
+                "a:ABC listener start called, service name - ModB\n" +
+                "a:ABC listener gracefulStop called, service name - ModB\n" +
+                "a:ABC listener gracefulStop called, service name - ModA";
 
         String expectedErrorString = "error: error returned while starting module B {}";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
@@ -76,6 +76,32 @@ public class ModuleExecutionFlowTests {
     }
 
     @Test
+    public void testListenerInitReturnsError() {
+        CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation(
+                "test-src/execution/listener_return_error_project");
+        ExitDetails output = run(compileResult, new String[]{});
+
+        String expectedConsoleString = "init invoked";
+        String expectedErrorString = "error: Listener init failed {}";
+        Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
+        Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
+    }
+
+    @Test
+    public void testListenerInitReturnsErrorInServiceDecl() {
+        CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation(
+                "test-src/execution/service_decl_listener_return_error_project");
+        ExitDetails output = run(compileResult, new String[]{});
+
+        String expectedConsoleString = "init invoked\n" +
+                "init invoked\n" +
+                "init invoked";
+        String expectedErrorString = "error: ModA-inline-2 errored!!! {}";
+        Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
+        Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
+    }
+
+    @Test
     public void testModuleStartPanic() {
         CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj5");
         ExitDetails output = run(compileResult, new String[]{});
@@ -84,10 +110,10 @@ public class ModuleExecutionFlowTests {
                 "Initializing module b\n" +
                 "Initializing module c\n" +
                 "Module c main function invoked\n" +
-                "a:ABC listener __start called, service name - ModA\n" +
-                "a:ABC listener __start called, service name - ModB\n" +
-                "a:ABC listener __gracefulStop called, service name - ModB\n" +
-                "a:ABC listener __gracefulStop called, service name - ModA";
+                "a:ABC listener start called, service name - ModA\n" +
+                "a:ABC listener start called, service name - ModB\n" +
+                "a:ABC listener gracefulStop called, service name - ModB\n" +
+                "a:ABC listener gracefulStop called, service name - ModA";
 
         String expectedErrorString = "error: panicked while starting module B\n" +
                 "\tat unit_tests.proj5.a.0_1_0.ABC:start(main.bal:21)";
@@ -134,12 +160,12 @@ public class ModuleExecutionFlowTests {
                 "Initializing module 'dependent'\n" +
                 "Initializing module 'current'\n" +
                 "main function invoked for current module\n" +
-                "basic:TestListener listener __start called, service name - basic\n" +
-                "basic:TestListener listener __start called, service name - dependent\n" +
-                "listener __start panicked for service name - dependent\n" +
-                "basic:TestListener listener __gracefulStop called, service name - dependent\n" +
-                "listener __gracefulStop panicked, service name - dependent\n" +
-                "basic:TestListener listener __gracefulStop called, service name - basic";
+                "basic:TestListener listener start called, service name - basic\n" +
+                "basic:TestListener listener start called, service name - dependent\n" +
+                "listener start panicked for service name - dependent\n" +
+                "basic:TestListener listener gracefulStop called, service name - dependent\n" +
+                "listener gracefulStop panicked, service name - dependent\n" +
+                "basic:TestListener listener gracefulStop called, service name - basic";
 
         String expectedErrorString = "error: panicked while starting module 'dependent'\n" +
                 "\tat testorg.start_stop_failing_project:start(basic.bal:35)";

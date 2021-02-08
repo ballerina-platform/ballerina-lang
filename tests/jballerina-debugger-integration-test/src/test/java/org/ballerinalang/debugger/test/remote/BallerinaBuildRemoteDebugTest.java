@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
 /**
- * Test class to test positive and negative scenarios of remote debugging ballerina build command.
+ * Test class to test positive and negative scenarios of remote debugging bal build command.
  */
 public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
 
@@ -53,13 +53,13 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSuspendOnBallerinaProjectBuild() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("build", new String[]{"--debug", String.valueOf(port), "-a"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 20);
+        balClient.debugMain("build", new String[]{"--debug", String.valueOf(port)}, null,
+            new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 20);
         clientLeecher.waitForText(20000);
     }
 

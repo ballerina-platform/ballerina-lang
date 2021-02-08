@@ -25,10 +25,10 @@
 public type TestConfig record {
     boolean enable = true;
     string[] groups = [];
-    string dataProvider = "";
-    string before = "";
-    string after = "";
-    string[] dependsOn = [];
+    function() returns (any|error) dataProvider?;
+    function() returns (any|error) before?;
+    function() returns (any|error) after?;
+    (function() returns (any|error))[] dependsOn?;
 };
 
 # Configuration of the function to be mocked.
@@ -72,4 +72,4 @@ public annotation BeforeEach on function;
 public annotation AfterEach on function;
 
 # Identifies the MockFunction object
-public const annotation MockConfig Mock on source var, function;
+public const annotation MockConfig Mock on source var;

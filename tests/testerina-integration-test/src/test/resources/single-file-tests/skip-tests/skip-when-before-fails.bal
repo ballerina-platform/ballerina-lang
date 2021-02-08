@@ -29,7 +29,7 @@ public function before() {
 }
 
 @test:Config {
-    before:"before"
+    before: before
 }
 public function test1() {
     a = a + "test1";
@@ -37,7 +37,7 @@ public function test1() {
 
 // Independent function which passes
 @test:Config {
-    dependsOn: ["test1"]
+    dependsOn: [test1]
 }
 public function test2() {
     a = a + "test2";

@@ -22,6 +22,7 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import org.ballerinalang.debugadapter.DebugExecutionManager;
 import org.ballerinalang.debugadapter.JBallerinaDebugServer;
+import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,10 +80,10 @@ public abstract class Launcher {
         if (OSUtils.isWindows()) {
             ballerinaExec.add("cmd.exe");
             ballerinaExec.add("/c");
-            ballerinaExec.add(ballerinaHome + File.separator + "bin" + File.separator + "ballerina.bat");
+            ballerinaExec.add(ballerinaHome + File.separator + "bin" + File.separator + "bal.bat");
         } else {
             ballerinaExec.add("bash");
-            ballerinaExec.add(ballerinaHome + File.separator + "bin" + File.separator + "ballerina");
+            ballerinaExec.add(ballerinaHome + File.separator + "bin" + File.separator + "bal");
         }
 
         String ballerinaCmd = args.get(ARG_BALLERINA_COMMAND) == null ? "" : args.get(ARG_BALLERINA_COMMAND).toString();
@@ -144,7 +145,7 @@ public abstract class Launcher {
             EventRequestManager erm = attachedVm.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
             classPrepareRequest.enable();
-            server.setDebuggeeVM(attachedVm);
+            server.getContext().setDebuggee(new VirtualMachineProxyImpl(attachedVm));
             server.setExecutionManager(execManager);
         } catch (IOException | IllegalConnectorArgumentsException e) {
             LOGGER.error("Debugger failed to attach");

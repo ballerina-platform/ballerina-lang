@@ -59,7 +59,7 @@ public class TomlFileToManifestTest {
         Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "wso2/github");
         Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "1.2.3");
         Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getPath().toString(),
-                "path/to/github.balo");
+                "path/to/github.bala");
         
     }
     

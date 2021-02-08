@@ -18,7 +18,7 @@
 
 package io.ballerina.semantic.api.test.allreferences;
 
-import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.test.bala.BalaCreator;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -36,8 +36,8 @@ public class FindModulePrefixRefsTest extends FindAllReferencesTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/test-project", "testorg", "baz");
+        BalaCreator.cleanCacheDirectories();
+        BalaCreator.createAndSetupBala("test-src/test-project", "testorg", "baz");
         super.setup();
     }
 
@@ -61,17 +61,12 @@ public class FindModulePrefixRefsTest extends FindAllReferencesTest {
     }
 
     @Override
-    public String getFileName() {
-        return "find_var_ref_in_module_prefix.bal";
-    }
-
-    @Override
     public String getTestSourcePath() {
         return "test-src/find-all-ref/find_var_ref_in_module_prefix.bal";
     }
 
     @AfterClass
     public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/test-project", "testorg", "baz");
+        BalaCreator.clearPackageFromRepository("test-src/test-project", "testorg", "baz");
     }
 }

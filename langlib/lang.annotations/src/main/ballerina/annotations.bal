@@ -14,6 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Denotes anydata type
+public type 'anydata ()|boolean|int|float|decimal|string|xml|'anydata[]|map<'anydata>|table<map<'anydata>>;
+
+# Denotes json type
+public type 'json ()|boolean|int|float|decimal|string|'json[]|map<'json>;
+
 # Denote that the return value is tainted.
 public const annotation tainted on parameter, return, source listener, source var, source type;
 
@@ -81,4 +87,4 @@ public const annotation record {
     string iconPath?;
 } display on source type, source class,
       source function, source return, source parameter, source field, source listener,
-      source var, source const, source annotation;
+      source var, source const, source annotation, source service;

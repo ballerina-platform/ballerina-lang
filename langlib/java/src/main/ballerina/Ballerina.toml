@@ -1,4 +1,0 @@
-[package]
-org = "ballerina"
-name = "java"
-version = "0.9.0"

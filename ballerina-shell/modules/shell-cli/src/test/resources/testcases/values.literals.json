@@ -1,0 +1,31 @@
+[
+  {
+    "description": "Simple integer.",
+    "code": "12",
+    "expr": "12"
+  },
+  {
+    "description": "Simple string.",
+    "code": "\"Hello\"",
+    "expr": "\"Hello\""
+  },
+  {
+    "description": "Simple float.",
+    "code": "12.3",
+    "expr": "12.3"
+  },
+  {
+    "description": "Simple string template.",
+    "code": "string `hello world`",
+    "expr": "\"hello world\""
+  },
+  {
+    "description": "Simple boolean.",
+    "code": "false",
+    "expr": "false"
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

@@ -61,7 +61,9 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -163,8 +165,8 @@ public class MainMethodGen {
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
         String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigPath", "()L" + PATH + ";", false);
+        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, "(L" + PATH + ";)V", false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {

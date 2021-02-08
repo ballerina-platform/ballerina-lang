@@ -215,7 +215,11 @@ public class MemberAccessTest {
             { "testRecordMemberAccessByLiteral" },
             { "testRecordMemberAccessByConstant" },
             { "testRecordMemberAccessByVariable" },
-            { "testRecordMemberAccessForNonExistingKey" }
+            { "testRecordMemberAccessForNonExistingKey" },
+            { "testRestFieldAccessOnNilableRecordUnion" },
+            { "testAccessOnNilableMapUnion" },
+            { "testAccessOnNilableRecordMapUnion" },
+            { "testNestedAccessOnNilableUnion" }
         };
     }
 
@@ -252,6 +256,21 @@ public class MemberAccessTest {
             { "testMemberAccessOnNillableRecord2" },
             { "testMemberAccessNilLiftingOnNillableRecord1" },
             { "testMemberAccessNilLiftingOnNillableRecord2" },
+        };
+    }
+
+    @Test(dataProvider = "optionalMappingMemberAccessFunctions2")
+    public void testOptionalMappingMemberAccess2(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "optionalMappingMemberAccessFunctions2")
+    public Object[][] optionalMappingMemberAccessFunctions2() {
+        return new Object[][] {
+                { "testUnavailableFinalAccessInNestedAccess" },
+                { "testAvailableFinalAccessInNestedAccess" },
+                { "testUnavailableIntermediateAccessInNestedAccess" },
+                { "testNilValuedFinalAccessInNestedAccess" }
         };
     }
 
@@ -320,5 +339,10 @@ public class MemberAccessTest {
     @Test
     public void testMemberAccessInUnionType() {
         BRunUtil.invoke(result, "testMemberAccessInUnionType");
+    }
+
+    @Test
+    public void testMemberAccessOnStructuralConstructs() {
+        BRunUtil.invoke(result, "testMemberAccessOnStructuralConstructs");
     }
 }

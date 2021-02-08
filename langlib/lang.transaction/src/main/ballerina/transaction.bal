@@ -14,7 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
+
+# Config to enable transaction manager
+configurable boolean managerEnabled = false;
+# Config to specify transaction log directory
+configurable string logBase = "transaction_log_dir";
 
 # Information about a transaction that does not change
 # after the transaction is started.
@@ -34,9 +39,7 @@ public type Info record {|
 |};
 
 # An instant in time.
-// todo use readonly qualifier once #27501 fixed
-//public type Timestamp readonly & object {
-public type Timestamp object {
+public type Timestamp readonly & object {
     # Returns milliseconds since 1970-01-01T00:00:00Z, not including leap seconds
     public function toMillisecondsInt() returns int;
     # Returns a string representation of the timestamp in ISO 8601 format
@@ -93,13 +96,13 @@ public transactional isolated function getData() returns (any|error) & readonly 
 
 # Type of a commit handler function.
 # + info - information about the transaction being committed
-public type CommitHandler function(Info info);
+public type CommitHandler isolated function(Info info);
 
 # Type of a rollback handler function.
 # + info - information about the transaction being committed
 # + cause - an error describing the cause of the rollback, if there is
 # + willRetry - true if the transaction will be retried, false otherwise
-public type RollbackHandler function(Info info, error? cause, boolean willRetry);
+public type RollbackHandler isolated function(Info info, error? cause, boolean willRetry);
 
 # Adds a handler to be called if and when the global transaction commits.
 #

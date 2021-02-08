@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.langserver.common.utils.completion;
 
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -28,6 +28,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -87,7 +88,7 @@ public class BLangRecordLiteralUtil {
             cItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
         } else if (canSpread) {
             cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbol.name(),
-                    typeDescriptor.get().signature());
+                    CommonUtil.getModifiedTypeName(context, typeDescriptor.get()));
         } else {
             return Optional.empty();
         }
@@ -109,8 +110,8 @@ public class BLangRecordLiteralUtil {
             }
             return Collections.singletonList(memberType.get());
         } else if (typeDesc.typeKind() == TypeDescKind.RECORD) {
-            return ((RecordTypeSymbol) typeDesc).fieldDescriptors().stream()
-                    .map(FieldSymbol::typeDescriptor)
+            return ((RecordTypeSymbol) typeDesc).fieldDescriptors().values().stream()
+                    .map(RecordFieldSymbol::typeDescriptor)
                     .collect(Collectors.toList());
         }
 

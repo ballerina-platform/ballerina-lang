@@ -143,7 +143,7 @@ public final class FunctionCompletionItemBuilder {
                 item.setCommand(cmd);
             }
             boolean skipFirstParam = skipFirstParam(ctx, bSymbol);
-            if (bSymbol.docAttachment().isPresent()) {
+            if (bSymbol.documentation().isPresent()) {
                 item.setDocumentation(getDocumentation(bSymbol, skipFirstParam, ctx));
             }
         }
@@ -155,7 +155,7 @@ public final class FunctionCompletionItemBuilder {
         String pkgID = functionSymbol.moduleID().toString();
         FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
 
-        Optional<Documentation> docAttachment = functionSymbol.docAttachment();
+        Optional<Documentation> docAttachment = functionSymbol.documentation();
         String description = docAttachment.isEmpty() || docAttachment.get().description().isEmpty()
                 ? "" : docAttachment.get().description().get();
         Map<String, String> docParamsMap = new HashMap<>();
@@ -176,7 +176,7 @@ public final class FunctionCompletionItemBuilder {
         }
         for (int i = 0; i < functionParameters.size(); i++) {
             ParameterSymbol param = functionParameters.get(i);
-            String paramType = param.typeDescriptor().signature();
+            String paramType = CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor());
             if (i == 0 && skipFirstParam) {
                 continue;
             }
@@ -206,7 +206,7 @@ public final class FunctionCompletionItemBuilder {
                         .replaceAll(CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
             }
             documentation += CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "**Returns**"
-                    + " `" + functionTypeDesc.returnTypeDescriptor().get().signature() + "` " +
+                    + " `" + CommonUtil.getModifiedTypeName(ctx, functionTypeDesc.returnTypeDescriptor().get()) + "` " +
                     CommonUtil.MD_LINE_SEPARATOR + desc + CommonUtil.MD_LINE_SEPARATOR;
         }
         docMarkupContent.setValue(documentation);
@@ -243,7 +243,7 @@ public final class FunctionCompletionItemBuilder {
         String endString = ")";
 
         if (returnType.isPresent() && returnType.get().typeKind() != TypeDescKind.NIL) {
-            signature.append(initString).append(returnType.get().signature());
+            signature.append(initString).append(CommonUtil.getModifiedTypeName(ctx, returnType.get()));
             signature.append(endString);
         }
 
@@ -268,10 +268,11 @@ public final class FunctionCompletionItemBuilder {
                 continue;
             }
             ParameterSymbol param = parameterDefs.get(i);
-            args.add(param.typeDescriptor().signature() + (param.name().isEmpty() ? "" : " " + param.name().get()));
+            args.add(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) + (param.name().isEmpty() ? ""
+                    : " " + param.name().get()));
         }
         restParam.ifPresent(param ->
-                args.add(param.typeDescriptor().signature()
+                args.add(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor())
                         + (param.name().isEmpty() ? "" : "... "
                         + param.name().get())));
         return (!args.isEmpty()) ? args : new ArrayList<>();

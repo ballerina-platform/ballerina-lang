@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -61,6 +62,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.ProjectUtils.checkWritePermission;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
@@ -71,6 +73,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
 //    todo that, we would have to move PackageContext class into an internal package.
 public class JBallerinaBackend extends CompilerBackend {
+
     private static final String JAR_FILE_EXTENSION = ".jar";
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
@@ -89,6 +92,8 @@ public class JBallerinaBackend extends CompilerBackend {
     private boolean codeGenCompleted;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
+        // Check if the project has write permissions
+        checkWritePermission(packageCompilation.packageContext().project().sourceRoot());
         return packageCompilation.getCompilerBackend(jdkVersion,
                 (targetPlatform -> new JBallerinaBackend(packageCompilation, jdkVersion)));
     }
@@ -129,8 +134,14 @@ public class JBallerinaBackend extends CompilerBackend {
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
             moduleContext.generatePlatformSpecificCode(compilerContext, this);
-            diagnostics.addAll(moduleContext.diagnostics());
+            moduleContext.diagnostics().forEach(diagnostic ->
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
+
+        // add plugin diagnostics
+        diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
+        // add ballerina toml diagnostics
+        diagnostics.addAll(this.packageContext.manifest().diagnostics().diagnostics());
 
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
@@ -152,8 +163,8 @@ public class JBallerinaBackend extends CompilerBackend {
             case EXEC:
                 generatedArtifact = emitExecutable(filePath);
                 break;
-            case BALO:
-                generatedArtifact = emitBalo(filePath);
+            case BALA:
+                generatedArtifact = emitBala(filePath);
                 break;
             default:
                 throw new RuntimeException("Unexpected output type: " + outputType);
@@ -162,8 +173,8 @@ public class JBallerinaBackend extends CompilerBackend {
         return new EmitResult(true, diagnosticResult, generatedArtifact);
     }
 
-    private Path emitBalo(Path filePath) {
-        JBallerinaBaloWriter writer = new JBallerinaBaloWriter(this);
+    private Path emitBala(Path filePath) {
+        JBallerinaBalaWriter writer = new JBallerinaBalaWriter(this);
         return writer.write(filePath);
     }
 
@@ -466,7 +477,7 @@ public class JBallerinaBackend extends CompilerBackend {
      */
     public enum OutputType {
         EXEC("exec"),
-        BALO("balo"),
+        BALA("bala"),
         ;
 
         private String value;
@@ -475,7 +486,6 @@ public class JBallerinaBackend extends CompilerBackend {
             this.value = value;
         }
     }
-
 
     JvmTarget jdkVersion() {
         return jdkVersion;

@@ -150,3 +150,43 @@ service on new PathOnlyListener() {
 service / on new PathOnlyListener() {
 
 }
+
+type JustObj object {
+
+};
+
+type UnionType PathOnlyListener|JustObj;
+listener UnionType ul = new PathOnlyListener();
+
+type UnionWithError PathOnlyListener|error;
+listener UnionWithError ue = new PathOnlyListener();
+
+type UnionWithInt PathOnlyListener|int;
+listener UnionWithInt ui = new PathOnlyListener();
+
+service / on ui {
+
+}
+
+type ServType service object {
+    function exec() returns any|error;
+};
+
+public class ServTypeListener {
+    public isolated function 'start() returns error? {
+    }
+    public isolated function gracefulStop() returns error? {
+    }
+    public isolated function immediateStop() returns error? {
+    }
+    public isolated function detach(ServType s) returns error? {
+    }
+    public isolated function attach(ServType s, string[] name) returns error? {
+    }
+    isolated function register(service object {} s, string[]|string? name) returns error? {
+    }
+}
+
+service / on new ServTypeListener() {
+
+}

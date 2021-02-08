@@ -295,18 +295,52 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Test
-    public void expressionEvaluationNegativeTest() throws BallerinaTestException {
+    public void invalidInputEvaluationTest() throws BallerinaTestException {
         // empty expressions
         debugTestRunner.assertEvaluationError(context, "  ", EvaluationExceptionKind.EMPTY.getString());
+
+        // Ballerina documentation lines
+        debugTestRunner.assertEvaluationError(context, "# This is a documentation line",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Documentation is not allowed."));
+
+        // Line comments
+        debugTestRunner.assertEvaluationError(context, "// This is a comment",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Empty expressions cannot be " +
+                        "evaluated."));
+    }
+
+    @Test
+    public void unsupportedInputEvaluationTest() throws BallerinaTestException {
+        // import statements
+        debugTestRunner.assertEvaluationError(context, "import ballerina/http;",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Import declaration evaluation is not" +
+                        " supported."));
+        debugTestRunner.assertEvaluationError(context, "import ballerina/log",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Import declaration evaluation is not" +
+                        " supported."));
+
+        // Top-level definitions
+        debugTestRunner.assertEvaluationError(context, "function foo() {}",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Top-level declaration evaluation is" +
+                        " not supported."));
+        debugTestRunner.assertEvaluationError(context, "class Person { int name = \"John\"; }",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Top-level declaration evaluation is" +
+                        " not supported."));
+
+        // statement(s)
+        debugTestRunner.assertEvaluationError(context, "int a = 1; int b = 5;",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Statement evaluation is" +
+                        " not supported."));
+        debugTestRunner.assertEvaluationError(context, "if(true) { boolean isTrue = true; }",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Statement evaluation is" +
+                        " not supported."));
+        debugTestRunner.assertEvaluationError(context, "int a = 1;",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Statement evaluation is" +
+                        " not supported."));
+
         // unsupported expressions
         debugTestRunner.assertEvaluationError(context, "new()",
                 String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
-                        "new() - IMPLICIT_NEW_EXPRESSION"));
-        // syntactically incorrect expressions (additional semi-colon)
-        debugTestRunner.assertEvaluationError(context, "x + 5;;",
-                String.format(EvaluationExceptionKind.SYNTAX_ERROR.getString(), "invalid token ';'"));
-        // Todo - Enable
-        // assignment statements
-        // debugTestRunner.assertEvaluationError(context, "int x = 5;", "");
+                        "'new()' - IMPLICIT_NEW_EXPRESSION"));
     }
 }

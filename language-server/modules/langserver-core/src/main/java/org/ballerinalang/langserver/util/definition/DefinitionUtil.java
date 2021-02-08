@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.util.definition;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LinePosition;
@@ -45,14 +46,15 @@ public class DefinitionUtil {
      * @return {@link List} List of definition locations
      */
     public static List<Location> getDefinition(DocumentServiceContext context, Position position) {
+        Optional<Document> srcFile = context.workspace().document(context.filePath());
         Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
 
-        if (semanticModel.isEmpty()) {
+        if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             return Collections.emptyList();
         }
-        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
+
         LinePosition linePosition = LinePosition.from(position.getLine(), position.getCharacter());
-        Optional<Symbol> symbol = semanticModel.get().symbol(relPath, linePosition);
+        Optional<Symbol> symbol = semanticModel.get().symbol(srcFile.get(), linePosition);
 
         if (symbol.isEmpty()) {
             return Collections.emptyList();

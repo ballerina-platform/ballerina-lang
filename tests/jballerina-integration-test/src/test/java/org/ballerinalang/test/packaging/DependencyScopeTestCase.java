@@ -81,15 +81,15 @@ public class DependencyScopeTestCase extends BaseTest {
      */
     @Test(description = "Test 'provided' scope for platform dependency jars")
     public void providedScopeDependencyCase() throws BallerinaTestException, IOException {
-        String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
+        String moduleUtilsBalaFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
-        String moduleUtilsBuildMsg = "target" + File.separator + "balo" + File.separator + moduleUtilsBaloFileName;
+        String moduleUtilsBuildMsg = "target" + File.separator + "bala" + File.separator + moduleUtilsBalaFileName;
 
-        Path baloPath = projectResources.resolve("TestProject1" + File.separator + "target" + File.separator +
-                "balo");
-        File baloFile = new File(baloPath.toString() + File.separator + moduleUtilsBaloFileName);
-        File baloZipFile = new File(baloPath.toString() + File.separator +
-                moduleUtilsBaloFileName.concat(".zip"));
+        Path balaPath = projectResources.resolve("TestProject1" + File.separator + "target" + File.separator +
+                "bala");
+        File balaFile = new File(balaPath.toString() + File.separator + moduleUtilsBalaFileName);
+        File balaZipFile = new File(balaPath.toString() + File.separator +
+                moduleUtilsBalaFileName.concat(".zip"));
 
         LogLeecher moduleUtilsBuildLeecher = new LogLeecher(moduleUtilsBuildMsg);
         balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
@@ -97,9 +97,9 @@ public class DependencyScopeTestCase extends BaseTest {
                 projectResources.resolve("TestProject1").toString());
         moduleUtilsBuildLeecher.waitForText(5000);
 
-        // Check whether dependency jars getting packed to balo
-        Assert.assertTrue(renameFile(baloFile, baloZipFile));
-        Assert.assertFalse(isJarExists(baloZipFile, jarEntry));
+        // Check whether dependency jars getting packed to bala
+        Assert.assertTrue(renameFile(balaFile, balaZipFile));
+        Assert.assertFalse(isJarExists(balaZipFile, jarEntry));
 
         // Define the scope as provided for a dependency jar which is needed for testable package
         copy(tempTestResources.resolve("provided").resolve(MANIFEST_FILE_NAME),
@@ -119,13 +119,13 @@ public class DependencyScopeTestCase extends BaseTest {
      */
     @Test(description = "Test 'testOnly' scope for platform dependency jars")
     public void testOnlyScopeDependencyCase() throws BallerinaTestException, IOException {
-        Path baloPath = projectResources.resolve("TestProject2" + File.separator + "target" + File.separator +
-                "balo");
-        String moduleFooBaloFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
+        Path balaPath = projectResources.resolve("TestProject2" + File.separator + "target" + File.separator +
+                "bala");
+        String moduleFooBalaFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
-        File baloFile = new File(baloPath.toString() + File.separator + moduleFooBaloFileName);
-        File baloZipFile = new File(baloPath.toString() + File.separator +
-                moduleFooBaloFileName.concat(".zip"));
+        File balaFile = new File(balaPath.toString() + File.separator + moduleFooBalaFileName);
+        File balaZipFile = new File(balaPath.toString() + File.separator +
+                moduleFooBalaFileName.concat(".zip"));
 
         String moduleFooTestMsg = "1 passing";
         LogLeecher moduleFooTestLeecher = new LogLeecher(moduleFooTestMsg);
@@ -133,14 +133,14 @@ public class DependencyScopeTestCase extends BaseTest {
                 new LogLeecher[]{moduleFooTestLeecher}, projectResources.resolve("TestProject2").toString());
         moduleFooTestLeecher.waitForText(5000);
 
-        // Check whether dependency jars getting packed to balo
-        Assert.assertTrue(renameFile(baloFile, baloZipFile));
-        Assert.assertFalse(isJarExists(baloZipFile, jarEntry));
+        // Check whether dependency jars getting packed to bala
+        Assert.assertTrue(renameFile(balaFile, balaZipFile));
+        Assert.assertFalse(isJarExists(balaZipFile, jarEntry));
 
         // Define the scope as testOnly for a dependency jar which is needed for compiling module
         copy(tempTestResources.resolve("testOnly").resolve(MANIFEST_FILE_NAME),
                 projectResources.resolve("TestProject1").resolve(MANIFEST_FILE_NAME));
-        String errorMsg = "error: wso2/utils:0.1.0::main.bal:4:1: {ballerina/java}CLASS_NOT_FOUND" +
+        String errorMsg = "error: wso2/utils:0.1.0::main.bal:4:1: {ballerina/jballerina.java}CLASS_NOT_FOUND" +
                 " 'org.wso2.test.StaticMethods'";
         LogLeecher utilsCompileLeecher = new LogLeecher(errorMsg, LogLeecher.LeecherType.ERROR);
         balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
@@ -154,13 +154,13 @@ public class DependencyScopeTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Validate if all dependency jars of the balo dependency are added to the project toml")
-    public void testValidatingDependenciesFromBaloToml() throws BallerinaTestException {
+    @Test(description = "Validate if all dependency jars of the bala dependency are added to the project toml")
+    public void testValidatingDependenciesFromBalaToml() throws BallerinaTestException {
         copy(tempTestResources.resolve("validate-dependency").resolve("TestProject1").resolve(MANIFEST_FILE_NAME),
                 projectResources.resolve("TestProject1").resolve(MANIFEST_FILE_NAME));
-        String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
+        String moduleUtilsBalaFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
-        String moduleUtilsBuildMsg = "target" + File.separator + "balo" + File.separator + moduleUtilsBaloFileName;
+        String moduleUtilsBuildMsg = "target" + File.separator + "bala" + File.separator + moduleUtilsBalaFileName;
         LogLeecher moduleUtilsBuildLeecher = new LogLeecher(moduleUtilsBuildMsg);
         balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
                 new LogLeecher[]{moduleUtilsBuildLeecher},

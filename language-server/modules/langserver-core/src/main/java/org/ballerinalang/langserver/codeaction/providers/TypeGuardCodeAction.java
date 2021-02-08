@@ -34,6 +34,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.Document;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -147,7 +148,7 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
             default:
                 return Optional.empty();
         }
-        if (varTypeSymbol.typeKind() != TypeDescKind.UNION) {
+        if (varTypeSymbol == null || varTypeSymbol.typeKind() != TypeDescKind.UNION) {
             return Optional.empty();
         }
         return Optional.of(new ImmutablePair<>((UnionTypeSymbol) varTypeSymbol, varTypeNode));
@@ -156,8 +157,9 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
     private Optional<VariableSymbol> getVariableSymbol(CodeActionContext context, Node matchedNode) {
         AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
-        Optional<Symbol> symbol = semanticModel.symbol(relPath, assignmentStmtNode.varRef().lineRange().startLine());
+        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
+        Optional<Symbol> symbol = semanticModel.symbol(srcFile,
+                                                       assignmentStmtNode.varRef().lineRange().startLine());
         if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.VARIABLE) {
             return Optional.empty();
         }

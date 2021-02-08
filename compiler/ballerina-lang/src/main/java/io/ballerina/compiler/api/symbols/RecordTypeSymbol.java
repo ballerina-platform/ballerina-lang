@@ -17,6 +17,7 @@
 package io.ballerina.compiler.api.symbols;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -27,11 +28,13 @@ import java.util.Optional;
 public interface RecordTypeSymbol extends TypeSymbol {
 
     /**
-     * Get the list of field descriptors.
+     * Get the symbols of the fields of the record type. The mapping is a set of field name and field symbol pairs. The
+     * returned map is ordered. The order in which the fields were specified in the source code is preserved when
+     * iterating the entries of the map.
      *
-     * @return {@link List} of ballerina field
+     * @return An ordered map containing the symbols of the fields
      */
-    List<FieldSymbol> fieldDescriptors();
+    Map<String, RecordFieldSymbol> fieldDescriptors();
 
     /**
      * Get the rest type descriptor.

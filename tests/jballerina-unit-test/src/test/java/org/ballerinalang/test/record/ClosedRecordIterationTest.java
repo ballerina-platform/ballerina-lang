@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -332,5 +333,11 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(((BInteger) grades.get("maths")).intValue(), 80);
         Assert.assertEquals(((BInteger) grades.get("physics")).intValue(), 75);
         Assert.assertEquals(((BInteger) grades.get("chemistry")).intValue(), 65);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        closedRecNegatives = null;
     }
 }

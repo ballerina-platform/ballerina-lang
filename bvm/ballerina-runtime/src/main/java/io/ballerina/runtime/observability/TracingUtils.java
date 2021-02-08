@@ -22,23 +22,15 @@ import io.ballerina.runtime.observability.metrics.Tag;
 import io.ballerina.runtime.observability.tracer.BSpan;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_BSTRUCT_ERROR;
-import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_ERROR_MESSAGE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_ERROR_VALUE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ERROR;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_TRUE_VALUE;
 import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.LOG_KEY_EVENT_TYPE;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.LOG_KEY_MESSAGE;
 import static io.ballerina.runtime.observability.tracer.TraceConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static io.ballerina.runtime.observability.tracer.TraceConstants.TAG_KEY_STR_ERROR_MESSAGE;
 
 /**
  * Util class to hold tracing specific util methods.
@@ -83,31 +75,18 @@ public class TracingUtils {
     public static void stopObservation(ObserverContext observerContext) {
         BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (span != null) {
-            Tag errorTag = observerContext.getTag(TAG_KEY_ERROR);
-            if (errorTag != null && TAG_TRUE_VALUE.equals(errorTag.getValue())) {
-                StringBuilder errorMessageBuilder = new StringBuilder();
-                String errorMessage = (String) observerContext.getProperty(PROPERTY_ERROR_MESSAGE);
-                if (errorMessage != null) {
-                    errorMessageBuilder.append(errorMessage);
-                }
-
-                ErrorValue bError = (ErrorValue) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
-                if (bError != null) {
-                    if (errorMessage != null) {
-                        errorMessageBuilder.append('\n');
-                    }
-                    errorMessageBuilder.append(bError.getPrintableStackTrace());
-                }
-                Map<String, Object> logProps = new HashMap<>();
-                logProps.put(LOG_KEY_ERROR_KIND, LOG_ERROR_KIND_EXCEPTION);
-                logProps.put(LOG_KEY_EVENT_TYPE, LOG_EVENT_TYPE_ERROR);
-                logProps.put(LOG_KEY_MESSAGE, errorMessageBuilder.toString());
-                span.logError(logProps);
+            // Adding error message to Trace Span
+            ErrorValue bError = (ErrorValue) observerContext.getProperty(PROPERTY_ERROR_VALUE);
+            if (bError != null) {
+                span.addTag(TAG_KEY_STR_ERROR_MESSAGE, bError.getPrintableStackTrace());
             }
+
+            // Adding specific error code to Trace Span
             Integer statusCode = (Integer) observerContext.getProperty(PROPERTY_KEY_HTTP_STATUS_CODE);
             if (statusCode != null && statusCode >= 100) {
                 span.addTags(Collections.singletonMap(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(statusCode)));
             }
+
             Map<String, String> traceTags = observerContext.getAllTags()
                     .stream()
                     .collect(Collectors.toMap(Tag::getKey, Tag::getValue));

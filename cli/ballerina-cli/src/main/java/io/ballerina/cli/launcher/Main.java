@@ -121,7 +121,7 @@ public class Main {
             cmdParser.addSubcommand(BallerinaCliCommands.ENCRYPT, encryptCmd);
             encryptCmd.setParentCmdParser(cmdParser);
 
-            cmdParser.setCommandName("ballerina");
+            cmdParser.setCommandName("bal");
             cmdParser.setPosixClusteredShortOptionsAllowed(false);
 
 
@@ -300,7 +300,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  ballerina version\n");
+            out.append("  bal version\n");
         }
 
         @Override
@@ -356,7 +356,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  ballerina home\n");
+            out.append("  bal home\n");
         }
 
         @Override

@@ -2892,14 +2892,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(listMatchPatternNode.openBracket());
         SeparatedNodeList<Node> matchPatterns =
                 modifySeparatedNodeList(listMatchPatternNode.matchPatterns());
-        RestMatchPatternNode restMatchPattern =
-                modifyNode(listMatchPatternNode.restMatchPattern().orElse(null));
         Token closeBracket =
                 modifyToken(listMatchPatternNode.closeBracket());
         return listMatchPatternNode.modify(
                 openBracket,
                 matchPatterns,
-                restMatchPattern,
                 closeBracket);
     }
 
@@ -2923,23 +2920,20 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             MappingMatchPatternNode mappingMatchPatternNode) {
         Token openBraceToken =
                 modifyToken(mappingMatchPatternNode.openBraceToken());
-        SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns =
+        SeparatedNodeList<Node> fieldMatchPatterns =
                 modifySeparatedNodeList(mappingMatchPatternNode.fieldMatchPatterns());
-        RestMatchPatternNode restMatchPattern =
-                modifyNode(mappingMatchPatternNode.restMatchPattern().orElse(null));
         Token closeBraceToken =
                 modifyToken(mappingMatchPatternNode.closeBraceToken());
         return mappingMatchPatternNode.modify(
                 openBraceToken,
                 fieldMatchPatterns,
-                restMatchPattern,
                 closeBraceToken);
     }
 
     @Override
     public FieldMatchPatternNode transform(
             FieldMatchPatternNode fieldMatchPatternNode) {
-        SimpleNameReferenceNode fieldNameNode =
+        IdentifierToken fieldNameNode =
                 modifyNode(fieldMatchPatternNode.fieldNameNode());
         Token colonToken =
                 modifyToken(fieldMatchPatternNode.colonToken());

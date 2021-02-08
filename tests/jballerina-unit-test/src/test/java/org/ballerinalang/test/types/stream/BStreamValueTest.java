@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -110,6 +111,12 @@ public class BStreamValueTest {
     @Test(description = "Test empty stream constructs")
     public void testEmptyStreamConstructs() {
         BValue[] values = BRunUtil.invoke(result, "testEmptyStreamConstructs", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test passing union of stream to a function which takes a stream as a argument")
+    public void testUnionOfStreamsAsFunctionParams() {
+        BValue[] values = BRunUtil.invoke(result, "testUnionOfStreamsAsFunctionParams", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
@@ -222,9 +229,29 @@ public class BStreamValueTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
                 "public isolated function next() returns (record {| int value; |}|error)?; public isolated function " +
                 "close() returns error?; }', but found 'IteratorWithNonIsolatedNextAndIsolatedClose'", 351, 42);
-        BAssertUtil.validateError(negativeResult, i, "invalid stream constructor. expected a subtype of 'object { " +
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
                 "public isolated function next() returns (record {| int value; |}|error)?; public isolated function " +
                 "close() returns error?; }', but found 'IteratorWithIsolatedNextAndNonIsolatedClose'", 352, 42);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 371, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 372, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 373, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', found " +
+                "'stream<int>'", 374, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 375, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 376, 20);
+        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 377, 20);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 
 }

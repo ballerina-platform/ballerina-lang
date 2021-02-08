@@ -108,7 +108,7 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
             return new ArrayList<>();
         }
         TypeSymbol typeDescriptor = CommonUtil.getRawType(((VariableSymbol) symbol).typeDescriptor());
-        return ((ObjectTypeSymbol) typeDescriptor).methods().stream()
+        return ((ObjectTypeSymbol) typeDescriptor).methods().values().stream()
                 .filter(method -> method.qualifiers().contains(Qualifier.REMOTE))
                 .collect(Collectors.toList());
     }

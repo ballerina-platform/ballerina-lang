@@ -22,6 +22,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -39,7 +40,7 @@ public class CompilerPluginTest {
 
     @BeforeClass
     public void setup() {
-        CompileResult result = BCompileUtil.compileAndCacheBalo("test-src/proj");
+        CompileResult result = BCompileUtil.compileAndCacheBala("test-src/proj");
         compileResult = BCompileUtil.compile("test-src/compiler_plugin_test.bal");
     }
 
@@ -109,5 +110,10 @@ public class CompilerPluginTest {
                 Assert.assertEquals(actualEventSet.contains(expectedEvent), true,
                         "The " + kind.name + " '" + expectedEvent.nodeName + "' is not processed")
         );
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

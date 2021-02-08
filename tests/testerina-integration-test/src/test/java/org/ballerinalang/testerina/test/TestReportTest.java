@@ -57,8 +57,10 @@ public class TestReportTest extends BaseTestCase {
     public void testWarningForReportTools() throws BallerinaTestException, IOException {
         String msg = "warning: Could not find the required HTML report tools for code coverage";
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"--code-coverage"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
+
+        String[] args = mergeCoverageArgs(new String[]{});
+        balClient.runMain("test", new String[]{"--code-coverage", "--includes=*"}, null,
+                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(60000);
     }
 
@@ -79,7 +81,7 @@ public class TestReportTest extends BaseTestCase {
     private void runCommand(boolean coverage) throws BallerinaTestException, IOException {
         String[] args;
         if (coverage) {
-            args = new String[]{"--code-coverage"};
+            args = new String[]{"--code-coverage", "--includes=*"};
         } else {
             args = new String[]{"--test-report"};
         }

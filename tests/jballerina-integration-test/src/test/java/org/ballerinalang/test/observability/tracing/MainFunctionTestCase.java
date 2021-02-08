@@ -50,7 +50,6 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         final String span6Position = FILE_NAME + ":38:16";
         final String entryPointFunctionModule = "intg_tests/tracing_tests:0.0.1";
         final String entryPointFunctionPosition = "01_main_function.bal:19:1";
-        // TODO : Need to fix the position offset 55:43 (col 43 is not found in the source-code)
         final List<BMockSpan.BMockSpanEvent> expectedCheckpoints = Arrays.asList(
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":20:5"),
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":22:13"),
@@ -61,8 +60,6 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":38:16"),
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":39:11"),
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":44:43"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":53:43"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":53:43"),
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":44:43"),
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":54:31"),
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":55:5"),
@@ -180,7 +177,11 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithPanic"),
-                    new AbstractMap.SimpleEntry<>("error", "true")
+                    new AbstractMap.SimpleEntry<>("error", "true"),
+                    new AbstractMap.SimpleEntry<>("error.message", "Test Error\n" +
+                            "\tat intg_tests.tracing_tests.utils.0_0_1.MockClient:callWithPanic(" +
+                            "mock_client_endpoint.bal:58)\n" +
+                            "\t   intg_tests.tracing_tests.0_0_1:main(01_main_function.bal:32)")
             ));
         });
 
@@ -201,7 +202,11 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithErrorReturn"),
-                    new AbstractMap.SimpleEntry<>("error", "true")
+                    new AbstractMap.SimpleEntry<>("error", "true"),
+                    new AbstractMap.SimpleEntry<>("error.message", "Test Error\n" +
+                            "\tat intg_tests.tracing_tests.utils.0_0_1.MockClient:callWithErrorReturn(" +
+                            "mock_client_endpoint.bal:46)\n" +
+                            "\t   intg_tests.tracing_tests.0_0_1:main(01_main_function.bal:38)")
             ));
         });
     }

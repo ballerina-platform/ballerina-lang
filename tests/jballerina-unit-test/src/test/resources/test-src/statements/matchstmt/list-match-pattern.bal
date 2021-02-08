@@ -562,6 +562,57 @@ function testListMatchPattern19() {
     assertEquals("Default" ,listMatchPattern19(a8));
 }
 
+function listMatchPattern20() returns string {
+    [boolean, string] | [int, string, decimal] v = [1, "A", 1.1d];
+    match v {
+        [var i, ...var s] => {
+            return "i: " + i.toString() + " s: " + s.toString();
+        }
+    }
+}
+
+function testListMatchPattern20() {
+    assertEquals("i: 1 s: [\"A\",1.1]", listMatchPattern20());
+}
+
+function listMatchPattern21(int[] v) returns int {
+    match v {
+        [var a, var b, ...var c] => {
+            return a + b + c[0];
+        }
+    }
+    return -1;
+}
+
+function testListMatchPattern21() {
+    assertEquals(6, listMatchPattern21([1, 2, 3, 4, 5]));
+}
+
+function listMatchPattern22(int[5] v) returns int {
+    match v {
+        [var a, var b, ...var c] => {
+            return a + b + c[1];
+        }
+    }
+}
+
+function testListMatchPattern22() {
+    assertEquals(7, listMatchPattern22([1, 2, 3, 4, 5]));
+}
+
+function listMatchPattern23(any[] v) returns string {
+    match v {
+        [var a, var b, ...var c] => {
+            return a.toString();
+        }
+    }
+    return "No Match";
+}
+
+function testListMatchPattern23() {
+    assertEquals("1", listMatchPattern23([1, 2, 3, 4, 5]));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

@@ -6,6 +6,7 @@ module io.ballerina.runtime {
     requires java.logging;
     requires java.management;
     requires opentracing.api;
+    requires opentracing.noop;
     requires java.transaction.xa;
     requires slf4j.api;
     requires axiom.impl;
@@ -33,6 +34,7 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.observability.metrics;
     exports io.ballerina.runtime.observability.metrics.spi;
     exports io.ballerina.runtime.observability.tracer;
+    exports io.ballerina.runtime.observability.tracer.spi;
     exports io.ballerina.runtime.transactions;
 
     // export only for Langlib , Cli and Testerina

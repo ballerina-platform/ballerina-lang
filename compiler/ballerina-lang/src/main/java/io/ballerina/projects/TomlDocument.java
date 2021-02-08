@@ -24,23 +24,25 @@ import io.ballerina.toml.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 /**
  * Represents a generic TOML document in a Ballerina package.
  *
  * @since 2.0.0
  */
-public abstract class TomlDocument {
-    private final Path filePath;
+public class TomlDocument {
+    private final String fileName;
+    private final String content;
     private TextDocument textDocument;
     private SyntaxTree syntaxTree;
     private TomlTableNode tomlAstNode;
 
-    protected TomlDocument(Path filePath) {
-        this.filePath = filePath;
+    protected TomlDocument(String fileName, String content) {
+        this.fileName = fileName;
+        this.content = content;
+    }
+
+    public static TomlDocument from(String fileName, String content) {
+        return new TomlDocument(fileName, content);
     }
 
     public SyntaxTree syntaxTree() {
@@ -66,33 +68,19 @@ public abstract class TomlDocument {
             return textDocument;
         }
 
-        try {
-            textDocument = TextDocuments.from(Files.readString(filePath));
-        } catch (IOException e) {
-            throw new ProjectException("Failed to read file: " + filePath, e);
-        }
+        textDocument = TextDocuments.from(content);
         return textDocument;
     }
 
     private void parseToml() {
         TextDocument textDocument = textDocument();
         try {
-            syntaxTree = SyntaxTree.from(textDocument, getFileName(filePath));
+            syntaxTree = SyntaxTree.from(textDocument, fileName);
             TomlTransformer nodeTransformer = new TomlTransformer();
             tomlAstNode = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
         } catch (RuntimeException e) {
             // The toml parser throws runtime exceptions for some cases
-            throw new ProjectException("Failed to parse file: " + getFileName(filePath), e);
-        }
-    }
-
-    private String getFileName(Path filePath) {
-        final Path fileNamePath = filePath.getFileName();
-        if (fileNamePath != null) {
-            return fileNamePath.toString();
-        } else {
-            // This branch may never be executed.
-            throw new ProjectException("Failed to retrieve the TOML file name from the path: " + filePath);
+            throw new ProjectException("Failed to parse file: " + fileName, e);
         }
     }
 }

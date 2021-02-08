@@ -2,7 +2,7 @@ NAME
        ballerina-format - Format the Ballerina source files
 
 SYNOPSIS
-       ballerina format [-d | --dry-run] [<ballerina-file-path> | <module-name>]
+       bal format [-d | --dry-run] [<ballerina-file-path> | <module-name>]
 
 
 DESCRIPTION
@@ -27,13 +27,13 @@ OPTIONS
 
 EXAMPLES
        Format the Ballerina package.
-          $ ballerina format
+          $ bal format
 
        Format a Ballerina module.
-          $ ballerina format hello
+          $ bal format hello
 
        Format a Ballerina file.
-          $ ballerina format helloworld.bal
+          $ bal format helloworld.bal
 
        Perform a dry run to see which files will be formatted.
-          $ ballerina format -d
+          $ bal format -d

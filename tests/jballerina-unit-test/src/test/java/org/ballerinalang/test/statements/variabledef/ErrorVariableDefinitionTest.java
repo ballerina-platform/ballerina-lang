@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -228,6 +229,14 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[1].stringValue(), "{\"message\":\"Msg\"}");
     }
 
+    @Test(description = "Test error binding pattern")
+    public void testErrorBindingPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorBindingPattern");
+        Assert.assertEquals(returns[0].stringValue(), "Detail Info");
+        Assert.assertEquals(returns[1].stringValue(), "true");
+        Assert.assertEquals(returns[2].stringValue(), "{A:\"a\", B:\"b\"}");
+    }
+
     @Test
     public void testNegativeErrorVariables() {
         CompileResult resultNegative = BCompileUtil.
@@ -249,14 +258,21 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "redeclared symbol 'message'", 54, 36);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int', found 'map<(anydata|readonly)>'", 56, 18);
+                "incompatible types: expected 'int', found 'map<Cloneable>'", 56, 18);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid error variable; expecting an error type but found 'int' in type definition", 57, 47);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 63, 17);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found '(anydata|readonly)'", 64, 16);
+                "incompatible types: expected 'string', found " +
+                        "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 64, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found '(anydata|readonly)'", 70, 16);
+                "incompatible types: expected 'string', found " +
+                        "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 70, 16);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

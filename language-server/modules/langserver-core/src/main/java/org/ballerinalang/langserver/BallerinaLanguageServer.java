@@ -31,14 +31,13 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocum
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
-import org.ballerinalang.langserver.extensions.ballerina.project.BallerinaProjectService;
-import org.ballerinalang.langserver.extensions.ballerina.project.BallerinaProjectServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
 import org.ballerinalang.langserver.extensions.ballerina.traces.ProviderOptions;
+import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.InitializeParams;
@@ -71,7 +70,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private final WorkspaceService workspaceService;
     private final BallerinaDocumentService ballerinaDocumentService;
     private final BallerinaConnectorService ballerinaConnectorService;
-    private final BallerinaProjectService ballerinaProjectService;
     private final BallerinaExampleService ballerinaExampleService;
     private final BallerinaTraceService ballerinaTraceService;
     private final Listener ballerinaTraceListener;
@@ -88,7 +86,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager, this.serverContext);
         this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(workspaceManager, this.serverContext);
         this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(this.serverContext);
-        this.ballerinaProjectService = new BallerinaProjectServiceImpl();
         this.ballerinaExampleService = new BallerinaExampleServiceImpl(this.serverContext);
         this.ballerinaTraceService = new BallerinaTraceServiceImpl(this);
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
@@ -121,11 +118,11 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
         res.getCapabilities().setDocumentFormattingProvider(true);
         res.getCapabilities().setDocumentRangeFormattingProvider(true);
-        res.getCapabilities().setRenameProvider(false);
+        res.getCapabilities().setRenameProvider(true);
         res.getCapabilities().setWorkspaceSymbolProvider(false);
         res.getCapabilities().setImplementationProvider(false);
         res.getCapabilities().setFoldingRangeProvider(true);
-//        res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
+        res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
         HashMap experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
@@ -195,11 +192,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     @Override
     public BallerinaExampleService getBallerinaExampleService() {
         return this.ballerinaExampleService;
-    }
-
-    @Override
-    public BallerinaProjectService getBallerinaProjectService() {
-        return this.ballerinaProjectService;
     }
 
     @Override

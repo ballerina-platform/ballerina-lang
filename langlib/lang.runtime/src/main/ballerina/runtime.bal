@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 import ballerina/lang.'array as lang_array;
 import ballerina/lang.'value as lang_value;
 
@@ -41,14 +41,14 @@ type CallStackElement record {|
 # Register a listener object with a module.
 # + listener - the listener object to be registered. The listener becomes a module listener of the module from which
 #       this function is called.
-public function registerListener(DynamicListener 'listener) = @java:Method {
+public isolated function registerListener(DynamicListener 'listener) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
 } external;
 
 # Deregister a listener from a module.
 # + listener - the listener object to be unregistered. The `listener` ceases to be a module listener of the module from
 # which this function is called.
-public function deregisterListener(DynamicListener 'listener) = @java:Method {
+public isolated function deregisterListener(DynamicListener 'listener) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
 } external;
 
@@ -67,7 +67,7 @@ public isolated function getStackTrace() returns StackFrame[] {
     int i = 0;
     CallStackElement[] callStackElements = externGetStackTrace();
     lang_array:forEach(callStackElements, function (CallStackElement callStackElement) {
-                                stackFrame[i] = new StackFrameImpl(callStackElement.callableName,
+                                stackFrame[i] = new java:StackFrameImpl(callStackElement.callableName,
                                 callStackElement.moduleName, callStackElement.fileName, callStackElement.lineNumber);
                                 i += 1;
                             });
@@ -84,38 +84,6 @@ public type StackFrame object {
    # + return - A StackFrame as a `string`
    public function toString() returns string;
 };
-
-# Implementation for the `StackFrame`.
-#
-# + callableName - Callable name
-# + moduleName - Module name
-# + fileName - File name
-# + lineNumber - Line number
-// todo use readonly qualifier once #27501 fixed
-# public readonly class StackFrameImpl
-public class StackFrameImpl {
-
-    *StackFrame;
-    public string callableName;
-    public string moduleName;
-    public string fileName;
-    public int lineNumber;
-
-    # Returns a string representing for the `StackFrame`
-    #
-    # + return - A stack frame as string
-    public function toString() returns string {
-        return "callableName: " + self.callableName + " " + "moduleName: " + self.moduleName +
-                " " + "fileName: " + self.fileName + " " + "lineNumber: " + lang_value:toString(self.lineNumber);
-    }
-
-    public function init(string callableName, string moduleName, string fileName, int lineNumber) {
-        self.callableName = callableName;
-        self.moduleName = moduleName;
-        self.fileName = fileName;
-        self.lineNumber = lineNumber;
-    }
-}
 
 isolated function externGetStackTrace() returns CallStackElement[] = @java:Method {
     name: "getStackTrace",

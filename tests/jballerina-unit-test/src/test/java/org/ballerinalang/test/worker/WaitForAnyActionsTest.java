@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -216,5 +217,10 @@ public class WaitForAnyActionsTest {
         Assert.assertEquals(vals.length, 1);
         Assert.assertTrue(vals[0] instanceof BError);
         Assert.assertEquals(((BError) vals[0]).getReason(), "A hazardous error occurred!!! Abort immediately!!");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }
