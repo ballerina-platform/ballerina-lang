@@ -274,6 +274,17 @@ public class Package {
             return this;
         }
 
+
+        /**
+         * Remove Dependencies toml.
+         *
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier removeDependenciesToml() {
+            this.dependenciesTomlContext = null;
+            return this;
+        }
+
         /**
          * Adds a Kubernetes toml.
          *
@@ -288,6 +299,16 @@ public class Package {
         }
 
         /**
+         * Remove Kubernetes toml.
+         *
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier removeKubernetesToml() {
+            this.kubernetesTomlContext = null;
+            return this;
+        }
+
+        /**
          * Adds a package md.
          *
          * @param documentConfig configuration of the toml document
@@ -298,6 +319,17 @@ public class Package {
             this.packageMdContext = tomlDocumentContext;
             return this;
         }
+
+        /**
+         * Remove package md.
+         *
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier removePackageMd() {
+            this.packageMdContext = null;
+            return this;
+        }
+
 
 
         Modifier updateBallerinaToml(BallerinaToml ballerinaToml) {
@@ -349,6 +381,11 @@ public class Package {
                     Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null),
                     this.project.sourceRoot());
             this.packageManifest = manifestBuilder.packageManifest();
+        }
+
+        Modifier updatePackageMd(MdDocumentContext packageMd) {
+            this.packageMdContext = packageMd;
+            return this;
         }
     }
 }

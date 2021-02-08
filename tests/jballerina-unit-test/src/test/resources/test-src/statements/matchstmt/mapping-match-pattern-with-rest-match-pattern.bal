@@ -140,6 +140,19 @@ function testMappingMatchPattern7() {
     assertEquals(-1, mappingMatchPattern7({a: 10, b: "20", c: "3"}));
 }
 
+function mappingMatchPattern8(any v) returns anydata {
+    match v {
+        {x: {y: 1, ...var a}} => {
+            return a["z"];
+        }
+    }
+    return "";
+}
+
+function testMappingMatchPattern8() {
+    assertEquals("z", mappingMatchPattern8({x: {y: 1, z: "z"}}));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

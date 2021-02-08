@@ -66,7 +66,7 @@ public class PathDependencyTestCase extends BaseTest {
         this.tempTestResources = Files.createTempDirectory("bal-test-integration-packaging-pathdep-project-");
         
         // copy resources to a temp
-        Path testResources = Paths.get("src", "test", "resources", "packaging", "balopath").toAbsolutePath();
+        Path testResources = Paths.get("src", "test", "resources", "packaging", "balapath").toAbsolutePath();
         PackerinaTestUtils.copyFolder(testResources, this.tempTestResources);
         
         PackerinaTestUtils.createSettingToml(tempHomeDirectory);
@@ -75,28 +75,28 @@ public class PathDependencyTestCase extends BaseTest {
     }
     
     /**
-     * Case1: Build TestProject1. Then build TestProject2 which refer to the balo of TestProject1. Run the jar of
+     * Case1: Build TestProject1. Then build TestProject2 which refer to the bala of TestProject1. Run the jar of
      * TestProject2
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case1: Test path between 2 projects.")
-    public void testBaloPathCase1() throws BallerinaTestException {
+    public void testBalaPathCase1() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case1");
         // Build bee module of TestProject1
-        String beeModuleBaloFileName = "bee-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0"
+        String beeModuleBalaFileName = "bee-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
         
-        String module1BuildMsg = "target" + File.separator + "balo" + File.separator + beeModuleBaloFileName;
+        String module1BuildMsg = "target" + File.separator + "bala" + File.separator + beeModuleBalaFileName;
         LogLeecher beeModuleBuildLeecher = new LogLeecher(module1BuildMsg);
         balClient.runMain("build", new String[]{"-c", "-a"}, envVariables, new String[]{},
                 new LogLeecher[]{beeModuleBuildLeecher}, caseResources.resolve("TestProject1").toString());
         beeModuleBuildLeecher.waitForText(5000);
     
         // Build foo module of TestProject2
-        String bazModuleBaloFileName = "baz" + BLANG_COMPILED_JAR_EXT;
+        String bazModuleBalaFileName = "baz" + BLANG_COMPILED_JAR_EXT;
     
-        String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
+        String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBalaFileName;
         String bazTestMsg = "1 passing";
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
         LogLeecher bazTestLeecher = new LogLeecher(bazTestMsg);
@@ -114,24 +114,24 @@ public class PathDependencyTestCase extends BaseTest {
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case2: Test path between 2 projects where 3 modules are involved and imported as a chain.")
-    public void testBaloPathCase2() throws BallerinaTestException {
+    public void testBalaPathCase2() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case2");
         // Build bee module of TestProject1
-        String beeModuleBaloFileName = "bee-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0"
+        String beeModuleBalaFileName = "bee-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
         
-        String module1BuildMsg = "target" + File.separator + "balo" + File.separator + beeModuleBaloFileName;
+        String module1BuildMsg = "target" + File.separator + "bala" + File.separator + beeModuleBalaFileName;
         LogLeecher beeModuleBuildLeecher = new LogLeecher(module1BuildMsg);
         balClient.runMain("build", new String[]{"-c", "--all"}, envVariables, new String[]{},
                 new LogLeecher[]{beeModuleBuildLeecher}, caseResources.resolve("TestProject1").toString());
         beeModuleBuildLeecher.waitForText(5000);
         
         // Build modules of TestProject2
-        String m1ModuleBaloFileName = "m1-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-2.0.0"
+        String m1ModuleBalaFileName = "m1-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-2.0.0"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
         String m2ModuleExecutableFileName = "m2" + BLANG_COMPILED_JAR_EXT;
         
-        String m1BuildMsg = "target" + File.separator + "balo" + File.separator + m1ModuleBaloFileName;
+        String m1BuildMsg = "target" + File.separator + "bala" + File.separator + m1ModuleBalaFileName;
         String m2BuildMsg = "target" + File.separator + "bin" + File.separator + m2ModuleExecutableFileName;
         LogLeecher m1ModuleBuildLeecher = new LogLeecher(m1BuildMsg);
         LogLeecher m2ModuleBuildLeecher = new LogLeecher(m2BuildMsg);
@@ -146,27 +146,27 @@ public class PathDependencyTestCase extends BaseTest {
     
     /**
      * Case3: Build TestProject1 which has a native module. Then build TestProject2 which refer to the native module
-     * balo. Run the jar of TestProject2
+     * bala. Run the jar of TestProject2
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case3: Test path between 2 projects which the import is a native.")
-    public void testBaloPathCase3() throws BallerinaTestException {
+    public void testBalaPathCase3() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case3");
         // Build bee module of TestProject1
-        String toml4jModuleBaloFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.7.2"
+        String toml4jModuleBalaFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.7.2"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
 
-        String toml4jBuildMsg = "target" + File.separator + "balo" + File.separator + toml4jModuleBaloFileName;
+        String toml4jBuildMsg = "target" + File.separator + "bala" + File.separator + toml4jModuleBalaFileName;
         LogLeecher toml4jBuildLeecher = new LogLeecher(toml4jBuildMsg);
         balClient.runMain("build", new String[]{"--all", "-c"}, envVariables, new String[]{},
                 new LogLeecher[]{toml4jBuildLeecher}, caseResources.resolve("TestProject1").toString());
         toml4jBuildLeecher.waitForText(5000);
 
         // Build foo module of TestProject2
-        String bazModuleBaloFileName = "baz" + BLANG_COMPILED_JAR_EXT;
+        String bazModuleBalaFileName = "baz" + BLANG_COMPILED_JAR_EXT;
 
-        String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
+        String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBalaFileName;
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
         LogLeecher bazTestLeecher = new LogLeecher("1 passing");
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
@@ -188,7 +188,7 @@ public class PathDependencyTestCase extends BaseTest {
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test()
-    public void testBaloPathCase4() throws BallerinaTestException, IOException {
+    public void testBalaPathCase4() throws BallerinaTestException, IOException {
         Path caseResources = tempTestResources.resolve("case4");
         // Build bee module of TestProject1
         //// change module name
@@ -198,10 +198,10 @@ public class PathDependencyTestCase extends BaseTest {
                                       testProjBeeModulePath);
         deleteFiles(caseResources.resolve("TestProject1").resolve("src").resolve("bee"));
         
-        String beeModuleBaloFileName = beeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-1" +
+        String beeModuleBalaFileName = beeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-1" +
                 ".2.0" + BLANG_COMPILED_PKG_BINARY_EXT;
         
-        String module1BuildMsg = "target" + File.separator + "balo" + File.separator + beeModuleBaloFileName;
+        String module1BuildMsg = "target" + File.separator + "bala" + File.separator + beeModuleBalaFileName;
         LogLeecher beeModuleBuildLeecher = new LogLeecher(module1BuildMsg);
         balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
                 new LogLeecher[]{beeModuleBuildLeecher}, caseResources.resolve("TestProject1").toString());
@@ -231,17 +231,17 @@ public class PathDependencyTestCase extends BaseTest {
                                       testProjFeeModulePath);
         deleteFiles(caseResources.resolve("TestProject2").resolve("src").resolve("fee"));
     
-        String feeModuleBaloFileName = feeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-2.0.0"
+        String feeModuleBalaFileName = feeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-2.0.0"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
     
-        String feeBaloFilePath = "target" + File.separator + "balo" + File.separator + feeModuleBaloFileName;
+        String feeBalaFilePath = "target" + File.separator + "bala" + File.separator + feeModuleBalaFileName;
 
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
             balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
                     new LogLeecher[]{}, caseResources.resolve("TestProject2").toString());
-            return Files.exists(caseResources.resolve("TestProject2").resolve(Paths.get(feeBaloFilePath)));
+            return Files.exists(caseResources.resolve("TestProject2").resolve(Paths.get(feeBalaFilePath)));
         });
     
         // Push fee module of TestProject2
@@ -259,8 +259,8 @@ public class PathDependencyTestCase extends BaseTest {
                 .collect(Collectors.toList());
         Files.write(jeeBalPath, replaced);
 
-        String jeeModuleBaloFileName = "jee" + BLANG_COMPILED_JAR_EXT;
-        String jeeExecutableFilePath = "target" + File.separator + "bin" + File.separator + jeeModuleBaloFileName;
+        String jeeModuleBalaFileName = "jee" + BLANG_COMPILED_JAR_EXT;
+        String jeeExecutableFilePath = "target" + File.separator + "bin" + File.separator + jeeModuleBalaFileName;
 
         LogLeecher beeTestLeecher = new LogLeecher("1 passing");
 
@@ -286,7 +286,7 @@ public class PathDependencyTestCase extends BaseTest {
                 new LogLeecher[]{beeModuleBuildLeecher}, caseResources.resolve("TestProject1").toString());
         beeModuleBuildLeecher.waitForText(5000);
     
-        // Build and run TestProject3 with path set to bee balo in TestProject1
+        // Build and run TestProject3 with path set to bee bala in TestProject1
         //// replace code
         Path jeeTestPath = caseResources.resolve("TestProject3").resolve("src").resolve("jee").resolve("tests")
                 .resolve("impl_test.bal");
@@ -314,28 +314,28 @@ public class PathDependencyTestCase extends BaseTest {
     }
     
     /**
-     * Case5: Build TestProject1. Then build TestProject2 which refer to the balo of TestProject1. Then try to push baz
-     * of TestProject2 to central with balo path dependency
+     * Case5: Build TestProject1. Then build TestProject2 which refer to the bala of TestProject1. Then try to push baz
+     * of TestProject2 to central with bala path dependency
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case5: Push with path dependency.", expectedExceptions = BallerinaTestException.class)
-    public void testBaloPathCase5() throws BallerinaTestException {
+    public void testBalaPathCase5() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case5");
         // Build bee module of TestProject1
-        String beeModuleBaloFileName = "bee-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0"
+        String beeModuleBalaFileName = "bee-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
         
-        String module1BuildMsg = "target" + File.separator + "balo" + File.separator + beeModuleBaloFileName;
+        String module1BuildMsg = "target" + File.separator + "bala" + File.separator + beeModuleBalaFileName;
         LogLeecher beeModuleBuildLeecher = new LogLeecher(module1BuildMsg);
         balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
                 new LogLeecher[]{beeModuleBuildLeecher}, caseResources.resolve("TestProject1").toString());
         beeModuleBuildLeecher.waitForText(5000);
         
         // Build foo module of TestProject2
-        String bazModuleBaloFileName = "baz" + BLANG_COMPILED_JAR_EXT;
+        String bazModuleBalaFileName = "baz" + BLANG_COMPILED_JAR_EXT;
         
-        String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
+        String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBalaFileName;
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{bazModuleBuildLeecher}, caseResources.resolve("TestProject2").toString());
@@ -350,35 +350,35 @@ public class PathDependencyTestCase extends BaseTest {
     }
 
     /**
-     * Case6: Build TestProject2. Then build TestProject1 which refer to the balo of TestProject2. TestProject2 has two
+     * Case6: Build TestProject2. Then build TestProject1 which refer to the bala of TestProject2. TestProject2 has two
      * modules X and Y which imports the same module from TestProject2 which is Z.
      * Then run the jar of TestProject1
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case6: Test dependency between two porject with common module as an import.")
-    public void testBaloPathCase6() throws BallerinaTestException {
+    public void testBalaPathCase6() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case6");
 
         // Build Z module of TestProject2
-        String moduleZBaloFileName = "Z-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+        String moduleZBalaFileName = "Z-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
-        String moduleZBuildMsg = "target" + File.separator + "balo" + File.separator + moduleZBaloFileName;
+        String moduleZBuildMsg = "target" + File.separator + "bala" + File.separator + moduleZBalaFileName;
         LogLeecher moduleZBuildLeecher = new LogLeecher(moduleZBuildMsg);
         balClient.runMain("build", new String[]{"-c", "-a"}, envVariables, new String[]{},
                 new LogLeecher[]{moduleZBuildLeecher}, caseResources.resolve("TestProject2").toString());
         moduleZBuildLeecher.waitForText(5000);
 
         // Build all modules of TestProject1
-        String moduleXBaloFileName = "X-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+        String moduleXBalaFileName = "X-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
-        String moduleYBaloFileName = "Y-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+        String moduleYBalaFileName = "Y-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
-        String moduleXBuildMsg = "target" + File.separator + "balo" + File.separator + moduleXBaloFileName;
-        String moduleYBuildMsg = "target" + File.separator + "balo" + File.separator + moduleYBaloFileName;;
+        String moduleXBuildMsg = "target" + File.separator + "bala" + File.separator + moduleXBalaFileName;
+        String moduleYBuildMsg = "target" + File.separator + "bala" + File.separator + moduleYBalaFileName;;
         LogLeecher moduleXBuildLeecher = new LogLeecher(moduleXBuildMsg);
         LogLeecher moduleYBuildLeecher = new LogLeecher(moduleYBuildMsg);
         LogLeecher moduleXTestLeecher = new LogLeecher("1 passing");
@@ -397,17 +397,17 @@ public class PathDependencyTestCase extends BaseTest {
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case7: Test platform dependency of two project with common module as an interop dependency")
-    public void testBaloPathCase7() throws BallerinaTestException {
+    public void testBalaPathCase7() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case7");
         // Build all modules of TestProject3
-        String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
+        String moduleUtilsBalaFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
-        String moduleFooBaloFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+        String moduleFooBalaFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
-        String moduleXBuildMsg = "target" + File.separator + "balo" + File.separator + moduleUtilsBaloFileName;
-        String moduleYBuildMsg = "target" + File.separator + "balo" + File.separator + moduleFooBaloFileName;
+        String moduleXBuildMsg = "target" + File.separator + "bala" + File.separator + moduleUtilsBalaFileName;
+        String moduleYBuildMsg = "target" + File.separator + "bala" + File.separator + moduleFooBalaFileName;
         LogLeecher moduleXBuildLeecher = new LogLeecher(moduleXBuildMsg);
         LogLeecher moduleYBuildLeecher = new LogLeecher(moduleYBuildMsg);
         LogLeecher moduleFooTestLeecher = new LogLeecher("1 passing");
@@ -426,8 +426,8 @@ public class PathDependencyTestCase extends BaseTest {
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case8: Test single bal file using external module with interop dependency",
-            dependsOnMethods = "testBaloPathCase4")
-    public void testBaloSingleBalFileCase8() throws BallerinaTestException, IOException {
+            dependsOnMethods = "testBalaPathCase4")
+    public void testBalaSingleBalFileCase8() throws BallerinaTestException, IOException {
 
         Path caseResources = tempTestResources.resolve("case8");
 
@@ -464,28 +464,28 @@ public class PathDependencyTestCase extends BaseTest {
 
     /**
      * Case9: Build TestProject1 which has a native module with java libraries in the resources directory.
-     * Then build TestProject2 which refer to the native module balo. Run the jar of TestProject2
+     * Then build TestProject2 which refer to the native module bala. Run the jar of TestProject2
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case9: Test path between 2 projects which the import is a native and libraries are in " +
             "resources directory.")
-    public void testBaloPathCase9() throws BallerinaTestException {
+    public void testBalaPathCase9() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case9");
         // Build bee module of TestProject1
-        String toml4jModuleBaloFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.7.2"
+        String toml4jModuleBalaFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.7.2"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
-        String toml4jBuildMsg = "target" + File.separator + "balo" + File.separator + toml4jModuleBaloFileName;
+        String toml4jBuildMsg = "target" + File.separator + "bala" + File.separator + toml4jModuleBalaFileName;
         LogLeecher toml4jBuildLeecher = new LogLeecher(toml4jBuildMsg);
         balClient.runMain("build", new String[]{"--all", "-c"}, envVariables, new String[]{},
                           new LogLeecher[]{toml4jBuildLeecher}, caseResources.resolve("TestProject1").toString());
         toml4jBuildLeecher.waitForText(5000);
 
         // Build foo module of TestProject2
-        String bazModuleBaloFileName = "baz" + BLANG_COMPILED_JAR_EXT;
+        String bazModuleBalaFileName = "baz" + BLANG_COMPILED_JAR_EXT;
 
-        String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
+        String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBalaFileName;
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
         LogLeecher bazTestLeecher = new LogLeecher("1 passing");
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
@@ -496,13 +496,13 @@ public class PathDependencyTestCase extends BaseTest {
     }
 
     /**
-     * Case10: Build and run TestProject1 which imports module with "ballerina" org name via balo path.
+     * Case10: Build and run TestProject1 which imports module with "ballerina" org name via bala path.
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case10: Test build and run project which imports module with \"ballerina\" org name " +
-            "via balo path.")
-    public void testBaloPathCase10() throws BallerinaTestException {
+            "via bala path.")
+    public void testBalaPathCase10() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case10");
         String buildLog = "target/bin/mod1.jar";
         LogLeecher testLogeecher = new LogLeecher("1 passing");

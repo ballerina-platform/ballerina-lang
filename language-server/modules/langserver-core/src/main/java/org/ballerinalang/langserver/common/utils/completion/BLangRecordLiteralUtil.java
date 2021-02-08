@@ -28,6 +28,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -87,7 +88,7 @@ public class BLangRecordLiteralUtil {
             cItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
         } else if (canSpread) {
             cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbol.name(),
-                    typeDescriptor.get().signature());
+                    CommonUtil.getModifiedTypeName(context, typeDescriptor.get()));
         } else {
             return Optional.empty();
         }

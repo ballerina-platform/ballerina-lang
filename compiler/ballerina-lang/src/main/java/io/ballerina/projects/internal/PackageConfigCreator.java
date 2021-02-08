@@ -84,9 +84,9 @@ public class PackageConfigCreator {
 
     public static PackageConfig createBalrProjectConfig(Path balrPath) {
         ProjectFiles.validateBalrProjectPath(balrPath);
-        PackageManifest packageManifest = BaloFiles.createPackageManifest(balrPath);
-        PackageData packageData = BaloFiles.loadPackageData(balrPath, packageManifest);
-        BaloFiles.DependencyGraphResult packageDependencyGraph = BaloFiles
+        PackageManifest packageManifest = BalaFiles.createPackageManifest(balrPath);
+        PackageData packageData = BalaFiles.loadPackageData(balrPath, packageManifest);
+        BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles
                 .createPackageDependencyGraph(balrPath, packageManifest.name().value());
 
         return createPackageConfig(packageData, packageManifest,
@@ -173,7 +173,11 @@ public class PackageConfigCreator {
 
         List<DocumentConfig> srcDocs = getDocumentConfigs(moduleId, moduleData.sourceDocs());
         List<DocumentConfig> testSrcDocs = getDocumentConfigs(moduleId, moduleData.testSourceDocs());
-        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleData.moduleMd(), dependencies);
+
+        DocumentConfig moduleMd = moduleData.moduleMd()
+                .map(data -> createDocumentConfig(data, null)).orElse(null);
+
+        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
     }
 
     private static List<DocumentConfig> getDocumentConfigs(ModuleId moduleId, List<DocumentData> documentData) {

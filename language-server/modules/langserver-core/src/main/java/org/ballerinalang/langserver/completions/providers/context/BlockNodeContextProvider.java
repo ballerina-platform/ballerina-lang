@@ -269,7 +269,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                         paramCounter++;
                     } else if (errorTypes.size() == 1) {
                         snippet.append("if (").append(symbolName).append(" is ")
-                                .append(errorTypes.get(0).signature()).append(") {")
+                                .append(CommonUtil.getModifiedTypeName(ctx, errorTypes.get(0))).append(") {")
                                 .append(CommonUtil.LINE_SEPARATOR).append("\t${1}").append(CommonUtil.LINE_SEPARATOR)
                                 .append("}");
                         paramCounter++;
@@ -279,7 +279,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     restSnippet += IntStream.range(0, resultTypes.size() - paramCounter).mapToObj(value -> {
                         TypeSymbol bType = members.get(value);
                         String placeHolder = "\t${" + (value + finalParamCounter) + "}";
-                        return "if (" + symbolName + " is " + bType.signature() + ") {"
+                        return "if (" + symbolName + " is " + CommonUtil.getModifiedTypeName(ctx, bType) + ") {"
                                 + CommonUtil.LINE_SEPARATOR + placeHolder + CommonUtil.LINE_SEPARATOR + "}";
                     }).collect(Collectors.joining(" else ")) + " else {" + CommonUtil.LINE_SEPARATOR + "\t${"
                             + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";

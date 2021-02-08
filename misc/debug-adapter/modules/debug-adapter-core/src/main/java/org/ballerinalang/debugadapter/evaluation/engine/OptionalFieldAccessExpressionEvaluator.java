@@ -22,10 +22,11 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 /**
@@ -68,8 +69,14 @@ public class OptionalFieldAccessExpressionEvaluator extends Evaluator {
                         "'."));
             }
             String fieldName = syntaxNode.fieldName().toSourceCode().trim();
+
             try {
-                Value fieldValue = ((BCompoundVariable) exprResultVar).getChildByName(fieldName);
+                Value fieldValue;
+                if (exprResultVar instanceof IndexedCompoundVariable) {
+                    fieldValue = ((IndexedCompoundVariable) exprResultVar).getChildByName(fieldName);
+                } else {
+                    fieldValue = ((NamedCompoundVariable) exprResultVar).getChildByName(fieldName);
+                }
                 return new BExpressionValue(context, fieldValue);
             } catch (DebugVariableException e) {
                 // if expression result does not have a member whose key is field-name, the result is ().

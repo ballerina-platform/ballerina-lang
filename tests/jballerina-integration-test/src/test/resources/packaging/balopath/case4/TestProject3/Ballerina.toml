@@ -1,6 +1,0 @@
-[project]
-org-name = "jaz"
-version = "2.5.0"
-
-[dependencies]
-#"bcintegrationtest/bee" = { path = "../TestProject1/target/balo/bee-2020r2-java11-1.2.0.balo"}
