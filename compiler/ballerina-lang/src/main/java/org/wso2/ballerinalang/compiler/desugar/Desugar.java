@@ -1638,15 +1638,17 @@ public class Desugar extends BLangNodeVisitor {
             convertedErrorVarSymbol = errorVariableSymbol;
         }
 
-        parentErrorVariable.message.expr = generateErrorMessageBuiltinFunction(parentErrorVariable.message.pos,
-                parentErrorVariable.message.type, convertedErrorVarSymbol, null);
+        if (parentErrorVariable.message != null) {
+            parentErrorVariable.message.expr = generateErrorMessageBuiltinFunction(parentErrorVariable.message.pos,
+                    parentErrorVariable.message.type, convertedErrorVarSymbol, null);
 
-        if (names.fromIdNode((parentErrorVariable.message).name) == Names.IGNORE) {
-            parentErrorVariable.message = null;
-        } else {
-            BLangSimpleVariableDef reasonVariableDef =
-                    ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.message.pos, parentBlockStmt);
-            reasonVariableDef.var = parentErrorVariable.message;
+            if (names.fromIdNode(parentErrorVariable.message.name) == Names.IGNORE) {
+                parentErrorVariable.message = null;
+            } else {
+                BLangSimpleVariableDef messageVariableDef =
+                        ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.message.pos, parentBlockStmt);
+                messageVariableDef.var = parentErrorVariable.message;
+            }
         }
 
         if (parentErrorVariable.cause != null) {
@@ -2576,7 +2578,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void createVarRefAssignmentStmts(BLangErrorVarRef parentErrorVarRef, BLangBlockStmt parentBlockStmt,
                                              BVarSymbol errorVarySymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
-        if (parentErrorVarRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+        if (parentErrorVarRef.message != null &&
                 names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.message).variableName) != Names.IGNORE) {
             BLangAssignment message = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos, parentBlockStmt);
             message.expr = generateErrorMessageBuiltinFunction(parentErrorVarRef.message.pos,
@@ -5546,6 +5548,7 @@ public class Desugar extends BLangNodeVisitor {
         reorderArguments(invocation);
 
         invocation.requiredArgs = rewriteExprs(invocation.requiredArgs);
+        fixStreamTypeCastsInInvocationParams(invocation);
         fixNonRestArgTypeCastInTypeParamInvocation(invocation);
 
         invocation.restArgs = rewriteExprs(invocation.restArgs);
@@ -5643,6 +5646,19 @@ public class Desugar extends BLangNodeVisitor {
             conversionExpr.pos = genIExpr.pos;
 
             this.result = conversionExpr;
+        }
+    }
+
+    private void fixStreamTypeCastsInInvocationParams(BLangInvocation iExpr) {
+        List<BLangExpression> requiredArgs = iExpr.requiredArgs;
+        List<BVarSymbol> params = ((BInvokableSymbol) iExpr.symbol).params;
+        if (!params.isEmpty()) {
+            for (int i = 0; i < requiredArgs.size(); i++) {
+                BVarSymbol param = params.get(i);
+                if (param.type.tag == TypeTags.STREAM) {
+                    requiredArgs.set(i, addConversionExprIfRequired(requiredArgs.get(i), param.type));
+                }
+            }
         }
     }
 

@@ -528,6 +528,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 endPos.offset());
     }
 
+    private Location getPosition(Node startNode, Node endNode) {
+        if (startNode == null || endNode == null) {
+            return null;
+        }
+        LinePosition startPos = startNode.lineRange().startLine();
+        LinePosition endPos = endNode.lineRange().endLine();
+        return new BLangDiagnosticLocation(currentCompUnitName, startPos.line(), endPos.line(),
+                                           startPos.offset(), endPos.offset());
+    }
+
     private Location getPositionWithoutMetadata(Node node) {
         if (node == null) {
             return null;
@@ -2125,7 +2135,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             BLangTableMultiKeyExpr multiKeyExpr =
                     (BLangTableMultiKeyExpr) TreeBuilder.createTableMultiKeyExpressionNode();
-            multiKeyExpr.pos = getPosition(indexedExpressionNode);
+            multiKeyExpr.pos = getPosition(keys.get(0), keys.get(keys.size() - 1));
             List<BLangExpression> multiKeyIndexExprs = new ArrayList<>();
             for (io.ballerina.compiler.syntax.tree.ExpressionNode keyExpr : keys) {
                 multiKeyIndexExprs.add(createExpression(keyExpr));
@@ -2691,6 +2701,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
             constrainedType.type = refType;
             constrainedType.constraint = createTypeNode(node.get().typeNode());
+            constrainedType.pos = getPosition(typedescTypeDescriptorNode);
             return constrainedType;
         }
 
@@ -2778,7 +2789,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangRecordVariableDef varDefNode = (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
-        varDefNode.pos = getPosition(null);
+        varDefNode.pos = var.pos;
         varDefNode.setVariable(var);
         return varDefNode;
     }
@@ -3490,33 +3501,37 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLangConstant.setName((BLangIdentifier) transform(member.identifier()));
 
-        BLangLiteral literal;
-        BLangLiteral deepLiteral;
+        BLangExpression deepLiteral;
         if (member.constExprNode().isPresent()) {
-            literal = createSimpleLiteral(member.constExprNode().orElse(null));
-            deepLiteral = createSimpleLiteral(member.constExprNode().orElse(null));
+            BLangExpression expression = createExpression(member.constExprNode().orElse(null));
+            bLangConstant.setInitialExpression(expression);
+            deepLiteral = createExpression(member.constExprNode().orElse(null));
         } else {
-            literal = createSimpleLiteral(member.identifier());
-            deepLiteral = createSimpleLiteral(member.identifier());
-        }
-        if (literal.originalValue != "" || member.identifier().isMissing()) {
+            BLangLiteral literal = createSimpleLiteral(member.identifier());
             bLangConstant.setInitialExpression(literal);
-        } else {
-            bLangConstant.setInitialExpression(createExpression(member.constExprNode().orElse(null)));
+            deepLiteral = createSimpleLiteral(member.identifier());
         }
 
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         typeNode.typeKind = TypeKind.STRING;
         bLangConstant.setTypeNode(typeNode);
 
-        if (deepLiteral.originalValue != "") {
-            BLangFiniteTypeNode typeNodeAssosiated = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
-            deepLiteral.originalValue = null;
-            typeNodeAssosiated.addValue(deepLiteral);
-            bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssosiated);
+        if (deepLiteral instanceof BLangLiteral) {
+            BLangLiteral literal = (BLangLiteral) deepLiteral;
+            if (literal.originalValue != "") {
+                BLangFiniteTypeNode typeNodeAssociated = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+                literal.originalValue = null;
+                typeNodeAssociated.addValue(deepLiteral);
+                bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssociated);
+            } else {
+                bLangConstant.associatedTypeDefinition = null;
+            }
         } else {
-            bLangConstant.associatedTypeDefinition = null;
+            BLangFiniteTypeNode typeNodeAssociated = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+            typeNodeAssociated.addValue(deepLiteral);
+            bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssociated);
         }
+
         return bLangConstant;
     }
 

@@ -74,6 +74,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "match_stmt_source_10.bal", // issue #26376
                 "match_stmt_source_12.bal", // issue #26376
                 "error_binding_pattern_source_02.bal", // issue #26376
+                "doc_source_21.bal", // issue #28172
 
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
 
@@ -83,6 +84,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "doc_source_07.bal", "doc_source_08.bal", "doc_source_09.bal", "doc_source_10.bal", "doc_source_11.bal",
                 "doc_source_12.bal", "doc_source_13.bal", "doc_source_14.bal", "doc_source_16.bal", "doc_source_17.bal",
                 "doc_source_18.bal", "doc_source_19.bal", "doc_source_20.bal", "doc_source_21.bal", "doc_source_22.bal",
+                "doc_source_23.bal",
 
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",

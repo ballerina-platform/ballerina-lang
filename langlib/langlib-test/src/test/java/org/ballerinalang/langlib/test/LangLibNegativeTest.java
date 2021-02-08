@@ -58,6 +58,8 @@ public class LangLibNegativeTest {
                 55, 14);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(int|error)'",
                 56, 14);
+        BAssertUtil.validateError(negativeResult, err++, "undefined function 'toXML' in type 'int'",
+                61, 19);
 
         Assert.assertEquals(negativeResult.getErrorCount(), err);
     }

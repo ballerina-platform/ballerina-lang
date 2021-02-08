@@ -75,17 +75,17 @@ public class DocumentationTest extends AbstractMiscTest {
     }
 
     @Test
-    public void testTippleBacktickCodeRef() {
+    public void testTippleBacktickDocumentation() {
         testFile("documentation/doc_source_10.bal", "documentation/doc_assert_10.json");
     }
 
     @Test
-    public void testDoubleBacktickCodeRef() {
+    public void testDoubleBacktickDocumentation() {
         testFile("documentation/doc_source_11.bal", "documentation/doc_assert_11.json");
     }
 
     @Test
-    public void testBalNameRefWithSpecialKey() {
+    public void testDocReferenceWithSpecialKeywords() {
         testFile("documentation/doc_source_14.bal", "documentation/doc_assert_14.json");
     }
 
@@ -95,12 +95,12 @@ public class DocumentationTest extends AbstractMiscTest {
     }
 
     @Test
-    public void testSingleBacktickReference() {
+    public void testSingleBacktickContentInDocumentation() {
         testFile("documentation/doc_source_16.bal", "documentation/doc_assert_16.json");
     }
 
     @Test
-    public void testBacktickReferenceWithFunctionKey() {
+    public void testBacktickContentForFunctionKeyword() {
         testFile("documentation/doc_source_17.bal", "documentation/doc_assert_17.json");
     }
 
@@ -112,7 +112,7 @@ public class DocumentationTest extends AbstractMiscTest {
 
     @Test
     public void testHashInCodeReferences() {
-        testFile("documentation/doc_source_21.bal", "documentation/doc_assert_21.json");
+        testFile("documentation/doc_source_23.bal", "documentation/doc_assert_23.json");
     }
 
     // Invalid Syntax
@@ -125,6 +125,11 @@ public class DocumentationTest extends AbstractMiscTest {
     @Test
     public void testDocWithInitialDiagnostics() {
         testFile("documentation/doc_source_18.bal", "documentation/doc_assert_18.json");
+    }
+
+    @Test
+    public void testParameterDocWithMissingDescription() {
+        testFile("documentation/doc_source_21.bal", "documentation/doc_assert_21.json");
     }
 
     @Test

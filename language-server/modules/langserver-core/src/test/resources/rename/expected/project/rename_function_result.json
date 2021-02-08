@@ -1,0 +1,43 @@
+{
+  "source": {
+    "file": "modules/module2/module2.bal"
+  },
+  "position": {
+    "line": 30,
+    "character": 17
+  },
+  "result": {
+    "changes": {
+      "main.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 38
+            },
+            "end": {
+              "line": 6,
+              "character": 47
+            }
+          },
+          "newText": "getStudents"
+        }
+      ],
+      "modules/module2/module2.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 30,
+              "character": 16
+            },
+            "end": {
+              "line": 30,
+              "character": 25
+            }
+          },
+          "newText": "getStudents"
+        }
+      ]
+    }
+  }
+}

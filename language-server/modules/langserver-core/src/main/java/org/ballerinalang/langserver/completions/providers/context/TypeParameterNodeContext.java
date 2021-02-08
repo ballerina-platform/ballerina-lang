@@ -52,6 +52,7 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TypeParameterNode node)
             throws LSCompletionException {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
@@ -81,36 +82,37 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
                 moduleContent = QNameReferenceUtil.getTypesInModule(context, refNode);
             }
 
-            return this.getCompletionItemList(moduleContent, context);
-        }
-
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
-
-        if (node.parent().kind() == SyntaxKind.XML_TYPE_DESC) {
-            /*
-            Covers the following
-            (1) xml<*cursor*>
-            (2) xml<x*cursor*>
-             */
-            // modules and the xml sub types are suggested
-            List<Symbol> xmlSubTypes = visibleSymbols.stream()
-                    .filter(symbol -> {
-                        if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
-                            return false;
-                        }
-                        Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
-                        return typeDescriptor.isPresent() && typeDescriptor.get().typeKind().isXMLType();
-                    })
-                    .collect(Collectors.toList());
-            completionItems.addAll(this.getCompletionItemList(xmlSubTypes, context));
+            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
-            /*
-            Covers the following
-            (1) [typedesc | map | future]<*cursor*>
-            (2) [typedesc | map | future]<x*cursor*>
-             */
-            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
+
+            if (node.parent().kind() == SyntaxKind.XML_TYPE_DESC) {
+                /*
+                Covers the following
+                (1) xml<*cursor*>
+                (2) xml<x*cursor*>
+                 */
+                // modules and the xml sub types are suggested
+                List<Symbol> xmlSubTypes = visibleSymbols.stream()
+                        .filter(symbol -> {
+                            if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
+                                return false;
+                            }
+                            Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+                            return typeDescriptor.isPresent() && typeDescriptor.get().typeKind().isXMLType();
+                        })
+                        .collect(Collectors.toList());
+                completionItems.addAll(this.getCompletionItemList(xmlSubTypes, context));
+            } else {
+                /*
+                Covers the following
+                (1) [typedesc | map | future]<*cursor*>
+                (2) [typedesc | map | future]<x*cursor*>
+                 */
+                completionItems.addAll(this.getTypeItems(context));
+            }
         }
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }

@@ -680,8 +680,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             case TypeTags.BYTE_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getExpressionStringValue(byteValues[i],
-                                                                new CycleUtils.Node(this, parent)));
+                    sj.add(Long.toString(Byte.toUnsignedLong(byteValues[i])));
                 }
                 break;
             case TypeTags.FLOAT_TAG:

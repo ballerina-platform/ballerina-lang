@@ -21,142 +21,125 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
-                          "children": [
-                            {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "INLINE_CODE_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CODE_CONTENT",
-                                      "value": "# this hash should not be captured as a separate token"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
-                          "children": [
-                            {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "INLINE_CODE_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "DOUBLE_BACKTICK_TOKEN"
-                                    },
-                                    {
-                                      "kind": "CODE_CONTENT",
-                                      "value": " # this hash should not be captured as a separate token"
-                                    },
-                                    {
-                                      "kind": "DOUBLE_BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
-                          "children": [
-                            {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "INLINE_CODE_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "TRIPLE_BACKTICK_TOKEN"
-                                    },
-                                    {
-                                      "kind": "CODE_CONTENT",
-                                      "value": " # this hash should not be captured as a separate token"
-                                    },
-                                    {
-                                      "kind": "TRIPLE_BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
                           "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
                               "trailingMinutiae": [
                                 {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "Adds two parameters",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PLUS_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARAMETER_NAME",
+                              "value": "x",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "MINUS_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "one thing to be added",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PLUS_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PARAMETER_NAME",
+                              "value": "y",
+                              "trailingMinutiae": [
+                                {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
                               ]
+                            },
+                            {
+                              "kind": "MINUS_TOKEN",
+                              "isMissing": true
                             },
                             {
                               "kind": "LIST",
@@ -165,7 +148,7 @@
                           ]
                         },
                         {
-                          "kind": "MARKDOWN_CODE_BLOCK",
+                          "kind": "MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
@@ -177,169 +160,7 @@
                               ]
                             },
                             {
-                              "kind": "TRIPLE_BACKTICK_TOKEN"
-                            },
-                            {
-                              "kind": "CODE_CONTENT",
-                              "value": "#doc",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "MARKDOWN_CODE_LINE",
-                                  "children": [
-                                    {
-                                      "kind": "HASH_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CODE_CONTENT",
-                                      "value": "# this is to test docs in docs",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "MARKDOWN_CODE_LINE",
-                                  "children": [
-                                    {
-                                      "kind": "HASH_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CODE_CONTENT",
-                                      "value": "# this is function `foo`",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "MARKDOWN_CODE_LINE",
-                                  "children": [
-                                    {
-                                      "kind": "HASH_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CODE_CONTENT",
-                                      "value": "# ``dummy test``",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "MARKDOWN_CODE_LINE",
-                                  "children": [
-                                    {
-                                      "kind": "HASH_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CODE_CONTENT",
-                                      "value": "# dummy text ``dummy text``",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "MARKDOWN_CODE_LINE",
-                                  "children": [
-                                    {
-                                      "kind": "HASH_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CODE_CONTENT",
-                                      "value": "# dummy text ``dummy text`` dummy text",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "MARKDOWN_CODE_LINE",
-                                  "children": [
-                                    {
-                                      "kind": "HASH_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CODE_CONTENT",
-                                      "value": "# test # in the middle",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "HASH_TOKEN",
+                              "kind": "PLUS_TOKEN",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -348,13 +169,21 @@
                               ]
                             },
                             {
-                              "kind": "TRIPLE_BACKTICK_TOKEN",
+                              "kind": "RETURN_KEYWORD",
                               "trailingMinutiae": [
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
                               ]
+                            },
+                            {
+                              "kind": "MINUS_TOKEN",
+                              "isMissing": true
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
                             }
                           ]
                         }
@@ -397,7 +226,71 @@
                 },
                 {
                   "kind": "LIST",
-                  "children": []
+                  "children": [
+                    {
+                      "kind": "REQUIRED_PARAM",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "INT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "COMMA_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "REQUIRED_PARAM",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "INT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "y"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "kind": "CLOSE_PAREN_TOKEN",

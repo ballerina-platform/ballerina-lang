@@ -50,6 +50,8 @@ public class PanicStatementNodeContext extends AbstractCompletionProvider<PanicS
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getModuleCompletionItems(context));
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 }
