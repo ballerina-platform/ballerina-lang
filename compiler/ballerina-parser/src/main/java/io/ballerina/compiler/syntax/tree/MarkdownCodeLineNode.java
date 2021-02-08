@@ -36,7 +36,7 @@ public class MarkdownCodeLineNode extends DocumentationNode {
         return childInBucket(0);
     }
 
-    public Token CodeDescription() {
+    public Token codeDescription() {
         return childInBucket(1);
     }
 
@@ -54,21 +54,21 @@ public class MarkdownCodeLineNode extends DocumentationNode {
     protected String[] childNames() {
         return new String[]{
                 "hashToken",
-                "CodeDescription"};
+                "codeDescription"};
     }
 
     public MarkdownCodeLineNode modify(
             Token hashToken,
-            Token CodeDescription) {
+            Token codeDescription) {
         if (checkForReferenceEquality(
                 hashToken,
-                CodeDescription)) {
+                codeDescription)) {
             return this;
         }
 
         return NodeFactory.createMarkdownCodeLineNode(
                 hashToken,
-                CodeDescription);
+                codeDescription);
     }
 
     public MarkdownCodeLineNodeModifier modify() {
@@ -83,12 +83,12 @@ public class MarkdownCodeLineNode extends DocumentationNode {
     public static class MarkdownCodeLineNodeModifier {
         private final MarkdownCodeLineNode oldNode;
         private Token hashToken;
-        private Token CodeDescription;
+        private Token codeDescription;
 
         public MarkdownCodeLineNodeModifier(MarkdownCodeLineNode oldNode) {
             this.oldNode = oldNode;
             this.hashToken = oldNode.hashToken();
-            this.CodeDescription = oldNode.CodeDescription();
+            this.codeDescription = oldNode.codeDescription();
         }
 
         public MarkdownCodeLineNodeModifier withHashToken(
@@ -99,16 +99,16 @@ public class MarkdownCodeLineNode extends DocumentationNode {
         }
 
         public MarkdownCodeLineNodeModifier withCodeDescription(
-                Token CodeDescription) {
-            Objects.requireNonNull(CodeDescription, "CodeDescription must not be null");
-            this.CodeDescription = CodeDescription;
+                Token codeDescription) {
+            Objects.requireNonNull(codeDescription, "codeDescription must not be null");
+            this.codeDescription = codeDescription;
             return this;
         }
 
         public MarkdownCodeLineNode apply() {
             return oldNode.modify(
                     hashToken,
-                    CodeDescription);
+                    codeDescription);
         }
     }
 }

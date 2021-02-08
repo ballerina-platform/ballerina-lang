@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.AsyncSendActionNode;
+import io.ballerina.compiler.syntax.tree.BallerinaNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
@@ -44,7 +45,6 @@ import io.ballerina.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.DistinctTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.DoStatementNode;
-import io.ballerina.compiler.syntax.tree.DocumentationReferenceNode;
 import io.ballerina.compiler.syntax.tree.DoubleGTTokenNode;
 import io.ballerina.compiler.syntax.tree.ElseBlockNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
@@ -1668,16 +1668,16 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
-    public DocumentationReferenceNode transform(DocumentationReferenceNode documentationReferenceNode) {
-        Token referenceType = formatToken(documentationReferenceNode.referenceType().orElse(null), 1, 0);
-        Token startBacktick = formatToken(documentationReferenceNode.startBacktick(), 0, 0);
-        Node backtickContent = formatNode(documentationReferenceNode.backtickContent(), 0, 0);
-        Token endBacktick = formatToken(documentationReferenceNode.endBacktick(), env.trailingWS, env.trailingNL);
+    public BallerinaNameReferenceNode transform(BallerinaNameReferenceNode ballerinaNameReferenceNode) {
+        Token referenceType = formatToken(ballerinaNameReferenceNode.referenceType().orElse(null), 1, 0);
+        Token startBacktick = formatToken(ballerinaNameReferenceNode.startBacktick(), 0, 0);
+        Node backtickContent = formatNode(ballerinaNameReferenceNode.nameReference(), 0, 0);
+        Token endBacktick = formatToken(ballerinaNameReferenceNode.endBacktick(), env.trailingWS, env.trailingNL);
 
-        return documentationReferenceNode.modify()
+        return ballerinaNameReferenceNode.modify()
                 .withReferenceType(referenceType)
                 .withStartBacktick(startBacktick)
-                .withBacktickContent(backtickContent)
+                .withNameReference(backtickContent)
                 .withEndBacktick(endBacktick)
                 .apply();
     }

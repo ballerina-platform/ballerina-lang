@@ -3093,11 +3093,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             MarkdownCodeLineNode markdownCodeLineNode) {
         Token hashToken =
                 modifyToken(markdownCodeLineNode.hashToken());
-        Token CodeDescription =
-                modifyToken(markdownCodeLineNode.CodeDescription());
+        Token codeDescription =
+                modifyToken(markdownCodeLineNode.codeDescription());
         return markdownCodeLineNode.modify(
                 hashToken,
-                CodeDescription);
+                codeDescription);
     }
 
     @Override

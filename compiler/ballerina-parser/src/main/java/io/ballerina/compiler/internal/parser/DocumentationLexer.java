@@ -118,10 +118,10 @@ public class DocumentationLexer extends AbstractLexer {
      *
      * @return Next non-trivial character
      */
-    private int PeekWithoutWhitespaces() {
-        int offset = getNextNonWhitespaceCharOffset();
-        return this.reader.peek(offset);
-    }
+//    private int peekWithoutWhitespaces() {
+//        int offset = getNextNonWhitespaceCharOffset();
+//        return this.reader.peek(offset);
+//    }
 
     /**
      * Get the text associated with the current token.
@@ -304,25 +304,25 @@ public class DocumentationLexer extends AbstractLexer {
         return STNodeFactory.createMinutiae(SyntaxKind.WHITESPACE_MINUTIAE, getLexeme());
     }
 
-    private int getNextNonWhitespaceCharOffset() {
-        int lookahead = 0;
-        while (!reader.isEOF()) {
-            char c = reader.peek(lookahead);
-            switch (c) {
-                case LexerTerminals.SPACE:
-                case LexerTerminals.TAB:
-                case LexerTerminals.FORM_FEED:
-                    lookahead++;
-                    continue;
-                case LexerTerminals.CARRIAGE_RETURN:
-                case LexerTerminals.NEWLINE:
-                default:
-                    return lookahead;
-            }
-        }
-
-        return lookahead;
-    }
+//    private int getNextNonWhitespaceCharOffset() {
+//        int lookahead = 0;
+//        while (!reader.isEOF()) {
+//            char c = reader.peek(lookahead);
+//            switch (c) {
+//                case LexerTerminals.SPACE:
+//                case LexerTerminals.TAB:
+//                case LexerTerminals.FORM_FEED:
+//                    lookahead++;
+//                    continue;
+//                case LexerTerminals.CARRIAGE_RETURN:
+//                case LexerTerminals.NEWLINE:
+//                default:
+//                    return lookahead;
+//            }
+//        }
+//
+//        return lookahead;
+//    }
 
     /**
      * Process end of line.

@@ -77,6 +77,13 @@ public class ParserTestFormatter extends FormatterTest {
 
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
 
+                // documentation
+                // TODO: enable
+                "doc_source_01.bal", "doc_source_02.bal", "doc_source_03.bal", "doc_source_04.bal", "doc_source_05.bal",
+                "doc_source_07.bal", "doc_source_08.bal", "doc_source_09.bal", "doc_source_10.bal", "doc_source_11.bal",
+                "doc_source_12.bal", "doc_source_13.bal", "doc_source_14.bal", "doc_source_16.bal", "doc_source_17.bal",
+                "doc_source_18.bal", "doc_source_19.bal", "doc_source_20.bal", "doc_source_21.bal", "doc_source_22.bal",
+
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
                 "ambiguity_source_23.bal", "ambiguity_source_09.bal", "ambiguity_source_18.bal",

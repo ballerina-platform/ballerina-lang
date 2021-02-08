@@ -2280,11 +2280,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createMarkdownCodeLineNode(
             STNode hashToken,
-            STNode CodeDescription) {
+            STNode codeDescription) {
 
         return new STMarkdownCodeLineNode(
                 hashToken,
-                CodeDescription);
+                codeDescription);
     }
 
     public static STNode createOrderByClauseNode(

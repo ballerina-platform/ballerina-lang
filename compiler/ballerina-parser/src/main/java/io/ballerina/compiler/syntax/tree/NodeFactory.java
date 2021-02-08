@@ -3009,13 +3009,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static MarkdownCodeLineNode createMarkdownCodeLineNode(
             Token hashToken,
-            Token CodeDescription) {
+            Token codeDescription) {
         Objects.requireNonNull(hashToken, "hashToken must not be null");
-        Objects.requireNonNull(CodeDescription, "CodeDescription must not be null");
+        Objects.requireNonNull(codeDescription, "codeDescription must not be null");
 
         STNode stMarkdownCodeLineNode = STNodeFactory.createMarkdownCodeLineNode(
                 hashToken.internalNode(),
-                CodeDescription.internalNode());
+                codeDescription.internalNode());
         return stMarkdownCodeLineNode.createUnlinkedFacade();
     }
 

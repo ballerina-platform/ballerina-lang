@@ -32,49 +32,49 @@ import java.util.Collections;
  */
 public class STMarkdownCodeLineNode extends STDocumentationNode {
     public final STNode hashToken;
-    public final STNode CodeDescription;
+    public final STNode codeDescription;
 
     STMarkdownCodeLineNode(
             STNode hashToken,
-            STNode CodeDescription) {
+            STNode codeDescription) {
         this(
                 hashToken,
-                CodeDescription,
+                codeDescription,
                 Collections.emptyList());
     }
 
     STMarkdownCodeLineNode(
             STNode hashToken,
-            STNode CodeDescription,
+            STNode codeDescription,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.MARKDOWN_CODE_LINE, diagnostics);
         this.hashToken = hashToken;
-        this.CodeDescription = CodeDescription;
+        this.codeDescription = codeDescription;
 
         addChildren(
                 hashToken,
-                CodeDescription);
+                codeDescription);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMarkdownCodeLineNode(
                 this.hashToken,
-                this.CodeDescription,
+                this.codeDescription,
                 diagnostics);
     }
 
     public STMarkdownCodeLineNode modify(
             STNode hashToken,
-            STNode CodeDescription) {
+            STNode codeDescription) {
         if (checkForReferenceEquality(
                 hashToken,
-                CodeDescription)) {
+                codeDescription)) {
             return this;
         }
 
         return new STMarkdownCodeLineNode(
                 hashToken,
-                CodeDescription,
+                codeDescription,
                 diagnostics);
     }
 

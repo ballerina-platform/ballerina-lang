@@ -2449,10 +2449,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STMarkdownCodeLineNode transform(
             STMarkdownCodeLineNode markdownCodeLineNode) {
         STNode hashToken = modifyNode(markdownCodeLineNode.hashToken);
-        STNode CodeDescription = modifyNode(markdownCodeLineNode.CodeDescription);
+        STNode codeDescription = modifyNode(markdownCodeLineNode.codeDescription);
         return markdownCodeLineNode.modify(
                 hashToken,
-                CodeDescription);
+                codeDescription);
     }
 
     @Override

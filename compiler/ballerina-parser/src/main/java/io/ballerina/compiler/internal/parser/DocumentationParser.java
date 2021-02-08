@@ -383,7 +383,8 @@ public class DocumentationParser extends AbstractParser {
             contentToken = combineAndCreateCodeContentToken();
             if (referenceGenre != ReferenceGenre.NO_KEY) {
                 contentToken = SyntaxErrors.addDiagnostic(contentToken,
-                        DiagnosticWarningCode.WARNING_INVALID_BALLERINA_NAME_REFERENCE, ((STToken) contentToken).text());
+                        DiagnosticWarningCode.WARNING_INVALID_BALLERINA_NAME_REFERENCE,
+                        ((STToken) contentToken).text());
             } else {
                 isCodeRef = true;
             }
