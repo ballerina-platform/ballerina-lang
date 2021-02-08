@@ -257,8 +257,8 @@
                       ],
                       "trailingMinutiae": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
                         }
                       ]
                     }
@@ -278,6 +278,12 @@
                     {
                       "kind": "IDENTIFIER_TOKEN",
                       "value": "value",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
