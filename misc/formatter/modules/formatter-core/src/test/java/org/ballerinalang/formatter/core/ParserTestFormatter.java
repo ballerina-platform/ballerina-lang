@@ -67,13 +67,9 @@ public class ParserTestFormatter extends FormatterTest {
                 "ambiguity_source_11.bal", // parser issue for indexed expressions #26420
                 "annotations_source_04.bal", // could be considered an invalid scenario
                 "match_stmt_source_08.bal", // parser issue for binding patterns & match block #26421
-                "match_stmt_source_05.bal", // parser issue for binding patterns & match block #26421
-                "match_stmt_source_14.bal", // match block
-                "match_stmt_source_01.bal", // match block
                 "receive_action_source_01.bal", // issue #26376
                 "match_stmt_source_10.bal", // issue #26376
                 "match_stmt_source_12.bal", // issue #26376
-                "error_binding_pattern_source_02.bal", // issue #26376
                 "doc_source_21.bal", // issue #28172
 
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
