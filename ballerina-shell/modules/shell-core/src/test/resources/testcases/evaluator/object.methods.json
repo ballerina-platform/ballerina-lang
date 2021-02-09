@@ -6,6 +6,6 @@
   {
     "description": "Invoke object method.",
     "code": "Person p1 = new (5, \"John\", \"Doe\"); p1.getFullName()",
-    "expr": "John Doe"
+    "expr": "\"John Doe\""
   }
 ]

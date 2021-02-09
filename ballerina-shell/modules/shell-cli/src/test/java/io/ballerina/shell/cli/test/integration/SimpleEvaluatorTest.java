@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
  */
 public class SimpleEvaluatorTest extends AbstractIntegrationTest {
     private static final String BASIC_EVALUATOR_TESTCASE = "testcases/values.basic.json";
-    private static final String LITERALS_EVALUATOR_TESTCASE = "testcases/values.basic.json";
+    private static final String LITERALS_EVALUATOR_TESTCASE = "testcases/values.literals.json";
 
     @Test
     public void testEvaluateBasic() throws Exception {

@@ -50,7 +50,7 @@ class PackageContext {
     private ModuleContext defaultModuleContext;
     /**
      * This variable holds the dependency graph cached in a project.
-     * At the moment, we cache the dependency graph in a balr file.
+     * At the moment, we cache the dependency graph in a bala file.
      */
     private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
 
