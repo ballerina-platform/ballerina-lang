@@ -30,6 +30,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test class for debug termination scenarios.
+ */
 public class DebugTerminationTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
