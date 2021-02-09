@@ -216,31 +216,11 @@ public class RepoUtils {
         return UNKNOWN;
     }
 
-    public static String getBallerinaVersionDisplayName() {
+    public static String getBallerinaShortVersion() {
         try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
             Properties properties = new Properties();
             properties.load(inputStream);
-            return properties.getProperty(ProjectDirConstants.BALLERINA_VERSION_DISPLAY_NAME);
-        } catch (Throwable ignore) {
-        }
-        return UNKNOWN;
-    }
-
-    public static String getBallerinaChannel() {
-        try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
-            Properties properties = new Properties();
-            properties.load(inputStream);
-            return properties.getProperty(ProjectDirConstants.BALLERINA_CHANNEL);
-        } catch (Throwable ignore) {
-        }
-        return UNKNOWN;
-    }
-
-    public static String getSpecVersion() {
-        try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
-            Properties properties = new Properties();
-            properties.load(inputStream);
-            return properties.getProperty(ProjectDirConstants.SPEC_VERSION);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_SHORT_VERSION);
         } catch (Throwable ignore) {
         }
         return UNKNOWN;

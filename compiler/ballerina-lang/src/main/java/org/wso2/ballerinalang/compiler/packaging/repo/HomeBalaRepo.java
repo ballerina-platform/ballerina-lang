@@ -166,7 +166,7 @@ public class HomeBalaRepo implements Repo<Path> {
             }
         }
         // if a similar file is not found assume the default bala name
-        String balaFileName = pkgName + "-" + RepoUtils.getSpecVersion() + "-" + platform + "-" + versionStr +
+        String balaFileName = pkgName + "-" + orgName + "-" + platform + "-" + versionStr +
                 ".bala";
         return balaFilePath.resolve(balaFileName);
     }

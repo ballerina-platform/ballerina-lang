@@ -259,7 +259,7 @@ public class SourceDirectoryManager implements Project {
         // {module}-{lang spec version}-{platform}-{version}.bala
         //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
         String balaFileName = moduleId.name.value + "-"
-                + RepoUtils.getSpecVersion() + "-"
+                + moduleId.orgName.value + "-"
                 + platform + "-"
                 + versionNo
                 + BLANG_COMPILED_PKG_BINARY_EXT;

@@ -125,7 +125,7 @@ public class URIConverter implements Converter<URI> {
             try {
                 Pull.execute(remoteURI.toString(), modulePathInBalaCache.toString(), orgName + "/" + moduleName,
                              proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
-                             supportedVersionRange, this.isBuild, nightlyBuild, RepoUtils.getSpecVersion(),
+                             supportedVersionRange, this.isBuild, nightlyBuild,
                              supportedPlatform, RepoUtils.getBallerinaVersion());
             } catch (CommandException e) {
                 errorMessage = e.getMessage().trim();

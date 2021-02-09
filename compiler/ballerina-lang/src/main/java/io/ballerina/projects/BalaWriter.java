@@ -72,10 +72,8 @@ public abstract class BalaWriter {
 
     // Set the target as any for default bala.
     protected String target = "any";
-    private String langSpecVersion = "2020r2";
     private String implemetationVendor = "WSO2";
-    private String ballerinaVersion =
-            RepoUtils.getBallerinaChannel() + " " + RepoUtils.getBallerinaVersionDisplayName();
+    private String ballerinaVersion = RepoUtils.getBallerinaShortVersion();
     protected PackageContext packageContext;
 
     protected BalaWriter() {
@@ -146,7 +144,6 @@ public abstract class BalaWriter {
         packageJson.setKeywords(packageManifest.keywords());
 
         packageJson.setPlatform(target);
-        packageJson.setLanguageSpecVersion(langSpecVersion);
         packageJson.setBallerinaVersion(ballerinaVersion);
         packageJson.setImplementationVendor(implemetationVendor);
 
