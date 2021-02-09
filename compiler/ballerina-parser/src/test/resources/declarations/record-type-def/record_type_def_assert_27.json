@@ -63,7 +63,7 @@
                       "kind": "RECORD_FIELD",
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_OPEN_RECORD_CANNOT_CONTAIN_RECORD_REST_DESCRIPTOR"
+                        "ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD"
                       ],
                       "children": [
                         {
@@ -206,7 +206,7 @@
                   "kind": "OPEN_BRACE_TOKEN",
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_OPEN_RECORD_CANNOT_CONTAIN_RECORD_REST_DESCRIPTOR"
+                    "ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD"
                   ],
                   "trailingMinutiae": [
                     {
@@ -298,7 +298,7 @@
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "myRecord2",
+              "value": "myRecord3",
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -336,7 +336,7 @@
                       "kind": "RECORD_FIELD",
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_OPEN_RECORD_CANNOT_CONTAIN_RECORD_REST_DESCRIPTOR"
+                        "ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD"
                       ],
                       "children": [
                         {

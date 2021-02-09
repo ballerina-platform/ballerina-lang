@@ -7,7 +7,7 @@ type myRecord2 record {
     T...;
 };
 
-type myRecord2 record {
+type myRecord3 record {
     string b?;
     xml...;
     *myRecord2;

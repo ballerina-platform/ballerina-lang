@@ -3410,10 +3410,10 @@ public class BallerinaParser extends AbstractParser {
             if (field.kind == SyntaxKind.RECORD_REST_TYPE && bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
                 if (recordFields.size() == 0) {
                     bodyStartDelimiter = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(bodyStartDelimiter, field,
-                            DiagnosticErrorCode.ERROR_OPEN_RECORD_CANNOT_CONTAIN_RECORD_REST_DESCRIPTOR);
+                            DiagnosticErrorCode.ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD);
                 } else {
                     updateLastNodeInListWithInvalidNode(recordFields, field,
-                            DiagnosticErrorCode.ERROR_OPEN_RECORD_CANNOT_CONTAIN_RECORD_REST_DESCRIPTOR);
+                            DiagnosticErrorCode.ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD);
                 }
                 continue;
             } else if (field.kind == SyntaxKind.RECORD_REST_TYPE) {
