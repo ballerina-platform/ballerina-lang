@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.invoker.classload.context;
 
-import freemarker.ext.beans.TemplateAccessible;
 import io.ballerina.shell.invoker.classload.ClassLoadInvoker;
 import io.ballerina.shell.rt.InvokerMemory;
 
@@ -96,43 +95,35 @@ public class ClassLoadContext {
         this(contextId, imports, List.of(), List.of(), null);
     }
 
-    @TemplateAccessible
-    public Collection<String> getImports() {
+    public Collection<String> imports() {
         return imports;
     }
 
-    @TemplateAccessible
-    public Collection<String> getModuleDclns() {
+    public Collection<String> moduleDclns() {
         return moduleDclns;
     }
 
-    @TemplateAccessible
-    public String getLastVarDcln() {
+    public String lastVarDcln() {
         return lastVarDcln;
     }
 
-    @TemplateAccessible
-    public StatementContext getLastStmt() {
+    public StatementContext lastStmt() {
         return lastStmt;
     }
 
-    @TemplateAccessible
-    public Collection<VariableContext> getVarDclns() {
+    public Collection<VariableContext> varDclns() {
         return varDclns;
     }
 
-    @TemplateAccessible
-    public String getContextId() {
+    public String contextId() {
         return contextId;
     }
 
-    @TemplateAccessible
-    public String getExprVarName() {
+    public String exprVarName() {
         return ClassLoadInvoker.CONTEXT_EXPR_VAR_NAME;
     }
 
-    @TemplateAccessible
-    public String getMemoryRef() {
+    public String memoryRef() {
         return InvokerMemory.class.getCanonicalName();
     }
 }
