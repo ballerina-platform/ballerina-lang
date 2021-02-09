@@ -68,7 +68,7 @@ public class VariableContext {
     }
 
     public String encodedName() {
-        return StringUtils.encodeJavaString(name);
+        return StringUtils.encodeIdentifier(name);
     }
 
     public String type() {
