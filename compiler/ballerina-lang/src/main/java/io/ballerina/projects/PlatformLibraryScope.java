@@ -25,7 +25,7 @@ package io.ballerina.projects;
 public enum PlatformLibraryScope {
     /**
      * Libraries marked with no scope in Ballerina.toml, get this value.
-     * Included phases: compilation, run tests, executable, included in the balr.
+     * Included phases: compilation, run tests, executable, included in the bala.
      */
     DEFAULT(""),
 
