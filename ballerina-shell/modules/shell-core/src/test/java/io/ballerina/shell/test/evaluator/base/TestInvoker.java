@@ -34,13 +34,13 @@ public class TestInvoker extends ClassLoadInvoker {
     private String output = "";
 
     @Override
-    protected Object invokeMethod(ClassLoader classLoader, String className, String methodName)
+    protected Object invokeScheduledMethod(ClassLoader classLoader, String className, String methodName)
             throws InvokerException {
         PrintStream stdOut = System.out;
         ByteArrayOutputStream stdOutBaOs = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(stdOutBaOs, true, Charset.defaultCharset()));
-            return super.invokeMethod(classLoader, className, methodName);
+            return super.invokeScheduledMethod(classLoader, className, methodName);
         } finally {
             this.output = stdOutBaOs.toString(Charset.defaultCharset());
             this.output = this.output.replace("\r\n", "\n");

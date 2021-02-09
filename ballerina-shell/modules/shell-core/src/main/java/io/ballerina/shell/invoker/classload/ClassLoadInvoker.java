@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.invoker.classload;
 
-import com.github.mustachejava.Mustache;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -30,22 +29,15 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.values.BFuture;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.invoker.Invoker;
@@ -65,11 +57,6 @@ import io.ballerina.shell.utils.timeit.InvokerTimeIt;
 import io.ballerina.shell.utils.timeit.TimedOperation;
 import io.ballerina.tools.text.LinePosition;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -82,7 +69,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -93,17 +79,9 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class ClassLoadInvoker extends Invoker implements ImportProcessor {
-    // Context related information
     public static final String CONTEXT_EXPR_VAR_NAME = "expr";
-    // Main class and method names to invoke
-    public static final String MODULE_NOT_FOUND_CODE = "BCE2003";
-    protected static final String MODULE_INIT_CLASS_NAME = "$_init";
-    protected static final String MODULE_INIT_METHOD_NAME = "$moduleInit";
-    protected static final String MODULE_MAIN_METHOD_NAME = "main";
-    protected static final String DOLLAR = "$";
-    // Punctuations
+    private static final String DOLLAR = "$";
     private static final String DECLARATION_TEMPLATE_FILE = "template.declaration.mustache";
-    private static final String IMPORT_TEMPLATE_FILE = "template.import.mustache";
     private static final String EXECUTION_TEMPLATE_FILE = "template.execution.mustache";
 
     private static final AtomicInteger importIndex = new AtomicInteger(0);
@@ -150,18 +128,11 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     private final Set<String> newImplicitImports;
 
     /**
-     * Scheduler used to run the init and main methods
-     * of the generated classes.
-     */
-    private final Scheduler scheduler;
-
-    /**
      * Creates a class load invoker from the given ballerina home.
      * Ballerina home should be tha path that contains repo directory.
      * It is expected that the runtime is added in the class path.
      */
     public ClassLoadInvoker() {
-        this.scheduler = new Scheduler(false);
         this.initialized = new AtomicBoolean(false);
         this.contextId = UUID.randomUUID().toString();
         this.moduleDclns = new HashMap<>();
@@ -299,11 +270,11 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         }
 
         // Check if import is successful.
-        if (isImportStatementValid(String.format("import %s as %s;", moduleName, quotedPrefix))) {
-            return imports.storeImport(quotedPrefix, moduleName);
-        }
-        return null;
+        compileImportStatement(String.format("import %s as %s;", moduleName, quotedPrefix));
+        return imports.storeImport(quotedPrefix, moduleName);
     }
+
+    /* Process Snippets */
 
     /**
      * This is an import. A test import is done to check for errors.
@@ -328,10 +299,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             throw new InvokerException();
         }
 
-        if (isImportStatementValid(importSnippet.toString())) {
-            return imports.storeImport(importSnippet);
-        }
-        throw new InvokerException();
+        compileImportStatement(importSnippet.toString());
+        return imports.storeImport(importSnippet);
     }
 
     /**
@@ -424,6 +393,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         throw new InvokerException();
     }
 
+    /* Context Creation */
+
     /**
      * Creates a context which can be used to check import validation.
      *
@@ -508,144 +479,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         return varDclns;
     }
 
-    /**
-     * Get the project with the context data.
-     *
-     * @param context      Context to create the ballerina file.
-     * @param templateFile Template file to load.
-     * @return Created ballerina project.
-     * @throws InvokerException If file writing failed.
-     */
-    protected SingleFileProject getProject(Object context, String templateFile) throws InvokerException {
-        Mustache template = super.getTemplate(templateFile);
-        try (StringWriter stringWriter = new StringWriter()) {
-            template.execute(stringWriter, context);
-            return getProject(stringWriter.toString());
-        } catch (IOException e) {
-            addDiagnostic(Diagnostic.error("File generation failed: " + e.getMessage()));
-            throw new InvokerException(e);
-        }
-    }
+    /* Util methods */
 
-    /**
-     * Get the project with the context data.
-     *
-     * @param source Source to use for generating project.
-     * @return Created ballerina project.
-     * @throws InvokerException If file writing failed.
-     */
-    protected SingleFileProject getProject(String source) throws InvokerException {
-        try {
-            File mainBal = writeToFile(source);
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
-            return SingleFileProject.load(mainBal.toPath(), buildOptions);
-        } catch (IOException e) {
-            addDiagnostic(Diagnostic.error("File writing failed: " + e.getMessage()));
-            throw new InvokerException(e);
-        }
-    }
-
-    /**
-     * Executes a compiled project.
-     * It is expected that the project had no compiler errors.
-     * The process is run and the stdout is collected and printed.
-     *
-     * @param jBallerinaBackend Backed to use.
-     * @return Whether process execution was successful.
-     * @throws InvokerException If execution failed.
-     */
-    protected boolean executeProject(JBallerinaBackend jBallerinaBackend) throws InvokerException {
-        JarResolver jarResolver = jBallerinaBackend.jarResolver();
-        ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
-        // First initialize the module
-        invokeMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
-        // Then call main method
-        Object result = invokeMethod(classLoader, getMethodClassName(), MODULE_MAIN_METHOD_NAME);
-        return result == null;
-    }
-
-    /**
-     * Invokes a method that is in the given class.
-     * The method must be a static method accepting only one parameter, a {@link Strand}.
-     *
-     * @param classLoader Class loader to find the class.
-     * @param className   Class name with the method.
-     * @param methodName  Method name to invoke.
-     * @return The result of the invocation.
-     * @throws InvokerException If invocation failed.
-     */
-    protected Object invokeMethod(ClassLoader classLoader, String className, String methodName)
-            throws InvokerException {
-        try {
-            // Get class and method references
-            Class<?> clazz = classLoader.loadClass(className);
-            Method method = clazz.getDeclaredMethod(methodName, Strand.class);
-            Function<Object[], Object> methodInvocation = createInvokerCallback(method);
-
-            // Schedule and run the function and return if result is valid
-            BFuture out = scheduler.schedule(new Object[1], methodInvocation, null, null, null,
-                    PredefinedTypes.TYPE_ERROR, null, null);
-            scheduler.start();
-
-            Object result = out.getResult();
-            Throwable panic = out.getPanic();
-            if (panic != null) {
-                addDiagnostic(Diagnostic.debug("Panic: " + panic));
-                addDiagnostic(Diagnostic.debug("Result: " + result));
-                throw new InvokerException(panic);
-            }
-            return result;
-        } catch (ClassNotFoundException e) {
-            addDiagnostic(Diagnostic.error(className + " class not found: " + e.getMessage()));
-            throw new InvokerException(e);
-        } catch (NoSuchMethodException e) {
-            addDiagnostic(Diagnostic.error(methodName + " method not found: " + e.getMessage()));
-            throw new InvokerException(e);
-        } catch (RuntimeException e) {
-            addDiagnostic(Diagnostic.error("Unexpected error: " + e.getMessage()));
-            throw new InvokerException(e);
-        }
-    }
-
-    /**
-     * Creates a callback to the method to directly call it with given params.
-     *
-     * @param method Method to create invocation.
-     * @return Created callback.
-     */
-    private Function<Object[], Object> createInvokerCallback(Method method) {
-        return (params) -> {
-            try {
-                return method.invoke(null, params);
-            } catch (InvocationTargetException e) {
-                return e.getTargetException();
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error while invoking function.", e);
-            }
-        };
-    }
-
-    /**
-     * Tries to import using the given statement.
-     *
-     * @param importStatement Import statement to use.
-     * @return Whether import is valid.
-     * @throws InvokerException If import file writing failed.
-     */
-    private boolean isImportStatementValid(String importStatement) throws InvokerException {
-        ClassLoadContext importCheckingContext = createImportInferContext(importStatement);
-        SingleFileProject project = getProject(importCheckingContext, IMPORT_TEMPLATE_FILE);
-        PackageCompilation compilation = project.currentPackage().getCompilation();
-
-        // Detect if import is valid.
-        for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
-            if (diagnostic.diagnosticInfo().code().equals(MODULE_NOT_FOUND_CODE)) {
-                addDiagnostic(Diagnostic.error("Import resolution failed. Module not found."));
-                return false;
-            }
-        }
-        return true;
-    }
 
     /**
      * Gets the symbols that are visible to main method but are unknown (previously not seen).
@@ -705,7 +540,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         return importStrings;
     }
 
-    // Available statements
+    /* Available statements */
 
     @Override
     public List<String> availableImports() {
