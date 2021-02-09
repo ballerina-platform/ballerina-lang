@@ -869,23 +869,30 @@ public class Desugar extends BLangNodeVisitor {
             // This will convert complex variables to simple variables.
             switch (globalVar.getKind()) {
                 case TUPLE_VARIABLE:
-                case RECORD_VARIABLE:
-                case ERROR_VARIABLE:
                     BLangNode blockStatementNode = rewrite(globalVar, initFunctionEnv);
                     List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
-                    for (int i = 0; i < statements.size(); i++) {
-                        BLangStatement bLangStatement = statements.get(i);
-                        // First statement is the virtual array created for the init expression.
-                        // Rest binding pattern will be desugared as a block hence add them directly to the
-                        // init function body.
-                        if (bLangStatement.getKind() == NodeKind.BLOCK || i == 0) {
-                            initFnBody.stmts.add(bLangStatement);
-                            continue;
-                        }
-                        BLangSimpleVariable simpleVar = ((BLangSimpleVariableDef) bLangStatement).var;
-                        simpleVar.annAttachments = globalVar.getAnnotationAttachments();
-                        addToInitFunction(simpleVar, initFnBody);
-                        desugaredGlobalVarList.add(simpleVar);
+                    int statementSize = statements.size();
+                    if (statementSize == 0) {
+                        break;
+                    }
+
+                    for (int i = 0; i < statementSize - 1; i++) {
+                        addToGlobalVariableList(statements.get(i), initFnBody, globalVar, desugaredGlobalVarList);
+                    }
+
+                    // Rest variable will be desugard as a block statement
+                    BLangStatement bLangStatement = statements.get(statementSize - 1);
+                    if (bLangStatement.getKind() == NodeKind.BLOCK) {
+                        initFnBody.stmts.add(bLangStatement);
+                    } else {
+                        addToGlobalVariableList(bLangStatement, initFnBody, globalVar, desugaredGlobalVarList);
+                    }
+                    break;
+                case RECORD_VARIABLE:
+                case ERROR_VARIABLE:
+                    blockStatementNode = rewrite(globalVar, initFunctionEnv);
+                    for (BLangStatement statement : ((BLangBlockStmt) blockStatementNode).stmts) {
+                        addToGlobalVariableList(statement, initFnBody, globalVar, desugaredGlobalVarList);
                     }
                     break;
                 default:
@@ -919,6 +926,18 @@ public class Desugar extends BLangNodeVisitor {
 
         this.env.enclPkg.topLevelNodes.addAll(desugaredGlobalVarList);
         return desugaredGlobalVarList;
+    }
+
+    private void addToGlobalVariableList(BLangStatement bLangStatement, BLangBlockFunctionBody initFnBody,
+                                         BLangVariable globalVar, List<BLangVariable> desugaredGlobalVarList) {
+        BLangSimpleVariable simpleVar = ((BLangSimpleVariableDef) bLangStatement).var;
+        if ((simpleVar.symbol.owner.tag & SymTag.PACKAGE) != SymTag.PACKAGE) {
+            initFnBody.stmts.add(bLangStatement);
+        } else {
+            simpleVar.annAttachments = globalVar.getAnnotationAttachments();
+            addToInitFunction(simpleVar, initFnBody);
+            desugaredGlobalVarList.add(simpleVar);
+        }
     }
 
     private void addToInitFunction(BLangSimpleVariable globalVar, BLangBlockFunctionBody initFnBody) {
@@ -1651,10 +1670,8 @@ public class Desugar extends BLangNodeVisitor {
                     .map(var -> var.getKey().getValue())
                     .collect(Collectors.toList());
 
-            final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(parentRecordVariable.pos);
             BLangSimpleVariable filteredDetail = generateRestFilter(variableReference, pos,
-                    keysToRemove, restParamType, blockStmt);
-            parentBlockStmt.addStatement(blockStmt);
+                    keysToRemove, restParamType, parentBlockStmt);
 
             BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol);
 
@@ -1730,11 +1747,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef detailTempVarDef = createVarDef("$error$detail",
                 parentErrorVariable.detailExpr.type, parentErrorVariable.detailExpr, parentErrorVariable.pos);
         detailTempVarDef.type = parentErrorVariable.detailExpr.type;
+        parentBlockStmt.addStatement(detailTempVarDef);
 
-        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(parentErrorVariable.pos);
-        blockStmt.addStatement(detailTempVarDef);
-        // Wrap detail var def with a block statement to add it directly to init function in module var case
-        parentBlockStmt.addStatement(blockStmt);
         this.env.scope.define(names.fromIdNode(detailTempVarDef.var.name), detailTempVarDef.var.symbol);
 
         for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : parentErrorVariable.detail) {
@@ -1752,10 +1766,8 @@ public class Desugar extends BLangNodeVisitor {
                     .map(detail -> detail.key.getValue())
                     .collect(Collectors.toList());
 
-            final BLangBlockStmt restblockStmt = ASTBuilderUtil.createBlockStmt(parentErrorVariable.pos);
             BLangSimpleVariable filteredDetail = generateRestFilter(detailVarRef, parentErrorVariable.pos, keysToRemove,
-                    parentErrorVariable.restDetail.type, restblockStmt);
-            parentBlockStmt.addStatement(restblockStmt);
+                    parentErrorVariable.restDetail.type, parentBlockStmt);
 
             BLangSimpleVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
             variableDefStmt.var = ASTBuilderUtil.createVariable(pos,
@@ -1952,20 +1964,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangNode blockStatementNode = rewrite(valueBindingPattern, env);
         List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
 
-        int numberOfStatements = statements.size();
-        if (numberOfStatements < 1) {
-            return;
-        }
-
-        BLangStatement bLangStatement = statements.get(0);
-        // Wrap first virtual var def for init expression with a block statement to add it directly to
-        // init function in module var case
-        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(bLangStatement.pos);
-        blockStmt.addStatement(bLangStatement);
-        parentBlockStmt.addStatement(blockStmt);
-
-        for (int i = 1; i < numberOfStatements; i++) {
-            parentBlockStmt.addStatement(statements.get(i));
+        for (BLangStatement statement : statements) {
+            parentBlockStmt.addStatement(statement);
         }
     }
 
