@@ -40,8 +40,6 @@ import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.ballerinalang.debugadapter.launch.Launcher;
 import org.ballerinalang.debugadapter.launch.PackageLauncher;
 import org.ballerinalang.debugadapter.launch.SingleFileLauncher;
-import org.ballerinalang.debugadapter.terminator.OSUtils;
-import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
@@ -57,6 +55,7 @@ import org.eclipse.lsp4j.debug.ContinueResponse;
 import org.eclipse.lsp4j.debug.DisconnectArguments;
 import org.eclipse.lsp4j.debug.EvaluateArguments;
 import org.eclipse.lsp4j.debug.EvaluateResponse;
+import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.InitializeRequestArguments;
 import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
@@ -132,6 +131,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private ThreadReferenceProxyImpl activeThread;
     private SuspendedContext suspendedContext;
     private DebugInstruction lastInstruction;
+    private boolean terminationRequestReceived = false;
 
     private final AtomicLong nextVarReference = new AtomicLong();
     private final Map<Long, StackFrameProxyImpl> stackFramesMap = new HashMap<>();
@@ -140,14 +140,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private final Map<Long, Long> scopeIdToFrameIdMap = new HashMap<>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
-    private static final String DEBUGGER_TERMINATED = "Debugger is terminated";
-    private static final String DEBUGGER_FAILED_TO_ATTACH = "Debugger is failed to attach";
+    private static final String MESSAGE_SERVER_DISCONNECTED = "Disconnected from debug server";
     private static final String STRAND_FIELD_NAME = "name";
     private static final String FRAME_TYPE_START = "start";
     private static final String FRAME_TYPE_WORKER = "worker";
     private static final String FRAME_TYPE_ANONYMOUS = "anonymous";
     private static final String FRAME_SEPARATOR = ":";
     private static final String WORKER_LAMBDA_REGEX = "(\\$lambda\\$)\\b(.*)\\b(\\$lambda)(.*)";
+    private static final String SCOPE_NAME_LOCAL = "Local";
+    private static final String SCOPE_NAME_GLOBAL = "Global";
 
     public JBallerinaDebugServer() {
         context = new ExecutionContext(this);
@@ -192,10 +193,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
+        Breakpoint[] breakpoints = Arrays.stream(args.getBreakpoints())
+                .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
+                .toArray(Breakpoint[]::new);
+
         SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
-        Breakpoint[] breakpoints = new Breakpoint[args.getBreakpoints().length];
-        Arrays.stream(args.getBreakpoints()).map((SourceBreakpoint sourceBreakpoint) ->
-                toBreakpoint(sourceBreakpoint, args.getSource())).collect(Collectors.toList()).toArray(breakpoints);
         breakpointsResponse.setBreakpoints(breakpoints);
         String path = args.getSource().getPath();
         eventProcessor.setBreakpointsList(path, breakpoints);
@@ -216,9 +218,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         try {
             context.setLaunchedProcess(launcher.start());
         } catch (IOException e) {
-            sendOutput("Unable to launch debug adapter: " + e.toString(), STDERR);
+            sendOutput("Failed to launch the debug server due to: " + e.toString(), STDERR);
             return CompletableFuture.completedFuture(null);
         }
+
         CompletableFuture.runAsync(() -> {
             if (context.getLaunchedProcess().isPresent()) {
                 BufferedReader errorStream = context.getErrorStream();
@@ -228,8 +231,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                         sendOutput(line, STDERR);
                     }
                 } catch (IOException ignored) {
-                } finally {
-                    this.exit(false);
                 }
             }
         });
@@ -243,14 +244,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     while ((line = inputStream.readLine()) != null) {
                         if (line.contains("Listening for transport dt_socket")) {
                             launcher.attachToLaunchedProcess(this);
-                            sendOutput("Compiling...", STDOUT);
                             eventProcessor.startListening();
                         }
                         sendOutput(line, STDOUT);
                     }
                 } catch (IOException ignored) {
-                } finally {
-                    this.exit(false);
                 }
             }
         });
@@ -259,12 +257,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> attach(Map<String, Object> args) {
-        try {
-            clearState();
-            loadProjectInfo(args);
-            String hostName = args.get("debuggeeHost") == null ? "" : args.get("debuggeeHost").toString();
-            String portName = args.get("debuggeePort").toString();
+        clearState();
+        loadProjectInfo(args);
+        String hostName = args.get("debuggeeHost") == null ? "" : args.get("debuggeeHost").toString();
+        String portName = args.get("debuggeePort").toString();
 
+        try {
             executionManager = new DebugExecutionManager();
             context.setDebuggee(new VirtualMachineProxyImpl(executionManager.attach(hostName, portName)));
             EventRequestManager erm = context.getEventManager();
@@ -272,8 +270,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             classPrepareRequest.enable();
             eventProcessor.startListening();
         } catch (IOException | IllegalConnectorArgumentsException e) {
-            this.sendOutput(DEBUGGER_FAILED_TO_ATTACH, STDERR);
-            LOGGER.error(DEBUGGER_FAILED_TO_ATTACH);
+            this.sendOutput(String.format("Failed to attach to the target VM, host: '%s' and port: '%s'",
+                    hostName, portName), STDERR);
             return CompletableFuture.completedFuture(null);
         }
         return CompletableFuture.completedFuture(null);
@@ -342,12 +340,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<ScopesResponse> scopes(ScopesArguments args) {
         // Creates local variable scope.
         Scope localScope = new Scope();
-        localScope.setName("Local");
+        localScope.setName(SCOPE_NAME_LOCAL);
         scopeIdToFrameIdMap.put(nextVarReference.get(), args.getFrameId());
         localScope.setVariablesReference(nextVarReference.getAndIncrement());
         // Creates global variable scope.
         Scope globalScope = new Scope();
-        globalScope.setName("Global");
+        globalScope.setName(SCOPE_NAME_GLOBAL);
         scopeIdToFrameIdMap.put(nextVarReference.get(), -args.getFrameId());
         globalScope.setVariablesReference(nextVarReference.getAndIncrement());
 
@@ -511,37 +509,74 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return thread;
     }
 
-    void exit(boolean terminateDebuggee) {
+    @Override
+    public CompletableFuture<Void> disconnect(DisconnectArguments args) {
+        terminationRequestReceived = true;
+        boolean terminateDebuggee = Objects.requireNonNullElse(args.getTerminateDebuggee(), false);
+        terminateServer(terminateDebuggee);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> terminate(TerminateArguments args) {
+        terminationRequestReceived = true;
+        terminateServer(true);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    void terminateServer(boolean terminateDebuggee) {
+        // Destroys launched process, if presents.
+        if (context.getLaunchedProcess().isPresent() && context.getLaunchedProcess().get().isAlive()) {
+            killProcessWithDescendants(context.getLaunchedProcess().get());
+        }
+        // Destroys remote VM process, if `terminteDebuggee' flag is set.
         if (terminateDebuggee) {
-            new TerminatorFactory().getTerminator(OSUtils.getOperatingSystem()).terminate();
+            int exitCode = 0;
+            if (context.getDebuggee().process() != null) {
+                exitCode = killProcessWithDescendants(context.getDebuggee().process());
+            }
+            context.getDebuggee().exit(exitCode);
         }
-        if (context.getLaunchedProcess().isPresent()) {
-            closeQuietly(context.getInputStream());
-            closeQuietly(context.getErrorStream());
-            context.getLaunchedProcess().get().destroy();
+        // If 'terminationRequestReceived' is false, debug server termination should have been triggered from the
+        // JDI event processor, after receiving a 'VMDisconnected'/'VMExited' event.
+        if (!terminationRequestReceived) {
+            ExitedEventArguments exitedEventArguments = new ExitedEventArguments();
+            exitedEventArguments.setExitCode(0L);
+            context.getClient().exited(exitedEventArguments);
         }
+        // Notifies user.
+        sendOutput(MESSAGE_SERVER_DISCONNECTED, STDOUT);
+
+        // Exits from the debug server VM.
         new java.lang.Thread(() -> {
             try {
-                java.lang.Thread.sleep(100);
+                java.lang.Thread.sleep(500);
             } catch (InterruptedException ignored) {
             }
             System.exit(0);
         }).start();
     }
 
-    @Override
-    public CompletableFuture<Void> disconnect(DisconnectArguments args) {
-        boolean terminateDebuggee = args.getTerminateDebuggee() != null && args.getTerminateDebuggee();
-        this.exit(terminateDebuggee);
-        return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    public CompletableFuture<Void> terminate(TerminateArguments args) {
-        this.exit(true);
-        LOGGER.info(DEBUGGER_TERMINATED);
-        sendOutput(DEBUGGER_TERMINATED, STDOUT);
-        return CompletableFuture.completedFuture(null);
+    private static int killProcessWithDescendants(Process parent) {
+        // Kills the descendants of the process. The descendants of a process are the children
+        // of the process and the descendants of those children, recursively.
+        parent.descendants().forEach(processHandle -> {
+            boolean successful = processHandle.destroy();
+            if (!successful) {
+                processHandle.destroyForcibly();
+            }
+        });
+        closeQuietly(parent.getInputStream());
+        closeQuietly(parent.getOutputStream());
+        closeQuietly(parent.getErrorStream());
+        // Kills the parent process. Whether the process represented by this Process object will be normally
+        // terminated or not, is implementation dependent.
+        parent.destroy();
+        try {
+            parent.waitFor();
+        } catch (InterruptedException ignored) {
+        }
+        return parent.exitValue();
     }
 
     public void connect(IDebugProtocolClient client) {
@@ -856,5 +891,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         loadedVariables.clear();
         variableToStackFrameMap.clear();
         nextVarReference.set(1);
+    }
+
+    /**
+     * Returns whether any 'terminate' or 'disconnect' requests are received from the debug client.
+     *
+     * @return if any 'terminate' or 'disconnect' requests are received from the debug client.
+     */
+    public boolean isTerminationRequestReceived() {
+        return terminationRequestReceived;
     }
 }
