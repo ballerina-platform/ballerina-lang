@@ -23,7 +23,7 @@ import com.sun.jdi.request.EventRequestManager;
 import org.ballerinalang.debugadapter.DebugExecutionManager;
 import org.ballerinalang.debugadapter.JBallerinaDebugServer;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.ballerinalang.debugadapter.terminator.OSUtils;
+import org.ballerinalang.debugadapter.utils.OSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
