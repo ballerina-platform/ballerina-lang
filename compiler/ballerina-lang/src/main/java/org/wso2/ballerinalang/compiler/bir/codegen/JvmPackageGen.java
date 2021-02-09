@@ -93,7 +93,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -549,10 +548,6 @@ public class JvmPackageGen {
 
         linkModuleFunctions(module, initClass, isEntry, jvmClassMap);
 
-
-        // link module init function that will be generated
-        linkModuleFunction(module.packageID, initClass, CURRENT_MODULE_INIT);
-
         // link module stop function that will be generated
         linkModuleFunction(module.packageID, initClass, MODULE_STOP);
 
@@ -637,7 +632,6 @@ public class JvmPackageGen {
         JavaClass klass = new JavaClass(initFunc.pos.lineRange().filePath());
         klass.functions.add(0, initFunc);
         PackageID packageID = birPackage.packageID;
-        initMethodGen.addInitAndTypeInitInstructions(packageID, initFunc);
         jvmClassMap.put(initClass, klass);
         String pkgName = JvmCodeGenUtil.getPackageName(packageID);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(initFunc, packageID, initClass));

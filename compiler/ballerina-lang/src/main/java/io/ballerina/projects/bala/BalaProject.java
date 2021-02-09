@@ -28,7 +28,7 @@ import io.ballerina.projects.internal.PackageConfigCreator;
 import java.nio.file.Path;
 
 /**
- * {@code BalaProject} represents a Ballerina project instance created from a balr.
+ * {@code BalaProject} represents a Ballerina project instance created from a bala.
  *
  * @since 2.0.0
  */
@@ -37,18 +37,18 @@ public class BalaProject extends Project {
     /**
      * Loads a BalaProject from the provided bala path.
      *
-     * @param balrPath Bala path
+     * @param balaPath Bala path
      * @return bala project
      */
-    public static BalaProject loadProject(ProjectEnvironmentBuilder environmentBuilder, Path balrPath) {
-        PackageConfig packageConfig = PackageConfigCreator.createBalrProjectConfig(balrPath);
-        BalaProject balrProject = new BalaProject(environmentBuilder, balrPath);
-        balrProject.addPackage(packageConfig);
-        return balrProject;
+    public static BalaProject loadProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath) {
+        PackageConfig packageConfig = PackageConfigCreator.createBalaProjectConfig(balaPath);
+        BalaProject balaProject = new BalaProject(environmentBuilder, balaPath);
+        balaProject.addPackage(packageConfig);
+        return balaProject;
     }
 
     private BalaProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath) {
-        super(ProjectKind.BALR_PROJECT, balaPath, environmentBuilder);
+        super(ProjectKind.BALA_PROJECT, balaPath, environmentBuilder);
     }
 
     @Override

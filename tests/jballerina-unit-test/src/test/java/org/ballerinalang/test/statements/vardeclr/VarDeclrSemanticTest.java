@@ -41,7 +41,7 @@ public class VarDeclrSemanticTest {
         validateError(result, 0, "incompatible types: expected 'int', found 'string'", 2, 13);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testIncompleteListenerDecl() {
         CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/incomplete_listener_decl.bal");
         int indx = 0;

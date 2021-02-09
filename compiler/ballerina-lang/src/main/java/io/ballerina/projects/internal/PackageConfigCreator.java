@@ -82,12 +82,12 @@ public class PackageConfigCreator {
         return createPackageConfig(packageData, packageManifest);
     }
 
-    public static PackageConfig createBalrProjectConfig(Path balrPath) {
-        ProjectFiles.validateBalrProjectPath(balrPath);
-        PackageManifest packageManifest = BalaFiles.createPackageManifest(balrPath);
-        PackageData packageData = BalaFiles.loadPackageData(balrPath, packageManifest);
+    public static PackageConfig createBalaProjectConfig(Path balaPath) {
+        ProjectFiles.validateBalaProjectPath(balaPath);
+        PackageManifest packageManifest = BalaFiles.createPackageManifest(balaPath);
+        PackageData packageData = BalaFiles.loadPackageData(balaPath, packageManifest);
         BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles
-                .createPackageDependencyGraph(balrPath, packageManifest.name().value());
+                .createPackageDependencyGraph(balaPath, packageManifest.name().value());
 
         return createPackageConfig(packageData, packageManifest,
                 packageDependencyGraph.packageDependencyGraph(), packageDependencyGraph.moduleDependencies());

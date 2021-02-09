@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -160,7 +159,7 @@ public class InitMethodGen {
         // Using object return type since this is similar to a ballerina function without a return.
         // A ballerina function with no returns is equivalent to a function with nil-return.
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_INIT,
-                                          String.format("(L%s;)L%s;", STRAND_CLASS, OBJECT), null, null);
+                                          String.format("()L%s;", OBJECT), null, null);
         mv.visitCode();
 
         mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_TYPES_METHOD, "()V", false);
@@ -180,32 +179,6 @@ public class InitMethodGen {
         // Add a nil-return
         mv.visitInsn(ACONST_NULL);
         MethodGenUtils.visitReturn(mv);
-    }
-
-    public void addInitAndTypeInitInstructions(PackageID packageID, BIRNode.BIRFunction func) {
-        List<BIRNode.BIRBasicBlock> basicBlocks = new ArrayList<>();
-        nextId = -1;
-        BIRNode.BIRBasicBlock nextBB = new BIRNode.BIRBasicBlock(getNextBBId());
-        basicBlocks.add(nextBB);
-
-        BIRNode.BIRBasicBlock typeOwnerCreateBB = new BIRNode.BIRBasicBlock(getNextBBId());
-        basicBlocks.add(typeOwnerCreateBB);
-
-        nextBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, packageID,
-                                                   new Name(CURRENT_MODULE_INIT),
-                                                   new ArrayList<>(), null, typeOwnerCreateBB, Collections.emptyList(),
-                                                   Collections.emptySet());
-
-        if (func.basicBlocks.size() == 0) {
-            typeOwnerCreateBB.terminator = new BIRTerminator.Return(func.pos);
-            func.basicBlocks = basicBlocks;
-            return;
-        }
-
-        typeOwnerCreateBB.terminator = new BIRTerminator.GOTO(null, func.basicBlocks.get(0));
-
-        basicBlocks.addAll(func.basicBlocks);
-        func.basicBlocks = basicBlocks;
     }
 
     public void enrichPkgWithInitializers(Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
