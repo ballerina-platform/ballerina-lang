@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -271,10 +272,13 @@ public final class FunctionCompletionItemBuilder {
             args.add(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) + (param.name().isEmpty() ? ""
                     : " " + param.name().get()));
         }
-        restParam.ifPresent(param ->
-                args.add(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor())
-                        + (param.name().isEmpty() ? "" : "... "
-                        + param.name().get())));
+        restParam.ifPresent(param -> {
+            // Rest param is represented as an array type symbol
+            ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
+            args.add(CommonUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
+                    + (param.name().isEmpty() ? "" : "... "
+                    + param.name().get()));
+        });
         return (!args.isEmpty()) ? args : new ArrayList<>();
     }
 

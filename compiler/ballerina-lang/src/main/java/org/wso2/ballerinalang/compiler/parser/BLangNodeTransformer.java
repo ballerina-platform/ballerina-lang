@@ -3696,6 +3696,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         OnClauseNode onClauseNode = joinClauseNode.joinOnCondition();
         BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
         onClause.pos = getPosition(onClauseNode);
+        if (!onClauseNode.equalsKeyword().isMissing()) {
+            onClause.equalsKeywordPos = getPosition(onClauseNode.equalsKeyword());
+        }
         onClause.lhsExpr = createExpression(onClauseNode.lhsExpression());
         onClause.rhsExpr = createExpression(onClauseNode.rhsExpression());
         joinClause.onClause = onClause;
