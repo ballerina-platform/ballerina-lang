@@ -123,6 +123,7 @@ public class ConfigTomlParser {
         Object value;
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
@@ -286,6 +287,9 @@ public class ConfigTomlParser {
     }
 
     private static Object getBalValue(String variableName, int typeTag, Object tomlValue) {
+        if (typeTag == TypeTags.BYTE_TAG) {
+            return ((Long) tomlValue).intValue();
+        }
         if (typeTag == TypeTags.DECIMAL_TAG) {
             return ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) tomlValue));
         }
@@ -301,6 +305,7 @@ public class ConfigTomlParser {
         TomlType tomlType;
         switch (expectedType.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
                 tomlType = TomlType.INTEGER;
                 break;
             case TypeTags.BOOLEAN_TAG:
