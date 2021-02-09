@@ -18,7 +18,7 @@
 
 package org.ballerinalang.toml.model;
 
-import org.wso2.ballerinalang.programfile.ProgramFileConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ public class Module {
     public List<String> module_keywords;
     public String ballerina_version;
     private String platform;
-    public String language_specification_version = ProgramFileConstants.IMPLEMENTATION_VERSION;
+    public String language_specification_version = RepoUtils.getSpecVersion();
     public String implementation_name = "jBallerina";
     public String implementation_version = "1.0.0";
     public String implementation_vendor = "WSO2";

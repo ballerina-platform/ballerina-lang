@@ -27,7 +27,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.programfile.ProgramFileConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +84,7 @@ public class PathDependencyTestCase extends BaseTest {
     public void testBalaPathCase1() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case1");
         // Build bee module of TestProject1
-        String beeModuleBalaFileName = "bee-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0"
+        String beeModuleBalaFileName = "bee-" + RepoUtils.getSpecVersion() + "-any-1.2.0"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
         
         String module1BuildMsg = "target" + File.separator + "bala" + File.separator + beeModuleBalaFileName;
@@ -117,7 +117,7 @@ public class PathDependencyTestCase extends BaseTest {
     public void testBalaPathCase2() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case2");
         // Build bee module of TestProject1
-        String beeModuleBalaFileName = "bee-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0"
+        String beeModuleBalaFileName = "bee-" + RepoUtils.getSpecVersion() + "-any-1.2.0"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
         
         String module1BuildMsg = "target" + File.separator + "bala" + File.separator + beeModuleBalaFileName;
@@ -127,7 +127,7 @@ public class PathDependencyTestCase extends BaseTest {
         beeModuleBuildLeecher.waitForText(5000);
         
         // Build modules of TestProject2
-        String m1ModuleBalaFileName = "m1-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-2.0.0"
+        String m1ModuleBalaFileName = "m1-" + RepoUtils.getSpecVersion() + "-any-2.0.0"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
         String m2ModuleExecutableFileName = "m2" + BLANG_COMPILED_JAR_EXT;
         
@@ -154,7 +154,7 @@ public class PathDependencyTestCase extends BaseTest {
     public void testBalaPathCase3() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case3");
         // Build bee module of TestProject1
-        String toml4jModuleBalaFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.7.2"
+        String toml4jModuleBalaFileName = "toml4j-" + RepoUtils.getSpecVersion() + "-java11-0.7.2"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
 
         String toml4jBuildMsg = "target" + File.separator + "bala" + File.separator + toml4jModuleBalaFileName;
@@ -198,7 +198,7 @@ public class PathDependencyTestCase extends BaseTest {
                                       testProjBeeModulePath);
         deleteFiles(caseResources.resolve("TestProject1").resolve("src").resolve("bee"));
         
-        String beeModuleBalaFileName = beeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-1" +
+        String beeModuleBalaFileName = beeModuleName + "-" + RepoUtils.getSpecVersion() + "-java11-1" +
                 ".2.0" + BLANG_COMPILED_PKG_BINARY_EXT;
         
         String module1BuildMsg = "target" + File.separator + "bala" + File.separator + beeModuleBalaFileName;
@@ -231,7 +231,7 @@ public class PathDependencyTestCase extends BaseTest {
                                       testProjFeeModulePath);
         deleteFiles(caseResources.resolve("TestProject2").resolve("src").resolve("fee"));
     
-        String feeModuleBalaFileName = feeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-2.0.0"
+        String feeModuleBalaFileName = feeModuleName + "-" + RepoUtils.getSpecVersion() + "-any-2.0.0"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
     
         String feeBalaFilePath = "target" + File.separator + "bala" + File.separator + feeModuleBalaFileName;
@@ -323,7 +323,7 @@ public class PathDependencyTestCase extends BaseTest {
     public void testBalaPathCase5() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case5");
         // Build bee module of TestProject1
-        String beeModuleBalaFileName = "bee-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0"
+        String beeModuleBalaFileName = "bee-" + RepoUtils.getSpecVersion() + "-any-1.2.0"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
         
         String module1BuildMsg = "target" + File.separator + "bala" + File.separator + beeModuleBalaFileName;
@@ -361,7 +361,7 @@ public class PathDependencyTestCase extends BaseTest {
         Path caseResources = tempTestResources.resolve("case6");
 
         // Build Z module of TestProject2
-        String moduleZBalaFileName = "Z-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+        String moduleZBalaFileName = "Z-" + RepoUtils.getSpecVersion() + "-any-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
         String moduleZBuildMsg = "target" + File.separator + "bala" + File.separator + moduleZBalaFileName;
@@ -371,10 +371,10 @@ public class PathDependencyTestCase extends BaseTest {
         moduleZBuildLeecher.waitForText(5000);
 
         // Build all modules of TestProject1
-        String moduleXBalaFileName = "X-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+        String moduleXBalaFileName = "X-" + RepoUtils.getSpecVersion() + "-any-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
-        String moduleYBalaFileName = "Y-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+        String moduleYBalaFileName = "Y-" + RepoUtils.getSpecVersion() + "-any-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
         String moduleXBuildMsg = "target" + File.separator + "bala" + File.separator + moduleXBalaFileName;
@@ -400,10 +400,10 @@ public class PathDependencyTestCase extends BaseTest {
     public void testBalaPathCase7() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case7");
         // Build all modules of TestProject3
-        String moduleUtilsBalaFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
+        String moduleUtilsBalaFileName = "utils-" + RepoUtils.getSpecVersion() + "-java11-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
-        String moduleFooBalaFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+        String moduleFooBalaFileName = "foo-" + RepoUtils.getSpecVersion() + "-any-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
         String moduleXBuildMsg = "target" + File.separator + "bala" + File.separator + moduleUtilsBalaFileName;
@@ -473,7 +473,7 @@ public class PathDependencyTestCase extends BaseTest {
     public void testBalaPathCase9() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case9");
         // Build bee module of TestProject1
-        String toml4jModuleBalaFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.7.2"
+        String toml4jModuleBalaFileName = "toml4j-" + RepoUtils.getSpecVersion() + "-java11-0.7.2"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
         String toml4jBuildMsg = "target" + File.separator + "bala" + File.separator + toml4jModuleBalaFileName;

@@ -28,6 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -95,7 +96,7 @@ public class NativePackagingTestCase extends BaseTest {
     public void testBuildAndPushTestProject1() throws BallerinaTestException {
         // Build module
         String module1BalaFileName = module1Name + "-"
-                                     + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                     + RepoUtils.getSpecVersion() + "-"
                                      + ProgramFileConstants.SUPPORTED_PLATFORMS[0]
                                      + "-"
                                      + "0.7.2"
@@ -135,7 +136,7 @@ public class NativePackagingTestCase extends BaseTest {
         
         // Build module
         String bazBalaFileName = "baz-"
-                                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                 + RepoUtils.getSpecVersion() + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "1.0.0"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;

@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -258,7 +259,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         }
 
         String moduleBalaFileName = moduleName + "-"
-                + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                + RepoUtils.getSpecVersion() + "-"
                 + ProgramFileConstants.ANY_PLATFORM + "-"
                 + "0.0.2"
                 + BLANG_COMPILED_PKG_BINARY_EXT;

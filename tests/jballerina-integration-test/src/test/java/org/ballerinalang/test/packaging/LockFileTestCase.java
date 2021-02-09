@@ -29,6 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -111,13 +112,13 @@ public class LockFileTestCase extends BaseTest {
     public void testBuildAndPushTestProject1() throws BallerinaTestException {
         // Build module
         String module1BalaFileName = module1Name + "-"
-                              + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                              + RepoUtils.getSpecVersion() + "-"
                               + ProgramFileConstants.ANY_PLATFORM + "-"
                               + "1.0.0"
                               + BLANG_COMPILED_PKG_BINARY_EXT;
     
         String module2BalaFileName = module2Name + "-"
-                                     + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                     + RepoUtils.getSpecVersion() + "-"
                                      + ProgramFileConstants.ANY_PLATFORM + "-"
                                      + "1.0.0"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -161,7 +162,7 @@ public class LockFileTestCase extends BaseTest {
 
         // Build module
         String fooBalaFileName = "foo-"
-                + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                + RepoUtils.getSpecVersion() + "-"
                 + ProgramFileConstants.ANY_PLATFORM + "-"
                 + "9.9.9"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -196,13 +197,13 @@ public class LockFileTestCase extends BaseTest {
         PackerinaTestUtils.modifyContent(ballerinaTomlPath, "1.0.0", "1.2.0");
     
         String module1BalaFileName = module1Name + "-"
-                                     + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                     + RepoUtils.getSpecVersion() + "-"
                                      + ProgramFileConstants.ANY_PLATFORM + "-"
                                      + "1.2.0"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
     
         String module2BalaFileName = module2Name + "-"
-                                     + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                     + RepoUtils.getSpecVersion() + "-"
                                      + ProgramFileConstants.ANY_PLATFORM + "-"
                                      + "1.2.0"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -238,7 +239,7 @@ public class LockFileTestCase extends BaseTest {
     public void testRebuildTestProj2() throws BallerinaTestException {
         // Build module
         String fooBalaFileName = "foo-"
-                                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                 + RepoUtils.getSpecVersion() + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -271,7 +272,7 @@ public class LockFileTestCase extends BaseTest {
         
         // Build module
         String fooBalaFileName = "foo-"
-                                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                 + RepoUtils.getSpecVersion() + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -313,7 +314,7 @@ public class LockFileTestCase extends BaseTest {
         Files.delete(lockFilePath);
         // Build module
         String fooBalaFileName = "foo-"
-                                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                 + RepoUtils.getSpecVersion() + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -361,7 +362,7 @@ public class LockFileTestCase extends BaseTest {
         Thread.sleep(3000);
     
         String fooBalaFileName = "foo-"
-                                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                 + RepoUtils.getSpecVersion() + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -387,7 +388,7 @@ public class LockFileTestCase extends BaseTest {
         
         // Build module
         String fooBalaFileName = "foo-"
-                                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                 + RepoUtils.getSpecVersion() + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;

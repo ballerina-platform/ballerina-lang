@@ -27,7 +27,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.programfile.ProgramFileConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,7 +81,7 @@ public class DependencyScopeTestCase extends BaseTest {
      */
     @Test(description = "Test 'provided' scope for platform dependency jars")
     public void providedScopeDependencyCase() throws BallerinaTestException, IOException {
-        String moduleUtilsBalaFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
+        String moduleUtilsBalaFileName = "utils-" + RepoUtils.getSpecVersion() + "-java11-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
         String moduleUtilsBuildMsg = "target" + File.separator + "bala" + File.separator + moduleUtilsBalaFileName;
 
@@ -121,7 +121,7 @@ public class DependencyScopeTestCase extends BaseTest {
     public void testOnlyScopeDependencyCase() throws BallerinaTestException, IOException {
         Path balaPath = projectResources.resolve("TestProject2" + File.separator + "target" + File.separator +
                 "bala");
-        String moduleFooBalaFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
+        String moduleFooBalaFileName = "foo-" + RepoUtils.getSpecVersion() + "-java11-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
         File balaFile = new File(balaPath.toString() + File.separator + moduleFooBalaFileName);
         File balaZipFile = new File(balaPath.toString() + File.separator +
@@ -158,7 +158,7 @@ public class DependencyScopeTestCase extends BaseTest {
     public void testValidatingDependenciesFromBalaToml() throws BallerinaTestException {
         copy(tempTestResources.resolve("validate-dependency").resolve("TestProject1").resolve(MANIFEST_FILE_NAME),
                 projectResources.resolve("TestProject1").resolve(MANIFEST_FILE_NAME));
-        String moduleUtilsBalaFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
+        String moduleUtilsBalaFileName = "utils-" + RepoUtils.getSpecVersion() + "-java11-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
         String moduleUtilsBuildMsg = "target" + File.separator + "bala" + File.separator + moduleUtilsBalaFileName;
         LogLeecher moduleUtilsBuildLeecher = new LogLeecher(moduleUtilsBuildMsg);

@@ -63,6 +63,8 @@ public class RepoUtils {
             System.getenv(BALLERINA_STAGE_CENTRAL));
     public static final boolean SET_BALLERINA_DEV_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_DEV_CENTRAL));
+
+    private static final String UNKNOWN = "unknown";
     
     /**
      * Create and get the home repository path.
@@ -201,7 +203,7 @@ public class RepoUtils {
             return properties.getProperty(ProjectDirConstants.BALLERINA_VERSION);
         } catch (Throwable ignore) {
         }
-        return "unknown";
+        return UNKNOWN;
     }
 
     public static String getBallerinaPackVersion() {
@@ -211,7 +213,7 @@ public class RepoUtils {
             return properties.getProperty(ProjectDirConstants.BALLERINA_PACK_VERSION);
         } catch (Throwable ignore) {
         }
-        return "unknown";
+        return UNKNOWN;
     }
 
     public static String getBallerinaVersionDisplayName() {
@@ -221,9 +223,28 @@ public class RepoUtils {
             return properties.getProperty(ProjectDirConstants.BALLERINA_VERSION_DISPLAY_NAME);
         } catch (Throwable ignore) {
         }
-        return "unknown";
+        return UNKNOWN;
     }
 
+    public static String getBallerinaChannel() {
+        try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_CHANNEL);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
+    }
+
+    public static String getSpecVersion() {
+        try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.SPEC_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
+    }
 
     /**
      * Validates the org-name and package name.

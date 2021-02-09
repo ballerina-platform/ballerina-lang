@@ -120,7 +120,7 @@ public class PackagingTestCase extends BaseTest {
         clientLeecher.waitForText(2000);
         
         String balaFileName = moduleName + "-"
-                              + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                              + RepoUtils.getSpecVersion() + "-"
                               + ProgramFileConstants.ANY_PLATFORM + "-"
                               + "0.1.0"
                               + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -150,7 +150,7 @@ public class PackagingTestCase extends BaseTest {
     @Test(enabled = false, description = "Test pulling a package from central", dependsOnMethods = "testPush")
     public void testPull() {
         String balaFileName = moduleName + "-"
-                              + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                              + RepoUtils.getSpecVersion() + "-"
                               + ProgramFileConstants.ANY_PLATFORM + "-"
                               + "0.1.0"
                               + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -309,7 +309,7 @@ public class PackagingTestCase extends BaseTest {
                 new LogLeecher[] { buildLeecher }, projectPath.toString());
         buildLeecher.waitForText(60000);
 
-        String fooModuleBalaFileName = "foo.bar-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+        String fooModuleBalaFileName = "foo.bar-" + RepoUtils.getSpecVersion() + "-any-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
         String runMsg = "target" + File.separator + "bala" + File.separator + fooModuleBalaFileName;
 

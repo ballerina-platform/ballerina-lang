@@ -25,7 +25,7 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.programfile.ProgramFileConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -62,7 +62,7 @@ public class DirectoryTestCase extends BaseTest {
     public void testRunDirectory() throws BallerinaTestException {
         testProjectPath = Paths.get("src", "test", "resources", "packaging", "executable", "TestProject")
                                .toAbsolutePath();
-        String fooModuleBalaFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-9.9.9"
+        String fooModuleBalaFileName = "foo-" + RepoUtils.getSpecVersion() + "-any-9.9.9"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
         String fooModuleJarFileName = "foo" + BLANG_COMPILED_JAR_EXT;
         // Run and see output

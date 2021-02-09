@@ -25,7 +25,7 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.programfile.ProgramFileConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,7 +82,7 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
         PackerinaTestUtils.copyFolder(projectV1.resolve("src").resolve("print"), testProjV1ModulePath);
         deleteFiles(projectV1.resolve("src").resolve("print"));
 
-        String printModuleV1BalaFileName = printModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION +
+        String printModuleV1BalaFileName = printModuleName + "-" + RepoUtils.getSpecVersion() +
                 "-any-1.0.0" + BLANG_COMPILED_PKG_BINARY_EXT;
 
         String module1BuildMsg = "target" + File.separator + "bala" + File.separator + printModuleV1BalaFileName;
@@ -108,7 +108,7 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
         PackerinaTestUtils.copyFolder(projectV2.resolve("src").resolve("print"), testProjV2ModulePath);
         deleteFiles(projectV2.resolve("src").resolve("print"));
 
-        String printModuleV2BalaFileName = printModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION +
+        String printModuleV2BalaFileName = printModuleName + "-" + RepoUtils.getSpecVersion() +
                 "-any-2.0.0" + BLANG_COMPILED_PKG_BINARY_EXT;
         module1BuildMsg = "target" + File.separator + "bala" + File.separator + printModuleV2BalaFileName;
         LogLeecher printModV2BuildLeecher = new LogLeecher(module1BuildMsg);
@@ -135,7 +135,7 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
                 .collect(Collectors.toList());
         Files.write(multiVersionBalPath, replaced);
 
-        String printerModuleBalaFileName = printerModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION +
+        String printerModuleBalaFileName = printerModuleName + "-" + RepoUtils.getSpecVersion() +
                 "-any-0.1.0" + BLANG_COMPILED_PKG_BINARY_EXT;
         String printerModuleJar = printerModuleName + BLANG_COMPILED_JAR_EXT;
         String printerBalaFilePath = "target" + File.separator + "bala" + File.separator + printerModuleBalaFileName;
