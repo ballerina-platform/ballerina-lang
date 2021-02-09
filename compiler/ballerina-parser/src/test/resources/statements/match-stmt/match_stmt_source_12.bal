@@ -1,4 +1,4 @@
-function foo () {
+function foo() {
     match bar {
         error() => {
         }
@@ -8,19 +8,19 @@ function foo () {
         }
         error typeref(var c, _) => {
         }
-        error (namedarg1 = mathchpattren, namedarg2 = error typeref(d), namedarg3 = [a, b, c, {}]) => {
+        error(namedarg1 = mathchpattren, namedarg2 = error typeref(d), namedarg3 = [a, b, c, {}]) => {
         }
-        error typeref(... var e) => {
+        error typeref(...var e) => {
         }
-        error ("Bad error", namedarg3 = mathchpattren3) => {
+        error("Bad error", namedarg3 = mathchpattren3) => {
         }
-        error typeref(errorMsg, error typeref(d), namedarg1 = mathchpattren, ... var d) => {
+        error typeref(errorMsg, error typeref(d), namedarg1 = mathchpattren, ...var d) => {
         }
-        error (_, +5, ... var e) => {
+        error(_, +5, ...var e) => {
         }
-        error (true, 1.25) => {
+        error(true, 1.25) => {
         }
-        error (0xf5, error typeref(... var e), namedarg1 = mathchpattren, ... var varname) => {
+        error(0xf5, error typeref(...var e), namedarg1 = mathchpattren, ...var varname) => {
         }
     }
 }
