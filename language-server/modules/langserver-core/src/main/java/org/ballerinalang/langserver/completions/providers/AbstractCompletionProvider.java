@@ -146,12 +146,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             if (symbol.kind() == FUNCTION || symbol.kind() == METHOD) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbol, ctx));
             } else if (symbol.kind() == SymbolKind.CONSTANT) {
-                CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol);
+                CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, ctx);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, constantCItem));
             } else if (symbol.kind() == SymbolKind.VARIABLE) {
                 VariableSymbol varSymbol = (VariableSymbol) symbol;
                 TypeSymbol typeDesc = (varSymbol).typeDescriptor();
-                String typeName = typeDesc == null ? "" : typeDesc.signature();
+                String typeName = typeDesc == null ? "" : CommonUtil.getModifiedTypeName(ctx, typeDesc);
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
@@ -212,8 +212,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     protected List<LSCompletionItem> getModuleCompletionItems(BallerinaCompletionContext ctx) {
         // First we include the packages from the imported list.
         List<String> processedList = new ArrayList<>();
-        List<ImportDeclarationNode> currentModuleImports = ctx.currentDocImports();
-        List<LSCompletionItem> completionItems = currentModuleImports.stream()
+        List<ImportDeclarationNode> currentDocImports = ctx.currentDocImports();
+        List<LSCompletionItem> completionItems = currentDocImports.stream()
                 .map(importNode -> {
                     String orgName = importNode.orgName().isEmpty()
                             ? "" : importNode.orgName().get().orgName().text();
@@ -239,7 +239,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
             String orgName = pkg.packageOrg().value();
-            if (!CommonUtil.matchingImportedModule(ctx, pkg)
+            if (CommonUtil.matchingImportedModule(ctx, pkg).isEmpty()
                     && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)) {
                 String[] pkgNameComps = name.split("\\.");
                 String insertText = pkgNameComps[pkgNameComps.length - 1];
@@ -255,14 +255,21 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             return completionItems;
         }
         project.get().currentPackage().modules().forEach(module -> {
+            if (module.isDefaultModule()) {
+                // Skip the default module
+                return;
+            }
             String moduleNamePart = module.moduleName().moduleNamePart();
+            // In order to support the hierarchical module names, split and get the last component as the module name
+            String[] moduleNameComponents = moduleNamePart.split("\\.");
+            String insertText = moduleNameComponents[moduleNameComponents.length - 1];
             String pkgName = module.moduleName().packageName().value();
             String label = pkgName + "." + moduleNamePart;
             if (module.equals(currentModule.get()) || module.isDefaultModule() || processedList.contains(label)) {
                 return;
             }
             List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits("", label, ctx);
-            CompletionItem item = this.getModuleCompletionItem(label, moduleNamePart, textEdits);
+            CompletionItem item = this.getModuleCompletionItem(label, insertText, textEdits);
             completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
         });
 

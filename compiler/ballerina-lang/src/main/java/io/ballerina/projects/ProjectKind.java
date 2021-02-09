@@ -21,13 +21,13 @@ package io.ballerina.projects;
  * Represents the kind of the {@code Project} instance.
  * <p>
  * There are three known kinds of project at the moment: {@code BuildProject},
- * {@code SingleFileProject} and {@code BalrProject}.
+ * {@code SingleFileProject} and {@code BalaProject}.
  *
  * @since 2.0.0
  */
 public enum ProjectKind {
     BUILD_PROJECT,
     SINGLE_FILE_PROJECT,
-    BALR_PROJECT,
+    BALA_PROJECT,
     ;
 }

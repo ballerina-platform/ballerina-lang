@@ -19,7 +19,6 @@ import io.ballerina.toml.validator.schema.AbstractSchema;
 import io.ballerina.toml.validator.schema.ArraySchema;
 import io.ballerina.toml.validator.schema.BooleanSchema;
 import io.ballerina.toml.validator.schema.NumericSchema;
-import io.ballerina.toml.validator.schema.ObjectSchema;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.toml.validator.schema.SchemaVisitor;
 import io.ballerina.toml.validator.schema.StringSchema;
@@ -46,43 +45,40 @@ public class TomlSchemaVisitor extends SchemaVisitor {
     private Parent parentKey;
 
     @Override
-    public void visit(Schema rootSchema) {
-        Map<String, AbstractSchema> properties = rootSchema.properties();
-        for (Map.Entry<String, AbstractSchema> entry : properties.entrySet()) {
-            this.parentStore = new HashMap<>();
-            String key = entry.getKey();
-            this.parentKey = new Parent(key, ParentType.TABLE);
-            CompletionItem item = generateRootTableCompletionItem(key);
-            AbstractSchema value = entry.getValue();
-            this.parentStore.put(key, item);
-            Map<String, CompletionItem> store = new HashMap<>();
-            this.parentStore = store;
-            visitNode(value);
-            completions.put(this.parentKey, store);
-        }
-    }
-
-    @Override
-    public void visit(ObjectSchema objectSchema) {
+    public void visit(Schema objectSchema) {
         Map<String, AbstractSchema> properties = objectSchema.properties();
-        Map<String, CompletionItem> completionStore = this.parentStore;
+        Map<String, CompletionItem> completionStore = initCompletionStore();
         for (Map.Entry<String, AbstractSchema> entry : properties.entrySet()) {
             String key = entry.getKey();
             AbstractSchema value = entry.getValue();
             if (value.type() == Type.OBJECT) {
-                key = this.parentKey.getKey() + "." + key;
+                key = getCompleteTableKey(key);
                 CompletionItem item = generateTableSnippet(key);
                 completionStore.put(key, item);
                 Map<String, CompletionItem> store = new HashMap<>();
                 visitNode(value, new Parent(key, ParentType.TABLE), store);
                 completions.put(new Parent(key, ParentType.TABLE), store);
             } else if (value.type() == Type.ARRAY) {
-                key = this.parentKey.getKey() + "." + key;
+                key = getCompleteTableKey(key);
                 visitNode(value, new Parent(key, ParentType.TABLE), completionStore);
             } else {
                 visitNode(value, new Parent(key, ParentType.TABLE), completionStore);
             }
         }
+    }
+
+    private Map<String, CompletionItem> initCompletionStore() {
+        if (this.parentStore == null) {
+            return new HashMap<>();
+        }
+        return this.parentStore;
+    }
+
+    private String getCompleteTableKey(String key) {
+        if (this.parentKey == null) {
+            return key;
+        }
+        return this.parentKey.getKey() + "." + key;
     }
 
     @Override
@@ -119,14 +115,6 @@ public class TomlSchemaVisitor extends SchemaVisitor {
         this.parentStore.put(key, item);
     }
 
-    private void visitNode(AbstractSchema schema) {
-        Parent oldKey = this.parentKey;
-        Map<String, CompletionItem> oldStore = this.parentStore;
-        schema.accept(this);
-        this.parentKey = oldKey;
-        this.parentStore = oldStore;
-    }
-
     private void visitNode(AbstractSchema schema, Parent newKey, Map<String, CompletionItem> newParentStore) {
         Parent oldKey = this.parentKey;
         Map<String, CompletionItem> oldStore = this.parentStore;
@@ -139,16 +127,6 @@ public class TomlSchemaVisitor extends SchemaVisitor {
 
     public Map<Parent, Map<String, CompletionItem>> getAllCompletionSnippets() {
         return Collections.unmodifiableMap(completions);
-    }
-
-    private CompletionItem generateRootTableCompletionItem(String key) {
-        Table objectNode = new Table(key);
-        CompletionItem item = new CompletionItem();
-        item.setInsertText(objectNode.prettyPrint());
-        item.setDetail("Table");
-        item.setLabel(this.parentKey.getKey());
-        item.setSortText(SortingUtil.genSortText(2));
-        return item;
     }
 
     private CompletionItem generateTableSnippet(String key) {

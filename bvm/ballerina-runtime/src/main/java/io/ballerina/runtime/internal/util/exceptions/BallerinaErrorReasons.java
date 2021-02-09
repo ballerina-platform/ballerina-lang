@@ -88,6 +88,7 @@ public class BallerinaErrorReasons {
     public static final BString VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR =
             getModulePrefixedReason(VALUE_LANG_LIB, "CyclicValueReferenceError");
     public static final BString MERGE_JSON_ERROR = getModulePrefixedReason(VALUE_LANG_LIB, "MergeJsonError");
+    public static final BString FROM_BAL_STRING_ERROR = getModulePrefixedReason(VALUE_LANG_LIB, "FromBalStringError");
     public static final BString STRING_OPERATION_ERROR = getModulePrefixedReason(STRING_LANG_LIB,
                                                                                  "StringOperationError");
     public static final BString XML_OPERATION_ERROR = getModulePrefixedReason(XML_LANG_LIB, "XMLOperationError");
