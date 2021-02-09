@@ -34,7 +34,7 @@
   {
     "description": "Remove a table entry.",
     "code": "string filtered = \"\"; employeeTab.forEach(function (Employee employee) {if (employee.salary < 400.0) {filtered += employee.name;filtered += \" \";} }); filtered",
-    "expr": "John "
+    "expr": "\"John \""
   },
   {
     "description": "Creating table with map constrained members.",

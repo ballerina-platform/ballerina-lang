@@ -27,7 +27,7 @@ import io.ballerina.tools.text.TextDocuments;
  *
  * @since 2.0.0
  */
-public class MdDocumentContext {
+class MdDocumentContext {
     private TextDocument textDocument;
     private DocumentId documentId;
     private String name;
@@ -56,5 +56,9 @@ public class MdDocumentContext {
             this.textDocument = TextDocuments.from(this.content);
         }
         return this.textDocument;
+    }
+
+    String content() {
+        return this.content;
     }
 }

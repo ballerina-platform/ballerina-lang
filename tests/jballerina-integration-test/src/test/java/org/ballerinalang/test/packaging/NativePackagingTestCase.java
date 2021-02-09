@@ -94,14 +94,14 @@ public class NativePackagingTestCase extends BaseTest {
     @Test(description = "Test building TestProject1 and then push the native module.")
     public void testBuildAndPushTestProject1() throws BallerinaTestException {
         // Build module
-        String module1BaloFileName = module1Name + "-"
+        String module1BalaFileName = module1Name + "-"
                                      + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                      + ProgramFileConstants.SUPPORTED_PLATFORMS[0]
                                      + "-"
                                      + "0.7.2"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
         
-        String module1BuildMsg = "target" + File.separator + "balo" + File.separator + module1BaloFileName;
+        String module1BuildMsg = "target" + File.separator + "bala" + File.separator + module1BalaFileName;
         LogLeecher module1BuildLeecher = new LogLeecher(module1BuildMsg);
         balClient.runMain("build", new String[]{"-c", module1Name}, envVariables, new String[]{},
                 new LogLeecher[]{module1BuildLeecher}, testProj1Path.toString());
@@ -134,12 +134,12 @@ public class NativePackagingTestCase extends BaseTest {
         Files.write(implBalFile, replaced);
         
         // Build module
-        String bazBaloFileName = "baz-"
+        String bazBalaFileName = "baz-"
                                  + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "1.0.0"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String bazBuildMsg = "target" + File.separator + "balo" + File.separator + bazBaloFileName;
+        String bazBuildMsg = "target" + File.separator + "bala" + File.separator + bazBalaFileName;
         LogLeecher bazBuildLeecher = new LogLeecher(bazBuildMsg);
         
         given().with().pollInterval(Duration.TEN_SECONDS).and()

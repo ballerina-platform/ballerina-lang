@@ -163,8 +163,8 @@ public class JBallerinaBackend extends CompilerBackend {
             case EXEC:
                 generatedArtifact = emitExecutable(filePath);
                 break;
-            case BALO:
-                generatedArtifact = emitBalo(filePath);
+            case BALA:
+                generatedArtifact = emitBala(filePath);
                 break;
             default:
                 throw new RuntimeException("Unexpected output type: " + outputType);
@@ -173,8 +173,8 @@ public class JBallerinaBackend extends CompilerBackend {
         return new EmitResult(true, diagnosticResult, generatedArtifact);
     }
 
-    private Path emitBalo(Path filePath) {
-        JBallerinaBaloWriter writer = new JBallerinaBaloWriter(this);
+    private Path emitBala(Path filePath) {
+        JBallerinaBalaWriter writer = new JBallerinaBalaWriter(this);
         return writer.write(filePath);
     }
 
@@ -477,7 +477,7 @@ public class JBallerinaBackend extends CompilerBackend {
      */
     public enum OutputType {
         EXEC("exec"),
-        BALO("balo"),
+        BALA("bala"),
         ;
 
         private String value;

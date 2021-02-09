@@ -57,4 +57,14 @@ public class StringUtils {
         }
         return value;
     }
+
+    /**
+     * Converts a Ballerina object to its `toBalString` counterpart.
+     *
+     * @param object Object to convert.
+     * @return Converted string.
+     */
+    public static String getExpressionStringValue(Object object) {
+        return io.ballerina.runtime.api.utils.StringUtils.getExpressionStringValue(object, null);
+    }
 }

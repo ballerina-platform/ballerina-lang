@@ -19,18 +19,19 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * Ballerina xml variable type.
  */
-public class BXmlItemAttributeMap extends BCompoundVariable {
+public class BXmlItemAttributeMap extends NamedCompoundVariable {
 
     private static final String FIELD_MAP_DATA = "table";
     private static final String FIELD_MAP_KEY = "key";
@@ -47,7 +48,7 @@ public class BXmlItemAttributeMap extends BCompoundVariable {
 
     @Override
     public Map<String, Value> computeChildVariables() {
-        Map<String, Value> childVarMap = new HashMap<>();
+        Map<String, Value> childVarMap = new LinkedHashMap<>();
         try {
             Optional<Value> mapValues = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_DATA);
             if (mapValues.isEmpty()) {
@@ -65,6 +66,20 @@ public class BXmlItemAttributeMap extends BCompoundVariable {
             return childVarMap;
         } catch (Exception ignored) {
             return childVarMap;
+        }
+    }
+
+    @Override
+    public int getChildrenCount() {
+        try {
+            Optional<Value> mapValues = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_DATA);
+            if (mapValues.isEmpty()) {
+                return 0;
+            }
+            List<Value> attributesMap = ((ArrayReference) mapValues.get()).getValues();
+            return attributesMap.size();
+        } catch (Exception ignored) {
+            return 0;
         }
     }
 }

@@ -1,0 +1,4 @@
+[package]
+org = "tuples"
+name = "tuple_type_project"
+version = "0.1.0"
