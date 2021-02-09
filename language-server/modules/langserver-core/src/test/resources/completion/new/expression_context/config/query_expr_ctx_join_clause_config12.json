@@ -265,6 +265,14 @@
       "sortText": "C",
       "insertText": "testIterableOperation()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customer",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "customer",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
