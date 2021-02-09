@@ -102,7 +102,7 @@ public class SourceDirectoryManagerTest {
                 names.fromString("fruits"),
                 names.fromString("0.0.1"));
         // valid module
-        String balaName =  "fruits-unknown-any-0.0.1.bala";
+        String balaName =  "fruits-abc-any-0.0.1.bala";
         Path balaPath = directoryManager.getSourceDirectory().getPath()
                 .resolve("target").resolve("bala").resolve(balaName);
         Assert.assertEquals(project.getBalaPath(moduleId), balaPath);
