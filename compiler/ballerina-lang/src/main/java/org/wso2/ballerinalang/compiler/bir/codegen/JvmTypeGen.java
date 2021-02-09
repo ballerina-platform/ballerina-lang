@@ -69,6 +69,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -540,24 +541,27 @@ public class JvmTypeGen {
 
         mv.visitCode();
 
+        List<FullNamedTypeDef> recordTypeWithNames = mapToFullNames(recordTypeDefs);
+
         int fieldNameRegIndex = 1;
         Label defaultCaseLabel = new Label();
 
         // sort the fields before generating switch case
-        recordTypeDefs.sort(NAME_HASH_COMPARATOR);
+        recordTypeWithNames.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, recordTypeDefs, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, recordTypeDefs, labels,
+        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, recordTypeWithNames, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, recordTypeWithNames, labels,
                 defaultCaseLabel);
 
         int i = 0;
 
-        for (BIRTypeDefinition optionalTypeDef : recordTypeDefs) {
-            String fieldName = getTypeFieldName(optionalTypeDef.name.value);
+        for (FullNamedTypeDef typeDef : recordTypeWithNames) {
+            String internalName = typeDef.getTypeDef().name.value;
+            String fieldName = getTypeFieldName(internalName);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            String className = getTypeValueClassName(moduleId, optionalTypeDef.name.value);
+            String className = getTypeValueClassName(moduleId, internalName);
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
@@ -588,6 +592,41 @@ public class JvmTypeGen {
         createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
         mv.visitMaxs(recordTypeDefs.size() + 10, recordTypeDefs.size() + 10);
         mv.visitEnd();
+    }
+
+    private static class FullNamedTypeDef implements NamedNode {
+        private Name name;
+        private BIRTypeDefinition typeDef;
+
+        FullNamedTypeDef(Name name, BIRTypeDefinition typeDef) {
+            this.name = name;
+            this.typeDef = typeDef;
+        }
+
+        @Override
+        public Name getName() {
+            return name;
+        }
+
+        public BIRTypeDefinition getTypeDef() {
+            return typeDef;
+        }
+    }
+
+    private List<FullNamedTypeDef> mapToFullNames(List<BIRTypeDefinition> typeDefs) {
+        Set<FullNamedTypeDef> names = new TreeSet<>(NAME_HASH_COMPARATOR);
+
+        for (BIRTypeDefinition typeDef : typeDefs) {
+            Name name;
+            if (typeDef.type.tag == TypeTags.RECORD) {
+                // If record, we get the full name instead 'anonType' name
+                name = new Name(getFullName((BRecordType) typeDef.type));
+            } else {
+                name = typeDef.getName();
+            }
+            names.add(new FullNamedTypeDef(name, typeDef));
+        }
+        return new ArrayList<>(names);
     }
 
     private void generateObjectValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> objectTypeDefs,
