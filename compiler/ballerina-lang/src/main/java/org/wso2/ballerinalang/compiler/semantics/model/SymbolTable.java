@@ -187,6 +187,7 @@ public class SymbolTable {
     public BPackageSymbol langAnnotationModuleSymbol;
     public BPackageSymbol langJavaModuleSymbol;
     public BPackageSymbol langArrayModuleSymbol;
+    public BPackageSymbol langConfigModuleSymbol;
     public BPackageSymbol langDecimalModuleSymbol;
     public BPackageSymbol langErrorModuleSymbol;
     public BPackageSymbol langFloatModuleSymbol;

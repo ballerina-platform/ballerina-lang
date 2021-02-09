@@ -181,7 +181,7 @@ public class ConfigurableTest extends BaseTest {
         LogLeecher errorLeecher =
                 new LogLeecher("Value not provided for required configurable variable 'intVar'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLeecher}, projectPath.toString());
+                              new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
     }
 
@@ -190,9 +190,9 @@ public class ConfigurableTest extends BaseTest {
         Path projectPath = Paths.get(negativeTestFileLocation, "invalidRecordField").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Configurable feature is yet to be supported for field type " +
-                        "'string[][]' in variable 'testUser' of record 'main:AuthInfo'", ERROR);
+                                       "'string[][]' in variable 'testUser' of record 'main:AuthInfo'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLeecher}, projectPath.toString());
+                              new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
     }
 
@@ -201,9 +201,9 @@ public class ConfigurableTest extends BaseTest {
         Path projectPath = Paths.get(negativeTestFileLocation, "additionalField").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Additional field 'scopes' provided for configurable variable 'testUser' of record " +
-                        "'main:AuthInfo' is not supported", ERROR);
+                                       "'main:AuthInfo' is not supported", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLeecher}, projectPath.toString());
+                              new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
     }
 
@@ -212,9 +212,9 @@ public class ConfigurableTest extends BaseTest {
         Path projectPath = Paths.get(negativeTestFileLocation, "missingRequiredField").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Value not provided for non-defaultable required field 'username' of " +
-                        "record 'main:AuthInfo' in configurable variable 'testUser'", ERROR);
+                                       "record 'main:AuthInfo' in configurable variable 'testUser'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLeecher}, projectPath.toString());
+                              new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
     }
 
@@ -223,10 +223,10 @@ public class ConfigurableTest extends BaseTest {
         Path projectPath = Paths.get(negativeTestFileLocation, "missingTableKey").toAbsolutePath();
         LogLeecher errorLeecher =
                 new LogLeecher("Value required for key 'username' of type " +
-                        "'table<(main:AuthInfo & readonly)> key(username) & readonly'" +
-                        " in configurable variable 'users'", ERROR);
+                                       "'table<(main:AuthInfo & readonly)> key(username) & readonly'" +
+                                       " in configurable variable 'users'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLeecher}, projectPath.toString());
+                              new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
     }
 
@@ -236,8 +236,67 @@ public class ConfigurableTest extends BaseTest {
         LogLeecher errorLeecher =
                 new LogLeecher("Configurable feature is yet to be supported for type 'map<int> & readonly'", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLeecher}, projectPath.toString());
+                              new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
+    }
+
+    // Encrypted Config related tests
+    @Test
+    public void testSingleBalFileWithEncryptedConfigs() throws BallerinaTestException {
+        String secretFilePath = Paths.get(testFileLocation, "Secrets", "correctSecret.txt").toString();
+        Path singleBalFilePath = Paths.get(testFileLocation, "encryptedSingleBalFile").toAbsolutePath();
+        LogLeecher runLeecher = new LogLeecher("Tests passed");
+        bMainInstance.runMain("run", new String[]{"encryptedConfig.bal"}, addSecretEnvVariable(secretFilePath),
+                              new String[]{}, new LogLeecher[]{runLeecher}, singleBalFilePath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testEncryptedConfigs() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "encryptedConfigProject").toAbsolutePath();
+        String secretFilePath = Paths.get(testFileLocation, "Secrets", "correctSecret.txt").toString();
+        LogLeecher runLeecher = new LogLeecher("Tests passed");
+        bMainInstance.runMain("run", new String[]{"main"}, addSecretEnvVariable(secretFilePath), new String[]{},
+                              new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testEncryptedConfigsWithIncorrectSecret() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "encryptedConfigProject").toAbsolutePath();
+        String secretFilePath = Paths.get(testFileLocation, "Secrets", "incorrectSecret.txt").toString();
+        LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
+                                                       "'password' : Given final block not properly padded. Such " +
+                                                       "issues can arise if a bad key is used during decryption.",
+                                               LogLeecher.LeecherType.ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, addSecretEnvVariable(secretFilePath), new String[]{},
+                              new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testEncryptedConfigsWithEmptySecret() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "encryptedConfigProject").toAbsolutePath();
+        String secretFilePath = Paths.get(testFileLocation, "Secrets", "emptySecret.txt").toString();
+        LogLeecher runLeecher = new LogLeecher("error: failed to initialize the cipher tool due to empty secret text",
+                                               LogLeecher.LeecherType.ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, addSecretEnvVariable(secretFilePath), new String[]{},
+                              new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testInvalidAccessEncryptedConfigs() throws BallerinaTestException {
+        Path projectPath = Paths.get(testFileLocation, "encryptedConfigProject").toAbsolutePath();
+        String configFilePath = Paths.get(testFileLocation, "ConfigFiles", "InvalidEncryptedConfig.toml").toString();
+        String secretFilePath = Paths.get(testFileLocation, "Secrets", "correctSecret.txt").toString();
+        LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
+                                                       "'password' : Input byte array has wrong 4-byte ending unit",
+                                               LogLeecher.LeecherType.ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, addEnvVariables(configFilePath, secretFilePath),
+                              new String[]{},
+                              new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
     }
 
     /**
@@ -250,5 +309,19 @@ public class ConfigurableTest extends BaseTest {
         envVariables.put(ConfigurableConstants.CONFIG_ENV_VARIABLE, configFilePath);
         return envVariables;
     }
+
+    private Map<String, String> addSecretEnvVariable(String secretFilePath) {
+        Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
+        envVariables.put(ConfigurableConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
+        return envVariables;
+    }
+
+    private Map<String, String> addEnvVariables(String configFilePath, String secretFilePath) {
+        Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
+        envVariables.put(ConfigurableConstants.CONFIG_ENV_VARIABLE, configFilePath);
+        envVariables.put(ConfigurableConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
+        return envVariables;
+    }
+
 
 }
