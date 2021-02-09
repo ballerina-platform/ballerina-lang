@@ -134,6 +134,7 @@ public class SymbolTable {
     public final BType pathParamAllowedType = BUnionType.create(null,
             intType, stringType, floatType, booleanType, decimalType);
     public final BIntersectionType anyAndReadonly;
+    public BUnionType anyAndReadonlyOrError;
 
     public final BType errorIntersectionType = new BErrorType(null, null);
 
@@ -186,6 +187,7 @@ public class SymbolTable {
     public BPackageSymbol langAnnotationModuleSymbol;
     public BPackageSymbol langJavaModuleSymbol;
     public BPackageSymbol langArrayModuleSymbol;
+    public BPackageSymbol langConfigModuleSymbol;
     public BPackageSymbol langDecimalModuleSymbol;
     public BPackageSymbol langErrorModuleSymbol;
     public BPackageSymbol langFloatModuleSymbol;
@@ -283,6 +285,12 @@ public class SymbolTable {
                 ImmutableTypeCloner.getImmutableIntersectionType((SelectivelyImmutableReferenceType) this.anyType,
                         this, names);
         initializeType(this.anyAndReadonly, this.anyAndReadonly.effectiveType.name.getValue(), BUILTIN);
+
+        defineReadonlyCompoundType();
+    }
+
+    private void defineReadonlyCompoundType() {
+        anyAndReadonlyOrError = BUnionType.create(null, anyAndReadonly, errorType);
     }
 
     public BType getTypeFromTag(int tag) {

@@ -74,6 +74,8 @@ public class PackageID {
             Lists.of(Names.JAVA), JAVA_VERSION);
     public static final PackageID ARRAY = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.ARRAY), ARRAY_VERSION);
+    public static final PackageID CONFIG = new PackageID(Names.BALLERINA_ORG, Lists.of(Names.LANG, Names.RUNTIME),
+                                                         RUNTIME_VERSION);
     public static final PackageID DECIMAL = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.DECIMAL), DECIMAL_VERSION);
     public static final PackageID ERROR = new PackageID(Names.BALLERINA_ORG,
