@@ -46,7 +46,7 @@ public class SymbolByImportTest extends SymbolByNodeTest {
 
     @BeforeClass
     public void setup() {
-        CompileResult compileResult = BCompileUtil.compileAndCacheBalo("test-src/testproject");
+        CompileResult compileResult = BCompileUtil.compileAndCacheBala("test-src/testproject");
         if (compileResult.getErrorCount() != 0) {
             Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
             Assert.fail("Compilation contains error");

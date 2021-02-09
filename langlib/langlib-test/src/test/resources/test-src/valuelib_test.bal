@@ -1,3 +1,21 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import ballerina/lang.'value as value;
+
 type Address record {
     string country;
     string city;
@@ -217,6 +235,8 @@ function testToStringMethod() {
     error err1 = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
                val3 = {"x":"AA","y":(1.0/0.0)});
     FirstError err2 = error FirstError(REASON_1, message = "Test passing error union to a function");
+    error err3 = error("first error", detail=(1.0/0.0));
+    error err4 = error("second error", err3);
 
     assertEquality("4", a.toString());
     assertEquality("4", b.toString());
@@ -226,6 +246,7 @@ function testToStringMethod() {
                                                             + "val3={\"x\":\"AA\",\"y\":Infinity})", err1.toString());
     assertEquality("error FirstError (\"Reason1\",message=\"Test passing error union to a function\")",
                                                                                                     err2.toString());
+    assertEquality("error(\"second error\",error(\"first error\",detail=Infinity))", err4.toString());
 }
 
 /////////////////////////// Tests for `mergeJson()` ///////////////////////////
@@ -253,7 +274,7 @@ function testNonNilNonMappingJsonMerge() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
     return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'float' and 'json[]'";
+        mj.detail()[MESSAGE] == "Cannot merge JSON values of types 'float' and 'json[]'";
 }
 
 function testMappingJsonAndNonMappingJsonMerge1() returns boolean {
@@ -262,7 +283,7 @@ function testMappingJsonAndNonMappingJsonMerge1() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
     return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'map<json>' and 'string'";
+        mj.detail()[MESSAGE] == "Cannot merge JSON values of types 'map<json>' and 'string'";
 }
 
 function testMappingJsonAndNonMappingJsonMerge2() returns boolean {
@@ -271,7 +292,7 @@ function testMappingJsonAndNonMappingJsonMerge2() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
     return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'map<json>' and 'json[]'";
+        mj.detail()[MESSAGE] == "Cannot merge JSON values of types 'map<json>' and 'json[]'";
 }
 
 function testMappingJsonNoIntersectionMergeSuccess() returns boolean {
@@ -298,14 +319,14 @@ function testMappingJsonWithIntersectionMergeFailure1() returns boolean {
     json|error mj = j1.mergeJson(j2);
 
     if (!(mj is error) || mj.message() != MERGE_JSON_ERROR_REASON ||
-            mj.detail()[MESSAGE].toString() != "JSON Merge failed for key 'two'") {
+            mj.detail()[MESSAGE] != "JSON Merge failed for key 'two'") {
         return false;
     }
 
     error err = <error> mj;
     error cause = <error> err.detail()["cause"];
     return cause.message() == MERGE_JSON_ERROR_REASON &&
-            cause.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'string' and 'int'" &&
+            cause.detail()[MESSAGE] == "Cannot merge JSON values of types 'string' and 'int'" &&
             j1 == j1Clone && j2 == j2Clone;
 }
 
@@ -319,14 +340,14 @@ function testMappingJsonWithIntersectionMergeFailure2() returns boolean {
     json|error mj = j1.mergeJson(j2);
 
     if (!(mj is error) || mj.message() != MERGE_JSON_ERROR_REASON ||
-            mj.detail()[MESSAGE].toString() != "JSON Merge failed for key 'one'") {
+            mj.detail()[MESSAGE] != "JSON Merge failed for key 'one'") {
         return false;
     }
 
     error err = <error> mj;
     error cause = <error> err.detail()["cause"];
     return cause.message() == MERGE_JSON_ERROR_REASON &&
-            cause.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'map<json>' and 'boolean'" &&
+            cause.detail()[MESSAGE] == "Cannot merge JSON values of types 'map<json>' and 'boolean'" &&
             j1 == j1Clone && j2 == j2Clone;
 }
 
@@ -363,11 +384,11 @@ function testMergeJsonFailureForValuesWithIntersectingCyclicRefererences() retur
     j2["z"] = j2;
 
     var result = j1.mergeJson(j2);
-    if (result is json || result.detail()["message"].toString() != "JSON Merge failed for key 'z'") {
+    if (result is json || result.detail()["message"] != "JSON Merge failed for key 'z'") {
         return false;
     } else {
         error? cause = <error?>result.detail()["cause"]; // incompatible types: '(anydata|readonly)' cannot be cast to 'error?'
-        if (cause is () || cause.detail()["message"].toString() != "Cannot merge JSON values with cyclic references") {
+        if (cause is () || cause.detail()["message"] != "Cannot merge JSON values with cyclic references") {
             return false;
         }
     }
@@ -428,7 +449,8 @@ function testToString() returns string[] {
     map<any|error> varMap = {};
     json varJson = {a: "STRING", b: 12, c: 12.4, d: true, e: {x:"x", y: ()}};
     any[] varArr = ["str", 23, 23.4, true];
-    FirstError varErr = error FirstError(REASON_1, message = "Test passing error union to a function");
+    error err = error("ExampleError");
+    FirstError varErr = error FirstError(REASON_1, err, message = "Test passing error union to a function");
     Student varObj = new("Alaa", "MMV");
     Teacher varObj2 = new("Rola", "MMV");
     any[] varObjArr = [varObj, varObj2];
@@ -528,8 +550,10 @@ public function testCloneWithTypeOptionalFieldToMandotoryField() {
     assert(b is error, true);
 
     error bbe = <error> b;
+    var message = bbe.detail()["message"];
+    string messageString = message is error? message.toString(): message.toString();
     assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
-    assert(bbe.detail()["message"].toString(), "'CRec' value cannot be converted to 'BRec'");
+    assert(messageString, "'CRec' value cannot be converted to 'BRec'");
 }
 
 type Foo record {
@@ -553,8 +577,10 @@ function testCloneWithTypeAmbiguousTargetType() {
     assert(bb is error, true);
 
     error bbe = <error> bb;
+    var message = bbe.detail()["message"];
+    string messageString = message is error? message.toString(): message.toString();
     assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
-    assert(bbe.detail()["message"].toString(), "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type");
+    assert(messageString, "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type");
 }
 
 type StringOrNull string?;
@@ -576,7 +602,9 @@ function testCloneWithTypeForNilNegative() {
     assert(c2 is error, true);
 
     error c1e = <error> c1;
-    assert(c1e.detail()["message"].toString(), "cannot convert '()' to type 'string|int'");
+    var message = c1e.detail()["message"];
+    string messageString = message is error? message.toString(): message.toString();
+    assert(messageString, "cannot convert '()' to type 'string|int'");
 }
 
 function testCloneWithTypeNumeric1() {
@@ -862,6 +890,71 @@ function testFromJsonWithTypeTable() {
     table<Foo6>|error tabJ6 = jj.fromJsonWithType(TableFoo6);
     assert(tabJ6 is table<Foo6>, true);
 
+}
+
+type IntVal record {int? x;};
+
+type PostGradStudent record {|
+    boolean employed;
+    string first_name;
+    string last_name?;
+    PermanentAddress? address;
+|};
+
+type PermanentAddress record {
+    string city;
+    string? country;
+};
+
+type PostGradStudentArray PostGradStudent[];
+
+json[] jStudentArr = [
+    {
+        "first_name": "Radha",
+        "address": {
+            "apartment_no": 123,
+            "street": "Perera Mawatha",
+            "city": "Colombo",
+            "country": "Sri Lanka"
+        },
+        "employed": false
+    },
+    {
+        "first_name": "Nilu",
+        "last_name": "Peiris",
+        "address": null,
+        "employed": true
+    },
+    {
+        "first_name": "Meena",
+        "address": {
+            "street": "Main Street",
+            "city": "Colombo",
+            "country": null
+        },
+        "employed": false
+    }
+];
+
+function testFromJsonWithTypeWithNullValues() {
+    json j1 = {x: null};
+    IntVal val = checkpanic j1.fromJsonWithType(IntVal);
+    assert(val, {x:()});
+
+    PostGradStudent[] studentArr = checkpanic jStudentArr.fromJsonWithType(PostGradStudentArray);
+    assert(studentArr, [{employed:false,first_name:"Radha",address:{city:"Colombo",country:"Sri Lanka",
+    apartment_no:123,street:"Perera Mawatha"}},{employed:true,first_name:"Nilu",last_name:"Peiris",address:()},
+    {employed:false,first_name:"Meena",address:{city:"Colombo",country:(),street:"Main Street"}}]);
+}
+
+function testFromJsonWithTypeWithNullValuesNegative() {
+    json jVal = ();
+    PostGradStudent|error val = jVal.fromJsonWithType(PostGradStudent);
+    assert(val is error, true);
+    if (val is error) {
+        assert(val.message(), "{ballerina/lang.value}ConversionError");
+        assert(<string> checkpanic val.detail()["message"], "cannot convert '()' to type 'PostGradStudent'");
+    }
 }
 
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
@@ -1341,4 +1434,15 @@ public function testConvertJsonToAmbiguousType() {
     }
 
     panic error("Invalid respone.", message = "Expected error");
+}
+
+function testAssigningCloneableToAnyOrError() {
+    value:Cloneable x = "25";
+    any|error y = x;
+    if (y is any) {
+        assertEquality("25", y);
+        return;
+    }
+
+    panic error("Invalid value.", message = "Expected 25");
 }

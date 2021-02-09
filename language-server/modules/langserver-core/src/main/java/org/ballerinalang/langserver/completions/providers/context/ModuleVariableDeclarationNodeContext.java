@@ -36,7 +36,6 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -53,12 +52,12 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ModuleVariableDeclarationNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         TypeDescriptorNode tDescNode = node.typedBindingPattern().typeDescriptor();
         if (this.withinInitializerContext(ctx, node)) {
-            return this.initializerContextCompletions(ctx, tDescNode);
-        }
-
-        if (tDescNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
+            completionItems.addAll(this.initializerContextCompletions(ctx, tDescNode));
+        } else if (tDescNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
                 && ModulePartNodeContextUtil.onServiceTypeDescContext(((SimpleNameReferenceNode) tDescNode).name(),
                 ctx)) {
             /*
@@ -73,18 +72,17 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
             (2) isolated service <cursor>
              */
             List<Symbol> objectSymbols = ModulePartNodeContextUtil.serviceTypeDescContextSymbols(ctx);
-            List<LSCompletionItem> items = this.getCompletionItemList(objectSymbols, ctx);
-            items.addAll(this.getModuleCompletionItems(ctx));
-            items.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
-
-            return items;
+            completionItems.addAll(this.getCompletionItemList(objectSymbols, ctx));
+            completionItems.addAll(this.getModuleCompletionItems(ctx));
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
+        } else if (withinServiceOnKeywordContext(ctx, node)) {
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
+        } else {
+            completionItems.addAll(this.getModulePartContextItems(ctx, node));
         }
+        this.sort(ctx, node, completionItems);
 
-        if (withinServiceOnKeywordContext(ctx, node)) {
-            return Collections.singletonList(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
-        }
-
-        return this.getModulePartContextItems(ctx, node);
+        return completionItems;
     }
 
     private List<LSCompletionItem> getModulePartContextItems(BallerinaCompletionContext context,

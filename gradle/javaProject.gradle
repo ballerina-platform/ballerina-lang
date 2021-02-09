@@ -201,14 +201,26 @@ check {
     dependsOn createJavadoc
 }
 
+task jacocoMergeExec(type: JacocoMerge) {
+        destinationFile = file("$buildDir/jacoco/jacoco.exec")
+        executionData = fileTree("$buildDir/jacoco/").matching {
+            include "**.exec"
+        } as FileCollection
+}
+
 publishing {
+    def artifactCodeCoverageReport = file("$buildDir/jacoco/jacoco.exec")
     publications {
         mavenJava {
             from components.java
         }
+        CodeCov(MavenPublication) {
+            artifact source: artifactCodeCoverageReport
+        }
     }
 }
 
+test.finalizedBy(jacocoMergeExec)
 //compileJava {
 //    doFirst {
 //        inputs.property("moduleName", moduleName)

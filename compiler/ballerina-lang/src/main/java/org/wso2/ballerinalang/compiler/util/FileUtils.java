@@ -51,13 +51,13 @@ public class FileUtils {
     }
 
     /**
-     * Generates the balo/zip of the package.
+     * Generates the bala/zip of the package.
      *
      * @param bLangPackage bLangPackage node
      * @param projectPath  project path
      * @param paths        paths of bal files inside the package
      */
-    static void generateBalo(BLangPackage bLangPackage, String projectPath, Stream<Path> paths) {
+    static void generateBala(BLangPackage bLangPackage, String projectPath, Stream<Path> paths) {
         PackageID packageID = bLangPackage.packageID;
         Path destPath = Paths.get(projectPath, ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                   ProjectDirConstants.CACHES_DIR_NAME,
@@ -74,26 +74,26 @@ public class FileUtils {
             }
         }
         String fileName = packageID.getName() + ".zip";
-        Path baloDirPath = destPath.resolve(fileName);
-        deleteBalo(baloDirPath);
-        createArchive(paths, baloDirPath);
+        Path balaDirPath = destPath.resolve(fileName);
+        deleteBala(balaDirPath);
+        createArchive(paths, balaDirPath);
     }
 
     /**
-     * Delete the balo if it exist before creating a new balo.
+     * Delete the bala if it exist before creating a new bala.
      *
-     * @param baloDirPath path of the balo
+     * @param balaDirPath path of the bala
      */
-    private static void deleteBalo(Path baloDirPath) {
+    private static void deleteBala(Path balaDirPath) {
         try {
-            Files.deleteIfExists(baloDirPath);
+            Files.deleteIfExists(balaDirPath);
         } catch (IOException ignore) {
-            throw new BLangCompilerException("error deleting artifact : " + baloDirPath);
+            throw new BLangCompilerException("error deleting artifact : " + balaDirPath);
         }
     }
 
     /**
-     * Create archive when creating the balo.
+     * Create archive when creating the bala.
      *
      * @param filesToBeArchived files to be archived
      * @param outDirPath        output archive file path

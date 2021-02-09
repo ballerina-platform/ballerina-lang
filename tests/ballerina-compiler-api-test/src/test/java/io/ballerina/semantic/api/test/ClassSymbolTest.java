@@ -72,9 +72,9 @@ public class ClassSymbolTest {
 
         MethodSymbol initMethod = symbol.initMethod().get();
         assertEquals(initMethod.name(), "init");
-        assertEquals(
-                initMethod.typeDescriptor().parameters().stream().map(p -> p.name().get()).collect(Collectors.toList()),
-                fieldNames);
+        assertEquals(initMethod.typeDescriptor().parameters().stream()
+                             .map(p -> p.getName().get())
+                             .collect(Collectors.toList()), fieldNames);
     }
 
     @Test

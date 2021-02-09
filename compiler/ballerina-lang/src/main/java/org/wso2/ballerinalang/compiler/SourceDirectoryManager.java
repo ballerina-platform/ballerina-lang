@@ -249,7 +249,7 @@ public class SourceDirectoryManager implements Project {
     }
 
     @Override
-    public Path getBaloPath(PackageID moduleId) throws InvalidModuleException {
+    public Path getBalaPath(PackageID moduleId) throws InvalidModuleException {
         if (!isModuleExists(moduleId)) {
             throw new InvalidModuleException();
         }
@@ -257,9 +257,9 @@ public class SourceDirectoryManager implements Project {
         String versionNo = manifest.getProject().getVersion();
         // Identify the platform version
         String platform = manifest.getTargetPlatform(moduleId.name.value);
-        // {module}-{lang spec version}-{platform}-{version}.balo
+        // {module}-{lang spec version}-{platform}-{version}.bala
         //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
-        String baloFileName = moduleId.name.value + "-"
+        String balaFileName = moduleId.name.value + "-"
                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                 + platform + "-"
                 + versionNo
@@ -267,7 +267,7 @@ public class SourceDirectoryManager implements Project {
 
         return sourceDirectory.getPath()
                 .resolve(ProjectDirConstants.TARGET_DIR_NAME)
-                .resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)
-                .resolve(baloFileName);
+                .resolve(ProjectDirConstants.TARGET_BALA_DIRECTORY)
+                .resolve(balaFileName);
     }
 }

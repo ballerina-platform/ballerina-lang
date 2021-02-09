@@ -9,6 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     },
@@ -16,7 +17,7 @@
       "label": "field1",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "G",
       "insertText": "field1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -24,7 +25,7 @@
       "label": "field2",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "G",
       "insertText": "field2: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
@@ -32,7 +33,7 @@
       "label": "field3",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "G",
       "insertText": "field3: ${1:false}",
       "insertTextFormat": "Snippet"
     },
@@ -40,7 +41,7 @@
       "label": "Add All Attributes",
       "kind": "Property",
       "detail": "none",
-      "sortText": "110",
+      "sortText": "Q",
       "insertText": "field1: 0,\nfield2: \"\",\nfield3: false",
       "insertTextFormat": "Snippet"
     }

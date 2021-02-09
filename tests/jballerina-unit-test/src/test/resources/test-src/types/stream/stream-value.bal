@@ -97,11 +97,11 @@ function testStreamConstructWithFilter() returns boolean {
     NumberGenerator numGen = new NumberGenerator();
     var intStream = new stream<int>(numGen);
 
-    stream<int,error> oddNumberStream = intStream.filter(function (int intVal) returns boolean {
+    stream<int> oddNumberStream = intStream.filter(function (int intVal) returns boolean {
         return intVal % 2 == 1;
     });
 
-    ResultValue? oddNumber = <ResultValue?> checkpanic oddNumberStream.next();
+    ResultValue? oddNumber = <ResultValue?>oddNumberStream.next();
     testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
 
     oddNumber = getRecordValue(oddNumberStream.next());
@@ -404,5 +404,40 @@ function testEmptyStreamConstructs() returns boolean {
     testPassed = testPassed && (emptyStream7.next() == ());
     testPassed = testPassed && (emptyStream8.next() == ());
     testPassed = testPassed && (emptyStream9.next() == ());
+
+    // test the assignability of stream<int> and stream<int, never>
+    emptyStream1 = emptyStream5;
+    emptyStream2 = emptyStream5;
+    emptyStream7 = emptyStream8;
+    emptyStream7 = emptyStream5;
+
     return testPassed;
+}
+
+type Foo record {|
+    string v;
+|};
+
+type Bar record {|
+    int v;
+|};
+
+function testUnionOfStreamsAsFunctionParams() returns boolean {
+    boolean testPassed = false;
+    Foo[] fooArr = [{v: "foo1"}, {v: "foo2"}];
+    stream<Foo>|stream<Bar> fooBarStream = fooArr.toStream();
+    record {|Foo|Bar value;|}|error? res = fooBarStream.next();
+    if (res is record {|Foo value;|}) {
+        testPassed = (res.value == {v: "foo1"});
+    }
+    testPassed = testPassed && functionWithStreamArgs(fooBarStream);
+    return testPassed;
+}
+
+function functionWithStreamArgs(stream<any|error> str) returns boolean {
+    record {|any|error value;|}? res = str.next();
+    if (res is record {|Foo value;|}) {
+        return res.value == {v: "foo2"};
+    }
+    return false;
 }

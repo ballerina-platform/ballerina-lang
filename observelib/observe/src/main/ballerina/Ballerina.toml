@@ -4,7 +4,11 @@ name = "observe"
 version = "0.9.0"
 
 [[platform.java11.dependency]]
-path = "../libs/ballerina-observability-2.0.0-alpha-SNAPSHOT.jar"
+<<<<<<< HEAD
+path = "../libs/ballerina-observability-2.0.0-alpha3-SNAPSHOT.jar"
+=======
+path = "../libs/ballerina-observability-2.0.0-alpha3-SNAPSHOT.jar"
+>>>>>>> e002057ae4c28c1c09247ec619ca4bb8c451d5e0
 groupId = "ballerina"
 artifactId = "observability"
 version = "0.9.0"

@@ -79,7 +79,7 @@ function testMemberAccessWithSingleRecordKey() {
     table<Customer> key(name) customerTable = table [{name: {fname: "Sanjiva", lname: "Weerawarana"}, id: 13, address: "Sri Lanka" },
                                                 {name: {fname: "James" , lname: "Clark"}, id: 23 , address: "Thailand" }];
 
-    Customer customer = customerTable[{fname: "Sanjiva", lname: "Weerawarana"}];
+    Customer? customer = customerTable[{fname: "Sanjiva", lname: "Weerawarana"}];
     assertEquality("Sri Lanka", customer["address"]);
 }
 
@@ -87,7 +87,7 @@ function testMemberAccessWithMultiKeyAsTuple() {
     table<Customer> key(id, name) customerTable = table [{name: {fname: "Sanjiva", lname: "Weerawarana"}, id: 13, address: "Sri Lanka" },
                                                     {name: {fname: "James" , lname: "Clark"}, id: 23 , address: "Thailand" }];
 
-    Customer customer = customerTable[[13, {fname: "Sanjiva", lname: "Weerawarana"}]];
+    Customer? customer = customerTable[[13, {fname: "Sanjiva", lname: "Weerawarana"}]];
     assertEquality("Sri Lanka", customer["address"]);
 }
 
@@ -95,7 +95,7 @@ function testMemberAccessWithMultiKey() {
     table<Customer> key(id, name) customerTable = table [{name: {fname: "Sanjiva", lname: "Weerawarana"}, id: 13, address: "Sri Lanka" },
                                                         {name: {fname: "James" , lname: "Clark"}, id: 23 , address: "Thailand" }];
 
-    Customer customer = customerTable[13, {fname: "Sanjiva", lname: "Weerawarana"}];
+    Customer? customer = customerTable[13, {fname: "Sanjiva", lname: "Weerawarana"}];
     assertEquality("Sri Lanka", customer["address"]);
 }
 
@@ -113,14 +113,16 @@ function testMemberAccessWithInvalidSingleKey() {
     table<Customer> key(name) customerTable = table [{name: {fname: "Sanjiva", lname: "Weerawarana"}, id: 13, address: "Sri Lanka" },
                                         {name: {fname: "James" , lname: "Clark"}, id: 23 , address: "Thailand" }];
 
-    Customer customer = customerTable[{fname: "Sanjiva" , lname: "Clark"}];
+    Customer? customer = customerTable[{fname: "Sanjiva" , lname: "Clark"}];
+    assertEquality((), customer);
 }
 
 function testMemberAccessWithInvalidMultiKey() {
     table<Customer> key(id, name) customerTable = table [{name: {fname: "Sanjiva", lname: "Weerawarana"}, id: 13, address: "Sri Lanka" },
                                         {name: {fname: "James" , lname: "Clark"}, id: 23 , address: "Thailand" }];
 
-    Customer customer = customerTable[18, {fname: "Sanjiva" , lname: "Clark"}];
+    Customer? customer = customerTable[18, {fname: "Sanjiva" , lname: "Clark"}];
+    assertEquality((), customer);
 }
 
 function runTableTestcasesWithVarType() {

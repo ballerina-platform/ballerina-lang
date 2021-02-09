@@ -21,8 +21,15 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.ballerinalang.testerina.test.utils.FileUtils;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.HashMap;
 
 /**
  * Test class to test Module test execution.
@@ -40,11 +47,11 @@ public class ModuleExecutionTest extends BaseTestCase {
 
     @Test()
     public void test_DefaultModule_AllTests() throws BallerinaTestException {
-        String msg1 = "4 passing";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        balClient.runMain("test", new String[]{"--tests", "moduleExecution:*"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1}, projectPath);
-        clientLeecher1.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:*"},
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "default module test failure");
+
     }
 
     @Test()
@@ -53,8 +60,9 @@ public class ModuleExecutionTest extends BaseTestCase {
         String msg2 = "[pass] main_test1";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        balClient.runMain("test", new String[]{"--tests", "moduleExecution:main_test1"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
+        balClient.runMain("test",
+                new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:main_test1"},
+                null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
     }
@@ -71,7 +79,9 @@ public class ModuleExecutionTest extends BaseTestCase {
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
         LogLeecher clientLeecher4 = new LogLeecher(msg4);
 
-        balClient.runMain("test", new String[]{"--tests", "moduleExecution:main_*"}, null, new String[]{},
+        balClient.runMain("test",
+                new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:main_*"},
+                null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3, clientLeecher4}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
@@ -81,11 +91,11 @@ public class ModuleExecutionTest extends BaseTestCase {
 
     @Test()
     public void test_Module1_AllTests() throws BallerinaTestException {
-        String msg1 = "3 passing";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        balClient.runMain("test", new String[]{"--tests", "moduleExecution.Module1:*"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1}, projectPath);
-        clientLeecher1.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test",
+                new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution.Module1:*"},
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "module wise test failure");
+
     }
 
     @Test()
@@ -94,7 +104,8 @@ public class ModuleExecutionTest extends BaseTestCase {
         String msg2 = "[pass] module1_test1";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        balClient.runMain("test", new String[]{"--tests", "moduleExecution.Module1:module1_test1"},
+        balClient.runMain("test",
+                new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution.Module1:module1_test1"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
@@ -110,8 +121,10 @@ public class ModuleExecutionTest extends BaseTestCase {
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
 
-        balClient.runMain("test", new String[]{"--tests", "moduleExecution.Module1:module1_*"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "moduleExecution.Module1:module1_*"});
+        balClient.runMain("test", args,
+                null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3},
+                projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
         clientLeecher3.waitForText(20000);
@@ -127,11 +140,21 @@ public class ModuleExecutionTest extends BaseTestCase {
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
 
-        balClient.runMain("test", new String[]{"--tests", "common*"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "common*"});
+        balClient.runMain("test", args,
+                null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3},
+                projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
         clientLeecher3.waitForText(20000);
     }
 
+    @AfterMethod
+    public void copyExec() {
+        try {
+            FileUtils.copyBallerinaExec(Paths.get(projectPath), String.valueOf(System.currentTimeMillis()));
+        } catch (IOException e) {
+            // ignore exception
+        }
+    }
 }
