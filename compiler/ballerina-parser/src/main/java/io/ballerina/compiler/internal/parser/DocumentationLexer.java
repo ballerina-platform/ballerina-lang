@@ -695,7 +695,7 @@ public class DocumentationLexer extends AbstractLexer {
 
         // If there's no end of line minutiae switch the mode to capture code content
         int bucketCount = trailingTrivia.bucketCount();
-        if (bucketCount > 0 && trailingTrivia.childInBucket(bucketCount - 1).kind != SyntaxKind.END_OF_LINE_MINUTIAE) {
+        if (bucketCount == 0 || trailingTrivia.childInBucket(bucketCount - 1).kind != SyntaxKind.END_OF_LINE_MINUTIAE) {
             switchMode(previousBacktickMode);
         }
 

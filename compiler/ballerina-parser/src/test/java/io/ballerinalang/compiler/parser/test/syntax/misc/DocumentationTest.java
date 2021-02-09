@@ -77,6 +77,7 @@ public class DocumentationTest extends AbstractMiscTest {
     @Test
     public void testTippleBacktickDocumentation() {
         testFile("documentation/doc_source_10.bal", "documentation/doc_assert_10.json");
+        testFile("documentation/doc_source_24.bal", "documentation/doc_assert_24.json");
     }
 
     @Test
