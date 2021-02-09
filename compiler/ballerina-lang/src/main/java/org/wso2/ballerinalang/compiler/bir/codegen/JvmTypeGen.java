@@ -69,6 +69,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -505,28 +506,20 @@ public class JvmTypeGen {
                                      PackageID moduleId, String typeOwnerClass, SymbolTable symbolTable,
                                      AsyncDataCollector asyncDataCollector) {
 
-        List<BIRTypeDefinition> recordTypeDefs = new ArrayList<>();
+        // due to structural type same name can appear twice, need to remove duplicates
+        Set<BIRTypeDefinition> recordTypeDefSet = new TreeSet<>(NAME_HASH_COMPARATOR);
         List<BIRTypeDefinition> objectTypeDefs = new ArrayList<>();
 
-        int i = 0;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.RECORD) {
-                recordTypeDefs.add(i, optionalTypeDef);
-                i += 1;
+                recordTypeDefSet.add(optionalTypeDef);
+            } else if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
+                objectTypeDefs.add(optionalTypeDef);
             }
         }
 
-        i = 0;
-        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
-            if (bType.tag == TypeTags.OBJECT &&
-                    Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
-                objectTypeDefs.add(i, optionalTypeDef);
-                i += 1;
-            }
-        }
-
+        ArrayList<BIRTypeDefinition> recordTypeDefs = new ArrayList<>(recordTypeDefSet);
         generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass, asyncDataCollector);
         generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass, symbolTable, asyncDataCollector);
     }

@@ -432,6 +432,8 @@ public abstract class BIRNode {
      */
     public static class BIRTypeDefinition extends BIRDocumentableNode implements NamedNode {
 
+        public Name displayName;
+
         /**
          * Name of the type definition.
          */
@@ -460,8 +462,7 @@ public abstract class BIRNode {
         public int index;
 
         public BIRTypeDefinition(Location pos, Name name, long flags, boolean isLabel, boolean isBuiltin,
-                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
-
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin, Name displayName) {
             super(pos);
             this.name = name;
             this.flags = flags;
@@ -471,7 +472,13 @@ public abstract class BIRNode {
             this.attachedFuncs = attachedFuncs;
             this.referencedTypes = new ArrayList<>();
             this.origin = origin;
+            this.displayName = displayName;
             this.annotAttachments = new ArrayList<>();
+        }
+
+        public BIRTypeDefinition(Location pos, Name name, long flags, boolean isLabel, boolean isBuiltin,
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
+            this(pos, name, flags, isLabel, isBuiltin, type, attachedFuncs, origin, name);
         }
 
         @Override
@@ -486,7 +493,7 @@ public abstract class BIRNode {
 
         @Override
         public Name getName() {
-            return name;
+            return displayName;
         }
     }
 
