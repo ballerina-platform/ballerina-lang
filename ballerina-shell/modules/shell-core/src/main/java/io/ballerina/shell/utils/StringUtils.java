@@ -18,6 +18,7 @@
 
 package io.ballerina.shell.utils;
 
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 
@@ -115,6 +116,18 @@ public class StringUtils {
         // Result should be padded with a tab
         return String.format("%s%n\t%s%n\t%s%s", diagnostic.message(), strippedSourceLine,
                 SPACE.repeat(position - leadingSpaces), caretUnderline);
+    }
+
+    /**
+     * Escapes the <code>String</code> with the escaping rules of Java language
+     * string literals, so it's safe to insert the value into a string literal.
+     * The resulting string will not be quoted.
+     *
+     * @param string String to encode.
+     * @return encoded string.
+     */
+    public static String encodeIdentifier(String string) {
+        return IdentifierUtils.encodeNonFunctionIdentifier(string);
     }
 
     /**

@@ -226,7 +226,7 @@
       }
     },
     {
-      "label": "sum(int[]... ns)(int)",
+      "label": "sum(int... ns)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -244,7 +244,7 @@
       }
     },
     {
-      "label": "max(int n, int[]... ns)(int)",
+      "label": "max(int n, int... ns)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -262,7 +262,7 @@
       }
     },
     {
-      "label": "min(int n, int[]... ns)(int)",
+      "label": "min(int n, int... ns)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
