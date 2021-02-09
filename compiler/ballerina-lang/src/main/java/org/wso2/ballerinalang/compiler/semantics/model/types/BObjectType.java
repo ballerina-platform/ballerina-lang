@@ -87,7 +87,7 @@ public class BObjectType extends BStructureType implements ObjectType {
                 sb.append("isolated ");
             }
 
-            sb.append(isClass? CLASS : OBJECT).append(SPACE).append(LEFT_CURL);
+            sb.append(isClass ? CLASS : OBJECT).append(SPACE).append(LEFT_CURL);
             for (BField field : fields.values()) {
                 var flags = field.symbol.flags;
                 if (Symbols.isFlagOn(flags, Flags.PUBLIC)) {
