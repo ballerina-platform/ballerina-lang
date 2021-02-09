@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.util.Flags;
 public class BObjectType extends BStructureType implements ObjectType {
 
     private static final String OBJECT = "object";
+    private static final String CLASS = "class";
     private static final String SPACE = " ";
     private static final String PUBLIC = "public";
     private static final String PRIVATE = "private";
@@ -73,6 +74,10 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public String toString() {
+        boolean isClass = false;
+        if (this.tsymbol != null) {
+            isClass = (this.tsymbol.flags & Flags.CLASS) == Flags.CLASS;
+        }
 
         if (shouldPrintShape()) {
             StringBuilder sb = new StringBuilder();
@@ -82,7 +87,7 @@ public class BObjectType extends BStructureType implements ObjectType {
                 sb.append("isolated ");
             }
 
-            sb.append(OBJECT).append(SPACE).append(LEFT_CURL);
+            sb.append(isClass? CLASS : OBJECT).append(SPACE).append(LEFT_CURL);
             for (BField field : fields.values()) {
                 var flags = field.symbol.flags;
                 if (Symbols.isFlagOn(flags, Flags.PUBLIC)) {

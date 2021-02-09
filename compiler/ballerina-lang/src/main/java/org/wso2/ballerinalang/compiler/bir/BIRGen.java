@@ -419,6 +419,7 @@ public class BIRGen extends BLangNodeVisitor {
         typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
 
         typeDef.setMarkdownDocAttachment(astTypeDefinition.symbol.markdownDocumentation);
+        populateBIRAnnotAttachments(astTypeDefinition.annAttachments, typeDef.annotAttachments, this.env);
 
         if (astTypeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE ||
                 astTypeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
@@ -496,6 +497,8 @@ public class BIRGen extends BLangNodeVisitor {
         for (BLangType typeRef : classDefinition.typeRefs) {
             typeDef.referencedTypes.add(typeRef.type);
         }
+
+        populateBIRAnnotAttachments(classDefinition.annAttachments, typeDef.annotAttachments, this.env);
 
         for (BAttachedFunction func : ((BObjectTypeSymbol) classDefinition.symbol).referencedFunctions) {
             BInvokableSymbol funcSymbol = func.symbol;
