@@ -159,7 +159,7 @@ public class PackageResolutionTests {
         buildProject.currentPackage().getResolution();
     }
 
-    @Test(description = "Test dependencies should not be stored in balr archive")
+    @Test(description = "Test dependencies should not be stored in bala archive")
     public void testProjectWithTransitiveTestDependencies() throws IOException {
         // package_with_test_dependency --> package_c
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_with_test_dependency");
@@ -178,19 +178,19 @@ public class PackageResolutionTests {
         diagnosticResult.errors().forEach(out::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
-        String balrName = ProjectUtils.getBalaName(buildProject.currentPackage().manifest());
-        Path balrDir = testBuildDirectory.resolve("test_gen_balrs");
-        Path balrPath = balrDir.resolve(balrName);
-        Files.createDirectories(balrDir);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balrDir);
+        String balaName = ProjectUtils.getBalaName(buildProject.currentPackage().manifest());
+        Path balaDir = testBuildDirectory.resolve("test_gen_balas");
+        Path balaPath = balaDir.resolve(balaName);
+        Files.createDirectories(balaDir);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaDir);
 
-        // Load the balr file now.
-        BalaProject balaProject = BalaProject.loadProject(BCompileUtil.getTestProjectEnvironmentBuilder(), balrPath);
+        // Load the bala file now.
+        BalaProject balaProject = BalaProject.loadProject(BCompileUtil.getTestProjectEnvironmentBuilder(), balaPath);
         PackageResolution resolution = balaProject.currentPackage().getResolution();
 
         // Dependency graph should contain only one entry
-        DependencyGraph<ResolvedPackageDependency> depGraphOfBalr = resolution.dependencyGraph();
-        Assert.assertEquals(depGraphOfBalr.getNodes().size(), 1);
+        DependencyGraph<ResolvedPackageDependency> depGraphOfBala = resolution.dependencyGraph();
+        Assert.assertEquals(depGraphOfBala.getNodes().size(), 1);
     }
 
     @Test(description = "Ultimate test case")
