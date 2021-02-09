@@ -3408,8 +3408,13 @@ public class BallerinaParser extends AbstractParser {
 
             token = peek();
             if (field.kind == SyntaxKind.RECORD_REST_TYPE && bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
-                updateLastNodeInListWithInvalidNode(recordFields, field,
-                        DiagnosticErrorCode.ERROR_OPEN_RECORD_CAN_NOT_CONTAIN_RECORD_REST_DESCRIPTOR);
+                if (recordFields.size() == 0) {
+                    bodyStartDelimiter = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(bodyStartDelimiter, field,
+                            DiagnosticErrorCode.ERROR_OPEN_RECORD_CANNOT_CONTAIN_RECORD_REST_DESCRIPTOR);
+                } else {
+                    updateLastNodeInListWithInvalidNode(recordFields, field,
+                            DiagnosticErrorCode.ERROR_OPEN_RECORD_CANNOT_CONTAIN_RECORD_REST_DESCRIPTOR);
+                }
                 continue;
             } else if (field.kind == SyntaxKind.RECORD_REST_TYPE) {
                 recordRestDescriptor = field;
