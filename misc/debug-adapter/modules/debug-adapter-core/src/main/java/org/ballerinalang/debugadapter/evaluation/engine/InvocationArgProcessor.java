@@ -51,11 +51,11 @@ public class InvocationArgProcessor {
 
         for (ParameterSymbol parameterSymbol : definition.parameters()) {
             params.add(parameterSymbol);
-            remainingParams.put(parameterSymbol.name().get(), parameterSymbol);
+            remainingParams.put(parameterSymbol.getName().get(), parameterSymbol);
         }
         if (definition.restParam().isPresent()) {
             params.add(definition.restParam().get());
-            remainingParams.put(definition.restParam().get().name().get(), definition.restParam().get());
+            remainingParams.put(definition.restParam().get().getName().get(), definition.restParam().get());
         }
 
         Map<String, Value> argValues = new HashMap<>();
@@ -76,7 +76,7 @@ public class InvocationArgProcessor {
                             "too many arguments in call to '" + functionName + "'."));
                 }
 
-                String parameterName = params.get(i).name().get();
+                String parameterName = params.get(i).getName().get();
                 argValues.put(parameterName, arg.getValue().evaluate().getJdiValue());
                 remainingParams.remove(parameterName);
             } else if (argType == ArgType.NAMED) {
@@ -101,7 +101,7 @@ public class InvocationArgProcessor {
 
                 String restParamName = null;
                 for (Map.Entry<String, ParameterSymbol> entry : remainingParams.entrySet()) {
-                    ParameterKind parameterType = entry.getValue().kind();
+                    ParameterKind parameterType = entry.getValue().paramKind();
                     if (parameterType == ParameterKind.REST) {
                         restParamName = entry.getKey();
                         break;
@@ -119,7 +119,7 @@ public class InvocationArgProcessor {
 
         for (Map.Entry<String, ParameterSymbol> entry : remainingParams.entrySet()) {
             String paramName = entry.getKey();
-            ParameterKind parameterType = entry.getValue().kind();
+            ParameterKind parameterType = entry.getValue().paramKind();
             if (parameterType == ParameterKind.REQUIRED) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                         "missing required parameter '" + paramName + "'."));
