@@ -266,7 +266,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
 
             List<String> moduleNameParts = Arrays.asList(module.moduleName().moduleNamePart().split("\\."));
             moduleName.forEach(token -> moduleNameParts.remove(token.text()));
-            String label = pkgName + "." + module.moduleName().moduleNamePart();
+            String label = module.moduleName().moduleNamePart();
             String insertText = String.join(".", moduleNameParts);
 
             completionItems.add(getImportCompletion(context, label, insertText));

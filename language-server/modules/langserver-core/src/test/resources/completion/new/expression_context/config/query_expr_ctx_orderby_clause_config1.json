@@ -213,6 +213,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "person",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "person",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "onConflictError",
       "kind": "Variable",
       "detail": "error",

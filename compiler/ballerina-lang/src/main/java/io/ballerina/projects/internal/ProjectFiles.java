@@ -48,8 +48,8 @@ import static io.ballerina.projects.util.ProjectUtils.checkReadPermission;
 public class ProjectFiles {
     public static final PathMatcher BAL_EXTENSION_MATCHER =
             FileSystems.getDefault().getPathMatcher("glob:**.bal");
-    public static final PathMatcher BALR_EXTENSION_MATCHER =
-            FileSystems.getDefault().getPathMatcher("glob:**.balo");
+    public static final PathMatcher BALA_EXTENSION_MATCHER =
+            FileSystems.getDefault().getPathMatcher("glob:**.bala");
 
     private ProjectFiles() {
     }
@@ -112,7 +112,7 @@ public class ProjectFiles {
         }
 
         DocumentData moduleMd = loadDocument(moduleDirPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
-        // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
+        // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md
         return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd);
     }
 
@@ -227,17 +227,17 @@ public class ProjectFiles {
         checkReadPermission(filePath);
     }
 
-    public static void validateBalrProjectPath(Path balrPath) {
-        if (Files.notExists(balrPath)) {
-            throw new ProjectException("Given .balr file does not exist: " + balrPath);
+    public static void validateBalaProjectPath(Path balaPath) {
+        if (Files.notExists(balaPath)) {
+            throw new ProjectException("Given .bala file does not exist: " + balaPath);
         }
 
-        if (!Files.isRegularFile(balrPath) || !ProjectFiles.BALR_EXTENSION_MATCHER.matches(balrPath)) {
-            throw new ProjectException("Invalid .balr file: " + balrPath);
+        if (!Files.isRegularFile(balaPath) || !ProjectFiles.BALA_EXTENSION_MATCHER.matches(balaPath)) {
+            throw new ProjectException("Invalid .bala file: " + balaPath);
         }
 
-        if (!balrPath.toFile().canRead()) {
-            throw new ProjectException("insufficient privileges to balo: " + balrPath);
+        if (!balaPath.toFile().canRead()) {
+            throw new ProjectException("insufficient privileges to bala: " + balaPath);
         }
     }
 }

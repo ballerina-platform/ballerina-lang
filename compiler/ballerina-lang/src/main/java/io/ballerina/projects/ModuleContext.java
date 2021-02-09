@@ -255,7 +255,7 @@ class ModuleContext {
 
     void resolveDependencies(DependencyResolution dependencyResolution) {
         Set<ModuleDependency> moduleDependencies = new HashSet<>();
-        if (this.project.kind() == ProjectKind.BALR_PROJECT) {
+        if (this.project.kind() == ProjectKind.BALA_PROJECT) {
             for (ModuleDescriptor dependencyModDesc : moduleDescDependencies) {
                 // Dependencies loaded from cache should not contain test dependencies
                 addModuleDependency(dependencyModDesc.org(), dependencyModDesc.packageName(),
@@ -421,7 +421,7 @@ class ModuleContext {
         moduleContext.birBytes = moduleContext.compilationCache.getBir(moduleContext.moduleName());
     }
 
-    static void resolveDependenciesFromBALOInternal(ModuleContext moduleContext) {
+    static void resolveDependenciesFromBALAInternal(ModuleContext moduleContext) {
         // TODO implement
     }
 

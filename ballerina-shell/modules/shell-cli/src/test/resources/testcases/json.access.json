@@ -6,12 +6,12 @@
   {
     "description": "Field access.",
     "code": "j1.fname",
-    "expr": "Mary"
+    "expr": "\"Mary\""
   },
   {
     "description": "Chained field access.",
     "code": "j1.address.city",
-    "expr": "Colombo 03"
+    "expr": "\"Colombo 03\""
   },
   {
     "description": "Optional field access.",
