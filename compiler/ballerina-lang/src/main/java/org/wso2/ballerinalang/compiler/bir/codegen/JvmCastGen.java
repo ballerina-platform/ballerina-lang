@@ -380,10 +380,6 @@ public class JvmCastGen {
         switch (sourceType.tag) {
             case TypeTags.BOOLEAN:
                 break;
-            case TypeTags.HANDLE:
-                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD,
-                        String.format("()L%s;", OBJECT), false);
-                break;
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BOOLEAN_METHOD, String.format("(L%s;)Z", OBJECT),
                         false);
