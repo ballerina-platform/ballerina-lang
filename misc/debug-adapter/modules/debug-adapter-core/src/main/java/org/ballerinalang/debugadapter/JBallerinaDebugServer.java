@@ -168,8 +168,22 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Capabilities> initialize(InitializeRequestArguments args) {
         Capabilities capabilities = new Capabilities();
+        // supported capabilities
         capabilities.setSupportsConfigurationDoneRequest(true);
         capabilities.setSupportsTerminateRequest(true);
+        capabilities.setSupportTerminateDebuggee(true);
+        // to be implemented
+        capabilities.setSupportsCompletionsRequest(false);         // Todo
+        capabilities.setSupportsRestartRequest(false);             // Todo
+        capabilities.setSupportsConditionalBreakpoints(false);     // Todo
+        // unsupported capabilities
+        capabilities.setSupportsHitConditionalBreakpoints(false);
+        capabilities.setSupportsModulesRequest(false);
+        capabilities.setSupportsStepBack(false);
+        capabilities.setSupportsTerminateThreadsRequest(false);
+        capabilities.setSupportsFunctionBreakpoints(false);
+        capabilities.setSupportsFunctionBreakpoints(false);
+
         context.setClient(client);
         eventProcessor = new JDIEventProcessor(context);
         getClient().initialized();
