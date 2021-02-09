@@ -51,9 +51,9 @@ public class AnyFunctionTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "'transactional' qualifier not allowed", 39, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot invoke function pointer of type function", 44, 40);
+                "cannot call function pointer of type 'function'", 44, 41);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot invoke function pointer of type function", 45, 41);
+                "cannot call function pointer of type 'function'", 45, 42);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot infer types of the arrow expression with unknown invokable type", 49, 18);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);

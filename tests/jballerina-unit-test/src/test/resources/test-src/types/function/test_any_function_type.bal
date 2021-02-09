@@ -46,7 +46,7 @@ function functionWithFunctionReturnType2(function bar) returns function {
     return func;
 }
 
-function functionWithFunctionReturnType3(function(int) returns int bar) returns function {
+function functionWithFunctionReturnType3(function (int) returns int bar) returns function {
     function func = <function> bar;
     return func;
 }
@@ -68,12 +68,12 @@ function functionWithFunctionReturnType6() returns function {
 
 function functionWithFunctionReturnType7() {
     function func = <function> bar;
-    function() returns int f = <function() returns int> func;
+    function () returns int f = <function () returns int> func;
 }
 
 function functionWithFunctionReturnType8() {
     function func = <function> bar;
-    function(int) returns int f = <function(int) returns int> func;
+    function (int) returns int f = <function (int) returns int> func;
 }
 
 function functionWithFunctionReturnType9() returns function? {
@@ -82,16 +82,16 @@ function functionWithFunctionReturnType9() returns function? {
 }
 
 function testFunctionWithFunctionReturnType() {
-    error|() e1 = trap functionWithFunctionReturnType7();
-    error|() e2 = trap functionWithFunctionReturnType8();
+    error? e1 = trap functionWithFunctionReturnType7();
+    error? e2 = trap functionWithFunctionReturnType8();
     function f = <function> functionWithFunctionReturnType9();
-    assertEquality(true, functionWithFunctionReturnType1() is function(int) returns int);
-    assertEquality(true, functionWithFunctionReturnType2(bar) is function(int) returns int);
-    assertEquality(true, functionWithFunctionReturnType3(bar) is function(int) returns int);
-    assertEquality(true, functionWithFunctionReturnType4(baz) is function(int) returns int);
-    assertEquality(true, functionWithFunctionReturnType5(bar2) is function(int) returns int);
-    assertEquality(true, functionWithFunctionReturnType6() is function(int) returns int);
-    assertEquality(true, functionWithFunctionReturnType6() is function(int) returns int|string);
+    assertEquality(true, functionWithFunctionReturnType1() is function (int) returns int);
+    assertEquality(true, functionWithFunctionReturnType2(bar) is function (int) returns int);
+    assertEquality(true, functionWithFunctionReturnType3(bar) is function (int) returns int);
+    assertEquality(true, functionWithFunctionReturnType4(baz) is function (int) returns int);
+    assertEquality(true, functionWithFunctionReturnType5(bar2) is function (int) returns int);
+    assertEquality(true, functionWithFunctionReturnType6() is function (int) returns int);
+    assertEquality(true, functionWithFunctionReturnType6() is function (int) returns int|string);
     assertEquality(true, functionWithFunctionReturnType9() is function);
     assertEquality(true, e1 is error);
     assertEquality(false, e2 is error);
@@ -108,11 +108,11 @@ type Person record {
 
 function testRecordWithFunctionTypeField() {
     Person p = {
-        a : 10,
-        b : bar
+        a: 10,
+        b: bar
     };
-    assertEquality(true, p.b is function(int) returns int|string);
-    assertEquality(false, p["c"] is function(int) returns int|string);
+    assertEquality(true, p.b is function (int) returns int|string);
+    assertEquality(false, p["c"] is function (int) returns int|string);
     assertEquality(true, p["c"] is ());
 }
 
@@ -123,10 +123,10 @@ function testFunctionAsMappingTypeParam() {
         func1 : bar,
         func2 : bar2
     };
-    assertEquality(true, mp["func1"] is function(int) returns int|string);
-    assertEquality(false, mp["func1"] is isolated function(int) returns int|string);
-    assertEquality(true, mp["func2"] is function(int) returns int|string);
-    assertEquality(true, mp["func2"] is isolated function(int) returns int|string);
+    assertEquality(true, mp["func1"] is function (int) returns int|string);
+    assertEquality(false, mp["func1"] is isolated function (int) returns int|string);
+    assertEquality(true, mp["func2"] is function (int) returns int|string);
+    assertEquality(true, mp["func2"] is isolated function (int) returns int|string);
 }
 
 //------------ Testing object type with 'function' field ---------
@@ -145,17 +145,17 @@ class Student {
 
 function objectWithFunctionTypeField() returns boolean {
     Student p1 = new(<function> bar);
-    if (p1.func is function(int) returns int) {
+    if (p1.func is function (int) returns int) {
         return true;
-    } 
+    }
     return false;
 }
 
 function objectWithFunctionTypeField2() returns boolean {
     Student p1 = new(<function> bar);
-    if (p1.getFunction() is function(int) returns int) {
+    if (p1.getFunction() is function (int) returns int) {
         return true;
-    } 
+    }
     return false;
 }
 
@@ -175,7 +175,7 @@ function testFunctionWithUnionType() {
 
     string|function k = bar;
     function l = <function> k;
-    assertEquality(true, l is function(int) returns int|string);
+    assertEquality(true, l is function (int) returns int|string);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

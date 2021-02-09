@@ -1500,7 +1500,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                                              env.scope.owner, location, SOURCE);
             tsymbol.params = params;
             tsymbol.restParam = null;
-            tsymbol.returnType = symTable.anyOrErrorType;
+            tsymbol.returnType = null;
             bInvokableType.tsymbol = tsymbol;
             return bInvokableType;
         }

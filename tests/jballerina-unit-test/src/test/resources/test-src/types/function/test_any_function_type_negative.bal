@@ -41,8 +41,8 @@ function testFunctionTypedescWithTransactionalQualifier() {
 
 function functionPointerInvocation() {
     function func = bar;
-    function(int) returns string val = func();
-    function(int) returns string val2 = func(2, 2, "name");
+    function (int) returns string val = func();
+    function (int) returns string val2 = func(2, 2, "name");
 }
 
 function testFunctionTypedesc1() {
