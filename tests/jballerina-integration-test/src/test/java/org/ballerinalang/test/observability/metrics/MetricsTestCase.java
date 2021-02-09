@@ -62,7 +62,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Exception {
-        super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME, new int[] {10090, 10091, 10092});
+        super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME + "-0.0.1", new int[] {10090, 10091, 10092});
     }
 
     @AfterClass(alwaysRun = true)
