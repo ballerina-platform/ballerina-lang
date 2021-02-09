@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.invoker.classload.context;
 
-import freemarker.ext.beans.TemplateAccessible;
 import io.ballerina.shell.snippet.types.ExecutableSnippet;
 
 /**
@@ -48,13 +47,11 @@ public class StatementContext {
         this.statement = snippet.isStatement();
     }
 
-    @TemplateAccessible
-    public String getCode() {
+    public String code() {
         return code;
     }
 
-    @TemplateAccessible
-    public boolean isStatement() {
+    public boolean statement() {
         return statement;
     }
 }

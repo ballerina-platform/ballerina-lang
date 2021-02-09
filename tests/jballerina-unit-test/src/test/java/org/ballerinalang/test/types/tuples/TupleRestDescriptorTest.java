@@ -33,12 +33,10 @@ import org.testng.annotations.Test;
 public class TupleRestDescriptorTest {
 
     private CompileResult result;
-    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/tuples/tuple_rest_descriptor_test.bal");
-        resultNegative = BCompileUtil.compile("test-src/types/tuples/tuple_rest_descriptor_negative.bal");
     }
 
     @Test(description = "Test tuple assignment with rest descriptor")
@@ -99,6 +97,21 @@ public class TupleRestDescriptorTest {
         Assert.assertEquals(returns[0].stringValue(), "false a1 b1 c1 ");
     }
 
+    @Test
+    public void testToStringRepresentation() {
+        BRunUtil.invoke(result, "testToStringRepresentation");
+    }
+
+    @Test
+    public void testSubTypingWithRestDescriptorPositive() {
+        BRunUtil.invoke(result, "testSubTypingWithRestDescriptorPositive");
+    }
+
+    @Test
+    public void testSubTypingWithRestDescriptorNegative() {
+        BRunUtil.invoke(result, "testSubTypingWithRestDescriptorNegative");
+    }
+
     @Test(description = "Test out of bound indexed based access on tuples with rest descriptor",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
@@ -110,6 +123,8 @@ public class TupleRestDescriptorTest {
 
     @Test(description = "Test negative scenarios of assigning tuples with rest descriptors")
     public void testNegativeTupleLiteralAssignments() {
+        CompileResult resultNegative = BCompileUtil.compile("test-src/types/tuples/tuple_rest_descriptor_negative.bal");
+
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'int'",
                 18, 50);
@@ -127,12 +142,29 @@ public class TupleRestDescriptorTest {
                                           "'[int]'", 29, 31);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[int,float,string,string...]', " +
                                           "found '[int,float,string...]'", 32, 41);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '[int,(string|int),(string|int)...]', " +
+                                          "found '[int,(string|int)...]'", 38, 42);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '[int,string...]', found '[int,(string|int)...]'",
+                                  39, 26);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '[int]', found '[int,(string|int)...]'",
+                                  40, 15);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '[int,int,int,int,int...]', found 'int[3]'",
+                                  44, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '[int,string...]', found 'int[3]'",
+                                  45, 26);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '[string,string,string,string]', found 'int[3]'",
+                                  46, 42);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @AfterClass
     public void tearDown() {
         result = null;
-        resultNegative = null;
     }
 }

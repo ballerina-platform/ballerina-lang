@@ -1262,6 +1262,11 @@ public class BIRPackageSymbolEnter {
                         tupleMemberTypes.add(readTypeFromCp());
                     }
                     bTupleType.tupleTypes = tupleMemberTypes;
+
+                    if (inputStream.readBoolean()) {
+                        bTupleType.restType = readTypeFromCp();
+                    }
+
                     return bTupleType;
                 case TypeTags.FUTURE:
                     BFutureType bFutureType = new BFutureType(TypeTags.FUTURE, null, symTable.futureType.tsymbol);
