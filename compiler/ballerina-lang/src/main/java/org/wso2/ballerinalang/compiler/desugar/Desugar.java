@@ -871,11 +871,8 @@ public class Desugar extends BLangNodeVisitor {
                 case TUPLE_VARIABLE:
                     BLangNode blockStatementNode = rewrite(globalVar, initFunctionEnv);
                     List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
-                    int statementSize = statements.size();
-                    if (statementSize == 0) {
-                        break;
-                    }
 
+                    int statementSize = statements.size();
                     for (int i = 0; i < statementSize - 1; i++) {
                         addToGlobalVariableList(statements.get(i), initFnBody, globalVar, desugaredGlobalVarList);
                     }
