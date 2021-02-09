@@ -55,4 +55,8 @@ public class BalaProject extends Project {
     public DocumentId documentId(Path file) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void save() {
+    }
 }

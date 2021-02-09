@@ -83,4 +83,8 @@ public class SingleFileProject extends Project {
         }
         return this.currentPackage().getDefaultModule().documentIds().iterator().next();
     }
+
+    @Override
+    public void save() {
+    }
 }

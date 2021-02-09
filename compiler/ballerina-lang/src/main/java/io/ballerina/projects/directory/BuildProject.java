@@ -19,20 +19,25 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Optional;
 
 import static io.ballerina.projects.util.ProjectConstants.DOT;
@@ -161,5 +166,38 @@ public class BuildProject extends Project {
             return false;
         }
         return true;
+    }
+
+    public void save() {
+        writeDependencies();
+    }
+
+    private void writeDependencies() {
+        Package currentPackage = this.currentPackage();
+        if (currentPackage != null) {
+            ResolvedPackageDependency resolvedPackageDependency =
+                    new ResolvedPackageDependency(currentPackage, PackageDependencyScope.DEFAULT);
+            Collection<ResolvedPackageDependency> pkgDependencies =
+                    currentPackage.getResolution().dependencyGraph().getDirectDependencies(resolvedPackageDependency);
+
+            String content = getDependenciesTomlContent(pkgDependencies);
+
+            if (currentPackage.dependenciesToml().isPresent()) {
+                DependenciesToml dependenciesToml = currentPackage.dependenciesToml().get();
+                dependenciesToml.modify().withContent(content).apply();
+            }
+        }
+    }
+
+    private String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgDependencies) {
+        StringBuilder content = new StringBuilder();
+        for (ResolvedPackageDependency dependency : pkgDependencies) {
+            content.append("[[dependency]]\n");
+            content.append("org = \"").append(dependency.packageInstance().packageOrg().value()).append("\"\n");
+            content.append("name = \"").append(dependency.packageInstance().packageName().value()).append("\"\n");
+            content.append("version = \"").append(dependency.packageInstance().packageVersion().value()).append("\"\n");
+            content.append("\n");
+        }
+        return String.valueOf(content);
     }
 }
