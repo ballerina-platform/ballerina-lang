@@ -66,7 +66,7 @@ public class ParserTestFormatter extends FormatterTest {
                 // the following tests need to be enabled in the future
                 "ambiguity_source_11.bal", // parser issue for indexed expressions #26420
                 "annotations_source_04.bal", // could be considered an invalid scenario
-                "match_stmt_source_08.bal", // parser issue for binding patterns & match block #26421
+                "match_stmt_source_12.bal", //#28520
                 "receive_action_source_01.bal", // issue #26376
                 "doc_source_21.bal", // issue #28172
 

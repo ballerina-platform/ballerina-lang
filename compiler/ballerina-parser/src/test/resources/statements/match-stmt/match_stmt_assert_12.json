@@ -16,13 +16,7 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "foo",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
-        }
-      ]
+      "value": "foo"
     },
     {
       "kind": "LIST",
@@ -465,13 +459,7 @@
                                     },
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "_",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "value": "_"
                                     }
                                   ]
                                 },
@@ -547,12 +535,6 @@
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": "        "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
                                     }
                                   ]
                                 },
@@ -886,13 +868,7 @@
                                       "kind": "REST_MATCH_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "ELLIPSIS_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "ELLIPSIS_TOKEN"
                                         },
                                         {
                                           "kind": "VAR_KEYWORD",
@@ -988,12 +964,6 @@
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": "        "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
                                     }
                                   ]
                                 },
@@ -1258,13 +1228,7 @@
                                       "kind": "REST_MATCH_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "ELLIPSIS_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "ELLIPSIS_TOKEN"
                                         },
                                         {
                                           "kind": "VAR_KEYWORD",
@@ -1361,12 +1325,6 @@
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": "        "
                                     }
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
                                   ]
                                 },
                                 {
@@ -1418,13 +1376,7 @@
                                       "kind": "REST_MATCH_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "ELLIPSIS_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "ELLIPSIS_TOKEN"
                                         },
                                         {
                                           "kind": "VAR_KEYWORD",
@@ -1520,12 +1472,6 @@
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": "        "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
                                     }
                                   ]
                                 },
@@ -1636,12 +1582,6 @@
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": "        "
                                     }
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
                                   ]
                                 },
                                 {
@@ -1699,13 +1639,7 @@
                                               "kind": "REST_MATCH_PATTERN",
                                               "children": [
                                                 {
-                                                  "kind": "ELLIPSIS_TOKEN",
-                                                  "trailingMinutiae": [
-                                                    {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": " "
-                                                    }
-                                                  ]
+                                                  "kind": "ELLIPSIS_TOKEN"
                                                 },
                                                 {
                                                   "kind": "VAR_KEYWORD",
@@ -1789,13 +1723,7 @@
                                       "kind": "REST_MATCH_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "ELLIPSIS_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "ELLIPSIS_TOKEN"
                                         },
                                         {
                                           "kind": "VAR_KEYWORD",

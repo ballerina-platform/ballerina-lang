@@ -1,4 +1,4 @@
-function foo () {
+function foo() {
     match bar {
         [a, b] => {
         }

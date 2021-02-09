@@ -6,7 +6,7 @@ function foo() {
         }
         error identifier:identifier() => {
         }
-        error typeref(var c, _ ) => {
+        error typeref(var c, _) => {
         }
         error(namedarg1 = mathchpattren, namedarg2 = error typeref(d), namedarg3 = [a, b, c, {}]) => {
         }
