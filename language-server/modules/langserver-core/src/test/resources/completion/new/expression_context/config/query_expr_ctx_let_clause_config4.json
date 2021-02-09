@@ -181,6 +181,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "test",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "test",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "c1",
       "kind": "Variable",
       "detail": "$CompilationError$",
@@ -210,6 +218,14 @@
       "detail": "string",
       "sortText": "B",
       "insertText": "outputNameString",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "person",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "person",
       "insertTextFormat": "Snippet"
     },
     {
