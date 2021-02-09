@@ -21,4 +21,14 @@ function testInvalidXMLAccessWithIndex() {
     string sampleString1 = x3[0];
     xml x4 = x3[0];
 
+    'xml:Element x5 = xml `<root><!-- comment node--><name>anne</name><city>colombo</city></root>`;
+    xml x6 = x5[0]/*;
+    'xml:Comment x7 = xml `<!-- comment node-->`;
+    xml x8 = x7[0]/*;
+    'xml:ProcessingInstruction x9 = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
+    xml x10 = x9[0]/*;
+
+    x6 = x5[0][0];
+    x8 = x7[0][0];
+    x10 = x9[0][0];
 }
