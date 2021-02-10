@@ -39,6 +39,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -81,7 +82,7 @@ public class TypeByMiscExprTest extends TypeByNodeTest {
                         typeKind = BOOLEAN;
                         break;
                     case CLOSED_RANGE:
-                        typeKind = OBJECT;
+                        typeKind = TYPE_REFERENCE;
                         break;
                     default:
                         throw new IllegalStateException();
