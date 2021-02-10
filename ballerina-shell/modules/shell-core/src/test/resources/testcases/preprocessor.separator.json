@@ -86,13 +86,13 @@
   },
   {
     "name": "Error on mismatched curly braces",
-    "input": "{aaa { bbb }",
+    "input": "{aaa { bbb } }}",
     "expected": [],
     "accepted": false
   },
   {
     "name": "Error on mismatched brackets",
-    "input": "[] [[[ ]]",
+    "input": "[] [[[ ]] ]]]",
     "expected": [],
     "accepted": false
   },
@@ -135,7 +135,7 @@
   },
   {
     "name": "Ignore single quotes",
-    "input": "'Hello('",
+    "input": "'Hello('))",
     "expected": [],
     "accepted": false
   },

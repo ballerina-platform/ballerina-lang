@@ -1880,7 +1880,11 @@ public class Types {
                 varType = inferRecordFieldType(recordType);
                 break;
             case TypeTags.XML:
-                varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
+                BXMLType xmlType = (BXMLType) collectionType;
+                varType = xmlType.constraint;
+                break;
+            case TypeTags.XML_TEXT:
+                varType = symTable.xmlTextType;
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
