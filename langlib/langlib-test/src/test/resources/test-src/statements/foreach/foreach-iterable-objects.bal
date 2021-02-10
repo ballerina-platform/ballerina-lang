@@ -1,4 +1,7 @@
-class Iterable {
+import ballerina/lang.'object;
+
+class IterableImpl {
+    *object:Iterable;
     public function iterator() returns object {public isolated function next() returns record {|int value;|}?;
     } {
         InternalIterable sample = new;
@@ -7,7 +10,7 @@ class Iterable {
 }
 
 public function testIterableObject() returns int[] {
-    Iterable p = new Iterable();
+    IterableImpl p = new IterableImpl();
     int[] integers = [];
     foreach var item in p {
         integers.push(item);
@@ -35,7 +38,8 @@ class InternalIterable {
 }
 
 class AnotherIterable {
-    public function iterator() returns object {public isolated function next() returns record {|Iterable value;|}?;
+    *object:Iterable;
+    public function iterator() returns object {public isolated function next() returns record {|IterableImpl value;|}?;
     } {
         AnotherInternalIterable sample = new;
         return sample;
@@ -46,12 +50,12 @@ class AnotherInternalIterable {
     int cursorIndex = 0;
     public isolated function next() returns
     record {|
-        Iterable value;
+        IterableImpl value;
     |}? {
         self.cursorIndex += 1;
         if (self.cursorIndex <= 2) {
             return {
-                value: new Iterable()
+                value: new IterableImpl()
             };
         } else {
             return ();
