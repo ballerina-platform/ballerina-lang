@@ -58,7 +58,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -81,8 +80,6 @@ public class ClassLoadInvoker extends Invoker {
     private static final AtomicInteger importIndex = new AtomicInteger(0);
     private static final AtomicInteger unnamedModuleNameIndex = new AtomicInteger(0);
     private static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)/([\\w.]+):([\\d.]+):");
-
-    private static TypeSymbol anyTypeSymbol;
 
     /**
      * Set of identifiers that are known or seen at the initialization.
