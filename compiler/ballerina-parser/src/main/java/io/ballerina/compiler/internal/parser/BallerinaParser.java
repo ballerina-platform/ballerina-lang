@@ -1123,9 +1123,9 @@ public class BallerinaParser extends AbstractParser {
      * @param isObjectTypeDesc Whether object type or not
      * @return Parsed node
      */
-    private STNode parseFuncDefOrFuncTypeDescRhs(STNode metadata, STNode visibilityQualifier,
+    private STNode parseFuncDefOrFuncTypeDescRhs(STNode name, STNode metadata, STNode visibilityQualifier,
                                               List<STNode> qualifiers, STNode functionKeyword, boolean isObjectMember,
-                                              boolean isObjectTypeDesc, STNode name) {
+                                              boolean isObjectTypeDesc) {
         switch (peek().kind) {
             case OPEN_PAREN_TOKEN:
                 STNode resourcePath = STNodeFactory.createEmptyNodeList();
@@ -1169,8 +1169,8 @@ public class BallerinaParser extends AbstractParser {
             STToken token = peek();
             recover(token, ParserRuleContext.FUNC_DEF_OR_TYPE_DESC_RHS, metadata, visibilityQualifier, qualifiers,
                     functionKeyword, isObjectMember, isObjectTypeDesc);
-            return parseFuncDefOrFuncTypeDescRhs(metadata, visibilityQualifier, qualifiers, functionKeyword,
-                                                 isObjectMember, isObjectTypeDesc, name);
+            return parseFuncDefOrFuncTypeDescRhs(name, metadata, visibilityQualifier, qualifiers, functionKeyword,
+                                                 isObjectMember, isObjectTypeDesc);
         }
     }
 
@@ -1191,8 +1191,8 @@ public class BallerinaParser extends AbstractParser {
                                                     false, extractQualifiersList);
             case IDENTIFIER_TOKEN:
                 STNode name = consume();
-                return parseFuncDefOrFuncTypeDescRhs(metadata, visibilityQualifier, qualifiers,
-                                                     functionKeyword, isObjectMember, isObjectTypeDesc, name);
+                return parseFuncDefOrFuncTypeDescRhs(name, metadata, visibilityQualifier, qualifiers,
+                                                     functionKeyword, isObjectMember, isObjectTypeDesc);
             case OPEN_PAREN_TOKEN:
                 STNode funcSignature = parseFuncSignature(true);
                 return parseFunctionTypeDescRhs(metadata, visibilityQualifier, qualifiers, functionKeyword,
