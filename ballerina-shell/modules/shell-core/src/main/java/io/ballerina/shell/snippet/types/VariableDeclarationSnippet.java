@@ -18,7 +18,7 @@
 
 package io.ballerina.shell.snippet.types;
 
-import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -74,51 +74,39 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
     }
 
     /**
-     * Imports required for the type.
-     * This will return prefixes used in the type for each variable name.
-     * This will only return proper values if
-     */
-    public Map<String, Set<String>> importsForType() {
-        if (rootNode.typedBindingPattern().bindingPattern() instanceof CaptureBindingPatternNode) {
-            String variableName = ((CaptureBindingPatternNode) rootNode.typedBindingPattern()
-                    .bindingPattern()).variableName().text();
-            Set<String> importPrefixes = new HashSet<>();
-            rootNode.accept(new ImportPrefixFinder(importPrefixes));
-            return Map.of(variableName, importPrefixes);
-        }
-        return Map.of();
-    }
-
-    /**
      * Variable types for each variable name.
      * If any of the types cannot be determined this will return {@code Optional.empty()}.
      * Currently, only `A a = INIT` type are processed.
      * Name will be quoted.
      */
     public Optional<Map<String, TypeInfo>> types() {
+        // VAR and ARR[*] cannot be determined.
+        TypeDescriptorNode typeDescriptorNode = rootNode.typedBindingPattern().typeDescriptor();
+        TypeDeterminableFinder determinableFinder = new TypeDeterminableFinder();
+        typeDescriptorNode.accept(determinableFinder);
+        if (!determinableFinder.isDeterminable()) {
+            return Optional.empty();
+        }
+
+        // Currently only supports CaptureBindingPatternNode
         if (rootNode.typedBindingPattern().bindingPattern() instanceof CaptureBindingPatternNode) {
-            TypeDescriptorNode typeDescriptorNode = rootNode.typedBindingPattern().typeDescriptor();
-            String variableName = ((CaptureBindingPatternNode) rootNode.typedBindingPattern()
-                    .bindingPattern()).variableName().text();
-
-            // VAR cannot be determined.
-            if (typeDescriptorNode.kind().equals(SyntaxKind.VAR_TYPE_DESC)) {
-                return Optional.empty();
-            }
-            // ARR[*] cannot be determined.
-            if (typeDescriptorNode instanceof ArrayTypeDescriptorNode) {
-                ArrayTypeDescriptorNode arrTypeNode = (ArrayTypeDescriptorNode) typeDescriptorNode;
-                if (arrTypeNode.memberTypeDesc().kind().equals(SyntaxKind.ASTERISK_LITERAL)) {
-                    return Optional.empty();
-                }
-            }
-
             // Find the import prefixes required
             Set<String> importPrefixes = new HashSet<>();
-            rootNode.accept(new ImportPrefixFinder(importPrefixes));
+            typeDescriptorNode.accept(new NodeVisitor() {
+                @Override
+                public void visit(QualifiedNameReferenceNode node) {
+                    importPrefixes.add(node.modulePrefix().text());
+                }
+            });
 
+            // Get the quoted variable name and type
+            CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) rootNode.typedBindingPattern()
+                    .bindingPattern();
+            String variableName = IdentifierUtils.unescapeUnicodeCodepoints(bindingPattern.variableName().text());
             String quotedVariableName = StringUtils.quoted(variableName);
-            String variableType = typeDescriptorNode.toSourceCode();
+            String variableType = typeDescriptorNode.toSourceCode().trim();
+
+            // Return the map
             TypeInfo typeInfo = new TypeInfo(variableType, importPrefixes);
             return Optional.of(Map.of(quotedVariableName, typeInfo));
         }
@@ -158,26 +146,37 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
         }
     }
 
+
     /**
-     * A helper class to find the import prefixes in a snippet.
+     * A helper class to determine if type can be determined
+     * from just the syntax tree.
+     * If the syntax tree contains VAR or ARR[*], it cannot be determined.
      *
      * @since 2.0.0
      */
-    private static class ImportPrefixFinder extends NodeVisitor {
-        private final Set<String> foundImportPrefixes;
+    private static class TypeDeterminableFinder extends NodeVisitor {
+        private boolean determinable;
 
-        public ImportPrefixFinder(Set<String> foundImportPrefixes) {
-            this.foundImportPrefixes = foundImportPrefixes;
+        public TypeDeterminableFinder() {
+            this.determinable = true;
         }
 
         @Override
-        public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
-            addPrefix(qualifiedNameReferenceNode.identifier());
+        public void visit(BasicLiteralNode basicLiteralNode) {
+            if (basicLiteralNode.kind().equals(SyntaxKind.ASTERISK_LITERAL)) {
+                determinable = false;
+            }
         }
 
-        private void addPrefix(Token token) {
-            String unescapedIdentifier = IdentifierUtils.unescapeUnicodeCodepoints(token.text());
-            foundImportPrefixes.add(unescapedIdentifier);
+        @Override
+        public void visit(Token token) {
+            if (token.kind().equals(SyntaxKind.VAR_KEYWORD)) {
+                determinable = false;
+            }
+        }
+
+        public boolean isDeterminable() {
+            return determinable;
         }
     }
 
@@ -201,6 +200,11 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
 
         public String getType() {
             return type;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("{type='%s', imports=%s}", type, imports);
         }
     }
 }

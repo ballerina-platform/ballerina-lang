@@ -333,6 +333,8 @@ public class ClassLoadInvoker extends Invoker {
         Optional<Map<String, VariableDeclarationSnippet.TypeInfo>> definedTypes = newSnippet.types();
         Set<QuotedIdentifier> definedVariables = newSnippet.names().stream()
                 .map(QuotedIdentifier::new).collect(Collectors.toSet());
+        addDiagnostic(Diagnostic.debug("Found types: " + definedTypes));
+        addDiagnostic(Diagnostic.debug("Found variables: " + definedVariables));
 
         // No matter the approach, compile. This will confirm that syntax is valid.
         ClassLoadContext varTypeInferContext = createVarTypeInferContext(newSnippet, definedVariables);
@@ -342,7 +344,6 @@ public class ClassLoadInvoker extends Invoker {
 
         String qualifiersAndMetadata = newSnippet.qualifiersAndMetadata();
         Map<QuotedIdentifier, GlobalVariable> foundVariables = new HashMap<>();
-        addDiagnostic(Diagnostic.debug("Found variables: " + definedVariables));
 
         for (GlobalVariableSymbol globalVariableSymbol : globalVariableSymbols) {
             QuotedIdentifier variableName = globalVariableSymbol.getName();
@@ -361,9 +362,9 @@ public class ClassLoadInvoker extends Invoker {
             String variableType;
             if (definedTypes.isPresent()) {
                 // We can use syntax tree, add required imports
-                VariableDeclarationSnippet.TypeInfo type = definedTypes.get().get(variableName.getName());
-                variableType = type.getType();
-                Set<QuotedIdentifier> importPrefixes = type.getImports()
+                VariableDeclarationSnippet.TypeInfo typeInfo = definedTypes.get().get(variableName.getName());
+                variableType = typeInfo.getType();
+                Set<QuotedIdentifier> importPrefixes = typeInfo.getImports()
                         .stream().map(QuotedIdentifier::new).collect(Collectors.toSet());
                 this.newImports.put(variableName, importPrefixes);
             } else {
