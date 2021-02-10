@@ -298,10 +298,10 @@ public class HoverUtil {
 
             params.addAll(symbol.typeDescriptor().parameters().stream()
                     .map(param -> {
-                        if (param.name().isEmpty()) {
+                        if (param.getName().isEmpty()) {
                             return quotedString(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()));
                         }
-                        String paramName = param.name().get();
+                        String paramName = param.getName().get();
                         String desc = paramsMap.get(paramName);
                         return quotedString(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor())) + " "
                                 + italicString(boldString(paramName)) + " : " + desc;
@@ -311,9 +311,9 @@ public class HoverUtil {
             if (restParam.isPresent()) {
                 String modifiedTypeName = CommonUtil.getModifiedTypeName(ctx, restParam.get().typeDescriptor());
                 StringBuilder restParamBuilder = new StringBuilder(quotedString(modifiedTypeName + "..."));
-                if (restParam.get().name().isPresent()) {
-                    restParamBuilder.append(" ").append(italicString(boldString(restParam.get().name().get())))
-                            .append(" : ").append(paramsMap.get(restParam.get().name().get()));
+                if (restParam.get().getName().isPresent()) {
+                    restParamBuilder.append(" ").append(italicString(boldString(restParam.get().getName().get())))
+                            .append(" : ").append(paramsMap.get(restParam.get().getName().get()));
                 }
                 params.add(restParamBuilder.toString());
             }

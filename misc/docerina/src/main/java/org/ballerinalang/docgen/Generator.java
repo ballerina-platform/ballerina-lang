@@ -476,21 +476,21 @@ public class Generator {
                             .anyMatch(annotationSymbol -> annotationSymbol.name().equals("deprecated"));
                     Type type = new Type(parameterSymbol.typeDescriptor().signature());
                     Type.resolveSymbol(type, parameterSymbol.typeDescriptor());
-                    parameters.add(new DefaultableVariable(parameterSymbol.name().isPresent() ?
-                            parameterSymbol.name().get() : "", "", parameterDeprecated, type, ""));
+                    parameters.add(new DefaultableVariable(parameterSymbol.getName().isPresent() ?
+                            parameterSymbol.getName().get() : "", "", parameterDeprecated, type, ""));
                 });
 
                 if (methodSymbol.typeDescriptor().restParam().isPresent()) {
                     ParameterSymbol restParam = methodSymbol.typeDescriptor().restParam().get();
                     boolean parameterDeprecated = restParam.annotations().stream()
                             .anyMatch(annotationSymbol -> annotationSymbol.name().equals("deprecated"));
-                    Type type = new Type(restParam.name().isPresent() ? restParam.name().get() : "");
+                    Type type = new Type(restParam.getName().isPresent() ? restParam.getName().get() : "");
                     type.isRestParam = true;
                     Type elemType = new Type(restParam.typeDescriptor().signature());
                     Type.resolveSymbol(elemType, restParam.typeDescriptor());
                     type.elementType = elemType;
-                    parameters.add(new DefaultableVariable(restParam.name().isPresent() ?
-                            restParam.name().get() : "", "", parameterDeprecated, type, ""));
+                    parameters.add(new DefaultableVariable(restParam.getName().isPresent() ?
+                            restParam.getName().get() : "", "", parameterDeprecated, type, ""));
                 }
 
                 if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {

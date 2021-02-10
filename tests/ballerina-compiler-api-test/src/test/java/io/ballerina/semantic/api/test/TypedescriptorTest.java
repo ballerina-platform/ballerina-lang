@@ -607,8 +607,8 @@ public class TypedescriptorTest {
     }
 
     private void validateParam(ParameterSymbol param, String name, ParameterKind kind, TypeDescKind typeKind) {
-        assertEquals(param.name().get(), name);
-        assertEquals(param.kind(), kind);
+        assertEquals(param.getName().get(), name);
+        assertEquals(param.paramKind(), kind);
         assertEquals(param.typeDescriptor().typeKind(), typeKind);
     }
 }

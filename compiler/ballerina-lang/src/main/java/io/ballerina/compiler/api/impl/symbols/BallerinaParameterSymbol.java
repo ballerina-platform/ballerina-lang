@@ -61,6 +61,11 @@ public class BallerinaParameterSymbol implements ParameterSymbol {
         return Optional.ofNullable(parameterName);
     }
 
+    @Override
+    public Optional<String> getName() {
+        return Optional.ofNullable(this.parameterName);
+    }
+
     /**
      * Get the type descriptor of the field.
      *
@@ -96,15 +101,15 @@ public class BallerinaParameterSymbol implements ParameterSymbol {
         StringJoiner joiner = new StringJoiner(" ");
         this.qualifiers().forEach(accessModifier -> joiner.add(accessModifier.getValue()));
         String signature;
-        if (this.kind() == ParameterKind.REST) {
+        if (this.paramKind() == ParameterKind.REST) {
             signature = this.typeDescriptor().signature();
             signature = signature.substring(0, signature.length() - 2) + "...";
         } else {
             signature = this.typeDescriptor().signature();
         }
         joiner.add(signature);
-        if (this.name().isPresent()) {
-            joiner.add(this.name().get());
+        if (this.getName().isPresent()) {
+            joiner.add(this.getName().get());
         }
 
         return joiner.toString();
@@ -112,6 +117,11 @@ public class BallerinaParameterSymbol implements ParameterSymbol {
 
     @Override
     public ParameterKind kind() {
+        return this.kind;
+    }
+
+    @Override
+    public ParameterKind paramKind() {
         return this.kind;
     }
 }

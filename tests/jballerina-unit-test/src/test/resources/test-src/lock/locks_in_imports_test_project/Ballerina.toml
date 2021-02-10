@@ -2,5 +2,3 @@
 org = "testOrg"
 name = "locks_in_imports_test_project"
 version = "0.1.0"
-
-[dependencies]
