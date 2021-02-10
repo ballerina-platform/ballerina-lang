@@ -55,13 +55,12 @@ public class MultilineDocsTest {
             "X - HEX (ALL_CAPS)\n" +
             "\n" +
             "s - string (This specifier is applicable for any of the supported types in Ballerina.\n" +
-            "            These values will be converted to their string representation.)\n" +
+            "These values will be converted to their string representation.)\n" +
             "\n" +
             "```ballerina\n" +
-            "# string s8 = io:sprintf(\"%s scored %d for %s and has an average of %.2f.\", name, marks, " +
+            "string s8 = io:sprintf(\"%s scored %d for %s and has an average of %.2f.\", name, marks, " +
             "subjects[0], average);\n" +
-            "# ```\n" +
-            "\n";
+            "```\n";
 
     @BeforeClass
     public void setup() throws IOException {
