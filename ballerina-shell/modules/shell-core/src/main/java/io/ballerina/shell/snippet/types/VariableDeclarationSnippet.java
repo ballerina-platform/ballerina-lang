@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -39,23 +38,10 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class VariableDeclarationSnippet extends AbstractSnippet implements ExecutableSnippet, DeclarationSnippet {
+public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDeclarationNode>
+        implements ExecutableSnippet, DeclarationSnippet {
     public VariableDeclarationSnippet(ModuleVariableDeclarationNode rootNode) {
         super(SnippetSubKind.VARIABLE_DECLARATION, rootNode);
-    }
-
-    /**
-     * This will remove all the qualifiers from a declaration and
-     * return the TYPE VAR = INIT; formatted declaration.
-     *
-     * @return The variable declarations without the qualifiers.
-     */
-    public String withoutQualifiers() {
-        assert rootNode instanceof ModuleVariableDeclarationNode;
-        return ((ModuleVariableDeclarationNode) rootNode).modify()
-                .withMetadata(null)
-                .withQualifiers(NodeFactory.createEmptyNodeList())
-                .apply().toSourceCode();
     }
 
     /**
@@ -65,10 +51,8 @@ public class VariableDeclarationSnippet extends AbstractSnippet implements Execu
      * @return Qualifiers/Metadata as string.
      */
     public String qualifiersAndMetadata() {
-        assert rootNode instanceof ModuleVariableDeclarationNode;
-        ModuleVariableDeclarationNode moduleVariableDeclarationNode = (ModuleVariableDeclarationNode) rootNode;
-        String metadata = moduleVariableDeclarationNode.metadata().map(Node::toSourceCode).orElse("");
-        String qualifiers = moduleVariableDeclarationNode.qualifiers().stream()
+        String metadata = rootNode.metadata().map(Node::toSourceCode).orElse("");
+        String qualifiers = rootNode.qualifiers().stream()
                 .map(Node::toSourceCode).collect(Collectors.joining(" "));
         return metadata + qualifiers;
     }

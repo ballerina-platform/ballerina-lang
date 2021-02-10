@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class ImportDeclarationSnippet extends AbstractSnippet implements DeclarationSnippet {
+public class ImportDeclarationSnippet extends AbstractSnippet<ImportDeclarationNode> implements DeclarationSnippet {
     public ImportDeclarationSnippet(ImportDeclarationNode rootNode) {
         super(SnippetSubKind.IMPORT_DECLARATION, rootNode);
     }
@@ -43,10 +43,9 @@ public class ImportDeclarationSnippet extends AbstractSnippet implements Declara
      * @return Alias of this import.
      */
     public String getPrefix() {
-        ImportDeclarationNode importNode = (ImportDeclarationNode) rootNode;
-        return importNode.prefix().isPresent()
-                ? importNode.prefix().get().prefix().text()
-                : importNode.moduleName().get(importNode.moduleName().size() - 1).text();
+        return rootNode.prefix().isPresent()
+                ? rootNode.prefix().get().prefix().text()
+                : rootNode.moduleName().get(rootNode.moduleName().size() - 1).text();
     }
 
     /**
@@ -56,13 +55,12 @@ public class ImportDeclarationSnippet extends AbstractSnippet implements Declara
      * @return Imported module expression.
      */
     public String getImportedModule() {
-        ImportDeclarationNode importNode = (ImportDeclarationNode) rootNode;
-        String moduleName = importNode.moduleName().stream()
+        String moduleName = rootNode.moduleName().stream()
                 .map(IdentifierToken::text)
                 .map(StringUtils::quoted)
                 .collect(Collectors.joining("."));
-        if (importNode.orgName().isPresent()) {
-            String orgName = importNode.orgName().get().orgName().text();
+        if (rootNode.orgName().isPresent()) {
+            String orgName = rootNode.orgName().get().orgName().text();
             return String.format("%s/%s", orgName, moduleName);
         }
         return moduleName;

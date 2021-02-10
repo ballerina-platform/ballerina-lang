@@ -37,7 +37,8 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ModuleMemberDeclarationSnippet extends AbstractSnippet implements DeclarationSnippet {
+public class ModuleMemberDeclarationSnippet extends AbstractSnippet<ModuleMemberDeclarationNode>
+        implements DeclarationSnippet {
     public ModuleMemberDeclarationSnippet(SnippetSubKind subKind, ModuleMemberDeclarationNode rootNode) {
         super(subKind, rootNode);
     }
