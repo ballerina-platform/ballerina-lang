@@ -128,10 +128,9 @@ public class Generator {
                             module.abstractObjects.add(getAbstractObjectModel(typeDefinition, semanticModel));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
                             hasPublicConstructs = true;
-                            Type firstType = Type.fromNode(((UnionTypeDescriptorNode) (typeDefinition.typeDescriptor()))
-                                    .leftTypeDesc(), semanticModel);
-                            if (firstType.category.equals("errors") ||
-                                    (firstType.category.equals("builtin") && firstType.name.equals("error"))) {
+                            Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
+                            if (unionType.memberTypes.stream().allMatch(type -> type.category.equals("errors") ||
+                                    (type.category.equals("builtin") && type.name.equals("error")))) {
                                 module.errors.add(new Error(typeDefinition.typeName().text(),
                                         getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
                                         .metadata()), Type.fromNode(typeDefinition.typeDescriptor(), semanticModel)));

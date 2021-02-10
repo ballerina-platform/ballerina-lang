@@ -2,5 +2,3 @@
 org= "testorg"
 name="bar"
 version= "1.0.0"
-
-[dependencies]

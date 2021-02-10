@@ -1177,6 +1177,10 @@ public class BRunUtil {
                 bvmObjectType.setFields(objectFields);
                 return bvmObjectType;
             case io.ballerina.runtime.api.TypeTags.XML_TAG:
+            case io.ballerina.runtime.api.TypeTags.XML_ELEMENT_TAG:
+            case io.ballerina.runtime.api.TypeTags.XML_COMMENT_TAG:
+            case io.ballerina.runtime.api.TypeTags.XML_PI_TAG:
+            case io.ballerina.runtime.api.TypeTags.XML_TEXT_TAG:
                 return BTypes.typeXML;
             case io.ballerina.runtime.api.TypeTags.TYPEDESC_TAG:
                 TypedescType typedescType = (TypedescType) jvmType;

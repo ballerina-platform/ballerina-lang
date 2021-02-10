@@ -20,11 +20,14 @@
     <Match>
         <Or>
             <And>
-                <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
-                <And>
-                    <Class name="org.ballerinalang.debugadapter.JBallerinaDebugServer"/>
-                    <Method name="evaluate"/>
-                </And>
+                <Class name="org.ballerinalang.debugadapter.JBallerinaDebugServer"/>
+                <Or>
+                    <And>
+                        <Method name="evaluate"/>
+                        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+                    </And>
+                    <Bug pattern="DM_EXIT"/>
+                </Or>
             </And>
             <And>
                 <Bug pattern="REC_CATCH_EXCEPTION"/>

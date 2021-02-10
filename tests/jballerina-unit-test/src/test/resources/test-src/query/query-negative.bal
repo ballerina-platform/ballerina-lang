@@ -266,25 +266,6 @@ function testReassignValueInLet() returns FullName[]{
     return  outputNameList;
 }
 
-function testQueryExprForXML() returns xml {
-    xml book1 = xml `<book>
-                           <name>Sherlock Holmes</name>
-                           <author>Sir Arthur Conan Doyle</author>
-                     </book>`;
-
-    xml book2 = xml `<book>
-                           <name>The Da Vinci Code</name>
-                           <author>Dan Brown</author>
-                    </book>`;
-
-    xml book = book1 + book2;
-
-    xml books = from var x in book/<name>
-                select x;
-
-    return  books;
-}
-
 function testQueryExprForString() returns string {
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
