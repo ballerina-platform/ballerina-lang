@@ -57,12 +57,14 @@ import java.util.Map;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.DEFAULT_MODULE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.FIELD_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_BYTE_RANGE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_FIELD_IN_RECORD;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_TOML_FILE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_VARIABLE_TYPE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.REQUIRED_FIELD_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.SUBMODULE_DELIMITER;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.TABLE_KEY_NOT_PROVIDED;
+import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 
 /**
  * Toml parser for configurable implementation.
@@ -288,7 +290,11 @@ public class ConfigTomlParser {
 
     private static Object getBalValue(String variableName, int typeTag, Object tomlValue) {
         if (typeTag == TypeTags.BYTE_TAG) {
-            return ((Long) tomlValue).intValue();
+            int value = ((Long) tomlValue).intValue();
+            if (!isByteLiteral(value)) {
+                throw new TomlException(String.format(INVALID_BYTE_RANGE, variableName, value));
+            }
+            return value;
         }
         if (typeTag == TypeTags.DECIMAL_TAG) {
             return ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) tomlValue));

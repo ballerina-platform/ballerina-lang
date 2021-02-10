@@ -136,7 +136,9 @@ public class ConfigurableTest extends BaseTest {
                         "'users'"},
                 {"invalidMapType", "Configurable feature is yet to be supported for type 'map<int> & readonly'"},
                 {"invalidType", errorMsg + "invalid type found for variable 'intVar', expected type is 'int', found " +
-                        "'DOUBLE'"}
+                        "'DOUBLE'"},
+                {"invalidByteRange", "Value provided for byte variable 'byteVar' is out of range. Expected " +
+                        "range is (0-255), found '355'"}
         };
     }
 

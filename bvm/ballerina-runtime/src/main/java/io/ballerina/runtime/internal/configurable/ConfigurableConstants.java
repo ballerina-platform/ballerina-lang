@@ -43,6 +43,8 @@ public class ConfigurableConstants {
             " '%s' of record '%s' in configurable variable '%s'";
     public static final String TABLE_KEY_NOT_PROVIDED = "Value required for key '%s' of type '%s' in " +
             "configurable variable '%s'";
+    public static final String INVALID_BYTE_RANGE = "Value provided for byte variable '%s' is out of range. Expected " +
+            "range is (0-255), found '%s'";
 
     private ConfigurableConstants() {
     }
