@@ -173,9 +173,9 @@ public class SignatureHelpUtil {
         }
         // Add parameters and rest params
         functionSymbol.typeDescriptor().parameters()
-                .forEach(param -> parameters.add(new Parameter(param, false, false)));
+                .forEach(param -> parameters.add(new Parameter(param, false, false, context)));
         Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
-        restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true)));
+        restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
         boolean skipFirstParam = functionSymbol.kind() == METHOD && CommonUtil.isLangLib(functionSymbol.moduleID());
         // Create a list of param info models
         for (int i = 0; i < parameters.size(); i++) {
@@ -188,7 +188,7 @@ public class SignatureHelpUtil {
             if (param.getName().isPresent() && paramToDesc.containsKey(param.getName().get())) {
                 desc = paramToDesc.get(param.getName().get());
             }
-            paramModels.add(new ParameterInfoModel(param, desc));
+            paramModels.add(new ParameterInfoModel(param, desc, context));
         }
         signatureInfoModel.setParameterInfoModels(paramModels);
         return signatureInfoModel;
@@ -223,20 +223,25 @@ public class SignatureHelpUtil {
         private final boolean isRestArg;
         private final boolean isOptional;
         private final ParameterSymbol parameterSymbol;
+        private final SignatureContext signatureContext;
 
-        public Parameter(ParameterSymbol parameterSymbol, boolean isOptional, boolean isRestArg) {
+        public Parameter(ParameterSymbol parameterSymbol,
+                         boolean isOptional,
+                         boolean isRestArg,
+                         SignatureContext signatureContext) {
             this.parameterSymbol = parameterSymbol;
             this.isOptional = isOptional;
             this.isRestArg = isRestArg;
+            this.signatureContext = signatureContext;
         }
 
         public Optional<String> getName() {
-            return (parameterSymbol.name().isPresent() && this.isOptional)
-                    ? Optional.of(parameterSymbol.name().get() + "?") : parameterSymbol.name();
+            return (parameterSymbol.getName().isPresent() && this.isOptional)
+                    ? Optional.of(parameterSymbol.getName().get() + "?") : parameterSymbol.getName();
         }
 
         public String getType() {
-            String type = parameterSymbol.typeDescriptor().signature();
+            String type = CommonUtil.getModifiedTypeName(this.signatureContext, parameterSymbol.typeDescriptor());
             if (this.isRestArg && !"".equals(type)) {
                 // Rest Arg type sometimes appear as array [], sometimes not eg. 'error()'
                 if (type.contains("[]")) {
@@ -257,7 +262,7 @@ public class SignatureHelpUtil {
         private final String description;
         private final Parameter parameter;
 
-        public ParameterInfoModel(Parameter parameter, String desc) {
+        public ParameterInfoModel(Parameter parameter, String desc, SignatureContext signatureContext) {
             this.parameter = parameter;
             this.description = desc;
         }

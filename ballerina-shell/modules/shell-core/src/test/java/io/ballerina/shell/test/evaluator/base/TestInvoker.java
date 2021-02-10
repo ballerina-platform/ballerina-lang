@@ -40,12 +40,12 @@ public class TestInvoker extends ClassLoadInvoker {
     }
 
     @Override
-    protected Object invokeMethod(ClassLoader classLoader, String className, String methodName)
+    protected Object invokeScheduledMethod(ClassLoader classLoader, String className, String methodName)
             throws InvokerException {
         PrintStream stdOut = System.out;
         try {
             System.setOut(stdOutMock);
-            return super.invokeMethod(classLoader, className, methodName);
+            return super.invokeScheduledMethod(classLoader, className, methodName);
         } finally {
             System.setOut(stdOut);
         }

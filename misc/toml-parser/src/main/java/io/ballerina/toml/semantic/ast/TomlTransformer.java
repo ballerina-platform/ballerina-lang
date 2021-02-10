@@ -62,10 +62,10 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     }
 
     @Override
-    public TomlNode transform(DocumentNode modulePartNode) {
-        TomlTableNode rootTable = createRootTable();
+    public TomlNode transform(DocumentNode documentNode) {
+        TomlTableNode rootTable = createRootTable(documentNode);
 
-        NodeList<DocumentMemberDeclarationNode> members = modulePartNode.members();
+        NodeList<DocumentMemberDeclarationNode> members = documentNode.members();
         for (DocumentMemberDeclarationNode rootNode : members) {
             TomlNode transformedChild = rootNode.apply(this);
             addChildNodeToParent(rootTable, transformedChild);
@@ -73,9 +73,9 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return rootTable;
     }
 
-    private TomlTableNode createRootTable() {
+    private TomlTableNode createRootTable(DocumentNode modulePartNode) {
         TomlKeyNode tomlKeyNode = new TomlKeyNode(null);
-        return new TomlTableNode(tomlKeyNode, null);
+        return new TomlTableNode(tomlKeyNode, getPosition(modulePartNode));
     }
 
     private void addChildNodeToParent(TomlTableNode rootTable, TomlNode transformedChild) {
@@ -179,7 +179,6 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     }
 
     private TomlTableNode getParentTable(TomlTableNode rootTable, TopLevelNode childNode) {
-        String tableLeadName = getLastKeyEntry(childNode).name().toString();
         List<String> parentTables = new ArrayList<>();
         for (int i = 0; i < (childNode.key().keys().size() - 1); i++) {
             parentTables.add(childNode.key().keys().get(i).name().toString());
@@ -199,13 +198,6 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
                     parentTable = generateTable(parentTable, tomlKeyEntryNode, true);
                 }
             }
-        }
-
-        TopLevelNode lastNode = parentTable.entries().get(tableLeadName);
-        if (lastNode instanceof TomlKeyValueNode) {
-            TomlDiagnostic nodeExists =
-                    dlog.error(childNode.location(), DiagnosticErrorCode.ERROR_EXISTING_NODE, tableLeadName);
-            parentTable.addDiagnostic(nodeExists);
         }
         return parentTable;
     }

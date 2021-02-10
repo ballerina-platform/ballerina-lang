@@ -26,6 +26,7 @@ import io.ballerina.shell.preprocessor.Preprocessor;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.factory.SnippetFactory;
 import io.ballerina.shell.snippet.types.DeclarationSnippet;
+import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.shell.utils.timeit.TimeIt;
 import io.ballerina.shell.utils.timeit.TimedOperation;
 
@@ -97,7 +98,7 @@ public class Evaluator extends DiagnosticReporter {
                 Optional<Object> invokerOut = timedOperation("invoker", () -> invoker.execute(snippet));
 
                 if (invokerOut.isPresent()) {
-                    response = String.valueOf(invokerOut.get());
+                    response = StringUtils.getExpressionStringValue(invokerOut.get());
                 }
             }
             return response;

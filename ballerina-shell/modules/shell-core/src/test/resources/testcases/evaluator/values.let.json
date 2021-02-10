@@ -11,7 +11,7 @@
   {
     "description": "Declare multiple variables in a let expression.",
     "code": "string greeting = let string hello = \"Hello \", string ballerina = \"Ballerina!\" in hello + ballerina; greeting",
-    "expr": "Hello Ballerina!"
+    "expr": "\"Hello Ballerina!\""
   },
   {
     "description": "The scope of a variable declared in a let expression is from the point of declaration to the end of the let expression.",

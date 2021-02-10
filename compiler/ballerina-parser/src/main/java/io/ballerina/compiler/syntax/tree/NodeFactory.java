@@ -2810,7 +2810,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ListMatchPatternNode createListMatchPatternNode(
             Token openBracket,
             SeparatedNodeList<Node> matchPatterns,
-            RestMatchPatternNode restMatchPattern,
             Token closeBracket) {
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(matchPatterns, "matchPatterns must not be null");
@@ -2819,7 +2818,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stListMatchPatternNode = STNodeFactory.createListMatchPatternNode(
                 openBracket.internalNode(),
                 matchPatterns.underlyingListNode().internalNode(),
-                getOptionalSTNode(restMatchPattern),
                 closeBracket.internalNode());
         return stListMatchPatternNode.createUnlinkedFacade();
     }
@@ -2841,8 +2839,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static MappingMatchPatternNode createMappingMatchPatternNode(
             Token openBraceToken,
-            SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns,
-            RestMatchPatternNode restMatchPattern,
+            SeparatedNodeList<Node> fieldMatchPatterns,
             Token closeBraceToken) {
         Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
         Objects.requireNonNull(fieldMatchPatterns, "fieldMatchPatterns must not be null");
@@ -2851,7 +2848,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stMappingMatchPatternNode = STNodeFactory.createMappingMatchPatternNode(
                 openBraceToken.internalNode(),
                 fieldMatchPatterns.underlyingListNode().internalNode(),
-                getOptionalSTNode(restMatchPattern),
                 closeBraceToken.internalNode());
         return stMappingMatchPatternNode.createUnlinkedFacade();
     }

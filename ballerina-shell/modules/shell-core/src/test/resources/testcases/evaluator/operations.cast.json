@@ -10,12 +10,12 @@
   {
     "description": "Cas employee to person.",
     "code": "Person person = <Person>employee; person.name",
-    "expr": "Jane Doe"
+    "expr": "\"Jane Doe\""
   },
   {
     "description": "Recast back to employee.",
     "code": "Employee employeeTwo = <Employee>person; employeeTwo.name",
-    "expr": "Jane Doe"
+    "expr": "\"Jane Doe\""
   },
   {
     "description": "Cast anydata to int.",

@@ -6,7 +6,7 @@ import org.ballerinalang.repository.PackageBinary;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 
 /**
- * Concrete package entry for binary (balo) file.
+ * Concrete package entry for binary (bala) file.
  */
 public class GenericPackageBinary implements PackageBinary {
 

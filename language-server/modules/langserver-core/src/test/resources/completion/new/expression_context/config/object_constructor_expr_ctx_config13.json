@@ -35,13 +35,6 @@
       ]
     },
     {
-      "label": "$anonType$_0",
-      "kind": "Interface",
-      "detail": "Class",
-      "insertText": "$anonType$_0",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error",
       "kind": "Event",
       "detail": "Error",

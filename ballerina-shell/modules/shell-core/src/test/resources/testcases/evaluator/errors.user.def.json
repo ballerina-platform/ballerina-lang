@@ -50,16 +50,16 @@
   {
     "description": "View getTypeId error.",
     "code": "result",
-    "expr": "error InvalidAccountTypeError (\"Invalid account type\",accountType=\"Joined\")"
+    "expr": "error(\"Invalid account type\",accountType=\"Joined\")"
   },
   {
     "description": "View getAccountBalance error.",
     "code": "getAccountBalance(-1);",
-    "expr": "error InvalidAccountIdError (\"Invalid account Id\",accountID=-1)"
+    "expr": "error InvalidAccountIdError&AccountError (\"Invalid account Id\",accountID=-1)"
   },
   {
     "description": "View transferToAccount error.",
     "code": "transferToAccount(-1, 90, 1000);",
-    "expr": "error AccountTransferError (\"Account transfer failed\",error InvalidAccountIdError (\"Invalid account Id\",accountID=-1),fromAccountId=-1,toAccountId=90)"
+    "expr": "error(\"Account transfer failed\",error InvalidAccountIdError&AccountError (\"Invalid account Id\",accountID=-1),fromAccountId=-1,toAccountId=90)"
   }
 ]
