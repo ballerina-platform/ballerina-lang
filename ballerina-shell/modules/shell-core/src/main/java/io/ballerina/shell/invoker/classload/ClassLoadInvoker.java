@@ -41,6 +41,7 @@ import io.ballerina.shell.snippet.types.ExecutableSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
 import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
+import io.ballerina.shell.utils.QuotedIdentifier;
 import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.shell.utils.timeit.InvokerTimeIt;
 import io.ballerina.shell.utils.timeit.TimedOperation;
@@ -302,7 +303,7 @@ public class ClassLoadInvoker extends Invoker {
      */
     public QuotedIdentifier processImport(ImportDeclarationSnippet importSnippet) throws InvokerException {
         String moduleName = importSnippet.getImportedModule();
-        QuotedIdentifier quotedPrefix = new QuotedIdentifier(importSnippet.getPrefix());
+        QuotedIdentifier quotedPrefix = importSnippet.getPrefix();
 
         if (imports.moduleImported(moduleName) && imports.prefix(moduleName).equals(quotedPrefix)) {
             // Same module with same prefix. No need to check.
@@ -330,9 +331,8 @@ public class ClassLoadInvoker extends Invoker {
      */
     private Map<QuotedIdentifier, GlobalVariable> processVarDcln(VariableDeclarationSnippet newSnippet)
             throws InvokerException {
-        Optional<Map<String, VariableDeclarationSnippet.TypeInfo>> definedTypes = newSnippet.types();
-        Set<QuotedIdentifier> definedVariables = newSnippet.names().stream()
-                .map(QuotedIdentifier::new).collect(Collectors.toSet());
+        Optional<Map<QuotedIdentifier, VariableDeclarationSnippet.TypeInfo>> definedTypes = newSnippet.types();
+        Set<QuotedIdentifier> definedVariables = newSnippet.names();
         addDiagnostic(Diagnostic.debug("Found types: " + definedTypes));
         addDiagnostic(Diagnostic.debug("Found variables: " + definedVariables));
 
@@ -362,7 +362,7 @@ public class ClassLoadInvoker extends Invoker {
             String variableType;
             if (definedTypes.isPresent()) {
                 // We can use syntax tree, add required imports
-                VariableDeclarationSnippet.TypeInfo typeInfo = definedTypes.get().get(variableName.getName());
+                VariableDeclarationSnippet.TypeInfo typeInfo = definedTypes.get().get(variableName);
                 variableType = typeInfo.getType();
                 Set<QuotedIdentifier> importPrefixes = typeInfo.getImports()
                         .stream().map(QuotedIdentifier::new).collect(Collectors.toSet());
@@ -391,8 +391,7 @@ public class ClassLoadInvoker extends Invoker {
      */
     private Map.Entry<QuotedIdentifier, String> processModuleDcln(ModuleMemberDeclarationSnippet newSnippet)
             throws InvokerException {
-        Optional<String> moduleDeclarationNameOp = newSnippet.name();
-        QuotedIdentifier moduleDeclarationName = moduleDeclarationNameOp.map(QuotedIdentifier::new)
+        QuotedIdentifier moduleDeclarationName = newSnippet.name()
                 .orElseGet(() -> new QuotedIdentifier(DOLLAR + unnamedModuleNameIndex.getAndIncrement()));
 
         Set<QuotedIdentifier> usedPrefixes = new HashSet<>();

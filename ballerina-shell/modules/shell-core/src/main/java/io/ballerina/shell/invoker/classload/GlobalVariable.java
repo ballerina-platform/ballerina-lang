@@ -18,6 +18,8 @@
 
 package io.ballerina.shell.invoker.classload;
 
+import io.ballerina.shell.utils.QuotedIdentifier;
+
 import java.util.Collection;
 import java.util.Objects;
 

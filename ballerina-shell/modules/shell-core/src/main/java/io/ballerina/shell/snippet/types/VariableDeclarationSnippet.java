@@ -31,7 +31,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.shell.snippet.SnippetSubKind;
-import io.ballerina.shell.utils.StringUtils;
+import io.ballerina.shell.utils.QuotedIdentifier;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -67,8 +67,8 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
     /**
      * Variable names that are defined in this snippet.
      */
-    public Set<String> names() {
-        Set<String> foundVariableIdentifiers = new HashSet<>();
+    public Set<QuotedIdentifier> names() {
+        Set<QuotedIdentifier> foundVariableIdentifiers = new HashSet<>();
         rootNode.accept(new VariableNameFinder(foundVariableIdentifiers));
         return foundVariableIdentifiers;
     }
@@ -79,7 +79,7 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
      * Currently, only `A a = INIT` type are processed.
      * Name will be quoted.
      */
-    public Optional<Map<String, TypeInfo>> types() {
+    public Optional<Map<QuotedIdentifier, TypeInfo>> types() {
         // VAR and ARR[*] cannot be determined.
         TypeDescriptorNode typeDescriptorNode = rootNode.typedBindingPattern().typeDescriptor();
         TypeDeterminableFinder determinableFinder = new TypeDeterminableFinder();
@@ -103,7 +103,7 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
             CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) rootNode.typedBindingPattern()
                     .bindingPattern();
             String variableName = IdentifierUtils.unescapeUnicodeCodepoints(bindingPattern.variableName().text());
-            String quotedVariableName = StringUtils.quoted(variableName);
+            QuotedIdentifier quotedVariableName = new QuotedIdentifier(variableName);
             String variableType = typeDescriptorNode.toSourceCode().trim();
 
             // Return the map
@@ -119,9 +119,9 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
      * @since 2.0.0
      */
     private static class VariableNameFinder extends NodeVisitor {
-        private final Set<String> foundVariableIdentifiers;
+        private final Set<QuotedIdentifier> foundVariableIdentifiers;
 
-        public VariableNameFinder(Set<String> foundVariableIdentifiers) {
+        public VariableNameFinder(Set<QuotedIdentifier> foundVariableIdentifiers) {
             this.foundVariableIdentifiers = foundVariableIdentifiers;
         }
 
@@ -142,7 +142,7 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
 
         private void addIdentifier(Token token) {
             String unescapedIdentifier = IdentifierUtils.unescapeUnicodeCodepoints(token.text());
-            foundVariableIdentifiers.add(unescapedIdentifier);
+            foundVariableIdentifiers.add(new QuotedIdentifier(unescapedIdentifier));
         }
     }
 

@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
+import io.ballerina.shell.utils.QuotedIdentifier;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
@@ -144,7 +145,7 @@ public class HashedImports {
      * @return The prefix the import was added as.
      */
     public QuotedIdentifier storeImport(ImportDeclarationSnippet snippet) {
-        QuotedIdentifier quotedPrefix = new QuotedIdentifier(snippet.getPrefix());
+        QuotedIdentifier quotedPrefix = snippet.getPrefix();
         String importedModule = snippet.getImportedModule();
         return storeImport(quotedPrefix, importedModule);
     }
