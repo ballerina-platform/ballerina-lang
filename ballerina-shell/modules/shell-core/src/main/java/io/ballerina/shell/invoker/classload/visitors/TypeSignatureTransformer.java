@@ -331,7 +331,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         // If the module is not anon, imports module.
 
         String typeName = typeSymbol.getName().orElse("");
-        if (typeName.isBlank()) {
+        if (typeName.isEmpty()) {
             // Name was null or blank
             String typeSignature = typeSymbol.signature();
             typeName = typeSignature.substring(typeSignature.lastIndexOf(':') + 1);
@@ -340,7 +340,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         ModuleID moduleID = typeSymbol.getModule().isPresent() ? typeSymbol.getModule().get().id() : null;
 
         if (moduleID == null || moduleID.orgName().equals(ANON_MODULE)
-                || (moduleID.moduleName().equals("lang.annotations") && moduleID.orgName().equals("ballerina"))) {
+                || ("lang.annotations".equals(moduleID.moduleName()) && "ballerina".equals(moduleID.orgName()))) {
             // No import required. If the name is not found,
             // signature can be used without module parts.
             return typeName;
