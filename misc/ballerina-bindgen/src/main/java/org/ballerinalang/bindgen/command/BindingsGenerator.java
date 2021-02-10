@@ -162,8 +162,14 @@ public class BindingsGenerator {
                     if (platform != null && platform.dependencies() != null) {
                         for (Map<String, Object> library : platform.dependencies()) {
                             if (library.get("path") != null) {
-                                classPaths.add(Paths.get(projectRoot.toString(),
-                                        library.get("path").toString()).toString());
+                                Path libraryPath;
+                                String libPathVal = library.get("path").toString();
+                                if (Paths.get(libPathVal).isAbsolute()) {
+                                    libraryPath = Paths.get(libPathVal);
+                                } else {
+                                    libraryPath = Paths.get(projectRoot.toString(), libPathVal);
+                                }
+                                classPaths.add(libraryPath.toString());
                             } else if (library.get("groupId") != null && library.get("artifactId") != null &&
                                     library.get("version") != null) {
                                 new BindgenMvnResolver(outStream).mavenResolver(library.get("groupId").toString(),
