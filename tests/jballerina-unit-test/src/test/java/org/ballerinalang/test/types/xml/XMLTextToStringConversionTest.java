@@ -28,18 +28,11 @@ import org.testng.annotations.Test;
  *
  * @since 1.3.0
  */
-@Test(groups = { "brokenOnNewParser" })
 public class XMLTextToStringConversionTest {
-
-    private CompileResult result;
-
-    @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compile("test-src/types/xml/xml_text_to_string_conversion.bal");
-    }
 
     @Test
     public void testAssignment() {
+        var result = BCompileUtil.compile("test-src/types/xml/xml_text_to_string_conversion.bal");
         BRunUtil.invoke(result, "testXMLTestToStringConversion");
     }
 }

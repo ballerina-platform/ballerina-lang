@@ -810,8 +810,8 @@ public class Types {
             return true;
         }
 
-        if (TypeTags.isXMLTypeTag(sourceTag) && (TypeTags.isXMLTypeTag(targetTag) || targetTag == TypeTags.STRING)) {
-            return isXMLTypeAssignable(source, target, unresolvedTypes);
+        if (TypeTags.isXMLTypeTag(sourceTag) && isXMLTypeAssignable(source, target, unresolvedTypes)) {
+            return true;
         }
 
         if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
@@ -819,10 +819,6 @@ public class Types {
         }
 
         if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.XML_TEXT) {
-            return true;
-        }
-
-        if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.CHAR_STRING) {
             return true;
         }
 
@@ -841,10 +837,8 @@ public class Types {
             return true;
         }
 
-        if (targetTag == TypeTags.ANYDATA && !containsErrorType(source)) {
-            if (isAnydata(source)) {
-                return true;
-            }
+        if (targetTag == TypeTags.ANYDATA && !containsErrorType(source) && isAnydata(source)) {
+            return true;
         }
 
         if (targetTag == TypeTags.READONLY) {
@@ -1173,8 +1167,19 @@ public class Types {
                 }
                 return isAssignable(source.constraint, targetType, unresolvedTypes);
             }
-        } else if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.STRING) {
-            return true;
+        } else if (sourceTag == TypeTags.XML_TEXT ) {
+            if (targetTag == TypeTags.STRING || targetTag == TypeTags.CHAR_STRING) {
+                return true;
+            }
+
+            if (targetTag == TypeTags.FINITE) {
+                BFiniteType finiteType = (BFiniteType) targetType;
+                for (BLangExpression finiteValue : finiteType.getValueSpace()) {
+                    if (isXMLTypeAssignable(sourceType, finiteValue.type, unresolvedTypes)) {
+                        return true;
+                    }
+                }
+            }
         }
         return sourceTag == targetTag;
     }
