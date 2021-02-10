@@ -12,3 +12,18 @@ function foo(isolated function () f) returns isolated function () {
 type bar record {
     isolated function () returns int func;
 };
+
+isolated function k;
+
+function foo(isolated function f) returns isolated function {
+    isolated function c;
+    isolated function|MyType[] d;
+    [isolated function, int, restType...] e;
+
+    boolean b = x is isolated function;
+    f2 = <isolated function>f1;
+}
+
+type bar record {
+    isolated func;
+};
