@@ -37,6 +37,8 @@ public class DebugExecutionManager {
     private final JBallerinaDebugServer server;
     private String host;
     private String port;
+
+    public static final String LOCAL_HOST = "localhost";
     private static final String SOCKET_CONNECTOR_NAME = "com.sun.jdi.SocketAttach";
     private static final String CONNECTOR_ARGS_HOST = "hostname";
     private static final String CONNECTOR_ARGS_PORT = "port";
@@ -89,7 +91,7 @@ public class DebugExecutionManager {
         LOGGER.info(String.format("Debugger is attaching to: %s:%s", hostName, port));
 
         attachedVm = socketAttachingConnector.attach(connectorArgs);
-        this.host = !hostName.isEmpty() ? hostName : "localhost";
+        this.host = !hostName.isEmpty() ? hostName : LOCAL_HOST;
         this.port = port;
         // Todo - enable after implementing debug server client logger
         // server.sendOutput(String.format("Connected to the target VM, address: '%s:%s'", host, port), STDOUT);

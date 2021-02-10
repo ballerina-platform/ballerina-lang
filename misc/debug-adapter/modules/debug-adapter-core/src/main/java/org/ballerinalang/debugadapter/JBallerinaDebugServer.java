@@ -105,6 +105,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
@@ -172,10 +173,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsConfigurationDoneRequest(true);
         capabilities.setSupportsTerminateRequest(true);
         capabilities.setSupportTerminateDebuggee(true);
-        // to be implemented
-        capabilities.setSupportsCompletionsRequest(false);         // Todo
-        capabilities.setSupportsRestartRequest(false);             // Todo
-        capabilities.setSupportsConditionalBreakpoints(false);     // Todo
+        // Todo - Implement
+        capabilities.setSupportsCompletionsRequest(false);
+        capabilities.setSupportsRestartRequest(false);
+        capabilities.setSupportsConditionalBreakpoints(false);
         // unsupported capabilities
         capabilities.setSupportsHitConditionalBreakpoints(false);
         capabilities.setSupportsModulesRequest(false);
@@ -271,7 +272,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             classPrepareRequest.enable();
             eventProcessor.startListening();
         } catch (IOException | IllegalConnectorArgumentsException e) {
-            String host = !hostName.isEmpty() ? hostName : "localhost";
+            String host = !hostName.isEmpty() ? hostName : LOCAL_HOST;
             sendOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.", host, portName), STDERR);
             return CompletableFuture.completedFuture(null);
         }
