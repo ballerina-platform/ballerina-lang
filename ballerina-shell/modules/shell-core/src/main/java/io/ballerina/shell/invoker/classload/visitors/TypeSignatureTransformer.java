@@ -87,7 +87,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         StringJoiner joiner = new StringJoiner(" ");
         parameterSymbol.qualifiers().forEach(accessModifier -> joiner.add(accessModifier.getValue()));
         String signature;
-        if (parameterSymbol.kind() == ParameterKind.REST) {
+        if (parameterSymbol.paramKind() == ParameterKind.REST) {
             signature = transformType(parameterSymbol.typeDescriptor());
             signature = signature.substring(0, signature.length() - 2) + "...";
         } else {
@@ -95,8 +95,8 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         }
 
         joiner.add(signature);
-        if (parameterSymbol.name().isPresent()) {
-            joiner.add(parameterSymbol.name().get());
+        if (parameterSymbol.getName().isPresent()) {
+            joiner.add(parameterSymbol.getName().get());
         }
 
         this.setState(joiner.toString());

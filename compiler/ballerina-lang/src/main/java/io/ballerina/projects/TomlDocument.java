@@ -17,12 +17,20 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlTransformer;
+import io.ballerina.toml.semantic.diagnostics.DiagnosticComparator;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Represents a generic TOML document in a Ballerina package.
@@ -34,7 +42,7 @@ public class TomlDocument {
     private final String content;
     private TextDocument textDocument;
     private SyntaxTree syntaxTree;
-    private TomlTableNode tomlAstNode;
+    private Toml toml;
 
     protected TomlDocument(String fileName, String content) {
         this.fileName = fileName;
@@ -45,6 +53,14 @@ public class TomlDocument {
         return new TomlDocument(fileName, content);
     }
 
+    public Toml toml() {
+        if (toml != null) {
+            return toml;
+        }
+        parseToml();
+        return toml;
+    }
+
     public SyntaxTree syntaxTree() {
         if (syntaxTree != null) {
             return syntaxTree;
@@ -52,15 +68,6 @@ public class TomlDocument {
 
         parseToml();
         return syntaxTree;
-    }
-
-    public TomlTableNode tomlAstNode() {
-        if (tomlAstNode != null) {
-            return tomlAstNode;
-        }
-
-        parseToml();
-        return tomlAstNode;
     }
 
     public TextDocument textDocument() {
@@ -73,14 +80,30 @@ public class TomlDocument {
     }
 
     private void parseToml() {
-        TextDocument textDocument = textDocument();
         try {
-            syntaxTree = SyntaxTree.from(textDocument, fileName);
+            this.textDocument = TextDocuments.from(content);
+            this.syntaxTree = SyntaxTree.from(this.textDocument, this.fileName);
             TomlTransformer nodeTransformer = new TomlTransformer();
-            tomlAstNode = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
+            TomlTableNode transformedTable = (TomlTableNode) nodeTransformer
+                    .transform((DocumentNode) syntaxTree.rootNode());
+            transformedTable.addSyntaxDiagnostics(reportSyntaxDiagnostics(syntaxTree));
+            this.toml = new Toml(transformedTable);
         } catch (RuntimeException e) {
             // The toml parser throws runtime exceptions for some cases
             throw new ProjectException("Failed to parse file: " + fileName, e);
         }
+    }
+
+    private static Set<Diagnostic> reportSyntaxDiagnostics(SyntaxTree tree) {
+        Set<Diagnostic> diagnostics = new TreeSet<>(new DiagnosticComparator());
+        for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
+            TomlNodeLocation tomlNodeLocation = new TomlNodeLocation(syntaxDiagnostic.location().lineRange(),
+                                                                     syntaxDiagnostic.location().textRange());
+            TomlDiagnostic tomlDiagnostic = new TomlDiagnostic(tomlNodeLocation, syntaxDiagnostic.diagnosticInfo(),
+                                                               syntaxDiagnostic.message());
+            diagnostics.add(tomlDiagnostic);
+        }
+
+        return diagnostics;
     }
 }

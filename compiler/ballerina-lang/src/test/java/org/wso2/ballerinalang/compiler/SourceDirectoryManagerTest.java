@@ -25,7 +25,6 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -103,8 +102,7 @@ public class SourceDirectoryManagerTest {
                 names.fromString("fruits"),
                 names.fromString("0.0.1"));
         // valid module
-        String balaName =  "fruits-"
-                + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.0.1.bala";
+        String balaName =  "fruits-abc-any-0.0.1.bala";
         Path balaPath = directoryManager.getSourceDirectory().getPath()
                 .resolve("target").resolve("bala").resolve(balaName);
         Assert.assertEquals(project.getBalaPath(moduleId), balaPath);

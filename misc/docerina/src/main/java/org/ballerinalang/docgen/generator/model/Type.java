@@ -276,7 +276,7 @@ public class Type {
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.ERROR)) {
                 return "errors";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.UNION)) {
-                if (((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream().anyMatch(typeSymbol ->
+                if (((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream().allMatch(typeSymbol ->
                         typeSymbol.typeKind().equals(TypeDescKind.ERROR))) {
                     return "errors";
                 } else {

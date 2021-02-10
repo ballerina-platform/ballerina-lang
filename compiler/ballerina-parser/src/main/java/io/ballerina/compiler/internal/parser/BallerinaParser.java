@@ -3450,28 +3450,37 @@ public class BallerinaParser extends AbstractParser {
         STNode recordKeyword = parseRecordKeyword();
         STNode bodyStartDelimiter = parseRecordBodyStartDelimiter();
 
-        boolean isInclusive = bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN;
-
         ArrayList<STNode> recordFields = new ArrayList<>();
         STToken token = peek();
         STNode recordRestDescriptor = null;
         while (!isEndOfRecordTypeNode(token.kind)) {
-            STNode field = parseFieldOrRestDescriptor(isInclusive);
+            STNode field = parseFieldOrRestDescriptor();
             if (field == null) {
                 break;
             }
+
             token = peek();
-            if (field.kind == SyntaxKind.RECORD_REST_TYPE) {
+            if (field.kind == SyntaxKind.RECORD_REST_TYPE && bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+                if (recordFields.size() == 0) {
+                    bodyStartDelimiter = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(bodyStartDelimiter, field,
+                            DiagnosticErrorCode.ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD);
+                } else {
+                    updateLastNodeInListWithInvalidNode(recordFields, field,
+                            DiagnosticErrorCode.ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD);
+                }
+                continue;
+            } else if (field.kind == SyntaxKind.RECORD_REST_TYPE) {
                 recordRestDescriptor = field;
                 break;
             }
+
             recordFields.add(field);
         }
 
         // Following loop will only run if there are more fields after the rest type descriptor.
         // Try to parse them and mark as invalid.
         while (recordRestDescriptor != null && !isEndOfRecordTypeNode(token.kind)) {
-            STNode invalidField = parseFieldOrRestDescriptor(isInclusive);
+            STNode invalidField = parseFieldOrRestDescriptor();
             recordRestDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(recordRestDescriptor, invalidField,
                     DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
             token = peek();
@@ -3576,7 +3585,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
 
-    private STNode parseFieldOrRestDescriptor(boolean isInclusive) {
+    private STNode parseFieldOrRestDescriptor() {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case CLOSE_BRACE_TOKEN:
@@ -3592,30 +3601,30 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
             case DOCUMENTATION_STRING:
             case AT_TOKEN:
-                return parseRecordField(isInclusive);
+                return parseRecordField();
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
                     // individual-field-descriptor
-                    return parseRecordField(isInclusive);
+                    return parseRecordField();
                 }
 
-                recover(peek(), ParserRuleContext.RECORD_FIELD_OR_RECORD_END, isInclusive);
-                return parseFieldOrRestDescriptor(isInclusive);
+                recover(peek(), ParserRuleContext.RECORD_FIELD_OR_RECORD_END);
+                return parseFieldOrRestDescriptor();
         }
     }
 
-    private STNode parseRecordField(boolean isInclusive) {
+    private STNode parseRecordField() {
         startContext(ParserRuleContext.RECORD_FIELD);
         STNode metadata = parseMetaData();
-        STNode fieldOrRestDesc = parseRecordField(peek(), isInclusive, metadata);
+        STNode fieldOrRestDesc = parseRecordField(peek(), metadata);
         endContext();
         return fieldOrRestDesc;
     }
 
-    private STNode parseRecordField(STToken nextToken, boolean isInclusive, STNode metadata) {
+    private STNode parseRecordField(STToken nextToken, STNode metadata) {
         if (nextToken.kind != SyntaxKind.READONLY_KEYWORD) {
             STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
-            return parseFieldDescriptor(isInclusive, metadata, type);
+            return parseFieldOrRestDescriptorRhs(metadata, type);
         }
 
         // If the readonly-keyword is present, check whether its qualifier
@@ -3653,7 +3662,7 @@ public class BallerinaParser extends AbstractParser {
         } else if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
             // readonly ...
             type = createBuiltinSimpleNameReference(readOnlyQualifier);
-            return parseFieldDescriptor(isInclusive, metadata, type);
+            return parseFieldOrRestDescriptorRhs(metadata, type);
         } else if (isTypeStartingToken(nextToken.kind)) {
             type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
         } else {
@@ -3663,15 +3672,6 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return parseIndividualRecordField(metadata, readOnlyQualifier, type);
-    }
-
-    private STNode parseFieldDescriptor(boolean isInclusive, STNode metadata, STNode type) {
-        if (isInclusive) {
-            STNode readOnlyQualifier = STNodeFactory.createEmptyNode();
-            return parseIndividualRecordField(metadata, readOnlyQualifier, type);
-        } else {
-            return parseFieldOrRestDescriptorRhs(metadata, type);
-        }
     }
 
     private STNode parseIndividualRecordField(STNode metadata, STNode readOnlyQualifier, STNode type) {
