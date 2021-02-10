@@ -33,6 +33,7 @@ public class JavaFieldAccessMutate {
     public static BString contractId = StringUtils.fromString("Ballerina");
     public static int age = 10;
     public static short aShort = 11;
+    public static boolean isAvailable;
 
     // Instance fields
     public Date createdAt = new Date();
