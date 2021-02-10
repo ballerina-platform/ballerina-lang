@@ -330,6 +330,7 @@ public class ClassLoadInvoker extends Invoker {
      */
     private Map<QuotedIdentifier, GlobalVariable> processVarDcln(VariableDeclarationSnippet newSnippet)
             throws InvokerException {
+        Optional<Map<String, VariableDeclarationSnippet.TypeInfo>> definedTypes = newSnippet.types();
         Set<QuotedIdentifier> definedVariables = newSnippet.names().stream()
                 .map(QuotedIdentifier::new).collect(Collectors.toSet());
 
@@ -353,11 +354,23 @@ public class ClassLoadInvoker extends Invoker {
                 continue;
             }
 
+            // Find if this can be assigned to ANY
             boolean isAssignableToAny = typeSymbol.assignableTo(anyTypeSymbol);
 
-            Set<QuotedIdentifier> requiredImports = new HashSet<>();
-            String variableType = parseTypeSignature(typeSymbol, requiredImports);
-            this.newImports.put(variableName, requiredImports);
+            // Find the variable type - use syntax tree if possible
+            String variableType;
+            if (definedTypes.isPresent()) {
+                // We can use syntax tree, add required imports
+                VariableDeclarationSnippet.TypeInfo type = definedTypes.get().get(variableName.getName());
+                variableType = type.getType();
+                Set<QuotedIdentifier> importPrefixes = type.getImports()
+                        .stream().map(QuotedIdentifier::new).collect(Collectors.toSet());
+                this.newImports.put(variableName, importPrefixes);
+            } else {
+                Set<QuotedIdentifier> requiredImports = new HashSet<>();
+                variableType = parseTypeSignature(typeSymbol, requiredImports);
+                this.newImports.put(variableName, requiredImports);
+            }
 
             GlobalVariable globalVariable = new GlobalVariable(variableType, variableName,
                     isAssignableToAny, qualifiersAndMetadata);
