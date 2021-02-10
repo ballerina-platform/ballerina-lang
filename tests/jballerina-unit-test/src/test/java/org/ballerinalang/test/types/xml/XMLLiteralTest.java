@@ -40,7 +40,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.94
  */
-@Test(groups = { "disableOnOldParser" })
 public class XMLLiteralTest {
 
     private CompileResult result;
