@@ -316,6 +316,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_DEFAULTABLE_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE664",
             "error.defaultable.parameter.cannot.be.included.record.parameter"),
     ERROR_INCOMPLETE_QUOTED_IDENTIFIER("BCE665", "error.incomplete.quoted.identifier"),
+    ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD("BCE666", "error.open.record.cannot.contain.rest.field")
     ;
 
     String diagnosticId;

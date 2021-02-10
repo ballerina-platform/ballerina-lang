@@ -451,6 +451,8 @@ public abstract class BIRNode {
 
         public SymbolOrigin origin;
 
+        public List<BIRAnnotationAttachment> annotAttachments;
+
         /**
          * this is not serialized. it's used to keep the index of the def in the list.
          * otherwise the writer has to *find* it in the list.
@@ -469,6 +471,7 @@ public abstract class BIRNode {
             this.attachedFuncs = attachedFuncs;
             this.referencedTypes = new ArrayList<>();
             this.origin = origin;
+            this.annotAttachments = new ArrayList<>();
         }
 
         @Override
