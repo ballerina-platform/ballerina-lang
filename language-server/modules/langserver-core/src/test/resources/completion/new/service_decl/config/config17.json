@@ -130,7 +130,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertText": "function ${1:name}(${2})${3} {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
     },
     {
