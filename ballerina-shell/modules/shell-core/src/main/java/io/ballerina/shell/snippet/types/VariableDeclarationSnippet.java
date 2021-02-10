@@ -35,7 +35,6 @@ import io.ballerina.shell.utils.QuotedIdentifier;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,7 +45,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDeclarationNode>
-        implements ExecutableSnippet, DeclarationSnippet {
+        implements TopLevelDeclarationSnippet {
     public VariableDeclarationSnippet(ModuleVariableDeclarationNode rootNode) {
         super(SnippetSubKind.VARIABLE_DECLARATION, rootNode);
     }
@@ -79,13 +78,13 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
      * Currently, only `A a = INIT` type are processed.
      * Name will be quoted.
      */
-    public Optional<Map<QuotedIdentifier, TypeInfo>> types() {
+    public Map<QuotedIdentifier, TypeInfo> types() {
         // VAR and ARR[*] cannot be determined.
         TypeDescriptorNode typeDescriptorNode = rootNode.typedBindingPattern().typeDescriptor();
         TypeDeterminableFinder determinableFinder = new TypeDeterminableFinder();
         typeDescriptorNode.accept(determinableFinder);
         if (!determinableFinder.isDeterminable()) {
-            return Optional.empty();
+            return Map.of();
         }
 
         // Currently only supports CaptureBindingPatternNode
@@ -103,9 +102,9 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
 
             // Return the map
             TypeInfo typeInfo = new TypeInfo(variableType, importPrefixes);
-            return Optional.of(Map.of(quotedVariableName, typeInfo));
+            return Map.of(quotedVariableName, typeInfo);
         }
-        return Optional.empty();
+        return Map.of();
     }
 
 

@@ -28,6 +28,7 @@ import io.ballerina.shell.snippet.SnippetKind;
 import io.ballerina.shell.snippet.SnippetSubKind;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -108,6 +109,24 @@ public class AbstractSnippet<T extends Node> implements Snippet {
     @Override
     public String toString() {
         return rootNode.toSourceCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractSnippet<?> that = (AbstractSnippet<?>) o;
+        return subKind == that.subKind &&
+                rootNode.equals(that.rootNode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(subKind, rootNode);
     }
 
     /**

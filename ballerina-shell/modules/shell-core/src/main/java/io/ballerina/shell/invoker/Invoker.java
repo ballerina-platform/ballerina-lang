@@ -28,6 +28,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
@@ -40,6 +41,7 @@ import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.exceptions.InvokerPanicException;
+import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.types.DeclarationSnippet;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -288,6 +290,26 @@ public abstract class Invoker extends DiagnosticReporter {
     /* Execution methods */
 
     /**
+     * Executes a context in given template.
+     *
+     * @param context      Context to use.
+     * @param templateName Template to evaluate.
+     * @return Always null.
+     * @throws InvokerException If execution/compilation failed.
+     */
+    protected Object executeProject(ClassLoadContext context, String templateName) throws InvokerException {
+        SingleFileProject project = getProject(context, templateName);
+        PackageCompilation compilation = compile(project);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        boolean isExecutionSuccessful = executeProject(jBallerinaBackend);
+        if (!isExecutionSuccessful) {
+            addDiagnostic(Diagnostic.error("Unhandled Runtime Error."));
+            throw new InvokerException();
+        }
+        return null;
+    }
+
+    /**
      * Executes a compiled project.
      * It is expected that the project had no compiler errors.
      * The process is run and the stdout is collected and printed.
@@ -357,8 +379,6 @@ public abstract class Invoker extends DiagnosticReporter {
 
             Object result = out.getResult();
             Throwable panic = out.getPanic();
-            addDiagnostic(Diagnostic.debug("Panic: " + panic));
-            addDiagnostic(Diagnostic.debug("Result: " + result));
 
             if (panic != null) {
                 // Unexpected runtime error

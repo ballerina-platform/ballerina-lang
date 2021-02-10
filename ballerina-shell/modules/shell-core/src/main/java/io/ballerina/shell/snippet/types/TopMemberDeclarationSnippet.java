@@ -30,7 +30,7 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.utils.QuotedIdentifier;
 
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Module level declarations. These are not active or runnable.
@@ -38,9 +38,11 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ModuleMemberDeclarationSnippet extends AbstractSnippet<ModuleMemberDeclarationNode>
-        implements DeclarationSnippet {
-    public ModuleMemberDeclarationSnippet(SnippetSubKind subKind, ModuleMemberDeclarationNode rootNode) {
+public class TopMemberDeclarationSnippet extends AbstractSnippet<ModuleMemberDeclarationNode>
+        implements TopLevelDeclarationSnippet {
+    private static final AtomicInteger unnamedModuleNameIndex = new AtomicInteger(0);
+
+    public TopMemberDeclarationSnippet(SnippetSubKind subKind, ModuleMemberDeclarationNode rootNode) {
         super(subKind, rootNode);
     }
 
@@ -48,30 +50,39 @@ public class ModuleMemberDeclarationSnippet extends AbstractSnippet<ModuleMember
      * @return the name associated with the module level declaration.
      * If the module declaration has no name, this will return null.
      */
-    public Optional<QuotedIdentifier> name() {
+    public QuotedIdentifier name() {
         if (rootNode instanceof ClassDefinitionNode) {
             String className = ((ClassDefinitionNode) rootNode).className().text();
-            return Optional.of(new QuotedIdentifier(className));
+            return new QuotedIdentifier(className);
         } else if (rootNode instanceof ConstantDeclarationNode) {
             String constName = ((ConstantDeclarationNode) rootNode).variableName().text();
-            return Optional.of(new QuotedIdentifier(constName));
+            return new QuotedIdentifier(constName);
         } else if (rootNode instanceof EnumDeclarationNode) {
             String enumName = ((EnumDeclarationNode) rootNode).identifier().text();
-            return Optional.of(new QuotedIdentifier(enumName));
+            return new QuotedIdentifier(enumName);
         } else if (rootNode instanceof FunctionDefinitionNode) {
             String funcName = ((FunctionDefinitionNode) rootNode).functionName().text();
-            return Optional.of(new QuotedIdentifier(funcName));
+            return new QuotedIdentifier(funcName);
         } else if (rootNode instanceof ListenerDeclarationNode) {
             String listenerName = ((ListenerDeclarationNode) rootNode).variableName().text();
-            return Optional.of(new QuotedIdentifier(listenerName));
+            return new QuotedIdentifier(listenerName);
         } else if (rootNode instanceof ModuleXMLNamespaceDeclarationNode) {
             ModuleXMLNamespaceDeclarationNode namespaceNode = (ModuleXMLNamespaceDeclarationNode) rootNode;
-            return namespaceNode.namespacePrefix().map(Token::text).map(QuotedIdentifier::new);
+            return namespaceNode.namespacePrefix().map(Token::text).map(QuotedIdentifier::new)
+                    .orElseGet(this::createAnonModuleName);
         } else if (rootNode instanceof TypeDefinitionNode) {
             String typeName = ((TypeDefinitionNode) rootNode).typeName().text();
-            return Optional.of(new QuotedIdentifier(typeName));
+            return new QuotedIdentifier(typeName);
         } else {
-            return Optional.empty();
+            return createAnonModuleName();
         }
+    }
+
+    /**
+     * Creates an unused module name.
+     * The prefix will follow the format $I.
+     */
+    private QuotedIdentifier createAnonModuleName() {
+        return new QuotedIdentifier("$" + unnamedModuleNameIndex.getAndIncrement());
     }
 }
