@@ -43,7 +43,7 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.invoker.classload.ImportProcessor;
-import io.ballerina.shell.invoker.classload.QuotedIdentifier;
+import io.ballerina.shell.utils.QuotedIdentifier;
 import io.ballerina.shell.utils.StringUtils;
 
 import java.util.Arrays;

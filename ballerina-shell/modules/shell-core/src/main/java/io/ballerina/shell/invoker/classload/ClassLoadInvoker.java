@@ -42,6 +42,7 @@ import io.ballerina.shell.snippet.types.ExecutableSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
 import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
+import io.ballerina.shell.utils.QuotedIdentifier;
 import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.shell.utils.timeit.InvokerTimeIt;
 import io.ballerina.shell.utils.timeit.TimedOperation;
@@ -322,7 +323,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      */
     public QuotedIdentifier processImport(ImportDeclarationSnippet importSnippet) throws InvokerException {
         String moduleName = importSnippet.getImportedModule();
-        QuotedIdentifier quotedPrefix = new QuotedIdentifier(importSnippet.getPrefix());
+        QuotedIdentifier quotedPrefix = importSnippet.getPrefix();
 
         if (imports.moduleImported(moduleName) && imports.prefix(moduleName).equals(quotedPrefix)) {
             // Same module with same prefix. No need to check.
@@ -350,8 +351,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      */
     private Map<QuotedIdentifier, GlobalVariable> processVarDcln(VariableDeclarationSnippet newSnippet)
             throws InvokerException {
-        Set<QuotedIdentifier> definedVariables = newSnippet.names().stream()
-                .map(QuotedIdentifier::new).collect(Collectors.toSet());
+        Set<QuotedIdentifier> definedVariables = newSnippet.names();
 
         // No matter the approach, compile. This will confirm that syntax is valid.
         ClassLoadContext varTypeInferContext = createVarTypeInferContext(newSnippet, definedVariables);
@@ -397,8 +397,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      */
     private Map.Entry<QuotedIdentifier, String> processModuleDcln(ModuleMemberDeclarationSnippet newSnippet)
             throws InvokerException {
-        Optional<String> moduleDeclarationNameOp = newSnippet.name();
-        QuotedIdentifier moduleDeclarationName = moduleDeclarationNameOp.map(QuotedIdentifier::new)
+        QuotedIdentifier moduleDeclarationName = newSnippet.name()
                 .orElseGet(() -> new QuotedIdentifier(DOLLAR + unnamedModuleNameIndex.getAndIncrement()));
 
         Set<QuotedIdentifier> usedPrefixes = new HashSet<>();

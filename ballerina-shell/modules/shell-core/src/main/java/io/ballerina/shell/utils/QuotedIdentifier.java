@@ -16,9 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.shell.invoker.classload;
-
-import io.ballerina.shell.utils.StringUtils;
+package io.ballerina.shell.utils;
 
 import java.util.Objects;
 
@@ -31,7 +29,7 @@ import java.util.Objects;
 public class QuotedIdentifier {
     private final String name;
 
-    protected QuotedIdentifier(String name) {
+    public QuotedIdentifier(String name) {
         Objects.requireNonNull(name);
         this.name = StringUtils.quoted(name);
     }

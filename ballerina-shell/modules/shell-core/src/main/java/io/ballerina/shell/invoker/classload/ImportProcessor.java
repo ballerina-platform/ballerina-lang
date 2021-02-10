@@ -19,6 +19,7 @@
 package io.ballerina.shell.invoker.classload;
 
 import io.ballerina.shell.exceptions.InvokerException;
+import io.ballerina.shell.utils.QuotedIdentifier;
 
 /**
  * Signature of a function that processes an import and returns its prefix.
