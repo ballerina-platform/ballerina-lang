@@ -236,8 +236,8 @@ public class SignatureHelpUtil {
         }
 
         public Optional<String> getName() {
-            return (parameterSymbol.name().isPresent() && this.isOptional)
-                    ? Optional.of(parameterSymbol.name().get() + "?") : parameterSymbol.name();
+            return (parameterSymbol.getName().isPresent() && this.isOptional)
+                    ? Optional.of(parameterSymbol.getName().get() + "?") : parameterSymbol.getName();
         }
 
         public String getType() {

@@ -479,6 +479,8 @@ types:
         type: s1
       - id: doc
         type: markdown
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
       - id: type_cp_index
         type: s4
   type_definition_body:
