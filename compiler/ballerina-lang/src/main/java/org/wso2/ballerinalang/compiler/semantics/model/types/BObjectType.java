@@ -73,7 +73,6 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public String toString() {
-
         if (shouldPrintShape()) {
             StringBuilder sb = new StringBuilder();
 
