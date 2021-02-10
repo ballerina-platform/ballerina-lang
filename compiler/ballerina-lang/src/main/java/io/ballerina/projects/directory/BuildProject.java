@@ -19,7 +19,7 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
-import io.ballerina.projects.DependenciesToml;
+import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
@@ -36,10 +36,14 @@ import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 
 /**
@@ -180,11 +184,20 @@ public class BuildProject extends Project {
             Collection<ResolvedPackageDependency> pkgDependencies =
                     currentPackage.getResolution().dependencyGraph().getDirectDependencies(resolvedPackageDependency);
 
-            String content = getDependenciesTomlContent(pkgDependencies);
+            if (!pkgDependencies.isEmpty()) {
+                String content = getDependenciesTomlContent(pkgDependencies);
 
-            if (currentPackage.dependenciesToml().isPresent()) {
-                DependenciesToml dependenciesToml = currentPackage.dependenciesToml().get();
-                dependenciesToml.modify().withContent(content).apply();
+                if (currentPackage.dependenciesToml().isPresent()) {
+                    currentPackage.dependenciesToml().get().modify().withContent(content).apply();
+                } else {
+                    DocumentConfig documentConfig = DocumentConfig
+                            .from(DocumentId.create(ProjectConstants.DEPENDENCIES_TOML, null), content,
+                                  ProjectConstants.DEPENDENCIES_TOML);
+                    currentPackage.modify().addDependenciesToml(documentConfig);
+                }
+
+                // write content to Dependencies.toml file
+                createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML), content);
             }
         }
     }
@@ -199,5 +212,22 @@ public class BuildProject extends Project {
             content.append("\n");
         }
         return String.valueOf(content);
+    }
+
+    private static void createIfNotExistsAndWrite(Path filePath, String content) {
+        if (!filePath.toFile().exists()) {
+            try {
+                Files.createFile(filePath);
+            } catch (IOException e) {
+                throw new ProjectException("Failed to create 'Dependencies.toml' file to write dependencies");
+            }
+        }
+
+        try {
+            Files.write(filePath, Collections.singleton(content));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to write dependencies to the 'Dependencies.toml' file");
+        }
+
     }
 }
