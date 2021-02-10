@@ -26,8 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
-
-import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
+import java.util.Optional;
 
 /**
  * Debug process related low-level task executor through JDI.
@@ -36,6 +35,8 @@ public class DebugExecutionManager {
 
     private VirtualMachine attachedVm;
     private final JBallerinaDebugServer server;
+    private String host;
+    private String port;
     private static final String SOCKET_CONNECTOR_NAME = "com.sun.jdi.SocketAttach";
     private static final String CONNECTOR_ARGS_HOST = "hostname";
     private static final String CONNECTOR_ARGS_PORT = "port";
@@ -43,11 +44,21 @@ public class DebugExecutionManager {
 
     public DebugExecutionManager(JBallerinaDebugServer server) {
         this.server = server;
-        attachedVm = null;
+        this.attachedVm = null;
+        this.host = null;
+        this.port = null;
     }
 
     public boolean isActive() {
         return attachedVm != null;
+    }
+
+    public Optional<String> getHost() {
+        return Optional.ofNullable(host);
+    }
+
+    public Optional<String> getPort() {
+        return Optional.ofNullable(port);
     }
 
     /**
@@ -76,9 +87,12 @@ public class DebugExecutionManager {
         }
         connectorArgs.get(CONNECTOR_ARGS_PORT).setValue(port);
         LOGGER.info(String.format("Debugger is attaching to: %s:%s", hostName, port));
+
         attachedVm = socketAttachingConnector.attach(connectorArgs);
-        String host = !hostName.isEmpty() ? hostName : "localhost";
-        server.sendOutput(String.format("Connected to the target VM, address: '%s:%s'", host, port), STDOUT);
+        this.host = !hostName.isEmpty() ? hostName : "localhost";
+        this.port = port;
+        // Todo - enable after implementing debug server client logger
+        // server.sendOutput(String.format("Connected to the target VM, address: '%s:%s'", host, port), STDOUT);
         return attachedVm;
     }
 }

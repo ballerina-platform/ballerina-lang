@@ -546,7 +546,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             context.getClient().exited(exitedEventArguments);
         }
         // Notifies user.
-        sendOutput("Disconnected from the target VM", STDOUT);
+        String address = (executionManager.getHost().isPresent() && executionManager.getPort().isPresent()) ?
+                executionManager.getHost().get() + ":" + executionManager.getPort().get() : "unknown";
+        sendOutput(String.format("Disconnected from the target VM, address: '%s'", address), STDOUT);
 
         // Exits from the debug server VM.
         new java.lang.Thread(() -> {
