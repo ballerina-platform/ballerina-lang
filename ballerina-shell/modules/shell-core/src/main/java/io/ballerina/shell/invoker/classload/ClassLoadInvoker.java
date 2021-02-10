@@ -61,6 +61,7 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -715,7 +716,7 @@ public class ClassLoadInvoker extends Invoker {
      * @param imports    Imports set to store imports.
      * @return Type signature after parsing.
      */
-    public String parseTypeSignature(TypeSymbol typeSymbol, Set<QuotedIdentifier> imports) {
+    protected String parseTypeSignature(TypeSymbol typeSymbol, Set<QuotedIdentifier> imports) {
         String text = typeSymbol.signature();
         StringBuilder newText = new StringBuilder();
         Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(text);
@@ -726,15 +727,21 @@ public class ClassLoadInvoker extends Invoker {
         while (matcher.find()) {
             // Append up-to start of the match
             newText.append(text, nextStart, matcher.start(1));
-            // Append module prefix and identify imports
-            String orgName = matcher.group(1);
-            String moduleName = matcher.group(2);
+            // Identify org name and module names
+            QuotedIdentifier orgName = new QuotedIdentifier(matcher.group(1));
+            String[] moduleNames = Arrays
+                    .stream(matcher.group(2).split("\\.")) // for each module name part
+                    .map(StringUtils::quoted) // quote it
+                    .toArray(String[]::new); // collect as a string array
+            String moduleName = String.join(".", moduleNames);
             String moduleText = String.format("%s/%s", orgName, moduleName);
-            QuotedIdentifier quotedPrefix = addImport(moduleText);
 
+            // Add the import required
+            QuotedIdentifier quotedPrefix = addImport(moduleText);
             imports.add(quotedPrefix);
-            newText.append(quotedPrefix.getName()).append(":");
+
             // Update next-start position
+            newText.append(quotedPrefix.getName()).append(":");
             nextStart = matcher.end(3) + 1;
         }
         // Append the remaining
@@ -752,13 +759,13 @@ public class ClassLoadInvoker extends Invoker {
      * @param moduleText Module to import in 'orgName/module.name' format
      * @return Prefix imported.
      */
-    public QuotedIdentifier addImport(String moduleText) {
+    protected QuotedIdentifier addImport(String moduleText) {
+        // If this module is already imported, use a previous prefix.
         if (imports.moduleImported(moduleText)) {
-            // If this module is already imported, use a previous prefix.
             return imports.prefix(moduleText);
         }
 
-        // Try to find an available prefix
+        // Try to find an available prefix (starting from default prefix and iterate over _I imports)
         String defaultPrefix = moduleText.replaceAll(".*\\.", "");
         QuotedIdentifier quotedPrefix = new QuotedIdentifier(defaultPrefix);
         while (imports.containsPrefix(quotedPrefix)) {
