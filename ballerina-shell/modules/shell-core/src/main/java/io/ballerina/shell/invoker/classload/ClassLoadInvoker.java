@@ -43,7 +43,6 @@ import io.ballerina.shell.invoker.Invoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.invoker.classload.context.StatementContext;
 import io.ballerina.shell.invoker.classload.context.VariableContext;
-import io.ballerina.shell.invoker.classload.visitors.ImportableTypeSymbolVisitor;
 import io.ballerina.shell.rt.InvokerMemory;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.types.DeclarationSnippet;
@@ -74,6 +73,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -83,7 +84,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class ClassLoadInvoker extends Invoker implements ImportProcessor {
+public class ClassLoadInvoker extends Invoker {
     // Context related information
     public static final String CONTEXT_EXPR_VAR_NAME = "__last__";
     // Main class and method names to invoke
@@ -99,6 +100,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
     private static final AtomicInteger importIndex = new AtomicInteger(0);
     private static final AtomicInteger unnamedModuleNameIndex = new AtomicInteger(0);
+    private static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)/([\\w.]+):([\\d.]+):");
+
     private static TypeSymbol anyTypeSymbol;
 
 
@@ -131,14 +134,12 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * Id of the current invoker context.
      */
     protected final String contextId;
-
     /**
      * Stores all the newly found implicit imports.
      * Persisted at the end of iteration to `mustImportPrefixes`.
      * Key is the source snippet name (variable name/dcln name), value is the prefix.
      */
     private final Map<QuotedIdentifier, Set<QuotedIdentifier>> newImports;
-
     /**
      * Scheduler used to run the init and main methods
      * of the generated classes.
@@ -315,27 +316,6 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         return null;
     }
 
-    @Override
-    public QuotedIdentifier processImplicitImport(String moduleName, String defaultPrefix)
-            throws InvokerException {
-        if (imports.moduleImported(moduleName)) {
-            // If this module is already imported, use a previous prefix.
-            return imports.prefix(moduleName);
-        }
-
-        // Try to find an available prefix
-        QuotedIdentifier quotedPrefix = new QuotedIdentifier(defaultPrefix);
-        while (imports.containsPrefix(quotedPrefix)) {
-            quotedPrefix = new QuotedIdentifier("prefix" + importIndex.incrementAndGet());
-        }
-
-        // Check if import is successful.
-        if (isImportStatementValid(String.format("import %s as %s;", moduleName, quotedPrefix))) {
-            return imports.storeImport(quotedPrefix, moduleName);
-        }
-        return null;
-    }
-
     /**
      * This is an import. A test import is done to check for errors.
      * It should not give 'module not found' error.
@@ -402,9 +382,9 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
             boolean isAssignableToAny = typeSymbol.assignableTo(anyTypeSymbol);
 
-            ImportableTypeSymbolVisitor signatureTransformer = new ImportableTypeSymbolVisitor(this);
-            String variableType = signatureTransformer.computeType(typeSymbol);
-            this.newImports.put(variableName, signatureTransformer.getImplicitImportPrefixes());
+            Set<QuotedIdentifier> requiredImports = new HashSet<>();
+            String variableType = parseTypeSignature(typeSymbol, requiredImports);
+            this.newImports.put(variableName, requiredImports);
 
             GlobalVariable globalVariable = new GlobalVariable(variableType, variableName,
                     isAssignableToAny, qualifiersAndMetadata);
@@ -718,6 +698,74 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 .map(imports::getImport).filter(Objects::nonNull)
                 .forEach(importStrings::add);
         return importStrings;
+    }
+
+
+    /**
+     * Converts a type symbol into its string counterpart.
+     * Any imports that need to be done are calculated.
+     * Eg: if the type was abc/z:TypeA then it will be converted as
+     * 'import abc/z' will be added as an import.
+     * We need to traverse all the sub-typed because any sub-type
+     * may need to be imported.
+     * Also, this will compute all the replacements that should be done.
+     * In above case, abc/z:TypeA will be replaced with z:TypeA.
+     *
+     * @param typeSymbol Type to process.
+     * @param imports    Imports set to store imports.
+     * @return Type signature after parsing.
+     */
+    public String parseTypeSignature(TypeSymbol typeSymbol, Set<QuotedIdentifier> imports) {
+        String text = typeSymbol.signature();
+        StringBuilder newText = new StringBuilder();
+        Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(text);
+        int nextStart = 0;
+        // Matching Fully-Qualified-Module-IDs (eg.`abc/mod1:1.0.0`)
+        // Purpose is to transform `int|abc/mod1:1.0.0:Person` into `int|mod1:Person` or `int|Person`
+        // identifying the potential imports required.
+        while (matcher.find()) {
+            // Append up-to start of the match
+            newText.append(text, nextStart, matcher.start(1));
+            // Append module prefix and identify imports
+            String orgName = matcher.group(1);
+            String moduleName = matcher.group(2);
+            String moduleText = String.format("%s/%s", orgName, moduleName);
+            QuotedIdentifier quotedPrefix = addImport(moduleText);
+
+            imports.add(quotedPrefix);
+            newText.append(quotedPrefix.getName()).append(":");
+            // Update next-start position
+            nextStart = matcher.end(3) + 1;
+        }
+        // Append the remaining
+        if (nextStart != 0) {
+            newText.append(text.substring(nextStart));
+        }
+        return newText.length() > 0 ? newText.toString() : text;
+    }
+
+    /**
+     * Adds a import to this shell session.
+     * This will import the module with an already imported prefix,
+     * import with default name or using _I format.
+     *
+     * @param moduleText Module to import in 'orgName/module.name' format
+     * @return Prefix imported.
+     */
+    public QuotedIdentifier addImport(String moduleText) {
+        if (imports.moduleImported(moduleText)) {
+            // If this module is already imported, use a previous prefix.
+            return imports.prefix(moduleText);
+        }
+
+        // Try to find an available prefix
+        String defaultPrefix = moduleText.replaceAll(".*\\.", "");
+        QuotedIdentifier quotedPrefix = new QuotedIdentifier(defaultPrefix);
+        while (imports.containsPrefix(quotedPrefix)) {
+            quotedPrefix = new QuotedIdentifier("_" + importIndex.incrementAndGet());
+        }
+
+        return imports.storeImport(quotedPrefix, moduleText);
     }
 
     /**
