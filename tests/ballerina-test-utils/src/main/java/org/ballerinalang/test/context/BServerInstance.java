@@ -429,7 +429,7 @@ public class BServerInstance implements BServer {
                         int[] requiredPorts)
             throws BallerinaTestException {
         File commandDir = new File(balServer.getServerHome());
-        executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
+        executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + "-0.1.0.jar").toFile().getPath(),
                        args, envProperties, commandDir, requiredPorts);
     }
 
@@ -447,7 +447,7 @@ public class BServerInstance implements BServer {
         File commandDir = new File(balServer.getServerHome());
         String balFileName = Paths.get(balFile).getFileName().toString();
         String jarPath = Paths.get(commandDir.getAbsolutePath(), balFileName.substring(0, balFileName.length() -
-                4) + ".jar").toString();
+                4) + "-0.1.0.jar").toString();
         executeJarFile(jarPath, args, envProperties, commandDir, requiredPorts);
     }
 
