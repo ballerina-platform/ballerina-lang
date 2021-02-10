@@ -39,13 +39,6 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "slice",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "startIndex", type = TypeKind.INT),
-//                @Argument(name = "endIndex", type = TypeKind.INT)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-//        isPublic = true
-//)
 public class Slice {
 
     public static BArray slice(BArray arr, long startIndex, long endIndex) {
@@ -72,7 +65,7 @@ public class Slice {
 
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                slicedArr = ((BArray) arr).slice(startIndex, endIndex);
+                slicedArr = arr.slice(startIndex, endIndex);
                 break;
             case TypeTags.TUPLE_TAG:
                 TupleType tupleType = (TupleType) arrType;

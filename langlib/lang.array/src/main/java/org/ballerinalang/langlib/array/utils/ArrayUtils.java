@@ -20,10 +20,18 @@ package org.ballerinalang.langlib.array.utils;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
@@ -81,6 +89,40 @@ public class ArrayUtils {
         return ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
                                                                 OPERATION_NOT_SUPPORTED_IDENTIFIER),
                                         StringUtils.fromString(format("%s not supported on type '%s'", op,
-                                                                       type.getQualifiedName())));
+                                                                      type.getQualifiedName())));
+    }
+
+    public static BArray createEmptyArrayFromTuple(BArray arr) {
+        Type arrType = arr.getType();
+        TupleType tupleType = (TupleType) arrType;
+        List<Type> memTypes = new ArrayList<>();
+        List<Type> tupleTypes = tupleType.getTupleTypes();
+        boolean isSameType = true;
+        Type sameType = null;
+        if (!tupleTypes.isEmpty()) {
+            sameType = tupleTypes.get(0);
+            memTypes.add(sameType);
+        }
+        for (int i = 1; i < tupleTypes.size(); i++) {
+            isSameType &= sameType == tupleTypes.get(i);
+            memTypes.add(tupleTypes.get(i));
+        }
+        Type restType = tupleType.getRestType();
+        // If there's a tuple-rest-descriptor the array will not be of the same type even if other types are the same
+        if (restType != null) {
+            isSameType = false;
+            memTypes.add(restType);
+        }
+        // Create an array of one type if the member-type-descriptors are the same
+        if (isSameType) {
+            ArrayType type = TypeCreator.createArrayType(sameType);
+            return ValueCreator.createArrayValue(type);
+        }
+        UnionType unionType = TypeCreator.createUnionType(memTypes);
+        ArrayType slicedArrType = TypeCreator.createArrayType(unionType);
+        return ValueCreator.createArrayValue(slicedArrType);
+    }
+
+    private ArrayUtils() {
     }
 }
