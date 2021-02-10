@@ -140,7 +140,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private final Map<Long, Long> scopeIdToFrameIdMap = new HashMap<>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
-    private static final String MESSAGE_SERVER_DISCONNECTED = "Disconnected from debug server";
     private static final String STRAND_FIELD_NAME = "name";
     private static final String FRAME_TYPE_START = "start";
     private static final String FRAME_TYPE_WORKER = "worker";
@@ -218,7 +217,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         try {
             context.setLaunchedProcess(launcher.start());
         } catch (IOException e) {
-            sendOutput("Failed to launch the debug server due to: " + e.toString(), STDERR);
+            sendOutput("Failed to launch the ballerina program due to: " + e.toString(), STDERR);
             return CompletableFuture.completedFuture(null);
         }
 
@@ -228,7 +227,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 String line;
                 try {
                     while ((line = errorStream.readLine()) != null) {
-                        sendOutput(line, STDERR);
+                        // Todo - Redirect back to error stream, once the ballerina program output is fixed to use
+                        //  the STDOUT stream.
+                        sendOutput(line, STDOUT);
                     }
                 } catch (IOException ignored) {
                 }
@@ -263,15 +264,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         String portName = args.get("debuggeePort").toString();
 
         try {
-            executionManager = new DebugExecutionManager();
+            executionManager = new DebugExecutionManager(this);
             context.setDebuggee(new VirtualMachineProxyImpl(executionManager.attach(hostName, portName)));
             EventRequestManager erm = context.getEventManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
             classPrepareRequest.enable();
             eventProcessor.startListening();
         } catch (IOException | IllegalConnectorArgumentsException e) {
-            this.sendOutput(String.format("Failed to attach to the target VM, host: '%s' and port: '%s'",
-                    hostName, portName), STDERR);
+            String host = !hostName.isEmpty() ? hostName : "localhost";
+            sendOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.", host, portName), STDERR);
             return CompletableFuture.completedFuture(null);
         }
         return CompletableFuture.completedFuture(null);
@@ -433,7 +434,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         lastInstruction = DebugInstruction.STEP_OUT;
     }
 
-    private void sendOutput(String output, String category) {
+    public void sendOutput(String output, String category) {
         if (output.contains("Listening for transport dt_socket")
                 || output.contains("Please start the remote debugging client to continue")
                 || output.contains("JAVACMD")
@@ -545,7 +546,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             context.getClient().exited(exitedEventArguments);
         }
         // Notifies user.
-        sendOutput(MESSAGE_SERVER_DISCONNECTED, STDOUT);
+        sendOutput("Disconnected from the target VM", STDOUT);
 
         // Exits from the debug server VM.
         new java.lang.Thread(() -> {
@@ -558,6 +559,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private static int killProcessWithDescendants(Process parent) {
+        // Closes I/O streams.
+        closeQuietly(parent.getInputStream());
+        closeQuietly(parent.getOutputStream());
+        closeQuietly(parent.getErrorStream());
         // Kills the descendants of the process. The descendants of a process are the children
         // of the process and the descendants of those children, recursively.
         parent.descendants().forEach(processHandle -> {
@@ -566,9 +571,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 processHandle.destroyForcibly();
             }
         });
-        closeQuietly(parent.getInputStream());
-        closeQuietly(parent.getOutputStream());
-        closeQuietly(parent.getErrorStream());
         // Kills the parent process. Whether the process represented by this Process object will be normally
         // terminated or not, is implementation dependent.
         parent.destroy();

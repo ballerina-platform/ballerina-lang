@@ -140,7 +140,7 @@ public abstract class Launcher {
 
     public void attachToLaunchedProcess(JBallerinaDebugServer server) {
         try {
-            DebugExecutionManager execManager = new DebugExecutionManager();
+            DebugExecutionManager execManager = new DebugExecutionManager(server);
             VirtualMachine attachedVm = execManager.attach(debuggeePort);
             EventRequestManager erm = attachedVm.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
