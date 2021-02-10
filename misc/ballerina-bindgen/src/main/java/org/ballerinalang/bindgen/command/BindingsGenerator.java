@@ -17,17 +17,20 @@
  */
 package org.ballerinalang.bindgen.command;
 
+import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.ManifestBuilder;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.model.JClass;
 import org.ballerinalang.bindgen.model.JError;
 import org.ballerinalang.bindgen.utils.BindgenMvnResolver;
-import org.ballerinalang.toml.model.Library;
-import org.ballerinalang.toml.model.Manifest;
-import org.wso2.ballerinalang.util.TomlParserUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -37,12 +40,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_TOML;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BBGEN_CLASS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_11;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MODULES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
@@ -141,16 +146,27 @@ public class BindingsGenerator {
 
     private void resolvePlatformLibraries() throws BindgenException {
         if (projectRoot != null) {
-            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-            if (manifest != null) {
-                List<Library> platformLibraries = manifest.getPlatform().getLibraries();
-                if (platformLibraries != null) {
-                    for (Library library : platformLibraries) {
-                        if (library.path != null) {
-                            classPaths.add(Paths.get(projectRoot.toString(), library.path).toString());
-                        } else if (library.groupId != null && library.artifactId != null && library.version != null) {
-                            new BindgenMvnResolver(outStream).mavenResolver(library.groupId, library.artifactId,
-                                    library.version, projectRoot, false);
+            File tomlFile = new File(Paths.get(projectRoot.toString(), BALLERINA_TOML).toString());
+            if (tomlFile.exists() && !tomlFile.isDirectory()) {
+                String tomlContent;
+                try {
+                    tomlContent = Files.readString(tomlFile.toPath());
+                } catch (IOException io) {
+                    throw new BindgenException("Error while reading the Ballerina.toml file.", io);
+                }
+                TomlDocument tomlDocument = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
+                PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, projectRoot).packageManifest();
+                if (packageManifest != null) {
+                    PackageManifest.Platform platform = packageManifest.platform(JAVA_11);
+                    if (platform != null && platform.dependencies() != null) {
+                        for (Map<String, Object> library : platform.dependencies()) {
+                            if (library.get("path") != null) {
+                                classPaths.add(Paths.get(projectRoot.toString(), library.get("path").toString()).toString());
+                            } else if (library.get("groupId") != null && library.get("artifactId") != null &&
+                                    library.get("version") != null) {
+                                new BindgenMvnResolver(outStream).mavenResolver(library.get("groupId").toString(), library.get("artifactId").toString(),
+                                        library.get("version").toString(), projectRoot, false);
+                            }
                         }
                     }
                 }

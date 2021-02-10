@@ -41,6 +41,7 @@ import static org.ballerinalang.bindgen.command.BindingsGenerator.getOutputPath;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassPaths;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_TOML;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.FILE_SEPARATOR;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_11;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MVN_REPO;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.TARGET_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
@@ -130,7 +131,7 @@ public class BindgenMvnResolver {
             PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, projectRoot).packageManifest();
             // todo handle toml file with errors
 
-            PackageManifest.Platform platform = packageManifest.platform("java11");
+            PackageManifest.Platform platform = packageManifest.platform(JAVA_11);
             if (platform != null && platform.dependencies() != null) {
                 for (Map<String, Object> library : platform.dependencies()) {
                     if (library.get("path") == null &&

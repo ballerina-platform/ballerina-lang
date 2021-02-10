@@ -43,12 +43,13 @@ public class BindgenConstants {
     public static final String CONSTANTS_FILE_NAME = "Constants.bal";
     public static final String ARRAY_BRACKETS = "[]";
     public static final String MODULES_DIR = "modules";
+    public static final String BALLERINA_TOML = "Ballerina.toml";
+    public static final String JAVA_11 = "java11";
     static final String TARGET_DIR = "target";
     static final String MVN_REPO = "platform-libs";
     static final String FILE_SEPARATOR = "file.separator";
     static final String MUSTACHE_FILE_EXTENSION = ".mustache";
     static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
-    static final String BALLERINA_TOML = "Ballerina.toml";
     static final String FLOAT = "float";
     static final String INT = "int";
     static final String BOOLEAN = "boolean";
