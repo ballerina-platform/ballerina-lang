@@ -226,6 +226,16 @@ public class RepoUtils {
         return UNKNOWN;
     }
 
+    public static String getBallerinaSpecVersion() {
+        try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_SPEC_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
+    }
+
     /**
      * Validates the org-name and package name.
      *
