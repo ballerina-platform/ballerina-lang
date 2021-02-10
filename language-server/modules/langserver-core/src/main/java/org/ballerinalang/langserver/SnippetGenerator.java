@@ -566,7 +566,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getObjectTypeDescSnippet() {
-        String snippet = "object {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "object {${1}}";
 
         return new SnippetBlock(ItemResolverConstants.OBJECT_TYPE_DESC, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
@@ -578,8 +578,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getObjectDefinitionSnippet() {
-        String snippet = "type ${1:ObjectName} object {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
-                + CommonUtil.LINE_SEPARATOR + "};";
+        String snippet = "type ${1:ObjectName} object {${2}};";
 
         return new SnippetBlock(ItemResolverConstants.OBJECT_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
@@ -661,8 +660,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getRecordTypeDescSnippet() {
-        String snippet = "record {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
-
+        String snippet = "record {${1}}";
         return new SnippetBlock(ItemResolverConstants.RECORD_TYPE_DESC, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
@@ -746,7 +744,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getClosedRecordTypeDescSnippet() {
-        String snippet = "record {|" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "|}";
+        String snippet = "record {|${1}|}";
 
         return new SnippetBlock(ItemResolverConstants.CLOSED_RECORD_TYPE_DESC, snippet,
                 ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
@@ -1169,7 +1167,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getObjectConstructorSnippet() {
-        String snippet = "object {" + CommonUtil.LINE_SEPARATOR + "\t" + CommonUtil.LINE_SEPARATOR + "};";
+        String snippet = "object {${1}};";
         return new SnippetBlock("object constructor", snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }

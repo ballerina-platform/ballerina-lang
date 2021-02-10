@@ -161,7 +161,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "object {\n\t\n};",
+      "insertText": "object {${1}};",
       "insertTextFormat": "Snippet"
     },
     {

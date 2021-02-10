@@ -185,7 +185,7 @@
       "label": "object constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "object {\n\t\n};",
+      "insertText": "object {${1}};",
       "insertTextFormat": "Snippet"
     },
     {
