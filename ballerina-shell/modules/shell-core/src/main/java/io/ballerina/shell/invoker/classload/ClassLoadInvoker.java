@@ -364,9 +364,7 @@ public class ClassLoadInvoker extends Invoker {
                 // We can use syntax tree, add required imports
                 VariableDeclarationSnippet.TypeInfo typeInfo = definedTypes.get().get(variableName);
                 variableType = typeInfo.getType();
-                Set<QuotedIdentifier> importPrefixes = typeInfo.getImports()
-                        .stream().map(QuotedIdentifier::new).collect(Collectors.toSet());
-                this.newImports.put(variableName, importPrefixes);
+                this.newImports.put(variableName, typeInfo.getImports());
             } else {
                 Set<QuotedIdentifier> requiredImports = new HashSet<>();
                 variableType = parseTypeSignature(typeSymbol, requiredImports);

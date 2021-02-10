@@ -91,13 +91,8 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
         // Currently only supports CaptureBindingPatternNode
         if (rootNode.typedBindingPattern().bindingPattern() instanceof CaptureBindingPatternNode) {
             // Find the import prefixes required
-            Set<String> importPrefixes = new HashSet<>();
-            typeDescriptorNode.accept(new NodeVisitor() {
-                @Override
-                public void visit(QualifiedNameReferenceNode node) {
-                    importPrefixes.add(node.modulePrefix().text());
-                }
-            });
+            Set<QuotedIdentifier> importPrefixes = new HashSet<>();
+            typeDescriptorNode.accept(new ImportPrefixFinder(importPrefixes));
 
             // Get the quoted variable name and type
             CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) rootNode.typedBindingPattern()
@@ -111,6 +106,25 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
             return Optional.of(Map.of(quotedVariableName, typeInfo));
         }
         return Optional.empty();
+    }
+
+
+    /**
+     * A helper class to find import prefixes in a type.
+     *
+     * @since 2.0.0
+     */
+    private static class ImportPrefixFinder extends NodeVisitor {
+        private final Set<QuotedIdentifier> importPrefixes;
+
+        public ImportPrefixFinder(Set<QuotedIdentifier> importPrefixes) {
+            this.importPrefixes = importPrefixes;
+        }
+
+        @Override
+        public void visit(QualifiedNameReferenceNode node) {
+            importPrefixes.add(new QuotedIdentifier(node.modulePrefix().text()));
+        }
     }
 
     /**
@@ -187,14 +201,14 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
      */
     public static class TypeInfo {
         private final String type;
-        private final Set<String> imports;
+        private final Set<QuotedIdentifier> imports;
 
-        public TypeInfo(String type, Set<String> imports) {
+        public TypeInfo(String type, Set<QuotedIdentifier> imports) {
             this.type = type;
             this.imports = imports;
         }
 
-        public Set<String> getImports() {
+        public Set<QuotedIdentifier> getImports() {
             return imports;
         }
 
