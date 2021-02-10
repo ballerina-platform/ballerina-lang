@@ -3374,7 +3374,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private SymbolOrigin getOrigin(Name name, Set<Flag> flags) {
-        if ((flags.contains(Flag.ANONYMOUS) && flags.contains(Flag.SERVICE))
+        if ((flags.contains(Flag.ANONYMOUS) && (flags.contains(Flag.SERVICE) || flags.contains(Flag.CLASS)))
                 || missingNodesHelper.isMissingNode(name)) {
             return VIRTUAL;
         }

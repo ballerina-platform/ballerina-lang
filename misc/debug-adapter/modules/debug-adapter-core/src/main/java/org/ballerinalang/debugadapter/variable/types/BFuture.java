@@ -20,19 +20,19 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 
 /**
  * Ballerina future variable type.
  */
-public class BFuture extends BCompoundVariable {
+public class BFuture extends NamedCompoundVariable {
 
     private static final String FIELD_RESULT = "result";
     private static final String FIELD_IS_DONE = "isDone";
@@ -50,7 +50,7 @@ public class BFuture extends BCompoundVariable {
 
     @Override
     public Map<String, Value> computeChildVariables() {
-        Map<String, Value> childVarMap = new TreeMap<>();
+        Map<String, Value> childVarMap = new LinkedHashMap<>();
         try {
             Optional<Value> isDone = VariableUtils.getFieldValue(jvmValue, FIELD_IS_DONE);
             Optional<Value> result = VariableUtils.getFieldValue(jvmValue, FIELD_RESULT);
@@ -72,5 +72,11 @@ public class BFuture extends BCompoundVariable {
         } catch (Exception ignored) {
             return childVarMap;
         }
+    }
+
+    @Override
+    public int getChildrenCount() {
+        // maximum children size will be 3 (isDone, result and panic).
+        return 3;
     }
 }

@@ -36,7 +36,7 @@
     {
       "label": "listener1",
       "kind": "Variable",
-      "detail": "ballerina/module1:0.1.0:Listener",
+      "detail": "module1:Listener",
       "sortText": "B",
       "insertText": "listener1",
       "insertTextFormat": "Snippet"
@@ -70,7 +70,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function3(int param1, int param2, float[]... param3)(int)",
+      "label": "function3(int param1, int param2, float... param3)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -88,13 +88,13 @@
       }
     },
     {
-      "label": "function4(int param1, int param2, string param3, float[]... param4)",
+      "label": "function4(int param1, int param2, string param3, float... param4)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "sortText": "C",

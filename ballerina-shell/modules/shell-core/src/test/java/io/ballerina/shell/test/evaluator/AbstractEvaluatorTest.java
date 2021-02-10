@@ -47,7 +47,11 @@ public abstract class AbstractEvaluatorTest {
         Evaluator evaluator = new EvaluatorBuilder()
                 .treeParser(TestUtils.getTestTreeParser())
                 .invoker(invoker).build();
-        evaluator.initialize();
+        try {
+            evaluator.initialize();
+        } catch (Exception e) {
+            Assert.fail(evaluator.diagnostics().toString());
+        }
 
         TestSession testSession = TestUtils.loadTestCases(fileName, TestSession.class);
         for (TestCase testCase : testSession) {

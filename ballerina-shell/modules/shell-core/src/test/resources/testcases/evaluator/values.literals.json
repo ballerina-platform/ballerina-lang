@@ -17,7 +17,7 @@
   {
     "description": "Simple string template.",
     "code": "string `hello world`",
-    "expr": "hello world"
+    "expr": "\"hello world\""
   },
   {
     "description": "Simple boolean.",

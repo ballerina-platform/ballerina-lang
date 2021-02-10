@@ -18,6 +18,7 @@
 
 package io.ballerina.toml.validator.schema;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -26,15 +27,11 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class NumericSchema extends AbstractSchema {
-    private Double minimum;
-    private Double maximum;
+    private final Double minimum;
+    private final Double maximum;
 
-    public NumericSchema(Type type) {
-        super(type);
-    }
-
-    public NumericSchema(Type type, Double minimum, Double maximum) {
-        super(type);
+    public NumericSchema(Type type, Map<String, String> message, Double minimum, Double maximum) {
+        super(type, message);
         this.minimum = minimum;
         this.maximum = maximum;
     }
