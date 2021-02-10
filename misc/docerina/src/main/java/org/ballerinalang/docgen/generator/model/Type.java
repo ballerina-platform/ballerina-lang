@@ -255,9 +255,9 @@ public class Type {
             type.orgName = moduleID.orgName();
             type.version = moduleID.version();
         } else {
-            type.moduleName = "";
-            type.orgName = "";
-            type.version = "";
+            type.moduleName = "UNK_MOD";
+            type.orgName = "UNK_ORG";
+            type.version = "UNK_VER";
         }
 
         if (symbol instanceof TypeReferenceTypeSymbol) {
