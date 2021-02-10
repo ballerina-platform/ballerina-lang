@@ -35,11 +35,14 @@ public class FunctionalityTest {
     @Test
     public void testShellExit() throws Exception {
         // Give no input to emulate EOF
+        // Having an empty stream will cause JLine to throw an EndOfFileException.
+        // This should cause shell to print "Bye!!!"
+
         String input = "";
         ByteArrayOutputStream shellOut = new ByteArrayOutputStream();
         ByteArrayInputStream shellIn = new ByteArrayInputStream(input.getBytes());
 
-        // Fun the Shell
+        // Run the Shell
         BShellConfiguration configuration = new BShellConfiguration.Builder()
                 .setInputStream(shellIn).setOutputStream(shellOut)
                 .setDumb(true).setTreeParsingTimeoutMs(10000).build();
