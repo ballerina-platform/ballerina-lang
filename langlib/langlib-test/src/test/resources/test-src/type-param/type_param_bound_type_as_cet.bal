@@ -195,9 +195,5 @@ function assertValueEquality(anydata|error expected, anydata|error actual) {
 }
 
 isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
-    if (actual is anydata && expected is anydata) {
-        return (actual == expected);
-    } else {
-        return (actual === expected);
-    }
+    return actual is anydata && expected is anydata && actual == expected || actual === expected;
 }
