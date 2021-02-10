@@ -53,14 +53,15 @@ public class KubernetesToml {
     }
 
     public TomlTableNode tomlAstNode() {
-        return tomlDocument().tomlAstNode();
+        return tomlDocument().toml().rootNode();
     }
 
     public TomlDocument tomlDocument() {
         return this.kubernetesTomlContext.tomlDocument();
     }
 
-    /** Returns an instance of the Document.Modifier.
+    /**
+     * Returns an instance of the Document.Modifier.
      *
      * @return  module modifier
      */

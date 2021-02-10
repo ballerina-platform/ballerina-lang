@@ -16,25 +16,14 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
-import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableUtils;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Ballerina json variable type.
  */
-public class BJson extends BCompoundVariable {
-
-    private static final String FIELD_JSON_DATA = "table";
-    private static final String FIELD_JSON_KEY = "key";
-    private static final String FIELD_JSON_VALUE = "value";
+public class BJson extends BMap {
 
     public BJson(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.JSON, value);
@@ -43,28 +32,5 @@ public class BJson extends BCompoundVariable {
     @Override
     public String computeValue() {
         return "map<json>";
-    }
-
-    @Override
-    public Map<String, Value> computeChildVariables() {
-        Map<String, Value> childMap = new HashMap<>();
-        try {
-            Optional<Value> jsonValues = VariableUtils.getFieldValue(jvmValue, FIELD_JSON_DATA);
-            if (jsonValues.isEmpty()) {
-                return childMap;
-            }
-            for (Value jsonMap : ((ArrayReference) jsonValues.get()).getValues()) {
-                if (jsonMap != null) {
-                    Optional<Value> jsonKey = VariableUtils.getFieldValue(jsonMap, FIELD_JSON_KEY);
-                    Optional<Value> jsonValue = VariableUtils.getFieldValue(jsonMap, FIELD_JSON_VALUE);
-                    if (jsonKey.isPresent() && jsonValue.isPresent()) {
-                        childMap.put(VariableUtils.getStringFrom(jsonKey.get()), jsonValue.get());
-                    }
-                }
-            }
-            return childMap;
-        } catch (Exception ignored) {
-            return childMap;
-        }
     }
 }

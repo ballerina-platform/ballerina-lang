@@ -222,9 +222,8 @@ public class MappingConstructorExpressionNodeContext extends
             String symbolName = symbol.name();
             if (recFields.containsKey(symbolName)
                     && recFields.get(symbolName).typeDescriptor().typeKind() == typeDescriptor.typeKind()) {
-                String bTypeName = typeDescriptor.signature();
-                CompletionItem cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbolName,
-                        bTypeName);
+                CompletionItem cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbolName, 
+                        CommonUtil.getModifiedTypeName(ctx, typeDescriptor));
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
             }
         });

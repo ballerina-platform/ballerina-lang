@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -26,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 1.2.0
  */
 public class BLangFromClause extends BLangInputClause {
+    public SymbolEnv env;
 
     @Override
     public NodeKind getKind() {

@@ -18,9 +18,11 @@
 
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -34,6 +36,11 @@ public class BLangOnClause extends BLangNode implements OnClauseNode {
 
     public BLangExpression lhsExpr;
     public BLangExpression rhsExpr;
+
+    public SymbolEnv lhsEnv;
+    public SymbolEnv rhsEnv;
+
+    public Location equalsKeywordPos;
 
     public BLangOnClause() {
     }
