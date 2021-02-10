@@ -1,0 +1,22 @@
+[package]
+license= ["Apache 2.0"]
+authors= ["jo", "pramodya"]
+keywords= ["toml", "ballerina"]
+repository= "https://github.com/ballerina-platform/ballerina-lang"
+
+[[platform.java11.dependency]]
+path = "/user/sameera/libs/toml4j.jar"
+artifactId = "toml4j"
+version = "0.7.2"
+groupId = "com.moandjiezana.toml"
+
+[[platform.java11.dependency]]
+path = "path/to/swagger.jar"
+artifactId = "swagger"
+version = "0.7.2"
+groupId = "swagger.io"
+
+[build-options]
+observabilityIncluded = true
+offline = true
+skipTests = false
