@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.terminator;
+package org.ballerinalang.debugadapter.utils;
 
 import java.util.Locale;
 
 /**
- * Utility functions used by launcher.
+ * Operating system utils.
  */
 public class OSUtils {
 
@@ -31,6 +31,7 @@ public class OSUtils {
 
     /**
      * Returns name of the operating system running. null if not a unsupported operating system.
+     *
      * @return operating system
      */
     public static String getOperatingSystem() {
