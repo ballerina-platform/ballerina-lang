@@ -1,5 +1,3 @@
 [project]
 org-name= "wso2test"
 version= "0.1.0"
-
-[dependencies]

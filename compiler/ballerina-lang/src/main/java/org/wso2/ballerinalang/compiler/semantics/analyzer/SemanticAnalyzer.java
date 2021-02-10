@@ -90,10 +90,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorFieldBindingPatterns;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorMessageBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
@@ -784,7 +790,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     types.isAssignable(lhsType, symTable.stringType) ||
                     types.isAssignable(lhsType, symTable.booleanType) ||
                     types.isAssignable(lhsType, symTable.decimalType) ||
-                    types.isAssignable(lhsType, symTable.arrayType))) {
+                    types.isAssignable(lhsType, symTable.arrayType) ||
+                    types.isAssignable(lhsType, symTable.mapAnydataType) ||
+                    types.isAssignable(lhsType, symTable.tableType))) {
                 // TODO: remove this check once runtime support all configurable types
                 dlog.error(varNode.typeNode.pos,
                         DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
@@ -957,13 +965,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resolveTupleType(BLangTupleVariable varNode) {
         List<BType> memberTypes = new ArrayList<>(varNode.memberVariables.size());
         for (BLangVariable memberVariable : varNode.memberVariables) {
-            if (memberVariable.getKind() == NodeKind.TUPLE_VARIABLE) {
-                memberTypes.add(resolveTupleType((BLangTupleVariable) memberVariable));
-            } else {
-                memberTypes.add(symTable.noType);
-            }
+            memberTypes.add(getTupleMemberType(memberVariable));
         }
-        return new BTupleType(memberTypes);
+
+        BLangVariable restVariable = varNode.restVariable;
+        if (restVariable == null) {
+            return new BTupleType(memberTypes);
+        }
+
+        return new BTupleType(null, memberTypes, getTupleMemberType(restVariable), 0);
+    }
+
+    private BType getTupleMemberType(BLangVariable memberVariable) {
+        if (memberVariable.getKind() == NodeKind.TUPLE_VARIABLE) {
+            return resolveTupleType((BLangTupleVariable) memberVariable);
+        }
+        return symTable.noType;
     }
 
     public void visit(BLangErrorVariable varNode) {
@@ -2435,7 +2452,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType bType = typeChecker.checkExpr(exprStmtNode.expr, stmtEnv, symTable.noType);
         if (bType != symTable.nilType && bType != symTable.neverType && bType != symTable.semanticError &&
                 exprStmtNode.expr.getKind() != NodeKind.FAIL) {
-            dlog.error(exprStmtNode.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED);
+            dlog.error(exprStmtNode.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED, bType);
         }
         validateWorkerAnnAttachments(exprStmtNode.expr);
     }
@@ -2819,6 +2836,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         this.env);
                 assignTypesToMemberPatterns(listBindingPattern, listBindingPattern.type);
                 break;
+            case ERROR_BINDING_PATTERN:
+                BLangErrorBindingPattern errorBindingPattern = (BLangErrorBindingPattern) bindingPattern;
+                analyzeNode(errorBindingPattern, env);
+                errorBindingPattern.type = types.resolvePatternTypeFromMatchExpr(errorBindingPattern,
+                        varBindingPattern.matchExpr, env);
+                break;
             case MAPPING_BINDING_PATTERN:
                 BLangMappingBindingPattern mappingBindingPattern = (BLangMappingBindingPattern) bindingPattern;
                 analyzeNode(mappingBindingPattern, env);
@@ -2889,6 +2912,81 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         restBindingPattern.symbol = (BVarSymbol) symbol;
         restBindingPattern.declaredVars.put(name.value, restBindingPattern.symbol);
+    }
+
+    @Override
+    public void visit(BLangErrorBindingPattern errorBindingPattern) {
+        if (errorBindingPattern.errorTypeReference != null) {
+            errorBindingPattern.type = symResolver.resolveTypeNode(errorBindingPattern.errorTypeReference, env);
+        } else {
+            errorBindingPattern.type = symTable.errorType;
+        }
+
+        if (errorBindingPattern.errorMessageBindingPattern != null) {
+            analyzeNode(errorBindingPattern.errorMessageBindingPattern, env);
+            errorBindingPattern.declaredVars.putAll(errorBindingPattern.errorMessageBindingPattern.declaredVars);
+        }
+
+        if (errorBindingPattern.errorCauseBindingPattern != null) {
+            analyzeNode(errorBindingPattern.errorCauseBindingPattern, env);
+            errorBindingPattern.declaredVars.putAll(errorBindingPattern.errorCauseBindingPattern.declaredVars);
+        }
+
+        if (errorBindingPattern.errorFieldBindingPatterns != null) {
+            analyzeNode(errorBindingPattern.errorFieldBindingPatterns, env);
+            errorBindingPattern.declaredVars.putAll(errorBindingPattern.errorFieldBindingPatterns.declaredVars);
+        }
+    }
+
+    @Override
+    public void visit(BLangSimpleBindingPattern simpleBindingPattern) {
+        if (simpleBindingPattern.wildCardBindingPattern != null) {
+            analyzeNode(simpleBindingPattern.wildCardBindingPattern, env);
+            return;
+        }
+        if (simpleBindingPattern.captureBindingPattern != null) {
+            analyzeNode(simpleBindingPattern.captureBindingPattern, env);
+            simpleBindingPattern.declaredVars.putAll(simpleBindingPattern.captureBindingPattern.declaredVars);
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorMessageBindingPattern errorMessageBindingPattern) {
+        BLangSimpleBindingPattern simpleBindingPattern = errorMessageBindingPattern.simpleBindingPattern;
+        analyzeNode(simpleBindingPattern, env);
+        errorMessageBindingPattern.declaredVars.putAll(simpleBindingPattern.declaredVars);
+    }
+
+    @Override
+    public void visit(BLangErrorCauseBindingPattern errorCauseBindingPattern) {
+        if (errorCauseBindingPattern.simpleBindingPattern != null) {
+            analyzeNode(errorCauseBindingPattern.simpleBindingPattern, env);
+            errorCauseBindingPattern.declaredVars.putAll(errorCauseBindingPattern.simpleBindingPattern.declaredVars);
+            return;
+        }
+        if (errorCauseBindingPattern.errorBindingPattern != null) {
+            analyzeNode(errorCauseBindingPattern.errorBindingPattern, env);
+            errorCauseBindingPattern.declaredVars.putAll(errorCauseBindingPattern.errorBindingPattern.declaredVars);
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorFieldBindingPatterns errorFieldBindingPatterns) {
+        for (BLangNamedArgBindingPattern namedArgBindingPattern : errorFieldBindingPatterns.namedArgBindingPatterns) {
+            analyzeNode(namedArgBindingPattern, env);
+            errorFieldBindingPatterns.declaredVars.putAll(namedArgBindingPattern.declaredVars);
+        }
+        if (errorFieldBindingPatterns.restBindingPattern != null) {
+            errorFieldBindingPatterns.restBindingPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
+            analyzeNode(errorFieldBindingPatterns.restBindingPattern, env);
+            errorFieldBindingPatterns.declaredVars.putAll(errorFieldBindingPatterns.restBindingPattern.declaredVars);
+        }
+    }
+
+    @Override
+    public void visit(BLangNamedArgBindingPattern namedArgBindingPattern) {
+        analyzeNode(namedArgBindingPattern.bindingPattern, env);
+        namedArgBindingPattern.declaredVars.putAll(namedArgBindingPattern.bindingPattern.declaredVars);
     }
 
     @Override
@@ -3183,7 +3281,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         wildCardMatchPattern.type = intersectionType;
     }
-    
+
     @Override
     public void visit(BLangMatchStaticBindingPatternClause patternClause) {
         checkStaticMatchPatternLiteralType(patternClause.literal);

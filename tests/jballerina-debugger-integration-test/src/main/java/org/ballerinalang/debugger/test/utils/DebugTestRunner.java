@@ -84,6 +84,7 @@ public class DebugTestRunner {
     private BMainInstance balClient = null;
     private Process debuggeeProcess;
     private DebugHitListener listener;
+    private DebugTerminationListener terminationListener;
     private AssertionMode assertionMode;
     private SoftAssert softAsserter;
 
@@ -349,6 +350,25 @@ public class DebugTestRunner {
             throw new BallerinaTestException("Timeout expired waiting for the debug hit");
         }
         return new ImmutablePair<>(listener.getDebugHitpoint(), listener.getDebugHitContext());
+    }
+
+    /**
+     * Waits for debug termination within a given time.
+     *
+     * @param timeoutMillis timeout.
+     * @return boolean true if debug termination is found.
+     */
+    public boolean waitForDebugTermination(long timeoutMillis) {
+        terminationListener = new DebugTerminationListener(debugClientConnector);
+        Timer timer = new Timer(true);
+        timer.scheduleAtFixedRate(terminationListener, 0, 1000);
+        try {
+            Thread.sleep(timeoutMillis);
+        } catch (InterruptedException ignored) {
+        }
+        timer.cancel();
+
+        return terminationListener.isTerminationFound();
     }
 
     /**

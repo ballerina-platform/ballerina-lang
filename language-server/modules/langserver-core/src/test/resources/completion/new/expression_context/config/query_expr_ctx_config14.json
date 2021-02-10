@@ -189,11 +189,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "test",
+      "label": "item",
       "kind": "Variable",
       "detail": "$CompilationError$",
       "sortText": "B",
-      "insertText": "test",
+      "insertText": "item",
       "insertTextFormat": "Snippet"
     },
     {
