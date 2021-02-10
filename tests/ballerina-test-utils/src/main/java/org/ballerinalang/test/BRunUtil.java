@@ -37,6 +37,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
@@ -114,6 +115,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -129,6 +131,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
+import static org.ballerinalang.test.util.TestConstant.CONFIGURATION_CLASS_NAME;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
 
@@ -1174,6 +1177,10 @@ public class BRunUtil {
                 bvmObjectType.setFields(objectFields);
                 return bvmObjectType;
             case io.ballerina.runtime.api.TypeTags.XML_TAG:
+            case io.ballerina.runtime.api.TypeTags.XML_ELEMENT_TAG:
+            case io.ballerina.runtime.api.TypeTags.XML_COMMENT_TAG:
+            case io.ballerina.runtime.api.TypeTags.XML_PI_TAG:
+            case io.ballerina.runtime.api.TypeTags.XML_TEXT_TAG:
                 return BTypes.typeXML;
             case io.ballerina.runtime.api.TypeTags.TYPEDESC_TAG:
                 TypedescType typedescType = (TypedescType) jvmType;
@@ -1357,19 +1364,38 @@ public class BRunUtil {
     public static void runInit(CompileResult compileResult)
             throws ClassNotFoundException {
         PackageManifest packageManifest = compileResult.packageManifest();
-        String initClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
-                packageManifest.name().toString(),
-                packageManifest.version().toString(),
-                MODULE_INIT_CLASS_NAME);
+        String org = packageManifest.org().toString();
+        String module = packageManifest.name().toString();
+        String version = packageManifest.version().toString();
+        String initClassName = JarResolver.getQualifiedClassName(org, module, version, MODULE_INIT_CLASS_NAME);
+        String configClassName = JarResolver.getQualifiedClassName(org, module, version, CONFIGURATION_CLASS_NAME);
 
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
+        directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit", new Class[]{Path.class},
+                new Object[]{LaunchUtils.getConfigPath()});
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
 //        if (temp) {
 //            scheduler.immortal = true;
 //            new Thread(scheduler::start).start();
 //        }
+    }
+
+    private static void directRun(Class<?> initClazz, String name, Class[] paramTypes, Object[] args) {
+        String funcName = JvmCodeGenUtil.cleanupFunctionName(name);
+        String errorMsg = "Failed to invoke the function '%s' due to %s";
+        Object response;
+        try {
+            final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
+            response = method.invoke(null, args);
+            if (response instanceof Throwable) {
+                throw new BallerinaException(String.format(errorMsg, funcName, response.toString()),
+                        (Throwable) response);
+            }
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new BallerinaException(String.format(errorMsg, funcName, e.getMessage()), e);
+        }
     }
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler) {

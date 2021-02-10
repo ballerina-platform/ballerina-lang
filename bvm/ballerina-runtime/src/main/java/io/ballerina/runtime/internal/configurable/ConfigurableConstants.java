@@ -33,6 +33,16 @@ public class ConfigurableConstants {
     public static final String DEFAULT_MODULE = ".";
     public static final String SUBMODULE_DELIMITER = ".";
     public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
+    public static final String CONFIG_SECRET_ENV_VARIABLE = "BALSECRETFILE";
+    public static final String SECRET_FILE_NAME = "secret.txt";
+    public static final String INVALID_FIELD_IN_RECORD =
+            "Additional field '%s' provided for configurable variable '%s' of record '%s' is not supported";
+    public static final String FIELD_TYPE_NOT_SUPPORTED = "Configurable feature is yet to be supported for " +
+            "field type '%s' in variable '%s' of record '%s'";
+    public static final String REQUIRED_FIELD_NOT_PROVIDED = "Value not provided for non-defaultable required field" +
+            " '%s' of record '%s' in configurable variable '%s'";
+    public static final String TABLE_KEY_NOT_PROVIDED = "Value required for key '%s' of type '%s' in " +
+            "configurable variable '%s'";
 
     private ConfigurableConstants() {
     }

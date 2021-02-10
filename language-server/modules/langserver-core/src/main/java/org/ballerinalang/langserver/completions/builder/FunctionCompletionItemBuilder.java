@@ -163,7 +163,7 @@ public final class FunctionCompletionItemBuilder {
         docAttachment.ifPresent(documentation -> documentation.parameterMap().forEach(docParamsMap::put));
 
         List<ParameterSymbol> defaultParams = functionTypeDesc.parameters().stream()
-                .filter(parameter -> parameter.kind() == ParameterKind.DEFAULTABLE)
+                .filter(parameter -> parameter.paramKind() == ParameterKind.DEFAULTABLE)
                 .collect(Collectors.toList());
 
         MarkupContent docMarkupContent = new MarkupContent();
@@ -183,11 +183,11 @@ public final class FunctionCompletionItemBuilder {
             }
 
             Optional<ParameterSymbol> defaultVal = defaultParams.stream()
-                    .filter(parameter -> parameter.name().get().equals(param.name().get()))
+                    .filter(parameter -> parameter.getName().get().equals(param.getName().get()))
                     .findFirst();
-            String paramDescription = "- " + "`" + paramType + "` " + param.name().get();
-            if (param.name().isPresent() && docParamsMap.containsKey(param.name().get())) {
-                paramDescription += ": " + docParamsMap.get(param.name().get());
+            String paramDescription = "- " + "`" + paramType + "` " + param.getName().get();
+            if (param.getName().isPresent() && docParamsMap.containsKey(param.getName().get())) {
+                paramDescription += ": " + docParamsMap.get(param.getName().get());
             }
             if (defaultVal.isPresent()) {
                 joiner.add(paramDescription + "(Defaultable)");
@@ -269,15 +269,15 @@ public final class FunctionCompletionItemBuilder {
                 continue;
             }
             ParameterSymbol param = parameterDefs.get(i);
-            args.add(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) + (param.name().isEmpty() ? ""
-                    : " " + param.name().get()));
+            args.add(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) + (param.getName().isEmpty() ? ""
+                    : " " + param.getName().get()));
         }
         restParam.ifPresent(param -> {
             // Rest param is represented as an array type symbol
             ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
             args.add(CommonUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
-                    + (param.name().isEmpty() ? "" : "... "
-                    + param.name().get()));
+                    + (param.getName().isEmpty() ? "" : "... "
+                    + param.getName().get()));
         });
         return (!args.isEmpty()) ? args : new ArrayList<>();
     }

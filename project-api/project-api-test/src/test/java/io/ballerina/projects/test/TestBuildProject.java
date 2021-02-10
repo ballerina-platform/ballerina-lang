@@ -995,6 +995,41 @@ public class TestBuildProject {
                 "name=\"te");
         data.add("[package]" +
                 "name=\"test");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "or");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=win");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "ver");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "version");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "version=");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "version=1.");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "version=1.0.0");
 
         for (String dataItem: data) {
             BallerinaToml newBallerinaToml = currentPackage.ballerinaToml().get().modify().withContent("" +
