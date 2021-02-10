@@ -39,7 +39,9 @@ public class JlineBallerinaParser implements Parser {
 
     @Override
     public ParsedLine parse(String line, int cursor, ParseContext context) throws SyntaxError {
-        assert line != null;
+        if (line == null) {
+            throw new EOFError(-1, -1, "line was not provided");
+        }
 
         List<String> words = new LinkedList<>();
         StringBuilder currentWord = new StringBuilder();
@@ -50,8 +52,8 @@ public class JlineBallerinaParser implements Parser {
         for (int i = 0; i < line.length(); i++) {
             char character = line.charAt(i);
 
-            // once we reach the cursor, set selected index.
-            // position of the selected index is current word length.
+            // Once we reach the cursor, set selected index.
+            // Position of the selected index is current word length.
             if (i == cursor) {
                 wordIndex = words.size();
                 wordCursor = currentWord.length();

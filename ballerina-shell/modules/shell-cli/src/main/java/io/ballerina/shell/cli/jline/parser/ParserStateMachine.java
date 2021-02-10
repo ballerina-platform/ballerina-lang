@@ -82,36 +82,37 @@ public class ParserStateMachine {
         switch (state) {
             case NORMAL:
                 normalState(character);
-                break;
+                return;
             case AFTER_BACKWARD_SLASH:
                 afterBackwardSlashState();
-                break;
+                return;
             case IN_DOUBLE_QUOTES:
                 inDoubleQuotesState(character);
-                break;
+                return;
             case IN_DOUBLE_QUOTES_AFTER_BACKWARD_SLASH:
                 inDoubleQuotesAfterBackwardSlashState(character);
-                break;
+                return;
             case IN_TEMPLATE:
                 inTemplateState(character);
-                break;
+                return;
             case IN_TEMPLATE_AFTER_DOLLAR:
                 inTemplateAfterDollarState(character);
-                break;
+                return;
             case AFTER_FORWARD_SLASH:
                 afterForwardSlashState(character);
-                break;
+                return;
             case IN_COMMENT:
                 inCommentState(character);
-                break;
+                return;
             case AFTER_OPERATOR:
                 afterOperatorState(character);
-                break;
+                return;
+            case ERROR:
+                return;
             default:
+                throw new IllegalStateException();
         }
-
     }
-
 
     /**
      * Handles normal state input.
