@@ -20,6 +20,7 @@ package io.ballerina.shell.snippet.types;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TreeModifier;
 import io.ballerina.shell.snippet.Snippet;
@@ -32,13 +33,14 @@ import java.util.Set;
 /**
  * An abstract implementation of {@link io.ballerina.shell.snippet.Snippet}.
  *
+ * @param <T> Type of the child root node
  * @since 2.0.0
  */
-public class AbstractSnippet implements Snippet {
+public class AbstractSnippet<T extends Node> implements Snippet {
     protected final SnippetSubKind subKind;
-    protected Node rootNode;
+    protected T rootNode;
 
-    protected AbstractSnippet(SnippetSubKind subKind, Node rootNode) {
+    protected AbstractSnippet(SnippetSubKind subKind, T rootNode) {
         this.subKind = subKind;
         this.rootNode = rootNode;
     }
@@ -73,7 +75,9 @@ public class AbstractSnippet implements Snippet {
      */
     @Override
     public void modify(TreeModifier treeModifier) {
-        this.rootNode = this.rootNode.apply(treeModifier);
+        if (rootNode instanceof NonTerminalNode) {
+            this.rootNode.apply(treeModifier);
+        }
     }
 
     @Override
