@@ -133,7 +133,8 @@ public class TestIntegrator extends Thread {
         for (String controlString : SPECIAL_CONTROL_STRINGS) {
             string = string.replace(controlString, "");
         }
-        return string;
+        // Remove new lines because new lines can vary
+        return string.replace("\n", "");
     }
 
     private String errorMessage(String original, String expected, String description) {
