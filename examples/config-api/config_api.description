@@ -16,4 +16,4 @@
 // optional configurations are the default values of the return types of
 // the functions. <br/><br/>
 // For more information on the underlying module, 
-// see the [Config module](https://ballerina.io/learn/api-docs/ballerina/config/index.html).
+// see the [Config module](https://ballerina.io/1.2/learn/api-docs/ballerina/config/index.html).
