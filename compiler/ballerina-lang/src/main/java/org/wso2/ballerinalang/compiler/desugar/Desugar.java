@@ -930,11 +930,11 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariable simpleVar = ((BLangSimpleVariableDef) bLangStatement).var;
         if ((simpleVar.symbol.owner.tag & SymTag.PACKAGE) != SymTag.PACKAGE) {
             initFnBody.stmts.add(bLangStatement);
-        } else {
-            simpleVar.annAttachments = globalVar.getAnnotationAttachments();
-            addToInitFunction(simpleVar, initFnBody);
-            desugaredGlobalVarList.add(simpleVar);
+            return;
         }
+        simpleVar.annAttachments = globalVar.getAnnotationAttachments();
+        addToInitFunction(simpleVar, initFnBody);
+        desugaredGlobalVarList.add(simpleVar);
     }
 
     private void addToInitFunction(BLangSimpleVariable globalVar, BLangBlockFunctionBody initFnBody) {
