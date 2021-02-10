@@ -1,0 +1,5 @@
+[[dependency]]
+org = "a_b"
+name = "foo"
+path = "../testProject/target/balo/foo-2020r2-any-0.1.0.balo"
+version = "0.1.0"
