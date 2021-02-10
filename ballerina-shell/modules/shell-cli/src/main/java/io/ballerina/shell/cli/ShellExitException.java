@@ -21,6 +21,8 @@ package io.ballerina.shell.cli;
 /**
  * Exception to signify that shell wants to exit.
  * After this is called no new input/output can be done on shell.
+ *
+ * @since 2.0.0
  */
 public class ShellExitException extends Exception {
 }

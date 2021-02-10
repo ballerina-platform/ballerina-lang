@@ -101,28 +101,24 @@ public class BallerinaShell {
             try {
                 String source = terminal.readLine(leftPrompt, rightPrompt).trim();
                 start = Instant.now();
-                try {
-                    if (!commandHandler.handle(source)) {
-                        String result = evaluator.evaluate(source);
-                        terminal.result(result);
-                    }
-                } catch (ShellExitException e) {
-                    throw e;
-                } catch (Exception e) {
-                    if (!evaluator.hasErrors()) {
-                        terminal.fatalError("Something went wrong: " + e.getMessage());
-                    }
-                    outputException(e);
-                } finally {
-                    end = Instant.now();
-                    evaluator.diagnostics().forEach(this::outputDiagnostic);
-                    evaluator.resetDiagnostics();
-                    terminal.println("");
+                if (!commandHandler.handle(source)) {
+                    String result = evaluator.evaluate(source);
+                    terminal.result(result);
                 }
             } catch (ShellExitException e) {
                 terminal.info("Bye!!!");
                 isRunning = false;
                 break;
+            } catch (Exception e) {
+                if (!evaluator.hasErrors()) {
+                    terminal.fatalError("Something went wrong: " + e.getMessage());
+                }
+                outputException(e);
+            } finally {
+                end = Instant.now();
+                evaluator.diagnostics().forEach(this::outputDiagnostic);
+                evaluator.resetDiagnostics();
+                terminal.println("");
             }
         }
     }
