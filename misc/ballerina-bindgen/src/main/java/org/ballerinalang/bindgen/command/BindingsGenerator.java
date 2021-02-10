@@ -155,17 +155,20 @@ public class BindingsGenerator {
                     throw new BindgenException("Error while reading the Ballerina.toml file.", io);
                 }
                 TomlDocument tomlDocument = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
-                PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, projectRoot).packageManifest();
+                PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
+                        projectRoot).packageManifest();
                 if (packageManifest != null) {
                     PackageManifest.Platform platform = packageManifest.platform(JAVA_11);
                     if (platform != null && platform.dependencies() != null) {
                         for (Map<String, Object> library : platform.dependencies()) {
                             if (library.get("path") != null) {
-                                classPaths.add(Paths.get(projectRoot.toString(), library.get("path").toString()).toString());
+                                classPaths.add(Paths.get(projectRoot.toString(),
+                                        library.get("path").toString()).toString());
                             } else if (library.get("groupId") != null && library.get("artifactId") != null &&
                                     library.get("version") != null) {
-                                new BindgenMvnResolver(outStream).mavenResolver(library.get("groupId").toString(), library.get("artifactId").toString(),
-                                        library.get("version").toString(), projectRoot, false);
+                                new BindgenMvnResolver(outStream).mavenResolver(library.get("groupId").toString(),
+                                        library.get("artifactId").toString(), library.get("version").toString(),
+                                        projectRoot, false);
                             }
                         }
                     }
