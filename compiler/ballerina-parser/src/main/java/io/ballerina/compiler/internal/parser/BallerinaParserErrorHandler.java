@@ -684,6 +684,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OPTIONAL_RELATIVE_PATH =
             { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.RELATIVE_RESOURCE_PATH };
 
+    private static final ParserRuleContext[] FUNC_DEF_OR_TYPE_DESC_RHS =
+            { ParserRuleContext.OPTIONAL_RELATIVE_PATH, ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
+
     private static final ParserRuleContext[] RELATIVE_RESOURCE_PATH_START =
             { ParserRuleContext.DOT, ParserRuleContext.RESOURCE_PATH_SEGMENT };
 
@@ -1602,6 +1605,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MODULE_VAR_DECL_START:
             case MODULE_VAR_WITHOUT_FIRST_QUAL:
             case MODULE_VAR_WITHOUT_SECOND_QUAL:
+            case FUNC_DEF_OR_TYPE_DESC_RHS:
                 return true;
             default:
                 return false;
@@ -1916,6 +1920,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case OBJECT_TYPE_WITHOUT_FIRST_QUALIFIER:
                 alternativeRules = OBJECT_TYPE_WITHOUT_FIRST_QUALIFIER;
+                break;
+            case FUNC_DEF_OR_TYPE_DESC_RHS:
+                alternativeRules = FUNC_DEF_OR_TYPE_DESC_RHS;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2478,7 +2485,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.BLOCK_STMT;
         } else if (isStatement(parentCtx) ||
                 parentCtx == ParserRuleContext.RECORD_FIELD || parentCtx == ParserRuleContext.OBJECT_MEMBER ||
-                parentCtx == ParserRuleContext.CLASS_MEMBER ||
+                parentCtx == ParserRuleContext.CLASS_MEMBER || parentCtx == ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE ||
                 parentCtx == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR ||
                 parentCtx == ParserRuleContext.LISTENER_DECL || parentCtx == ParserRuleContext.CONSTANT_DECL) {
             nextContext = ParserRuleContext.SEMICOLON;
@@ -4079,6 +4086,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LET_EXPR_LET_VAR_DECL:
             case LET_CLAUSE_LET_VAR_DECL:
             case ENUM_MEMBER_LIST:
+            case FUNC_DEF_OR_FUNC_TYPE:
                 return ParserRuleContext.EXPRESSION;
             case NAMED_ARG_MATCH_PATTERN:
                 return ParserRuleContext.MATCH_PATTERN;
