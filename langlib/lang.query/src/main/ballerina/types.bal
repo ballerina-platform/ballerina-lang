@@ -141,10 +141,10 @@ class _InitFunction {
             return lang_map:iterator(collection);
         } else if (collection is map<Type>) {
             return lang_map:iterator(collection);
-        } else if (collection is string) {
-            return lang_string:iterator(collection);
         } else if (collection is xml) {
             return lang_xml:iterator(collection);
+        } else if (collection is string) {
+            return lang_string:iterator(collection);
         } else if (collection is table<map<Type>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
@@ -261,10 +261,10 @@ class _NestedFromFunction {
             return lang_map:iterator(collection);
         } else if (collection is map<Type>) {
             return lang_map:iterator(collection);
-        } else if (collection is string) {
-            return lang_string:iterator(collection);
         } else if (collection is xml) {
             return lang_xml:iterator(collection);
+        } else if (collection is string) {
+            return lang_string:iterator(collection);
         } else if (collection is table<map<Type>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
