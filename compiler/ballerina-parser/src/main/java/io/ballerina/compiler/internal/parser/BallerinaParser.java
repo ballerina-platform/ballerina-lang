@@ -1106,8 +1106,8 @@ public class BallerinaParser extends AbstractParser {
                                            boolean isObjectTypeDesc, STNode name) {
         switchContext(ParserRuleContext.FUNC_DEF);
         STNode funcSignature = parseFuncSignature(false);
-        STNode funcDef = parseFuncDefOrMethodDeclEnd(metadata, visibilityQualifier, qualifiers, functionKeyword,
-                name, resourcePath, funcSignature, isObjectMember, isObjectTypeDesc);
+        STNode funcDef = parseFuncDefOrMethodDeclEnd(metadata, visibilityQualifier, qualifiers, functionKeyword, name,
+                                                     resourcePath, funcSignature, isObjectMember, isObjectTypeDesc);
         endContext();
         return funcDef;
     }
@@ -1627,12 +1627,13 @@ public class BallerinaParser extends AbstractParser {
         if (!isObjectMember && visibilityQualifier != null) {
             STToken invalidQualifier = (STToken) visibilityQualifier;
             if (qualifierList.isEmpty()) {
-                return SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword,
-                        visibilityQualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
-                        ((STToken) visibilityQualifier).text());
+                return SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, visibilityQualifier,
+                                                                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
+                                                                        ((STToken) visibilityQualifier).text());
             }
             updateFirstNodeInListWithLeadingInvalidNode(qualifierList, invalidQualifier,
-                    DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, invalidQualifier.text());
+                                                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
+                                                        invalidQualifier.text());
         }
         return functionKeyword;
     }
@@ -14347,11 +14348,9 @@ public class BallerinaParser extends AbstractParser {
                                                                              funcSignature);
         if (getCurrentContext() != ParserRuleContext.STMT_START_BRACKETED_LIST) {
             switchContext(ParserRuleContext.VAR_DECL_STMT);
-            return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
-                                              true);
+            return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
         }
-        return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE,
-                                          false);
+        return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
     }
 
     private STNode parseAnonFuncExprOrFuncTypeDesc(STNode qualifierList, STNode functionKeyword, STNode funcSignature) {
