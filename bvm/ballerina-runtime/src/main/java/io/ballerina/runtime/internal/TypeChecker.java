@@ -647,6 +647,10 @@ public class TypeChecker {
             return checkIsType(sourceType, PredefinedTypes.ANY_AND_READONLY_OR_ERROR_TYPE, unresolvedTypes);
         }
 
+        if (sourceTypeTag == TypeTags.UNION_TAG) {
+            return isUnionTypeMatch((BUnionType) sourceType, targetType, unresolvedTypes);
+        }
+
         switch (targetTypeTag) {
             case TypeTags.BYTE_TAG:
             case TypeTags.SIGNED32_INT_TAG:
@@ -787,7 +791,7 @@ public class TypeChecker {
             case TypeTags.OBJECT_TYPE_TAG:
                 return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
-                return checkIsFiniteType(sourceType, (BFiniteType) targetType, unresolvedTypes);
+                return checkIsFiniteType(sourceType, (BFiniteType) targetType);
             case TypeTags.FUTURE_TAG:
                 return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
             case TypeTags.ERROR_TAG:
@@ -1563,7 +1567,7 @@ public class TypeChecker {
         return true;
     }
 
-    private static boolean checkIsFiniteType(Type sourceType, BFiniteType targetType, List<TypePair> unresolvedTypes) {
+    private static boolean checkIsFiniteType(Type sourceType, BFiniteType targetType) {
         if (sourceType.getTag() != TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
@@ -2494,11 +2498,6 @@ public class TypeChecker {
     }
 
     private static boolean checkFiniteTypeAssignable(Object sourceValue, Type sourceType, BFiniteType targetType) {
-        if (sourceValue == null) {
-            // we should not reach here
-            return false;
-        }
-
         for (Object valueSpaceItem : targetType.valueSpace) {
             // TODO: 8/13/19 Maryam fix for conversion
             if (isFiniteTypeValue(sourceValue, sourceType, valueSpaceItem)) {
@@ -2511,7 +2510,8 @@ public class TypeChecker {
     protected static boolean isFiniteTypeValue(Object sourceValue, Type sourceType, Object valueSpaceItem) {
         Type valueSpaceItemType = getType(valueSpaceItem);
         if (valueSpaceItemType.getTag() > TypeTags.FLOAT_TAG) {
-            return valueSpaceItemType.getTag() == sourceType.getTag() && valueSpaceItem.equals(sourceValue);
+            return valueSpaceItemType.getTag() == sourceType.getTag() &&
+                    (valueSpaceItem == sourceValue || valueSpaceItem.equals(sourceValue));
         }
 
         switch (sourceType.getTag()) {
@@ -3009,5 +3009,8 @@ public class TypeChecker {
             }
         }
         return true;
+    }
+
+    private TypeChecker() {
     }
 }

@@ -1,5 +1,3 @@
 [project]
 org-name= "testOrg"
 version= "1.0.0"
-
-[dependencies]

@@ -72,7 +72,7 @@ public class MavenTestCase extends BaseTest {
         // delete the platform lib directory
         deleteFiles(this.projectPath.resolve("target").resolve("platform-libs"));
 
-        String mvnBuildMsg = "target/bin/tests.jar";
+        String mvnBuildMsg = "target/bin/tests-0.1.0.jar";
         LogLeecher mvnBuildLeecher = new LogLeecher(mvnBuildMsg);
         balClient.runMain("build", new String[]{}, envVariables, new String[]{},
                 new LogLeecher[]{mvnBuildLeecher}, projectPath.toString());
