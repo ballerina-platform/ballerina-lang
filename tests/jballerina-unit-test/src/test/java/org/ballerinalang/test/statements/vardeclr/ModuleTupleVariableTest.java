@@ -27,33 +27,28 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Class to test module level variable declaration for all binding patterns.
+ * Class to test module level tuple variable declaration.
  *
  * @since 2.0
  */
-public class ModuleVariableTest {
+public class ModuleTupleVariableTest {
 
-    private CompileResult compileResult, compileResultNegative;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl.bal");
-        compileResultNegative = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl_negetive.bal");
-    }
-
-    @Test
-    public void testBasicModuleLevelTupleVarDecl() {
-        BRunUtil.invoke(compileResult, "testBasic");
     }
     
     @Test(dataProvider = "complexModuleLevelTupleVarDeclData")
-    public void testComplexModuleLevelTupleVarDecl(String functionName) {
+    public void testModuleLevelTupleVarDecl(String functionName) {
         BRunUtil.invoke(compileResult, functionName);
     }
 
     @DataProvider
     public Object[] complexModuleLevelTupleVarDeclData() {
         return new Object[]{
+                "testBasic",
                 "testTupleBindingWithRecordsAndObjects",
                 "testTupleBindingPatternWithRestBindingPattern",
                 "testDeclaredWithVar",
@@ -65,6 +60,8 @@ public class ModuleVariableTest {
 
     @Test
     public void testModuleLevelTupleVarDeclNegetive() {
+        CompileResult compileResultNegative = BCompileUtil.compile(
+                "test-src/statements/vardeclr/module_tuple_var_decl_negetive.bal");
         int index = 0;
         validateError(compileResultNegative, index++, "redeclared symbol 'a'", 19, 23);
         validateError(compileResultNegative, index++, "redeclared symbol 'b'", 20, 7);
@@ -85,7 +82,6 @@ public class ModuleVariableTest {
         validateError(compileResult, index++, "tainted value passed to global variable 'p'", 21, 5);
         assertEquals(compileResult.getErrorCount(), index);
     }
-
     @Test
     public void testModuleLevelTupleVarAnnotationNegetive() {
         CompileResult compileResult = BCompileUtil.compile(

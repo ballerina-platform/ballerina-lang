@@ -115,3 +115,13 @@ public function load(string filePath) {
 # + return - `float` return parameter is float
 # # parameter `invalidParameter`
 [int, float, string] [a, b, c] = [1, 2.5, "Mac"];
+
+# + a - parameter a
+# + return - `float` return parameter is float
+# parameter `invalidParameter`
+record {int a;} {a:myA} = {a:5};
+
+# + message - parameter message
+# + return - `float` return parameter is float
+# parameter `invalidParameter`
+error error(message) = error ("stack over flow");

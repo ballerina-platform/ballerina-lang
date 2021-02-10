@@ -383,7 +383,6 @@ public class Desugar extends BLangNodeVisitor {
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
-    private int tupleVarCount = 0;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -861,31 +860,36 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private List<BLangVariable> desugarGlobalVariables(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
-        List<BLangVariable> globalVars = pkgNode.globalVars;
         List<BLangVariable> desugaredGlobalVarList = new ArrayList<>();
         SymbolEnv initFunctionEnv =
                 SymbolEnv.createFunctionEnv(pkgNode.initFunction, pkgNode.initFunction.symbol.scope, env);
 
-        globalVars.forEach(globalVar -> {
+        for (BLangVariable globalVar : pkgNode.globalVars) {
             this.env.enclPkg.topLevelNodes.remove(globalVar);
             // This will convert complex variables to simple variables.
             switch (globalVar.getKind()) {
                 case TUPLE_VARIABLE:
                     BLangNode blockStatementNode = rewrite(globalVar, initFunctionEnv);
                     List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
-                    for (int i = 0; i < statements.size(); i++) {
-                        BLangStatement bLangStatement = statements.get(i);
-                        // First statement is the virtual array created for the init expression.
-                        // Rest binding pattern array initialization will be desugared as a block hence add them
-                        // directly to the init function body.
-                        if (bLangStatement.getKind() == NodeKind.BLOCK || i == 0) {
-                            initFnBody.stmts.add(bLangStatement);
-                            continue;
-                        }
-                        BLangSimpleVariableDef simpleVarDef = (BLangSimpleVariableDef) bLangStatement;
-                        simpleVarDef.var.annAttachments = globalVar.getAnnotationAttachments();
-                        addToInitFunction(simpleVarDef.var, initFnBody);
-                        desugaredGlobalVarList.add(simpleVarDef.var);
+
+                    int statementSize = statements.size();
+                    for (int i = 0; i < statementSize - 1; i++) {
+                        addToGlobalVariableList(statements.get(i), initFnBody, globalVar, desugaredGlobalVarList);
+                    }
+
+                    // Rest variable will be desugard as a block statement
+                    BLangStatement bLangStatement = statements.get(statementSize - 1);
+                    if (bLangStatement.getKind() == NodeKind.BLOCK) {
+                        initFnBody.stmts.add(bLangStatement);
+                    } else {
+                        addToGlobalVariableList(bLangStatement, initFnBody, globalVar, desugaredGlobalVarList);
+                    }
+                    break;
+                case RECORD_VARIABLE:
+                case ERROR_VARIABLE:
+                    blockStatementNode = rewrite(globalVar, initFunctionEnv);
+                    for (BLangStatement statement : ((BLangBlockStmt) blockStatementNode).stmts) {
+                        addToGlobalVariableList(statement, initFnBody, globalVar, desugaredGlobalVarList);
                     }
                     break;
                 default:
@@ -907,16 +911,30 @@ public class Desugar extends BLangNodeVisitor {
                     // Module init should fail if listener is a error value.
                     if (Symbols.isFlagOn(globalVarFlags, Flags.LISTENER)
                             && types.containsErrorType(globalVar.expr.type)) {
-                        globalVar.expr = ASTBuilderUtil.createCheckExpr(globalVar.expr.pos, globalVar.expr, globalVar.type);
+                        globalVar.expr = ASTBuilderUtil.createCheckExpr(globalVar.expr.pos, globalVar.expr,
+                                globalVar.type);
                     }
 
                     addToInitFunction(simpleGlobalVar, initFnBody);
                     desugaredGlobalVarList.add(simpleGlobalVar);
                     break;
             }
-        });
+        }
+
         this.env.enclPkg.topLevelNodes.addAll(desugaredGlobalVarList);
         return desugaredGlobalVarList;
+    }
+
+    private void addToGlobalVariableList(BLangStatement bLangStatement, BLangBlockFunctionBody initFnBody,
+                                         BLangVariable globalVar, List<BLangVariable> desugaredGlobalVarList) {
+        BLangSimpleVariable simpleVar = ((BLangSimpleVariableDef) bLangStatement).var;
+        if ((simpleVar.symbol.owner.tag & SymTag.PACKAGE) != SymTag.PACKAGE) {
+            initFnBody.stmts.add(bLangStatement);
+            return;
+        }
+        simpleVar.annAttachments = globalVar.getAnnotationAttachments();
+        addToInitFunction(simpleVar, initFnBody);
+        desugaredGlobalVarList.add(simpleVar);
     }
 
     private void addToInitFunction(BLangSimpleVariable globalVar, BLangBlockFunctionBody initFnBody) {
@@ -1344,7 +1362,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
 
-        String name = String.format("$tuple%d$", tupleVarCount++);
+        String name = anonModelHelper.getNextTupleVarKey(env.enclPkg.packageID);
         final BLangSimpleVariable tuple =
                 ASTBuilderUtil.createVariable(varNode.pos, name, symTable.arrayAllType, null,
                                               new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
@@ -1365,9 +1383,10 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable varNode) {
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
+        String name = anonModelHelper.getNextRecordVarKey(env.enclPkg.packageID);
         final BLangSimpleVariable mapVariable =
-                ASTBuilderUtil.createVariable(varNode.pos, "$map$_0", symTable.mapAllType, null,
-                                              new BVarSymbol(0, names.fromString("$map$_0"), this.env.scope.owner.pkgID,
+                ASTBuilderUtil.createVariable(varNode.pos, name, symTable.mapAllType, null,
+                                              new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
                                                              symTable.mapAllType, this.env.scope.owner, varNode.pos,
                                                              VIRTUAL));
         mapVariable.expr = varNode.expr;
@@ -1375,6 +1394,7 @@ public class Desugar extends BLangNodeVisitor {
         variableDef.var = mapVariable;
 
         createVarDefStmts(varNode, blockStmt, mapVariable.symbol, null);
+
         result = rewrite(blockStmt, env);
     }
 
@@ -1385,10 +1405,11 @@ public class Desugar extends BLangNodeVisitor {
 
         BType errorType = varNode.type == null ? symTable.errorType : varNode.type;
         // Create a simple var for the error 'error x = ($error$)'.
-        BVarSymbol errorVarSymbol = new BVarSymbol(0, names.fromString(GENERATED_ERROR_VAR), this.env.scope.owner.pkgID,
+        String name = anonModelHelper.getNextErrorVarKey(env.enclPkg.packageID);
+        BVarSymbol errorVarSymbol = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
                                                    errorType, this.env.scope.owner, varNode.pos, VIRTUAL);
-        final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varNode.pos, errorVarSymbol.name.value,
-                                                                        errorType, null, errorVarSymbol);
+        final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varNode.pos, name, errorType, null,
+                errorVarSymbol);
         error.expr = varNode.expr;
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
         variableDef.var = error;
@@ -1716,14 +1737,6 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        BType detailMapType;
-        BType detailType = ((BErrorType) parentErrorVariable.type).detailType;
-        if (detailType.tag == TypeTags.MAP) {
-            detailMapType = detailType;
-        } else {
-            detailMapType = symTable.detailType;
-        }
-
         parentErrorVariable.detailExpr = generateErrorDetailBuiltinFunction(
                 parentErrorVariable.pos,
                 convertedErrorVarSymbol, null);
@@ -1732,6 +1745,7 @@ public class Desugar extends BLangNodeVisitor {
                 parentErrorVariable.detailExpr.type, parentErrorVariable.detailExpr, parentErrorVariable.pos);
         detailTempVarDef.type = parentErrorVariable.detailExpr.type;
         parentBlockStmt.addStatement(detailTempVarDef);
+
         this.env.scope.define(names.fromIdNode(detailTempVarDef.var.name), detailTempVarDef.var.symbol);
 
         for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : parentErrorVariable.detail) {
@@ -1751,16 +1765,13 @@ public class Desugar extends BLangNodeVisitor {
 
             BLangSimpleVariable filteredDetail = generateRestFilter(detailVarRef, parentErrorVariable.pos, keysToRemove,
                     parentErrorVariable.restDetail.type, parentBlockStmt);
+
             BLangSimpleVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
             variableDefStmt.var = ASTBuilderUtil.createVariable(pos,
                     parentErrorVariable.restDetail.name.value,
                     filteredDetail.type,
                     ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol),
                     parentErrorVariable.restDetail.symbol);
-            BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos,
-                    ASTBuilderUtil.createVariableRef(pos, parentErrorVariable.restDetail.symbol),
-                    ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol));
-            parentBlockStmt.addStatement(assignmentStmt);
         }
         rewrite(parentBlockStmt, env);
     }
@@ -1936,26 +1947,22 @@ public class Desugar extends BLangNodeVisitor {
     private void createAndAddBoundVariableDef(BLangBlockStmt parentBlockStmt,
                                               BLangErrorVariable.BLangErrorDetailEntry detailEntry,
                                               BLangExpression detailEntryVar) {
-        if (detailEntry.valueBindingPattern.getKind() == NodeKind.VARIABLE) {
-            BLangSimpleVariableDef errorDetailVar = createVarDef(
-                    ((BLangSimpleVariable) detailEntry.valueBindingPattern).name.value,
-                    detailEntry.valueBindingPattern.type,
-                    detailEntryVar,
-                    detailEntry.valueBindingPattern.pos);
+        BLangVariable valueBindingPattern = detailEntry.valueBindingPattern;
+        NodeKind valueBindingPatternKind = valueBindingPattern.getKind();
+
+        if (valueBindingPatternKind == NodeKind.VARIABLE) {
+            BLangSimpleVariableDef errorDetailVar = createVarDef(((BLangSimpleVariable) valueBindingPattern).name.value,
+                    valueBindingPattern.type, detailEntryVar, valueBindingPattern.pos);
             parentBlockStmt.addStatement(errorDetailVar);
+            return;
+        }
 
-        } else if (detailEntry.valueBindingPattern.getKind() == NodeKind.RECORD_VARIABLE) {
-            BLangRecordVariableDef recordVariableDef = ASTBuilderUtil.createRecordVariableDef(
-                    detailEntry.valueBindingPattern.pos,
-                    (BLangRecordVariable) detailEntry.valueBindingPattern);
-            recordVariableDef.var.expr = detailEntryVar;
-            recordVariableDef.type = symTable.recordType;
-            parentBlockStmt.addStatement(recordVariableDef);
+        valueBindingPattern.expr = detailEntryVar;
+        BLangNode blockStatementNode = rewrite(valueBindingPattern, env);
+        List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
 
-        } else if (detailEntry.valueBindingPattern.getKind() == NodeKind.TUPLE_VARIABLE) {
-            BLangTupleVariableDef tupleVariableDef = ASTBuilderUtil.createTupleVariableDef(
-                    detailEntry.valueBindingPattern.pos, (BLangTupleVariable) detailEntry.valueBindingPattern);
-            parentBlockStmt.addStatement(tupleVariableDef);
+        for (BLangStatement statement : statements) {
+            parentBlockStmt.addStatement(statement);
         }
     }
 
@@ -2141,6 +2148,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaFunction.function = function;
         lambdaFunction.type = functionSymbol.type;
+        lambdaFunction.capturedClosureEnv = env;
         return lambdaFunction;
     }
 

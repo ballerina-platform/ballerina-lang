@@ -357,6 +357,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 case TUPLE_VARIABLE:
                     checkForUninitializedGlobalVars(((BLangTupleVariable) globalVar).memberVariables);
                     break;
+                case RECORD_VARIABLE:
+                    BLangRecordVariable recordVariable = (BLangRecordVariable) globalVar;
+                    List<BLangVariable> memberVariables = new ArrayList<>();
+                    for (BLangRecordVariable.BLangRecordVariableKeyValue memberKeyValue : recordVariable.variableList) {
+                        memberVariables.add(memberKeyValue.valueBindingPattern);
+                    }
+                    checkForUninitializedGlobalVars(memberVariables);
+                    break;
             }
         }
     }
@@ -1681,12 +1689,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.currDependentSymbol.pop();
             return;
         }
+
         for (BLangVariable member: bLangTupleVariable.memberVariables) {
             if (member.getKind() == NodeKind.VARIABLE) {
                 addUninitializedVar(member);
                 continue;
             }
             analyzeNode(member, env);
+        }
+
+        BLangSimpleVariable restVar = (BLangSimpleVariable) bLangTupleVariable.restVariable;
+        if (restVar != null) {
+            addUninitializedVar(restVar);
         }
     }
 
@@ -1698,27 +1712,71 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         analyzeNode(bLangRecordVariable.typeNode, env);
+        if (bLangRecordVariable.expr != null) {
+            this.currDependentSymbol.push(bLangRecordVariable.symbol);
+            analyzeNode(bLangRecordVariable.expr, env);
+            this.currDependentSymbol.pop();
+            return;
+        }
+
+        for (BLangRecordVariable.BLangRecordVariableKeyValue memberKeyValue : bLangRecordVariable.variableList) {
+            BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
+            if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
+                addUninitializedVar(valueBindingPattern);
+                continue;
+            }
+            analyzeNode(valueBindingPattern, env);
+        }
+
+        BLangSimpleVariable restParam = (BLangSimpleVariable) bLangRecordVariable.restParam;
+        if (restParam != null) {
+            addUninitializedVar(restParam);
+        }
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        BLangVariable var = bLangRecordVariableDef.var;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-        }
+        analyzeNode(bLangRecordVariableDef.var, env);
     }
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
         analyzeNode(bLangErrorVariable.typeNode, env);
+        if (bLangErrorVariable.expr != null) {
+            this.currDependentSymbol.push(bLangErrorVariable.symbol);
+            analyzeNode(bLangErrorVariable.expr, env);
+            this.currDependentSymbol.pop();
+            return;
+        }
+
+        BLangSimpleVariable message = bLangErrorVariable.message;
+        if (message != null) {
+            addUninitializedVar(message);
+        }
+
+        BLangVariable cause = bLangErrorVariable.cause;
+        if (cause != null) {
+            analyzeNode(cause, env);
+        }
+
+        for (BLangErrorVariable.BLangErrorDetailEntry memberKeyValue : bLangErrorVariable.detail) {
+            BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
+            if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
+                addUninitializedVar(valueBindingPattern);
+                continue;
+            }
+            analyzeNode(valueBindingPattern, env);
+        }
+
+        BLangSimpleVariable restDetail = bLangErrorVariable.restDetail;
+        if (restDetail != null) {
+            addUninitializedVar(restDetail);
+        }
     }
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
-        BLangVariable var = bLangErrorVariableDef.errorVariable;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-        }
+        analyzeNode(bLangErrorVariableDef.errorVariable, env);
     }
 
     @Override

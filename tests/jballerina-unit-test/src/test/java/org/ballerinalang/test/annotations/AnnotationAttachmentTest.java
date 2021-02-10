@@ -214,16 +214,20 @@ public class AnnotationAttachmentTest {
     @Test
     public void testAnnotOnVar() {
         List<BLangAnnotationAttachment> attachments = new ArrayList<>();
-        List<String> targetVariables = new ArrayList<>(Arrays.asList("i", "intVar", "stringVar"));
+        List<String> targetVariables = new ArrayList<>(Arrays.asList("i", "intVar", "stringVar", "myA", "message",
+                "errorNo"));
         for (BLangVariable globalVar : compileResult.getAST().getGlobalVariables()) {
             if (targetVariables.contains(((BLangSimpleVariable) globalVar).getName().getValue())) {
                 attachments.addAll(globalVar.getAnnotationAttachments());
             }
         }
-        Assert.assertEquals(attachments.size(), 3);
+        Assert.assertEquals(attachments.size(), 6);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v11", "val", 11L);
         assertAnnotationNameAndKeyValuePair(attachments.get(1), "v11", "val", 2L);
         assertAnnotationNameAndKeyValuePair(attachments.get(2), "v11", "val", 2L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(3), "v11", "val", 3L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(4), "v11", "val", 4L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(5), "v11", "val", 4L);
     }
 
     @Test
