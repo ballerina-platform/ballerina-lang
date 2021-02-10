@@ -389,7 +389,6 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
     /**
      * Processes a variable declaration snippet. Only compilation is done.
-     * TODO: Support enums.
      *
      * @param newSnippet New snippet to process.
      * @return The newly found type name and its declaration.
@@ -397,8 +396,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      */
     private Map.Entry<QuotedIdentifier, String> processModuleDcln(ModuleMemberDeclarationSnippet newSnippet)
             throws InvokerException {
-        QuotedIdentifier moduleDeclarationName = newSnippet.name()
-                .orElseGet(() -> new QuotedIdentifier(DOLLAR + unnamedModuleNameIndex.getAndIncrement()));
+        QuotedIdentifier moduleDeclarationName = newSnippet.name().orElseGet(this::createAnonModuleName);
 
         Set<QuotedIdentifier> usedPrefixes = new HashSet<>();
         newSnippet.usedImports().forEach(p -> usedPrefixes.add(new QuotedIdentifier(p)));
@@ -509,6 +507,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         return varDclns;
     }
 
+    /* Util functions */
+
     /**
      * Gets the symbols that are visible globally.
      * Returns only function symbols and variable symbols.
@@ -552,6 +552,14 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         importStrings.addAll(imports.getUsedImports(globalVars.keySet())); // Imports from vars
         importStrings.addAll(imports.getUsedImports(moduleDclns.keySet())); // Imports from module dclns
         return importStrings;
+    }
+
+    /**
+     * Creates an unused module name.
+     * The prefix will follow the format $I.
+     */
+    private QuotedIdentifier createAnonModuleName() {
+        return new QuotedIdentifier(DOLLAR + unnamedModuleNameIndex.getAndIncrement());
     }
 
     /* Available statements */
