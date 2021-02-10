@@ -1,4 +1,4 @@
-#this is doc comment
+# this is doc comment
 enum SyntaxKind {
     A,
     B,
@@ -7,7 +7,7 @@ enum SyntaxKind {
 
 public enum Color {
     RED,
-    #this is green
+    # this is green
     GREEN,
     @annotationsss
     BLUE
@@ -21,7 +21,7 @@ public enum Color {
     isMissing = true,
     attributes,
     value = +5,
-    #parents can be null
+    # parents can be null
     @checknull
     parents = null,
     other

@@ -832,13 +832,7 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "TRIPLE_BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "TRIPLE_BACKTICK_TOKEN"
                                     },
                                     {
                                       "kind": "CODE_CONTENT",
@@ -1128,13 +1122,7 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "TRIPLE_BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "TRIPLE_BACKTICK_TOKEN"
                                     },
                                     {
                                       "kind": "CODE_CONTENT",
@@ -1417,10 +1405,6 @@
                               ],
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
@@ -1667,10 +1651,6 @@
                                 "WARNING_CANNOT_HAVE_DOCUMENTATION_INLINE_WITH_A_CODE_REFERENCE_BLOCK"
                               ],
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {

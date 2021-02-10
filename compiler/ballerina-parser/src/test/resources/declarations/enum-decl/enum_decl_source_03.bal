@@ -1,4 +1,4 @@
-#this is doc comment
+# this is doc comment
 @annots
 public enum {
     A,

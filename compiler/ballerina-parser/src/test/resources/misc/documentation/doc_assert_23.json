@@ -39,17 +39,11 @@
                                   "kind": "INLINE_CODE_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "BACKTICK_TOKEN"
                                     },
                                     {
                                       "kind": "CODE_CONTENT",
-                                      "value": "# this hash should not be captured as a separate token"
+                                      "value": " # this hash should not be captured as a separate token"
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",

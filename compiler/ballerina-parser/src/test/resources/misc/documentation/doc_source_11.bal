@@ -1,5 +1,5 @@
 # Example for an xml literal:
-#   ``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``
+# ``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``
 final string testConst = "TestConstantDocumentation";
 
 # ``this is to test `(single backtick) and ```(triple backtick) within double backticks``
@@ -28,5 +28,5 @@ type DummyObject object {
 #
 # io:print("Start processing the CSV file from ", srcFileName);
 # ``
-public function print(){
+public function print() {
 }

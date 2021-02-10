@@ -21,7 +21,7 @@ function foo() {
 # Code block should start with backticks ```bal
 # dummy code line
 # dummy code line
-# ``` Cannot have anything inline with code ref end backtick
+# ```Cannot have anything inline with code ref end backtick
 function foo() {
 }
 
@@ -29,7 +29,7 @@ function foo() {
 # Code block should start with backticks ```bal
 # dummy code line
 # dummy code line
-# ``` Cannot have anything inline with code ref end backtick
+# ```Cannot have anything inline with code ref end backtick
 # Doc line after the erroneous block
 function foo() {
 }
@@ -38,7 +38,7 @@ function foo() {
 # ```bal
 # dummy code line
 # dummy code line
-# ``` Cannot have anything inline with code ref end backtick
+# ```Cannot have anything inline with code ref end backtick
 function foo() {
 }
 
@@ -46,7 +46,7 @@ function foo() {
 # ```bal
 # dummy code line
 # dummy code line
-# ``` Cannot have anything inline with code ref end backtick
+# ```Cannot have anything inline with code ref end backtick
 # Doc line after the erroneous block
 function foo() {
 }

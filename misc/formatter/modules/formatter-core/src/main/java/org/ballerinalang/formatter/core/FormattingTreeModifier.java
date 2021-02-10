@@ -86,6 +86,7 @@ import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.InlineCodeReferenceNode;
 import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
@@ -106,6 +107,8 @@ import io.ballerina.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.MappingMatchPatternNode;
+import io.ballerina.compiler.syntax.tree.MarkdownCodeBlockNode;
+import io.ballerina.compiler.syntax.tree.MarkdownCodeLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
@@ -1631,13 +1634,9 @@ public class FormattingTreeModifier extends TreeModifier {
         Token hashToken;
 
         if (markdownDocumentationLineNode.documentElements().isEmpty()) {
-            hashToken = formatToken(markdownDocumentationLineNode.hashToken(), env.trailingWS, env.trailingNL);
+            hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 0, 1);
         } else {
-            if (markdownDocumentationLineNode.documentElements().get(0).kind() == SyntaxKind.DEPRECATION_LITERAL) {
-                hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 1, 0);
-            } else {
-                hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 0, 0);
-            }
+            hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 1, 0);
         }
 
         NodeList<Node> documentElements = formatNodeList(markdownDocumentationLineNode.documentElements(),
@@ -1654,7 +1653,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token hashToken = formatToken(markdownParameterDocumentationLineNode.hashToken(), 1, 0);
         Token plusToken = formatToken(markdownParameterDocumentationLineNode.plusToken(), 1, 0);
         Token parameterName = formatToken(markdownParameterDocumentationLineNode.parameterName(), 1, 0);
-        Token minusToken = formatToken(markdownParameterDocumentationLineNode.minusToken(), 0, 0);
+        Token minusToken = formatToken(markdownParameterDocumentationLineNode.minusToken(), 1, 0);
         NodeList<Node> documentElements = formatNodeList(markdownParameterDocumentationLineNode.documentElements(),
                 0, 0, env.trailingWS, env.trailingNL);
 
@@ -1679,6 +1678,52 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withStartBacktick(startBacktick)
                 .withNameReference(backtickContent)
                 .withEndBacktick(endBacktick)
+                .apply();
+    }
+
+    @Override
+    public InlineCodeReferenceNode transform(InlineCodeReferenceNode inlineCodeReferenceNode) {
+        Token startBacktick = formatToken(inlineCodeReferenceNode.startBacktick(), 0, 0);
+        Token codeReference = formatToken(inlineCodeReferenceNode.codeReference(), 0, 0);
+        Token endBacktick = formatToken(inlineCodeReferenceNode.endBacktick(), env.trailingWS, env.trailingNL);
+
+        return inlineCodeReferenceNode.modify()
+                .withStartBacktick(startBacktick)
+                .withCodeReference(codeReference)
+                .withEndBacktick(endBacktick)
+                .apply();
+    }
+
+    @Override
+    public MarkdownCodeBlockNode transform(MarkdownCodeBlockNode markdownCodeBlockNode) {
+        Token startLineHash = formatToken(markdownCodeBlockNode.startLineHashToken(), 1, 0);
+        boolean hasCodeAttribute = markdownCodeBlockNode.codeDescription().isPresent();
+        Token startBacktick = formatToken(markdownCodeBlockNode.startBacktick(), 0, hasCodeAttribute ? 0 : 1);
+        Token codeDescription = formatToken(markdownCodeBlockNode.codeDescription().orElse(null), 0, 1);
+        NodeList<MarkdownCodeLineNode> codeLines = formatNodeList(markdownCodeBlockNode.codeLines(), 0, 0, 0, 0);
+        Token endLineHash = formatToken(markdownCodeBlockNode.endLineHashToken(), 1, 0);
+        Token endBacktick = formatToken(markdownCodeBlockNode.endBacktick(), 0, 1);
+
+        return markdownCodeBlockNode.modify()
+                .withStartLineHashToken(startLineHash)
+                .withStartBacktick(startBacktick)
+                .withCodeDescription(codeDescription)
+                .withCodeLines(codeLines)
+                .withEndLineHashToken(endLineHash)
+                .withEndBacktick(endBacktick)
+                .apply();
+    }
+
+    @Override
+    public MarkdownCodeLineNode transform(MarkdownCodeLineNode markdownCodeLineNode) {
+        Token codeDescription = markdownCodeLineNode.codeDescription();
+        boolean hasDescription = !codeDescription.text().isEmpty();
+        Token hashToken = formatToken(markdownCodeLineNode.hashToken(), hasDescription ? 1 : 0, 0);
+        codeDescription = formatToken(codeDescription, 0, 1);
+
+        return markdownCodeLineNode.modify()
+                .withHashToken(hashToken)
+                .withCodeDescription(codeDescription)
                 .apply();
     }
 

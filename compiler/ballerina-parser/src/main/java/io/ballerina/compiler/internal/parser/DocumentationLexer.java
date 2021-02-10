@@ -359,17 +359,19 @@ public class DocumentationLexer extends AbstractLexer {
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getEndBacktickSyntaxToken(boolean isTripleBacktick) {
-        STNode leadingTrivia = getLeadingTrivia();
-        STNode trailingTrivia = processTrailingTrivia();
-        // check for end of line minutiae and terminate current documentation mode.
-        int bucketCount = trailingTrivia.bucketCount();
-        if (bucketCount > 0 && trailingTrivia.childInBucket(bucketCount - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
-            endMode();
-        }
-        SyntaxKind kind = isTripleBacktick ? SyntaxKind.TRIPLE_BACKTICK_TOKEN : SyntaxKind.DOUBLE_BACKTICK_TOKEN;
-        return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
-    }
+//    private STToken getEndBacktickSyntaxToken(boolean isTripleBacktick) {
+//        STNode leadingTrivia = getLeadingTrivia();
+//        STNode trailingTrivia = processTrailingTrivia();
+//
+//        // check for end of line minutiae and terminate current documentation mode.
+//        int bucketCount = trailingTrivia.bucketCount();
+//        if (bucketCount > 0 &&
+//                trailingTrivia.childInBucket(bucketCount - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
+//            endMode();
+//        }
+//        SyntaxKind kind = isTripleBacktick ? SyntaxKind.TRIPLE_BACKTICK_TOKEN : SyntaxKind.DOUBLE_BACKTICK_TOKEN;
+//        return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
+//    }
 
     private STToken getBacktickSyntaxToken(boolean isTripleBacktick) {
         STNode leadingTrivia = getLeadingTrivia();
@@ -572,7 +574,7 @@ public class DocumentationLexer extends AbstractLexer {
             } else {
                 // single backtick
                 switchMode(ParserMode.DOC_SINGLE_BACKTICK_CONTENT);
-                return getDocumentationSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+                return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.BACKTICK_TOKEN);
             }
         }
 
@@ -618,10 +620,10 @@ public class DocumentationLexer extends AbstractLexer {
                 if (peek() == LexerTerminals.BACKTICK) {
                     reader.advance();
                     // triple backtick
-                    return getEndBacktickSyntaxToken(true);
+                    return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.TRIPLE_BACKTICK_TOKEN);
                 } else {
                     // double backtick
-                    return getEndBacktickSyntaxToken(false);
+                    return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
                 }
             }
         }
@@ -800,7 +802,7 @@ public class DocumentationLexer extends AbstractLexer {
         if (nextChar == LexerTerminals.BACKTICK) {
             reader.advance();
             switchMode(ParserMode.DOC_SINGLE_BACKTICK_CONTENT);
-            return getDocumentationSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+            return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.BACKTICK_TOKEN);
         }
 
         while (isIdentifierInitialChar(peek())) {

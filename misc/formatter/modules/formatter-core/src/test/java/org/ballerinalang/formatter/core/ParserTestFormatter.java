@@ -52,7 +52,7 @@ public class ParserTestFormatter extends FormatterTest {
     @Override
     public List<String> skipList() {
         return Arrays.asList(
-                // the following tests need to be skipped since these contain intended extra minutiaes
+                // the following tests need to be skipped since these contain intended extra/no minutiae
                 "minutiae_test_01.bal",
                 "minutiae_test_02.bal",
                 "minutiae_test_03.bal",
@@ -62,6 +62,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "doc_source_15.bal",
                 "doc_source_06.bal",
                 "module_var_decl_source_16.bal",
+                "doc_source_24.bal",
 
                 // the following tests need to be enabled in the future
                 "ambiguity_source_11.bal", // parser issue for indexed expressions #26420
@@ -77,14 +78,6 @@ public class ParserTestFormatter extends FormatterTest {
                 "doc_source_21.bal", // issue #28172
 
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
-
-                // documentation
-                // TODO: enable
-                "doc_source_01.bal", "doc_source_02.bal", "doc_source_03.bal", "doc_source_04.bal", "doc_source_05.bal",
-                "doc_source_07.bal", "doc_source_08.bal", "doc_source_09.bal", "doc_source_10.bal", "doc_source_11.bal",
-                "doc_source_12.bal", "doc_source_13.bal", "doc_source_14.bal", "doc_source_16.bal", "doc_source_17.bal",
-                "doc_source_18.bal", "doc_source_19.bal", "doc_source_20.bal", "doc_source_21.bal", "doc_source_22.bal",
-                "doc_source_23.bal",
 
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",

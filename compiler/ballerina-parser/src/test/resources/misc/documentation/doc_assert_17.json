@@ -50,19 +50,13 @@
                                       "value": " `f()` "
                                     },
                                     {
-                                      "kind": "DOUBLE_BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "DOUBLE_BACKTICK_TOKEN"
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "as an alternative to "
+                                  "value": " as an alternative to "
                                 },
                                 {
                                   "kind": "INLINE_CODE_REFERENCE",
