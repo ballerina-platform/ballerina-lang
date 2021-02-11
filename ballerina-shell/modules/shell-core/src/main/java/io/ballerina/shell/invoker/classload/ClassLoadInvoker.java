@@ -38,7 +38,6 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.invoker.ShellInvoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
@@ -193,7 +192,7 @@ public class ClassLoadInvoker extends ShellInvoker implements ImportProcessor {
                 ImportDeclarationSnippet importDcln = (ImportDeclarationSnippet) newSnippet;
                 String importPrefix = timedOperation("processing import", () -> processImport(importDcln));
                 Objects.requireNonNull(importPrefix, "Import prefix identification failed.");
-                addDiagnostic(Diagnostic.debug("Import prefix identified as: " + importPrefix));
+                addDebugDiagnostic("Import prefix identified as: " + importPrefix);
                 return Optional.empty();
 
             case MODULE_MEMBER_DECLARATION:
@@ -205,10 +204,10 @@ public class ClassLoadInvoker extends ShellInvoker implements ImportProcessor {
                 this.knownSymbols.addAll(this.newSymbols);
                 this.newImplicitImports.forEach(imports::storeImplicitPrefix);
                 this.moduleDclns.put(newModuleDcln.getKey(), newModuleDcln.getValue());
-                addDiagnostic(Diagnostic.debug("Module dcln name: " + newModuleDcln.getKey()));
-                addDiagnostic(Diagnostic.debug("Module dcln code: " + newModuleDcln.getValue()));
-                addDiagnostic(Diagnostic.debug("Found new symbols: " + this.newSymbols));
-                addDiagnostic(Diagnostic.debug("Implicit imports added: " + this.newImplicitImports));
+                addDebugDiagnostic("Module dcln name: " + newModuleDcln.getKey());
+                addDebugDiagnostic("Module dcln code: " + newModuleDcln.getValue());
+                addDebugDiagnostic("Found new symbols: " + this.newSymbols);
+                addDebugDiagnostic("Implicit imports added: " + this.newImplicitImports);
                 return Optional.empty();
 
             case VARIABLE_DECLARATION:
@@ -234,7 +233,7 @@ public class ClassLoadInvoker extends ShellInvoker implements ImportProcessor {
                         () -> executeProject(jBallerinaBackend));
 
                 if (!isExecutionSuccessful) {
-                    addDiagnostic(Diagnostic.error("Unhandled Runtime Error."));
+                    addErrorDiagnostic("Unhandled Runtime Error.");
                     throw new InvokerException();
                 }
 
@@ -245,13 +244,13 @@ public class ClassLoadInvoker extends ShellInvoker implements ImportProcessor {
                 if (newSnippet.isVariableDeclaration()) {
                     globalVars.addAll(newVariables);
                 }
-                addDiagnostic(Diagnostic.debug("Found new variables: " + newVariables));
-                addDiagnostic(Diagnostic.debug("Found new symbols: " + this.newSymbols));
-                addDiagnostic(Diagnostic.debug("Implicit imports added: " + this.newImplicitImports));
+                addDebugDiagnostic("Found new variables: " + newVariables);
+                addDebugDiagnostic("Found new symbols: " + this.newSymbols);
+                addDebugDiagnostic("Implicit imports added: " + this.newImplicitImports);
                 return Optional.ofNullable(executionResult);
 
             default:
-                addDiagnostic(Diagnostic.error("Unexpected snippet type."));
+                addErrorDiagnostic("Unexpected snippet type.");
                 throw new UnsupportedOperationException();
         }
     }
@@ -295,7 +294,7 @@ public class ClassLoadInvoker extends ShellInvoker implements ImportProcessor {
             return quotedPrefix;
         } else if (imports.containsPrefix(quotedPrefix)) {
             // Prefix is already used. (Not for the same module - checked above)
-            addDiagnostic(Diagnostic.error("The import prefix was already used by another import."));
+            addErrorDiagnostic("The import prefix was already used by another import.");
             throw new InvokerException();
         }
 
@@ -389,7 +388,7 @@ public class ClassLoadInvoker extends ShellInvoker implements ImportProcessor {
             }
         }
 
-        addDiagnostic(Diagnostic.error("Invalid module level declaration: cannot be compiled."));
+        addErrorDiagnostic("Invalid module level declaration: cannot be compiled.");
         throw new InvokerException();
     }
 

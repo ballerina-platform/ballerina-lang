@@ -177,7 +177,7 @@ public abstract class ShellInvoker extends DiagnosticReporter {
             template.execute(stringWriter, context);
             return getProject(stringWriter.toString());
         } catch (IOException e) {
-            addDiagnostic(Diagnostic.error("File generation failed: " + e.getMessage()));
+            addErrorDiagnostic("File generation failed: " + e.getMessage());
             throw new InvokerException(e);
         }
     }
@@ -195,7 +195,7 @@ public abstract class ShellInvoker extends DiagnosticReporter {
             BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
             return SingleFileProject.load(mainBal.toPath(), buildOptions);
         } catch (IOException e) {
-            addDiagnostic(Diagnostic.error("File writing failed: " + e.getMessage()));
+            addErrorDiagnostic("File writing failed: " + e.getMessage());
             throw new InvokerException(e);
         }
     }
@@ -219,8 +219,8 @@ public abstract class ShellInvoker extends DiagnosticReporter {
             for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : diagnosticResult.diagnostics()) {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
-                    addDiagnostic(Diagnostic.error(highlightedDiagnostic(module, diagnostic)));
-                    addDiagnostic(Diagnostic.error("Compilation aborted because of errors."));
+                    addErrorDiagnostic(highlightedDiagnostic(module, diagnostic));
+                    addErrorDiagnostic("Compilation aborted because of errors.");
                     throw new InvokerException();
                 } else if (severity == DiagnosticSeverity.WARNING) {
                     addDiagnostic(Diagnostic.warn(highlightedDiagnostic(module, diagnostic)));
@@ -233,10 +233,10 @@ public abstract class ShellInvoker extends DiagnosticReporter {
         } catch (InvokerException e) {
             throw e;
         } catch (Exception e) {
-            addDiagnostic(Diagnostic.error("Something went wrong: " + e));
+            addErrorDiagnostic("Something went wrong: " + e);
             throw new InvokerException(e);
         } catch (Error e) {
-            addDiagnostic(Diagnostic.error("Something severely went wrong: " + e));
+            addErrorDiagnostic("Something severely went wrong: " + e);
             throw new InvokerException(e);
         }
     }
@@ -255,7 +255,7 @@ public abstract class ShellInvoker extends DiagnosticReporter {
         // Detect if import is valid.
         for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
             if (diagnostic.diagnosticInfo().code().equals(MODULE_NOT_FOUND_CODE)) {
-                addDiagnostic(Diagnostic.error("Import resolution failed. Module not found."));
+                addErrorDiagnostic("Import resolution failed. Module not found.");
                 throw new InvokerException();
             }
         }
@@ -331,13 +331,13 @@ public abstract class ShellInvoker extends DiagnosticReporter {
             }
             return result;
         } catch (ClassNotFoundException e) {
-            addDiagnostic(Diagnostic.error(className + " class not found: " + e.getMessage()));
+            addErrorDiagnostic(className + " class not found: " + e.getMessage());
             throw new InvokerException(e);
         } catch (NoSuchMethodException e) {
-            addDiagnostic(Diagnostic.error(methodName + " method not found: " + e.getMessage()));
+            addErrorDiagnostic(methodName + " method not found: " + e.getMessage());
             throw new InvokerException(e);
         } catch (RuntimeException e) {
-            addDiagnostic(Diagnostic.error("Unexpected error: " + e.getMessage()));
+            addErrorDiagnostic("Unexpected error: " + e.getMessage());
             throw new InvokerException(e);
         }
     }
@@ -366,19 +366,19 @@ public abstract class ShellInvoker extends DiagnosticReporter {
             addDiagnostic(Diagnostic.debug("Result: " + result));
             return result;
         } catch (ClassNotFoundException e) {
-            addDiagnostic(Diagnostic.error(className + " class not found: " + e.getMessage()));
+            addErrorDiagnostic(className + " class not found: " + e.getMessage());
             throw new InvokerException(e);
         } catch (NoSuchMethodException e) {
-            addDiagnostic(Diagnostic.error(methodName + " method not found: " + e.getMessage()));
+            addErrorDiagnostic(methodName + " method not found: " + e.getMessage());
             throw new InvokerException(e);
         } catch (IllegalAccessException e) {
-            addDiagnostic(Diagnostic.error(methodName + " illegal access: " + e.getMessage()));
+            addErrorDiagnostic(methodName + " illegal access: " + e.getMessage());
             throw new InvokerException(e);
         } catch (InvocationTargetException e) {
-            addDiagnostic(Diagnostic.error(methodName + " exception at target: " + e.getTargetException()));
+            addErrorDiagnostic(methodName + " exception at target: " + e.getTargetException());
             throw new InvokerException(e);
         } catch (RuntimeException e) {
-            addDiagnostic(Diagnostic.error("Unexpected error: " + e.getMessage()));
+            addErrorDiagnostic("Unexpected error: " + e.getMessage());
             throw new InvokerException(e);
         }
     }
