@@ -303,12 +303,13 @@ class AIDataMapperCodeActionUtil {
      * For a give array of schemas, return a mapping function.
      *
      * @param schemas {@link JsonArray}
-     * @param foundTypeLeft
-     * @param foundTypeRight
+     * @param foundTypeLeft {@link String}
+     * @param foundTypeRight {@link String}
      * @return mapped function
      * @throws IOException throws if an error occurred in HTTP request
      */
-    private static String getMapping(JsonArray schemas, CodeActionContext context, String foundTypeLeft, String foundTypeRight) throws IOException {
+    private static String getMapping(JsonArray schemas, CodeActionContext context, String foundTypeLeft,
+                                     String foundTypeRight) throws IOException {
         int hashCode = schemas.hashCode();
         if (mappingCache.asMap().containsKey(hashCode)) {
             return mappingCache.asMap().get(hashCode);
@@ -379,17 +380,18 @@ class AIDataMapperCodeActionUtil {
         }
     }
 
-    private static String generateMappingFunction(String mappingFromServer, String foundTypeLeft, String foundTypeRight){
+    private static String generateMappingFunction(String mappingFromServer, String foundTypeLeft,
+                                                  String foundTypeRight) {
 
-        mappingFromServer = mappingFromServer.replaceAll("\"","");
-        mappingFromServer = mappingFromServer.replaceAll(",",", ");
-        mappingFromServer = mappingFromServer.replaceAll(":",": ");
-        String mappedFunction = "function map" + foundTypeRight + "To" + foundTypeLeft + "(" + foundTypeRight + " " + foundTypeRight.toLowerCase() + ") returns " + foundTypeLeft + "{" +
-        "\n// Some record fields might be missing in the AI based mapping." +
-        "\n\t" + foundTypeLeft + " "+ foundTypeLeft.toLowerCase() + " = " + mappingFromServer + ";" +
-        "\n\treturn " + foundTypeLeft.toLowerCase() + ";\n}";
+        mappingFromServer = mappingFromServer.replaceAll("\"", "");
+        mappingFromServer = mappingFromServer.replaceAll(",", ", ");
+        mappingFromServer = mappingFromServer.replaceAll(":", ": ");
+        String mappedFunction = "function map" + foundTypeRight + "To" + foundTypeLeft + "(" + foundTypeRight + " " +
+                foundTypeRight.toLowerCase() + ") returns " + foundTypeLeft + "{" +
+                "\n// Some record fields might be missing in the AI based mapping." +
+                "\n\t" + foundTypeLeft + " " + foundTypeLeft.toLowerCase() + " = " + mappingFromServer + ";" +
+                "\n\treturn " + foundTypeLeft.toLowerCase() + ";\n}";
 
         return mappedFunction;
     }
 }
-
