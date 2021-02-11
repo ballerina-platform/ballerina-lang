@@ -18,8 +18,6 @@
 
 package io.ballerina.shell.snippet;
 
-import io.ballerina.compiler.syntax.tree.TreeModifier;
-
 import java.util.Set;
 
 /**
@@ -58,21 +56,4 @@ public interface Snippet {
      * @return Snippet kind value.
      */
     SnippetKind getKind();
-
-    /**
-     * Modifies the tree of the snippet.
-     *
-     * @param treeModifier Modifier to use.
-     */
-    void modify(TreeModifier treeModifier);
-
-    boolean isImport();
-
-    boolean isModuleMemberDeclaration();
-
-    boolean isStatement();
-
-    boolean isExpression();
-
-    boolean isVariableDeclaration();
 }

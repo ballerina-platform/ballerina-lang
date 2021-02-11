@@ -41,6 +41,7 @@ import io.ballerina.shell.snippet.types.DeclarationSnippet;
 import io.ballerina.shell.snippet.types.ExecutableSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
 import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
+import io.ballerina.shell.snippet.types.StatementSnippet;
 import io.ballerina.shell.snippet.types.TopLevelDeclarationSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 import io.ballerina.shell.utils.QuotedIdentifier;
@@ -343,13 +344,12 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             Set<QuotedIdentifier> usedPrefixes = new HashSet<>();
             declarationSnippet.usedImports().forEach(p -> usedPrefixes.add(new QuotedIdentifier(p)));
 
-            if (declarationSnippet.isVariableDeclaration()) {
-                assert declarationSnippet instanceof VariableDeclarationSnippet;
+            if (declarationSnippet instanceof VariableDeclarationSnippet) {
                 VariableDeclarationSnippet varDclnSnippet = (VariableDeclarationSnippet) declarationSnippet;
                 variableNames.addAll(varDclnSnippet.names());
                 variableDeclarations.put(varDclnSnippet, varDclnSnippet.names());
-            } else if (declarationSnippet.isModuleMemberDeclaration()) {
-                assert declarationSnippet instanceof ModuleMemberDeclarationSnippet;
+
+            } else if (declarationSnippet instanceof ModuleMemberDeclarationSnippet) {
                 ModuleMemberDeclarationSnippet moduleDclnSnippet = (ModuleMemberDeclarationSnippet) declarationSnippet;
                 QuotedIdentifier moduleDeclarationName = moduleDclnSnippet.name();
                 moduleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);
@@ -458,7 +458,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         Map<QuotedIdentifier, VariableContext> varDclnsMap = globalVariableContexts();
         Set<String> importStrings = getRequiredImportStatements(newSnippet);
 
-        StatementContext lastStatement = new StatementContext(newSnippet);
+        boolean isStatement = newSnippet instanceof StatementSnippet;
+        StatementContext lastStatement = new StatementContext(newSnippet.toString(), isStatement);
         return new ClassLoadContext(this.contextId, importStrings, moduleDclns.values(),
                 varDclnsMap.values(), null, lastStatement);
     }
