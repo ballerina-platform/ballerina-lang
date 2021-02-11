@@ -33,7 +33,7 @@ import java.util.Collections;
 public class STMarkdownCodeBlockNode extends STDocumentationNode {
     public final STNode startLineHashToken;
     public final STNode startBacktick;
-    public final STNode codeDescription;
+    public final STNode langAttribute;
     public final STNode codeLines;
     public final STNode endLineHashToken;
     public final STNode endBacktick;
@@ -41,14 +41,14 @@ public class STMarkdownCodeBlockNode extends STDocumentationNode {
     STMarkdownCodeBlockNode(
             STNode startLineHashToken,
             STNode startBacktick,
-            STNode codeDescription,
+            STNode langAttribute,
             STNode codeLines,
             STNode endLineHashToken,
             STNode endBacktick) {
         this(
                 startLineHashToken,
                 startBacktick,
-                codeDescription,
+                langAttribute,
                 codeLines,
                 endLineHashToken,
                 endBacktick,
@@ -58,7 +58,7 @@ public class STMarkdownCodeBlockNode extends STDocumentationNode {
     STMarkdownCodeBlockNode(
             STNode startLineHashToken,
             STNode startBacktick,
-            STNode codeDescription,
+            STNode langAttribute,
             STNode codeLines,
             STNode endLineHashToken,
             STNode endBacktick,
@@ -66,7 +66,7 @@ public class STMarkdownCodeBlockNode extends STDocumentationNode {
         super(SyntaxKind.MARKDOWN_CODE_BLOCK, diagnostics);
         this.startLineHashToken = startLineHashToken;
         this.startBacktick = startBacktick;
-        this.codeDescription = codeDescription;
+        this.langAttribute = langAttribute;
         this.codeLines = codeLines;
         this.endLineHashToken = endLineHashToken;
         this.endBacktick = endBacktick;
@@ -74,7 +74,7 @@ public class STMarkdownCodeBlockNode extends STDocumentationNode {
         addChildren(
                 startLineHashToken,
                 startBacktick,
-                codeDescription,
+                langAttribute,
                 codeLines,
                 endLineHashToken,
                 endBacktick);
@@ -84,7 +84,7 @@ public class STMarkdownCodeBlockNode extends STDocumentationNode {
         return new STMarkdownCodeBlockNode(
                 this.startLineHashToken,
                 this.startBacktick,
-                this.codeDescription,
+                this.langAttribute,
                 this.codeLines,
                 this.endLineHashToken,
                 this.endBacktick,
@@ -94,14 +94,14 @@ public class STMarkdownCodeBlockNode extends STDocumentationNode {
     public STMarkdownCodeBlockNode modify(
             STNode startLineHashToken,
             STNode startBacktick,
-            STNode codeDescription,
+            STNode langAttribute,
             STNode codeLines,
             STNode endLineHashToken,
             STNode endBacktick) {
         if (checkForReferenceEquality(
                 startLineHashToken,
                 startBacktick,
-                codeDescription,
+                langAttribute,
                 codeLines,
                 endLineHashToken,
                 endBacktick)) {
@@ -111,7 +111,7 @@ public class STMarkdownCodeBlockNode extends STDocumentationNode {
         return new STMarkdownCodeBlockNode(
                 startLineHashToken,
                 startBacktick,
-                codeDescription,
+                langAttribute,
                 codeLines,
                 endLineHashToken,
                 endBacktick,

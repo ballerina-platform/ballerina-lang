@@ -5304,10 +5304,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
 
         StringBuilder docText = new StringBuilder();
-        codeBlockNode.codeDescription().ifPresentOrElse(
-                (codeDesc) -> {
+        codeBlockNode.langAttribute().ifPresentOrElse(
+                (langAttribute) -> {
                     docText.append(codeBlockNode.startBacktick().text());
-                    docText.append(codeDesc.toString());
+                    docText.append(langAttribute.toString());
                 },
                 () -> docText.append(codeBlockNode.startBacktick().toString())
         );

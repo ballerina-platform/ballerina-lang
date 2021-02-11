@@ -2987,7 +2987,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static MarkdownCodeBlockNode createMarkdownCodeBlockNode(
             Token startLineHashToken,
             Token startBacktick,
-            Token codeDescription,
+            Token langAttribute,
             NodeList<MarkdownCodeLineNode> codeLines,
             Token endLineHashToken,
             Token endBacktick) {
@@ -3000,7 +3000,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stMarkdownCodeBlockNode = STNodeFactory.createMarkdownCodeBlockNode(
                 startLineHashToken.internalNode(),
                 startBacktick.internalNode(),
-                getOptionalSTNode(codeDescription),
+                getOptionalSTNode(langAttribute),
                 codeLines.underlyingListNode().internalNode(),
                 endLineHashToken.internalNode(),
                 endBacktick.internalNode());

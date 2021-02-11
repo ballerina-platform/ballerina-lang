@@ -1697,9 +1697,9 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public MarkdownCodeBlockNode transform(MarkdownCodeBlockNode markdownCodeBlockNode) {
         Token startLineHash = formatToken(markdownCodeBlockNode.startLineHashToken(), 1, 0);
-        boolean hasCodeAttribute = markdownCodeBlockNode.codeDescription().isPresent();
+        boolean hasCodeAttribute = markdownCodeBlockNode.langAttribute().isPresent();
         Token startBacktick = formatToken(markdownCodeBlockNode.startBacktick(), 0, hasCodeAttribute ? 0 : 1);
-        Token codeDescription = formatToken(markdownCodeBlockNode.codeDescription().orElse(null), 0, 1);
+        Token langAttribute = formatToken(markdownCodeBlockNode.langAttribute().orElse(null), 0, 1);
         NodeList<MarkdownCodeLineNode> codeLines = formatNodeList(markdownCodeBlockNode.codeLines(), 0, 0, 0, 0);
         Token endLineHash = formatToken(markdownCodeBlockNode.endLineHashToken(), 1, 0);
         Token endBacktick = formatToken(markdownCodeBlockNode.endBacktick(), 0, 1);
@@ -1707,7 +1707,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return markdownCodeBlockNode.modify()
                 .withStartLineHashToken(startLineHash)
                 .withStartBacktick(startBacktick)
-                .withCodeDescription(codeDescription)
+                .withLangAttribute(langAttribute)
                 .withCodeLines(codeLines)
                 .withEndLineHashToken(endLineHash)
                 .withEndBacktick(endBacktick)

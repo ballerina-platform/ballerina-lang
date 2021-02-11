@@ -2264,7 +2264,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createMarkdownCodeBlockNode(
             STNode startLineHashToken,
             STNode startBacktick,
-            STNode codeDescription,
+            STNode langAttribute,
             STNode codeLines,
             STNode endLineHashToken,
             STNode endBacktick) {
@@ -2272,7 +2272,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STMarkdownCodeBlockNode(
                 startLineHashToken,
                 startBacktick,
-                codeDescription,
+                langAttribute,
                 codeLines,
                 endLineHashToken,
                 endBacktick);

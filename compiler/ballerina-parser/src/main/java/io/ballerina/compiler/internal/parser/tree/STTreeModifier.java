@@ -2432,14 +2432,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STMarkdownCodeBlockNode markdownCodeBlockNode) {
         STNode startLineHashToken = modifyNode(markdownCodeBlockNode.startLineHashToken);
         STNode startBacktick = modifyNode(markdownCodeBlockNode.startBacktick);
-        STNode codeDescription = modifyNode(markdownCodeBlockNode.codeDescription);
+        STNode langAttribute = modifyNode(markdownCodeBlockNode.langAttribute);
         STNode codeLines = modifyNode(markdownCodeBlockNode.codeLines);
         STNode endLineHashToken = modifyNode(markdownCodeBlockNode.endLineHashToken);
         STNode endBacktick = modifyNode(markdownCodeBlockNode.endBacktick);
         return markdownCodeBlockNode.modify(
                 startLineHashToken,
                 startBacktick,
-                codeDescription,
+                langAttribute,
                 codeLines,
                 endLineHashToken,
                 endBacktick);

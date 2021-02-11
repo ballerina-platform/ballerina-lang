@@ -3071,8 +3071,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(markdownCodeBlockNode.startLineHashToken());
         Token startBacktick =
                 modifyToken(markdownCodeBlockNode.startBacktick());
-        Token codeDescription =
-                modifyToken(markdownCodeBlockNode.codeDescription().orElse(null));
+        Token langAttribute =
+                modifyToken(markdownCodeBlockNode.langAttribute().orElse(null));
         NodeList<MarkdownCodeLineNode> codeLines =
                 modifyNodeList(markdownCodeBlockNode.codeLines());
         Token endLineHashToken =
@@ -3082,7 +3082,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return markdownCodeBlockNode.modify(
                 startLineHashToken,
                 startBacktick,
-                codeDescription,
+                langAttribute,
                 codeLines,
                 endLineHashToken,
                 endBacktick);

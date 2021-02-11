@@ -788,7 +788,7 @@ public class Generator {
         StringBuilder doc = new StringBuilder();
 
         doc.append(markdownCodeBlockNode.startBacktick().toString());
-        markdownCodeBlockNode.codeDescription().ifPresent(codeDescription -> doc.append(codeDescription.toString()));
+        markdownCodeBlockNode.langAttribute().ifPresent(langAttribute -> doc.append(langAttribute.toString()));
 
         for (MarkdownCodeLineNode codeLineNode : markdownCodeBlockNode.codeLines()) {
             doc.append(codeLineNode.codeDescription().toString());

@@ -41,7 +41,7 @@ public class MarkdownCodeBlockNode extends DocumentationNode {
         return childInBucket(1);
     }
 
-    public Optional<Token> codeDescription() {
+    public Optional<Token> langAttribute() {
         return optionalChildInBucket(2);
     }
 
@@ -72,7 +72,7 @@ public class MarkdownCodeBlockNode extends DocumentationNode {
         return new String[]{
                 "startLineHashToken",
                 "startBacktick",
-                "codeDescription",
+                "langAttribute",
                 "codeLines",
                 "endLineHashToken",
                 "endBacktick"};
@@ -81,14 +81,14 @@ public class MarkdownCodeBlockNode extends DocumentationNode {
     public MarkdownCodeBlockNode modify(
             Token startLineHashToken,
             Token startBacktick,
-            Token codeDescription,
+            Token langAttribute,
             NodeList<MarkdownCodeLineNode> codeLines,
             Token endLineHashToken,
             Token endBacktick) {
         if (checkForReferenceEquality(
                 startLineHashToken,
                 startBacktick,
-                codeDescription,
+                langAttribute,
                 codeLines.underlyingListNode(),
                 endLineHashToken,
                 endBacktick)) {
@@ -98,7 +98,7 @@ public class MarkdownCodeBlockNode extends DocumentationNode {
         return NodeFactory.createMarkdownCodeBlockNode(
                 startLineHashToken,
                 startBacktick,
-                codeDescription,
+                langAttribute,
                 codeLines,
                 endLineHashToken,
                 endBacktick);
@@ -117,7 +117,7 @@ public class MarkdownCodeBlockNode extends DocumentationNode {
         private final MarkdownCodeBlockNode oldNode;
         private Token startLineHashToken;
         private Token startBacktick;
-        private Token codeDescription;
+        private Token langAttribute;
         private NodeList<MarkdownCodeLineNode> codeLines;
         private Token endLineHashToken;
         private Token endBacktick;
@@ -126,7 +126,7 @@ public class MarkdownCodeBlockNode extends DocumentationNode {
             this.oldNode = oldNode;
             this.startLineHashToken = oldNode.startLineHashToken();
             this.startBacktick = oldNode.startBacktick();
-            this.codeDescription = oldNode.codeDescription().orElse(null);
+            this.langAttribute = oldNode.langAttribute().orElse(null);
             this.codeLines = oldNode.codeLines();
             this.endLineHashToken = oldNode.endLineHashToken();
             this.endBacktick = oldNode.endBacktick();
@@ -146,9 +146,9 @@ public class MarkdownCodeBlockNode extends DocumentationNode {
             return this;
         }
 
-        public MarkdownCodeBlockNodeModifier withCodeDescription(
-                Token codeDescription) {
-            this.codeDescription = codeDescription;
+        public MarkdownCodeBlockNodeModifier withLangAttribute(
+                Token langAttribute) {
+            this.langAttribute = langAttribute;
             return this;
         }
 
@@ -177,7 +177,7 @@ public class MarkdownCodeBlockNode extends DocumentationNode {
             return oldNode.modify(
                     startLineHashToken,
                     startBacktick,
-                    codeDescription,
+                    langAttribute,
                     codeLines,
                     endLineHashToken,
                     endBacktick);

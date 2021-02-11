@@ -4134,7 +4134,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "codeDescription",
+                    "name": "langAttribute",
                     "type": "Token",
                     "isOptional": true
                 },
