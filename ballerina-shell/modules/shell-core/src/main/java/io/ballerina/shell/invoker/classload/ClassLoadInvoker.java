@@ -387,10 +387,10 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
         // All was successful without error - save state
         this.newImports.forEach(imports::storeImportUsages);
-        for (QuotedIdentifier moduleDclnName : moduleDeclarations.keySet()) {
-            String moduleDclnCode = moduleDeclarations.get(moduleDclnName).toString();
-            this.moduleDclns.put(moduleDclnName, moduleDclnCode);
-            addDiagnostic(Diagnostic.debug("Module dcln name: " + moduleDclnName));
+        for (Map.Entry<QuotedIdentifier, ModuleMemberDeclarationSnippet> dcln : moduleDeclarations.entrySet()) {
+            String moduleDclnCode = dcln.getValue().toString();
+            this.moduleDclns.put(dcln.getKey(), moduleDclnCode);
+            addDiagnostic(Diagnostic.debug("Module dcln name: " + dcln.getKey()));
             addDiagnostic(Diagnostic.debug("Module dcln code: " + moduleDclnCode));
         }
         addDiagnostic(Diagnostic.debug("Implicit imports added: " + this.newImports));
@@ -441,10 +441,9 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         Set<String> importStrings = new HashSet<>();
 
         // Remove old declarations and add new declarations
-        for (QuotedIdentifier dclnName : moduleDeclarations.keySet()) {
-            ModuleMemberDeclarationSnippet moduleDeclaration = moduleDeclarations.get(dclnName);
-            importStrings.addAll(getRequiredImportStatements(moduleDeclaration));
-            moduleDclnStringsMap.put(dclnName, moduleDeclaration.toString());
+        for (Map.Entry<QuotedIdentifier, ModuleMemberDeclarationSnippet> dcln : moduleDeclarations.entrySet()) {
+            importStrings.addAll(getRequiredImportStatements(dcln.getValue()));
+            moduleDclnStringsMap.put(dcln.getKey(), dcln.getValue().toString());
         }
         // Remove old variable names and process new variable dclns
         variableNames.forEach(oldVarDclns::remove);
