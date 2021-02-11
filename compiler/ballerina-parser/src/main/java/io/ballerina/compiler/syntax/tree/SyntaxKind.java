@@ -145,7 +145,7 @@ public enum SyntaxKind {
     CLOSE_BRACE_PIPE_TOKEN(512, "|}"),
     AT_TOKEN(513, "@"),
     HASH_TOKEN(514, "#"),
-    BACKTICK_TOKEN(515, "`"), // TODO: make single backtick
+    BACKTICK_TOKEN(515, "`"),
     DOUBLE_QUOTE_TOKEN(516, "\""),
     SINGLE_QUOTE_TOKEN(517, "'"),
     DOUBLE_BACKTICK_TOKEN(518, "``"),

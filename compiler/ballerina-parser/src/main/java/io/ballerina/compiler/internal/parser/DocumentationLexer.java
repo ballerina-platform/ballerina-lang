@@ -376,6 +376,29 @@ public class DocumentationLexer extends AbstractLexer {
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
+    private STToken getDocLiteralWithoutTrivia(SyntaxKind kind) {
+        STNode leadingTrivia = getLeadingTrivia();
+        String lexeme = getLexeme();
+
+        // We reach here for deprecation literal. We will not capture whitespace trivia for that token.
+        // This done to give better formatting if someone uses more text after the deprecated literal.
+        // Allowing more text inline in deprecation line is still in discussion.
+        // Refer: https://github.com/ballerina-platform/ballerina-spec/issues/461
+        STNode trailingTrivia;
+        List<STNode> triviaList = new ArrayList<>(1);
+
+        int nextChar = peek();
+        if (nextChar == LexerTerminals.NEWLINE || nextChar == LexerTerminals.CARRIAGE_RETURN) {
+            reader.mark();
+            triviaList.add(processEndOfLine());
+            // Newline reached, hence end the current mode
+            endMode();
+        }
+
+        trailingTrivia = STNodeFactory.createNodeList(triviaList);
+        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
+    }
+
     private STToken getCodeInitBacktickToken(SyntaxKind kind) {
         STNode leadingTrivia = getLeadingTrivia();
 
@@ -517,7 +540,7 @@ public class DocumentationLexer extends AbstractLexer {
         reader.advance(); // Advance reader for #
         reader.advance(whitespaceCount); // Advance reader for WS
         reader.advance(10); // Advance reader for "Deprecated" word
-        return getDocLiteralToken(SyntaxKind.DEPRECATION_LITERAL);
+        return getDocLiteralWithoutTrivia(SyntaxKind.DEPRECATION_LITERAL);
     }
 
     /*

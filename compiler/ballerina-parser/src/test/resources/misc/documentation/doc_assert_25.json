@@ -37,17 +37,11 @@
                               "children": [
                                 {
                                   "kind": "DEPRECATION_LITERAL",
-                                  "value": "# Deprecated",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "# Deprecated"
                                 },
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "# Deprecated text",
+                                  "value": " # Deprecated text",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -76,17 +70,11 @@
                               "children": [
                                 {
                                   "kind": "DEPRECATION_LITERAL",
-                                  "value": "# Deprecated",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "# Deprecated"
                                 },
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "+ text",
+                                  "value": " + text",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",

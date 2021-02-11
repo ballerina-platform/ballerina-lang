@@ -249,17 +249,11 @@
                               "children": [
                                 {
                                   "kind": "DEPRECATION_LITERAL",
-                                  "value": "# Deprecated",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "# Deprecated"
                                 },
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "this will also parse as a syntactically valid deprecation documentation line",
+                                  "value": " this will also parse as a syntactically valid deprecation documentation line",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
