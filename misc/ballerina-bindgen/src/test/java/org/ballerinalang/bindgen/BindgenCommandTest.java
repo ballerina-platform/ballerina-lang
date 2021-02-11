@@ -89,9 +89,22 @@ public class BindgenCommandTest extends CommandTest {
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
-        String output = readOutput(false);
+        String output = readOutput(true);
         Assert.assertTrue(output.contains("Failed to add the following to classpath:" + System.lineSeparator() +
                 "\t./incorrect.jar"));
+    }
+
+    @Test(description = "Test if the correct error is given for incorrect maven option value")
+    public void testIncorrectMavenLibrary() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-mvn=org.yaml.snakeyaml.1.25", "-o=" + projectDir, "java.lang.Object"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("error: incorrect maven dependency format found"));
     }
 
     @AfterClass

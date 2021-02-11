@@ -160,7 +160,7 @@ public class BindgenCommand implements BLauncherCmd {
         if (this.mavenDependency != null) {
             String[] mvnDependency = this.mavenDependency.split(splitColonRegex);
             if (mvnDependency.length != 3) {
-                setOutError("Error in the maven dependency provided.");
+                setOutError("error: incorrect maven dependency format found");
                 return;
             }
             bindingsGenerator.setMvnGroupId(mvnDependency[0]);
