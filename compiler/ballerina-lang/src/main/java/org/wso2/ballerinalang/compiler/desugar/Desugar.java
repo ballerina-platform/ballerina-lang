@@ -6494,7 +6494,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangInvocation replaceWithIntRange(Location location, BLangExpression lhsExpr,
                                                 BLangExpression rhsExpr) {
-        BInvokableSymbol symbol = (BInvokableSymbol) symTable.langObjectModuleSymbol.scope
+        BInvokableSymbol symbol = (BInvokableSymbol) symTable.langInternalModuleSymbol.scope
                 .lookup(Names.CREATE_INT_RANGE).symbol;
         BLangInvocation createIntRangeInvocation = ASTBuilderUtil.createInvocationExprForMethod(location, symbol,
                 new ArrayList<>(Lists.of(lhsExpr, rhsExpr)), symResolver);

@@ -95,32 +95,41 @@ public class Bootstrap {
         symbolTable.langJavaModuleSymbol = loadLangLibFromBala(JAVA, compilerContext);
 
         if (langLib.equals(INTERNAL)) {
+            symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
+            symResolver.bootstrapIteratorType();
             return; // Nothing else to load.
         }
 
         // load internal
+        if (langLib.equals(OBJECT)) {
+            return; // Nothing else to load.
+        }
+
+        symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
         symbolTable.langInternalModuleSymbol = loadLangLibFromBala(INTERNAL, compilerContext);
+        symResolver.bootstrapIntRangeType();
+        symResolver.bootstrapIteratorType();
 
         if (langLib.equals(QUERY)) {
             // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
-            symbolTable.langArrayModuleSymbol = loadLangLibFromBala(ARRAY, compilerContext);
-            symbolTable.langMapModuleSymbol = loadLangLibFromBala(MAP, compilerContext);
-            symbolTable.langStringModuleSymbol = loadLangLibFromBala(STRING, compilerContext);
             symbolTable.langXmlModuleSymbol = loadLangLibFromBala(XML, compilerContext);
             symbolTable.langTableModuleSymbol = loadLangLibFromBala(TABLE, compilerContext);
             symbolTable.langStreamModuleSymbol = loadLangLibFromBala(STREAM, compilerContext);
-            symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
             symbolTable.updateStringSubtypeOwners();
             symbolTable.updateXMLSubtypeOwners();
         }
 
         if (langLib.equals(TRANSACTION)) {
             // Transaction module requires array, map, string, value modules. Hence loading them.
+            symbolTable.langErrorModuleSymbol = loadLangLibFromBala(ERROR, compilerContext);
+            symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
+        }
+
+        if (langLib.equals(TRANSACTION) || langLib.equals(QUERY)) {
             symbolTable.langArrayModuleSymbol = loadLangLibFromBala(ARRAY, compilerContext);
             symbolTable.langMapModuleSymbol = loadLangLibFromBala(MAP, compilerContext);
-            symbolTable.langStringModuleSymbol = loadLangLibFromBala(STRING, compilerContext);
-            symbolTable.langErrorModuleSymbol = loadLangLibFromBala(ERROR, compilerContext);
             symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
+            symbolTable.langStringModuleSymbol = loadLangLibFromBala(STRING, compilerContext);
             symbolTable.updateStringSubtypeOwners();
         }
 
@@ -145,6 +154,7 @@ public class Bootstrap {
         symResolver.bootstrapAnydataType();
         symResolver.boostrapErrorType();
         symResolver.bootstrapCloneableType();
+        symResolver.bootstrapIntRangeType();
         symbolTable.langArrayModuleSymbol = loadLangLibFromBala(ARRAY, compilerContext);
         symbolTable.langDecimalModuleSymbol = loadLangLibFromBala(DECIMAL, compilerContext);
         symbolTable.langErrorModuleSymbol = loadLangLibFromBala(ERROR, compilerContext);

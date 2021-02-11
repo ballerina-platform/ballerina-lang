@@ -988,16 +988,9 @@ public function functionWithRangeExpressions() {
     foreach int i in 25 ..< 28 {
         // do nothing
     }
-     object {
-        public function iterator() returns
-            object {
-                public isolated function next() returns record {|int value;|}?;
-            };
-    } iterableObj = 25 ..< 28;
+    var iterableObj = 25 ..< 28;
 
-    object {
-            public isolated function next() returns (record {|int value;|}?);
-    } iterator = iterableObj.iterator();
+    var iterator = iterableObj.iterator();
 
     while (true) {
         record {|int value;|}? r = iterator.next();

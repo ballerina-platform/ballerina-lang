@@ -2860,7 +2860,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             symTable.langQueryModuleSymbol = packageSymbol;
             return;
         }
-
         if (langLib.equals(TRANSACTION)) {
             symTable.langTransactionModuleSymbol = packageSymbol;
             return;
