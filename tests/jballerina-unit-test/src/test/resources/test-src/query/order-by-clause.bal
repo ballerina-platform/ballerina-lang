@@ -421,7 +421,7 @@ function testQueryExprWithOrderByClauseReturnXML() returns xml {
     xml authors = from var book in bookStore/<book>/<author>
                   order by book.toString()
                   limit 2
-                  select <xml> book;
+                  select book;
 
     return  authors;
 }

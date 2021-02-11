@@ -5,7 +5,7 @@
   },
   {
     "description": "Helper record type.",
-    "code": "type Person record {| string name; int age;\n|};"
+    "code": "type Person record {| string name; int age;|};"
   },
   {
     "description": "Helper query object type.",
@@ -13,8 +13,7 @@
   },
   {
     "description": "Create a raw template with the `name` variable interpolated.",
-    "code": "string name = \"Ballerina\"; 'object:RawTemplate template = `Hello ${name}!!!`; template",
-    "expr": "{strings:[\"Hello \",\"!!!\"], insertions:[\"Ballerina\"]}"
+    "code": "string name = \"Ballerina\"; 'object:RawTemplate template = `Hello ${name}!!!`;"
   },
   {
     "description": "The string literal portions of the raw template.",
@@ -24,7 +23,7 @@
   {
     "description": "The `insertions` field holds the values obtained by evaluating the expressions",
     "code": "template.insertions[0]",
-    "expr": "Ballerina"
+    "expr": "\"Ballerina\""
   },
   {
     "description": "Helpers variables definition.",
@@ -41,11 +40,11 @@
   {
     "description": "Test building query 1.",
     "code": "buildQuery(queries[0])",
-    "expr": "INSERT INTO Details VALUES (John Doe, 25)"
+    "expr": "\"INSERT INTO Details VALUES (John Doe, 25)\""
   },
   {
     "description": "Test building query 2.",
     "code": "buildQuery(queries[1])",
-    "expr": "INSERT INTO Details VALUES (Jane Doe, 20)"
+    "expr": "\"INSERT INTO Details VALUES (Jane Doe, 20)\""
   }
 ]

@@ -96,3 +96,47 @@ isolated function testAccessingIsolatedVariableInIsolatedFunction() {
         }
     };
 }
+
+isolated int[] stack = [];
+
+int[][] allStacks = [];
+
+function testValidTransferOutInLockAccessingIsolatedVar() {
+    lock {
+        int[][] stacks = [stack];
+        allStacks = stacks.clone();
+    }
+}
+
+isolated int[][] isolatedStacks = [];
+
+isolated function testInvalidTransferInUpdatingIsolatedVar(int[] n) {
+    lock {
+        isolatedStacks.push(n.cloneReadOnly());
+    }
+}
+
+isolated function testValidTransferOutUpdatingOfIsolatedVarClone() returns int[][] {
+    lock {
+        return isolatedStacks.clone();
+    }
+}
+
+isolated function testValidTransferOutUpdatingOfIsolatedVarMember(int index, boolean b) returns int[] {
+    lock {
+        if b {
+            return isolatedStacks.cloneReadOnly()[index + 1];
+        }
+        return isolatedStacks[index].cloneReadOnly();
+    }
+}
+
+function testValidTransferInAsArgInLockAccessingIsolatedVar(int[] n) {
+    lock {
+        update(isolatedStacks, n.clone());
+    }
+}
+
+isolated function update(int[][] x, int[] y) {
+    x.push(y);
+}

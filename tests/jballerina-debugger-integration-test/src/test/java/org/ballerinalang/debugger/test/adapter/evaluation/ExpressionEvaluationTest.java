@@ -118,7 +118,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // record variable test (Student record)
         debugTestRunner.assertExpression(context, RECORD_VAR, " /:@[`{~⌤_123_ƮέŞŢ_Student", "record");
         // anonymous record variable test
-        debugTestRunner.assertExpression(context, ANON_RECORD_VAR, "anonymous", "record");
+        debugTestRunner.assertExpression(context, ANON_RECORD_VAR,
+                                         "record {| string city; string country; |}", "record");
         // error variable test
         debugTestRunner.assertExpression(context, ERROR_VAR, "SimpleErrorType", "error");
         // anonymous function variable test

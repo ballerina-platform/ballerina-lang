@@ -17,8 +17,10 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -46,7 +48,9 @@ import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Generic Completion provider for field access providers.
@@ -163,7 +167,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         String name = ((SimpleNameReferenceNode) referenceNode).name().text();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<Symbol> symbolRef = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(name))
+                .filter(symbol -> Objects.equals(symbol.getName().orElse(null), name))
                 .findFirst();
         if (symbolRef.isEmpty()) {
             return Optional.empty();
@@ -177,7 +181,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION && symbol.getName().get().equals(fName))
                 .map(symbol -> (FunctionSymbol) symbol)
                 .findFirst();
         if (symbolRef.isEmpty()) {
@@ -202,7 +206,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods().values());
         }
         Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
-                .filter(methodSymbol -> methodSymbol.name().equals(methodName))
+                .filter(methodSymbol -> methodSymbol.getName().get().equals(methodName))
                 .findFirst();
 
         if (filteredMethod.isEmpty()) {
@@ -233,7 +237,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                     CompletionItem completionItem = new CompletionItem();
                     completionItem.setLabel(name);
                     completionItem.setInsertText(name);
-                    completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
+                    completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldDescriptor.typeDescriptor()));
                     completionItems.add(new RecordFieldCompletionItem(context, fieldDescriptor, completionItem));
                 });
                 break;
@@ -243,11 +247,15 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                     CompletionItem completionItem = new CompletionItem();
                     completionItem.setLabel(name);
                     completionItem.setInsertText(name);
-                    completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
+                    completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldDescriptor.typeDescriptor()));
                     completionItems.add(new ObjectFieldCompletionItem(context, fieldDescriptor, completionItem));
                 });
-                completionItems.addAll(
-                        this.getCompletionItemList(new ArrayList<>(objTypeDesc.methods().values()), context));
+                boolean isClient = SymbolUtil.isClient(objTypeDesc);
+                // If the object type desc is a client, then we avoid all the remote methods
+                List<MethodSymbol> nonRemoteMethods = objTypeDesc.methods().values().stream()
+                        .filter(methodSymbol -> !isClient || !methodSymbol.qualifiers().contains(Qualifier.REMOTE))
+                        .collect(Collectors.toList());
+                completionItems.addAll(this.getCompletionItemList(new ArrayList<>(nonRemoteMethods), context));
                 break;
             case UNION:
                 UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rawType;

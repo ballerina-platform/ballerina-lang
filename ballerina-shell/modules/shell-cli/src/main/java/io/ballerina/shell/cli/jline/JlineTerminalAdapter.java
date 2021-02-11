@@ -18,7 +18,9 @@
 
 package io.ballerina.shell.cli.jline;
 
+import io.ballerina.shell.cli.ShellExitException;
 import io.ballerina.shell.cli.TerminalAdapter;
+import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.UserInterruptException;
 import org.jline.utils.AttributedStringBuilder;
@@ -44,11 +46,13 @@ public class JlineTerminalAdapter extends TerminalAdapter {
     }
 
     @Override
-    public String readLine(String prefix, String postfix) {
+    public String readLine(String prefix, String postfix) throws ShellExitException {
         try {
             return lineReader.readLine(prefix, postfix, (Character) null, null);
         } catch (UserInterruptException e) {
             return "";
+        } catch (EndOfFileException e) {
+            throw new ShellExitException();
         }
     }
 

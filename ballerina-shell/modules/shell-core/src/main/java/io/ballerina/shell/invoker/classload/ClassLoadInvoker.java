@@ -18,8 +18,7 @@
 
 package io.ballerina.shell.invoker.classload;
 
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
+import com.github.mustachejava.Mustache;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -100,9 +99,9 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     protected static final String MODULE_MAIN_METHOD_NAME = "main";
     protected static final String DOLLAR = "$";
     // Punctuations
-    private static final String DECLARATION_TEMPLATE_FILE = "template.declaration.ftl";
-    private static final String IMPORT_TEMPLATE_FILE = "template.import.ftl";
-    private static final String EXECUTION_TEMPLATE_FILE = "template.execution.ftl";
+    private static final String DECLARATION_TEMPLATE_FILE = "template.declaration.mustache";
+    private static final String IMPORT_TEMPLATE_FILE = "template.import.mustache";
+    private static final String EXECUTION_TEMPLATE_FILE = "template.execution.mustache";
 
     private static final AtomicInteger importIndex = new AtomicInteger(0);
 
@@ -344,9 +343,13 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
         Set<GlobalVariable> foundVariables = new HashSet<>();
         for (Symbol symbol : symbols) {
+            if (symbol.getName().isEmpty()) {
+                // Do not process symbols without a name
+                continue;
+            }
+
             HashedSymbol hashedSymbol = new HashedSymbol(symbol);
-            // TODO: After name alternative is implemented use it.
-            String variableName = symbol.name();
+            String variableName = symbol.getName().get();
 
             boolean ignoreSymbol = knownSymbols.contains(hashedSymbol)
                     || GlobalVariable.isDefined(foundVariables, variableName)
@@ -403,10 +406,13 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             return Map.entry(enumName.get(), newSnippet.toString());
         } else {
             for (Symbol symbol : symbols) {
+                if (symbol.getName().isEmpty()) {
+                    // A valid module dcln symbol has a name
+                    continue;
+                }
                 if (!symbol.kind().equals(SymbolKind.MODULE)) {
                     this.newSymbols.add(new HashedSymbol(symbol));
-                    // TODO: After name alternative is implemented use it.
-                    return Map.entry(symbol.name(), newSnippet.toString());
+                    return Map.entry(symbol.getName().get(), newSnippet.toString());
                 }
             }
         }
@@ -508,13 +514,10 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
      * @throws InvokerException If file writing failed.
      */
     protected SingleFileProject getProject(Object context, String templateFile) throws InvokerException {
-        Template template = super.getTemplate(templateFile);
+        Mustache template = super.getTemplate(templateFile);
         try (StringWriter stringWriter = new StringWriter()) {
-            template.process(context, stringWriter);
+            template.execute(stringWriter, context);
             return getProject(stringWriter.toString());
-        } catch (TemplateException e) {
-            addDiagnostic(Diagnostic.error("Template processing failed: " + e.getMessage()));
-            throw new InvokerException(e);
         } catch (IOException e) {
             addDiagnostic(Diagnostic.error("File generation failed: " + e.getMessage()));
             throw new InvokerException(e);
@@ -641,6 +644,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
         return compilation.getSemanticModel(moduleId)
                 .visibleSymbols(document, cursorPos).stream()
+                .filter((s) -> s.getName().isPresent())
                 .filter((s) -> !knownSymbols.contains(new HashedSymbol(s)))
                 .collect(Collectors.toList());
     }
@@ -708,7 +712,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         List<String> varStrings = new ArrayList<>();
         for (GlobalVariable entry : globalVars) {
             Object obj = InvokerMemory.recall(contextId, entry.getVariableName());
-            String value = StringUtils.shortenedString(obj);
+            String objStr = StringUtils.getExpressionStringValue(obj);
+            String value = StringUtils.shortenedString(objStr);
             String varString = String.format("(%s) %s %s = %s",
                     entry.getVariableName(), entry.getType(), entry.getVariableName(), value);
             varStrings.add(varString);

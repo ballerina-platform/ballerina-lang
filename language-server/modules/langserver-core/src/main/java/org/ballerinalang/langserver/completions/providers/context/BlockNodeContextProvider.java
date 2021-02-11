@@ -238,10 +238,12 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                         return false;
                     }
                     TypeSymbol typeDesc = ((VariableSymbol) symbol).typeDescriptor();
-                    return typeDesc.typeKind() == TypeDescKind.UNION && !capturedSymbols.contains(symbol.name());
+                    return typeDesc.typeKind() == TypeDescKind.UNION
+                            && !capturedSymbols.contains(symbol.getName().get());
                 })
                 .map(symbol -> {
-                    capturedSymbols.add(symbol.name());
+                    String symbolName = symbol.getName().get();
+                    capturedSymbols.add(symbolName);
                     List<TypeSymbol> errorTypes = new ArrayList<>();
                     List<TypeSymbol> resultTypes = new ArrayList<>();
                     List<TypeSymbol> members
@@ -257,7 +259,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     if (errorTypes.size() == 1) {
                         resultTypes.addAll(errorTypes);
                     }
-                    String symbolName = symbol.name();
                     String label = symbolName + " - typeguard " + symbolName;
                     String detail = "Destructure the variable " + symbolName + " with typeguard";
                     StringBuilder snippet = new StringBuilder();
@@ -269,7 +270,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                         paramCounter++;
                     } else if (errorTypes.size() == 1) {
                         snippet.append("if (").append(symbolName).append(" is ")
-                                .append(errorTypes.get(0).signature()).append(") {")
+                                .append(CommonUtil.getModifiedTypeName(ctx, errorTypes.get(0))).append(") {")
                                 .append(CommonUtil.LINE_SEPARATOR).append("\t${1}").append(CommonUtil.LINE_SEPARATOR)
                                 .append("}");
                         paramCounter++;
@@ -279,7 +280,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     restSnippet += IntStream.range(0, resultTypes.size() - paramCounter).mapToObj(value -> {
                         TypeSymbol bType = members.get(value);
                         String placeHolder = "\t${" + (value + finalParamCounter) + "}";
-                        return "if (" + symbolName + " is " + bType.signature() + ") {"
+                        return "if (" + symbolName + " is " + CommonUtil.getModifiedTypeName(ctx, bType) + ") {"
                                 + CommonUtil.LINE_SEPARATOR + placeHolder + CommonUtil.LINE_SEPARATOR + "}";
                     }).collect(Collectors.joining(" else ")) + " else {" + CommonUtil.LINE_SEPARATOR + "\t${"
                             + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";

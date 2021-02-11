@@ -72,13 +72,13 @@ public class HttpTracingBaseTest extends BaseTest {     // TODO: Move this test 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverHome + DEST_FUNCTIONS_JAR));
 
         // copy to bre/libs
-        Path observeTestBaloPath =
-                Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-balo", "repo", "ballerina", "testobserve");
-        FileUtils.copyDirectoryToDirectory(observeTestBaloPath.toFile(),
+        Path observeTestBalaPath =
+                Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-bala", "repo", "ballerina", "testobserve");
+        FileUtils.copyDirectoryToDirectory(observeTestBalaPath.toFile(),
                 Paths.get(serverHome, "lib", "repo", "ballerina").toFile());
 
         // copy to bir-cache
-        FileUtils.copyDirectoryToDirectory(observeTestBaloPath.toFile(),
+        FileUtils.copyDirectoryToDirectory(observeTestBalaPath.toFile(),
                 Paths.get(serverHome, "bir-cache", "ballerina").toFile());
         FileUtils.copyDirectoryToDirectory(
                 Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-bir", "ballerina", "testobserve").toFile(),

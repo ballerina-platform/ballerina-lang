@@ -22,19 +22,16 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
-import org.ballerinalang.debugadapter.variable.VariableFactory;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_TYPE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_TYPENAME;
@@ -45,16 +42,15 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
 /**
  * Ballerina table variable type.
  */
-public class BTable extends BCompoundVariable {
+public class BTable extends IndexedCompoundVariable {
+
+    private int tableSize = -1;
+    private ArrayReference tableKeys = null;
 
     private static final String FIELD_CONSTRAINT = "constraint";
     private static final String METHOD_SIZE = "size";
     private static final String METHOD_GETKEYS = "getKeys";
     private static final String METHOD_GET = "get";
-    // Maximum number of table entries that will be shown in the debug view.
-    private static final int CHILD_VAR_LIMIT = 10;
-
-    private int tableSize = -1;
 
     public BTable(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.TABLE, value);
@@ -72,31 +68,21 @@ public class BTable extends BCompoundVariable {
     }
 
     @Override
-    protected Map<String, Value> computeChildVariables() {
+    public Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return new HashMap<>();
+                return Either.forRight(new ArrayList<>());
             }
-            Value[] tableKeys = getTableKeys();
-            List<Value> tableEntries = getTableEntriesFor(tableKeys);
-
-            Map<String, Value> values = new TreeMap<>();
-            AtomicInteger nextVarIndex = new AtomicInteger(0);
-            tableEntries.forEach(item -> {
-                int varIndex = nextVarIndex.getAndIncrement();
-                String keyStr = VariableFactory.getVariable(context, tableKeys[varIndex]).getDapVariable().getValue();
-                values.put("[" + keyStr + "]", item);
-            });
-
-            // If the size of the table exceeds the allowed child variable limit, appends a notification (which is
-            // wrapped inside a dummy variable) to the list of child variables, to inform the user.
-            if (getTableSize() > CHILD_VAR_LIMIT) {
-                addTailChildVariable(values);
-            }
-            return values;
+            Value[] tableKeys = getTableKeys(start, count);
+            return Either.forRight(getTableEntriesFor(tableKeys));
         } catch (Exception ignored) {
-            return new HashMap<>();
+            return Either.forRight(new ArrayList<>());
         }
+    }
+
+    @Override
+    public int getChildrenCount() {
+        return getTableSize();
     }
 
     /**
@@ -146,23 +132,46 @@ public class BTable extends BCompoundVariable {
         }
     }
 
-    private Value[] getTableKeys() throws Exception {
-        Optional<Method> method = VariableUtils.getMethod(jvmValue, METHOD_GETKEYS);
-        if (method.isEmpty()) {
+    private Value[] getTableKeys(int start, int count) {
+        if (tableKeys == null) {
+            populateTableKeys();
+        }
+        if (tableKeys == null) {
             return new Value[0];
         }
-        Value keys = ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
-        if (!(keys instanceof ArrayReference)) {
-            return new Value[0];
+        // If count > 0, returns a sublist of the child variables
+        // If count == 0, returns all child variables
+        if (count > 0) {
+            Value[] keyArray = new Value[count];
+            for (int index = start; index < start + count; index++) {
+                keyArray[index - start] = tableKeys.getValue(index);
+            }
+            return keyArray;
+        } else {
+            int variableLimit = getTableSize();
+            Value[] keyArray = new Value[variableLimit];
+            for (int index = 0; index < variableLimit; index++) {
+                keyArray[index] = tableKeys.getValue(index);
+            }
+            return keyArray;
         }
+    }
 
-        int variableLimit = getChildVariableLimit();
-        Value[] firstNKeys = new Value[variableLimit];
-        for (int index = 0; index < variableLimit; index++) {
-            firstNKeys[index] = ((ArrayReference) keys).getValue(index);
+    private void populateTableKeys() {
+        try {
+            Optional<Method> method = VariableUtils.getMethod(jvmValue, METHOD_GETKEYS);
+            if (method.isEmpty()) {
+                return;
+            }
+            Value keys = ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread().getThreadReference(),
+                    method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+            if (!(keys instanceof ArrayReference)) {
+                return;
+            }
+            tableKeys = (ArrayReference) keys;
+        } catch (Exception ignored) {
+            tableKeys = null;
         }
-        return firstNKeys;
     }
 
     private List<Value> getTableEntriesFor(Value[] tableKeys) {
@@ -184,20 +193,5 @@ public class BTable extends BCompoundVariable {
         } catch (Exception e) {
             return new ArrayList<>();
         }
-    }
-
-    private int getChildVariableLimit() {
-        return Math.max(Math.min(getTableSize(), CHILD_VAR_LIMIT), 0);
-    }
-
-    /**
-     * If the size of the table exceeds the allowed child variable limit, appends a notification (which is wrapped
-     * inside a dummy variable) to the list of child variables, to inform the user.
-     *
-     * @param values the list of child variables.
-     */
-    private void addTailChildVariable(Map<String, Value> values) {
-        values.put("[...]", context.getAttachedVm().mirrorOf(String.format("Showing first %d elements out of %d " +
-                "total entries", CHILD_VAR_LIMIT, getTableSize())));
     }
 }

@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.CloudToml;
 import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
@@ -30,7 +31,6 @@ import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.KubernetesToml;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.ModuleConfig;
@@ -803,7 +803,7 @@ public class TestBuildProject {
 
         // Test symbol
         Optional<Symbol> symbol = semanticModel.symbol(srcFile, LinePosition.from(5, 10));
-        symbol.ifPresent(value -> assertEquals(value.name(), "runServices"));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), "runServices"));
     }
 
     @Test(description = "tests if other documents exists ie. Ballerina.toml, Package.md", enabled = true)
@@ -821,7 +821,7 @@ public class TestBuildProject {
         Package currentPackage = project.currentPackage();
         Assert.assertTrue(currentPackage.ballerinaToml().isPresent());
         Assert.assertTrue(currentPackage.dependenciesToml().isPresent());
-        Assert.assertTrue(currentPackage.kubernetesToml().isPresent());
+        Assert.assertTrue(currentPackage.cloudToml().isPresent());
         Assert.assertTrue(currentPackage.packageMd().isPresent());
         // Check module.md files
         Module defaultModule = currentPackage.getDefaultModule();
@@ -840,12 +840,12 @@ public class TestBuildProject {
         TomlTableNode dependenciesToml = currentPackage.dependenciesToml().get().tomlAstNode();
         Assert.assertEquals(dependenciesToml.entries().size(), 1);
 
-        TomlTableNode kubernetesToml = currentPackage.kubernetesToml().get().tomlAstNode();
-        Assert.assertEquals(kubernetesToml.entries().size(), 1);
+        TomlTableNode cloudToml = currentPackage.cloudToml().get().tomlAstNode();
+        Assert.assertEquals(cloudToml.entries().size(), 1);
     }
 
-    @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md", enabled = true)
-    public void testOtherDocumentEdit() {
+    @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md")
+    public void testOtherDocumentModify() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
         // 1) Initialize the project instance
@@ -856,9 +856,7 @@ public class TestBuildProject {
             Assert.fail(e.getMessage());
         }
         // 2) Check editing files
-        Package currentPackage = project.currentPackage();
-
-        BallerinaToml newBallerinaToml = currentPackage.ballerinaToml().get().modify().withContent("" +
+        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("" +
                 "[package]\n" +
                 "org = \"sameera\"\n" +
                 "name = \"yourproject\"\n" +
@@ -871,7 +869,8 @@ public class TestBuildProject {
         Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
         PackageCompilation compilation = newPackage.getCompilation();
 
-        DependenciesToml newDependenciesToml = currentPackage.dependenciesToml().get().modify().withContent("" +
+        DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
+                .get().modify().withContent("" +
                 "[[dependency]]\n" +
                 "org = \"samjs\"\n" +
                 "name = \"package_k\"\n" +
@@ -883,14 +882,41 @@ public class TestBuildProject {
         TomlTableNode dependenciesToml = newDependenciesToml.tomlAstNode();
         Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("dependency")).children().size(), 2);
 
-        KubernetesToml newKubernetesToml = currentPackage.kubernetesToml().get().modify().withContent("" +
+        CloudToml newCloudToml = project.currentPackage().cloudToml().get().modify().withContent("" +
                 "[test]\n" +
                 "attribute = \"value\"\n" +
                 "[test2]\n" +
                 "attribute = \"value2\"").apply();
-        TomlTableNode kubernetesToml = newKubernetesToml.tomlAstNode();
-        Assert.assertEquals(kubernetesToml.entries().size(), 2);
+        TomlTableNode cloudToml = newCloudToml.tomlAstNode();
+        Assert.assertEquals(cloudToml.entries().size(), 2);
 
+        // Check if PackageMd is editable
+        project.currentPackage().packageMd().get().modify().withContent("#Modified").apply();
+        String packageMdContent = project.currentPackage().packageMd().get().content();
+        Assert.assertEquals(packageMdContent, "#Modified");
+
+        // Check if ModuleMd is editable
+        project.currentPackage().getDefaultModule().moduleMd().get().modify().withContent("#Modified").apply();
+        String moduleMdContent = project.currentPackage().getDefaultModule().moduleMd().get().content();
+        Assert.assertEquals(packageMdContent, "#Modified");
+
+        // Check if ModuleMd is editable other than default module
+        // todo enable following after resolving package name edit bug
+        // ModuleName services = ModuleName.from(project.currentPackage().packageName(), "services");
+        // project.currentPackage().module(services).moduleMd().get().modify().withContent("#Modified").apply();
+        // moduleMdContent = project.currentPackage().module(services).moduleMd().get().content();
+        // Assert.assertEquals(packageMdContent, "#Modified");
+
+        // Test remove capability
+        project.currentPackage().modify().removePackageMd().apply();
+        project.currentPackage().modify().removeDependenciesToml().apply();
+        project.currentPackage().modify().removeCloudToml().apply();
+        project.currentPackage().getDefaultModule().modify().removeModuleMd().apply();
+
+        Assert.assertTrue(project.currentPackage().packageMd().isEmpty());
+        Assert.assertTrue(project.currentPackage().cloudToml().isEmpty());
+        Assert.assertTrue(project.currentPackage().dependenciesToml().isEmpty());
+        Assert.assertTrue(project.currentPackage().getDefaultModule().moduleMd().isEmpty());
     }
 
     @Test(description = "tests adding Dependencies.toml, Package.md", enabled = true)
@@ -908,7 +934,7 @@ public class TestBuildProject {
         Package currentPackage = project.currentPackage();
 
         Assert.assertTrue(currentPackage.dependenciesToml().isEmpty());
-        Assert.assertTrue(currentPackage.kubernetesToml().isEmpty());
+        Assert.assertTrue(currentPackage.cloudToml().isEmpty());
         // Assert.assertTrue(currentPackage.packageMd().isEmpty());
 
         DocumentConfig dependenciesToml = DocumentConfig.from(
@@ -929,17 +955,17 @@ public class TestBuildProject {
         Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
                 .get("dependency")).children().size(), 2);
 
-        DocumentConfig kubernetesToml = DocumentConfig.from(
-                DocumentId.create(ProjectConstants.KUBERNETES_TOML, null),
+        DocumentConfig cloudToml = DocumentConfig.from(
+                DocumentId.create(ProjectConstants.CLOUD_TOML, null),
                 "[test]\n" +
                   "attribute = \"value\"\n" +
                   "[test2]\n" +
                   "attribute = \"value2\"",
-                ProjectConstants.KUBERNETES_TOML
+                ProjectConstants.CLOUD_TOML
         );
 
-        currentPackage = currentPackage.modify().addKubernetesToml(kubernetesToml).apply();
-        TomlTableNode kubernetesTomlTable = currentPackage.kubernetesToml().get().tomlAstNode();
+        currentPackage = currentPackage.modify().addCloudToml(cloudToml).apply();
+        TomlTableNode cloudTomlTable = currentPackage.cloudToml().get().tomlAstNode();
         Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
                 .get("dependency")).children().size(), 2);
 
@@ -969,13 +995,47 @@ public class TestBuildProject {
                 "name=\"te");
         data.add("[package]" +
                 "name=\"test");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "or");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=win");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "ver");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "version");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "version=");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "version=1.");
+        data.add("[package]" +
+                 "name=\"test" +
+                 "org=winery" +
+                 "version=1.0.0");
 
         for (String dataItem: data) {
             BallerinaToml newBallerinaToml = currentPackage.ballerinaToml().get().modify().withContent("" +
                     dataItem).apply();
             TomlTableNode ballerinaToml = newBallerinaToml.tomlAstNode();
             Package newPackage = newBallerinaToml.packageInstance();
-            PackageCompilation compilation = newPackage.getCompilation();
         }
 
     }

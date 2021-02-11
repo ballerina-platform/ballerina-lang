@@ -96,7 +96,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
         return visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
                         && this.matchingAnnotation((AnnotationSymbol) symbol, kind)
-                        && !CommonUtil.isLangLib(symbol.moduleID()))
+                        && !CommonUtil.isLangLib(symbol.getModule().get().id()))
                 .map(symbol -> AnnotationUtil.getAnnotationItem((AnnotationSymbol) symbol, ctx))
                 .collect(Collectors.toList());
     }

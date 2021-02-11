@@ -1431,7 +1431,7 @@ public class JvmInstructionGen {
         this.loadVar(inst.keyOp.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, inst.keyOp.variableDcl.type);
         BType bType = inst.lhsOp.variableDcl.type;
-        this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, "getOrThrow",
+        this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, "get",
                 String.format("(L%s;)L%s;", OBJECT, OBJECT), true);
 
         String targetTypeClass = getTargetClass(bType);
@@ -1519,7 +1519,7 @@ public class JvmInstructionGen {
                                               objectNewIns.objectName);
         } else {
             className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(currentPackage),
-                                              objectNewIns.def.name.value);
+                                              objectNewIns.def.internalName.value);
         }
 
         this.mv.visitTypeInsn(NEW, className);

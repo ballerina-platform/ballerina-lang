@@ -27,7 +27,7 @@ public class Package {
     private Optional<PackageMd> packageMd = null;
     private Optional<BallerinaToml> ballerinaToml = null;
     private Optional<DependenciesToml> dependenciesToml = null;
-    private Optional<KubernetesToml> kubernetesToml = null;
+    private Optional<CloudToml> cloudToml = null;
 
     private Package(PackageContext packageContext, Project project) {
         this.packageContext = packageContext;
@@ -160,13 +160,12 @@ public class Package {
         return this.dependenciesToml;
     }
 
-    public Optional<KubernetesToml> kubernetesToml() {
-        if (null == this.kubernetesToml) {
-            this.kubernetesToml = this.packageContext.kubernetesTomlContext().map(c ->
-                    KubernetesToml.from(c, this)
-            );
+    public Optional<CloudToml> cloudToml() {
+        if (null == this.cloudToml) {
+            this.cloudToml = this.packageContext.cloudTomlContext().map(c ->
+                    CloudToml.from(c, this));
         }
-        return this.kubernetesToml;
+        return this.cloudToml;
     }
 
     public Optional<PackageMd> packageMd() {
@@ -218,7 +217,7 @@ public class Package {
         private CompilationOptions compilationOptions;
         private TomlDocumentContext ballerinaTomlContext;
         private TomlDocumentContext dependenciesTomlContext;
-        private TomlDocumentContext kubernetesTomlContext;
+        private TomlDocumentContext cloudTomlContext;
         private MdDocumentContext packageMdContext;
 
         public Modifier(Package oldPackage) {
@@ -230,7 +229,7 @@ public class Package {
             this.compilationOptions = oldPackage.compilationOptions();
             this.ballerinaTomlContext = oldPackage.packageContext.ballerinaTomlContext().orElse(null);
             this.dependenciesTomlContext = oldPackage.packageContext.dependenciesTomlContext().orElse(null);
-            this.kubernetesTomlContext = oldPackage.packageContext.kubernetesTomlContext().orElse(null);
+            this.cloudTomlContext = oldPackage.packageContext.cloudTomlContext().orElse(null);
             this.packageMdContext = oldPackage.packageContext.packageMdContext().orElse(null);
         }
 
@@ -274,16 +273,37 @@ public class Package {
             return this;
         }
 
+
         /**
-         * Adds a Kubernetes toml.
+         * Remove Dependencies toml.
+         *
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier removeDependenciesToml() {
+            this.dependenciesTomlContext = null;
+            return this;
+        }
+
+        /**
+         * Adds a Cloud toml.
          *
          * @param documentConfig configuration of the toml document
          * @return Package.Modifier which contains the updated package
          */
-        public Modifier addKubernetesToml(DocumentConfig documentConfig) {
+        public Modifier addCloudToml(DocumentConfig documentConfig) {
             TomlDocumentContext tomlDocumentContext = TomlDocumentContext.from(documentConfig);
-            this.kubernetesTomlContext = tomlDocumentContext;
+            this.cloudTomlContext = tomlDocumentContext;
             updateManifest();
+            return this;
+        }
+
+        /**
+         * Remove Cloud toml.
+         *
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier removeCloudToml() {
+            this.cloudTomlContext = null;
             return this;
         }
 
@@ -299,6 +319,17 @@ public class Package {
             return this;
         }
 
+        /**
+         * Remove package md.
+         *
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier removePackageMd() {
+            this.packageMdContext = null;
+            return this;
+        }
+
+
 
         Modifier updateBallerinaToml(BallerinaToml ballerinaToml) {
             this.ballerinaTomlContext = ballerinaToml.ballerinaTomlContext();
@@ -312,8 +343,8 @@ public class Package {
             return this;
         }
 
-        Modifier updateKubernetesToml(KubernetesToml kubernetesToml) {
-            this.kubernetesTomlContext = kubernetesToml.kubernetesTomlContext();
+        Modifier updateCloudToml(CloudToml cloudToml) {
+            this.cloudTomlContext = cloudToml.cloudTomlContext();
             return this;
         }
 
@@ -337,7 +368,7 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
-                    this.ballerinaTomlContext, this.dependenciesTomlContext, this.kubernetesTomlContext,
+                    this.ballerinaTomlContext, this.dependenciesTomlContext, this.cloudTomlContext,
                     this.packageMdContext,  this.compilationOptions, this.moduleContextMap,
                     this.pkgDescDependencyGraph);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
@@ -349,6 +380,11 @@ public class Package {
                     Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null),
                     this.project.sourceRoot());
             this.packageManifest = manifestBuilder.packageManifest();
+        }
+
+        Modifier updatePackageMd(MdDocumentContext packageMd) {
+            this.packageMdContext = packageMd;
+            return this;
         }
     }
 }
