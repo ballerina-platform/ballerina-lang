@@ -40,7 +40,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.InvokerException;
-import io.ballerina.shell.invoker.Invoker;
+import io.ballerina.shell.invoker.ShellInvoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.invoker.classload.context.StatementContext;
 import io.ballerina.shell.invoker.classload.context.VariableContext;
@@ -78,7 +78,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class ClassLoadInvoker extends Invoker implements ImportProcessor {
+public class ClassLoadInvoker extends ShellInvoker implements ImportProcessor {
     public static final String CONTEXT_EXPR_VAR_NAME = "expr";
     private static final String DOLLAR = "$";
     private static final String DECLARATION_TEMPLATE_FILE = "template.declaration.mustache";
