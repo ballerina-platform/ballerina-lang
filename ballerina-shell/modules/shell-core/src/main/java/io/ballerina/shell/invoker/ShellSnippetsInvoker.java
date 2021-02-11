@@ -68,7 +68,7 @@ import java.util.function.Function;
  *
  * @since 2.0.0
  */
-public abstract class ShellSnippetInvoker extends DiagnosticReporter {
+public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     public static final String MODULE_NOT_FOUND_CODE = "BCE2003";
     // TODO: After configurables can be supported, change this to that file location
     private static final Path CONFIG_PATH = Paths.get(System.getProperty("user.dir"), "Config.toml");
@@ -95,7 +95,7 @@ public abstract class ShellSnippetInvoker extends DiagnosticReporter {
      */
     private File bufferFile;
 
-    protected ShellSnippetInvoker() {
+    protected ShellSnippetsInvoker() {
         this.scheduler = new Scheduler(false);
     }
 
