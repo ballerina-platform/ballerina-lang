@@ -43,6 +43,7 @@ import static org.ballerinalang.model.elements.PackageID.JAVA;
 import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.QUERY;
+import static org.ballerinalang.model.elements.PackageID.RUNTIME;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
@@ -95,11 +96,22 @@ public class Bootstrap {
         symbolTable.langJavaModuleSymbol = loadLangLibFromBala(JAVA, compilerContext);
 
         if (langLib.equals(INTERNAL)) {
+            symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
             return; // Nothing else to load.
         }
 
         // load internal
-        symbolTable.langInternalModuleSymbol = loadLangLibFromBala(INTERNAL, compilerContext);
+        if (langLib.equals(ARRAY)) {
+            symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
+            symbolTable.langInternalModuleSymbol = loadLangLibFromBala(INTERNAL, compilerContext);
+            symResolver.bootstrapIntRangeType();
+        }
+
+        if (langLib.equals(RUNTIME)) {
+            symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
+            symbolTable.langInternalModuleSymbol = loadLangLibFromBala(INTERNAL, compilerContext);
+            symResolver.bootstrapIntRangeType();
+        }
 
         if (langLib.equals(QUERY)) {
             // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
@@ -121,6 +133,8 @@ public class Bootstrap {
             symbolTable.langStringModuleSymbol = loadLangLibFromBala(STRING, compilerContext);
             symbolTable.langErrorModuleSymbol = loadLangLibFromBala(ERROR, compilerContext);
             symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
+            symbolTable.langInternalModuleSymbol = loadLangLibFromBala(INTERNAL, compilerContext);
+            symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
             symbolTable.updateStringSubtypeOwners();
         }
 
@@ -145,6 +159,7 @@ public class Bootstrap {
         symResolver.bootstrapAnydataType();
         symResolver.boostrapErrorType();
         symResolver.bootstrapCloneableType();
+        symResolver.bootstrapIntRangeType();
         symbolTable.langArrayModuleSymbol = loadLangLibFromBala(ARRAY, compilerContext);
         symbolTable.langDecimalModuleSymbol = loadLangLibFromBala(DECIMAL, compilerContext);
         symbolTable.langErrorModuleSymbol = loadLangLibFromBala(ERROR, compilerContext);
@@ -154,7 +169,6 @@ public class Bootstrap {
         symbolTable.langMapModuleSymbol = loadLangLibFromBala(MAP, compilerContext);
         symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
         symResolver.loadRawTemplateType();
-        symResolver.bootstrapIteratorType();
         symbolTable.langStreamModuleSymbol = loadLangLibFromBala(STREAM, compilerContext);
         symbolTable.langTableModuleSymbol = loadLangLibFromBala(TABLE, compilerContext);
         symbolTable.langStringModuleSymbol = loadLangLibFromBala(STRING, compilerContext);
@@ -164,7 +178,10 @@ public class Bootstrap {
         symbolTable.langQueryModuleSymbol = loadLangLibFromBala(QUERY, compilerContext);
         symbolTable.langTransactionModuleSymbol = loadLangLibFromBala(TRANSACTION, compilerContext);
         symbolTable.loadPredeclaredModules();
+<<<<<<< HEAD
         symResolver.bootstrapIntRangeType();
+=======
+>>>>>>> Switch dependencies of __internal and lang.object
         symbolTable.updateBuiltinSubtypeOwners();
         symResolver.defineOperators();
     }

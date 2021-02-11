@@ -1046,6 +1046,7 @@ public function functionWithRangeExpressions() {
         // do nothing
     }
      object {
+        object:Iterable;
         public function iterator() returns
             object {
                 public isolated function next() returns record {|int value;|}?;
@@ -1053,7 +1054,8 @@ public function functionWithRangeExpressions() {
     } iterableObj = 25 ..< 28;
 
     object {
-            public isolated function next() returns (record {|int value;|}?);
+        object:Iterable;
+        public isolated function next() returns (record {|int value;|}?);
     } iterator = iterableObj.iterator();
 
     while (true) {
