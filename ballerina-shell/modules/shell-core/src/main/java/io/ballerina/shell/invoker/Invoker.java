@@ -136,13 +136,11 @@ public abstract class Invoker extends DiagnosticReporter {
      * Executes a snippet and returns the output lines.
      * Snippets parameter should only include newly added snippets.
      * Old snippets should be managed as necessary by the implementation.
-     * TODO: Support executing multiple snippets at once.
      *
      * @param newSnippet New snippet to execute.
      * @return Execution output result.
      */
     public abstract Optional<Object> execute(Snippet newSnippet) throws InvokerException;
-
 
     /**
      * Load all the declarations given.
@@ -510,21 +508,6 @@ public abstract class Invoker extends DiagnosticReporter {
             this.bufferFile.deleteOnExit();
         }
         return this.bufferFile;
-    }
-
-    /**
-     * @return the class name that contains all top level functions.
-     * This is always equal to the name of the file.
-     */
-    protected String getMethodClassName() throws InvokerException {
-        try {
-            String fileName = getBufferFile().getName();
-            // File name without the extension
-            return fileName.substring(0, fileName.length() - 4);
-        } catch (IOException e) {
-            addDiagnostic(Diagnostic.error("Temp File reading failed: " + e.getMessage()));
-            throw new InvokerException(e);
-        }
     }
 
     /**

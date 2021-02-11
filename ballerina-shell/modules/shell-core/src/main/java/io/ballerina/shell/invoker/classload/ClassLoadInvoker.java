@@ -88,31 +88,32 @@ public class ClassLoadInvoker extends Invoker {
      * Set of identifiers that are known or seen at the initialization.
      * These can't be overridden.
      */
-    protected final Set<QuotedIdentifier> initialIdentifiers;
+    private final Set<QuotedIdentifier> initialIdentifiers;
     /**
      * List of imports done.
      * These are imported to the read generated code as necessary.
      */
-    protected final HashedImports imports;
+    private final HashedImports imports;
     /**
      * List of module level declarations such as functions, classes, etc...
      * The snippets are saved as is.
      */
-    protected final Map<QuotedIdentifier, String> moduleDclns;
+    private final Map<QuotedIdentifier, String> moduleDclns;
     /**
      * List of global variables used in the code.
      * This is a map of variable name to its type.
      * The variable name must be a quoted identifier.
      */
-    protected final Map<QuotedIdentifier, GlobalVariable> globalVars;
+    private final Map<QuotedIdentifier, GlobalVariable> globalVars;
     /**
      * Flag to keep track of whether the invoker is initialized.
      */
-    protected final AtomicBoolean initialized;
+    private final AtomicBoolean initialized;
     /**
      * Id of the current invoker context.
      */
-    protected final String contextId;
+    private final String contextId;
+
     /**
      * Stores all the newly found implicit imports.
      * Persisted at the end of iteration to `mustImportPrefixes`.
@@ -287,7 +288,7 @@ public class ClassLoadInvoker extends Invoker {
      * @return Imported prefix name.
      * @throws InvokerException If importing failed.
      */
-    public QuotedIdentifier processImport(ImportDeclarationSnippet importSnippet) throws InvokerException {
+    private QuotedIdentifier processImport(ImportDeclarationSnippet importSnippet) throws InvokerException {
         String moduleName = importSnippet.getImportedModule();
         QuotedIdentifier quotedPrefix = importSnippet.getPrefix();
 
@@ -312,7 +313,7 @@ public class ClassLoadInvoker extends Invoker {
      * @param declarationSnippets Declarations to process.
      * @throws InvokerException If compilation failed.
      */
-    public void processDeclarations(Collection<TopLevelDeclarationSnippet> declarationSnippets)
+    private void processDeclarations(Collection<TopLevelDeclarationSnippet> declarationSnippets)
             throws InvokerException {
         Map<VariableDeclarationSnippet, Set<QuotedIdentifier>> variableDeclarations = new HashMap<>();
         Map<QuotedIdentifier, VariableDeclarationSnippet.TypeInfo> variableTypes = new HashMap<>();
@@ -394,16 +395,6 @@ public class ClassLoadInvoker extends Invoker {
     /* Context Creation */
 
     /**
-     * Creates a context which can be used to check import validation.
-     *
-     * @param importString Import declaration snippet string.
-     * @return Context with import checking code.
-     */
-    protected ClassLoadContext createImportInferContext(String importString) {
-        return new ClassLoadContext(this.contextId, List.of(importString));
-    }
-
-    /**
      * Creates a context which can be used to identify new variables and module level dclns.
      *
      * @param variableDeclarations New snippets. Must be a var dclns.
@@ -411,7 +402,7 @@ public class ClassLoadInvoker extends Invoker {
      * @param moduleDeclarations   Module declarations to load.
      * @return Context with type information inferring code.
      */
-    protected ClassLoadContext createDeclarationContext(
+    private ClassLoadContext createDeclarationContext(
             Collection<VariableDeclarationSnippet> variableDeclarations,
             Collection<QuotedIdentifier> variableNames,
             Map<QuotedIdentifier, ModuleMemberDeclarationSnippet> moduleDeclarations) {
@@ -446,7 +437,7 @@ public class ClassLoadInvoker extends Invoker {
      * @param newSnippet New snippet from user.
      * @return Created context.
      */
-    protected ClassLoadContext createStatementExecutionContext(ExecutableSnippet newSnippet) {
+    private ClassLoadContext createStatementExecutionContext(ExecutableSnippet newSnippet) {
         Map<QuotedIdentifier, VariableContext> varDclnsMap = globalVariableContexts();
         Set<String> importStrings = getRequiredImportStatements(newSnippet);
 
@@ -463,8 +454,8 @@ public class ClassLoadInvoker extends Invoker {
      * @param newVariables Variables defined in new snippets.
      * @return Created context.
      */
-    protected ClassLoadContext createVariablesExecutionContext(Collection<VariableDeclarationSnippet> newSnippets,
-                                                               Map<QuotedIdentifier, GlobalVariable> newVariables) {
+    private ClassLoadContext createVariablesExecutionContext(Collection<VariableDeclarationSnippet> newSnippets,
+                                                             Map<QuotedIdentifier, GlobalVariable> newVariables) {
         Map<QuotedIdentifier, VariableContext> varDclnsMap = globalVariableContexts();
         StringJoiner newVariableDclns = new StringJoiner("\n");
         Set<String> importStrings = new HashSet<>();
@@ -558,7 +549,7 @@ public class ClassLoadInvoker extends Invoker {
      * @param compilation Compilation object.
      * @return All the visible symbols.
      */
-    protected Collection<GlobalVariableSymbol> globalVariableSymbols(Project project, PackageCompilation compilation) {
+    private Collection<GlobalVariableSymbol> globalVariableSymbols(Project project, PackageCompilation compilation) {
         // Get the document associated with project
         ModuleId moduleId = project.currentPackage().getDefaultModule().moduleId();
         return compilation.getSemanticModel(moduleId).moduleSymbols().stream()
@@ -574,7 +565,7 @@ public class ClassLoadInvoker extends Invoker {
      * @param snippet Snippet to check.
      * @return List of imports.
      */
-    protected Set<String> getRequiredImportStatements(Snippet snippet) {
+    private Set<String> getRequiredImportStatements(Snippet snippet) {
         Set<String> importStrings = getRequiredImportStatements();
         // Add all used imports in this snippet
         snippet.usedImports().stream()
@@ -663,7 +654,7 @@ public class ClassLoadInvoker extends Invoker {
      *
      * @return List of imports.
      */
-    protected Set<String> getRequiredImportStatements() {
+    private Set<String> getRequiredImportStatements() {
         Set<String> importStrings = new HashSet<>(imports.getUsedImports()); // Anon imports
         importStrings.addAll(imports.getUsedImports(globalVars.keySet())); // Imports from vars
         importStrings.addAll(imports.getUsedImports(moduleDclns.keySet())); // Imports from module dclns

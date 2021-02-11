@@ -78,7 +78,7 @@ public class HashedImports {
         this.reverseImports = new HashMap<>();
         this.usedPrefixes = new HashMap<>();
         storeImport(JAVA_IMPORT);
-        storeAnonImplicitPrefixes(ANON_IMPORT_PREFIXES);
+        storeAnonImplicitPrefixes();
     }
 
     /**
@@ -90,7 +90,7 @@ public class HashedImports {
         this.reverseImports.clear();
         this.usedPrefixes.clear();
         storeImport(JAVA_IMPORT);
-        storeAnonImplicitPrefixes(ANON_IMPORT_PREFIXES);
+        storeAnonImplicitPrefixes();
     }
 
     /**
@@ -182,8 +182,8 @@ public class HashedImports {
      * at originated without a source.
      * Will be added as an import from ANON_SOURCE.
      */
-    public void storeAnonImplicitPrefixes(Collection<QuotedIdentifier> prefixes) {
-        storeImportUsages(ANON_SOURCE, prefixes);
+    private void storeAnonImplicitPrefixes() {
+        storeImportUsages(ANON_SOURCE, ANON_IMPORT_PREFIXES);
     }
 
     /**
