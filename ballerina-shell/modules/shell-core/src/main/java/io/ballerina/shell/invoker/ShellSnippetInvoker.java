@@ -75,7 +75,7 @@ import java.util.function.Function;
  *
  * @since 2.0.0
  */
-public abstract class Invoker extends DiagnosticReporter {
+public abstract class ShellSnippetInvoker extends DiagnosticReporter {
     /* Constants related to execution */
     protected static final String MODULE_RUN_METHOD_NAME = "run";
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
@@ -103,7 +103,7 @@ public abstract class Invoker extends DiagnosticReporter {
      */
     private File bufferFile;
 
-    protected Invoker() {
+    protected ShellSnippetInvoker() {
         this.scheduler = new Scheduler(false);
     }
 

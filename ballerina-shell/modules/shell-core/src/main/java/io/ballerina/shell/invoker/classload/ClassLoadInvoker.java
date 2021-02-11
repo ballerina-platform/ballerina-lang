@@ -28,9 +28,8 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.InvokerException;
-import io.ballerina.shell.invoker.Invoker;
+import io.ballerina.shell.invoker.ShellSnippetInvoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.invoker.classload.context.StatementContext;
 import io.ballerina.shell.invoker.classload.context.VariableContext;
@@ -72,7 +71,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class ClassLoadInvoker extends Invoker implements ImportProcessor {
+public class ClassLoadInvoker extends ShellSnippetInvoker implements ImportProcessor {
     // Context related information
     public static final String CONTEXT_EXPR_VAR_NAME = "__last__";
     // Punctuations
@@ -166,7 +165,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         }
         JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         this.initialized.set(true);
-        addDiagnostic(Diagnostic.debug("Added initial identifiers: " + initialIdentifiers));
+        addDebugDiagnostic("Added initial identifiers: " + initialIdentifiers);
     }
 
     @Override
@@ -192,8 +191,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             } else if (moduleDclns.containsKey(identifier)) {
                 queuedModuleDclns.put(identifier, moduleDclns.get(identifier));
             } else {
-                addDiagnostic(Diagnostic.error(declarationName + " is not defined.\n" +
-                        "Please enter names of declarations that are already defined."));
+                addErrorDiagnostic(declarationName + " is not defined.\n" +
+                        "Please enter names of declarations that are already defined.");
                 throw new InvokerException();
             }
         }
@@ -205,7 +204,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         } catch (InvokerException e) {
             globalVars.putAll(queuedGlobalVars);
             moduleDclns.putAll(queuedModuleDclns);
-            addDiagnostic(Diagnostic.error("Deleting declaration(s) failed."));
+            addErrorDiagnostic("Deleting declaration(s) failed.");
             throw e;
         }
     }
@@ -226,7 +225,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             ImportDeclarationSnippet importDcln = (ImportDeclarationSnippet) newSnippet;
             QuotedIdentifier importPrefix = timedOperation("processing import", () -> processImport(importDcln));
             Objects.requireNonNull(importPrefix, "Import prefix identification failed.");
-            addDiagnostic(Diagnostic.debug("Import prefix identified as: " + importPrefix));
+            addDebugDiagnostic("Import prefix identified as: " + importPrefix);
             return Optional.empty();
 
         } else if (newSnippet instanceof TopLevelDeclarationSnippet) {
@@ -239,11 +238,11 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             ClassLoadContext context = createStatementExecutionContext((ExecutableSnippet) newSnippet);
             timedOperation("statement execution", () -> executeProject(context, EXECUTION_TEMPLATE_FILE));
             Object executionResult = InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME);
-            addDiagnostic(Diagnostic.debug("Implicit imports added: " + this.newImports));
+            addDebugDiagnostic("Implicit imports added: " + this.newImports);
             return Optional.ofNullable(executionResult);
 
         } else {
-            addDiagnostic(Diagnostic.error("Unexpected snippet type"));
+            addErrorDiagnostic("Unexpected snippet type");
             throw new UnsupportedOperationException();
         }
     }
@@ -317,7 +316,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             return quotedPrefix;
         } else if (imports.containsPrefix(quotedPrefix)) {
             // Prefix is already used. (Not for the same module - checked above)
-            addDiagnostic(Diagnostic.error("The import prefix was already used by another import."));
+            addErrorDiagnostic("The import prefix was already used by another import.");
             throw new InvokerException();
         }
 
@@ -382,7 +381,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             executeProject(execContext, EXECUTION_TEMPLATE_FILE);
             globalVars.putAll(allNewVariables);
             newImports.forEach(imports::storeImportUsages);
-            addDiagnostic(Diagnostic.debug("Found new variables: " + allNewVariables));
+            addDebugDiagnostic("Found new variables: " + allNewVariables);
         }
 
         // All was successful without error - save state
@@ -390,10 +389,10 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         for (Map.Entry<QuotedIdentifier, ModuleMemberDeclarationSnippet> dcln : moduleDeclarations.entrySet()) {
             String moduleDclnCode = dcln.getValue().toString();
             this.moduleDclns.put(dcln.getKey(), moduleDclnCode);
-            addDiagnostic(Diagnostic.debug("Module dcln name: " + dcln.getKey()));
-            addDiagnostic(Diagnostic.debug("Module dcln code: " + moduleDclnCode));
+            addDebugDiagnostic("Module dcln name: " + dcln.getKey());
+            addDebugDiagnostic("Module dcln code: " + moduleDclnCode);
         }
-        addDiagnostic(Diagnostic.debug("Implicit imports added: " + this.newImports));
+        addDebugDiagnostic("Implicit imports added: " + this.newImports);
     }
 
     /**
@@ -517,7 +516,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             Set<QuotedIdentifier> definedVariables,
             Collection<GlobalVariableSymbol> globalVarSymbols) {
         Map<QuotedIdentifier, GlobalVariable> foundVariables = new HashMap<>();
-        addDiagnostic(Diagnostic.debug("Found variables: " + definedVariables));
+        addDebugDiagnostic("Found variables: " + definedVariables);
 
         for (GlobalVariableSymbol globalVariableSymbol : globalVarSymbols) {
             QuotedIdentifier variableName = globalVariableSymbol.getName();
