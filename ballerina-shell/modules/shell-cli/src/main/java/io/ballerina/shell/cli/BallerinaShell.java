@@ -38,6 +38,7 @@ import java.io.StringWriter;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_DCLNS;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_DEBUG;
@@ -85,6 +86,11 @@ public class BallerinaShell {
         // If this fails, an error would be directly thrown.
         try {
             evaluator.initialize();
+            // If a start file is given, run it in initialization
+            Optional<String> startFile = configuration.getStartFile();
+            if (startFile.isPresent()) {
+                evaluator.executeFile(new File(startFile.get()));
+            }
         } catch (BallerinaShellException e) {
             evaluator.diagnostics().forEach(this::outputDiagnostic);
             terminal.println("\nShell Initialization Failed!!!");

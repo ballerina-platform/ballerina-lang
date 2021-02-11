@@ -81,6 +81,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String CONFIGURE_INIT_CLASS_NAME = "$ConfigurationMapper";
     private static final String MODULE_INIT_METHOD_NAME = "$moduleInit";
+    private static final String MODULE_START_METHOD_NAME = "$moduleStart";
     private static final String CONFIGURE_INIT_METHOD_NAME = "$configureInit";
     // TODO: After configurables can be supported, change this to that file location
     private static final Path CONFIG_PATH = Paths.get(System.getProperty("user.dir"), "Config.toml");
@@ -201,7 +202,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             template.execute(stringWriter, context);
             return getProject(stringWriter.toString());
         } catch (IOException e) {
-            addDiagnostic(Diagnostic.error("File generation failed: " + e.getMessage()));
+            addErrorDiagnostic("File generation failed: " + e.getMessage());
             throw new InvokerException(e);
         }
     }
@@ -219,7 +220,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
             return SingleFileProject.load(mainBal.toPath(), buildOptions);
         } catch (IOException e) {
-            addDiagnostic(Diagnostic.error("File writing failed: " + e.getMessage()));
+            addErrorDiagnostic("File writing failed: " + e.getMessage());
             throw new InvokerException(e);
         }
     }
@@ -243,13 +244,13 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : diagnosticResult.diagnostics()) {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
-                    addDiagnostic(Diagnostic.error(highlightedDiagnostic(module, diagnostic)));
-                    addDiagnostic(Diagnostic.error("Compilation aborted because of errors."));
+                    addErrorDiagnostic(highlightedDiagnostic(module, diagnostic));
+                    addErrorDiagnostic("Compilation aborted because of errors.");
                     throw new InvokerException();
                 } else if (severity == DiagnosticSeverity.WARNING) {
                     addDiagnostic(Diagnostic.warn(highlightedDiagnostic(module, diagnostic)));
                 } else {
-                    addDiagnostic(Diagnostic.debug(diagnostic.message()));
+                    addDebugDiagnostic(diagnostic.message());
                 }
             }
 
@@ -257,14 +258,13 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         } catch (InvokerException e) {
             throw e;
         } catch (Exception e) {
-            addDiagnostic(Diagnostic.error("Something went wrong: " + e));
+            addErrorDiagnostic("Something went wrong: " + e);
             throw new InvokerException(e);
         } catch (Error e) {
-            addDiagnostic(Diagnostic.error("Something severely went wrong: " + e));
+            addErrorDiagnostic("Something severely went wrong: " + e);
             throw new InvokerException(e);
         }
     }
-
 
     /**
      * Tries to import using the given statement.
@@ -279,7 +279,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         // Detect if import is valid.
         for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
             if (diagnostic.diagnosticInfo().code().equals(MODULE_NOT_FOUND_CODE)) {
-                addDiagnostic(Diagnostic.error("Import resolution failed. Module not found."));
+                addErrorDiagnostic("Import resolution failed. Module not found.");
                 throw new InvokerException();
             }
         }
@@ -301,7 +301,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         boolean isExecutionSuccessful = executeProject(jBallerinaBackend);
         if (!isExecutionSuccessful) {
-            addDiagnostic(Diagnostic.error("Unhandled Runtime Error."));
+            addErrorDiagnostic("Unhandled Runtime Error.");
             throw new InvokerException();
         }
         return null;
@@ -334,6 +334,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                     new Class[]{Path.class}, new Object[]{CONFIG_PATH});
             // Initialize the module
             invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
+            // Start the module
+            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_START_METHOD_NAME);
             // Then call run method
             Object failError = invokeScheduledMethod(classLoader, mainMethodClassName, MODULE_RUN_METHOD_NAME);
             if (failError != null) {
@@ -343,7 +345,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         } catch (InvokerPanicException panicError) {
             Throwable panicCause = panicError.getCause();
             errorStream.println("Panic: " + panicCause.getMessage());
-            addDiagnostic(Diagnostic.error("Unhandled Runtime Error."));
+            addErrorDiagnostic("Unhandled Runtime Error.");
             throw panicError;
         }
     }
@@ -363,7 +365,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     protected Object invokeScheduledMethod(ClassLoader classLoader, String className, String methodName)
             throws InvokerException {
         try {
-            addDiagnostic(Diagnostic.debug(String.format("Running %s.%s on schedule", className, methodName)));
+            addDebugDiagnostic(String.format("Running %s.%s on schedule", className, methodName));
 
             // Get class and method references
             Class<?> clazz = classLoader.loadClass(className);
@@ -388,13 +390,13 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             }
             return result;
         } catch (ClassNotFoundException e) {
-            addDiagnostic(Diagnostic.error(className + " class not found: " + e.getMessage()));
+            addErrorDiagnostic(className + " class not found: " + e.getMessage());
             throw new InvokerException(e);
         } catch (NoSuchMethodException e) {
-            addDiagnostic(Diagnostic.error(methodName + " method not found: " + e.getMessage()));
+            addErrorDiagnostic(methodName + " method not found: " + e.getMessage());
             throw new InvokerException(e);
         } catch (RuntimeException e) {
-            addDiagnostic(Diagnostic.error("Unexpected error: " + e.getMessage()));
+            addErrorDiagnostic("Unexpected error: " + e.getMessage());
             throw new InvokerException(e);
         }
     }
@@ -416,26 +418,24 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                                         Class<?>[] argTypes, Object[] args) throws InvokerException {
         try {
             // Get class and method references
-            addDiagnostic(Diagnostic.debug(String.format("Running %s.%s directly", className, methodName)));
+            addDebugDiagnostic(String.format("Running %s.%s directly", className, methodName));
             Class<?> clazz = classLoader.loadClass(className);
             Method method = clazz.getDeclaredMethod(methodName, argTypes);
-            Object result = method.invoke(null, args);
-            addDiagnostic(Diagnostic.debug("Result: " + result));
-            return result;
+            return method.invoke(null, args);
         } catch (ClassNotFoundException e) {
-            addDiagnostic(Diagnostic.error(className + " class not found: " + e.getMessage()));
+            addErrorDiagnostic(className + " class not found: " + e.getMessage());
             throw new InvokerException(e);
         } catch (NoSuchMethodException e) {
-            addDiagnostic(Diagnostic.error(methodName + " method not found: " + e.getMessage()));
+            addErrorDiagnostic(methodName + " method not found: " + e.getMessage());
             throw new InvokerException(e);
         } catch (IllegalAccessException e) {
-            addDiagnostic(Diagnostic.error(methodName + " illegal access: " + e.getMessage()));
+            addErrorDiagnostic(methodName + " illegal access: " + e.getMessage());
             throw new InvokerException(e);
         } catch (InvocationTargetException e) {
-            addDiagnostic(Diagnostic.error(methodName + " exception at target: " + e.getTargetException()));
+            addErrorDiagnostic(methodName + " exception at target: " + e.getTargetException());
             throw new InvokerException(e);
         } catch (RuntimeException e) {
-            addDiagnostic(Diagnostic.error("Unexpected error: " + e.getMessage()));
+            addErrorDiagnostic("Unexpected error: " + e.getMessage());
             throw new InvokerException(e);
         }
     }
