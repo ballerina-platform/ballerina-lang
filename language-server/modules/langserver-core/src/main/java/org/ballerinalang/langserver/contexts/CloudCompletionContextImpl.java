@@ -31,12 +31,12 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class K8sCompletionContextImpl extends CompletionContextImpl implements TomlCompletionContext {
+public class CloudCompletionContextImpl extends CompletionContextImpl implements TomlCompletionContext {
 
     private final List<Node> resolverChain = new ArrayList<>();
     private NonTerminalNode nodeAtCursor;
 
-    public K8sCompletionContextImpl(CompletionContext context, LanguageServerContext serverContext) {
+    public CloudCompletionContextImpl(CompletionContext context, LanguageServerContext serverContext) {
         super(context.operation(),
                 context.fileUri(),
                 context.workspace(),

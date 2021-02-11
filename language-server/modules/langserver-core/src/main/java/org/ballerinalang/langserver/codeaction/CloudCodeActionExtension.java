@@ -31,12 +31,12 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Code action extension implementation for Kubernetes.toml.
+ * Code action extension implementation for Cloud.toml.
  *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.LanguageExtension")
-public class K8sCodeActionExtension implements CodeActionExtension {
+public class CloudCodeActionExtension implements CodeActionExtension {
 
     @Override
     public boolean validate(CodeActionParams inputParams) {
@@ -46,7 +46,7 @@ public class K8sCodeActionExtension implements CodeActionExtension {
             return false;
         }
         String fileName = fileNamePath.toString();
-        return fileName.equals(ProjectConstants.KUBERNETES_TOML);
+        return fileName.equals(ProjectConstants.CLOUD_TOML);
     }
 
     @Override

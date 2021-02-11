@@ -3,7 +3,7 @@
         "line": 16,
         "character": 0
     },
-    "source": "main/source/Kubernetes.toml",
+    "source": "main/source/Cloud.toml",
     "items": [
         {
             "label": "cloud.deployment.storage.volumes",

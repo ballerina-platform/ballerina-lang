@@ -20,11 +20,11 @@ package org.ballerinalang.langserver.codeaction;
 import org.testng.annotations.DataProvider;
 
 /**
- * Test cases for adding ballerina service as a liveness or readiness probe to Kuberentes.toml.
+ * Test cases for adding ballerina service as a liveness or readiness probe to Cloud.toml.
  *
  * @since 2.0.0
  */
-public class KubernetesProbesTest extends AbstractCodeActionTest {
+public class CloudProbesTest extends AbstractCodeActionTest {
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
@@ -36,6 +36,6 @@ public class KubernetesProbesTest extends AbstractCodeActionTest {
 
     @Override
     public String getResourceDir() {
-        return "add-to-k8s-probe";
+        return "add-to-cloud-probe";
     }
 }

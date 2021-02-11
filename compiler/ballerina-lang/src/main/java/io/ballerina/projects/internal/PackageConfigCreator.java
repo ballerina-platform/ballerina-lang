@@ -126,13 +126,13 @@ public class PackageConfigCreator {
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig dependenciesToml = packageData.dependenciesToml()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
-        DocumentConfig kubernetesToml = packageData.kubernetesToml()
+        DocumentConfig cloudToml = packageData.cloudToml()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig packageMd = packageData.packageMd()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
 
         return PackageConfig.from(packageId, packageData.packagePath(), packageManifest, ballerinaToml,
-                dependenciesToml, kubernetesToml, packageMd, moduleConfigs, packageDependencyGraph);
+                dependenciesToml, cloudToml, packageMd, moduleConfigs, packageDependencyGraph);
     }
 
     private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDesc,

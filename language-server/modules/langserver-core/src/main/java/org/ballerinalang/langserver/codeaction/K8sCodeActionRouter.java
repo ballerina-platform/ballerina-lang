@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Code Action Router for Kubernetes.toml.
+ * Code Action Router for k8s related code actions in Cloud.toml.
  *
  * @since 2.0.0
  */
