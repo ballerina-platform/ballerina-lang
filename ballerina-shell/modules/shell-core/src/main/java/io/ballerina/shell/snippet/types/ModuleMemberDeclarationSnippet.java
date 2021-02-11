@@ -38,11 +38,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 2.0.0
  */
-public class TopMemberDeclarationSnippet extends AbstractSnippet<ModuleMemberDeclarationNode>
+public class ModuleMemberDeclarationSnippet extends AbstractSnippet<ModuleMemberDeclarationNode>
         implements TopLevelDeclarationSnippet {
     private static final AtomicInteger unnamedModuleNameIndex = new AtomicInteger(0);
 
-    public TopMemberDeclarationSnippet(SnippetSubKind subKind, ModuleMemberDeclarationNode rootNode) {
+    public ModuleMemberDeclarationSnippet(SnippetSubKind subKind, ModuleMemberDeclarationNode rootNode) {
         super(subKind, rootNode);
     }
 
