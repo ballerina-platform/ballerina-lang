@@ -41,7 +41,7 @@ import java.util.Objects;
 /**
  * Test the ballerina bindgen command options and functionality.
  *
- * @since 2.0.0
+ * @since 1.2
  */
 public class BindgenCommandTest extends CommandTest {
 
@@ -105,7 +105,7 @@ public class BindgenCommandTest extends CommandTest {
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("error: incorrect maven dependency format found"));
+        Assert.assertTrue(output.contains("Error in the maven dependency provided."));
     }
 
     @Test(description = "Test if the correct error is given for an incorrect output path")
@@ -118,7 +118,7 @@ public class BindgenCommandTest extends CommandTest {
         bindgenCommand.execute();
         String output = readOutput(true);
         Assert.assertTrue(output.contains("Error while generating Ballerina bindings:" + LINE_SEPARATOR +
-                "\tOutput path provided"));
+                "Output path provided"));
     }
 
     @AfterClass

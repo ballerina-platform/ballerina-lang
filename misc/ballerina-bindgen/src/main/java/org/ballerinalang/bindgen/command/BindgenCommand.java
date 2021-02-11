@@ -163,7 +163,7 @@ public class BindgenCommand implements BLauncherCmd {
         if (this.mavenDependency != null) {
             String[] mvnDependency = this.mavenDependency.split(splitColonRegex);
             if (mvnDependency.length != 3) {
-                setOutError("error: incorrect maven dependency format found");
+                setOutError("Error in the maven dependency provided.");
                 return;
             }
             bindingsGenerator.setMvnGroupId(mvnDependency[0]);
@@ -175,7 +175,7 @@ public class BindgenCommand implements BLauncherCmd {
         try {
             bindingsGenerator.generateJavaBindings();
         } catch (BindgenException e) {
-            outError.println("\nError while generating Ballerina bindings:\n\t" + e.getMessage());
+            outError.println("\nError while generating Ballerina bindings:\n" + e.getMessage());
         }
     }
 
