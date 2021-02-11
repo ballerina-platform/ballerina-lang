@@ -350,7 +350,7 @@ public class LangLibFunctionTest {
     }
 
     private void assertLangLibList(List<FunctionSymbol> langLib, List<String> expFunctions) {
-        Set<String> langLibSet = langLib.stream().map(FunctionSymbol::name).collect(Collectors.toSet());
+        Set<String> langLibSet = langLib.stream().map(s -> s.getName().get()).collect(Collectors.toSet());
 
         for (String expFunction : expFunctions) {
             assertTrue(langLibSet.contains(expFunction), "Expected function '" + expFunction + "' not found");

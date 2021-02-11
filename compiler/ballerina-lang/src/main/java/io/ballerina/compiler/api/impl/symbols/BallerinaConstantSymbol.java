@@ -24,8 +24,8 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 
@@ -39,15 +39,10 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
     private final Object constValue;
     private TypeSymbol broaderType;
 
-    private BallerinaConstantSymbol(String name,
-                                    PackageID moduleID,
-                                    List<Qualifier> qualifiers,
-                                    List<AnnotationSymbol> annots,
-                                    TypeSymbol typeDescriptor,
-                                    TypeSymbol broaderType,
-                                    Object constValue,
-                                    BSymbol bSymbol) {
-        super(name, moduleID, SymbolKind.CONSTANT, qualifiers, annots, typeDescriptor, bSymbol);
+    private BallerinaConstantSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
+                                    TypeSymbol typeDescriptor, TypeSymbol broaderType, Object constValue,
+                                    BSymbol bSymbol, CompilerContext context) {
+        super(name, SymbolKind.CONSTANT, qualifiers, annots, typeDescriptor, bSymbol, context);
         this.constValue = constValue;
         this.broaderType = broaderType;
     }
@@ -95,13 +90,13 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
         private Object constantValue;
         private TypeSymbol broaderType;
 
-        public ConstantSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
-            super(name, moduleID, symbol);
+        public ConstantSymbolBuilder(String name, BSymbol symbol, CompilerContext context) {
+            super(name, symbol, context);
         }
 
         public BallerinaConstantSymbol build() {
-            return new BallerinaConstantSymbol(this.name, this.moduleID, this.qualifiers, this.annots,
-                                               this.typeDescriptor, this.broaderType, this.constantValue, this.bSymbol);
+            return new BallerinaConstantSymbol(this.name, this.qualifiers, this.annots, this.typeDescriptor,
+                                               this.broaderType, this.constantValue, this.bSymbol, this.context);
         }
 
         public ConstantSymbolBuilder withConstValue(Object constValue) {
