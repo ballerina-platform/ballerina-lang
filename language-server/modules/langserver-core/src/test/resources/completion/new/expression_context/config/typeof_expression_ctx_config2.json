@@ -165,6 +165,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "check ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",

@@ -147,6 +147,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "check ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",

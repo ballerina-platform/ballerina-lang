@@ -60,14 +60,13 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
@@ -154,7 +153,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 TypeSymbol typeDesc = (varSymbol).typeDescriptor();
                 String typeName = typeDesc == null ? "" : CommonUtil.getModifiedTypeName(ctx, typeDesc);
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, varSymbol.getName().get(),
-                                                                                   typeName);
+                        typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
                 // Here skip all the package symbols since the package is added separately
@@ -338,9 +337,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 new SnippetCompletionItem(context, Snippet.KW_START.get()),
                 new SnippetCompletionItem(context, Snippet.KW_WAIT.get()),
                 new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()),
-                new SnippetCompletionItem(context, Snippet.KW_FROM.get()),
-                new SnippetCompletionItem(context, Snippet.KW_CHECK.get()),
-                new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get())
+                new SnippetCompletionItem(context, Snippet.KW_FROM.get())
         );
     }
 
@@ -369,6 +366,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FALSE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));
