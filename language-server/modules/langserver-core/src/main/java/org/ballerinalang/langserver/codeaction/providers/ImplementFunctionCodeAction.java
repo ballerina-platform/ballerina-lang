@@ -104,7 +104,7 @@ public class ImplementFunctionCodeAction extends AbstractCodeActionProvider {
         String editText = offsetStr + typeName + " {" + LINE_SEPARATOR + offsetStr + "}" + LINE_SEPARATOR;
         Position editPos = CommonUtil.toPosition(classDefNode.closeBrace().lineRange().startLine());
         edits.add(new TextEdit(new Range(editPos, editPos), editText));
-        String commandTitle = String.format(CommandConstants.IMPLEMENT_FUNCS_TITLE, unimplMethod.name());
+        String commandTitle = String.format(CommandConstants.IMPLEMENT_FUNCS_TITLE, unimplMethod.getName().get());
         CodeAction quickFixCodeAction = createQuickFixCodeAction(commandTitle, edits, context.fileUri());
         quickFixCodeAction.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
         return Collections.singletonList(quickFixCodeAction);

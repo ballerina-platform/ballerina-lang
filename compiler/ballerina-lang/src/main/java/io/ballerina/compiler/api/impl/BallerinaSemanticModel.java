@@ -165,14 +165,14 @@ public class BallerinaSemanticModel implements SemanticModel {
      */
     @Override
     public List<Location> references(Symbol symbol) {
-        Location symbolLocation = symbol.location();
+        Optional<Location> symbolLocation = symbol.getLocation();
 
         // Assumption is that the location will be null for regular type symbols
-        if (symbolLocation == null) {
-            return Collections.unmodifiableList(new ArrayList<>());
+        if (symbolLocation.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolLocation.lineRange());
+        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolLocation.get().lineRange());
 
         ReferenceFinder refFinder = new ReferenceFinder();
         return refFinder.findReferences(node, getInternalSymbol(symbol));
@@ -188,7 +188,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
 
         if (symbolAtCursor == null) {
-            return Collections.unmodifiableList(new ArrayList<>());
+            return Collections.emptyList();
         }
 
         BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolAtCursor.pos.lineRange());

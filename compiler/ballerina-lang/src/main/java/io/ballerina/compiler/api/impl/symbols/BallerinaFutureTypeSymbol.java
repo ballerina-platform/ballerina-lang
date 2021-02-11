@@ -35,7 +35,7 @@ public class BallerinaFutureTypeSymbol extends AbstractTypeSymbol implements Fut
     private TypeSymbol memberTypeDesc;
 
     public BallerinaFutureTypeSymbol(CompilerContext context, ModuleID moduleID, BFutureType futureType) {
-        super(context, TypeDescKind.FUTURE, moduleID, futureType);
+        super(context, TypeDescKind.FUTURE, futureType);
     }
 
     @Override

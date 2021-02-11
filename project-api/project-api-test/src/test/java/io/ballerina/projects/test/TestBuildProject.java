@@ -803,7 +803,7 @@ public class TestBuildProject {
 
         // Test symbol
         Optional<Symbol> symbol = semanticModel.symbol(srcFile, LinePosition.from(5, 10));
-        symbol.ifPresent(value -> assertEquals(value.name(), "runServices"));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), "runServices"));
     }
 
     @Test(description = "tests if other documents exists ie. Ballerina.toml, Package.md", enabled = true)
