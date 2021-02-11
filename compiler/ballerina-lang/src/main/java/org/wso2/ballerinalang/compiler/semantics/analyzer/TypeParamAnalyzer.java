@@ -720,14 +720,14 @@ public class TypeParamAnalyzer {
                 return new BTypedescType(getMatchingBoundType(constraint, env, resolvedTypes),
                         symTable.typeDesc.tsymbol);
             case TypeTags.INTERSECTION:
-                return getMatchingIntersectionBoundType((BIntersectionType) expType, env, resolvedTypes);
+                return getMatchingReadonlyIntersectionBoundType((BIntersectionType) expType, env, resolvedTypes);
             default:
                 return expType;
         }
     }
 
-    private BType getMatchingIntersectionBoundType(BIntersectionType intersectionType, SymbolEnv env,
-                                                   HashSet<BType> resolvedTypes) {
+    private BType getMatchingReadonlyIntersectionBoundType(BIntersectionType intersectionType, SymbolEnv env,
+                                                           HashSet<BType> resolvedTypes) {
 
         Set<BType> constituentTypes = intersectionType.getConstituentTypes();
 
