@@ -88,8 +88,9 @@ public class ForeachIterableObjectTest {
     public void testIterableObjectErrors() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'object { public isolated " +
-                "function next () returns (record {| int value; |}?); }', found 'object { int[] integers; int cursorIndex; public " +
-                "isolated function next () returns ((record {| int value; |}|CustomError)?); }'", 124, 16);
+                "function next () returns (record {| int value; |}?); }', found 'object { int[] integers; int " +
+                "cursorIndex; public isolated function next () returns ((record {| int value; |}|CustomError)?); }'",
+                124, 16);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|CustomError)'",
                 239, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|error)'",
