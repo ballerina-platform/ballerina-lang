@@ -91,12 +91,13 @@ public class ForeachIterableObjectTest {
                 "function next () returns (record {| int value; |}?); }', found 'object { int[] integers; int " +
                 "cursorIndex; public isolated function next () returns ((record {| int value; |}|CustomError)?); }'",
                 124, 16);
-        BAssertUtil.validateError(negativeResult, i++, "invalid iterable completion type '(int|CustomError)': next " +
-                        "method completion type cannot contain type 'CustomError'", 239, 25);
-        BAssertUtil.validateError(negativeResult, i++, "invalid iterable completion type '(int|error)': next " +
-                        "method completion type cannot contain type 'error'", 241, 25);
-        BAssertUtil.validateError(negativeResult, i++, "invalid iterable completion type '(int|CustomError)': next " +
-                        "method completion type cannot contain type 'CustomError'", 244, 25);
+        BAssertUtil.validateError(negativeResult, i++, "invalid iterable completion type '(int|CustomError)' " +
+                        "in foreach statement: next method completion type cannot contain type 'CustomError'",
+                239, 25);
+        BAssertUtil.validateError(negativeResult, i++, "invalid iterable completion type '(int|error)' " +
+                        "in foreach statement: next method completion type cannot contain type 'error'", 241, 25);
+        BAssertUtil.validateError(negativeResult, i++, "invalid iterable completion type '(int|CustomError)'" +
+                " in foreach statement: next method completion type cannot contain type 'CustomError'", 244, 25);
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function" +
                 " iterator() returns object { public isolated function next () returns ((" +
                 "record {| (any|error) value; |}|error)?); }', found 'public function iterator() returns " +
