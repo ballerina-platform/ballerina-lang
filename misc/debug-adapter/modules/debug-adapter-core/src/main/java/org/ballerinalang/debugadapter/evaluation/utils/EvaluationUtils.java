@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.evaluation.utils;
 
 import com.sun.jdi.ClassObjectReference;
 import com.sun.jdi.ClassType;
+import com.sun.jdi.InvocationException;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
@@ -35,6 +36,7 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -62,6 +64,7 @@ public class EvaluationUtils {
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
     private static final String B_LINK_CLASS = "io.ballerina.runtime.api.values.BLink";
+    private static final String B_ERROR_VALUE_CLASS = "io.ballerina.runtime.internal.values.ErrorValue";
     private static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
     private static final String JAVA_LONG_CLASS = "java.lang.Long";
     private static final String JAVA_DOUBLE_CLASS = "java.lang.Double";
@@ -205,6 +208,9 @@ public class EvaluationUtils {
      */
     public static Value getValueAsObject(SuspendedContext context, Value value) throws EvaluationException {
         BVariable bVar = VariableFactory.getVariable(context, value);
+        if (value instanceof ObjectReference) {
+            return value;
+        }
         return getValueAsObject(context, bVar);
     }
 
@@ -304,6 +310,21 @@ public class EvaluationUtils {
                 argTypeNames);
         fromStringMethod.setArgValues(Collections.singletonList(stringRef));
         return fromStringMethod.invoke();
+    }
+
+    /**
+     * Checks if a given invocation exception is an instance of {@link io.ballerina.runtime.api.values.BError} and if
+     * so, returns it as a JDI value instance.
+     */
+    public static Optional<Value> getBError(Exception e) {
+        if (!(e instanceof InvocationException)) {
+            return Optional.empty();
+        }
+        String typeName = ((InvocationException) e).exception().referenceType().name();
+        if (typeName.equals(B_ERROR_VALUE_CLASS)) {
+            return Optional.ofNullable(((InvocationException) e).exception());
+        }
+        return Optional.empty();
     }
 
     private static boolean compare(List<String> list1, List<String> list2) {

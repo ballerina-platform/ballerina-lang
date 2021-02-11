@@ -63,22 +63,22 @@ public class TypeCastExpressionEvaluator extends Evaluator {
             // classes of 'java.lang.Object'. Therefore java primitive types are converted into their wrapper
             // implementations first.
             Value valueAsObject = getValueAsObject(context, result.getJdiValue());
-
             // Normally, the parameter for a type-cast-expr includes a type-descriptor. However, it is also allowed
             // for the parameter to consist only of annotations; in this case, the only effect of the type cast is for
             // the contextually expected type for expression to be augmented with the specified annotations.
             NodeList<AnnotationNode> annotations = syntaxNode.typeCastParam().annotations();
-            // Todo - Do we need to add support for annotation processing in here?
+
+            // Todo - should process annotations?
             if (!annotations.isEmpty()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Type " +
                         "casting with annotations is not supported by the evaluator."));
             }
-
             List<Value> resolvedTypes = BallerinaTypeResolver.resolve(context, syntaxNode.typeCastParam().type().get());
             if (resolvedTypes.isEmpty()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_RESOLVING_ERROR.getString(),
                         syntaxNode.typeCastParam().type().get().toSourceCode()));
             }
+
             // If the type descriptor is resolved into multiple types, creates a "BUnionType" instance by combining
             // its member types.
             Value bTypeDescriptor = resolvedTypes.size() > 1 ? getUnionTypeFrom(resolvedTypes) : resolvedTypes.get(0);
