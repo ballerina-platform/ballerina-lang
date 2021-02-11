@@ -294,23 +294,26 @@ class AIDataMapperCodeActionUtil {
         JsonArray schemas = new JsonArray();
         schemas.add(leftRecordJSON);
         schemas.add(rightRecordJSON);
-        return getMapping(schemas, context);
+        return getMapping(schemas, context, foundTypeLeft, foundTypeRight);
     }
 
     /**
      * For a give array of schemas, return a mapping function.
      *
      * @param schemas {@link JsonArray}
+     * @param foundTypeLeft
+     * @param foundTypeRight
      * @return mapped function
      * @throws IOException throws if an error occurred in HTTP request
      */
-    private static String getMapping(JsonArray schemas, CodeActionContext context) throws IOException {
+    private static String getMapping(JsonArray schemas, CodeActionContext context, String foundTypeLeft, String foundTypeRight) throws IOException {
         int hashCode = schemas.hashCode();
         if (mappingCache.asMap().containsKey(hashCode)) {
             return mappingCache.asMap().get(hashCode);
         }
         try {
-            String mappedFunction = getMappingFromServer(schemas, context.languageServercontext());
+            String mappingFromServer = getMappingFromServer(schemas, context.languageServercontext());
+            String mappedFunction = generateMappingFunction(mappingFromServer, foundTypeLeft, foundTypeRight);
             mappingCache.put(hashCode, mappedFunction);
             return mappedFunction;
         } catch (IOException e) {
@@ -357,7 +360,7 @@ class AIDataMapperCodeActionUtil {
             headers.put("Accept", "application/json");
             String url = LSClientConfigHolder.getInstance(serverContext)
                     .getConfigAs(ClientExtendedConfigImpl.class).getDataMapper()
-                    .getUrl() + "/map/1.0.0";
+                    .getUrl() + "/map/2.0.0";
             HttpResponse response = HttpClientRequest.doPost(url, dataToSend.toString(), headers);
             int responseCode = response.getResponseCode();
             if (responseCode != HTTP_200_OK) {
@@ -368,10 +371,23 @@ class AIDataMapperCodeActionUtil {
                 }
             }
             JsonParser parser = new JsonParser();
-            return parser.parse(response.getData()).getAsJsonObject().get("answer").getAsString();
+            return parser.parse(response.getData()).getAsJsonObject().get("answer").toString();
         } catch (IOException e) {
             throw new IOException("Error connecting the AI service" + e.getMessage(), e);
         }
+    }
+
+    private static String generateMappingFunction(String mappingFromServer, String foundTypeLeft, String foundTypeRight){
+
+        mappingFromServer = mappingFromServer.replaceAll("\"","");
+        mappingFromServer = mappingFromServer.replaceAll(",",", ");
+        mappingFromServer = mappingFromServer.replaceAll(":",": ");
+        String mappedFunction = "function map" + foundTypeRight + "To" + foundTypeLeft + "(" + foundTypeRight + " " + foundTypeRight.toLowerCase() + ") returns " + foundTypeLeft + "{" +
+        "\n// Some record fields might be missing in the AI based mapping." +
+        "\n\t" + foundTypeLeft + " "+ foundTypeLeft.toLowerCase() + " = " + mappingFromServer + ";" +
+        "\n\treturn " + foundTypeLeft.toLowerCase() + ";\n}";
+
+        return mappedFunction;
     }
 }
 
