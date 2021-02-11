@@ -97,7 +97,7 @@ public class String1 {
     }
 
     public function toString() returns string {
-        return java:jObjToString(self.jObj);
+        return java:toString(self.jObj) ?: "null";
     }
 }
 
@@ -146,7 +146,7 @@ public class String2 {
     }
 
     public function toString() returns string {
-        return java:jObjToString(self.jObj);
+        return java:toString(self.jObj) ?: "null";
     }
 }
 
@@ -195,7 +195,7 @@ public class String3 {
     }
 
     public function toString() returns string {
-        return java:jObjToString(self.jObj);
+        return java:toString(self.jObj) ?: "null";
     }
 }
 
@@ -247,7 +247,7 @@ public class String4 {
     }
 
     public function toString() returns string {
-        return java:jObjToString(self.jObj);
+        return java:toString(self.jObj) ?: "null";
     }
 }
 
