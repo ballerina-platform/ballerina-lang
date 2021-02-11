@@ -10,7 +10,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "function ${1:name} ${2:.} (${3}) {\n\t${4}\n}",
+      "insertText": "function ${1:name} ${2:.} (${3})${4} {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     },
     {
