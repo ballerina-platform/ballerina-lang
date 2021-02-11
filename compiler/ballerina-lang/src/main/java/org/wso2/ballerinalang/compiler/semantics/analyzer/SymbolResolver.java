@@ -930,8 +930,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void bootstrapIntRangeType() {
-
-        ScopeEntry entry = symTable.langObjectModuleSymbol.scope.lookup(Names.CREATE_INT_RANGE);
+        ScopeEntry entry = symTable.langInternalModuleSymbol.scope.lookup(Names.CREATE_INT_RANGE);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
                 entry = entry.next;
