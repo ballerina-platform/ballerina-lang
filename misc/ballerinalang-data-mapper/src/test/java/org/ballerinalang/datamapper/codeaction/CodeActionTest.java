@@ -64,10 +64,8 @@ public class CodeActionTest {
 
         class HelloWorldHandler extends AbstractHandler {
 
-            String responseData = "{\"answer\":\"\\nfunction mapStudentToGrades (Student student) " +
-                    "returns Grades {\\n// Some record fields might be missing in the AI based mapping.\\n\\t" +
-                    "Grades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, " +
-                    "physics: student.grades.physics};\\n\\treturn grades;\\n}\"}";
+            String responseData = "{\"answer\":{\"maths\":\"student.grades.maths\",\"chemistry\":" +
+                    "\"student.grades.chemistry\",\"physics\":\"student.grades.physics\"}}";
 
             int responseCode = 200;
 
