@@ -66,6 +66,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createIdent
  * @since 1.2.0
  */
 public class TypeDefBuilderHelper {
+    private static int errorDetailAnnonCount = 0;
 
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
                                                            SymbolTable symTable, Location pos) {
@@ -220,14 +221,30 @@ public class TypeDefBuilderHelper {
         return classDefNode;
     }
 
-    public static BLangErrorType createBLangErrorType(Location pos, BType detailType) {
+    public static BLangErrorType createBLangErrorType(Location pos, BType detailType, SymbolEnv env, Names names) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         BLangUserDefinedType userDefinedTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         userDefinedTypeNode.pos = pos;
         userDefinedTypeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        userDefinedTypeNode.typeName = createIdentifier(pos, detailType.tsymbol.name.value);
+
+        String typeName;
+        if (detailType.tsymbol != null) {
+            typeName = detailType.tsymbol.name.value;
+        } else {
+            typeName = "$synthetic$error$detail$" + errorDetailAnnonCount++;
+        }
+        userDefinedTypeNode.typeName = createIdentifier(pos, typeName);
         userDefinedTypeNode.type = detailType;
         errorType.detailType = userDefinedTypeNode;
+
+        if (detailType.tsymbol == null) {
+            BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE, Flags.ANONYMOUS,
+                    names.fromString(typeName), env.enclPkg.packageID, userDefinedTypeNode.type,
+                    env.enclPkg.symbol, pos, VIRTUAL);
+            addTypeDefinition(userDefinedTypeNode.type, typeSymbol, userDefinedTypeNode, env);
+            env.enclPkg.symbol.scope.define(typeSymbol.name, typeSymbol);
+            userDefinedTypeNode.type.tsymbol = typeSymbol;
+        }
 
         return errorType;
     }

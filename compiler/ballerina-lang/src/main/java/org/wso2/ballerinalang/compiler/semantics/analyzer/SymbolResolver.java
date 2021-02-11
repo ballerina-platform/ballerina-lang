@@ -1829,12 +1829,21 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (isErrorIntersection) {
+            BType detailType = ((BErrorType) potentialIntersectionType).detailType;
             if (isAlreadyExistingType) {
-                potentialIntersectionType = types.createErrorType(((BErrorType) potentialIntersectionType).detailType,
-                                                                  potentialIntersectionType.flags, env);
+                potentialIntersectionType = types.createErrorType(detailType, potentialIntersectionType.flags, env);
             }
+
+            boolean existingErrorDetailType = false;
+            if (detailType.tsymbol != null) {
+                BSymbol detailTypeSymbol = lookupSymbolInMainSpace(env, detailType.tsymbol.name);
+                if (detailTypeSymbol != symTable.notFoundSymbol) {
+                    existingErrorDetailType = true;
+                }
+            }
+
             return defineIntersectionType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos,
-                                          constituentBTypes, isAlreadyExistingType, env);
+                                          constituentBTypes, existingErrorDetailType, env);
         }
 
         if (!hasReadOnlyType) {
@@ -1884,7 +1893,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         PackageID pkgId = intersectionErrorType.tsymbol.pkgID;
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
 
-        if (!isAlreadyDefinedDetailType) {
+        if (!isAlreadyDefinedDetailType && intersectionErrorType.detailType.tag == TypeTags.RECORD) {
             defineErrorDetailRecord((BRecordType) intersectionErrorType.detailType,
                                                                         pos, pkgEnv);
         }
@@ -1894,10 +1903,12 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private BLangTypeDefinition defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
         BRecordTypeSymbol detailRecordSymbol = (BRecordTypeSymbol) detailRecord.tsymbol;
-        detailRecordSymbol.scope.define(names.fromString(
-                detailRecordSymbol.name.value + "." + detailRecordSymbol.initializerFunc.funcName.value),
-                                        detailRecordSymbol.initializerFunc.symbol);
-        env.scope.define(detailRecordSymbol.name, detailRecordSymbol);
+        if (detailRecordSymbol.initializerFunc != null) {
+            detailRecordSymbol.scope.define(names.fromString(
+                    detailRecordSymbol.name.value + "." + detailRecordSymbol.initializerFunc.funcName.value),
+                    detailRecordSymbol.initializerFunc.symbol);
+            env.scope.define(detailRecordSymbol.name, detailRecordSymbol);
+        }
 
         for (BField field : detailRecord.fields.values()) {
             BVarSymbol fieldSymbol = field.symbol;

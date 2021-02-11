@@ -107,6 +107,11 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testIntersectionOfErrorWithInlineError() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionOfErrorWithInlineError");
+    }
+
+    @Test
     public void testErrorIntersectionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/intersection/error_intersection_type_negative.bal");
 

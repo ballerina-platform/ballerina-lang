@@ -1382,7 +1382,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         boolean distinctFlagPresent = isDistinctFlagPresent(typeDefinition);
 
-        // todo: need to handle intersections
         if (distinctFlagPresent) {
             if (definedType.getKind() == TypeKind.ERROR) {
                 BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) definedType, typeDefSymbol);
@@ -1478,7 +1477,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void addErrorTypeDefinition(BErrorType errorType, SymbolEnv pkgEnv, Location pos) {
         BTypeSymbol errorTSymbol = errorType.tsymbol;
-        BLangErrorType bLangErrorType = TypeDefBuilderHelper.createBLangErrorType(pos, errorType.detailType);
+        BLangErrorType bLangErrorType =
+                TypeDefBuilderHelper.createBLangErrorType(pos, errorType.detailType, env, names);
         bLangErrorType.type = errorType;
         BLangTypeDefinition errorTypeDefinition = TypeDefBuilderHelper
                 .addTypeDefinition(errorType, errorTSymbol, bLangErrorType, pkgEnv);

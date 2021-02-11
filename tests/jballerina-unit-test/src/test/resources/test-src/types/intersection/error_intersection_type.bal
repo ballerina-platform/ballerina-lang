@@ -120,6 +120,51 @@ public function testIntersectionAsFieldInAnonymousRecord() {
     assertEquality(errRec.err, err);
 }
 
+type IntersectionOfInlineErrorOne DistinctErrorOne & error<map<string>>;
+type IntersectionOfInlineErrorTwo DistinctErrorOne & error<Detail>;
+type IntersectionOfInlineErrorThree DistinctErrorOne & error<DetailFour>;
+
+type IntersectionOfDistinctAndInlineErrorOne distinct DistinctErrorOne & error<map<string>>;
+type IntersectionOfDistinctAndInlineErrorTwo distinct DistinctErrorOne & error<Detail>;
+type IntersectionOfDistinctAndInlineErrorThree distinct DistinctErrorOne & error<DetailFour>;
+
+public function testIntersectionOfErrorWithInlineError() {
+    IntersectionOfInlineErrorOne eOne = error IntersectionOfInlineErrorOne("eOne", x = "ex", y = "wai");
+    assertEquality(eOne.message(), "eOne");
+    assertEquality(eOne.detail().x, "ex");
+    assertEquality(eOne.detail()["y"], "wai");
+
+    IntersectionOfInlineErrorTwo eTwo = error IntersectionOfInlineErrorTwo("eTwo", x = "ex", y = "wai");
+    assertEquality(eTwo.message(), "eTwo");
+    assertEquality(eTwo.detail().x, "ex");
+    assertEquality(eTwo.detail()["y"], "wai");
+
+    IntersectionOfInlineErrorThree eThree = error IntersectionOfInlineErrorThree("eThree", x = "ex", y = "wai");
+    assertEquality(eThree.message(), "eThree");
+    assertEquality(eThree.detail().x, "ex");
+    assertEquality(eThree.detail()["y"], "wai");
+
+    IntersectionOfInlineErrorOne eOneDash = eThree;
+    assertEquality(eOneDash.message(), "eThree");
+
+    var dErrorOne = error IntersectionOfDistinctAndInlineErrorOne("eOne", x = "ex", y = "wai");
+    assertEquality(dErrorOne.message(), "eOne");
+    assertEquality(dErrorOne.detail().x, "ex");
+    assertEquality(dErrorOne.detail()["y"], "wai");
+
+    DistinctErrorOne dOneDash = dErrorOne;
+    assertEquality(dOneDash.message(), "eOne");
+    assertEquality(dOneDash.detail().x, "ex");
+
+    DistinctErrorOne dErrorTwo = error IntersectionOfDistinctAndInlineErrorTwo("eTwo", x = "ex");
+    assertEquality(dErrorTwo.message(), "eTwo");
+    assertEquality(dErrorTwo.detail().x, "ex");
+
+    DistinctErrorOne dErrorThree = error IntersectionOfDistinctAndInlineErrorThree("eThree", x = "ex");
+    assertEquality(dErrorThree.message(), "eThree");
+    assertEquality(dErrorThree.detail().x, "ex");
+}
+
 function getAnonymousRecord(IntersectionErrorThree err) returns record {IntersectionErrorThree err;} {
     record {IntersectionErrorThree err;} errRec = {err};
     return errRec;
