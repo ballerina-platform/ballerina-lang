@@ -18,7 +18,7 @@
 
 package io.ballerina.shell;
 
-import io.ballerina.shell.invoker.ShellSnippetInvoker;
+import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.invoker.classload.ClassLoadInvoker;
 import io.ballerina.shell.parser.TreeParser;
 import io.ballerina.shell.parser.TrialTreeParser;
@@ -41,7 +41,7 @@ public class EvaluatorBuilder {
     private Preprocessor preprocessor;
     private TreeParser treeParser;
     private SnippetFactory snippetFactory;
-    private ShellSnippetInvoker invoker;
+    private ShellSnippetsInvoker invoker;
 
     public Evaluator build() {
         preprocessor = Objects.requireNonNullElseGet(preprocessor, SeparatorPreprocessor::new);
@@ -66,7 +66,7 @@ public class EvaluatorBuilder {
         return this;
     }
 
-    public EvaluatorBuilder invoker(ShellSnippetInvoker invoker) {
+    public EvaluatorBuilder invoker(ShellSnippetsInvoker invoker) {
         this.invoker = invoker;
         return this;
     }
