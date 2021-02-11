@@ -37,9 +37,11 @@ type AuthInfo record {|
 |};
 
 type UserTable table<AuthInfo> key(username);
+type nonKeyTable table<AuthInfo> ;
 
 configurable AuthInfo & readonly admin = ?;
 configurable UserTable & readonly users = ?;
+configurable nonKeyTable & readonly nonKeyUsers = ?;
 
 public function main() {
     testSimpleValues();
@@ -81,6 +83,7 @@ function testRecordValues() {
 function testTableValues() {
     
     test:assertEquals(3, users.length());
+    test:assertEquals(3, nonKeyUsers.length());
 
     AuthInfo user1 = {
         username: "alice",
