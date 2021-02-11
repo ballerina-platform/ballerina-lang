@@ -40,6 +40,7 @@ import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -277,7 +278,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return completionItems;
     }
 
-    protected boolean onQualifiedNameIdentifier(BallerinaCompletionContext context, Node node) {
+    protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
         if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;
         }
@@ -366,6 +367,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ERROR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FALSE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));

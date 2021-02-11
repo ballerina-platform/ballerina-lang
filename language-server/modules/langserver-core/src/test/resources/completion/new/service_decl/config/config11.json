@@ -42,7 +42,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "remote function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertText": "remote function ${1:name}(${2})${3} {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -50,7 +50,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertText": "function ${1:name}(${2})${3} {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -58,7 +58,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "resource function ${1:name} ${2:.} (${3}) {\n\t${4}\n}",
+      "insertText": "resource function ${1:name} ${2:.} (${3})${4} {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -288,7 +288,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "record {\n\t${1}\n}",
+      "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -296,7 +296,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "record {|\n\t${1}\n|}",
+      "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -312,7 +312,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "object {\n\t${1}\n}",
+      "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     },
     {

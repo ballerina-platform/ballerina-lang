@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.toml;
 import io.ballerina.toml.syntax.tree.Node;
 
 /**
- * Represents a value in Kubernetes.toml Probe.
+ * Represents a value in Cloud.toml Probe.
  *
  * @param <T> Value type
  * @since 2.0.0

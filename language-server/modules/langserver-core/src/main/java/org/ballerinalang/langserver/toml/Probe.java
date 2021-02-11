@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.toml;
 
 /**
- * Represents a Probe in Kubernetes.toml.
+ * Represents a Probe in Cloud.toml.
  *
  * @since 2.0.0
  */
