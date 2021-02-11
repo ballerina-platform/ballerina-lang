@@ -52,12 +52,20 @@ public class DocumentationParser extends AbstractParser {
      * <p>
      * <code>
      * DocumentationLine :=
-     *          ( DocumentationLine
-     *          | ReferenceDocumentationLine
-     *          | DeprecationDocumentationLine
-     *          | ParameterDocumentationLine
-     *          | ReturnParameterDocumentationLine
-     *          | InvalidDocumentationLine )
+     * <br/>
+     * MarkdownDocumentationLine
+     * <br/>
+     * | MarkdownReferenceDocumentationLine
+     * <br/>
+     * | MarkdownDeprecationDocumentationLine
+     * <br/>
+     * | MarkdownParameterDocumentationLine
+     * <br/>
+     * | MarkdownReturnParameterDocumentationLine
+     * <br/>
+     * | MarkdownCodeBlock
+     * <br/>
+     * | InvalidMarkdownDocumentationLine
      * </code>
      * <p>
      * Refer {@link DocumentationLexer}
@@ -96,20 +104,27 @@ public class DocumentationParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse documentation line starts with a inline code reference and a code block.
+     * <p>
+     * <i>Note: Code block should always start at the beginning of the line</i>
+     *
+     * @return Parsed node
+     */
     private STNode parseCodeBlockOrInlineCodeRef(STNode startLineHash) {
         STNode startBacktick = consume();
 
         STToken nextToken = peek();
-        if (isInlineCodeRef(nextToken.kind)) {
-            STNode inlineCodeNode = parseInlineCode(startBacktick);
-            List<STNode> docElements = new ArrayList<>();
-            docElements.add(inlineCodeNode);
-            parseDocElements(docElements);
-            STNode docElementList = STNodeFactory.createNodeList(docElements);
-            return createMarkdownReferenceDocumentationLineNode(startLineHash, docElementList);
-        } else {
+        if (!isInlineCodeRef(nextToken.kind)) {
             return parseCodeBlock(startLineHash, startBacktick);
         }
+
+        STNode inlineCodeNode = parseInlineCode(startBacktick);
+        List<STNode> docElements = new ArrayList<>();
+        docElements.add(inlineCodeNode);
+        parseDocElements(docElements);
+        STNode docElementList = STNodeFactory.createNodeList(docElements);
+        return createMarkdownReferenceDocumentationLineNode(startLineHash, docElementList);
     }
 
     private boolean isInlineCodeRef(SyntaxKind nextTokenKind) {
@@ -213,18 +228,35 @@ public class DocumentationParser extends AbstractParser {
         }
     }
 
+    /**
+     * Convert {@link SyntaxKind#CODE_CONTENT} token to {@link SyntaxKind#DOCUMENTATION_DESCRIPTION}.
+     *
+     * @param token Code content token
+     * @return Converted token
+     */
     private STNode convertToDocDescriptionToken(STToken token) {
         return STNodeFactory.createLiteralValueToken(SyntaxKind.DOCUMENTATION_DESCRIPTION, token.text(),
                 token.leadingMinutiae(), token.trailingMinutiae());
     }
 
+    /**
+     * Convert {@link SyntaxKind#DOCUMENTATION_DESCRIPTION} token to {@link SyntaxKind#CODE_CONTENT}.
+     *
+     * @param token Documentation description token
+     * @return Converted token
+     */
     private STNode convertToCodeContentToken(STToken token) {
         return STNodeFactory.createLiteralValueToken(SyntaxKind.CODE_CONTENT, token.text(),
                 token.leadingMinutiae(), token.trailingMinutiae());
     }
 
+    /**
+     * Parse inline code reference.
+     *
+     * @return Parsed node
+     */
     private STNode parseInlineCode(STNode startBacktick) {
-        STNode codeDescription = parseCodeContentToken();
+        STNode codeDescription = parseInlineCodeContentToken();
         STNode endBacktick = parseCodeEndBacktick(startBacktick.kind);
 
         if (endBacktick.isMissing() && endBacktick.kind != SyntaxKind.BACKTICK_TOKEN) {
@@ -235,7 +267,15 @@ public class DocumentationParser extends AbstractParser {
         return STNodeFactory.createInlineCodeReferenceNode(startBacktick, codeDescription, endBacktick);
     }
 
-    private STNode parseCodeContentToken() {
+    /**
+     * Parse code content token in the inline code reference.
+     * <p>
+     * <i>Note: If the code content token is missing and available token is a documentation description, it is converted
+     * to the expected kind. (This is to handle Scenario-2 of doc_source_22.bal properly)</i>
+     *
+     * @return Parsed node
+     */
+    private STNode parseInlineCodeContentToken() {
         STToken token = peek();
         if (token.kind == SyntaxKind.CODE_CONTENT) {
             return consume();
@@ -248,18 +288,22 @@ public class DocumentationParser extends AbstractParser {
     }
 
     /**
-     * Parse back-tick token.
+     * Parse code block.
      * <p>
      * <code>
      * Code-Block :=
-     * ``` code-description ````
-     * | # ``` [code-description] code-line*  # ```
+     * <br/>
+     * # ``` [lang-attribute]
+     * <br/>
+     * code-line*
+     * <br/>
+     * # ```
      * </code>
      *
      * @return Parsed node
      */
     private STNode parseCodeBlock(STNode startLineHash , STNode startBacktick) {
-        STNode codeDescription = parseOptionalCodeDescription();
+        STNode langAttribute = parseOptionalLangAttributeToken();
         STNode codeLines = parseCodeLines();
         STNode endLineHash = parseHashToken();
         STNode endBacktick = parseCodeEndBacktick(startBacktick.kind);
@@ -270,26 +314,26 @@ public class DocumentationParser extends AbstractParser {
                     DiagnosticWarningCode.WARNING_CANNOT_HAVE_DOCUMENTATION_INLINE_WITH_A_CODE_REFERENCE_BLOCK);
         }
 
-        return STNodeFactory.createMarkdownCodeBlockNode(startLineHash, startBacktick, codeDescription,
+        return STNodeFactory.createMarkdownCodeBlockNode(startLineHash, startBacktick, langAttribute,
                 codeLines, endLineHash, endBacktick);
     }
 
     /**
-     * Parse back-tick token.
+     * Parse optional language attribute token.
      *
      * @return Parsed node
      */
-    private STNode parseCodeEndBacktick(SyntaxKind backtickKind) {
+    private STNode parseOptionalLangAttributeToken() {
         STToken token = peek();
-        if (token.kind == backtickKind) {
+        if (token.kind == SyntaxKind.CODE_CONTENT) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(backtickKind);
+            return STNodeFactory.createEmptyNode();
         }
     }
 
     /**
-     * Parse back-tick token.
+     * Parse code lines of a code block.
      *
      * @return Parsed node
      */
@@ -299,7 +343,71 @@ public class DocumentationParser extends AbstractParser {
             STNode codeLineNode = parseCodeLine();
             codeLineList.add(codeLineNode);
         }
+
         return STNodeFactory.createNodeList(codeLineList);
+    }
+
+    /**
+     * Parse a single code line of code block.
+     *
+     * @return Parsed node
+     */
+    private STNode parseCodeLine() {
+        STNode hash = parseHashToken();
+
+        STNode codeDescription;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.HASH_TOKEN) {
+            // We reach here, when the code line is empty
+            codeDescription = createEmptyCodeContentToken();
+        } else {
+            codeDescription = parseInlineCodeContentToken();
+        }
+
+        return STNodeFactory.createMarkdownCodeLineNode(hash, codeDescription);
+    }
+
+    /**
+     * Create an empty code content token.
+     *
+     * @return Parsed node
+     */
+    private STNode createEmptyCodeContentToken() {
+        STNode codeDescription;
+        String lexeme = "";
+        STNode emptyMinutiae = STNodeFactory.createEmptyNodeList();
+        codeDescription = STNodeFactory.createLiteralValueToken(SyntaxKind.CODE_CONTENT, lexeme, emptyMinutiae,
+                emptyMinutiae);
+        return codeDescription;
+    }
+
+    /**
+     * Parse hash token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseHashToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.HASH_TOKEN) {
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(SyntaxKind.HASH_TOKEN);
+        }
+    }
+
+    /**
+     * Parse ending backtick token of a code reference.
+     *
+     * @param backtickKind Kind of the code ref starting backtick
+     * @return Parsed node
+     */
+    private STNode parseCodeEndBacktick(SyntaxKind backtickKind) {
+        STToken token = peek();
+        if (token.kind == backtickKind) {
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(backtickKind);
+        }
     }
 
     private boolean isEndOfCodeLines() {
@@ -318,59 +426,12 @@ public class DocumentationParser extends AbstractParser {
         return true;
     }
 
-    private STNode parseCodeLine() {
-        STNode hash = parseHashToken();
-
-        STNode codeDescription;
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.HASH_TOKEN) {
-            // We reach here, when the code line is empty
-            codeDescription = createEmptyCodeContentToken();
-        } else {
-            codeDescription = parseCodeContentToken();
-        }
-
-        return STNodeFactory.createMarkdownCodeLineNode(hash, codeDescription);
-    }
-
-    private STNode createEmptyCodeContentToken() {
-        STNode codeDescription;
-        String lexeme = "";
-        STNode emptyMinutiae = STNodeFactory.createEmptyNodeList();
-        codeDescription = STNodeFactory.createLiteralValueToken(SyntaxKind.CODE_CONTENT, lexeme, emptyMinutiae,
-                emptyMinutiae);
-        return codeDescription;
-    }
-
     /**
-     * Parse back-tick token.
+     * Parse ballerina name reference and inline code reference.
      *
+     * @param referenceType Token that precedes the single backtick
      * @return Parsed node
      */
-    private STNode parseOptionalCodeDescription() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.CODE_CONTENT) {
-            return consume();
-        } else {
-            return STNodeFactory.createEmptyNode();
-        }
-    }
-
-    /**
-     * Parse back-tick token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseHashToken() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.HASH_TOKEN) {
-            return consume();
-        } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.HASH_TOKEN);
-        }
-    }
-
-
     private STNode parseBallerinaNameRefOrInlineCodeRef(STNode referenceType) {
         STNode startBacktick = parseBacktickToken();
 
