@@ -136,12 +136,15 @@ public class BindgenCommand implements BLauncherCmd {
         }
 
         if (!ProjectDirs.isProject(targetOutputPath)) {
-            Path findRoot = ProjectDirs.findProjectRoot(targetOutputPath).getParent();
-            if (findRoot != null) {
-                outStream.println("\nBallerina project detected at: " + findRoot.toString());
-                bindingsGenerator.setProjectRoot(findRoot);
-                BindingsGenerator.setBalPackageName(ProjectLoader.loadProject(findRoot)
-                        .currentPackage().manifest().name().value());
+            Path projectDir = ProjectDirs.findProjectRoot(targetOutputPath);
+            if (projectDir != null && projectDir.getParent() != null) {
+                Path parentRoot = projectDir.getParent();
+                if (parentRoot != null) {
+                    outStream.println("\nBallerina project detected at: " + parentRoot.toString());
+                    bindingsGenerator.setProjectRoot(parentRoot);
+                    BindingsGenerator.setBalPackageName(ProjectLoader.loadProject(parentRoot)
+                            .currentPackage().manifest().name().value());
+                }
             }
         } else {
             outStream.println("\nBallerina project detected at: " + targetOutputPath.toString());
@@ -172,7 +175,7 @@ public class BindgenCommand implements BLauncherCmd {
         try {
             bindingsGenerator.generateJavaBindings();
         } catch (BindgenException e) {
-            outError.println("\nError while generating Ballerina bindings:\n" + e.getMessage());
+            outError.println("\nError while generating Ballerina bindings:\n\t" + e.getMessage());
         }
     }
 

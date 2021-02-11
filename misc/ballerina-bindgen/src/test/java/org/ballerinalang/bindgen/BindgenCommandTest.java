@@ -46,6 +46,7 @@ import java.util.Objects;
 public class BindgenCommandTest extends CommandTest {
 
     private Path testResources;
+    private static final String LINE_SEPARATOR = System.lineSeparator();
 
     @BeforeClass
     public void setup() throws IOException {
@@ -90,7 +91,7 @@ public class BindgenCommandTest extends CommandTest {
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Failed to add the following to classpath:" + System.lineSeparator() +
+        Assert.assertTrue(output.contains("Failed to add the following to classpath:" + LINE_SEPARATOR +
                 "\t./incorrect.jar"));
     }
 
@@ -105,6 +106,19 @@ public class BindgenCommandTest extends CommandTest {
         bindgenCommand.execute();
         String output = readOutput(true);
         Assert.assertTrue(output.contains("error: incorrect maven dependency format found"));
+    }
+
+    @Test(description = "Test if the correct error is given for an incorrect output path")
+    public void testOutputPath() throws IOException {
+        String[] args = {"-o=./incorrect", "java.lang.Object"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("Error while generating Ballerina bindings:" + LINE_SEPARATOR +
+                "\tOutput path provided"));
     }
 
     @AfterClass
