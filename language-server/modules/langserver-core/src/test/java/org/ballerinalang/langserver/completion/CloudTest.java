@@ -47,11 +47,11 @@ import java.util.List;
 /**
  * Completion Test Interface.
  */
-public class KubernetesTest {
+public class CloudTest {
 
     private Endpoint serviceEndpoint;
 
-    private final Path testRoot = FileUtils.RES_DIR.resolve("completion").resolve("kubernetes");
+    private final Path testRoot = FileUtils.RES_DIR.resolve("completion").resolve("cloud");
 
     private final String configDir = "config";
 
@@ -66,7 +66,7 @@ public class KubernetesTest {
 
     @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
-        String configJsonPath = "completion" + File.separator + "kubernetes" + File.separator + configPath
+        String configJsonPath = "completion" + File.separator + "cloud" + File.separator + configPath
                 + File.separator + configDir + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 

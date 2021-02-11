@@ -3,7 +3,7 @@
     "character": 13,
     "expected": [
         {
-            "title": "Add as env to Kubernetes.toml",
+            "title": "Add as env to Cloud.toml",
             "edits": [
                 {
                     "range": {

@@ -22,8 +22,8 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.CompletionExtension;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.completions.util.K8sCompletionRouter;
-import org.ballerinalang.langserver.contexts.K8sCompletionContextImpl;
+import org.ballerinalang.langserver.completions.util.CloudCompletionRouter;
+import org.ballerinalang.langserver.contexts.CloudCompletionContextImpl;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionParams;
 
@@ -33,12 +33,12 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Completion extension implementation for Kubernetes.toml file from Code to Cloud.
+ * Completion extension implementation for Cloud.toml file from Code to Cloud.
  *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.LanguageExtension")
-public class K8sCompletionExtension implements CompletionExtension {
+public class CloudCompletionExtension implements CompletionExtension {
 
     @Override
     public boolean validate(CompletionParams inputParams) {
@@ -48,13 +48,13 @@ public class K8sCompletionExtension implements CompletionExtension {
             return false;
         }
         String fileName = fileNamePath.toString();
-        return fileName.equals(ProjectConstants.KUBERNETES_TOML);
+        return fileName.equals(ProjectConstants.CLOUD_TOML);
     }
 
     @Override
     public List<CompletionItem> execute(CompletionParams inputParams, CompletionContext context,
                                         LanguageServerContext serverContext) throws Throwable {
-        K8sCompletionContextImpl k8sContext = new K8sCompletionContextImpl(context, serverContext);
-        return K8sCompletionRouter.getCompletionItems(k8sContext, serverContext);
+        CloudCompletionContextImpl cloudContext = new CloudCompletionContextImpl(context, serverContext);
+        return CloudCompletionRouter.getCompletionItems(cloudContext, serverContext);
     }
 }

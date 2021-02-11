@@ -43,7 +43,7 @@ class PackageContext {
     private final PackageManifest packageManifest;
     private final TomlDocumentContext ballerinaTomlContext;
     private final TomlDocumentContext dependenciesTomlContext;
-    private final TomlDocumentContext kubernetesTomlContext;
+    private final TomlDocumentContext cloudTomlContext;
     private final MdDocumentContext packageMdContext;
 
     private final CompilationOptions compilationOptions;
@@ -67,7 +67,7 @@ class PackageContext {
                    PackageManifest packageManifest,
                    TomlDocumentContext ballerinaTomlContext,
                    TomlDocumentContext dependenciesTomlContext,
-                   TomlDocumentContext kubernetesTomlContext,
+                   TomlDocumentContext cloudTomlContext,
                    MdDocumentContext packageMdContext,
                    CompilationOptions compilationOptions,
                    Map<ModuleId, ModuleContext> moduleContextMap,
@@ -77,7 +77,7 @@ class PackageContext {
         this.packageManifest = packageManifest;
         this.ballerinaTomlContext = ballerinaTomlContext;
         this.dependenciesTomlContext = dependenciesTomlContext;
-        this.kubernetesTomlContext = kubernetesTomlContext;
+        this.cloudTomlContext = cloudTomlContext;
         this.packageMdContext = packageMdContext;
         this.compilationOptions = compilationOptions;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
@@ -98,7 +98,7 @@ class PackageContext {
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
                 packageConfig.ballerinaToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
                 packageConfig.dependenciesToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                packageConfig.kubernetesToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
+                packageConfig.cloudToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
                 packageConfig.packageMd().map(c ->MdDocumentContext.from(c)).orElse(null),
                 compilationOptions,
                 moduleContextMap, packageConfig.packageDescDependencyGraph());
@@ -136,8 +136,8 @@ class PackageContext {
         return Optional.ofNullable(dependenciesTomlContext);
     }
 
-    Optional<TomlDocumentContext> kubernetesTomlContext() {
-        return Optional.ofNullable(kubernetesTomlContext);
+    Optional<TomlDocumentContext> cloudTomlContext() {
+        return Optional.ofNullable(cloudTomlContext);
     }
 
     Optional<MdDocumentContext> packageMdContext() {

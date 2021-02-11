@@ -22,25 +22,25 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 
 /**
- * Represents the 'Kubernetes.toml' file in a package.
+ * Represents the 'Cloud.toml' file in a package.
  *
  * @since 2.0.0
  */
-public class KubernetesToml {
-    private TomlDocumentContext kubernetesTomlContext;
+public class CloudToml {
+    private TomlDocumentContext cloudTomlContext;
     private Package packageInstance;
 
-    private KubernetesToml(Package aPackage, TomlDocumentContext kubernetesTomlContext) {
+    private CloudToml(Package aPackage, TomlDocumentContext cloudTomlContext) {
         this.packageInstance = aPackage;
-        this.kubernetesTomlContext = kubernetesTomlContext;
+        this.cloudTomlContext = cloudTomlContext;
     }
 
-    public static KubernetesToml from(TomlDocumentContext kubernetesTomlContext, Package pkg) {
-        return new KubernetesToml(pkg, kubernetesTomlContext);
+    public static CloudToml from(TomlDocumentContext cloudTomlContext, Package pkg) {
+        return new CloudToml(pkg, cloudTomlContext);
     }
 
-    TomlDocumentContext kubernetesTomlContext() {
-        return kubernetesTomlContext;
+    TomlDocumentContext cloudTomlContext() {
+        return cloudTomlContext;
     }
 
     public Package packageInstance() {
@@ -49,7 +49,7 @@ public class KubernetesToml {
 
 
     public String name() {
-        return ProjectConstants.KUBERNETES_TOML;
+        return ProjectConstants.CLOUD_TOML;
     }
 
     public TomlTableNode tomlAstNode() {
@@ -57,7 +57,7 @@ public class KubernetesToml {
     }
 
     public TomlDocument tomlDocument() {
-        return this.kubernetesTomlContext.tomlDocument();
+        return this.cloudTomlContext.tomlDocument();
     }
 
     /**
@@ -65,8 +65,8 @@ public class KubernetesToml {
      *
      * @return  module modifier
      */
-    public KubernetesToml.Modifier modify() {
-        return new KubernetesToml.Modifier(this);
+    public CloudToml.Modifier modify() {
+        return new CloudToml.Modifier(this);
     }
 
     /**
@@ -76,7 +76,7 @@ public class KubernetesToml {
         private TomlDocument tomlDocument;
         private Package oldPackage;
 
-        private Modifier(KubernetesToml oldDocument) {
+        private Modifier(CloudToml oldDocument) {
             this.tomlDocument = oldDocument.tomlDocument();
             this.oldPackage = oldDocument.packageInstance();
         }
@@ -88,7 +88,7 @@ public class KubernetesToml {
          * @return Document.Modifier that holds the content to be changed
          */
         public Modifier withContent(String content) {
-            this.tomlDocument = TomlDocument.from(ProjectConstants.KUBERNETES_TOML, content);
+            this.tomlDocument = TomlDocument.from(ProjectConstants.CLOUD_TOML, content);
             return this;
         }
 
@@ -97,11 +97,10 @@ public class KubernetesToml {
          *
          * @return document with updated content
          */
-        public KubernetesToml apply() {
-            KubernetesToml kubernetesToml = KubernetesToml.from(TomlDocumentContext.from(this.tomlDocument),
-                    oldPackage);
-            Package newPackage = oldPackage.modify().updateKubernetesToml(kubernetesToml).apply();
-            return newPackage.kubernetesToml().get();
+        public CloudToml apply() {
+            CloudToml cloudToml = CloudToml.from(TomlDocumentContext.from(this.tomlDocument), oldPackage);
+            Package newPackage = oldPackage.modify().updateCloudToml(cloudToml).apply();
+            return newPackage.cloudToml().get();
         }
     }
 }

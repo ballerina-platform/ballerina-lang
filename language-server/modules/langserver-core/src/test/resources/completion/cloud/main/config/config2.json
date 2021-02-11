@@ -1,9 +1,9 @@
 {
     "position": {
-        "line": 4,
+        "line": 6,
         "character": 0
     },
-    "source": "main/source/Kubernetes.toml",
+    "source": "main/source/Cloud.toml",
     "items": [
         {
             "label": "cloud.deployment.storage.volumes",
@@ -38,19 +38,19 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "run_as",
+            "kind": "Snippet",
+            "detail": "String",
+            "sortText": "A",
+            "insertText": "run_as\u003d\"${1:}\"\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "cloud.deployment.autoscaling",
             "kind": "Snippet",
             "detail": "Table",
             "sortText": "C",
             "insertText": "[cloud.deployment.autoscaling]\n",
-            "insertTextFormat": "Snippet"
-        },
-        {
-            "label": "repository",
-            "kind": "Snippet",
-            "detail": "String",
-            "sortText": "A",
-            "insertText": "repository\u003d\"${1:}\"\n",
             "insertTextFormat": "Snippet"
         },
         {
@@ -63,5 +63,3 @@
         }
     ]
 }
-
-

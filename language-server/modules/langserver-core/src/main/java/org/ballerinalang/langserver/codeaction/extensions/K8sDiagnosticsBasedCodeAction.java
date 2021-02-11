@@ -22,7 +22,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import java.util.List;
 
 /**
- * Represents SPI extension for Kubernetes.toml diagnostics based code actions.
+ * Represents interface for Cloud.toml diagnostics based code actions.
  *
  * @since 2.0.0
  */

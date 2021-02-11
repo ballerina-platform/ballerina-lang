@@ -20,11 +20,11 @@ package org.ballerinalang.langserver.codeaction;
 import org.testng.annotations.DataProvider;
 
 /**
- * Test cases for adding ballerina config values as envs to Kuberentes.toml.
+ * Test cases for adding ballerina config values as envs to Cloud.toml.
  *
  * @since 2.0.0
  */
-public class KubernetesEnvTest extends AbstractCodeActionTest {
+public class CloudEnvTest extends AbstractCodeActionTest {
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
@@ -36,6 +36,6 @@ public class KubernetesEnvTest extends AbstractCodeActionTest {
 
     @Override
     public String getResourceDir() {
-        return "add-to-k8s-env";
+        return "add-to-cloud-env";
     }
 }
