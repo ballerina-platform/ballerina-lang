@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,23 +16,22 @@
  * under the License.
  */
 
-package io.ballerina.shell.cli.handlers;
-
-import io.ballerina.shell.cli.BallerinaShell;
-import io.ballerina.shell.cli.ShellExitException;
+package io.ballerina.shell.cli.jline.parser;
 
 /**
- * Exits from the shell.
+ * State of the parser.
  *
  * @since 2.0.0
  */
-public class ExitCommand extends AbstractCommand {
-    public ExitCommand(BallerinaShell ballerinaShell) {
-        super(ballerinaShell);
-    }
-
-    @Override
-    public void run(String... args) throws ShellExitException {
-        throw new ShellExitException();
-    }
+public enum ParserState {
+    NORMAL,
+    AFTER_BACKWARD_SLASH, // following \
+    IN_DOUBLE_QUOTES, // in double quotes
+    IN_DOUBLE_QUOTES_AFTER_BACKWARD_SLASH, // in double quotes, following \
+    IN_TEMPLATE, // in template (i.e. following `)
+    IN_TEMPLATE_AFTER_DOLLAR, // in template, following $
+    AFTER_FORWARD_SLASH, // following /
+    IN_COMMENT, // in comment (either # or // style),
+    AFTER_OPERATOR, // following operators
+    ERROR
 }

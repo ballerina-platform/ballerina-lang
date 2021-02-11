@@ -169,7 +169,7 @@ public class BIRBinaryWriter {
                            BIRTypeDefinition typeDef) {
         writePosition(buf, typeDef.pos);
         // Type name CP Index
-        buf.writeInt(addStringCPEntry(typeDef.name.value));
+        buf.writeInt(addStringCPEntry(typeDef.internalName.value));
         // Flags
         buf.writeLong(typeDef.flags);
         buf.writeByte(typeDef.isLabel ? 1 : 0);

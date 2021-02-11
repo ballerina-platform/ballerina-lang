@@ -1519,7 +1519,7 @@ public class JvmInstructionGen {
                                               objectNewIns.objectName);
         } else {
             className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(currentPackage),
-                                              objectNewIns.def.name.value);
+                                              objectNewIns.def.internalName.value);
         }
 
         this.mv.visitTypeInsn(NEW, className);
