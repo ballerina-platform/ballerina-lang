@@ -20,9 +20,7 @@ package io.ballerina.shell.snippet.types;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.TreeModifier;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.SnippetKind;
 import io.ballerina.shell.snippet.SnippetSubKind;
@@ -69,43 +67,6 @@ public class AbstractSnippet<T extends Node> implements Snippet {
         return subKind.getKind();
     }
 
-    /**
-     * Modifies the tree of the snippet.
-     *
-     * @param treeModifier Modifier to use.
-     */
-    @Override
-    public void modify(TreeModifier treeModifier) {
-        if (rootNode instanceof NonTerminalNode) {
-            this.rootNode.apply(treeModifier);
-        }
-    }
-
-    @Override
-    public boolean isImport() {
-        return this.getKind() == SnippetKind.IMPORT_DECLARATION;
-    }
-
-    @Override
-    public boolean isModuleMemberDeclaration() {
-        return this.getKind() == SnippetKind.MODULE_MEMBER_DECLARATION;
-    }
-
-    @Override
-    public boolean isStatement() {
-        return this.getKind() == SnippetKind.STATEMENT;
-    }
-
-    @Override
-    public boolean isExpression() {
-        return this.getKind() == SnippetKind.EXPRESSION;
-    }
-
-    @Override
-    public boolean isVariableDeclaration() {
-        return this.getKind() == SnippetKind.VARIABLE_DECLARATION;
-    }
-
     @Override
     public String toString() {
         return rootNode.toSourceCode();
@@ -134,7 +95,7 @@ public class AbstractSnippet<T extends Node> implements Snippet {
      *
      * @since 2.0.0
      */
-    protected static class ImportNameFinder extends NodeVisitor {
+    private static class ImportNameFinder extends NodeVisitor {
         private final Set<String> imports;
 
         public ImportNameFinder(Set<String> imports) {
