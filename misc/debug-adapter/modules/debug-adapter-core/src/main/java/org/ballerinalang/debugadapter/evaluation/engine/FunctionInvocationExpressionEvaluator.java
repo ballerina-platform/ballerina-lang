@@ -92,7 +92,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         List<Symbol> functionMatches = semanticContext.moduleSymbols()
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
-                        && modifyName(symbol.name()).equals(functionName))
+                        && modifyName(symbol.getName().get()).equals(functionName))
                 .collect(Collectors.toList());
         if (functionMatches.isEmpty()) {
             return Optional.empty();
@@ -102,7 +102,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
     }
 
     private String constructQualifiedClassNameFrom(FunctionSymbol functionDef) {
-        String className = functionDef.location().lineRange().filePath().replaceAll(BAL_FILE_EXT + "$", "");
+        String className = functionDef.getLocation().get().lineRange().filePath().replaceAll(BAL_FILE_EXT + "$", "");
         // for ballerina single source files,
         // qualified class name ::= <file_name>
         if (context.getSourceType() == DebugSourceType.SINGLE_FILE) {
@@ -110,7 +110,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         }
         // for ballerina package source files,
         // qualified class name ::= <package_name>.<module_name>.<package_version>.<file_name>
-        ModuleID moduleMeta = functionDef.moduleID();
+        ModuleID moduleMeta = functionDef.getModule().get().id();
         return new StringJoiner(".")
                 .add(encodeModuleName(moduleMeta.orgName()))
                 .add(encodeModuleName(moduleMeta.moduleName()))

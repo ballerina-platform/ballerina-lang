@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaAnyTypeSymbol extends AbstractTypeSymbol implements AnyTypeSymbol {
 
     public BallerinaAnyTypeSymbol(CompilerContext context, ModuleID moduleID, BAnyType anyType) {
-        super(context, TypeDescKind.ANY, moduleID, anyType);
+        super(context, TypeDescKind.ANY, anyType);
     }
 
     @Override

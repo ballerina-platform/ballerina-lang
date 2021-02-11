@@ -35,7 +35,7 @@ public class BallerinaTypeDescTypeSymbol extends AbstractTypeSymbol implements T
     private TypeSymbol typeParameter;
 
     public BallerinaTypeDescTypeSymbol(CompilerContext context, ModuleID moduleID, BTypedescType typedescType) {
-        super(context, TypeDescKind.TYPEDESC, moduleID, typedescType);
+        super(context, TypeDescKind.TYPEDESC, typedescType);
     }
 
     @Override

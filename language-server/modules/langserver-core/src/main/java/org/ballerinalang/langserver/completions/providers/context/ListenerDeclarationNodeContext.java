@@ -43,6 +43,7 @@ import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -166,7 +167,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<ModuleSymbol> moduleSymbol = visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == MODULE && symbol.name().equals(modulePrefix))
+                .filter(symbol -> symbol.kind() == MODULE && symbol.getName().get().equals(modulePrefix))
                 .map(symbol -> (ModuleSymbol) symbol)
                 .findAny();
 
@@ -271,7 +272,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             Stream<Symbol> objsAndClasses = Stream.concat(module.classes().stream(), module.typeDefinitions().stream());
             typeSymbol = objsAndClasses
                     .filter(type -> SymbolUtil.isListener(type)
-                            && type.name().equals(nameReferenceNode.identifier().text()))
+                            && Objects.equals(type.getName().orElse(null), nameReferenceNode.identifier().text()))
                     .map(symbol -> (ClassSymbol) symbol)
                     .findAny();
 
@@ -279,7 +280,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) typeDescriptor;
             typeSymbol = visibleSymbols.stream()
                     .filter(visibleSymbol -> SymbolUtil.isListener(visibleSymbol)
-                            && visibleSymbol.name().equals(nameReferenceNode.name().text()))
+                            && Objects.equals(visibleSymbol.getName().orElse(null), nameReferenceNode.name().text()))
                     .map(symbol -> (ClassSymbol) symbol)
                     .findAny();
         }

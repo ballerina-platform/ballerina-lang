@@ -3,11 +3,11 @@
   "title": "Ballerina Toml Spec",
   "description": "Schema for Ballerina Toml",
   "type": "object",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "properties": {
     "package": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
         "name": {
           "type": "string",
@@ -75,7 +75,7 @@
               "type": "array",
               "items": {
                 "type": "object",
-                "additionalProperties": false,
+                "additionalProperties": true,
                 "properties": {
                   "path": {
                     "type": "string"
@@ -109,6 +109,7 @@
     },
     "build-options": {
       "type": "object",
+      "additionalProperties": true,
       "properties": {
         "observabilityIncluded": {
           "type": "boolean"

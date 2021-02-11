@@ -128,10 +128,9 @@ public class Generator {
                             module.abstractObjects.add(getAbstractObjectModel(typeDefinition, semanticModel));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
                             hasPublicConstructs = true;
-                            Type firstType = Type.fromNode(((UnionTypeDescriptorNode) (typeDefinition.typeDescriptor()))
-                                    .leftTypeDesc(), semanticModel);
-                            if (firstType.category.equals("errors") ||
-                                    (firstType.category.equals("builtin") && firstType.name.equals("error"))) {
+                            Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
+                            if (unionType.memberTypes.stream().allMatch(type -> type.category.equals("errors") ||
+                                    (type.category.equals("builtin") && type.name.equals("error")))) {
                                 module.errors.add(new Error(typeDefinition.typeName().text(),
                                         getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
                                         .metadata()), Type.fromNode(typeDefinition.typeDescriptor(), semanticModel)));
@@ -452,7 +451,7 @@ public class Generator {
         if (typeSymbol instanceof ObjectTypeSymbol) {
             ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) typeSymbol;
             objectTypeSymbol.methods().values().forEach(methodSymbol -> {
-                String methodName = methodSymbol.name();
+                String methodName = methodSymbol.getName().get();
                 // Check if the inclusion function is overridden
                 if (members.stream().anyMatch(node -> {
                     if (node instanceof MethodDeclarationNode && ((MethodDeclarationNode) node).methodName()
@@ -473,7 +472,7 @@ public class Generator {
 
                 methodSymbol.typeDescriptor().parameters().forEach(parameterSymbol -> {
                     boolean parameterDeprecated = parameterSymbol.annotations().stream()
-                            .anyMatch(annotationSymbol -> annotationSymbol.name().equals("deprecated"));
+                            .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
                     Type type = new Type(parameterSymbol.typeDescriptor().signature());
                     Type.resolveSymbol(type, parameterSymbol.typeDescriptor());
                     parameters.add(new DefaultableVariable(parameterSymbol.getName().isPresent() ?
@@ -483,7 +482,7 @@ public class Generator {
                 if (methodSymbol.typeDescriptor().restParam().isPresent()) {
                     ParameterSymbol restParam = methodSymbol.typeDescriptor().restParam().get();
                     boolean parameterDeprecated = restParam.annotations().stream()
-                            .anyMatch(annotationSymbol -> annotationSymbol.name().equals("deprecated"));
+                            .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
                     Type type = new Type(restParam.getName().isPresent() ? restParam.getName().get() : "");
                     type.isRestParam = true;
                     Type elemType = new Type(restParam.typeDescriptor().signature());
@@ -605,7 +604,7 @@ public class Generator {
                         Type elemType;
                         String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            typeName = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().getName().get();
                         } else {
                             typeName = field.typeDescriptor().signature();
                         }
@@ -621,7 +620,7 @@ public class Generator {
                         Type elemType;
                         String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            typeName = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().getName().get();
                         } else {
                             typeName = field.typeDescriptor().signature();
                         }

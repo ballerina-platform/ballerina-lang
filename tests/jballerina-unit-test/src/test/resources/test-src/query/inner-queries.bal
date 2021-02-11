@@ -271,7 +271,7 @@ function testMultipleJoinClausesWithInnerQueries5() returns boolean {
 
     float total = 0;
     var res =
-        from var price in (from var book in bookstore/<book> select <xml> book)/**/<price>
+        from var price in (from var book in bookstore/<book> select book)/**/<price>
         do {
             var p = (<xml> price)/*;
             if (p is 'xml:Text) {

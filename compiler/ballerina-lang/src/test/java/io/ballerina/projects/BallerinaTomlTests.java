@@ -245,6 +245,14 @@ public class BallerinaTomlTests {
     }
 
     @Test
+    public void testBallerinaTomlWithAdditionalProperties() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("additional-props-ballerina.toml"));
+        DiagnosticResult diagnostics = packageManifest.diagnostics();
+        Assert.assertFalse(diagnostics.hasErrors());
+        Assert.assertEquals(diagnostics.errors().size(), 0);
+    }
+
+    @Test
     public void testEmptyDependenciesToml() throws IOException {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"),
                                                              BAL_TOML_REPO.resolve("dependencies-empty.toml"));
