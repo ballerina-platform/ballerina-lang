@@ -46,6 +46,7 @@ public class DocumentationTest extends AbstractMiscTest {
     @Test
     public void testSimpleDeprecationDocumentationLine() {
         testFile("documentation/doc_source_06.bal", "documentation/doc_assert_06.json");
+        testFile("documentation/doc_source_25.bal", "documentation/doc_assert_25.json");
     }
 
     @Test
