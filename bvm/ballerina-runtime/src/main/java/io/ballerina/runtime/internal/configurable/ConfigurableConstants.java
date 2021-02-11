@@ -26,8 +26,8 @@ package io.ballerina.runtime.internal.configurable;
 public class ConfigurableConstants {
     public static final String CONFIG_FILE_NAME = "Config.toml";
     public static final String INVALID_TOML_FILE = "Invalid `" + CONFIG_FILE_NAME + "` file : ";
-    public static final String INVALID_VARIABLE_TYPE = "invalid type found for variable '%s', expected type is '%s'" +
-            ", found '%s'";
+    public static final String INVALID_VARIABLE_TYPE = "invalid type found for variable '%s', expected TOML type " +
+            "for type '%s' is '%s', found '%s'";
     public static final String CONFIGURATION_NOT_SUPPORTED =
             "Configurable feature is yet to be supported for type '%s'";
     public static final String DEFAULT_MODULE = ".";
@@ -35,7 +35,7 @@ public class ConfigurableConstants {
     public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
     public static final String CONFIG_SECRET_ENV_VARIABLE = "BALSECRETFILE";
     public static final String SECRET_FILE_NAME = "secret.txt";
-    public static final String INVALID_FIELD_IN_RECORD =
+    public static final String INVALID_ADDITIONAL_FIELD_IN_RECORD =
             "Additional field '%s' provided for configurable variable '%s' of record '%s' is not supported";
     public static final String FIELD_TYPE_NOT_SUPPORTED = "Configurable feature is yet to be supported for " +
             "field type '%s' in variable '%s' of record '%s'";
@@ -45,6 +45,10 @@ public class ConfigurableConstants {
             "configurable variable '%s'";
     public static final String INVALID_BYTE_RANGE = "Value provided for byte variable '%s' is out of range. Expected " +
             "range is (0-255), found '%s'";
+    public static final String INVALID_TOML_STRUCTURE = "invalid TOML structure found for variable '%s', expected " +
+            "structure is '%s', found '%s'";
+    public static final String INVALID_TOML_STRUCTURE_TABLE = "invalid TOML table structure found for record variable" +
+            " '%s', found TOML table for '%s'";
 
     private ConfigurableConstants() {
     }
