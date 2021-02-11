@@ -693,7 +693,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     BREAK_NOT_ALLOWED("BCE3988", "break.not.allowed"),
     INVALID_ITERABLE_OBJECT_TYPE("BCE3989", "invalid.iterable.type"),
     INVALID_ITERABLE_COMPLETION_TYPE_IN_NEXT_FUNCTION("BCE3990",
-            "invalid.iterable.completion.type.in.next.function"),
+            "invalid.iterable.completion.type.in.foreach.next.function"),
     ;
 
     private String diagnosticId;
