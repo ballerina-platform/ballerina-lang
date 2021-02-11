@@ -1813,8 +1813,9 @@ public class Types {
                     BType errorType = getErrorType(nextMethodReturnType);
                     if (errorType != null) {
                         BType actualType = BUnionType.create(null, valueType, errorType);
-                        dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-                                valueType, actualType);
+                        dlog.error(foreachNode.collection.pos,
+                                DiagnosticErrorCode.INVALID_ITERABLE_COMPLETION_TYPE_IN_NEXT_FUNCTION, actualType,
+                                errorType);
                     }
                     foreachNode.nillableResultType = nextMethodReturnType;
                     foreachNode.varType = valueType;
