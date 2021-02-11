@@ -80,6 +80,20 @@ public class BindgenCommandTest extends CommandTest {
         Assert.assertFalse(output.contains("Failed to add the following to classpath:"));
     }
 
+    @Test(description = "Test if the correct error is given for incorrect classpaths")
+    public void testIncorrectClasspath() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        String[] args = {"-cp=./incorrect.jar", "-o=" + projectDir, "java.lang.Object"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(false);
+        Assert.assertTrue(output.contains("Failed to add the following to classpath:" + System.lineSeparator() +
+                "\t./incorrect.jar"));
+    }
+
     @AfterClass
     public void cleanup() throws IOException {
         super.cleanup();
