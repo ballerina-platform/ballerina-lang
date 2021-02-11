@@ -29,7 +29,6 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -64,10 +63,10 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     private MethodSymbol initMethod;
     private Map<String, ClassFieldSymbol> classFields;
 
-    protected BallerinaClassSymbol(CompilerContext context, String name, PackageID moduleID, List<Qualifier> qualifiers,
+    protected BallerinaClassSymbol(CompilerContext context, String name, List<Qualifier> qualifiers,
                                    List<AnnotationSymbol> annots, ObjectTypeSymbol typeDescriptor,
                                    BClassSymbol classSymbol) {
-        super(name, moduleID, SymbolKind.CLASS, classSymbol);
+        super(name, SymbolKind.CLASS, classSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
         this.docAttachment = getDocAttachment(classSymbol);
@@ -132,10 +131,10 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
 
     @Override
     public String signature() {
-        if (this.name().startsWith("$anonType$")) {
+        if (this.getName().get().startsWith("$anonType$")) {
             return typeDescriptor.signature();
         }
-        return this.name();
+        return this.getName().get();
     }
 
     @Override
@@ -181,11 +180,9 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected ObjectTypeSymbol typeDescriptor;
-        protected CompilerContext context;
 
-        public ClassSymbolBuilder(CompilerContext context, String name, PackageID moduleID, BSymbol symbol) {
-            super(name, moduleID, SymbolKind.CLASS, symbol);
-            this.context = context;
+        public ClassSymbolBuilder(CompilerContext context, String name, BSymbol symbol) {
+            super(name, SymbolKind.CLASS, symbol, context);
         }
 
         public BallerinaClassSymbol.ClassSymbolBuilder withTypeDescriptor(ObjectTypeSymbol typeDescriptor) {
@@ -205,7 +202,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
 
         @Override
         public BallerinaClassSymbol build() {
-            return new BallerinaClassSymbol(this.context, this.name, this.moduleID, this.qualifiers, this.annots,
+            return new BallerinaClassSymbol(this.context, this.name, this.qualifiers, this.annots,
                                             this.typeDescriptor, (BClassSymbol) this.bSymbol);
         }
     }

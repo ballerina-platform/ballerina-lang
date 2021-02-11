@@ -2031,6 +2031,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(INT)) {
             symTable.langIntModuleSymbol = packageSymbol;
+            symTable.updateIntSubtypeOwners();
             return;
         }
         if (langLib.equals(MAP)) {
@@ -2047,6 +2048,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(STRING)) {
             symTable.langStringModuleSymbol = packageSymbol;
+            symTable.updateStringSubtypeOwners();
             return;
         }
         if (langLib.equals(TABLE)) {
@@ -2063,6 +2065,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(XML)) {
             symTable.langXmlModuleSymbol = packageSymbol;
+            symTable.updateXMLSubtypeOwners();
             return;
         }
         if (langLib.equals(BOOLEAN)) {

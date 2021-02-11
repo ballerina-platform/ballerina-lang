@@ -264,8 +264,8 @@ public class JvmDesugarPhase {
             typeDefinition.type.tsymbol.name =
                     names.fromString(
                             IdentifierUtils.encodeNonFunctionIdentifier(typeDefinition.type.tsymbol.name.value));
-            typeDefinition.name =
-                    names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(typeDefinition.name.value));
+            typeDefinition.internalName =
+                    names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(typeDefinition.internalName.value));
 
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs, names);
             BType bType = typeDefinition.type;

@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.Optional;
+
 /**
  * Represents the int:Unsigned16 type descriptor.
  *
@@ -32,12 +34,12 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BallerinaIntUnsigned16TypeSymbol extends AbstractTypeSymbol implements IntUnsigned16TypeSymbol {
 
     public BallerinaIntUnsigned16TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType unsigned16Type) {
-        super(context, TypeDescKind.INT_UNSIGNED16, moduleID, unsigned16Type);
+        super(context, TypeDescKind.INT_UNSIGNED16, unsigned16Type);
     }
 
     @Override
-    public String name() {
-        return Names.STRING_UNSIGNED16;
+    public Optional<String> getName() {
+        return Optional.of(Names.STRING_UNSIGNED16);
     }
 
     @Override

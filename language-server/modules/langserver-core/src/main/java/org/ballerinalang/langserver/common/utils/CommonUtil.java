@@ -85,6 +85,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -344,13 +345,13 @@ public class CommonUtil {
 
         ModuleSymbol moduleSymbol = module.get();
         for (TypeDefinitionSymbol typeDefinitionSymbol : moduleSymbol.typeDefinitions()) {
-            if (typeDefinitionSymbol.name().equals(typeName)) {
+            if (typeDefinitionSymbol.getName().get().equals(typeName)) {
                 return Optional.of(typeDefinitionSymbol.typeDescriptor());
             }
         }
 
         for (ClassSymbol clazz : moduleSymbol.classes()) {
-            if (clazz.name().equals(typeName)) {
+            if (clazz.getName().get().equals(typeName)) {
                 return Optional.of(clazz);
             }
         }
@@ -368,7 +369,7 @@ public class CommonUtil {
     public static Optional<ModuleSymbol> searchModuleForAlias(PositionedOperationContext context, String alias) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         for (Symbol symbol : visibleSymbols) {
-            if (symbol.kind() == MODULE && symbol.name().equals(alias)) {
+            if (symbol.kind() == MODULE && Objects.equals(symbol.getName().orElse(null), alias)) {
                 return Optional.of((ModuleSymbol) symbol);
             }
         }
@@ -452,7 +453,7 @@ public class CommonUtil {
      */
     public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField, int tabOffset) {
         TypeSymbol fieldType = CommonUtil.getRawType(bField.typeDescriptor());
-        StringBuilder insertText = new StringBuilder(bField.name() + ": ");
+        StringBuilder insertText = new StringBuilder(bField.getName().get() + ": ");
         if (fieldType.typeKind() == TypeDescKind.RECORD) {
             List<RecordFieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
             if (requiredFields.isEmpty()) {
@@ -560,12 +561,12 @@ public class CommonUtil {
     public static String generateVariableName(Symbol symbol, TypeSymbol typeSymbol, Set<String> names) {
         if (symbol != null) {
             // Start naming with symbol-name
-            return generateVariableName(1, symbol.name(), names);
+            return generateVariableName(1, symbol.getName().orElse(""), names);
         } else if (typeSymbol != null) {
             // If symbol is null, try typeSymbol
             String name;
-            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE && !typeSymbol.name().startsWith("$")) {
-                name = typeSymbol.name();
+            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE && !typeSymbol.getName().get().startsWith("$")) {
+                name = typeSymbol.getName().get();
             } else {
                 TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
                 switch (rawType.typeKind()) {
@@ -805,8 +806,12 @@ public class CommonUtil {
      * @return {@link NonTerminalNode}
      */
     public static NonTerminalNode findNode(Symbol symbol, SyntaxTree syntaxTree) {
+        if (symbol.getLocation().isEmpty()) {
+            return null;
+        }
+
         TextDocument textDocument = syntaxTree.textDocument();
-        LineRange symbolRange = symbol.location().lineRange();
+        LineRange symbolRange = symbol.getLocation().get().lineRange();
         int start = textDocument.textPositionFrom(symbolRange.startLine());
         int len = symbolRange.endLine().offset() - symbolRange.startLine().offset();
         return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, len));

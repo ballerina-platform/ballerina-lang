@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaIntTypeSymbol extends AbstractTypeSymbol implements IntTypeSymbol {
 
     public BallerinaIntTypeSymbol(CompilerContext context, ModuleID moduleID, BType intType) {
-        super(context, TypeDescKind.INT, moduleID, intType);
+        super(context, TypeDescKind.INT, intType);
     }
 
     @Override
