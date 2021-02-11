@@ -267,7 +267,8 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
-        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
+        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0),
+                                                                                  compiledJarFile.getbStringVarMap());
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile);
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);

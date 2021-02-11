@@ -40,6 +40,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MainMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ModuleStopMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.stringgen.JvmBStringConstant;
+import org.wso2.ballerinalang.compiler.bir.codegen.stringgen.JvmBStringConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.stringgen.JvmTestableBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -382,8 +385,12 @@ public class JvmPackageGen {
         return userMainFunc;
     }
 
-    CompiledJarFile generate(BIRNode.BIRPackage module, boolean isEntry) {
+    void generate(BIRPackage module, boolean isEntry) {
+        generate(module, isEntry, null);
+    }
 
+    CompiledJarFile generate(BIRNode.BIRPackage module, boolean isEntry,
+                             Map<String, JvmBStringConstant> moduleBStringVarMap) {
 
         Set<PackageID> moduleImports = new LinkedHashSet<>();
         addBuiltinImports(module.packageID, moduleImports);
@@ -417,7 +424,12 @@ public class JvmPackageGen {
 
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
-        JvmBStringConstantsGen stringConstantsGen = new JvmBStringConstantsGen(module);
+        JvmBStringConstantsGen stringConstantsGen;
+        if (moduleBStringVarMap == null) {
+            stringConstantsGen = new JvmBStringConstantsGen(module);
+        } else {
+            stringConstantsGen = new JvmTestableBStringConstantsGen(module, moduleBStringVarMap);
+        }
         configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, stringConstantsGen,
                 jarEntries);
 
@@ -442,7 +454,8 @@ public class JvmPackageGen {
         // clear class name mappings
         clearPackageGenInfo();
 
-        return new CompiledJarFile(getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."), jarEntries);
+        return new CompiledJarFile(getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."), jarEntries
+                , stringConstantsGen.getBStringVarMap());
     }
 
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries,

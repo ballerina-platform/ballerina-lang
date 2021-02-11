@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunct
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.stringgen.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;

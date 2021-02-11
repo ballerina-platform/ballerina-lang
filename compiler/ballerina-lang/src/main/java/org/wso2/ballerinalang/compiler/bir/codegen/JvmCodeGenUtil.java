@@ -36,6 +36,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
+import org.wso2.ballerinalang.compiler.bir.codegen.stringgen.JvmBStringConstant;
+import org.wso2.ballerinalang.compiler.bir.codegen.stringgen.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
@@ -582,9 +584,10 @@ public class JvmCodeGenUtil {
             return;
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             String val = String.valueOf(constVal);
-            String varName = stringConstantsGen.addBString(val);
-            String stringConstantsClass = stringConstantsGen.getStringConstantsClass();
-            mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, String.format("L%s;", B_STRING_VALUE));
+            JvmBStringConstant constantVar = stringConstantsGen.addBString(val);
+            String stringConstantsClass = constantVar.stringConstantClassName;
+            mv.visitFieldInsn(GETSTATIC, stringConstantsClass, constantVar.varName,
+                              String.format("L%s;", B_STRING_VALUE));
             return;
         }
 

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.codegen.stringgen.JvmBStringConstant;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -30,6 +31,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Map;
 /**
  * JVM byte code generator from BIR model.
  *
@@ -64,14 +66,16 @@ public class CodeGenerator {
 
     public CompiledJarFile generate(BLangPackage bLangPackage) {
         // generate module
-        return generate(bLangPackage.symbol);
+        return generate(bLangPackage.symbol, null);
     }
 
-    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage) {
-        return generate(bLangTestablePackage.symbol);
+    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage,
+                                              Map<String, JvmBStringConstant> moduleBStringVarMap) {
+        return generate(bLangTestablePackage.symbol, moduleBStringVarMap);
     }
 
-    private CompiledJarFile generate(BPackageSymbol packageSymbol) {
+    private CompiledJarFile generate(BPackageSymbol packageSymbol,
+                                     Map<String, JvmBStringConstant> moduleBStringVarMap) {
 
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
@@ -86,7 +90,7 @@ public class CodeGenerator {
         JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir, Names.getInstance(this.compilerContext));
 
         // TODO Get-rid of the following assignment
-        packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
+        packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true, moduleBStringVarMap);
         return packageSymbol.compiledJarFile;
     }
 

@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import org.wso2.ballerinalang.compiler.bir.codegen.stringgen.JvmBStringConstant;
+
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,16 +31,19 @@ public class CompiledJarFile {
 
     private String mainClassName;
     private Map<String, byte[]> jarEntries;
+    private Map<String, JvmBStringConstant> bStringVarMap;
 
     public CompiledJarFile(Map<String, byte[]> jarEntries) {
 
         this.jarEntries = jarEntries;
     }
 
-    public CompiledJarFile(String mainClassName, Map<String, byte[]> jarEntries) {
+    public CompiledJarFile(String mainClassName, Map<String, byte[]> jarEntries,
+                           Map<String, JvmBStringConstant> bStringVarMap) {
 
         this.mainClassName = mainClassName;
         this.jarEntries = jarEntries;
+        this.bStringVarMap = bStringVarMap;
     }
 
     public Map<String, byte[]> getJarEntries() {
@@ -49,5 +54,9 @@ public class CompiledJarFile {
     public Optional<String> getMainClassName() {
 
         return Optional.ofNullable(mainClassName);
+    }
+
+    public Map<String, JvmBStringConstant> getbStringVarMap() {
+        return bStringVarMap;
     }
 }

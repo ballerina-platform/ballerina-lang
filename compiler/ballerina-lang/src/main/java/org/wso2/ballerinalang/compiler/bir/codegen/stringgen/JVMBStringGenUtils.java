@@ -15,20 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.stringgen;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -47,28 +44,20 @@ import static org.objectweb.asm.Opcodes.NEWARRAY;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.T_INT;
 import static org.objectweb.asm.Opcodes.V1_8;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NON_BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 
 /**
- * Generates Jvm class for the ballerina string constants for given module.
+ * Class which contains util methods required for ballerina string constant generation .
  *
  * @since 2.0.0
  */
-public class JvmBStringConstantsGen {
-
-    private ConcurrentHashMap<String, String> bStringVarMap;
-
-    private String stringConstantsClass;
-
-    private AtomicInteger constantIndex = new AtomicInteger();
+public class JVMBStringGenUtils {
 
     /*
      MAX_STRINGS_PER_METHOD is calculated as below.
@@ -78,17 +67,9 @@ public class JvmBStringConstantsGen {
      */
     private static final int MAX_STRINGS_PER_METHOD = 5000;
 
-    public JvmBStringConstantsGen(BIRNode.BIRPackage module) {
-        this.bStringVarMap = new ConcurrentHashMap<>();
-        this.stringConstantsClass = getModuleLevelClassName(module.packageID, MODULE_STRING_CONSTANT_CLASS_NAME);
-    }
-
-    public String addBString(String val) {
-        return bStringVarMap.computeIfAbsent(val, s ->
-                JvmConstants.B_STRING_VAR_PREFIX + constantIndex.getAndIncrement());
-    }
-
-    public void generateConstantInit(Map<String, byte[]> jarEntries) {
+    public static void generateConstantInit(Map<String, byte[]> jarEntries,
+                                            String stringConstantsClass,
+                                            Map<String, JvmBStringConstant> bStringVarMap) {
         if (bStringVarMap.isEmpty()) {
             return;
         }
@@ -103,16 +84,16 @@ public class JvmBStringConstantsGen {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        bStringVarMap.values().forEach(bStringVar -> visitBStringField(cw, bStringVar));
+        bStringVarMap.values().forEach(bStringVar -> visitBStringField(cw, bStringVar.varName));
         // Create multiple string constant init methods based on string count.
-        generateBStringInits(cw);
+        generateBStringInits(cw, stringConstantsClass, bStringVarMap);
         // Create static initializer which will call previously generated string init methods.
-        generateStaticInitializer(cw);
+        generateStaticInitializer(cw, stringConstantsClass, bStringVarMap);
         cw.visitEnd();
         jarEntries.put(stringConstantsClass + ".class", cw.toByteArray());
     }
 
-    private void visitBStringField(ClassWriter cw, String varName) {
+    private static void visitBStringField(ClassWriter cw, String varName) {
         FieldVisitor fv;
         fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName,
                            String.format("L%s;", B_STRING_VALUE), null,
@@ -120,21 +101,22 @@ public class JvmBStringConstantsGen {
         fv.visitEnd();
     }
 
-    private void generateBStringInits(ClassWriter cw) {
+    private static void generateBStringInits(ClassWriter cw, String stringConstantsClass,
+                                             Map<String, JvmBStringConstant> bStringVarMap) {
         MethodVisitor mv = null;
         int bStringCount = 0;
         int methodCount = 0;
-        for (Map.Entry<String, String> entry : bStringVarMap.entrySet()) {
+        for (Map.Entry<String, JvmBStringConstant> entry : bStringVarMap.entrySet()) {
             if (bStringCount % MAX_STRINGS_PER_METHOD == 0) {
                 mv = cw.visitMethod(ACC_STATIC, B_STRING_INIT_METHOD_PREFIX + methodCount++, "()V", null, null);
             }
             String bString = entry.getKey();
-            String bStringVarName = entry.getValue();
+            String bStringVarName = entry.getValue().varName;
             int[] highSurrogates = listHighSurrogates(bString);
             if (highSurrogates.length > 0) {
-                createNonBmpString(mv, bString, highSurrogates, bStringVarName);
+                createNonBmpString(mv, stringConstantsClass, bString, highSurrogates, bStringVarName);
             } else {
-                createBmpString(mv, bString, bStringVarName);
+                createBmpString(mv, stringConstantsClass, bString, bStringVarName);
             }
             bStringCount++;
             if (bStringCount % MAX_STRINGS_PER_METHOD == 0) {
@@ -151,7 +133,8 @@ public class JvmBStringConstantsGen {
         }
     }
 
-    private void generateStaticInitializer(ClassWriter cw) {
+    private static void generateStaticInitializer(ClassWriter cw, String stringConstantsClass,
+                                                  Map<String, JvmBStringConstant> bStringVarMap) {
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
         int methodIndex = (bStringVarMap.size() - 1) / MAX_STRINGS_PER_METHOD;
         for (int i = 0; i <= methodIndex; i++) {
@@ -162,7 +145,7 @@ public class JvmBStringConstantsGen {
         mv.visitEnd();
     }
 
-    private void createBmpString(MethodVisitor mv, String val, String varName) {
+    private static void createBmpString(MethodVisitor mv, String stringConstantsClass, String val, String varName) {
         mv.visitTypeInsn(NEW, BMP_STRING_VALUE);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(val);
@@ -171,7 +154,8 @@ public class JvmBStringConstantsGen {
         mv.visitFieldInsn(Opcodes.PUTSTATIC, stringConstantsClass, varName, String.format("L%s;", B_STRING_VALUE));
     }
 
-    private void createNonBmpString(MethodVisitor mv, String val, int[] highSurrogates, String varName) {
+    private static void createNonBmpString(MethodVisitor mv, String stringConstantsClass, String val,
+                                           int[] highSurrogates, String varName) {
         mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(val);
@@ -191,12 +175,7 @@ public class JvmBStringConstantsGen {
         mv.visitFieldInsn(Opcodes.PUTSTATIC, stringConstantsClass, varName, String.format("L%s;", B_STRING_VALUE));
     }
 
-    public String getStringConstantsClass() {
-        return stringConstantsClass;
-    }
-
-
-    private int[] listHighSurrogates(String str) {
+    private static int[] listHighSurrogates(String str) {
         List<Integer> highSurrogates = new ArrayList<>();
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
@@ -211,4 +190,5 @@ public class JvmBStringConstantsGen {
         }
         return highSurrogatesArr;
     }
+
 }
