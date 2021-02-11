@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * {@code Package} represents a Ballerina Package.
@@ -409,6 +408,7 @@ public class Package {
             }
             for (ModuleId moduleId : dependantList) {
                 Module oldModule = this.project.currentPackage().module(moduleId);
+                // recursively reset transitively dependant modules as well
                 Module module = oldModule.modify().apply();
                 this.moduleContextMap.put(module.moduleId(), module.moduleContext());
             }

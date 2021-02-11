@@ -1139,7 +1139,7 @@ public class TestBuildProject {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
 
         Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
-                "modules/schema/schema.bal");
+                Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("unknown type 'PersonalDetails'"));
     }
