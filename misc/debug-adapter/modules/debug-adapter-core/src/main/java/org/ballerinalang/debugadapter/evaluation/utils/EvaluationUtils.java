@@ -49,6 +49,7 @@ public class EvaluationUtils {
     public static final String B_UNARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.unary";
     public static final String B_BINARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.binary";
     public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.internal.TypeChecker";
+    public static final String B_TYPE_CREATOR_CLASS = "io.ballerina.runtime.api.creators.TypeCreator";
     public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.utils.StringUtils";
     public static final String B_TYPE_UTILS_CLASS = "io.ballerina.runtime.api.utils.TypeUtils";
     public static final String B_XML_FACTORY_CLASS = "io.ballerina.runtime.internal.XmlFactory";
@@ -57,6 +58,7 @@ public class EvaluationUtils {
     public static final String B_STRING_CLASS = "io.ballerina.runtime.api.values.BString";
     public static final String FROM_STRING_CLASS = "org.ballerinalang.langlib.xml.FromString";
     public static final String B_TYPE_CLASS = "io.ballerina.runtime.api.types.Type";
+    public static final String B_TYPE_ARRAY_CLASS = "io.ballerina.runtime.api.types.Type[]";
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
     private static final String B_LINK_CLASS = "io.ballerina.runtime.api.values.BLink";
@@ -88,6 +90,8 @@ public class EvaluationUtils {
     public static final String B_UNARY_NOT_METHOD = "unaryNot";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String CHECK_IS_TYPE_METHOD = "checkIsType";
+    public static final String CHECK_CAST_METHOD = "checkCast";
+    public static final String CREATE_UNION_TYPE_METHOD = "createUnionType";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String VALUE_FROM_STRING_METHOD = "fromString";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
