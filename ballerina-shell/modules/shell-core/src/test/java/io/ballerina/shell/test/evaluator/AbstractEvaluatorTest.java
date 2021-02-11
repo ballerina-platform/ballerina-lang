@@ -59,6 +59,15 @@ public abstract class AbstractEvaluatorTest {
         TestSession testSession = TestUtils.loadTestCases(fileName, TestSession.class);
         for (TestCase testCase : testSession) {
             try {
+                String testCode = testCase.getCode();
+
+                // Evaluating files
+                if (testCode.startsWith("/file")) {
+                    String loadFile = testCode.split("\\s")[1];
+                    evaluator.executeFile(TestUtils.getFile(loadFile));
+                    continue;
+                }
+
                 String expr = evaluator.evaluate(testCase.getCode());
                 Assert.assertEquals(invoker.getStdOut(), testCase.getStdout(), testCase.getDescription());
                 Assert.assertEquals(expr, testCase.getExpr(), testCase.getDescription());

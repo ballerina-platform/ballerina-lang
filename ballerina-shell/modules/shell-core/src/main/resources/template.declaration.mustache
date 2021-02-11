@@ -20,7 +20,6 @@
 
 // Define built-in functions
 any|error {{{exprVarName}}} = ();
-handle context_id = java:fromString("");
 function java_recall(handle context_id, handle name) returns any|error { }
 function java_memorize(handle context_id, handle name, any|error value) { }
 function recall_any(string name) returns any { }
@@ -28,5 +27,5 @@ function recall_any_error(string name) returns any|error { }
 function memorize(string name, any|error value) { }
 public function run() returns any { }
 function stmts() returns any { }
-public function main() { }
+public function main() { _ = java:fromString(""); }
 function init() { }

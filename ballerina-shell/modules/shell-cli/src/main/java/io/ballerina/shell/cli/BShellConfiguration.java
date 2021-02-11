@@ -24,6 +24,7 @@ import io.ballerina.shell.parser.TrialTreeParser;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Optional;
 
 /**
  * Configuration that uses command utils to provide options.
@@ -34,11 +35,12 @@ public class BShellConfiguration {
     private final Evaluator evaluator;
     private final InputStream inputStream;
     private final OutputStream outputStream;
+    private final String startFile;
     private boolean isDebug;
     private boolean isDumb;
 
     private BShellConfiguration(boolean isDebug, boolean isDumb, long treeParsingTimeout,
-                                InputStream inputStream, OutputStream outputStream) {
+                                InputStream inputStream, OutputStream outputStream, String startFile) {
         this.isDebug = isDebug;
         this.isDumb = isDumb;
         this.evaluator = new EvaluatorBuilder()
@@ -46,6 +48,7 @@ public class BShellConfiguration {
                 .build();
         this.inputStream = inputStream;
         this.outputStream = outputStream;
+        this.startFile = startFile;
     }
 
     /**
@@ -93,6 +96,10 @@ public class BShellConfiguration {
         return outputStream;
     }
 
+    public Optional<String> getStartFile() {
+        return Optional.ofNullable(startFile);
+    }
+
     /**
      * Builder to build the evaluator config.
      *
@@ -102,6 +109,7 @@ public class BShellConfiguration {
         private InputStream inputStream;
         private OutputStream outputStream;
         private long treeParsingTimeoutMs;
+        private String startFile;
         private boolean isDebug;
         private boolean isDumb;
 
@@ -109,6 +117,7 @@ public class BShellConfiguration {
             this.inputStream = System.in;
             this.outputStream = System.out;
             this.treeParsingTimeoutMs = 1000;
+            this.startFile = null;
             this.isDebug = false;
             this.isDumb = false;
         }
@@ -160,13 +169,25 @@ public class BShellConfiguration {
         }
 
         /**
+         * Start file is the file containing declarations that should
+         * be loaded into the shell initially.
+         * If the file loading fails, the shell will not start and fail.
+         * The file should not contain any definitions for built-in names.
+         * (eg: main, run, init)
+         */
+        public Builder setStartFile(String startFile) {
+            this.startFile = startFile;
+            return this;
+        }
+
+        /**
          * Builds a configuration for ballerina shell.
          *
          * @return Created ballerina shell config.
          */
         public BShellConfiguration build() {
             return new BShellConfiguration(isDebug, isDumb, treeParsingTimeoutMs,
-                    inputStream, outputStream);
+                    inputStream, outputStream, startFile);
         }
     }
 }

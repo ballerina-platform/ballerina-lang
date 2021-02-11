@@ -51,4 +51,19 @@ public class FunctionalityTest {
         // Output should have Bye!!!
         Assert.assertTrue(shellOut.toString().contains("Bye!!!"));
     }
+
+    @Test
+    public void testInvalidStartFile() throws Exception {
+        ByteArrayOutputStream shellOut = new ByteArrayOutputStream();
+        ByteArrayInputStream shellIn = new ByteArrayInputStream("".getBytes());
+
+        // Run the Shell with an invalid start file
+        BShellConfiguration configuration = new BShellConfiguration.Builder()
+                .setInputStream(shellIn).setOutputStream(shellOut).setStartFile("invalid_file.bal")
+                .setDumb(true).setTreeParsingTimeoutMs(10000).build();
+        ReplShellApplication.execute(configuration);
+
+        // Initialization should fail
+        Assert.assertTrue(shellOut.toString().contains("Shell Initialization Failed!!!"));
+    }
 }

@@ -1,0 +1,26 @@
+[
+  {
+    "description": "Load the declarations file.",
+    "code": "/file files/mu-recursive.bal"
+  },
+  {
+    "description": "Running the function.",
+    "code": "is_even(10)",
+    "expr": "true"
+  },
+  {
+    "description": "Running the function.",
+    "code": "is_even(9)",
+    "expr": "false"
+  },
+  {
+    "description": "Running the function.",
+    "code": "is_odd(5)",
+    "expr": "true"
+  },
+  {
+    "description": "Running the function.",
+    "code": "is_odd(8)",
+    "expr": "false"
+  }
+]

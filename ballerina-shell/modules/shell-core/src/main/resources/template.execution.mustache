@@ -12,13 +12,13 @@ function java_memorize(handle context_id, handle name, any|error value) = @java:
     'class: "{{{memoryRef}}}"
 } external;
 function recall_any(string name) returns any {
-    return checkpanic java_recall(context_id, java:fromString(name));
+    return checkpanic java_recall(java:fromString("{{contextId}}"), java:fromString(name));
 }
 function recall_any_error(string name) returns any|error {
-    return java_recall(context_id, java:fromString(name));
+    return java_recall(java:fromString("{{contextId}}"), java:fromString(name));
 }
 function memorize(string name, any|error value) {
-    java_memorize(context_id, java:fromString(name), value);
+    java_memorize(java:fromString("{{contextId}}"), java:fromString(name), value);
 }
 
 // Module level declarations
@@ -41,7 +41,6 @@ function memorize(string name, any|error value) {
 
 // Global expression variable (previous evaluation value)
 any|error {{{exprVarName}}} = recall_any_error("{{{exprVarName}}}");
-handle context_id = java:fromString("{{contextId}}");
 
 // Handle statements/expressions
 // We put statements separately to trap any panics
