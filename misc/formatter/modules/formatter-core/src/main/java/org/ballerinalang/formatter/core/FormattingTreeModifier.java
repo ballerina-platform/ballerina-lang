@@ -549,7 +549,7 @@ public class FormattingTreeModifier extends TreeModifier {
             setIndentation(fieldIndentation);
         }
 
-        Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), fieldTrailingWS, fieldTrailingNL);
+        Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), 0, fieldTrailingNL);
         indent(); // Set indentation for record fields
         NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
                 fieldTrailingWS, fieldTrailingNL, true);
@@ -4257,10 +4257,6 @@ public class FormattingTreeModifier extends TreeModifier {
      *         <code>false</code> otherwise
      */
     private boolean shouldExpand(ObjectTypeDescriptorNode objectTypeDesc) {
-        if (objectTypeDesc.parent().kind() == SyntaxKind.TYPE_DEFINITION) {
-            return true;
-        }
-
         NodeList<Node> members = objectTypeDesc.members();
         return shouldExpandObjectMembers(members);
     }
@@ -4297,10 +4293,6 @@ public class FormattingTreeModifier extends TreeModifier {
      *         <code>false</code> otherwise
      */
     private boolean shouldExpand(RecordTypeDescriptorNode recordTypeDesc) {
-        if (recordTypeDesc.parent().kind() == SyntaxKind.TYPE_DEFINITION) {
-            return true;
-        }
-
         int fieldCount = recordTypeDesc.fields().size();
         fieldCount += recordTypeDesc.recordRestDescriptor().isPresent() ? 1 : 0;
         if (fieldCount > 3) {
