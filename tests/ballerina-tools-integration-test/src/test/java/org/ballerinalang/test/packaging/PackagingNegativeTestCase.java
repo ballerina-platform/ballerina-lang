@@ -261,28 +261,28 @@ public class PackagingNegativeTestCase extends BaseTest {
 
     @Test(description = "Test build with too many arguments")
     public void testBuildWithTooManyArgs() throws Exception {
-        String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
+        String msg = "ballerina: too many arguments\n Run 'bal help' for usage.";
         balClient.runMain("build", new String[] {"hello", "world"}, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test install with too many arguments")
     public void testInstallWithTooManyArgs() throws Exception {
-        String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
+        String msg = "ballerina: too many arguments\n Run 'bal help' for usage.";
         balClient.runMain("install", new String[] {"foo", "bar"}, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test push with too many arguments")
     public void testPushWithTooManyArgs() throws Exception {
-        String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
+        String msg = "ballerina: too many arguments\n Run 'bal help' for usage.";
         balClient.runMain("push", new String[] {"bcintegrationtest", "foo"}, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test list with too many arguments")
     public void testSearchWithTooManyArgs() throws Exception {
-        String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
+        String msg = "ballerina: too many arguments\n Run 'bal help' for usage.";
         balClient.runMain("list", new String[] {"wso2", "twitter"}, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
@@ -296,7 +296,7 @@ public class PackagingNegativeTestCase extends BaseTest {
 
     @Test(description = "Test uninstall with too many arguments")
     public void testUninstallWithTooManyArgs() throws Exception {
-        String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
+        String msg = "ballerina: too many arguments\n Run 'bal help' for usage.";
         balClient.runMain("uninstall", new String[] {"bcintegrationtest", "testxyz"}, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }

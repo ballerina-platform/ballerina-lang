@@ -290,6 +290,10 @@ public enum Snippet {
 
     KW_SOURCE_WORKER(SnippetGenerator.getKeywordSnippet("source worker")),
 
+    KW_TRUE(SnippetGenerator.getKeywordSnippet("true")),
+
+    KW_FALSE(SnippetGenerator.getKeywordSnippet("false")),
+
     // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),
 
