@@ -333,11 +333,10 @@ public class TransactionResourceManager {
      *
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
-     * @param error the cause of abortion
      * @return the status of the abort operation
      */
-    public boolean notifyAbort(String transactionId, String transactionBlockId, Object error) {
-        Strand strand = Scheduler.getStrand();
+    public boolean notifyAbort(String transactionId, String transactionBlockId) {
+//        Strand strand = Scheduler.getStrand();
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean abortSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -465,10 +464,9 @@ public class TransactionResourceManager {
     /**
      * This method rollbacks the given transaction.
      * @param transactionBlockId The transaction blockId
-     * @param error The error which caused rolling back.
      */
-    public void rollbackTransaction(String transactionBlockId, Object error) {
-        Scheduler.getStrand().currentTrxContext.rollbackTransaction(transactionBlockId, error);
+    public void rollbackTransaction(String transactionBlockId) {
+        Scheduler.getStrand().currentTrxContext.rollbackTransaction(transactionBlockId);
     }
 
     /**
@@ -538,8 +536,8 @@ public class TransactionResourceManager {
         }
     }
 
-    void rollbackTransaction(String transactionId, String transactionBlockId, Object error) {
-        notifyAbort(transactionId, transactionBlockId, error);
+    void rollbackTransaction(String transactionId, String transactionBlockId) {
+        notifyAbort(transactionId, transactionBlockId);
     }
 
     private void removeContextsFromRegistry(String transactionCombinedId, String gTransactionId) {
