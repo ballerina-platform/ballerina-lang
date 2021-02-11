@@ -39,11 +39,13 @@ public class GlobalVariableSymbol {
     }
 
     public static GlobalVariableSymbol fromSymbol(Symbol symbol) {
-        // TODO: After name alternative is implemented use it.
+        if (symbol.getName().isEmpty()) {
+            throw new UnsupportedOperationException("Cannot create a global symbol without name");
+        }
         if (symbol instanceof VariableSymbol) {
-            return new GlobalVariableSymbol(symbol.name(), ((VariableSymbol) symbol).typeDescriptor());
+            return new GlobalVariableSymbol(symbol.getName().get(), ((VariableSymbol) symbol).typeDescriptor());
         } else if (symbol instanceof FunctionSymbol) {
-            return new GlobalVariableSymbol(symbol.name(), ((FunctionSymbol) symbol).typeDescriptor());
+            return new GlobalVariableSymbol(symbol.getName().get(), ((FunctionSymbol) symbol).typeDescriptor());
         }
         throw new UnsupportedOperationException("Symbol type not supported for creating global variable.");
     }

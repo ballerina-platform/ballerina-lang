@@ -209,19 +209,19 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 if (parameterNode instanceof RequiredParameterNode) {
                     Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode);
                     if (paramSymbol.isPresent()) {
-                        parameterTypeName = String.format("%s:%s", paramSymbol.get().moduleID(),
+                        parameterTypeName = String.format("%s:%s", paramSymbol.get().getModule().get().id(),
                                 ((RequiredParameterNode) parameterNode).typeName());
                     }
                 } else if (parameterNode instanceof DefaultableParameterNode) {
                     Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode);
                     if (paramSymbol.isPresent()) {
-                        parameterTypeName = String.format("%s:%s", paramSymbol.get().moduleID(),
+                        parameterTypeName = String.format("%s:%s", paramSymbol.get().getModule().get().id(),
                                 ((DefaultableParameterNode) parameterNode).typeName());
                     }
                 } else if (parameterNode instanceof RestParameterNode) {
                     Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode);
                     if (paramSymbol.isPresent()) {
-                        parameterTypeName = String.format("%s:%s", paramSymbol.get().moduleID(),
+                        parameterTypeName = String.format("%s:%s", paramSymbol.get().getModule().get().id(),
                                 ((RestParameterNode) parameterNode).typeName());
                     }
 

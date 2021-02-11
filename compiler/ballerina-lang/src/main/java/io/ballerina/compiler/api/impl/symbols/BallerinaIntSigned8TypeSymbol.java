@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.Optional;
+
 /**
  * Represents the int:Signed8 type descriptor.
  *
@@ -32,12 +34,12 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BallerinaIntSigned8TypeSymbol extends AbstractTypeSymbol implements IntSigned8TypeSymbol {
 
     public BallerinaIntSigned8TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType signed8Type) {
-        super(context, TypeDescKind.INT_SIGNED8, moduleID, signed8Type);
+        super(context, TypeDescKind.INT_SIGNED8, signed8Type);
     }
 
     @Override
-    public String name() {
-        return Names.STRING_SIGNED8;
+    public Optional<String> getName() {
+        return Optional.of(Names.STRING_SIGNED8);
     }
 
     @Override
