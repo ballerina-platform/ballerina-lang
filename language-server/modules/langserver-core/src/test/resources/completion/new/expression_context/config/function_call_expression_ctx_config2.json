@@ -175,6 +175,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "false",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
