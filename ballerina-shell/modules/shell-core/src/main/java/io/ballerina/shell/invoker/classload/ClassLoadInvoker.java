@@ -40,8 +40,8 @@ import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.types.DeclarationSnippet;
 import io.ballerina.shell.snippet.types.ExecutableSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
+import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.TopLevelDeclarationSnippet;
-import io.ballerina.shell.snippet.types.TopMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 import io.ballerina.shell.utils.QuotedIdentifier;
 import io.ballerina.shell.utils.StringUtils;
@@ -336,7 +336,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             throws InvokerException {
         Map<VariableDeclarationSnippet, Set<QuotedIdentifier>> variableDeclarations = new HashMap<>();
         List<QuotedIdentifier> variableNames = new ArrayList<>();
-        Map<QuotedIdentifier, TopMemberDeclarationSnippet> moduleDeclarations = new HashMap<>();
+        Map<QuotedIdentifier, ModuleMemberDeclarationSnippet> moduleDeclarations = new HashMap<>();
 
         // Fill the required arrays/maps
         for (DeclarationSnippet declarationSnippet : declarationSnippets) {
@@ -349,8 +349,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 variableNames.addAll(varDclnSnippet.names());
                 variableDeclarations.put(varDclnSnippet, varDclnSnippet.names());
             } else if (declarationSnippet.isModuleMemberDeclaration()) {
-                assert declarationSnippet instanceof TopMemberDeclarationSnippet;
-                TopMemberDeclarationSnippet moduleDclnSnippet = (TopMemberDeclarationSnippet) declarationSnippet;
+                assert declarationSnippet instanceof ModuleMemberDeclarationSnippet;
+                ModuleMemberDeclarationSnippet moduleDclnSnippet = (ModuleMemberDeclarationSnippet) declarationSnippet;
                 QuotedIdentifier moduleDeclarationName = moduleDclnSnippet.name();
                 moduleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);
                 this.newImports.put(moduleDeclarationName, usedPrefixes);
@@ -432,7 +432,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     protected ClassLoadContext createDeclarationContext(
             Collection<VariableDeclarationSnippet> variableDeclarations,
             Collection<QuotedIdentifier> variableNames,
-            Map<QuotedIdentifier, TopMemberDeclarationSnippet> moduleDeclarations) {
+            Map<QuotedIdentifier, ModuleMemberDeclarationSnippet> moduleDeclarations) {
         // Load current declarations
         Map<QuotedIdentifier, VariableContext> oldVarDclns = globalVariableContexts();
         Map<QuotedIdentifier, String> moduleDclnStringsMap = new HashMap<>(moduleDclns);
@@ -442,7 +442,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
         // Remove old declarations and add new declarations
         for (QuotedIdentifier dclnName : moduleDeclarations.keySet()) {
-            TopMemberDeclarationSnippet moduleDeclaration = moduleDeclarations.get(dclnName);
+            ModuleMemberDeclarationSnippet moduleDeclaration = moduleDeclarations.get(dclnName);
             importStrings.addAll(getRequiredImportStatements(moduleDeclaration));
             moduleDclnStringsMap.put(dclnName, moduleDeclaration.toString());
         }

@@ -25,7 +25,7 @@ import io.ballerina.shell.exceptions.SnippetException;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.types.DeclarationSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
-import io.ballerina.shell.snippet.types.TopMemberDeclarationSnippet;
+import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.StatementSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 
@@ -118,7 +118,7 @@ public abstract class SnippetFactory extends DiagnosticReporter {
      * @param node Root node to create snippet from.
      * @return Snippet that contains the node.
      */
-    public abstract TopMemberDeclarationSnippet createModuleMemberDeclarationSnippet(Node node)
+    public abstract ModuleMemberDeclarationSnippet createModuleMemberDeclarationSnippet(Node node)
             throws SnippetException;
 
     /**

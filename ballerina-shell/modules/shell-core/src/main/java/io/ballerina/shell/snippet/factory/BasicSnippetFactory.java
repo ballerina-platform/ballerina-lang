@@ -64,7 +64,7 @@ import io.ballerina.shell.exceptions.SnippetException;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.snippet.types.ExpressionSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
-import io.ballerina.shell.snippet.types.TopMemberDeclarationSnippet;
+import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.StatementSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 
@@ -156,7 +156,7 @@ public class BasicSnippetFactory extends SnippetFactory {
     }
 
     @Override
-    public TopMemberDeclarationSnippet createModuleMemberDeclarationSnippet(Node node)
+    public ModuleMemberDeclarationSnippet createModuleMemberDeclarationSnippet(Node node)
             throws SnippetException {
         if (node instanceof ModuleMemberDeclarationNode) {
             assert MODULE_MEM_DCLNS.containsKey(node.getClass());
@@ -165,7 +165,7 @@ public class BasicSnippetFactory extends SnippetFactory {
                 addDiagnostic(Diagnostic.error(subKind.getError()));
                 throw new SnippetException();
             } else if (subKind.isValid()) {
-                return new TopMemberDeclarationSnippet(subKind, (ModuleMemberDeclarationNode) node);
+                return new ModuleMemberDeclarationSnippet(subKind, (ModuleMemberDeclarationNode) node);
             }
         }
         return null;
