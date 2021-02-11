@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.Optional;
+
 /**
  * Represents the string:Char type descriptor.
  *
@@ -32,12 +34,12 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BallerinaStringCharTypeSymbol extends AbstractTypeSymbol implements StringCharTypeSymbol {
 
     public BallerinaStringCharTypeSymbol(CompilerContext context, ModuleID moduleID, BStringSubType charType) {
-        super(context, TypeDescKind.STRING_CHAR, moduleID, charType);
+        super(context, TypeDescKind.STRING_CHAR, charType);
     }
 
     @Override
-    public String name() {
-        return Names.STRING_CHAR;
+    public Optional<String> getName() {
+        return Optional.of(Names.STRING_CHAR);
     }
 
     @Override

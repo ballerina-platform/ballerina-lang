@@ -41,7 +41,7 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
     private TypeSymbol restTypeDesc;
 
     public BallerinaTupleTypeSymbol(CompilerContext context, ModuleID moduleID, BTupleType tupleType) {
-        super(context, TypeDescKind.TUPLE, moduleID, tupleType);
+        super(context, TypeDescKind.TUPLE, tupleType);
     }
 
     @Override

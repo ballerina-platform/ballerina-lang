@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaBooleanTypeSymbol extends AbstractTypeSymbol implements BooleanTypeSymbol {
 
     public BallerinaBooleanTypeSymbol(CompilerContext context, ModuleID moduleID, BType booleanType) {
-        super(context, TypeDescKind.BOOLEAN, moduleID, booleanType);
+        super(context, TypeDescKind.BOOLEAN, booleanType);
     }
 
     @Override
