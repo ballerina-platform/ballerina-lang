@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * {@code Package} represents a Ballerina Package.
@@ -236,6 +237,7 @@ public class Package {
 
         Modifier updateModule(ModuleContext newModuleContext) {
             this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
+            resetDependantModules(newModuleContext.moduleId());
             return this;
         }
 
@@ -259,6 +261,7 @@ public class Package {
          */
         public Modifier removeModule(ModuleId moduleId) {
             moduleContextMap.remove(moduleId);
+            resetDependantModules(moduleId);
             return this;
         }
 
@@ -386,6 +389,29 @@ public class Package {
         Modifier updatePackageMd(MdDocumentContext packageMd) {
             this.packageMdContext = packageMd;
             return this;
+        }
+
+        private void resetDependantModules(ModuleId updatedModuleId) {
+            List<ModuleId> dependantList = new ArrayList<>();
+            for (Map.Entry<ModuleId, ModuleContext> moduleContextEntry : this.moduleContextMap.entrySet()) {
+                if (moduleContextEntry.getKey() != updatedModuleId) {
+                    Collection<ModuleDependency> dependencies = moduleContextEntry.getValue().dependencies();
+                    if (dependencies == null) {
+                        continue;
+                    }
+                    for (ModuleDependency moduleDependency : dependencies) {
+                        if (moduleDependency.moduleId().equals(updatedModuleId)) {
+                            ModuleId key = moduleContextEntry.getKey();
+                            dependantList.add(key);
+                        }
+                    }
+                }
+            }
+            for (ModuleId moduleId : dependantList) {
+                Module oldModule = this.project.currentPackage().module(moduleId);
+                Module module = oldModule.modify().apply();
+                this.moduleContextMap.put(module.moduleId(), module.moduleContext());
+            }
         }
     }
 }
