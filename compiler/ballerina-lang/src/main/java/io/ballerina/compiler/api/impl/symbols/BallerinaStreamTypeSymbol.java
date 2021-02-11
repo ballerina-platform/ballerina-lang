@@ -36,7 +36,7 @@ public class BallerinaStreamTypeSymbol extends AbstractTypeSymbol implements Str
     private String signature;
 
     public BallerinaStreamTypeSymbol(CompilerContext context, ModuleID moduleID, BStreamType streamType) {
-        super(context, TypeDescKind.STREAM, moduleID, streamType);
+        super(context, TypeDescKind.STREAM, streamType);
     }
 
     @Override

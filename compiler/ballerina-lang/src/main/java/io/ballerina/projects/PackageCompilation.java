@@ -140,16 +140,19 @@ public class PackageCompilation {
     }
 
     private void compile() {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
-            moduleContext.compile(compilerContext);
-            moduleContext.diagnostics().forEach(diagnostic ->
-                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
+        synchronized (this.compilerContext) {
+            List<Diagnostic> diagnostics = new ArrayList<>();
+            for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
+                moduleContext.compile(compilerContext);
+                moduleContext.diagnostics()
+                        .forEach(diagnostic -> diagnostics
+                                .add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
+            }
+            runPluginCodeAnalysis(diagnostics);
+            addOtherDiagnostics(diagnostics);
+            diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+            compiled = true;
         }
-        runPluginCodeAnalysis(diagnostics);
-        addOtherDiagnostics(diagnostics);
-        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
-        compiled = true;
     }
 
     private void runPluginCodeAnalysis(List<Diagnostic> diagnostics) {

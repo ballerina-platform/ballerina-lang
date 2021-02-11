@@ -68,11 +68,11 @@ public class ProjectFiles {
 
         DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
         DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
-        DocumentData kubernetesToml = loadDocument(packageDirPath.resolve(ProjectConstants.KUBERNETES_TOML));
+        DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
         DocumentData packageMd = loadDocument(packageDirPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
 
         return PackageData.from(packageDirPath, defaultModule, otherModules,
-                ballerinaToml, dependenciesToml, kubernetesToml, packageMd);
+                ballerinaToml, dependenciesToml, cloudToml, packageMd);
     }
 
     private static List<ModuleData> loadOtherModules(Path packageDirPath) {

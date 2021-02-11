@@ -76,7 +76,7 @@ public class SymbolByXMLNSTest extends SymbolByNodeTest {
     private void assertSymbol(Node node, SemanticModel model, String name) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), SymbolKind.XMLNS);
-        assertEquals(symbol.get().name(), name);
+        assertEquals(symbol.get().getName().get(), name);
         incrementAssertCount();
     }
 }

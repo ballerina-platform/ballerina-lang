@@ -21,7 +21,7 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.projects.KubernetesToml;
+import io.ballerina.projects.CloudToml;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Code Action for adding configurable variable into Kubernetes.toml.
+ * Code Action for adding configurable variable into Cloud.toml.
  *
  * @since 2.0.0
  */
@@ -71,16 +71,16 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve(ProjectConstants.KUBERNETES_TOML);
+        Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve(ProjectConstants.CLOUD_TOML);
 
-        Optional<KubernetesToml> kubernetesToml =
-                context.workspace().project(context.filePath()).orElseThrow().currentPackage().kubernetesToml();
+        Optional<CloudToml> cloudToml =
+                context.workspace().project(context.filePath()).orElseThrow().currentPackage().cloudToml();
 
-        if (kubernetesToml.isEmpty()) {
+        if (cloudToml.isEmpty()) {
             return Collections.emptyList();
         }
 
-        SyntaxTree tomlSyntaxTree = kubernetesToml.get().tomlDocument().syntaxTree();
+        SyntaxTree tomlSyntaxTree = cloudToml.get().tomlDocument().syntaxTree();
         DocumentNode documentNode = tomlSyntaxTree.rootNode();
 
         List<CodeAction> codeActionList = new ArrayList<>();
@@ -100,7 +100,7 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
         Position position = new Position(endLine + 1, 0);
         List<TextEdit> edits = Collections.singletonList(new TextEdit(new Range(position, position), importText));
         CodeAction action =
-                createQuickFixCodeAction("Add as env to Kubernetes.toml", edits, k8sPath.toUri().toString());
+                createQuickFixCodeAction("Add as env to Cloud.toml", edits, k8sPath.toUri().toString());
         codeActionList.add(action);
         return codeActionList;
     }

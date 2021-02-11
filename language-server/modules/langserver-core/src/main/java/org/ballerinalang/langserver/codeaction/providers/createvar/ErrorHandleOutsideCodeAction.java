@@ -77,7 +77,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         edits.addAll(getAddCheckTextEdits(CommonUtil.toRange(diagnostic.location().lineRange()).getStart(), context));
 
         String commandTitle = String.format(CommandConstants.CREATE_VAR_ADD_CHECK_TITLE,
-                                            context.positionDetails().matchedSymbol().name());
+                                            context.positionDetails().matchedSymbol().getName().get());
         return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(commandTitle, edits, uri));
     }
 

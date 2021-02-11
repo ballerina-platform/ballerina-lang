@@ -35,6 +35,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -58,12 +59,14 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
         switch (node.kind()) {
             case SIMPLE_NAME_REFERENCE:
                 predicate = symbol -> symbol.kind() != SymbolKind.FUNCTION
-                        && symbol.name().equals(((SimpleNameReferenceNode) node).name().text());
+                        && Objects.equals(symbol.getName().orElse(null),
+                                          ((SimpleNameReferenceNode) node).name().text());
                 break;
             case FUNCTION_CALL:
                 predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION
-                        && symbol.name().equals(((SimpleNameReferenceNode) ((FunctionCallExpressionNode) node)
-                        .functionName()).name().text());
+                        && Objects.equals(symbol.getName().orElse(null),
+                                          ((SimpleNameReferenceNode) ((FunctionCallExpressionNode) node)
+                                                  .functionName()).name().text());
                 break;
             default:
                 return completionItems;
