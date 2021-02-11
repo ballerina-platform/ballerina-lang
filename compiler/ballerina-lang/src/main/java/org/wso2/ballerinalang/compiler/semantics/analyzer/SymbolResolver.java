@@ -766,9 +766,6 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BSymbol lookupMethodInModule(BPackageSymbol moduleSymbol, Name name, SymbolEnv env) {
-        if (moduleSymbol == null) {
-            return symTable.notFoundSymbol;
-        }
         // What we get here is T.Name, this should convert to
         ScopeEntry entry = moduleSymbol.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
