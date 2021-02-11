@@ -90,7 +90,7 @@ public final class FunctionCompletionItemBuilder {
         setMeta(item, functionSymbol, context);
         if (functionSymbol != null) {
             // Override function signature
-            String funcName = functionSymbol.name();
+            String funcName = functionSymbol.getName().get();
             Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
             item.setInsertText(functionSignature.getLeft());
             item.setLabel(functionSignature.getRight());
@@ -108,7 +108,7 @@ public final class FunctionCompletionItemBuilder {
         setMeta(item, initMethod, ctx);
         String functionName;
         if (mode == InitializerBuildMode.EXPLICIT) {
-            functionName = typeDesc.name();
+            functionName = typeDesc.getName().get();
 //            Optional<BLangIdentifier> moduleAlias = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
 //                    .filter(pkg -> pkg.symbol != null && pkg.symbol.pkgID == typeDesc.pkgID)
 //                    .map(BLangImportPackage::getAlias)
@@ -153,7 +153,7 @@ public final class FunctionCompletionItemBuilder {
     private static Either<String, MarkupContent> getDocumentation(FunctionSymbol functionSymbol,
                                                                   boolean skipFirstParam,
                                                                   BallerinaCompletionContext ctx) {
-        String pkgID = functionSymbol.moduleID().toString();
+        String pkgID = functionSymbol.getModule().get().id().toString();
         FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
 
         Optional<Documentation> docAttachment = functionSymbol.documentation();
@@ -293,7 +293,7 @@ public final class FunctionCompletionItemBuilder {
      */
     private static boolean skipFirstParam(BallerinaCompletionContext context, FunctionSymbol functionSymbol) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        return CommonUtil.isLangLib(functionSymbol.moduleID())
+        return CommonUtil.isLangLib(functionSymbol.getModule().get().id())
                 && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
     }
 

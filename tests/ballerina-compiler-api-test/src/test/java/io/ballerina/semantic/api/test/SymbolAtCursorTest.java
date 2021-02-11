@@ -48,7 +48,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -105,7 +105,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -132,7 +132,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -159,7 +159,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertTrue(true, "Unexpected symbol: " + value.name()));
+        symbol.ifPresent(value -> assertTrue(true, "Unexpected symbol: " + value.getName().get()));
     }
 
     @DataProvider(name = "MissingConstructPosProvider")

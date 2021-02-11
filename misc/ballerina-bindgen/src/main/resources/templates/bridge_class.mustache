@@ -37,7 +37,7 @@ import {{balPackageName}}.{{#escapeReservedWord this ""}}{{/escapeReservedWord}}
     #
     # + return - The `string` form of the object instance.
     {{accessModifier}}function toString() returns string {
-        return java:jObjToString(self.jObj);
+        return java:toString(self.jObj) ?: "null";
     }{{#methodList}}{{#unless isStatic}}
 
     # The function that maps to the `{{javaMethodName}}` method of `{{className}}`.{{#if parameters}}

@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaFloatTypeSymbol extends AbstractTypeSymbol implements FloatTypeSymbol {
 
     public BallerinaFloatTypeSymbol(CompilerContext context, ModuleID moduleID, BType floatType) {
-        super(context, TypeDescKind.FLOAT, moduleID, floatType);
+        super(context, TypeDescKind.FLOAT, floatType);
     }
 
     @Override

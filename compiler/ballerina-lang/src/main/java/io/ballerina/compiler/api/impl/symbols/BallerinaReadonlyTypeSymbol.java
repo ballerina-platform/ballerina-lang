@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaReadonlyTypeSymbol extends AbstractTypeSymbol implements ReadonlyTypeSymbol {
 
     public BallerinaReadonlyTypeSymbol(CompilerContext context, ModuleID moduleID, BReadonlyType readonlyType) {
-        super(context, TypeDescKind.READONLY, moduleID, readonlyType);
+        super(context, TypeDescKind.READONLY, readonlyType);
     }
 
     @Override
