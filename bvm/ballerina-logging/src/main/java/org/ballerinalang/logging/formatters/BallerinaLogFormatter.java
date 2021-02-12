@@ -32,17 +32,23 @@ import java.util.logging.LogRecord;
  */
 public class BallerinaLogFormatter extends Formatter {
 
-    private static final String format = BLogManager.getLogManager().getProperty(
+    private static final String logFmtFormat = BLogManager.getLogManager().getProperty(
             BallerinaLogFormatter.class.getCanonicalName() + ".format");
+    private static final String jsonFormat = BLogManager.getLogManager().getProperty(
+            BallerinaLogFormatter.class.getCanonicalName() + ".jsonFormat");
 
     @Override
     public String format(LogRecord record) {
+        String format = logFmtFormat;
         String source = "";
         if (record.getLoggerName().length() > BLogManager.LOGGER_PREFIX_LENGTH) {
             source = record.getLoggerName().substring(BLogManager.LOGGER_PREFIX_LENGTH);
         }
         if (source.equals("")) {
             source = "\"\"";
+        }
+        if (BLogManager.logOutputFormat().equals(BLogManager.OUTPUT_FORMAT_JSON)) {
+            format = jsonFormat;
         }
         return String.format(format,
                              new Date(record.getMillis()),

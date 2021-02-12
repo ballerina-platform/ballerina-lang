@@ -48,6 +48,7 @@ import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -166,7 +167,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         String name = ((SimpleNameReferenceNode) referenceNode).name().text();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<Symbol> symbolRef = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(name))
+                .filter(symbol -> Objects.equals(symbol.getName().orElse(null), name))
                 .findFirst();
         if (symbolRef.isEmpty()) {
             return Optional.empty();
@@ -180,7 +181,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION && symbol.getName().get().equals(fName))
                 .map(symbol -> (FunctionSymbol) symbol)
                 .findFirst();
         if (symbolRef.isEmpty()) {
@@ -205,7 +206,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods().values());
         }
         Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
-                .filter(methodSymbol -> methodSymbol.name().equals(methodName))
+                .filter(methodSymbol -> methodSymbol.getName().get().equals(methodName))
                 .findFirst();
 
         if (filteredMethod.isEmpty()) {
@@ -236,7 +237,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                     CompletionItem completionItem = new CompletionItem();
                     completionItem.setLabel(name);
                     completionItem.setInsertText(name);
-                    completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
+                    completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldDescriptor.typeDescriptor()));
                     completionItems.add(new RecordFieldCompletionItem(context, fieldDescriptor, completionItem));
                 });
                 break;
@@ -246,7 +247,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                     CompletionItem completionItem = new CompletionItem();
                     completionItem.setLabel(name);
                     completionItem.setInsertText(name);
-                    completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
+                    completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldDescriptor.typeDescriptor()));
                     completionItems.add(new ObjectFieldCompletionItem(context, fieldDescriptor, completionItem));
                 });
                 boolean isClient = SymbolUtil.isClient(objTypeDesc);

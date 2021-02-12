@@ -85,8 +85,8 @@ public class MapToRecordAssignabilityTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
-                  "expected value of type 'Bar', found '\\$anonType\\$_30'.*")
+          expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: expected" +
+                                            " value of type 'Bar', found 'record \\{\\| int c; \\|\\}'.*")
     public void testComplexSubtyping2() {
         BRunUtil.invoke(compileResult, "testComplexSubtyping2");
     }

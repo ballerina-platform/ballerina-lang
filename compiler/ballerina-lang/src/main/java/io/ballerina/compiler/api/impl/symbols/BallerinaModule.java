@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
@@ -26,7 +28,6 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
@@ -56,7 +58,6 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.is
  */
 public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
 
-    private final CompilerContext context;
     private BPackageSymbol packageSymbol;
     private List<TypeDefinitionSymbol> typeDefs;
     private List<ClassSymbol> classes;
@@ -64,11 +65,26 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     private List<ConstantSymbol> constants;
     private List<EnumSymbol> enums;
     private List<Symbol> allSymbols;
+    private ModuleID id;
 
-    protected BallerinaModule(CompilerContext context, String name, PackageID moduleID, BPackageSymbol packageSymbol) {
-        super(name, moduleID, SymbolKind.MODULE, packageSymbol);
-        this.context = context;
+    protected BallerinaModule(CompilerContext context, String name, BPackageSymbol packageSymbol) {
+        super(name, SymbolKind.MODULE, packageSymbol, context);
         this.packageSymbol = packageSymbol;
+    }
+
+    @Override
+    public Optional<ModuleSymbol> getModule() {
+        return Optional.of(this);
+    }
+
+    @Override
+    public ModuleID id() {
+        if (this.id != null) {
+            return this.id;
+        }
+
+        this.id = new BallerinaModuleID(this.packageSymbol.pkgID);
+        return this.id;
     }
 
     /**
@@ -234,12 +250,12 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
         }
 
         ModuleSymbol symbol = (ModuleSymbol) obj;
-        return this.moduleID().equals(symbol.moduleID());
+        return this.id().equals(symbol.id());
     }
 
     @Override
     public int hashCode() {
-        return this.moduleID().hashCode();
+        return this.id().hashCode();
     }
 
     /**
@@ -249,11 +265,8 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
      */
     public static class ModuleSymbolBuilder extends SymbolBuilder<ModuleSymbolBuilder> {
 
-        private final CompilerContext context;
-
-        public ModuleSymbolBuilder(CompilerContext context, String name,
-                                   PackageID moduleID, BPackageSymbol packageSymbol) {
-            super(name, moduleID, SymbolKind.MODULE, packageSymbol);
+        public ModuleSymbolBuilder(CompilerContext context, String name, BPackageSymbol packageSymbol) {
+            super(name, SymbolKind.MODULE, packageSymbol, context);
             this.context = context;
         }
 
@@ -265,7 +278,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             if (this.bSymbol == null) {
                 throw new AssertionError("Package Symbol cannot be null");
             }
-            return new BallerinaModule(this.context, this.name, this.moduleID, (BPackageSymbol) this.bSymbol);
+            return new BallerinaModule(this.context, this.name, (BPackageSymbol) this.bSymbol);
         }
     }
 }

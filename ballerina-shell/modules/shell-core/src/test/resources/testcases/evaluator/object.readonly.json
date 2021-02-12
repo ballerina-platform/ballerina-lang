@@ -10,7 +10,7 @@
   {
     "description": "Create readonly variable.",
     "code": "MainController mc = new MainController(123, [\"AB\"]); Controller & readonly immutableController = mc; immutableController.getId()",
-    "expr": "Main: 123"
+    "expr": "\"Main: 123\""
   },
   {
     "description": "Check for type of variable.",

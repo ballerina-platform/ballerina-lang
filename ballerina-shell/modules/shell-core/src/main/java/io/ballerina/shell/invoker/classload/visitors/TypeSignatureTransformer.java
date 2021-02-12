@@ -18,6 +18,7 @@
 
 package io.ballerina.shell.invoker.classload.visitors;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -87,7 +88,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         StringJoiner joiner = new StringJoiner(" ");
         parameterSymbol.qualifiers().forEach(accessModifier -> joiner.add(accessModifier.getValue()));
         String signature;
-        if (parameterSymbol.kind() == ParameterKind.REST) {
+        if (parameterSymbol.paramKind() == ParameterKind.REST) {
             signature = transformType(parameterSymbol.typeDescriptor());
             signature = signature.substring(0, signature.length() - 2) + "...";
         } else {
@@ -95,8 +96,8 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         }
 
         joiner.add(signature);
-        if (parameterSymbol.name().isPresent()) {
-            joiner.add(parameterSymbol.name().get());
+        if (parameterSymbol.getName().isPresent()) {
+            joiner.add(parameterSymbol.getName().get());
         }
 
         this.setState(joiner.toString());
@@ -107,7 +108,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         StringJoiner joiner = new StringJoiner(" ");
         fieldSymbol.qualifiers().forEach(qualifier -> joiner.add(qualifier.getValue()));
         String signature = joiner.add(transformType(fieldSymbol.typeDescriptor()))
-                .add(fieldSymbol.name()).toString();
+                .add(fieldSymbol.getName().get()).toString();
         this.setState(signature);
     }
 
@@ -117,7 +118,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         fieldSymbol.qualifiers().forEach(qualifier -> joiner.add(qualifier.getValue()));
 
         String signature = joiner.add(transformType(fieldSymbol.typeDescriptor()))
-                .add(fieldSymbol.name()).toString();
+                .add(fieldSymbol.getName().get()).toString();
         if (fieldSymbol.isOptional()) {
             signature += "?";
         }
@@ -132,7 +133,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
 
         StringBuilder signature = new StringBuilder(qualifierJoiner.toString());
         StringJoiner joiner = new StringJoiner(", ");
-        signature.append(methodSymbol.name()).append("(");
+        signature.append(methodSymbol.getName().get()).append("(");
 
         methodSymbol.typeDescriptor().parameters().stream().map(this::transformParameter).forEach(joiner::add);
         methodSymbol.typeDescriptor().restParam().map(this::transformParameter).ifPresent(joiner::add);
@@ -329,24 +330,25 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
     private String transformExternalRefType(TypeSymbol typeSymbol) {
         // If the module is not anon, imports module.
 
-        String typeName = typeSymbol.name();
-        if (typeName.isBlank()) {
+        String typeName = typeSymbol.getName().orElse("");
+        if (typeName.isEmpty()) {
+            // Name was null or blank
             String typeSignature = typeSymbol.signature();
             typeName = typeSignature.substring(typeSignature.lastIndexOf(':') + 1);
         }
 
-        if (typeSymbol.moduleID().orgName().equals(ANON_MODULE)
-                || (typeSymbol.moduleID().moduleName().equals("lang.annotations")
-                && typeSymbol.moduleID().orgName().equals("ballerina"))) {
+        ModuleID moduleID = typeSymbol.getModule().isPresent() ? typeSymbol.getModule().get().id() : null;
+
+        if (moduleID == null || moduleID.orgName().equals(ANON_MODULE)
+                || ("lang.annotations".equals(moduleID.moduleName()) && "ballerina".equals(moduleID.orgName()))) {
             // No import required. If the name is not found,
             // signature can be used without module parts.
             return typeName;
-
         } else {
-            String moduleName = Arrays.stream(typeSymbol.moduleID().moduleName().split("\\."))
+            String moduleName = Arrays.stream(moduleID.moduleName().split("\\."))
                     .map(StringUtils::quoted).collect(Collectors.joining("."));
-            String fullModuleName = typeSymbol.moduleID().orgName() + "/" + moduleName;
-            String defaultPrefix = StringUtils.quoted(typeSymbol.moduleID().modulePrefix());
+            String fullModuleName = moduleID.orgName() + "/" + moduleName;
+            String defaultPrefix = StringUtils.quoted(moduleID.modulePrefix());
             try {
                 String importPrefix = importProcessor.processImplicitImport(fullModuleName, defaultPrefix);
                 implicitImportPrefixes.add(importPrefix);

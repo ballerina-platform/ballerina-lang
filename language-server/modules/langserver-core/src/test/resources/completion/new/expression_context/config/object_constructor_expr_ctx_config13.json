@@ -35,13 +35,6 @@
       ]
     },
     {
-      "label": "$anonType$_0",
-      "kind": "Interface",
-      "detail": "Class",
-      "insertText": "$anonType$_0",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error",
       "kind": "Event",
       "detail": "Error",
@@ -212,14 +205,14 @@
       "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "record {\n\t${1}\n}",
+      "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "record {|\n\t${1}\n|}",
+      "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -233,7 +226,7 @@
       "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "object {\n\t${1}\n}",
+      "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     }
   ]

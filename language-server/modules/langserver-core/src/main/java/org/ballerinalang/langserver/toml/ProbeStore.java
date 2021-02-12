@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.toml;
 import java.util.Optional;
 
 /**
- * Contains all the probes in the Kubernetes.toml.
+ * Contains all the probes in the Cloud.toml.
  *
  * @since 2.0.0
  */

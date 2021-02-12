@@ -18,6 +18,8 @@
 
 package io.ballerina.shell.utils;
 
+import io.ballerina.runtime.api.utils.IdentifierUtils;
+
 /**
  * Utility functions required by invokers.
  * Static class.
@@ -56,5 +58,27 @@ public class StringUtils {
                     + "..." + value.substring(value.length() - subStrLength);
         }
         return value;
+    }
+
+    /**
+     * Escapes the <code>String</code> with the escaping rules of Java language
+     * string literals, so it's safe to insert the value into a string literal.
+     * The resulting string will not be quoted.
+     *
+     * @param string String to encode.
+     * @return encoded string.
+     */
+    public static String encodeIdentifier(String string) {
+        return IdentifierUtils.encodeNonFunctionIdentifier(string);
+    }
+
+    /**
+     * Converts a Ballerina object to its `toBalString` counterpart.
+     *
+     * @param object Object to convert.
+     * @return Converted string.
+     */
+    public static String getExpressionStringValue(Object object) {
+        return io.ballerina.runtime.api.utils.StringUtils.getExpressionStringValue(object, null);
     }
 }

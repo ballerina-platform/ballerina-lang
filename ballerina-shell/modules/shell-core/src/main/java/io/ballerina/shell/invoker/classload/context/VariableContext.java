@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.invoker.classload.context;
 
-import freemarker.ext.beans.TemplateAccessible;
 import io.ballerina.shell.invoker.classload.GlobalVariable;
 import io.ballerina.shell.utils.StringUtils;
 
@@ -64,22 +63,22 @@ public class VariableContext {
                 variableEntry.getElevatedType().isAssignableToAny());
     }
 
-    @TemplateAccessible
-    public String getName() {
+    public String name() {
         return name;
     }
 
-    @TemplateAccessible
-    public String getType() {
+    public String encodedName() {
+        return StringUtils.encodeIdentifier(name);
+    }
+
+    public String type() {
         return type;
     }
 
-    @TemplateAccessible
     public boolean isNew() {
         return isNew;
     }
 
-    @TemplateAccessible
     public boolean isAny() {
         return isAny;
     }

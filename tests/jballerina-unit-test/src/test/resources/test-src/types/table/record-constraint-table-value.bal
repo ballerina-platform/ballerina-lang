@@ -35,7 +35,7 @@ function testTableMemberAccessLoad() returns boolean {
       { m: {"AAA":"DDDD"}, age: 31 },
       { m: {"BBB":"DDDD"}, age: 34 }
     ];
-    Foo aaa = tab[{"AAA":"DDDD"}];
+    Foo? aaa = tab[{"AAA":"DDDD"}];
     return aaa.toString() == "{\"m\":{\"AAA\":\"DDDD\"},\"age\":31}";
 }
 
@@ -48,6 +48,17 @@ type Customer record {
 string cutomerListString = "[{\"id\":13,\"name\":\"Sanjiva\",\"lname\":\"Weerawarana\"},{\"id\":23,\"name\":\"James\",\"lname\":\"Clark\"}]";
 
 type CustomerTableWithKS table<Customer> key(id);
+
+type Student record {|
+    readonly string name;
+    int id?;
+    Address address;
+|};
+
+type Address record {
+    string city;
+    string? country;
+};
 
 function runKeySpecifierTestCases() {
     testTableTypeWithKeySpecifier();
@@ -117,7 +128,7 @@ function testMemberAccessWithSingleStringKey() {
     table<Customer> key(name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable["Sanjiva"];
+    Customer? customer = customerTable["Sanjiva"];
     assertEquality("Weerawarana", customer["lname"]);
 }
 
@@ -125,7 +136,7 @@ function testMemberAccessWithSingleIntKey() {
     table<Customer> key(id) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable[13];
+    Customer? customer = customerTable[13];
     assertEquality("Weerawarana", customer["lname"]);
 }
 
@@ -133,7 +144,7 @@ function testMemberAccessWithMultiKeyAsTuple() {
     table<Customer> key(id, name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable[[13, "Sanjiva"]];
+    Customer? customer = customerTable[[13, "Sanjiva"]];
     assertEquality("Weerawarana", customer["lname"]);
 }
 
@@ -141,7 +152,7 @@ function testMemberAccessWithMultiKey() {
     table<Customer> key(id, name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable[13, "Sanjiva"];
+    Customer? customer = customerTable[13, "Sanjiva"];
     assertEquality("Weerawarana", customer["lname"]);
 }
 
@@ -159,14 +170,16 @@ function testMemberAccessWithInvalidSingleKey() {
     table<Customer> key(id) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable[18];
+    Customer? customer = customerTable[18];
+    assertEquality((), customer);
 }
 
 function testMemberAccessWithInvalidMultiKey() {
     table<Customer> key(id, name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable[18, "Mohan"];
+    Customer? customer = customerTable[18, "Mohan"];
+    assertEquality((), customer);
 }
 
 function runTableTestcasesWithVarType() {
@@ -246,7 +259,8 @@ function testVarTypeTableInvalidMemberAccess() {
     var customerTable = table key(id, name) [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" , lname: "Clark" }];
 
-    Customer customer = customerTable[18, "Mohan"];
+    Customer? customer = customerTable[18, "Mohan"];
+    assertEquality((), customer);
 }
 
 type Details record {|
@@ -395,6 +409,25 @@ function testTableEqualityWithKeyV2() {
     ];
 
     assertEquality(true, employeeTab1 != employeeTab2);
+}
+
+function testMemberAccessHavingNilableFields() {
+    table<Student> key(name) tab = table [
+        {name: "Amy", id: 1234, address:{"street": "Main Street", "city": "Colombo", "country": ()}},
+        {name: "John", address:{"city": "Colombo", "country": "Sri Lanka"}}
+    ];
+
+    int? val1 = tab["John"]["id"];
+    assertEquality(true, val1 is ());
+
+    string? val2 = tab["Amy"]["address"]["country"];
+    assertEquality(true, val2 is ());
+
+    anydata val3 = tab["John"]["address"]["street"];
+    assertEquality(true, val3 is ());
+
+    int? val4 = tab["Mike"]["id"];
+    assertEquality(true, val4 is ());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

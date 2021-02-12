@@ -2797,6 +2797,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(INT)) {
             symTable.langIntModuleSymbol = packageSymbol;
+            symTable.updateIntSubtypeOwners();
             return;
         }
         if (langLib.equals(MAP)) {
@@ -2813,6 +2814,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(STRING)) {
             symTable.langStringModuleSymbol = packageSymbol;
+            symTable.updateStringSubtypeOwners();
             return;
         }
         if (langLib.equals(TABLE)) {
@@ -2829,6 +2831,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(XML)) {
             symTable.langXmlModuleSymbol = packageSymbol;
+            symTable.updateXMLSubtypeOwners();
             return;
         }
         if (langLib.equals(BOOLEAN)) {
@@ -4143,7 +4146,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private SymbolOrigin getOrigin(Name name, Set<Flag> flags) {
-        if ((flags.contains(Flag.ANONYMOUS) && flags.contains(Flag.SERVICE))
+        if ((flags.contains(Flag.ANONYMOUS) && (flags.contains(Flag.SERVICE) || flags.contains(Flag.CLASS)))
                 || missingNodesHelper.isMissingNode(name)) {
             return VIRTUAL;
         }

@@ -333,11 +333,11 @@ public class LSAnnotationCache {
     private void addAttachment(AnnotationSymbol annotationSymbol,
                                       Map<ModuleID, List<AnnotationSymbol>> map) {
         // TODO: Check the map contains is valid
-        if (map.containsKey(annotationSymbol.moduleID())) {
-            map.get(annotationSymbol.moduleID()).add(annotationSymbol);
+        if (map.containsKey(annotationSymbol.getModule().get().id())) {
+            map.get(annotationSymbol.getModule().get().id()).add(annotationSymbol);
             return;
         }
-        map.put(annotationSymbol.moduleID(), new ArrayList<>(Collections.singletonList(annotationSymbol)));
+        map.put(annotationSymbol.getModule().get().id(), new ArrayList<>(Collections.singletonList(annotationSymbol)));
     }
 
     private boolean isAttachPointPresent(List<AnnotationAttachPoint> attachPoints, AnnotationAttachPoint mask) {

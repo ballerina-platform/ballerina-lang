@@ -101,7 +101,7 @@ public class DocumentationTest {
 
         List<ConstantSymbol> members = ((EnumSymbol) symbol.get()).members();
         for (ConstantSymbol member : members) {
-            assertDescriptionOnly(member.documentation().get(), "Enum member " + member.name());
+            assertDescriptionOnly(member.documentation().get(), "Enum member " + member.getName().get());
         }
     }
 

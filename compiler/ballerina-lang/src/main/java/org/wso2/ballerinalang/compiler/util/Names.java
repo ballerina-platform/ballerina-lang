@@ -149,6 +149,7 @@ public class Names {
     public static final Name INTERNAL_VERSION = new Name(BLangCompilerConstants.INTERNAL_VERSION);
     public static final Name ANNOTATIONS_VERSION = new Name(BLangCompilerConstants.ANNOTATIONS_VERSION);
     public static final Name ARRAY_VERSION = new Name(BLangCompilerConstants.ARRAY_VERSION);
+    public static final Name CONFIG_VERSION = new Name(BLangCompilerConstants.CONFIG_VERSION);
     public static final Name DECIMAL_VERSION = new Name(BLangCompilerConstants.DECIMAL_VERSION);
     public static final Name ERROR_VERSION = new Name(BLangCompilerConstants.ERROR_VERSION);
     public static final Name FLOAT_VERSION = new Name(BLangCompilerConstants.FLOAT_VERSION);

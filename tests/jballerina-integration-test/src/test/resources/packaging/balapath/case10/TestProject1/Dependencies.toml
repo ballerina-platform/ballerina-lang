@@ -1,0 +1,4 @@
+[[dependency]]
+org = "ballerina"
+name = "bar"
+path = "./bar-2020r2-any-0.1.0.balo"

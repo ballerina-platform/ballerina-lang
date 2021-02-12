@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -249,7 +248,7 @@ public class SourceDirectoryManager implements Project {
     }
 
     @Override
-    public Path getBaloPath(PackageID moduleId) throws InvalidModuleException {
+    public Path getBalaPath(PackageID moduleId) throws InvalidModuleException {
         if (!isModuleExists(moduleId)) {
             throw new InvalidModuleException();
         }
@@ -257,17 +256,17 @@ public class SourceDirectoryManager implements Project {
         String versionNo = manifest.getProject().getVersion();
         // Identify the platform version
         String platform = manifest.getTargetPlatform(moduleId.name.value);
-        // {module}-{lang spec version}-{platform}-{version}.balo
+        // {module}-{lang spec version}-{platform}-{version}.bala
         //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
-        String baloFileName = moduleId.name.value + "-"
-                + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+        String balaFileName = moduleId.name.value + "-"
+                + moduleId.orgName.value + "-"
                 + platform + "-"
                 + versionNo
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
         return sourceDirectory.getPath()
                 .resolve(ProjectDirConstants.TARGET_DIR_NAME)
-                .resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)
-                .resolve(baloFileName);
+                .resolve(ProjectDirConstants.TARGET_BALA_DIRECTORY)
+                .resolve(balaFileName);
     }
 }

@@ -73,8 +73,7 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public String toString() {
-
-        if (shouldPrintShape(tsymbol.name)) {
+        if (shouldPrintShape()) {
             StringBuilder sb = new StringBuilder();
 
             var symbolFlags = tsymbol.flags;

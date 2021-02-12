@@ -185,7 +185,7 @@ public class AnnotationUtil {
             annotationStart.append(aliasComponent).append(PKG_DELIMITER_KEYWORD);
         }
         if (annotationSymbol.typeDescriptor().isPresent()) {
-            annotationStart.append(annotationSymbol.name());
+            annotationStart.append(annotationSymbol.getName().get());
             Optional<TypeSymbol> attachedType
                     = Optional.ofNullable(CommonUtil.getRawType(annotationSymbol.typeDescriptor().get()));
             Optional<TypeSymbol> resultType;
@@ -213,7 +213,7 @@ public class AnnotationUtil {
                 annotationStart.append(LINE_SEPARATOR).append(CLOSE_BRACE_KEY);
             }
         } else {
-            annotationStart.append(annotationSymbol.name());
+            annotationStart.append(annotationSymbol.getName().get());
         }
 
         return annotationStart.toString();
@@ -238,7 +238,7 @@ public class AnnotationUtil {
      */
     private static String getAnnotationLabel(@Nonnull String aliasComponent, AnnotationSymbol annotation) {
         String pkgComponent = !aliasComponent.isEmpty() ? aliasComponent + PKG_DELIMITER_KEYWORD : "";
-        return pkgComponent + annotation.name();
+        return pkgComponent + annotation.getName().get();
     }
 
     /**
