@@ -4,5 +4,5 @@ public function main (string... args) {
    float c = 10.1;
    addTwoIntegers(a, c, true);
    int d = addTwoIntegers2(a, b);
-   a = assignInterger("string", b, true);
+   a = assignInteger("string", b, true);
 }

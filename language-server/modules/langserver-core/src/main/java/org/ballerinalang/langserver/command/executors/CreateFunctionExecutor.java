@@ -33,6 +33,7 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.CommandUtil;
+import org.ballerinalang.langserver.command.visitors.UndefinedFunctionTypeFinder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
@@ -126,19 +127,10 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         SemanticModel semanticModel = context.workspace().semanticModel(filePath.get()).orElseThrow();
 
-        TypeSymbol returnTypeSymbol = semanticModel.type(fnCallExprNode.functionName()).orElse(null);
-        if (returnTypeSymbol == null || returnTypeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR) {
-            returnTypeSymbol = semanticModel.type(fnCallExprNode).orElse(null);
-        }
+        UndefinedFunctionTypeFinder typeFinder = new UndefinedFunctionTypeFinder(semanticModel);
+        TypeSymbol returnTypeSymbol = typeFinder.typeOf(fnCallExprNode).orElse(null);
 
-        if (returnTypeSymbol == null || returnTypeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR) {
-            NonTerminalNode parent = fnCallExprNode.parent();
-            if (parent.kind() == SyntaxKind.LOCAL_VAR_DECL || parent.kind() == SyntaxKind.ASSIGNMENT_STATEMENT ||
-                    parent.kind() == SyntaxKind.MODULE_VAR_DECL) {
-                returnTypeSymbol = semanticModel.type(parent).orElse(null);
-            }
-        }
-
+        // Return type symbol of kind compilation error is treated as void
         if (returnTypeSymbol == null) {
             return Collections.emptyList();
         }

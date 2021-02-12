@@ -43,7 +43,7 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
         return new Object[][]{
                 {"createUndefinedFunction1.json", "createUndefinedFunction.bal"},
                 {"createUndefinedFunction2.json", "createUndefinedFunction.bal"},
-                // {"createUndefinedFunction3.json", "createUndefinedFunction.bal"},
+                {"createUndefinedFunction3.json", "createUndefinedFunction.bal"},
                 // TODO Doesn't work as expected because http module import failure
                 // {"createUndefinedFunction4.json", "createUndefinedFunction2.bal"},
                 // TODO Doesn't support method creation in objects
