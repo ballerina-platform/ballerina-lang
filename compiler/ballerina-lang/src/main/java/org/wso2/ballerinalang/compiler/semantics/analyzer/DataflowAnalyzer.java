@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -242,6 +243,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
     private Types types;
     private Map<BSymbol, InitStatus> uninitializedVars;
+    private Map<BSymbol, Location> unusedErrorVarsDeclaredWithVar;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private Map<BSymbol, Set<BSymbol>> functionToDependency;
     private boolean flowTerminated = false;
@@ -278,11 +280,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      */
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.uninitializedVars = new LinkedHashMap<>();
+        this.unusedErrorVarsDeclaredWithVar = new HashMap<>();
         this.globalNodeDependsOn = new LinkedHashMap<>();
         this.functionToDependency = new HashMap<>();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
+
+        for (Map.Entry<BSymbol, Location> entry : this.unusedErrorVarsDeclaredWithVar.entrySet()) {
+            this.dlog.error(entry.getValue(), DiagnosticErrorCode.UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR,
+                            entry.getKey().name);
+        }
+
         return pkgNode;
     }
 
@@ -511,27 +520,32 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable variable) {
         analyzeNode(variable.typeNode, env);
-        if (variable.symbol == null) {
+        BVarSymbol symbol = variable.symbol;
+        if (symbol == null) {
             if (variable.expr != null) {
                 analyzeNode(variable.expr, env);
             }
             return;
         }
 
-        this.currDependentSymbol.push(variable.symbol);
+        this.currDependentSymbol.push(symbol);
         try {
             if (variable.expr != null) {
+                if (variable.isDeclaredWithVar) {
+                    addVarsWithInferredTypeIncludingError(variable);
+                }
+
                 analyzeNode(variable.expr, env);
-                this.uninitializedVars.remove(variable.symbol);
+                this.uninitializedVars.remove(symbol);
                 return;
             }
             // Required configurations will be initialized at the run time
-            long varFlags = variable.symbol.flags;
+            long varFlags = symbol.flags;
             if (Symbols.isFlagOn(varFlags, Flags.CONFIGURABLE) && Symbols.isFlagOn(varFlags, Flags.REQUIRED)) {
                 return;
             }
             // Handle package/object level variables
-            BSymbol owner = variable.symbol.owner;
+            BSymbol owner = symbol.owner;
             if (owner.tag != SymTag.PACKAGE && owner.tag != SymTag.OBJECT) {
                 return;
             }
@@ -968,6 +982,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
+        unusedErrorVarsDeclaredWithVar.remove(varRefExpr.symbol);
         checkVarRef(varRefExpr.symbol, varRefExpr.pos);
     }
 
@@ -1683,16 +1698,25 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         analyzeNode(bLangTupleVariable.typeNode, env);
-        if (bLangTupleVariable.expr != null) {
+
+        boolean hasExpr = bLangTupleVariable.expr != null;
+        if (hasExpr) {
             this.currDependentSymbol.push(bLangTupleVariable.symbol);
             analyzeNode(bLangTupleVariable.expr, env);
             this.currDependentSymbol.pop();
-            return;
+
+            if (!bLangTupleVariable.isDeclaredWithVar) {
+                return;
+            }
         }
 
         for (BLangVariable member: bLangTupleVariable.memberVariables) {
             if (member.getKind() == NodeKind.VARIABLE) {
-                addUninitializedVar(member);
+                addVarsWithInferredTypeIncludingError((BLangSimpleVariable) member);
+
+                if (!hasExpr) {
+                    addUninitializedVar(member);
+                }
                 continue;
             }
             analyzeNode(member, env);
@@ -1700,7 +1724,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         BLangSimpleVariable restVar = (BLangSimpleVariable) bLangTupleVariable.restVariable;
         if (restVar != null) {
-            addUninitializedVar(restVar);
+            addVarsWithInferredTypeIncludingError(restVar);
+
+            if (!hasExpr) {
+                addUninitializedVar(restVar);
+            }
         }
     }
 
@@ -1712,17 +1740,27 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         analyzeNode(bLangRecordVariable.typeNode, env);
-        if (bLangRecordVariable.expr != null) {
+
+
+        boolean hasExpr = bLangRecordVariable.expr != null;
+        if (hasExpr) {
             this.currDependentSymbol.push(bLangRecordVariable.symbol);
             analyzeNode(bLangRecordVariable.expr, env);
             this.currDependentSymbol.pop();
-            return;
+
+            if (!bLangRecordVariable.isDeclaredWithVar) {
+                return;
+            }
         }
 
         for (BLangRecordVariable.BLangRecordVariableKeyValue memberKeyValue : bLangRecordVariable.variableList) {
             BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
             if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
-                addUninitializedVar(valueBindingPattern);
+                addVarsWithInferredTypeIncludingError((BLangSimpleVariable) valueBindingPattern);
+
+                if (!hasExpr) {
+                    addUninitializedVar(valueBindingPattern);
+                }
                 continue;
             }
             analyzeNode(valueBindingPattern, env);
@@ -1730,7 +1768,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         BLangSimpleVariable restParam = (BLangSimpleVariable) bLangRecordVariable.restParam;
         if (restParam != null) {
-            addUninitializedVar(restParam);
+            addVarsWithInferredTypeIncludingError(restParam);
+
+            if (!hasExpr) {
+                addUninitializedVar(restParam);
+            }
         }
     }
 
@@ -1742,15 +1784,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
         analyzeNode(bLangErrorVariable.typeNode, env);
-        if (bLangErrorVariable.expr != null) {
+
+
+        boolean hasExpr = bLangErrorVariable.expr != null;
+        if (hasExpr) {
             this.currDependentSymbol.push(bLangErrorVariable.symbol);
             analyzeNode(bLangErrorVariable.expr, env);
             this.currDependentSymbol.pop();
-            return;
+
+            if (!bLangErrorVariable.isDeclaredWithVar) {
+                return;
+            }
         }
 
         BLangSimpleVariable message = bLangErrorVariable.message;
-        if (message != null) {
+        if (message != null && !hasExpr) {
             addUninitializedVar(message);
         }
 
@@ -1762,7 +1810,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         for (BLangErrorVariable.BLangErrorDetailEntry memberKeyValue : bLangErrorVariable.detail) {
             BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
             if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
-                addUninitializedVar(valueBindingPattern);
+                addVarsWithInferredTypeIncludingError((BLangSimpleVariable) valueBindingPattern);
+
+                if (!hasExpr) {
+                    addUninitializedVar(valueBindingPattern);
+                }
                 continue;
             }
             analyzeNode(valueBindingPattern, env);
@@ -1770,7 +1822,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         BLangSimpleVariable restDetail = bLangErrorVariable.restDetail;
         if (restDetail != null) {
-            addUninitializedVar(restDetail);
+            addVarsWithInferredTypeIncludingError((BLangSimpleVariable) restDetail);
+
+            if (!hasExpr) {
+                addUninitializedVar(restDetail);
+            }
         }
     }
 
@@ -2038,6 +2094,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 continue;
             }
             dlog.error(importStmt.pos, DiagnosticErrorCode.UNUSED_IMPORT_MODULE, importStmt.getQualifiedPackageName());
+        }
+    }
+
+    private void addVarsWithInferredTypeIncludingError(BLangSimpleVariable variable) {
+        BType typeIntersection = types.getTypeIntersection(variable.type, symTable.errorType, env);
+        if (typeIntersection != null &&
+                typeIntersection != symTable.semanticError && typeIntersection != symTable.noType) {
+            unusedErrorVarsDeclaredWithVar.put(variable.symbol, variable.pos);
         }
     }
 
