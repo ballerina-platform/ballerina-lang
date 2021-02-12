@@ -21,10 +21,12 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 
@@ -87,5 +89,18 @@ public abstract class JvmMethod {
             throw new EvaluationException(String.format(EvaluationExceptionKind.STRAND_NOT_FOUND.getString(),
                     methodRef));
         }
+    }
+
+    /**
+     * Checks if the exception is an instance of {@link io.ballerina.runtime.api.values.BError} and if so,
+     * returns its JDI value instance.
+     */
+    protected Value extractBErrors(Exception e) throws EvaluationException {
+        Optional<Value> potentialBError = EvaluationUtils.getBError(e);
+        if (potentialBError.isPresent()) {
+            return potentialBError.get();
+        }
+        throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
+                methodRef.name()));
     }
 }

@@ -56,8 +56,7 @@ public class RuntimeInstanceMethod extends RuntimeMethod {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
-                    methodRef.name()));
+            return extractBErrors(e);
         }
     }
 }
