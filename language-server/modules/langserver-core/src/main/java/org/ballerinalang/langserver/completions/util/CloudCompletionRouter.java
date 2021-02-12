@@ -54,10 +54,10 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class K8sCompletionRouter {
+public class CloudCompletionRouter {
 
     /**
-     * Get the completion Items for Kubernetes.toml depending on the the context.
+     * Get the completion Items for Cloud.toml depending on the the context.
      *
      * @param ctx Completion context
      * @return {@link List} List of resolved completion Items
@@ -85,7 +85,7 @@ public class K8sCompletionRouter {
         Map<Parent, Map<String, CompletionItem>> c2cSnippets =
                 TomlSnippetManager.getInstance(serverContext).getCompletions();
 
-        //In Kubernetes.toml all the suggestions are support based on the current Table/Table of Arrray.
+        //In Cloud.toml all the suggestions are support based on the current Table/Table of Arrray.
         //This loop checks the parent of the current node until table or table of array found.
         while (reference != null) {
             if (reference.kind() == SyntaxKind.TABLE) {
@@ -124,8 +124,8 @@ public class K8sCompletionRouter {
      */
     public static void fillNodeAtCursor(TomlCompletionContext context) {
         Path tomlFilePath = context.filePath();
-        //Completion gets called only from Kubernetes.toml in a project.
-        SyntaxTree st = context.workspace().project(tomlFilePath).orElseThrow().currentPackage().kubernetesToml()
+        //Completion gets called only from Cloud.toml in a project.
+        SyntaxTree st = context.workspace().project(tomlFilePath).orElseThrow().currentPackage().cloudToml()
                 .orElseThrow().tomlDocument().syntaxTree();
         Position position = context.getCursorPosition();
         TextDocument textDocument = st.textDocument();
