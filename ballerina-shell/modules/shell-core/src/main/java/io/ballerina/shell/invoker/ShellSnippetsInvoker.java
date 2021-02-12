@@ -77,7 +77,7 @@ import java.util.function.Function;
  */
 public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     /* Constants related to execution */
-    protected static final String MODULE_RUN_METHOD_NAME = "run";
+    protected static final String MODULE_RUN_METHOD_NAME = "__run";
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String CONFIGURE_INIT_CLASS_NAME = "$ConfigurationMapper";
     private static final String MODULE_INIT_METHOD_NAME = "$moduleInit";

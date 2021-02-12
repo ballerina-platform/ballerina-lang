@@ -92,9 +92,11 @@ public class BallerinaShell {
                 evaluator.executeFile(new File(startFile.get()));
             }
         } catch (BallerinaShellException e) {
-            evaluator.diagnostics().forEach(this::outputDiagnostic);
             terminal.println("\nShell Initialization Failed!!!");
             return;
+        } finally {
+            evaluator.diagnostics().forEach(this::outputDiagnostic);
+            evaluator.resetDiagnostics();
         }
 
         Instant end = Instant.now();

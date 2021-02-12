@@ -108,8 +108,18 @@ public class SerialTreeParser extends TrialTreeParser {
         if (declarationNode instanceof FunctionDefinitionNode) {
             String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
             if (functionName.equals("main")) {
-                addDiagnostic(Diagnostic.warn("Found main function in the declarations. " +
-                        "Discarded main function without loading."));
+                addDiagnostic(Diagnostic.warn("Found 'main' function in the declarations.\n" +
+                        "Discarded 'main' function without loading."));
+                return false;
+            }
+            if (functionName.equals("init")) {
+                addDiagnostic(Diagnostic.warn("Found 'init' function in the declarations.\n" +
+                        "Discarded 'init' function without loading."));
+                return false;
+            }
+            if (functionName.startsWith("__")) {
+                addDiagnostic(Diagnostic.warn("Functions starting with '__' are reserved in REPL.\n" +
+                        "Discarded '" + functionName + "' without loading."));
                 return false;
             }
         }
