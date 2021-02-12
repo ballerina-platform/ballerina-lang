@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -341,6 +342,22 @@ class AIDataMapperCodeActionUtil {
                 Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
                 fieldDetails.addProperty(TYPE, "ballerina_type");
                 fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
+            } else if (attributeType.typeKind() == TypeDescKind.INTERSECTION) {
+                // To get the fields of a readonly record type
+                List<TypeSymbol> memberTypeList = ((IntersectionTypeSymbol) attribute.typeDescriptor()).
+                        memberTypeDescriptors();
+                for (TypeSymbol attributeTypeReference : memberTypeList) {
+                    if (attributeTypeReference.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                        TypeSymbol attributeTypeRecord = ((TypeReferenceTypeSymbol) attributeTypeReference).
+                                typeDescriptor();
+                        if (attributeTypeRecord.typeKind() == TypeDescKind.RECORD) {
+                            Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeTypeRecord).
+                                    fieldDescriptors();
+                            fieldDetails.addProperty(TYPE, "ballerina_type");
+                            fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
+                        }
+                    }
+                }
             } else {
                 fieldDetails.addProperty(TYPE, attributeType.typeKind().toString());
             }
