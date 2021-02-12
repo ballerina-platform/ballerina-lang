@@ -1027,6 +1027,7 @@ type Detail record {
     string message?;
     error cause?;
     int? code;
+    float f?;
 };
 
 type ErrorD error<Detail>;

@@ -5212,7 +5212,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!targetErrorDetailsType.sealed && !targetErrorDetailsType.fields.isEmpty() && !restFields.isEmpty()) {
             for (BLangNamedArgsExpression namedArg : namedArgs) {
                 if (restFields.contains(names.fromIdNode(namedArg.name))) {
-                    dlog.error(namedArg.pos, DiagnosticErrorCode.INVALID_REST_DETAIL_ARG, targetErrorDetailsType);
+                    dlog.error(namedArg.pos, DiagnosticErrorCode.INVALID_REST_DETAIL_ARG, namedArg.name.value,
+                            targetErrorDetailsType);
                 }
             }
         }
