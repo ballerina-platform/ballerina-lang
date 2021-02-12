@@ -4,7 +4,7 @@ name = "runtime"
 version = "0.5.0"
 
 [[platform.java11.dependency]]
-path = "../libs/ballerina-runtime-api-2.0.0-alpha3-SNAPSHOT.jar"
+path = "../libs/ballerina-runtime-api-2.0.0-alpha3.jar"
 groupId = "ballerina"
 artifactId = "runtime"
 version = "0.5.0"
