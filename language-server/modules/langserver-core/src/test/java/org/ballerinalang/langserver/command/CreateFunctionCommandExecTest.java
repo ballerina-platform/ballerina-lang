@@ -43,7 +43,6 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
         return new Object[][]{
                 {"createUndefinedFunction1.json", "createUndefinedFunction.bal"},
                 {"createUndefinedFunction2.json", "createUndefinedFunction.bal"},
-                // redundant
                 // {"createUndefinedFunction3.json", "createUndefinedFunction.bal"},
                 // TODO Doesn't work as expected because http module import failure
                 // {"createUndefinedFunction4.json", "createUndefinedFunction2.bal"},
@@ -52,12 +51,14 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 // TODO Doesn't work as expected because http module import failure
                 // {"createUndefinedFunction6.json", "createUndefinedFunction4.bal"},
 
-                // {"createUndefinedFunction7.json", "createUndefinedFunction5.bal"},
-                // {"createUndefinedFunction8.json", "createUndefinedFunction5.bal"},
-                // {"createUndefinedFunction9.json", "createUndefinedFunction5.bal"},
+                 {"createUndefinedFunction7.json", "createUndefinedFunction5.bal"},
+                 {"createUndefinedFunction8.json", "createUndefinedFunction5.bal"},
+                 {"createUndefinedFunction9.json", "createUndefinedFunction5.bal"},
+                // TODO Doesn't work as expected because http module import failure
                 // {"createUndefinedFunction10.json", "createUndefinedFunction5.bal"},
-                // {"createUndefinedFunction11.json", "createUndefinedFunction5.bal"},
-                // {"createUndefinedFunction12.json", "createUndefinedFunction5.bal"},
+                 {"createUndefinedFunction11.json", "createUndefinedFunction5.bal"},
+                 {"createUndefinedFunction12.json", "createUndefinedFunction5.bal"},
+                // TODO Need to fix records support
                 // {"createUndefinedFunction13.json", "createUndefinedFunction5.bal"},
 
                 {"projectCreateUndefinedFunction1.json", "testproject/main.bal"},

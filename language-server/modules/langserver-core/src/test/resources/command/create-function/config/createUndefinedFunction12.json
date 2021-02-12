@@ -1,7 +1,9 @@
 {
     "arguments": {
-        "node.line": 25,
-        "node.column": 4
+        "node.position": {
+            "line": 25,
+            "character": 4
+        }
     },
     "expected": {
         "result": {
@@ -20,7 +22,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction printField(int name){\n\n}\n"
+                                "newText": "\n\nfunction printField(int a) {\n    \n}\n"
                             }
                         ]
                     }

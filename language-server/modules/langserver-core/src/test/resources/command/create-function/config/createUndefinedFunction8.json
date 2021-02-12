@@ -1,7 +1,9 @@
 {
   "arguments": {
-    "node.line": 16,
-    "node.column": 4
+    "node.position": {
+      "line": 16,
+      "character": 28
+    }
   },
   "expected": {
     "result": {
@@ -20,7 +22,7 @@
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction addAndPrintTwoIntegers(int a, int b){\n\n}\n"
+                "newText": "\n\nfunction addAndPrintTwoIntegers(int a, int b) returns [int, string[][]] {\n    \n    return [0, [[]]];\n}\n"
               }
             ]
           }

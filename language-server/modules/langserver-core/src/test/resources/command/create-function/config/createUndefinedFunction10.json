@@ -1,7 +1,9 @@
 {
     "arguments": {
-        "node.line": 20,
-        "node.column": 24
+        "node.position": {
+            "line": 20,
+            "character": 24
+        }
     },
     "expected": {
         "result": {
@@ -20,7 +22,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction callEndpoint(int a, int b, http:Client c) returns http:Response {\n    return new http:Response();\n}\n"
+                                "newText": "\n\nfunction callEndpoint(int a, int b, http:Client c) returns http:Response {\n    \n    return new http:Response();\n}\n"
                             }
                         ]
                     }

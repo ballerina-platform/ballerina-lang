@@ -1,7 +1,9 @@
 {
   "arguments": {
-    "node.line": 12,
-    "node.column": 21
+    "node.position": {
+      "line": 12,
+      "character": 21
+    }
   },
   "expected": {
     "result": {
@@ -20,7 +22,7 @@
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction partition(string recs, string a, function (string a) returns boolean spliter) returns string[][][] {\n    return [[[\"\"]]];\n}\n"
+                "newText": "\n\nfunction partition(string a, string b, function (string) returns boolean c) returns string[][][] {\n    \n    return [[[]]];\n}\n"
               }
             ]
           }

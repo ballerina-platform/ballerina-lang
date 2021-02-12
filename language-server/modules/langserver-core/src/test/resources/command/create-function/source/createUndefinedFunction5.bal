@@ -14,7 +14,7 @@ function foo(string filePath) returns error? {
 
     int a = 12;
     int b = 13;
-    addAndPrintTwoIntegers(a, b);
+    [int, string[][]] tup = addAndPrintTwoIntegers(a, b);
     int result = addAndGetResultOfTwoIntegers(a, b);
 
     http:Client c = new ("");
