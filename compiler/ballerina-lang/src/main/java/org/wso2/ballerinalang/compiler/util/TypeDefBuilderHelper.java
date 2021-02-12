@@ -227,17 +227,19 @@ public class TypeDefBuilderHelper {
         userDefinedTypeNode.pos = pos;
         userDefinedTypeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
 
-        String typeName;
-        if (detailType.tsymbol != null) {
-            typeName = detailType.tsymbol.name.value;
-        } else {
-            typeName = "$synthetic$error$detail$" + errorDetailAnnonCount++;
-        }
+        // When the error detail type is a inline type decl, such as in `error<map<value:Cloneable>>` we need to
+        // add a explicit type decl for the detail type.
+        boolean userDefinedDetailTypeAvailable = detailType.tsymbol != null;
+        String typeName = userDefinedDetailTypeAvailable
+                ? detailType.tsymbol.name.value
+                : "$synthetic$error$detail$" + errorDetailAnnonCount++;
+
         userDefinedTypeNode.typeName = createIdentifier(pos, typeName);
         userDefinedTypeNode.type = detailType;
         errorType.detailType = userDefinedTypeNode;
 
-        if (detailType.tsymbol == null) {
+        // Add explicit type definition for this error detail
+        if (!userDefinedDetailTypeAvailable) {
             BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE, Flags.ANONYMOUS,
                     names.fromString(typeName), env.enclPkg.packageID, userDefinedTypeNode.type,
                     env.enclPkg.symbol, pos, VIRTUAL);
