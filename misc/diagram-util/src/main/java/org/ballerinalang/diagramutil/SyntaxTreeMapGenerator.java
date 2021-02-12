@@ -93,8 +93,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (syntaxDiagnostics != null) {
             nodeJson.add("syntaxDiagnostics", DiagnosticUtil.getDiagnostics(syntaxDiagnostics));
         }
-        JsonArray response = evaluateLeadingMinutiae(node.leadingMinutiae());
-        nodeJson.add("leadingMinutiae", response.get(1));
+        JsonArray responseMinutiae = evaluateLeadingMinutiae(node.leadingMinutiae());
+        nodeJson.add("leadingMinutiae", responseMinutiae.get(1));
         nodeJson.add("trailingMinutiae", assignMinutiae(node.trailingMinutiae()));
 
         if (node.lineRange() != null) {
