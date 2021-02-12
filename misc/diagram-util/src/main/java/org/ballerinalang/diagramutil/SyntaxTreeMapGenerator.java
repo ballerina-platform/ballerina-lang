@@ -33,6 +33,8 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
+import io.ballerina.compiler.syntax.tree.Minutiae;
+import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -42,7 +44,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.ClassUtils;
@@ -87,6 +88,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         }
         nodeJson.addProperty("source", node.toSourceCode());
         nodeJson.addProperty("kind", prettifyKind(node.kind().toString()));
+        // TODO: Generalize the diagnostic implementation.
+        Iterable<Diagnostic> syntaxDiagnostics = node.diagnostics();
+        if (syntaxDiagnostics != null) {
+            nodeJson.add("syntaxDiagnostics", DiagnosticUtil.getDiagnostics(syntaxDiagnostics));
+        }
+        JsonArray response = evaluateLeadingMinutiae(node.leadingMinutiae());
+        nodeJson.add("leadingMinutiae", response.get(1));
+        nodeJson.add("trailingMinutiae", assignMinutiae(node.trailingMinutiae()));
 
         if (node.lineRange() != null) {
             LineRange lineRange = node.lineRange();
@@ -138,20 +147,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
                 List<Diagnostic> diagnostics = this.semanticModel.diagnostics(lineRange);
                 if (diagnostics != null) {
-                    JsonArray diagnosticsArray = new JsonArray();
-                    for (Diagnostic diagnostic : diagnostics) {
-                        JsonObject diagnosticJson = new JsonObject();
-                        diagnosticJson.addProperty("message", diagnostic.message());
-                        DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
-                        if (diagnosticInfo != null) {
-                            JsonObject diagnosticInfoJson = new JsonObject();
-                            diagnosticInfoJson.addProperty("code", diagnosticInfo.code());
-                            diagnosticInfoJson.addProperty("severity", diagnosticInfo.severity().name());
-                            diagnosticJson.add("diagnosticInfo", diagnosticInfoJson);
-                        }
-                        diagnosticsArray.add(diagnosticJson);
-                    }
-                    symbolJson.add("diagnostics", diagnosticsArray);
+                    symbolJson.add("diagnostics", DiagnosticUtil.getDiagnostics(diagnostics));
                 }
 
                 nodeJson.add("typeData", symbolJson);
@@ -310,6 +306,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (node instanceof Token) {
             nodeInfo.addProperty("isToken", true);
             nodeInfo.addProperty("value", ((Token) node).text());
+            nodeInfo.addProperty("isMissing", node.isMissing());
             if (node.lineRange() != null) {
                 LineRange lineRange = node.lineRange();
                 LinePosition startLine = lineRange.startLine();
@@ -327,6 +324,10 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeInfo.add(memberEntry.getKey(), memberEntry.getValue());
             });
         }
+        JsonArray responseMinutiae = evaluateLeadingMinutiae(node.leadingMinutiae());
+        nodeInfo.add("invalidNodes", responseMinutiae.get(0));
+        nodeInfo.add("leadingMinutiae", responseMinutiae.get(1));
+        nodeInfo.add("trailingMinutiae", assignMinutiae(node.trailingMinutiae()));
         return nodeInfo;
     }
 
@@ -335,5 +336,37 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 .map(String::toLowerCase)
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining());
+    }
+
+    private JsonArray evaluateLeadingMinutiae(MinutiaeList minutiaeList) {
+        JsonArray invalidNodes = new JsonArray();
+        JsonArray leadingMinutiae = new JsonArray();
+        JsonArray response = new JsonArray();
+
+        for (Minutiae minutiae : minutiaeList) {
+            JsonObject minutiaeJson = new JsonObject();
+            minutiaeJson.addProperty("kind", minutiae.kind().toString());
+            if (minutiae.isInvalidNodeMinutiae()) {
+                minutiaeJson.addProperty("value", minutiae.text());
+                invalidNodes.add(minutiaeJson);
+            } else {
+                minutiaeJson.addProperty("minutiae", minutiae.text());
+                leadingMinutiae.add(minutiaeJson);
+            }
+        }
+        response.add(invalidNodes);
+        response.add(leadingMinutiae);
+        return response;
+    }
+
+    private JsonArray assignMinutiae(MinutiaeList minutiaeList) {
+        JsonArray response = new JsonArray();
+        for (Minutiae minutiae : minutiaeList) {
+            JsonObject minutiaeJson = new JsonObject();
+            minutiaeJson.addProperty("kind", minutiae.kind().toString());
+            minutiaeJson.addProperty("minutiae", minutiae.text());
+            response.add(minutiaeJson);
+        }
+        return response;
     }
 }
