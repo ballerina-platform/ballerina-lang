@@ -13,13 +13,21 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
-import ballerina/test;
 import main.foo;
 
-configurable int intInMain = 5;
+type AuthInfo record {|
+   readonly string username;
+   string password = "default";
+|};
+
+type UserTable table<AuthInfo> key(username);
+
+configurable int intVar = 5;
+configurable string stringVar = ?;
+configurable int[] & readonly intArr = [11, 33];
+configurable AuthInfo & readonly testUser = ?;
+configurable UserTable & readonly users = ?;
 
 public function main() {
-    test:assertEquals(42, intInMain);
-    test:assertEquals(22, foo:getInt());
+    foo:test();
 }

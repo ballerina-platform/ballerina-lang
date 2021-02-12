@@ -119,36 +119,77 @@ public class ConfigurableTest extends BaseTest {
         errorLeecher4.waitForText(5000);
     }
 
-    @DataProvider(name = "negative-tests")
-    public Object[][] getNegativeTestDetails() {
+    @DataProvider(name = "negative-projects")
+    public Object[][] getNegativeTestProjects() {
         return new Object[][]{
-                {"invalidOrgName", "Value not provided for required configurable variable 'booleanVar'" },
-                {"requiredNegative", "Value not provided for required configurable variable 'stringVar'"},
-                {"noModuleConfig", "Value not provided for required configurable variable 'intVar'"},
+                {"invalidComplexArray", "Configurable feature is yet to be supported for type" +
+                        " '(int[] & readonly)[] & readonly' used in variable 'intComplexArr'" },
                 {"invalidRecordField", "Configurable feature is yet to be supported for field type " +
                         "'string[][]' in variable 'testUser' of record 'main:AuthInfo'"},
-                {"additionalField", "Additional field 'scopes' provided for configurable variable 'testUser' of " +
-                        "record 'main:AuthInfo' is not supported"},
-                {"missingRequiredField", "Value not provided for non-defaultable required field " +
-                        "'username' of record 'main:AuthInfo' in configurable variable 'testUser'"},
-                {"missingTableKey", "Value required for key 'username' of type " +
-                        "'table<(main:AuthInfo & readonly)> key(username) & readonly' in configurable variable " +
-                        "'users'"},
                 {"invalidMapType", "Configurable feature is yet to be supported for type 'map<int> & readonly'"},
-                {"invalidType", errorMsg + "invalid type found for variable 'intVar', expected type is 'int', found " +
-                        "'DOUBLE'"},
                 {"invalidByteRange", "Value provided for byte variable 'byteVar' is out of range. Expected " +
                         "range is (0-255), found '355'"}
         };
     }
 
-    @Test(dataProvider = "negative-tests")
+    @Test(dataProvider = "negative-projects")
     public void testNegativeCasesInProjects(String projectName, String errorMsg) throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, projectName).toAbsolutePath();
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, projectPath.toString());
         errorLog.waitForText(5000);
+    }
+
+    @Test(dataProvider = "negative-tests")
+    public void testNegativeCases(String tomlFileName, String errorMsg) throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "configProject").toAbsolutePath();
+        Path tomlPath = Paths.get(negativeTestFileLocation, "config_files", tomlFileName  + ".toml").toAbsolutePath();
+        LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, addEnvVariables(tomlPath.toString()), new String[]{},
+                new LogLeecher[]{errorLog}, projectPath.toString());
+        errorLog.waitForText(5000);
+    }
+
+    @DataProvider(name = "negative-tests")
+    public Object[][] getNegativeTests() {
+        return new Object[][]{
+                {"no_module_config", "Value not provided for required configurable variable 'stringVar'"},
+                {"invalid_org_name", "Value not provided for required configurable variable 'stringVar'" },
+                {"invalid_org_structure", "invalid module structure found for module 'testOrg.main'. " +
+                        "Please provide the module name as '[testOrg.main]'" },
+                {"invalid_module_structure", "invalid module structure found for module 'main'. " +
+                        "Please provide the module name as '[main]'" },
+                {"invalid_sub_module_structure", "invalid module structure found for module 'foo'. " +
+                        "Please provide the module name as '[foo]'" },
+                {"required_negative", "Value not provided for required configurable variable 'stringVar'"},
+                {"primitive_type_error", "invalid type found for variable 'intVar', expected TOML type " +
+                        "for type 'int' is 'INTEGER', found 'DOUBLE'"},
+                {"primitive_structure_error", "invalid TOML structure found for variable 'intVar', " +
+                        "expected structure is 'KEY_VALUE', found 'TABLE'"},
+                {"array_type_error", "invalid type found for variable 'intArr', expected TOML type " +
+                        "for type 'int[] & readonly' is 'ARRAY', found 'STRING'"},
+                {"array_structure_error", "invalid TOML structure found for variable 'intArr', " +
+                        "expected structure is 'KEY_VALUE', found 'TABLE'"},
+                {"array_element_structure", "invalid TOML structure found for variable 'intArr[2]', " +
+                        "expected structure is 'INTEGER', found 'ARRAY'"},
+                {"array_multi_type", "invalid TOML structure found for variable 'intArr[1]', " +
+                        "expected structure is 'INTEGER', found 'STRING'"},
+                {"additional_field", "Additional field 'scopes' provided for configurable variable 'testUser' of " +
+                        "record 'main:AuthInfo' is not supported"},
+                {"missing_record_field", "Value not provided for non-defaultable required field 'username' of record" +
+                        " 'main:AuthInfo' in configurable variable 'testUser'"},
+                {"record_type_error", "invalid type found for variable 'testUser', expected TOML type for type " +
+                        "'main:(testOrg/main:0.1.0:AuthInfo & readonly)' is 'TABLE', found 'KEY_VALUE'"},
+                {"record_field_structure_error", "invalid TOML table structure found for record variable 'testUser'," +
+                        " found TOML table for 'testUser.username'"},
+                {"record_field_type_error", "invalid type found for variable 'testUser.username', expected TOML type" +
+                        " for type 'string' is 'STRING', found 'INTEGER'"},
+                {"missing_table_key", "Value required for key 'username' of type 'table<(main:AuthInfo & readonly)>" +
+                        " key(username) & readonly' in configurable variable 'users'"},
+                {"table_type_error", "invalid type found for variable 'users', expected TOML type for type " +
+                        "'table<(main:AuthInfo & readonly)> key(username) & readonly' is 'TABLE_ARRAY', found 'TABLE'"},
+        };
     }
 
     // Encrypted Config related tests

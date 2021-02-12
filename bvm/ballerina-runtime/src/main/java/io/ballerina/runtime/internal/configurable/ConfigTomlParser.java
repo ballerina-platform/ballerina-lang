@@ -60,6 +60,7 @@ import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.D
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.FIELD_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_ADDITIONAL_FIELD_IN_RECORD;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_BYTE_RANGE;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_MODULE_STRUCTURE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_TOML_FILE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_TOML_STRUCTURE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_TOML_STRUCTURE_TABLE;
@@ -117,7 +118,9 @@ public class ConfigTomlParser {
         String orgName = module.getOrg();
         String moduleName = module.getName();
         if (tomlNode.entries().containsKey(orgName)) {
-            tomlNode = (TomlTableNode) tomlNode.entries().get(orgName);
+            TomlNode orgNode = tomlNode.entries().get(orgName);
+            checkModuleStructure(orgNode, orgName + "." + moduleName);
+            tomlNode = (TomlTableNode) orgNode;
         }
         return moduleName.equals(DEFAULT_MODULE) ? tomlNode : extractModuleNode(tomlNode, moduleName);
     }
@@ -139,7 +142,7 @@ public class ConfigTomlParser {
                 value = retrieveComplexValue((BIntersectionType) type, valueMap, variableName);
                 break;
             default:
-                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, type.toString()));
+                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, type.toString(), variableName));
         }
         return value;
     }
@@ -162,13 +165,14 @@ public class ConfigTomlParser {
                 value = retrieveTableValues((TomlTableArrayNode) tomlValue, variableName, (TableType) effectiveType);
                 break;
             default:
-                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, effectiveType.toString()));
+                throw new TomlException(
+                        String.format(CONFIGURATION_NOT_SUPPORTED, effectiveType.toString(), variableName));
         }
         return value;
     }
 
     private static Object retrievePrimitiveValue(TomlNode tomlValue, String variableName, Type type) {
-        checkTomlStructure(tomlValue, TomlType.KEY_VALUE, variableName);
+        checkTomlValueStructure(tomlValue, TomlType.KEY_VALUE, variableName);
         tomlValue = ((TomlKeyValueNode) tomlValue).value();
         checkTypeAndThrowError(tomlValue.kind(), variableName, type);
         return getBalValue(variableName, type.getTag(), ((TomlBasicValueNode<?>) tomlValue).getValue());
@@ -176,15 +180,19 @@ public class ConfigTomlParser {
 
     private static Object retrieveArrayValues(TomlNode tomlValue, String variableName,
                                               ArrayType effectiveType) {
-        checkTomlStructure(tomlValue, TomlType.KEY_VALUE, variableName);
+        checkTomlValueStructure(tomlValue, TomlType.KEY_VALUE, variableName);
         tomlValue = ((TomlKeyValueNode) tomlValue).value();
         checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
         Type elementType = effectiveType.getElementType();
         List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlValue).elements();
+        if (!isPrimitiveType(elementType.getTag())) {
+            //Remove after supporting all arrays
+            throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, effectiveType.toString(), variableName));
+        }
         return new ArrayValueImpl(effectiveType, arrayList.size(), createArray(variableName, arrayList, elementType));
     }
 
-    private static void checkTomlStructure(TomlNode tomlValue, TomlType expectedType, String variableName) {
+    private static void checkTomlValueStructure(TomlNode tomlValue, TomlType expectedType, String variableName) {
         if (tomlValue.kind() != expectedType) {
             throw new TomlException(String.format(INVALID_TOML_FILE + INVALID_TOML_STRUCTURE, variableName,
                     expectedType, tomlValue.kind()));
@@ -198,14 +206,21 @@ public class ConfigTomlParser {
         ListInitialValueEntry.ExpressionEntry[] arrayEntries =
                 new ListInitialValueEntry.ExpressionEntry[arraySize];
         for (int i = 0; i < arraySize; i++) {
+            String elementName = variableName + "[" + i + "]";
             TomlNode tomlNode = arrayList.get(i);
-            checkTomlStructure(tomlNode, getEffectiveTomlType(elementType), variableName + "[" + i + "]");
+            checkTomlValueStructure(tomlNode, getEffectiveTomlType(elementType, elementName), elementName);
             TomlBasicValueNode<?> tomlBasicValueNode = (TomlBasicValueNode<?>) arrayList.get(i);
             Object value = tomlBasicValueNode.getValue();
             arrayEntries[i] =
                     new ListInitialValueEntry.ExpressionEntry(getBalValue(variableName, elementType.getTag(), value));
         }
         return arrayEntries;
+    }
+
+    private static boolean isPrimitiveType(int typeTag) {
+        return ((typeTag == TypeTags.INT_TAG) || (typeTag == TypeTags.FLOAT_TAG) || (typeTag == TypeTags.STRING_TAG) ||
+                (typeTag == TypeTags.BOOLEAN_TAG) || (typeTag == TypeTags.DECIMAL_TAG) ||
+                (typeTag == TypeTags.BYTE_TAG));
     }
 
     private static Object retrieveRecordValues(TomlTableNode tomlValue, String variableName,
@@ -273,8 +288,7 @@ public class ConfigTomlParser {
         } else if (typeTag == TypeTags.ARRAY_TAG) {
             typeTag = ((ArrayType) type).getElementType().getTag();
         }
-        return (typeTag == TypeTags.INT_TAG || typeTag == TypeTags.FLOAT_TAG || typeTag == TypeTags.BOOLEAN_TAG ||
-                typeTag == TypeTags.STRING_TAG || typeTag == TypeTags.DECIMAL_TAG);
+        return isPrimitiveType(typeTag);
     }
 
     private static Object retrieveTableValues(TomlTableArrayNode tomlValue, String variableName,
@@ -328,7 +342,7 @@ public class ConfigTomlParser {
     }
 
     private static void checkTypeAndThrowError(TomlType actualType, String variableName, Type expectedType) {
-        TomlType expectedTomlType = getEffectiveTomlType(expectedType);
+        TomlType expectedTomlType = getEffectiveTomlType(expectedType, variableName);
         if (actualType == expectedTomlType) {
             return;
         }
@@ -336,7 +350,7 @@ public class ConfigTomlParser {
                 expectedType.toString(), expectedTomlType.name(), actualType.name()));
     }
 
-    private static TomlType getEffectiveTomlType(Type expectedType) {
+    private static TomlType getEffectiveTomlType(Type expectedType, String variableName) {
         TomlType tomlType;
         switch (expectedType.getTag()) {
             case TypeTags.INT_TAG:
@@ -363,7 +377,8 @@ public class ConfigTomlParser {
                 tomlType = TomlType.TABLE_ARRAY;
                 break;
             default:
-                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, expectedType.toString()));
+                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, expectedType.toString(),
+                        variableName));
         }
         return tomlType;
     }
@@ -373,15 +388,27 @@ public class ConfigTomlParser {
             return orgNode;
         }
         TomlTableNode moduleNode = orgNode;
+        TomlNode module;
         int subModuleIndex = moduleName.indexOf(SUBMODULE_DELIMITER);
         if (subModuleIndex == -1) {
-            moduleNode = (TomlTableNode) orgNode.entries().get(moduleName);
+            module = orgNode.entries().get(moduleName);
+            checkModuleStructure(module, moduleName);
+            moduleNode = (TomlTableNode) module;
         } else if (subModuleIndex != moduleName.length()) {
             String parent = moduleName.substring(0, subModuleIndex);
             String submodule = moduleName.substring(subModuleIndex + 1);
-            moduleNode = extractModuleNode((TomlTableNode) moduleNode.entries().get(parent), submodule);
+            module = moduleNode.entries().get(parent);
+            checkModuleStructure(module, moduleName);
+            moduleNode = extractModuleNode((TomlTableNode) module, submodule);
         }
         return moduleNode;
+    }
+
+    private static void checkModuleStructure(TomlNode moduleNode, String moduleName) {
+        if (moduleNode != null && moduleNode.kind() != TomlType.TABLE) {
+            throw new TomlException(
+                    String.format(INVALID_TOML_FILE + INVALID_MODULE_STRUCTURE, moduleName, moduleName));
+        }
     }
 
 }

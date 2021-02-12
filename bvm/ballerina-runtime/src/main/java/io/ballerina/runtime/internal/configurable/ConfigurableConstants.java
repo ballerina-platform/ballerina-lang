@@ -29,7 +29,7 @@ public class ConfigurableConstants {
     public static final String INVALID_VARIABLE_TYPE = "invalid type found for variable '%s', expected TOML type " +
             "for type '%s' is '%s', found '%s'";
     public static final String CONFIGURATION_NOT_SUPPORTED =
-            "Configurable feature is yet to be supported for type '%s'";
+            "Configurable feature is yet to be supported for type '%s' used in variable '%s'";
     public static final String DEFAULT_MODULE = ".";
     public static final String SUBMODULE_DELIMITER = ".";
     public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
@@ -49,6 +49,8 @@ public class ConfigurableConstants {
             "structure is '%s', found '%s'";
     public static final String INVALID_TOML_STRUCTURE_TABLE = "invalid TOML table structure found for record variable" +
             " '%s', found TOML table for '%s'";
+    public static final String INVALID_MODULE_STRUCTURE = "invalid module structure found for module '%s'. Please " +
+            "provide the module name as '[%s]' ";
 
     private ConfigurableConstants() {
     }

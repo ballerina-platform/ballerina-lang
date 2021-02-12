@@ -14,14 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type AuthInfo record {|
-   readonly string username;
-   string password = "default";
-|};
-
-type UserTable table<AuthInfo> key(username);
-
-configurable UserTable & readonly users = ?;
+configurable int[][] & readonly intComplexArr = ?;
 
 public function main() {
     //do nothing
