@@ -4044,8 +4044,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (annotationSymbol.attachedType == null ||
                 types.isAssignable(annotationSymbol.attachedType.type, symTable.trueType)) {
             if (annAttachmentNode.expr != null) {
-                this.dlog.error(annAttachmentNode.pos, DiagnosticErrorCode.ANNOTATION_ATTACHMENT_CANNOT_HAVE_A_VALUE,
-                                annotationSymbol.name);
+                this.dlog.error(annAttachmentNode.expr.pos,
+                                DiagnosticErrorCode.ANNOTATION_ATTACHMENT_CANNOT_HAVE_A_VALUE, annotationSymbol);
             }
             return;
         }
@@ -4055,7 +4055,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // map<anydata>[]|record{ anydata...; }[], thus an expression is required.
         if (annAttachmentNode.expr == null) {
             this.dlog.error(annAttachmentNode.pos, DiagnosticErrorCode.ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE,
-                            annotationSymbol.name);
+                            annotationSymbol);
             return;
         }
 
@@ -4092,7 +4092,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     }
                 }
                 this.dlog.error(found.get().pos,
-                        DiagnosticErrorCode.ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES, symbol.name);
+                                DiagnosticErrorCode.ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES, symbol);
             }
         });
     }
