@@ -328,6 +328,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             if (declarationSnippet instanceof VariableDeclarationSnippet) {
                 VariableDeclarationSnippet varDclnSnippet = (VariableDeclarationSnippet) declarationSnippet;
                 variableNames.addAll(varDclnSnippet.names());
+                variableTypes.putAll(varDclnSnippet.types());
                 variableDeclarations.put(varDclnSnippet, varDclnSnippet.names());
 
             } else if (declarationSnippet instanceof ModuleMemberDeclarationSnippet) {
