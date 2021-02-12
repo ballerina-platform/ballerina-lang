@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.ballerinalang.docgen.generator.model.search.SearchJson;
 
 /**
- * Holds data needed by central api docs.
+ * Holds doc and search data needed to render API Docs.
  *
- * @since 2.0.0
+ * @since 2.0
  */
-public class CentralStdLibrary {
+public class ApiDocsJson {
     @Expose
-    public String releaseVersion = "";
+    public PackageLibrary docsData;
     @Expose
-    public List<DocPackageMetadata> packages = new ArrayList<>();
+    public SearchJson searchData;
 }

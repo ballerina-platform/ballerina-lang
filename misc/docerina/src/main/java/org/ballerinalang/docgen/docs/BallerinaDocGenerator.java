@@ -30,6 +30,7 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.docs.utils.PathToJson;
+import org.ballerinalang.docgen.generator.model.ApiDocsJson;
 import org.ballerinalang.docgen.generator.model.CentralStdLibrary;
 import org.ballerinalang.docgen.generator.model.DocPackage;
 import org.ballerinalang.docgen.generator.model.DocPackageMetadata;
@@ -68,13 +69,9 @@ public class BallerinaDocGenerator {
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
     private static PrintStream out = System.out;
 
-    private static final String DOC_DATA_JSON = "doc_data.json";
-    private static final String DOC_DATA_JS = "doc_data.js";
+    public static final String API_DOCS_JSON = "api-docs.json";
+    private static final String API_DOCS_JS = "api-docs.js";
     private static final String CENTRAL_DOC_DATA_JSON = "central_doc_data.json";
-    private static final String SEARCH_DATA_JSON = "search-data.json";
-    private static final String SEARCH_DATA_JS = "search-data.js";
-    private static final String SEARCH_DIR = "doc-search";
-    private static final String DATA_DIR = "data";
 
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
             .excludeFieldsWithoutExposeAnnotation().create();
@@ -87,51 +84,56 @@ public class BallerinaDocGenerator {
         out.println("docerina: API documentation generation for doc path - " + apiDocsRoot);
         File directory = new File(apiDocsRoot);
         // get all the files from a directory
-        File[] fList = directory.listFiles();
-        if (fList == null) {
-            String errorMsg = String.format("docerina: API documentation generation failed. Could not find any module" +
-                                                    " in given path %s", apiDocsRoot);
+        File[] orgFileList = directory.listFiles();
+        if (orgFileList == null) {
+            String errorMsg = String.format("docerina: API documentation generation failed. Could not find any packages"
+                    + " in given path %s", apiDocsRoot);
             out.println(errorMsg);
             log.error(errorMsg);
             return;
         }
-        Arrays.sort(fList);
+        Arrays.sort(orgFileList);
         PackageLibrary packageLib = new PackageLibrary();
-        PackageLibrary langLib = null;
         CentralStdLibrary centralLib = new CentralStdLibrary();
-        centralLib.releaseName = System.getProperty("ballerina.version");
+        centralLib.releaseVersion = System.getProperty("ballerina.version");
 
-        // Get doc data json containing langlibs, which is generated when ballerina-lang is being built.
-        Path langLibsJsonPath = Paths.get(directory.getAbsolutePath(), DATA_DIR, DOC_DATA_JSON);
-        if (langLibsJsonPath.toFile().exists()) {
-            try (BufferedReader br = Files.newBufferedReader(langLibsJsonPath, StandardCharsets.UTF_8)) {
-                langLib = gson.fromJson(br, PackageLibrary.class);
-                if (langLib.packages.isEmpty()) {
-                    out.printf("No langlibs found at: %s%n", langLibsJsonPath.toString());
-                    return;
-                }
-            } catch (IOException e) {
-                String errorMsg = String.format("API documentation generation failed. Cause: %s",
-                        e.getMessage());
-                out.println(errorMsg);
-                log.error(errorMsg, e);
-                return;
-            }
-        }
-
-        for (File file : fList) {
-            if (file.isDirectory()) {
-                Path docJsonPath = Paths.get(file.getAbsolutePath(), DATA_DIR, DOC_DATA_JSON);
-                if (docJsonPath.toFile().exists()) {
-                    try (BufferedReader br = Files.newBufferedReader(docJsonPath, StandardCharsets.UTF_8)) {
-                        PackageLibrary jsonPackageLib = gson.fromJson(br, PackageLibrary.class);
-                        if (jsonPackageLib.packages.isEmpty()) {
-                            out.println("No packages found at: " + docJsonPath.toString());
-                            continue;
-                        }
-                        jsonPackageLib.packages.forEach(docPackage -> {
-                            try {
-                                docPackage.resources.addAll(getResourcePaths(Paths.get(file.getAbsolutePath())));
+        for (File orgFile : orgFileList) {
+            if (orgFile.isDirectory()) {
+                File[] pkgFileList = orgFile.listFiles();
+                Arrays.sort(pkgFileList);
+                for (File pkgFile : pkgFileList) {
+                    if (pkgFile.isDirectory() && pkgFile.listFiles().length > 0
+                            && pkgFile.listFiles()[0].isDirectory()) {
+                        File versionFile = pkgFile.listFiles()[0];
+                        Path docJsonPath = Paths.get(versionFile.getAbsolutePath(), API_DOCS_JSON);
+                        if (docJsonPath.toFile().exists()) {
+                            try (BufferedReader br = Files.newBufferedReader(docJsonPath, StandardCharsets.UTF_8)) {
+                                ApiDocsJson apiDocsJson = gson.fromJson(br, ApiDocsJson.class);
+                                if (apiDocsJson.docsData.packages.isEmpty()) {
+                                    out.println("No packages found at: " + docJsonPath.toString());
+                                    continue;
+                                }
+                                apiDocsJson.docsData.packages.forEach(docPackage -> {
+                                    try {
+                                        docPackage.resources
+                                                .addAll(getResourcePaths(Paths.get(orgFile.getAbsolutePath())));
+                                    } catch (IOException e) {
+                                        String errorMsg = String.format("API documentation generation failed. Cause: %s"
+                                                , e.getMessage());
+                                        out.println(errorMsg);
+                                        log.error(errorMsg, e);
+                                        return;
+                                    }
+                                });
+                                for (DocPackage docPackage : apiDocsJson.docsData.packages) {
+                                    packageLib.packages.add(docPackage);
+                                    DocPackageMetadata pkgMeta = new DocPackageMetadata();
+                                    pkgMeta.name = docPackage.name;
+                                    pkgMeta.summary = docPackage.summary;
+                                    pkgMeta.orgName = docPackage.orgName;
+                                    pkgMeta.version = docPackage.version;
+                                    centralLib.packages.add(pkgMeta);
+                                }
                             } catch (IOException e) {
                                 String errorMsg = String.format("API documentation generation failed. Cause: %s",
                                         e.getMessage());
@@ -139,48 +141,8 @@ public class BallerinaDocGenerator {
                                 log.error(errorMsg, e);
                                 return;
                             }
-                        });
-                        for (DocPackage docPackage : jsonPackageLib.packages) {
-                            packageLib.packages.add(docPackage);
-
-                            // Create json to show stdlibs through central
-                            if (langLib != null) {
-                                if (langLib.packages.stream().anyMatch(langLibPackage
-                                        -> langLibPackage.name.equals(docPackage.name))) {
-                                    centralLib.langLibs.add(docPackage);
-                                } else {
-                                    DocPackageMetadata pkgMeta = new DocPackageMetadata();
-                                    pkgMeta.name = docPackage.name;
-                                    pkgMeta.summary = docPackage.summary;
-                                    pkgMeta.orgName = docPackage.orgName;
-                                    pkgMeta.version = docPackage.version;
-                                    centralLib.stdLibs.add(pkgMeta);
-                                }
-                            }
-                        }
-                        File newIndex = new File(file.getAbsolutePath() + File.separator + "index.html");
-                        String htmlData = "<!DOCTYPE html>\n" +
-                                "<html>\n" +
-                                "<head>\n" +
-                                "\t<meta http-equiv=\"refresh\" content=\"0; URL=../index.html#/" +
-                                jsonPackageLib.packages.get(0).orgName + "/" +
-                                jsonPackageLib.packages.get(0).name +
-                                "/latest\" />\n" +
-                                "</head>\n" +
-                                "<body>\n" +
-                                "\t<h1>If you are not redirected please click this <a href=\"../index.html#/" +
-                                jsonPackageLib.packages.get(0).orgName + "/" +
-                                jsonPackageLib.packages.get(0).name + "/latest\">link</a> </h1>\n" +
-                                "</body>\n" +
-                                "</html>";
-                        FileUtils.write(newIndex, htmlData, StandardCharsets.UTF_8, false);
-                    } catch (IOException e) {
-                        String errorMsg = String.format("API documentation generation failed. Cause: %s",
-                                                        e.getMessage());
-                        out.println(errorMsg);
-                        log.error(errorMsg, e);
-                        return;
                     }
+                }
                 }
             }
         }
@@ -188,7 +150,7 @@ public class BallerinaDocGenerator {
 
         // Create the central json
         String json = gson.toJson(centralLib);
-        File jsonFile = new File(apiDocsRoot + File.separator + DATA_DIR + File.separator + CENTRAL_DOC_DATA_JSON);
+        File jsonFile = new File(apiDocsRoot + File.separator + CENTRAL_DOC_DATA_JSON);
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),
                 StandardCharsets.UTF_8)) {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
@@ -232,25 +194,23 @@ public class BallerinaDocGenerator {
         if (packageLib.packages.size() == 0) {
             return;
         }
-        if (packageLib.packages.get(0).modules.size() != 0) {
-            if (!isMerge) {
-                output = packageLib.packages.get(0).name.equals("") ? output + File.separator +
-                        packageLib.packages.get(0).modules.get(0).id
-                        : output + File.separator + packageLib.packages.get(0).name;
-            }
-            String dataDir = output + File.separator + DATA_DIR;
-            String searchDir = output + File.separator + SEARCH_DIR;
-            try {
-                Files.createDirectories(Paths.get(dataDir));
-                Files.createDirectories(Paths.get(searchDir));
-                genSearchJson(packageLib, searchDir);
-                genProjectJson(packageLib, dataDir);
-            } catch (IOException e) {
-                out.printf("docerina: API documentation generation failed%n", e.getMessage());
-                log.error("API documentation generation failed:", e);
-            }
-
+        if (!isMerge && packageLib.packages.get(0).modules.size() != 0) {
+            output = packageLib.packages.get(0).name.equals("")
+                    ? output + File.separator + packageLib.packages.get(0).modules.get(0).orgName +
+                    File.separator + packageLib.packages.get(0).modules.get(0).id + File.separator +
+                    packageLib.packages.get(0).version
+                    : output + File.separator + packageLib.packages.get(0).orgName + File.separator
+                    + packageLib.packages.get(0).name + File.separator + packageLib.packages.get(0).version;
         }
+        try {
+            Files.createDirectories(Paths.get(output));
+            Files.createDirectories(Paths.get(output));
+            genApiDocsJson(packageLib, output);
+        } catch (IOException e) {
+            out.printf("docerina: API documentation generation failed%n", e.getMessage());
+            log.error("API documentation generation failed:", e);
+        }
+
         for (DocPackage docPackage: packageLib.packages) {
             if (!docPackage.resources.isEmpty()) {
                 String resourcesDir = output + File.separator + "resources";
@@ -319,10 +279,15 @@ public class BallerinaDocGenerator {
         }
     }
 
-    private static void genProjectJson(PackageLibrary packageLib, String dataDir) {
+    private static void genApiDocsJson(PackageLibrary packageLib, String dataDir) {
 
-        File jsFile = new File(dataDir + File.separator + DOC_DATA_JS);
-        File jsonFile = new File(dataDir + File.separator + DOC_DATA_JSON);
+        ApiDocsJson apiDocsJson = new ApiDocsJson();
+        apiDocsJson.docsData = packageLib;
+        apiDocsJson.searchData = genSearchJson(packageLib);
+
+        File jsFile = new File(dataDir + File.separator + API_DOCS_JS);
+        File jsonFile = new File(dataDir + File.separator + API_DOCS_JSON);
+
         if (jsFile.exists()) {
             if (!jsFile.delete()) {
                 out.printf("docerina: failed to delete %s%n", jsFile.toString());
@@ -335,26 +300,26 @@ public class BallerinaDocGenerator {
                 log.error("docerina: failed to delete {}", jsonFile.toString());
             }
         }
-        String json = gson.toJson(packageLib);
+        String json = gson.toJson(apiDocsJson);
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsFile),
                 StandardCharsets.UTF_8)) {
-            String js = "var docData = " + json + ";";
+            String js = "var apiDocsJson = " + json + ";";
             writer.write(new String(js.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.printf("docerina: failed to create the %s. Cause: %s%n", DOC_DATA_JS, e.getMessage());
-            log.error("Failed to create {} file.", DOC_DATA_JS, e);
+            out.printf("docerina: failed to create the %s. Cause: %s%n", API_DOCS_JS, e.getMessage());
+            log.error("Failed to create {} file.", API_DOCS_JS, e);
         }
 
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),
                 StandardCharsets.UTF_8)) {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.printf("docerina: failed to create the %s. Cause: %s%n", DOC_DATA_JSON, e.getMessage());
-            log.error("Failed to create {} file.", DOC_DATA_JSON, e);
+            out.printf("docerina: failed to create the %s. Cause: %s%n", API_DOCS_JSON, e.getMessage());
+            log.error("Failed to create {} file.", API_DOCS_JSON, e);
         }
     }
 
-    private static void genSearchJson(PackageLibrary packageLib, String searchDir) {
+    private static SearchJson genSearchJson(PackageLibrary packageLib) {
         List<ModuleSearchJson> searchModules = new ArrayList<>();
         List<ConstructSearchJson> searchFunctions = new ArrayList<>();
         List<ConstructSearchJson> searchClasses = new ArrayList<>();
@@ -423,42 +388,9 @@ public class BallerinaDocGenerator {
             }
         }
 
-        SearchJson searchJson = new SearchJson(searchModules, searchClasses, searchFunctions, searchRecords,
+        return new SearchJson(searchModules, searchClasses, searchFunctions, searchRecords,
                 searchConstants, searchErrors, searchTypes, searchClients, searchListeners, searchAnnotations,
                 searchObjectTypes, searchEnums);
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        File jsonFile = new File(searchDir + File.separator + SEARCH_DATA_JSON);
-        File jsFile = new File(searchDir + File.separator + SEARCH_DATA_JS);
-        if (jsFile.exists()) {
-            if (!jsFile.delete()) {
-                out.printf("docerina: failed to delete %s%n", jsFile.toString());
-                log.error("docerina: failed to delete {}", jsFile.toString());
-            }
-        }
-        if (jsonFile.exists()) {
-            if (!jsonFile.delete()) {
-                out.printf("docerina: failed to delete %s%n", jsonFile.toString());
-                log.error("docerina: failed to delete {}", jsonFile.toString());
-            }
-        }
-        String json = gson.toJson(searchJson);
-
-        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            out.printf("docerina: failed to create the %s. Cause: %s%n", SEARCH_DATA_JSON, e.getMessage());
-            log.error("Failed to create {} file.", SEARCH_DATA_JSON, e);
-        }
-
-        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsFile),
-                StandardCharsets.UTF_8)) {
-            String js = "var searchData = " + json + ";";
-            writer.write(new String(js.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            out.printf("docerina: failed to create the %s. Cause: %s%n", SEARCH_DATA_JS, e.getMessage());
-            log.error("Failed to create {} file.", SEARCH_DATA_JS, e);
-        }
-
     }
 
     private static String getFirstLine(String description) {
