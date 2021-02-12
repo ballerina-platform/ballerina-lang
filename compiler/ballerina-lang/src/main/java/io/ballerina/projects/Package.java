@@ -252,18 +252,6 @@ public class Package {
         }
 
         /**
-         * Creates a copy of the existing package and removes the module from the new package.
-         *
-         * @param moduleId moduleId of the module to remove
-         * @return Package.Modifier which contains the updated package
-         */
-        public Modifier removeModule(ModuleId moduleId) {
-            moduleContextMap.remove(moduleId);
-            resetDependantModules(moduleId);
-            return this;
-        }
-
-        /**
          * Adds a Dependencies toml.
          *
          * @param documentConfig configuration of the toml document
