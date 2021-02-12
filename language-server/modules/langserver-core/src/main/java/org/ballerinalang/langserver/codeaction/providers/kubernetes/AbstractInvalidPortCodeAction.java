@@ -101,8 +101,7 @@ public abstract class AbstractInvalidPortCodeAction extends ProbeBasedDiagnostic
 
     private String getProbeServiceString(int port, String servicePath, String resourcePath) {
         return String.format("%sservice http:Service %s on new http:Listener(%d) {%s    resource " +
-                        "function get %s (http:Caller caller) returns error? {%s        check caller->respond" +
-                        "(\"Resource is Ready\");%s    }%s}%s",
+                        "function get %s() returns boolean {%s        return true;%s    }%s}%s",
                 CommonUtil.LINE_SEPARATOR, servicePath, port, CommonUtil.LINE_SEPARATOR, resourcePath,
                 CommonUtil.LINE_SEPARATOR, CommonUtil.LINE_SEPARATOR, CommonUtil.LINE_SEPARATOR,
                 CommonUtil.LINE_SEPARATOR);

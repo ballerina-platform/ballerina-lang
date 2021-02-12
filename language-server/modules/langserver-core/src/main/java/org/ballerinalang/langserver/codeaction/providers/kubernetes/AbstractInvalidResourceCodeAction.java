@@ -101,10 +101,7 @@ public abstract class AbstractInvalidResourceCodeAction extends ProbeBasedDiagno
         } else {
             serviceResourcePath = tomlPath;
         }
-        return "    resource function get " + serviceResourcePath +
-                " (http:Caller caller) returns error? {" + CommonUtil.LINE_SEPARATOR +
-                "        check caller->respond(\"Resource is Ready\");" + CommonUtil.LINE_SEPARATOR +
-                "    }" + CommonUtil.LINE_SEPARATOR;
+        return String.format("    resource function get %s() returns boolean {%s        return true;%s    }%s",
+                serviceResourcePath, CommonUtil.LINE_SEPARATOR, CommonUtil.LINE_SEPARATOR, CommonUtil.LINE_SEPARATOR);
     }
-
 }
