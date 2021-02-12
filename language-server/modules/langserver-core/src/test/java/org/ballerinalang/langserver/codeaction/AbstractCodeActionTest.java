@@ -43,10 +43,10 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -142,8 +142,12 @@ public abstract class AbstractCodeActionTest {
                     for (JsonElement actualArg : actualArgs) {
                         JsonObject arg = actualArg.getAsJsonObject();
                         if ("doc.uri".equals(arg.get("key").getAsString())) {
-                            docUriFound = Paths.get(arg.get("value").getAsString()).getFileName()
-                                    .equals(sourcePath.getFileName());
+                            Optional<Path> docPath = CommonUtil.getPathFromURI(arg.get("value").getAsString());
+                            if (docPath.isPresent()) {
+                                // We just check file names, since one refers to file in build/ while
+                                // the other refers to the file in test resources
+                                docUriFound = docPath.get().getFileName().equals(sourcePath.getFileName());
+                            }
                         }
                     }
 
