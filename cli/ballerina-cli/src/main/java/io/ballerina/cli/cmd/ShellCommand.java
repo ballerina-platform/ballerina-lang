@@ -22,6 +22,7 @@ import io.ballerina.shell.cli.BShellConfiguration;
 import io.ballerina.shell.cli.ReplShellApplication;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.PrintStream;
 
 import static io.ballerina.cli.cmd.Constants.SHELL_COMMAND;
@@ -47,6 +48,9 @@ public class ShellCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"-t", "--time-out"}, description = "Timeout to use for tree parsing.")
     private long timeOut = 100;
 
+    @CommandLine.Option(names = {"-o", "--open-file"}, description = "Open file and load initial declarations.")
+    private File openFile;
+
     public ShellCommand() {
         errStream = System.err;
     }
@@ -65,8 +69,13 @@ public class ShellCommand implements BLauncherCmd {
             return;
         }
         try {
-            BShellConfiguration configuration = new BShellConfiguration.Builder()
-                    .setDebug(isDebug).setDumb(forceDumb).setTreeParsingTimeoutMs(timeOut).build();
+            BShellConfiguration.Builder builder = new BShellConfiguration
+                    .Builder().setDebug(isDebug).setDumb(forceDumb)
+                    .setTreeParsingTimeoutMs(timeOut);
+            if (openFile != null) {
+                builder.setStartFile(openFile.getAbsolutePath());
+            }
+            BShellConfiguration configuration = builder.build();
             ReplShellApplication.execute(configuration);
         } catch (Exception e) {
             errStream.println("Something went wrong while executing REPL: " + e.toString());
@@ -85,7 +94,7 @@ public class ShellCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal shell [-d|--debug] [-f|--force-dumb] [-t|--time-out  <time-out-ms>]\n");
+        out.append("  bal shell [-d|--debug] [-f|--force-dumb] [-o|--open-file] [-t|--time-out]\n");
     }
 
     @Override
