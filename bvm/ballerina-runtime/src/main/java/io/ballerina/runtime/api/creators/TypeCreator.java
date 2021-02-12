@@ -250,7 +250,7 @@ public class TypeCreator {
     }
 
     /**
-     * Create a {@code BUnionType} which represents the union type.
+     * Create a {@code UnionType} which represents the union type.
      *
      * @param memberTypes of the union type
      * @return the new union type
