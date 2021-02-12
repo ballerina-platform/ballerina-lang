@@ -31,14 +31,23 @@ import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.tools.ExecFileLoader;
+import org.jacoco.report.DirectorySourceFileLocator;
+import org.jacoco.report.IReportVisitor;
+import org.jacoco.report.ISourceFileLocator;
+import org.jacoco.report.MultiSourceFileLocator;
+import org.jacoco.report.xml.XMLFormatter;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
@@ -60,10 +69,13 @@ public class CoverageReport {
     private Path classesDirectory;
     private ExecFileLoader execFileLoader;
 
+    private int tabwidth = 4;
+
     private Module module;
     private Target target;
 
     public CoverageReport(Module module) throws IOException {
+
         this.module = module;
         this.target = new Target(module.project().sourceRoot());
 
@@ -80,6 +92,7 @@ public class CoverageReport {
      * @throws IOException when file operations are failed
      */
     public ModuleCoverage generateReport(JarResolver jarResolver) throws IOException {
+
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
         String version = this.module.packageInstance().packageVersion().toString();
@@ -113,6 +126,8 @@ public class CoverageReport {
 
             ModuleCoverage moduleCoverage = new ModuleCoverage();
             createReport(bundleCoverage, moduleCoverage);
+
+            createXMLReport(bundleCoverage);
             CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
             return moduleCoverage;
         } else {
@@ -123,13 +138,34 @@ public class CoverageReport {
     }
 
     private IBundleCoverage analyzeStructure() throws IOException {
+
         final CoverageBuilder coverageBuilder = new CoverageBuilder();
         final Analyzer analyzer = new Analyzer(execFileLoader.getExecutionDataStore(), coverageBuilder);
         analyzer.analyzeAll(classesDirectory.toFile());
         return coverageBuilder.getBundle(title);
     }
 
+    private void createXMLReport(IBundleCoverage bundleCoverage) {
+
+        try {
+            XMLFormatter xmlFormatter = new XMLFormatter();
+            File reportFile = new File(target.getReportPath().resolve(
+                    this.module.moduleName().toString()).resolve("report.xml").toString());
+            reportFile.getParentFile().mkdirs();
+            IReportVisitor visitor = xmlFormatter.createVisitor(new FileOutputStream(reportFile));
+            visitor.visitInfo(execFileLoader.getSessionInfoStore().getInfos(),
+                    execFileLoader.getExecutionDataStore().getContents());
+
+            visitor.visitBundle(bundleCoverage,
+                    new DirectorySourceFileLocator(null, "utf-8", 4));
+
+            visitor.visitEnd();
+        } catch (IOException e) {
+        }
+    }
+
     private void createReport(final IBundleCoverage bundleCoverage, ModuleCoverage moduleCoverage) {
+
         boolean containsSourceFiles = true;
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
@@ -175,6 +211,7 @@ public class CoverageReport {
     }
 
     private List<Path> filterPaths(Collection<Path> pathCollection) {
+
         List<Path> filteredPathList = new ArrayList<>();
 
         for (Path path : pathCollection) {
@@ -185,6 +222,59 @@ public class CoverageReport {
         }
 
         return filteredPathList;
+    }
+
+    private void writeReport(final IBundleCoverage bundle) {
+
+        try {
+            final IReportVisitor visitor = createReportVisitor();
+
+            // Not sure what this does. Enable and test
+
+            final ExecFileLoader loader = new ExecFileLoader();
+            File execFile = coverageDir.resolve("ballerina.exec").toFile();
+            loader.load(execFile);
+
+            visitor.visitInfo(loader.getSessionInfoStore().getInfos(), loader.getExecutionDataStore().getContents());
+            visitor.visitBundle(bundle, getSourceLocator());
+            visitor.visitEnd();
+
+        } catch (IOException e) {
+        }
+
+    }
+
+    private IReportVisitor createReportVisitor() throws IOException {
+
+        IReportVisitor visitor = null;
+
+        final XMLFormatter formatter = new XMLFormatter();
+        visitor =
+                formatter.createVisitor(new FileOutputStream(target.getReportPath().resolve("report.xml").toString()));
+
+//        final HTMLFormatter formatter = new HTMLFormatter();
+//        visitor =
+//                formatter.createVisitor(
+//                new FileMultiReportOutput(target.getReportPath().resolve("report.html").toFile()));
+
+        return visitor;
+    }
+
+    private ISourceFileLocator getSourceLocator() throws IOException {
+
+        final MultiSourceFileLocator multi = new MultiSourceFileLocator(tabwidth);
+
+        List<File> sourcefiles = null;
+
+        sourcefiles = Files.walk(Paths.get(coverageDir.resolve(BIN_DIR).toString()))
+                .filter(Files::isRegularFile)
+                .map(Path::toFile)
+                .collect(Collectors.toList());
+
+        for (final File f : sourcefiles) {
+            multi.add(new DirectorySourceFileLocator(f, null, tabwidth));
+        }
+        return multi;
     }
 
 }
