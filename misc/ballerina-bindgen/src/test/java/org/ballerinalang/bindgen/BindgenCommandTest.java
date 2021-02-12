@@ -66,7 +66,7 @@ public class BindgenCommandTest extends CommandTest {
             "specified in the Ballerina.toml file")
     public void testExistingPlatformLibraries() throws IOException, MavenResolverException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-mvn=org.yaml:snakeyaml:1.25", "-o=" + projectDir, "org.yaml.snakeyaml.Yaml"};
+        String[] args = {"-o=" + projectDir, "java.lang.Object", "org.apache.log4j.Logger"};
 
         // Platform libraries specified through maven dependencies should be automatically resolved.
         // Explicitly add a jar to test the platform libraries specified as a path.
@@ -78,21 +78,29 @@ public class BindgenCommandTest extends CommandTest {
 
         bindgenCommand.execute();
         String output = readOutput(true);
+        Assert.assertTrue(output.contains("Ballerina project detected at:"));
+        Assert.assertTrue(output.contains("Following jars were added to the classpath:"));
+        Assert.assertTrue(output.contains("snakeyaml-1.25.jar"));
+        Assert.assertTrue(output.contains("commons-logging-1.1.1.jar"));
+        Assert.assertTrue(output.contains("log4j-1.2.17.jar"));
         Assert.assertFalse(output.contains("Failed to add the following to classpath:"));
+        Assert.assertFalse(output.contains("class could not be generated."));
     }
 
     @Test(description = "Test if the correct error is given for incorrect classpaths")
     public void testIncorrectClasspath() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-cp=./incorrect.jar", "-o=" + projectDir, "java.lang.Object"};
+        String[] args = {"-cp=./incorrect.jar, test.txt, /User/invalidDir", "-o=" + projectDir, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Failed to add the following to classpath:" + LINE_SEPARATOR +
-                "\t./incorrect.jar"));
+        Assert.assertTrue(output.contains("Failed to add the following to classpath:"));
+        Assert.assertTrue(output.contains("test.txt"));
+        Assert.assertTrue(output.contains("/User/invalidDir"));
+        Assert.assertTrue(output.contains("./incorrect.jar"));
     }
 
     @Test(description = "Test if the correct error is given for incorrect maven option value")
