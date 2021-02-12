@@ -30,14 +30,14 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  * @since 1.0
  */
 @Test
-public class AnnotationAttachmentPointTest {
+public class AnnotationAttachmentNegativeTest {
 
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 243);
+        Assert.assertEquals(compileResult.getErrorCount(), 250);
     }
 
     @Test
@@ -436,5 +436,37 @@ public class AnnotationAttachmentPointTest {
     public void testInvalidAttachmentForClass() {
         int index = 242;
         validateError(compileResult, index++, "annotation 'v19' is not allowed on class", 852, 6);
+    }
+
+    @Test
+    public void testQualifiedNameInInvalidAttachmentError() {
+        validateError(compileResult, 243,
+                      "annotation 'ballerina/lang.annotations:1.0.0:tainted' is not allowed on class", 859, 1);
+    }
+
+    @Test
+    public void testInvalidAttachmentWithValue() {
+        validateError(compileResult, 244,
+                      "no annotation value expected for annotation 'ballerina/lang.annotations:1.0.0:tainted'",
+                      864, 10);
+        validateError(compileResult, 245, "no annotation value expected for annotation 'v7'",
+                      869, 35);
+    }
+
+    @Test
+    public void testInvalidAttachmentWithoutValue() {
+        validateError(compileResult, 246,
+                      "annotation value expected for annotation 'ballerina/lang.annotations:1.0.0:strand'",
+                      872, 5);
+        validateError(compileResult, 247, "annotation value expected for annotation 'v1'",
+                      878, 1);
+    }
+
+    @Test
+    public void testInvalidAttachmentCount() {
+        validateError(compileResult, 248, "cannot specify more than one annotation value for " +
+                              "annotation 'ballerina/lang.annotations:1.0.0:tainted'", 881, 1);
+        validateError(compileResult, 249,
+                      "cannot specify more than one annotation value for annotation 'v1'", 883, 1);
     }
 }
