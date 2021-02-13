@@ -71,6 +71,7 @@ function testAction2() returns string {
 string testStr = "";
 public function testDefaultError () returns string{
     var a = test1(5);
+    error? res = a;
     test2();
     sleep(200);
     return testStr;
