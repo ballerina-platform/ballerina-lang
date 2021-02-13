@@ -129,6 +129,8 @@ public class ConfigTomlParser {
         String variableName = key.variable;
         Type type = key.type;
         Object value;
+        TomlNode tomlValue =  valueMap.get(variableName);
+        variableName = key.module.getName() + ":" + variableName;
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.BYTE_TAG:
@@ -136,10 +138,10 @@ public class ConfigTomlParser {
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.STRING_TAG:
-                value = retrievePrimitiveValue(valueMap.get(variableName) , variableName, type);
+                value = retrievePrimitiveValue(tomlValue , variableName, type);
                 break;
             case TypeTags.INTERSECTION_TAG:
-                value = retrieveComplexValue((BIntersectionType) type, valueMap, variableName);
+                value = retrieveComplexValue((BIntersectionType) type, tomlValue, variableName);
                 break;
             default:
                 throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, type.toString(), variableName));
@@ -147,11 +149,9 @@ public class ConfigTomlParser {
         return value;
     }
 
-    private static Object retrieveComplexValue(BIntersectionType type, Map<String, TopLevelNode> valueMap,
-                                               String variableName) {
+    private static Object retrieveComplexValue(BIntersectionType type, TomlNode tomlValue, String variableName) {
         Type effectiveType = type.getEffectiveType();
         Object value;
-        TomlNode tomlValue = valueMap.get(variableName);
         switch (effectiveType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 value = retrieveArrayValues(tomlValue, variableName, (ArrayType) effectiveType);

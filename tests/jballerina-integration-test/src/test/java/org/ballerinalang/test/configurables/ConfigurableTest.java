@@ -44,7 +44,6 @@ public class ConfigurableTest extends BaseTest {
     private static final String negativeTestFileLocation =
             Paths.get(testFileLocation, "negative_tests").toAbsolutePath().toString();
     private BMainInstance bMainInstance;
-    private final String errorMsg = "error: Invalid `Config.toml` file : ";
     private final LogLeecher testsPassed = new LogLeecher("Tests passed");
 
     @BeforeClass
@@ -106,6 +105,7 @@ public class ConfigurableTest extends BaseTest {
         String tomlError1 = "missing identifier [Config.toml:(0:9,0:9)]";
         String tomlError2 = "missing identifier [Config.toml:(0:20,0:20)]";
         String tomlError3 = "missing identifier [Config.toml:(0:21,0:21)]";
+        String errorMsg = "error: Invalid `Config.toml` file : ";
         LogLeecher errorLeecher1 = new LogLeecher(errorMsg, ERROR);
         LogLeecher errorLeecher2 = new LogLeecher(tomlError1, ERROR);
         LogLeecher errorLeecher3 = new LogLeecher(tomlError2, ERROR);
@@ -123,9 +123,9 @@ public class ConfigurableTest extends BaseTest {
     public Object[][] getNegativeTestProjects() {
         return new Object[][]{
                 {"invalidComplexArray", "Configurable feature is yet to be supported for type" +
-                        " '(int[] & readonly)[] & readonly' used in variable 'intComplexArr'" },
+                        " '(int[] & readonly)[] & readonly' used in variable 'main:intComplexArr'" },
                 {"invalidRecordField", "Configurable feature is yet to be supported for field type " +
-                        "'string[][]' in variable 'testUser' of record 'main:AuthInfo'"},
+                        "'string[][]' in variable 'main:testUser' of record 'main:AuthInfo'"},
                 {"invalidMapType", "Configurable feature is yet to be supported for type 'map<int> & readonly'"},
                 {"invalidByteRange", "Value provided for byte variable 'byteVar' is out of range. Expected " +
                         "range is (0-255), found '355'"}
@@ -154,40 +154,40 @@ public class ConfigurableTest extends BaseTest {
     @DataProvider(name = "negative-tests")
     public Object[][] getNegativeTests() {
         return new Object[][]{
-                {"no_module_config", "Value not provided for required configurable variable 'stringVar'"},
-                {"invalid_org_name", "Value not provided for required configurable variable 'stringVar'" },
+                {"no_module_config", "Value not provided for required configurable variable 'main:stringVar'"},
+                {"invalid_org_name", "Value not provided for required configurable variable 'main:stringVar'" },
                 {"invalid_org_structure", "invalid module structure found for module 'testOrg.main'. " +
                         "Please provide the module name as '[testOrg.main]'" },
                 {"invalid_module_structure", "invalid module structure found for module 'main'. " +
                         "Please provide the module name as '[main]'" },
                 {"invalid_sub_module_structure", "invalid module structure found for module 'foo'. " +
                         "Please provide the module name as '[foo]'" },
-                {"required_negative", "Value not provided for required configurable variable 'stringVar'"},
-                {"primitive_type_error", "invalid type found for variable 'intVar', expected TOML type " +
+                {"required_negative", "Value not provided for required configurable variable 'main:stringVar'"},
+                {"primitive_type_error", "invalid type found for variable 'main:intVar', expected TOML type " +
                         "for type 'int' is 'INTEGER', found 'DOUBLE'"},
-                {"primitive_structure_error", "invalid TOML structure found for variable 'intVar', " +
+                {"primitive_structure_error", "invalid TOML structure found for variable 'main:intVar', " +
                         "expected structure is 'KEY_VALUE', found 'TABLE'"},
-                {"array_type_error", "invalid type found for variable 'intArr', expected TOML type " +
+                {"array_type_error", "invalid type found for variable 'main:intArr', expected TOML type " +
                         "for type 'int[] & readonly' is 'ARRAY', found 'STRING'"},
-                {"array_structure_error", "invalid TOML structure found for variable 'intArr', " +
+                {"array_structure_error", "invalid TOML structure found for variable 'main:intArr', " +
                         "expected structure is 'KEY_VALUE', found 'TABLE'"},
-                {"array_element_structure", "invalid TOML structure found for variable 'intArr[2]', " +
+                {"array_element_structure", "invalid TOML structure found for variable 'main:intArr[2]', " +
                         "expected structure is 'INTEGER', found 'ARRAY'"},
-                {"array_multi_type", "invalid TOML structure found for variable 'intArr[1]', " +
+                {"array_multi_type", "invalid TOML structure found for variable 'main:intArr[1]', " +
                         "expected structure is 'INTEGER', found 'STRING'"},
-                {"additional_field", "Additional field 'scopes' provided for configurable variable 'testUser' of " +
-                        "record 'main:AuthInfo' is not supported"},
+                {"additional_field", "Additional field 'scopes' provided for configurable variable 'main:testUser'" +
+                        " of record 'main:AuthInfo' is not supported"},
                 {"missing_record_field", "Value not provided for non-defaultable required field 'username' of record" +
-                        " 'main:AuthInfo' in configurable variable 'testUser'"},
-                {"record_type_error", "invalid type found for variable 'testUser', expected TOML type for type " +
+                        " 'main:AuthInfo' in configurable variable 'main:testUser'"},
+                {"record_type_error", "invalid type found for variable 'main:testUser', expected TOML type for type " +
                         "'main:(testOrg/main:0.1.0:AuthInfo & readonly)' is 'TABLE', found 'KEY_VALUE'"},
-                {"record_field_structure_error", "invalid TOML table structure found for record variable 'testUser'," +
-                        " found TOML table for 'testUser.username'"},
-                {"record_field_type_error", "invalid type found for variable 'testUser.username', expected TOML type" +
-                        " for type 'string' is 'STRING', found 'INTEGER'"},
+                {"record_field_structure_error", "invalid TOML table structure found for record variable " +
+                        "'main:testUser', found TOML table for 'main:testUser.username'"},
+                {"record_field_type_error", "invalid type found for variable 'main:testUser.username', expected " +
+                        "TOML type for type 'string' is 'STRING', found 'INTEGER'"},
                 {"missing_table_key", "Value required for key 'username' of type 'table<(main:AuthInfo & readonly)>" +
-                        " key(username) & readonly' in configurable variable 'users'"},
-                {"table_type_error", "invalid type found for variable 'users', expected TOML type for type " +
+                        " key(username) & readonly' in configurable variable 'main:users'"},
+                {"table_type_error", "invalid type found for variable 'main:users', expected TOML type for type " +
                         "'table<(main:AuthInfo & readonly)> key(username) & readonly' is 'TABLE_ARRAY', found 'TABLE'"},
         };
     }
@@ -211,7 +211,7 @@ public class ConfigurableTest extends BaseTest {
     public void testEncryptedConfigsWithIncorrectSecret() throws BallerinaTestException {
         String secretFilePath = Paths.get(testFileLocation, "Secrets", "incorrectSecret.txt").toString();
         LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
-                "'password' : Given final block not properly padded. Such " +
+                "'main:password' : Given final block not properly padded. Such " +
                 "issues can arise if a bad key is used during decryption.", ERROR);
         executeBalCommand("/encryptedConfigProject", runLeecher, "run", "main",
                 addSecretEnvVariable(secretFilePath));
@@ -231,7 +231,7 @@ public class ConfigurableTest extends BaseTest {
         String configFilePath = Paths.get(testFileLocation, "ConfigFiles", "InvalidEncryptedConfig.toml").toString();
         String secretFilePath = Paths.get(testFileLocation, "Secrets", "correctSecret.txt").toString();
         LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
-                "'password' : Input byte array has wrong 4-byte ending unit", ERROR);
+                "'main:password' : Input byte array has wrong 4-byte ending unit", ERROR);
         executeBalCommand("/encryptedConfigProject", runLeecher, "run", "main",
                 addEnvVariables(configFilePath, secretFilePath));
     }
