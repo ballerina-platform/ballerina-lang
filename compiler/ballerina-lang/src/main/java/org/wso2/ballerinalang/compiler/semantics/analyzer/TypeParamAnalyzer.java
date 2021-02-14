@@ -299,6 +299,9 @@ public class TypeParamAnalyzer {
         switch (expType.tag) {
             case TypeTags.XML:
                 if (!TypeTags.isXMLTypeTag(actualType.tag)) {
+                    if (actualType.tag == TypeTags.UNION) {
+                        dlog.error(loc, DiagnosticErrorCode.INVALID_FUNCTION_INVOCATION, actualType);
+                    }
                     return;
                 }
                 switch (actualType.tag) {

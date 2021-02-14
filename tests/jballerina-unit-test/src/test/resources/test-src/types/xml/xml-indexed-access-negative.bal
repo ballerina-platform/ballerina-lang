@@ -31,4 +31,6 @@ function testInvalidXMLAccessWithIndex() {
     x6 = x5[0][0];
     x8 = x7[0][0];
     x10 = x9[0][0];
+
+    int i = 'xml:length(x5[0]);
 }
