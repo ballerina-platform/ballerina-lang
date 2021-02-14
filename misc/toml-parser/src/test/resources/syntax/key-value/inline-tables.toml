@@ -1,0 +1,14 @@
+rootInline = { first = "Tom", last = "Preston-Werner" }
+
+nestedInlineTableRoot = { nested = { greeting = "hello"}, another = "Another one" }
+
+inline = { parent.child = "hello" }
+
+[table]
+inlineTable = { nested = { greeting = "hello"}, another = "Another one" }
+
+[[tableArr]]
+name = { nested = { greeting = "hello"}, another = "Another one" }
+
+[[tableArr]]
+name = { nested = { greeting = "how are youu"}, another = "Another one" }

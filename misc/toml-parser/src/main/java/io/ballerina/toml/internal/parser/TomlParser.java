@@ -113,7 +113,7 @@ public class TomlParser extends AbstractParser {
                     lookahead += 1;
                     peekToken = peek(lookahead);
                 }
-                return parseKeyValue();
+                return parseKeyValue(false);
             default:
                 recover(nextToken, ParserRuleContext.TOP_LEVEL_NODE);
                 return parseTopLevelNode();
@@ -149,6 +149,118 @@ public class TomlParser extends AbstractParser {
     }
 
     /**
+     * Parsing Inline Table. Key is a identifier. Value should be surrounded by braces. It could contain any toml top
+     * level node inside.
+     * Ex - table = { key = "value" , key2 = "value2"}
+     *
+     * @return TableNode
+     */
+    private STNode parseInlineTable() {
+        STNode openBrace = parseOpenBrace();
+        STNode keyValuePairs = parseInlineKeyValuePairs();
+        STNode endBrace = parseCloseBrace();
+        return STNodeFactory.createInlineTableNode(openBrace, keyValuePairs, endBrace);
+    }
+
+    private STNode parseInlineKeyValuePairs() {
+        startContext(ParserRuleContext.INLINE_TABLE_START);
+        STToken token = peek();
+
+        if (isEndOfInlineTable(token)) {
+            STNode values = STNodeFactory.createEmptyNodeList();
+            endContext();
+            return values;
+        }
+
+        STNode firstValue = parseInlineKeyValuePair();
+        if (firstValue == null) {
+            return STNodeFactory.createEmptyNodeList();
+        }
+
+        return parseInlineKeyValuePairs(firstValue);
+    }
+
+    private STNode parseInlineKeyValuePair() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case IDENTIFIER_LITERAL:
+            case SINGLE_QUOTE_TOKEN:
+            case DOUBLE_QUOTE_TOKEN:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+            case DECIMAL_INT_TOKEN:
+            case DECIMAL_FLOAT_TOKEN:
+                return parseKeyValue(true);
+            case CLOSE_BRACE_TOKEN:
+                return null;
+            default:
+                recover(peek(), ParserRuleContext.INLINE_TABLE_ENTRY_START);
+                return parseInlineKeyValuePair();
+        }
+    }
+
+    private boolean isEndOfInlineTable(STToken token) {
+        return token.kind == SyntaxKind.CLOSE_BRACE_TOKEN || token.kind == EOF_TOKEN;
+    }
+
+    private STNode parseInlineKeyValuePairs(STNode firstValue) {
+        ArrayList<STNode> valuesList = new ArrayList<>();
+        valuesList.add(firstValue);
+
+        STToken nextToken = peek();
+        while (!(isEndOfInlineTable(nextToken))) {
+            STNode valueEnd = parseInlineTableEntryEnd();
+            if (valueEnd == null) {
+                // null marks the end of values
+                break;
+            }
+
+            STNode curValue = parseInlineKeyValuePair();
+            if (curValue != null) {
+                valuesList.add(valueEnd);
+                valuesList.add(curValue);
+            }
+
+            nextToken = peek();
+        }
+        endContext();
+        return STNodeFactory.createNodeList(valuesList);
+    }
+
+    private STNode parseInlineTableEntryEnd() {
+        switch (peek().kind) {
+            case COMMA_TOKEN:
+                return consume();
+            case CLOSE_BRACE_TOKEN:
+                // null marks the end of values
+                return null;
+            default:
+                recover(peek(), ParserRuleContext.INLINE_TABLE_ENTRY_END);
+                return parseInlineTableEntryEnd();
+        }
+    }
+
+    private STNode parseOpenBrace() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.INLINE_TABLE_START);
+            return parseOpenBrace();
+        }
+    }
+
+    private STNode parseCloseBrace() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.INLINE_TABLE_END);
+            return parseCloseBrace();
+        }
+    }
+
+    /**
      * Parsing TOML Table. Table is a identifier surrounded by Open and Close Brackets.
      * Ex - [ Identifier ]
      *
@@ -173,7 +285,7 @@ public class TomlParser extends AbstractParser {
         List<STNode> fields = new ArrayList<>();
         STToken nextNode = peek();
         while (!isNextTokenArray(nextNode)) {
-            STNode stNode = parseKeyValue();
+            STNode stNode = parseKeyValue(false);
             fields.add(stNode);
             nextNode = peek();
         }
@@ -211,14 +323,16 @@ public class TomlParser extends AbstractParser {
      *
      * @return KeyValueNode
      */
-    private STNode parseKeyValue() {
+    private STNode parseKeyValue(boolean isInlineTable) {
         startContext(ParserRuleContext.KEY_VALUE_PAIR);
         STNode identifier = STNodeFactory.createKeyNode(parseKeys());
         STNode equals = parseEquals();
         STNode value = parseValue();
-        STNode newLine = parseNewlines();
-        if (newLine.hasDiagnostics()) {
-            value = SyntaxErrors.addSyntaxDiagnostics(value, newLine.diagnostics());
+        if (!isInlineTable) {
+            STNode newLine = parseNewlines();
+            if (newLine.hasDiagnostics()) {
+                value = SyntaxErrors.addSyntaxDiagnostics(value, newLine.diagnostics());
+            }
         }
         endContext();
         return STNodeFactory.createKeyValueNode(identifier, equals, value);
@@ -393,6 +507,8 @@ public class TomlParser extends AbstractParser {
                 return parseBoolean();
             case OPEN_BRACKET_TOKEN:
                 return parseArray();
+            case OPEN_BRACE_TOKEN:
+                return parseInlineTable();
             default:
                 recover(token, ParserRuleContext.VALUE);
                 return parseValue();
@@ -423,7 +539,7 @@ public class TomlParser extends AbstractParser {
 
     private STNode parseNumericalToken() {
         STToken token = peek();
-        if (isNumerticalLiteral(token)) {
+        if (isNumericalLiteral(token)) {
             return consume();
         } else {
             recover(token, ParserRuleContext.NUMERICAL_LITERAL);
@@ -431,7 +547,7 @@ public class TomlParser extends AbstractParser {
         }
     }
 
-    private boolean isNumerticalLiteral(STToken token) {
+    private boolean isNumericalLiteral(STToken token) {
         switch (token.kind) {
             case DECIMAL_INT_TOKEN:
             case DECIMAL_FLOAT_TOKEN:
@@ -720,6 +836,8 @@ public class TomlParser extends AbstractParser {
                 return parseArray();
             case CLOSE_BRACKET_TOKEN:
                 return null;
+            case OPEN_BRACE_TOKEN:
+                return parseInlineTable();
             case NEWLINE:
                 consume();
                 return parseArrayValue();
