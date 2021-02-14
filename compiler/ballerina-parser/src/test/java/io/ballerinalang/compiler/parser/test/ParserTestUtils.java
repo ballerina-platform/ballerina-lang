@@ -609,8 +609,6 @@ public class ParserTestUtils {
                 return SyntaxKind.START_KEYWORD;
             case "FLUSH_KEYWORD":
                 return SyntaxKind.FLUSH_KEYWORD;
-            case "DEFAULT_KEYWORD":
-                return SyntaxKind.DEFAULT_KEYWORD;
             case "WAIT_KEYWORD":
                 return SyntaxKind.WAIT_KEYWORD;
             case "DO_KEYWORD":
