@@ -178,10 +178,7 @@ public class Bootstrap {
         symbolTable.langQueryModuleSymbol = loadLangLibFromBala(QUERY, compilerContext);
         symbolTable.langTransactionModuleSymbol = loadLangLibFromBala(TRANSACTION, compilerContext);
         symbolTable.loadPredeclaredModules();
-<<<<<<< HEAD
         symResolver.bootstrapIntRangeType();
-=======
->>>>>>> Switch dependencies of __internal and lang.object
         symbolTable.updateBuiltinSubtypeOwners();
         symResolver.defineOperators();
     }
