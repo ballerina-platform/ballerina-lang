@@ -482,7 +482,7 @@ public class TransactionResourceManager {
             return ValueCreator.createArrayValue(abortFunctions.toArray(),
                     TypeCreator.createArrayType(abortFunctions.get(0).getType()));
         } else {
-            return ValueCreator.createArrayValue((ArrayType) PredefinedTypes.TYPE_ANY);
+            return getAnyEmptyArray();
         }
     }
 
@@ -494,8 +494,12 @@ public class TransactionResourceManager {
             return ValueCreator.createArrayValue(commitFunctions.toArray(),
                     TypeCreator.createArrayType(commitFunctions.get(0).getType()));
         } else {
-            return ValueCreator.createArrayValue((ArrayType) PredefinedTypes.TYPE_ANY);
+            return getAnyEmptyArray();
         }
+    }
+
+    private BArray getAnyEmptyArray() {
+        return ValueCreator.createArrayValue((ArrayType) PredefinedTypes.TYPE_ANY);
     }
 
     /**
