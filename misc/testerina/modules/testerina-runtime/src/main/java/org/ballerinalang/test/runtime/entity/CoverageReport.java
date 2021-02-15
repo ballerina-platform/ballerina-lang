@@ -31,7 +31,6 @@ import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.tools.ExecFileLoader;
-import org.jacoco.report.DirectorySourceFileLocator;
 import org.jacoco.report.IReportVisitor;
 import org.jacoco.report.xml.XMLFormatter;
 
@@ -60,7 +59,6 @@ import static org.jacoco.core.analysis.ICounter.PARTLY_COVERED;
  */
 public class CoverageReport {
 
-    private static final int TAB_WIDTH = 4;
     private final String title;
     private final Path coverageDir;
     private Path executionDataFile;
@@ -141,14 +139,16 @@ public class CoverageReport {
             File reportFile = new File(target.getReportPath().resolve(
                     this.module.moduleName().toString()).resolve(REPORT_XML_FILE).toString());
             reportFile.getParentFile().mkdirs();
-            IReportVisitor visitor = xmlFormatter.createVisitor(new FileOutputStream(reportFile));
-            visitor.visitInfo(execFileLoader.getSessionInfoStore().getInfos(),
-                    execFileLoader.getExecutionDataStore().getContents());
 
-            visitor.visitBundle(bundleCoverage,
-                    new DirectorySourceFileLocator(null, "utf-8", TAB_WIDTH));
+            try (FileOutputStream fileOutputStream = new FileOutputStream(reportFile)) {
+                IReportVisitor visitor = xmlFormatter.createVisitor(fileOutputStream);
+                visitor.visitInfo(execFileLoader.getSessionInfoStore().getInfos(),
+                        execFileLoader.getExecutionDataStore().getContents());
 
-            visitor.visitEnd();
+                visitor.visitBundle(bundleCoverage, null);
+
+                visitor.visitEnd();
+            }
     }
 
     private void createReport(final IBundleCoverage bundleCoverage, ModuleCoverage moduleCoverage) {
