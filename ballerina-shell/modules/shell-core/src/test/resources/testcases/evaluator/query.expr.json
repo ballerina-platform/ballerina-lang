@@ -20,7 +20,7 @@
   {
     "description": "String from query evaluation.",
     "code": "string students = from var student in studentList where student.gpa >= 2.0 select student.firstName + \" \" + student.lastName + \"\\n\"; students",
-    "expr": "Martin Sadler\nMichelle Guthrie\n"
+    "expr": "\"Martin Sadler\nMichelle Guthrie\n\""
   },
   {
     "description": "Query action evaluation.",

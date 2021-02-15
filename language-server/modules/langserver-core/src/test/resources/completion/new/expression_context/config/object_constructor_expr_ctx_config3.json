@@ -14,11 +14,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestClass1",
+      "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "K",
-      "insertText": "TestClass1",
+      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,17 +44,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Listener",
+      "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "K",
-      "insertText": "Listener",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "listener1",
       "kind": "Variable",
-      "detail": "ballerina/module1:0.1.0:Listener",
+      "detail": "module1:Listener",
       "sortText": "B",
       "insertText": "listener1",
       "insertTextFormat": "Snippet"

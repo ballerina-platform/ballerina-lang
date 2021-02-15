@@ -81,11 +81,11 @@ public class EvaluatorMiscTest {
         Assert.assertEquals(new HashSet<>(evaluator.availableVariables()),
                 Set.of(
                         "(a) int a = 1",
-                        "(k) string? k = null",
-                        "(t) string t = Hello",
-                        "(f) function () returns int f = ",
+                        "(k) string? k = ()",
+                        "(t) string t = \"Hello\"",
+                        "(f) function () returns int f = function function () returns (int)",
                         "(i) int i = 23",
-                        "(b) string b = World"
+                        "(b) string b = \"World\""
                 )
         );
         Assert.assertEquals(evaluator.availableImports().size(), 1);

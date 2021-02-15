@@ -60,7 +60,7 @@ public class CleanCommandTest extends BaseCommandTest {
                 StandardCopyOption.REPLACE_EXISTING);
 
         Assert.assertTrue(Objects.requireNonNull(
-                projectPath.resolve("target").resolve("balo").toFile().listFiles()).length > 0);
+                projectPath.resolve("target").resolve("bala").toFile().listFiles()).length > 0);
         Assert.assertTrue(Objects.requireNonNull(
                 projectPath.resolve("target").resolve("cache").toFile().listFiles()).length > 0);
         Assert.assertTrue(Objects.requireNonNull(
@@ -69,7 +69,7 @@ public class CleanCommandTest extends BaseCommandTest {
         CleanCommand cleanCommand = new CleanCommand(projectPath, false);
         cleanCommand.execute();
 
-        Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("balo")));
+        Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("bala")));
         Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("cache")));
         Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("report")));
     }

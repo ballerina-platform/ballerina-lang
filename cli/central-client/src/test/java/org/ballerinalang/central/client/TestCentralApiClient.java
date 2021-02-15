@@ -61,8 +61,8 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
     private static final Path TMP_DIR = UTILS_TEST_RESOURCES.resolve("temp-test-central-api-client");
-    private static final String TEST_BALO_NAME = "sf-any.balo";
-    private static final String OUTPUT_BALO = "output.balo";
+    private static final String TEST_BALA_NAME = "sf-any.bala";
+    private static final String OUTPUT_BALA = "output.bala";
     private static final String WINERY = "winery";
     private static final String ACCESS_TOKEN = "273cc9f6-c333-36ab-aa2q-f08e9513ff5y";
 
@@ -109,30 +109,30 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test pull package", enabled = false)
     public void testPullPackage() throws IOException, CentralClientException {
-        final String baloUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.balo";
-        Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
-        File baloFile = new File(String.valueOf(baloPath));
-        InputStream baloStream = null;
+        final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        File balaFile = new File(String.valueOf(balaPath));
+        InputStream balaStream = null;
 
         try {
-            baloStream = new FileInputStream(baloFile);
+            balaStream = new FileInputStream(balaFile);
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_MOVED_TEMP);
-            when(connection.getHeaderField(LOCATION)).thenReturn(baloUrl);
+            when(connection.getHeaderField(LOCATION)).thenReturn(balaUrl);
             when(connection.getHeaderField(CONTENT_DISPOSITION))
-                    .thenReturn("attachment; filename=sf-2020r2-any-1.3.5.balo");
-            when(connection.getContentLengthLong()).thenReturn(Files.size(baloPath));
-            when(connection.getInputStream()).thenReturn(baloStream);
+                    .thenReturn("attachment; filename=sf-2020r2-any-1.3.5.bala");
+            when(connection.getContentLengthLong()).thenReturn(Files.size(balaPath));
+            when(connection.getInputStream()).thenReturn(balaStream);
 
             this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, "any", "slp5", false);
 
-            Assert.assertTrue(TMP_DIR.resolve("1.3.5").resolve("sf-2020r2-any-1.3.5.balo").toFile().exists());
+            Assert.assertTrue(TMP_DIR.resolve("1.3.5").resolve("sf-2020r2-any-1.3.5.bala").toFile().exists());
             String buildLog = readOutput();
             given().with().pollInterval(Duration.ONE_SECOND).and().with().pollDelay(Duration.ONE_SECOND).await()
                     .atMost(10, SECONDS)
                     .until(() -> buildLog.contains("foo/sf:1.3.5 pulled from central successfully"));
         } finally {
-            if (baloStream != null) {
-                baloStream.close();
+            if (balaStream != null) {
+                balaStream.close();
             }
             cleanTmpDir();
         }
@@ -189,16 +189,16 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test push package", enabled = false)
     public void testPushPackage() throws IOException, CentralClientException {
-        Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
-        File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        File outputBala = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALA)));
 
         setBallerinaHome();
 
-        try (FileOutputStream outputStream = new FileOutputStream(outputBalo)) {
+        try (FileOutputStream outputStream = new FileOutputStream(outputBala)) {
             when(connection.getOutputStream()).thenReturn(outputStream);
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
 
-            this.pushPackage(baloPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
+            this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
             String buildLog = readOutput();
             given().with().pollInterval(Duration.ONE_SECOND).and()
                     .with().pollDelay(Duration.ONE_SECOND)
@@ -211,17 +211,17 @@ public class TestCentralApiClient extends CentralAPIClient {
             expectedExceptionsMessageRegExp = "package already exists: foo/github:1.8.3_2020r2_any")
     public void testPushExistingPackage() throws IOException, CentralClientException {
         String resString = "{\"message\": \"package already exists: foo/github:1.8.3_2020r2_any\"}";
-        Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
-        File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        File outputBala = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALA)));
 
         setBallerinaHome();
 
-        try (FileOutputStream outputStream = new FileOutputStream(outputBalo)) {
+        try (FileOutputStream outputStream = new FileOutputStream(outputBala)) {
             when(connection.getOutputStream()).thenReturn(outputStream);
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
             when(connection.getErrorStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
 
-            this.pushPackage(baloPath, "foo", "github", "1.8.3", ACCESS_TOKEN);
+            this.pushPackage(balaPath, "foo", "github", "1.8.3", ACCESS_TOKEN);
         }
     }
 
@@ -229,17 +229,17 @@ public class TestCentralApiClient extends CentralAPIClient {
             expectedExceptionsMessageRegExp = "error: failed to push the package: "
                     + "'foo/sf:1.3.5' to the remote repository 'https://api.central.ballerina.io/registry'")
     public void testPushPackageRequestFailure() throws IOException, CentralClientException {
-        Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
-        File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        File outputBala = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALA)));
 
         setBallerinaHome();
 
-        try (FileOutputStream outputStream = new FileOutputStream(outputBalo)) {
+        try (FileOutputStream outputStream = new FileOutputStream(outputBala)) {
             when(connection.getOutputStream()).thenReturn(outputStream);
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
             when(connection.getURL()).thenReturn(new URL("https://api.central.ballerina.io/registry"));
 
-            this.pushPackage(baloPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
+            this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
         }
     }
 

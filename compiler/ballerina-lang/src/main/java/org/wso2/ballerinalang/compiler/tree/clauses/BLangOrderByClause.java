@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 import org.ballerinalang.model.clauses.OrderByClauseNode;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -33,6 +34,7 @@ import java.util.StringJoiner;
  * @since Swan Lake
  */
 public class BLangOrderByClause extends BLangNode implements OrderByClauseNode {
+    public SymbolEnv env;
     public List<OrderKeyNode> orderByKeyList = new ArrayList<>();
 
     public BLangOrderByClause() {

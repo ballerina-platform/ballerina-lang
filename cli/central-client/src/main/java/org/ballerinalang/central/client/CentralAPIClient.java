@@ -55,7 +55,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.Utils.convertToUrl;
-import static org.ballerinalang.central.client.Utils.createBaloInHomeRepo;
+import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.getStatusCode;
 import static org.ballerinalang.central.client.Utils.getTotalFileSizeInKB;
@@ -219,7 +219,7 @@ public class CentralAPIClient {
     /**
      * Pushing a package to registry.
      */
-    public void pushPackage(Path baloPath, String org, String name, String version, String accessToken)
+    public void pushPackage(Path balaPath, String org, String name, String version, String accessToken)
             throws CentralClientException {
         final int noOfBytes = 64;
         final int bufferSize = 1024 * noOfBytes;
@@ -237,13 +237,13 @@ public class CentralAPIClient {
         conn.setChunkedStreamingMode(bufferSize);
 
         try (DataOutputStream outputStream = new DataOutputStream(conn.getOutputStream())) {
-            // Send balo content by 1 kb chunks
+            // Send bala content by 1 kb chunks
             byte[] buffer = new byte[bufferSize];
             int count;
             try (ProgressBar progressBar = new ProgressBar(
-                    org + "/" + name + ":" + version + " [project repo -> central]", getTotalFileSizeInKB(baloPath),
+                    org + "/" + name + ":" + version + " [project repo -> central]", getTotalFileSizeInKB(balaPath),
                     1000, outStream, ProgressBarStyle.ASCII, " KB", 1);
-                    FileInputStream fis = new FileInputStream(baloPath.toFile())) {
+                    FileInputStream fis = new FileInputStream(balaPath.toFile())) {
                 while ((count = fis.read(buffer)) > 0) {
                     outputStream.write(buffer, 0, count);
                     outputStream.flush();
@@ -251,7 +251,7 @@ public class CentralAPIClient {
                 }
             }
         } catch (IOException e) {
-            throw new CentralClientException("error occurred while uploading balo to central: " + e.getMessage());
+            throw new CentralClientException("error occurred while uploading bala to central: " + e.getMessage());
         }
 
         try {
@@ -291,7 +291,7 @@ public class CentralAPIClient {
         }
     }
 
-    public void pullPackage(String org, String name, String version, Path packagePathInBaloCache,
+    public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
             String supportedPlatform, String ballerinaVersion, boolean isBuild) throws CentralClientException {
         LogFormatter logFormatter = new LogFormatter();
         if (isBuild) {
@@ -335,7 +335,7 @@ public class CentralAPIClient {
                 conn.setRequestProperty(CONTENT_DISPOSITION, contentDisposition);
 
                 boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
-                createBaloInHomeRepo(conn, packagePathInBaloCache, org + "/" + name, isNightlyBuild, newUrl,
+                createBalaInHomeRepo(conn, packagePathInBalaCache, org + "/" + name, isNightlyBuild, newUrl,
                                      contentDisposition, outStream, logFormatter);
             } else {
                 try (BufferedReader reader = new BufferedReader(

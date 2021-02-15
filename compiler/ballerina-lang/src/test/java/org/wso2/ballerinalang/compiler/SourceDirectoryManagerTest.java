@@ -25,7 +25,6 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -95,19 +94,18 @@ public class SourceDirectoryManagerTest {
         Assert.assertFalse(project.isModuleExists(invalidVersion));
     }
 
-    @Test(description = "Test if get balo path")
-    public void getBaloPath() throws InvalidModuleException {
+    @Test(description = "Test if get bala path")
+    public void getBalaPath() throws InvalidModuleException {
         Project project = context.get(Project.PROJECT_KEY);
         Names names = Names.getInstance(context);
         PackageID moduleId = new PackageID(names.fromString("abc"),
                 names.fromString("fruits"),
                 names.fromString("0.0.1"));
         // valid module
-        String baloName =  "fruits-"
-                + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.0.1.balo";
-        Path baloPath = directoryManager.getSourceDirectory().getPath()
-                .resolve("target").resolve("balo").resolve(baloName);
-        Assert.assertEquals(project.getBaloPath(moduleId), baloPath);
+        String balaName =  "fruits-abc-any-0.0.1.bala";
+        Path balaPath = directoryManager.getSourceDirectory().getPath()
+                .resolve("target").resolve("bala").resolve(balaName);
+        Assert.assertEquals(project.getBalaPath(moduleId), balaPath);
         // valid module with a diffrent platform
 
         // invalid module
@@ -116,7 +114,7 @@ public class SourceDirectoryManagerTest {
                     names.fromString("fruits"),
                     names.fromString("0.0.1"));
             // invalid valid module
-            project.getBaloPath(invalidModuleId);
+            project.getBalaPath(invalidModuleId);
             throw new AssertionError("Failed to identify invalid module");
         } catch (InvalidModuleException e) {
             // catch works

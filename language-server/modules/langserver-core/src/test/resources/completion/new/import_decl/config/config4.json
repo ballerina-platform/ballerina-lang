@@ -6,30 +6,6 @@
   "source": "import_decl/source/source4.bal",
   "items": [
     {
-      "label": "lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "lang.'test;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "lang.'array;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.transaction",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "lang.'transaction;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "jballerina.java",
       "kind": "Module",
       "detail": "Module",
@@ -38,35 +14,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "lang.'value;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
       "insertText": "module1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "lang.'query;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "lang.'runtime;",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -118,7 +118,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // record variable test (Student record)
         debugTestRunner.assertExpression(context, RECORD_VAR, " /:@[`{~⌤_123_ƮέŞŢ_Student", "record");
         // anonymous record variable test
-        debugTestRunner.assertExpression(context, ANON_RECORD_VAR, "anonymous", "record");
+        debugTestRunner.assertExpression(context, ANON_RECORD_VAR,
+                                         "record {| string city; string country; |}", "record");
         // error variable test
         debugTestRunner.assertExpression(context, ERROR_VAR, "SimpleErrorType", "error");
         // anonymous function variable test
@@ -360,7 +361,10 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void typeCastEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // casting into a basic type
+        debugTestRunner.assertExpression(context, String.format("<float>%s", ANYDATA_VAR), "619.0", "float");
+        // casting into a union type
+        debugTestRunner.assertExpression(context, String.format("<float|boolean>%s", ANYDATA_VAR), "619.0", "float");
     }
 
     @Override

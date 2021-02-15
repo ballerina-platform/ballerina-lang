@@ -77,4 +77,23 @@ public class TableTest {
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing close bracket token",
                 DiagnosticSeverity.ERROR);
     }
+
+    @Test
+    public void testExistingNode() throws IOException {
+
+        InputStream inputStream = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("semantic/existing-node.toml");
+        Toml read = Toml.read(inputStream);
+        List<Diagnostic> diagnostics = read.diagnostics();
+
+        LineRange expectedLineRangeOfDupKey = ErrorTestUtils.toLineRange(18, 18, 1, 15);
+        Diagnostic actualDiagOfDupKey = diagnostics.get(0);
+        ErrorTestUtils.validateDiagnostic(actualDiagOfDupKey, expectedLineRangeOfDupKey,  "existing node 'key'",
+                DiagnosticSeverity.ERROR);
+
+        LineRange expectedLineRangeOfDupTable = ErrorTestUtils.toLineRange(21, 22, 1, 12);
+        Diagnostic actualDiagOfDupTable = diagnostics.get(1);
+        ErrorTestUtils.validateDiagnostic(actualDiagOfDupTable, expectedLineRangeOfDupTable,  "existing node 'foo'",
+                DiagnosticSeverity.ERROR);
+    }
 }

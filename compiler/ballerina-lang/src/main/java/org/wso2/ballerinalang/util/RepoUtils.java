@@ -63,6 +63,8 @@ public class RepoUtils {
             System.getenv(BALLERINA_STAGE_CENTRAL));
     public static final boolean SET_BALLERINA_DEV_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_DEV_CENTRAL));
+
+    private static final String UNKNOWN = "unknown";
     
     /**
      * Create and get the home repository path.
@@ -201,7 +203,7 @@ public class RepoUtils {
             return properties.getProperty(ProjectDirConstants.BALLERINA_VERSION);
         } catch (Throwable ignore) {
         }
-        return "unknown";
+        return UNKNOWN;
     }
 
     public static String getBallerinaPackVersion() {
@@ -211,19 +213,28 @@ public class RepoUtils {
             return properties.getProperty(ProjectDirConstants.BALLERINA_PACK_VERSION);
         } catch (Throwable ignore) {
         }
-        return "unknown";
+        return UNKNOWN;
     }
 
-    public static String getBallerinaVersionDisplayName() {
+    public static String getBallerinaShortVersion() {
         try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
             Properties properties = new Properties();
             properties.load(inputStream);
-            return properties.getProperty(ProjectDirConstants.BALLERINA_VERSION_DISPLAY_NAME);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_SHORT_VERSION);
         } catch (Throwable ignore) {
         }
-        return "unknown";
+        return UNKNOWN;
     }
 
+    public static String getBallerinaSpecVersion() {
+        try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_SPEC_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return UNKNOWN;
+    }
 
     /**
      * Validates the org-name and package name.
@@ -278,13 +289,13 @@ public class RepoUtils {
     }
     
     /**
-     * Get the Ballerina.toml from a balo file.
+     * Get the Ballerina.toml from a bala file.
      *
-     * @param baloPath The path to balo file.
+     * @param balaPath The path to bala file.
      * @return Ballerina.toml contents.
      */
-    public static Manifest getManifestFromBalo(Path baloPath) {
-        try (JarFile jar = new JarFile(baloPath.toString())) {
+    public static Manifest getManifestFromBala(Path balaPath) {
+        try (JarFile jar = new JarFile(balaPath.toString())) {
             java.util.Enumeration enumEntries = jar.entries();
             while (enumEntries.hasMoreElements()) {
                 JarEntry file = (JarEntry) enumEntries.nextElement();
@@ -302,15 +313,15 @@ public class RepoUtils {
                 }
             }
         } catch (IOException e) {
-            throw new BLangCompilerException("unable to read balo file: " + baloPath +
-                                             ". balo file seems to be corrupted.");
+            throw new BLangCompilerException("unable to read bala file: " + balaPath +
+                                             ". bala file seems to be corrupted.");
         } catch (TomlException e) {
-            throw new BLangCompilerException("unable to read balo file: " + baloPath +
-                                             ". balo file seems to be corrupted: " + e.getMessage());
+            throw new BLangCompilerException("unable to read bala file: " + balaPath +
+                                             ". bala file seems to be corrupted: " + e.getMessage());
         }
     
-        throw new BLangCompilerException("unable to find '/metadata/Ballerina.toml' file in balo file: " +
-                                         baloPath + "");
+        throw new BLangCompilerException("unable to find '/metadata/Ballerina.toml' file in bala file: " +
+                                         balaPath + "");
     }
     
 }

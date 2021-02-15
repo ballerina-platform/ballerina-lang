@@ -74,7 +74,7 @@
   {
     "description": "Convert polled to ballerina string.",
     "code": "string? nextInLine = java:toString(nextInLineHandle); nextInLine",
-    "expr": "John"
+    "expr": "\"John\""
   },
   {
     "description": "Use java field getter.",
@@ -93,7 +93,7 @@
   {
     "description": "Append strings/string buffers using overloads.",
     "code": " _ = appendString(strBuffer, java:fromString(\"awesome \")); _ = appendString(strBufferToAppend, java:fromString(\"fun.\")); _ = appendStringBuffer(strBuffer, strBufferToAppend); java:toString(strBuffer);",
-    "expr": "Ballerina is awesome and fun."
+    "expr": "\"Ballerina is awesome and fun.\""
   },
   {
     "description": "Catch java exceptions.",

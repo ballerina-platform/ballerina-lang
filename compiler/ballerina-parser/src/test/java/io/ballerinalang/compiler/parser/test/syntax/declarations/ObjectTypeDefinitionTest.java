@@ -181,4 +181,9 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
         test("object-type-def/object_type_def_source_37.bal", "object-type-def/object_type_def_assert_37.json");
         test("object-type-def/object_type_def_source_39.bal", "object-type-def/object_type_def_assert_39.json");
     }
+
+    @Test
+    public void testLetExprInObject() {
+        test("object-type-def/object_type_def_source_44.bal", "object-type-def/object_type_def_assert_44.json");
+    }
 }

@@ -30,7 +30,7 @@ configurations {
     testUtils {
         transitive false
     }
-    observeTestUtilsBalo {
+    observeTestUtilsBala {
         transitive false
     }
     observeTestUtilsJar {
@@ -65,8 +65,8 @@ dependencies {
 
     balRuntime project(':ballerina-runtime')
 
-//    baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-//    baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
+//    balaTestImplementation project(path: ':ballerina-http', configuration: 'balaImplementation')
+//    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')
     testRuntime project(path: ':ballerina-observability', configuration: 'distributionBirJar')
     testRuntime project(path: ':ballerina-observability-internal', configuration: 'distributionBirJar')
     testRuntime project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
@@ -88,7 +88,7 @@ dependencies {
 
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
-    observeTestUtilsBalo project(path: ':observability-test-utils', configuration: 'distributionBalo')
+    observeTestUtilsBala project(path: ':observability-test-utils', configuration: 'distributionBala')
     observeTestUtilsJar project(path: ':observability-test-utils', configuration: 'shadow')
 
     launchListenerTestUtils project(':test-launch-listener-01')
@@ -117,7 +117,7 @@ test {
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
     systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
-    systemProperty 'observability.test.utils.balo', configurations.observeTestUtilsBalo.asPath
+    systemProperty 'observability.test.utils.bala', configurations.observeTestUtilsBala.asPath
     systemProperty 'observability.test.utils.jar', configurations.observeTestUtilsJar.asPath
     useTestNG() {
         suites 'src/test/resources/testng.xml'

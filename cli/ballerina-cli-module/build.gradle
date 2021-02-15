@@ -39,7 +39,7 @@ dependencies {
 }
 
 checkstyleMain {
-    exclude 'org/ballerinalang/packerina/model/BaloToml.java'
+    exclude 'org/ballerinalang/packerina/model/BalaToml.java'
 }
 
 test {

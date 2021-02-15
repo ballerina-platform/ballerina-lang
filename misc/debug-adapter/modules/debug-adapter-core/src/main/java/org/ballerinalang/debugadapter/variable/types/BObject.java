@@ -20,17 +20,17 @@ import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * Ballerina object variable type.
  */
-public class BObject extends BCompoundVariable {
+public class BObject extends NamedCompoundVariable {
 
     private static final String OBJECT_FIELD_PATTERN_IDENTIFIER = "$value$";
 
@@ -47,11 +47,11 @@ public class BObject extends BCompoundVariable {
     public Map<String, Value> computeChildVariables() {
         try {
             if (!(jvmValue instanceof ObjectReference)) {
-                return new HashMap<>();
+                return new LinkedHashMap<>();
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
-            Map<String, Value> values = new HashMap<>();
+            Map<String, Value> values = new LinkedHashMap<>();
             fieldValueMap.forEach((field, value) -> {
                 if (field.toString().contains(OBJECT_FIELD_PATTERN_IDENTIFIER)) {
                     values.put(field.name(), value);
@@ -59,7 +59,26 @@ public class BObject extends BCompoundVariable {
             });
             return values;
         } catch (Exception ignored) {
-            return new HashMap<>();
+            return new LinkedHashMap<>();
+        }
+    }
+
+    @Override
+    public int getChildrenCount() {
+        try {
+            if (!(jvmValue instanceof ObjectReference)) {
+                return 0;
+            }
+            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
+            Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
+            long objectFieldCount = fieldValueMap.keySet()
+                    .stream()
+                    .filter(field -> field.toString().contains(OBJECT_FIELD_PATTERN_IDENTIFIER))
+                    .count();
+
+            return Long.valueOf(objectFieldCount).intValue();
+        } catch (Exception ignored) {
+            return 0;
         }
     }
 }

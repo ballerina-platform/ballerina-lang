@@ -51,18 +51,18 @@ public class TestTarget {
         Package currentPackage = project.currentPackage();
 
         Target projectTarget = new Target(project.sourceRoot());
-        Path baloCachePath = projectTarget.getBaloPath();
+        Path balaCachePath = projectTarget.getBalaPath();
         Path birCachePath = projectTarget.getBirCachePath();
         Path jarCachePath = projectTarget.getJarCachePath();
         Path executablePath = projectTarget.getExecutablePath(currentPackage);
 
-        Assert.assertEquals(baloCachePath.toString(),
-                projectPath.resolve("target").resolve("balo").toString());
+        Assert.assertEquals(balaCachePath.toString(),
+                projectPath.resolve("target").resolve("bala").toString());
         Assert.assertEquals(birCachePath.toString(),
                 projectPath.resolve("target").resolve("cache").resolve("bir_cache").toString());
         Assert.assertEquals(jarCachePath.toString(),
                 projectPath.resolve("target").resolve("cache").resolve("jar_cache").toString());
         Assert.assertEquals(executablePath.toString(),
-                projectPath.resolve("target").resolve("bin").resolve("myproject.jar").toString());
+                projectPath.resolve("target").resolve("bin").resolve("myproject-0.1.0.jar").toString());
     }
 }

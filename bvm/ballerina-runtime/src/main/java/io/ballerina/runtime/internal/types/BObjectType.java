@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 
 import java.lang.reflect.Array;
 import java.util.Map.Entry;
@@ -65,7 +66,7 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public String getAnnotationKey() {
-        return this.typeName;
+        return IdentifierUtils.decodeIdentifier(this.typeName);
     }
 
     @Override

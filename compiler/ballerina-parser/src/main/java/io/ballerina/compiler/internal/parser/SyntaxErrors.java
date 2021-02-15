@@ -338,8 +338,6 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_PUBLIC_KEYWORD;
             case PRIVATE_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_PRIVATE_KEYWORD;
-            case REMOTE_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_REMOTE_KEYWORD;
             case ABSTRACT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_ABSTRACT_KEYWORD;
             case CLIENT_KEYWORD:
@@ -369,7 +367,6 @@ public class SyntaxErrors {
             case RECORD_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_RECORD_KEYWORD;
             case OBJECT_KEYWORD:
-            case OBJECT_TYPE_QUALIFIER:
             case OBJECT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
             case VERSION_KEYWORD:
@@ -379,8 +376,6 @@ public class SyntaxErrors {
             case ON_KEYWORD:
             case ANNOT_DECL_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_ON_KEYWORD;
-            case RESOURCE_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_RESOURCE_KEYWORD;
             case FINAL_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_FINAL_KEYWORD;
             case SOURCE_KEYWORD:

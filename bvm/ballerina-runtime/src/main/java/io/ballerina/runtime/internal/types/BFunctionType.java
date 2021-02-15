@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 
 import java.util.Arrays;
 
@@ -141,7 +142,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     @Override
     public String getAnnotationKey() {
-        return this.typeName;
+        return IdentifierUtils.decodeIdentifier(this.typeName);
     }
 
     @Override

@@ -416,10 +416,7 @@ public class Main {
                 String encryptedValue = cipherTool.encrypt(value);
 
                 errStream.println("Add the following to the configuration file:");
-                errStream.println("<key>=\"@encrypted:{" + encryptedValue + "}\"\n");
-
-                errStream.println("Or provide it as a command line argument:");
-                errStream.println("--<key>=@encrypted:{" + encryptedValue + "}");
+                errStream.println("<key>=\"@encrypted:{" + encryptedValue + "}\"");
             } catch (AESCipherToolException e) {
                 throw LauncherUtils.createLauncherException("failed to encrypt value: " + e.getMessage());
             }

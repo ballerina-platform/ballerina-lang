@@ -30,7 +30,7 @@ subprojects {
             }
             CodeCov(MavenPublication) {
                 groupId project.group
-                artifactId project.name
+                artifactId project.name + "-jacoco"
                 version = project.version
             }
         }
