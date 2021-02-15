@@ -265,7 +265,9 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = null;
         } else {
             BLangVariableReference result;
-            if (TypeTags.isXMLTypeTag(queryExpr.type.tag)) {
+            if (TypeTags.isXMLTypeTag(queryExpr.type.tag) || (queryExpr.type.tag == TypeTags.UNION &&
+                    ((BUnionType) queryExpr.type).getMemberTypes().stream()
+                            .allMatch(memType -> TypeTags.isXMLTypeTag(memType.tag)))) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
             } else if (TypeTags.isStringTypeTag(queryExpr.type.tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);

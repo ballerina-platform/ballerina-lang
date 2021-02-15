@@ -17,8 +17,9 @@
  */
 package io.ballerina.compiler.api.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.tools.diagnostics.Location;
+
+import java.util.Optional;
 
 /**
  * Represents a compiled language symbol.
@@ -28,24 +29,19 @@ import io.ballerina.tools.diagnostics.Location;
 public interface Symbol {
 
     /**
-     * Get the symbol name.
+     * Retrieves the name of the symbol if it is associated with an identifier.
      *
-     * @return {@link String} name of the symbol
-     * @deprecated This method is expected to be removed from this interface. The plan is to make this method available
-     * only to symbols actually associated with a name.
+     * @return The name of the symbol if applicable
      */
-    @Deprecated
-    String name();
+    Optional<String> getName();
 
     /**
-     * Get the moduleID of the symbol.
+     * Retrieves the symbol of the module this symbol belongs to if the symbol is defined in a module. Type symbols will
+     * typically return empty except for {@link TypeReferenceTypeSymbol}.
      *
-     * @return {@link ModuleID} of the symbol
-     * @deprecated This method will be removed in a later version and be replaced with a new method which will return
-     * the module symbol instead.
+     * @return The {@link ModuleSymbol} of the module
      */
-    @Deprecated
-    ModuleID moduleID();
+    Optional<ModuleSymbol> getModule();
 
     /**
      * Get the Symbol Kind.
@@ -59,6 +55,15 @@ public interface Symbol {
      * the definition of the symbol.
      *
      * @return The position information of the symbol
+     * @deprecated This method will be removed in a later version and be replaced with the getLocation() method.
      */
+    @Deprecated
     Location location();
+
+    /**
+     * Retrieves the location of the symbol if the symbol is associated with an identifier in a source file.
+     *
+     * @return The location of the symbol if applicable
+     */
+    Optional<Location> getLocation();
 }

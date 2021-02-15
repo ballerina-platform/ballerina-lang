@@ -10,7 +10,7 @@
   {
     "description": "Use concat function.",
     "code": "concat(\"Hello \", \"World!\")",
-    "expr": "Hello World!"
+    "expr": "\"Hello World!\""
   },
   {
     "description": "Use add function.",

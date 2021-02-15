@@ -32,7 +32,7 @@ public interface PackageEntity {
      */
     enum Kind {
         SOURCE(".bal"),
-        COMPILED(".balo"),
+        COMPILED(".bala"),
         COMPILED_BIR(".bir"); //TODO rajith, are we going to change the extention to bir?
 
         private final String extension;

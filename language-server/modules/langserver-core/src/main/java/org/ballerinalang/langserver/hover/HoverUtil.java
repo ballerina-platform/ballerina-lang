@@ -72,13 +72,13 @@ public class HoverUtil {
 
         switch (symbolAtCursor.get().kind()) {
             case FUNCTION:
-                return getFunctionHoverMarkupContent((FunctionSymbol) symbolAtCursor.get());
+                return getFunctionHoverMarkupContent((FunctionSymbol) symbolAtCursor.get(), context);
             case METHOD:
-                return getFunctionHoverMarkupContent((MethodSymbol) symbolAtCursor.get());
+                return getFunctionHoverMarkupContent((MethodSymbol) symbolAtCursor.get(), context);
             case TYPE_DEFINITION:
-                return getTypeDefHoverMarkupContent(((TypeDefinitionSymbol) symbolAtCursor.get()));
+                return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) symbolAtCursor.get(), context);
             case CLASS:
-                return getClassHoverMarkupContent((ClassSymbol) symbolAtCursor.get());
+                return getClassHoverMarkupContent((ClassSymbol) symbolAtCursor.get(), context);
             case CONSTANT:
             case ANNOTATION:
             case ENUM:
@@ -87,7 +87,7 @@ public class HoverUtil {
             case TYPE:
                 if (((TypeSymbol) symbolAtCursor.get()).typeKind() == TypeDescKind.TYPE_REFERENCE) {
                     return getTypeRefHoverMarkupContent((TypeReferenceTypeSymbol) symbolAtCursor.get(),
-                                                        semanticModel.get(), srcFile.get());
+                            semanticModel.get(), srcFile.get(), context);
                 }
                 return getDefaultHoverObject();
             default:
@@ -95,7 +95,8 @@ public class HoverUtil {
         }
     }
 
-    private static Hover getObjectHoverMarkupContent(Documentation documentation, ObjectTypeSymbol classSymbol) {
+    private static Hover getObjectHoverMarkupContent(Documentation documentation, ObjectTypeSymbol classSymbol,
+                                                     HoverContext context) {
         List<String> hoverContent = new ArrayList<>();
         if (documentation.description().isPresent()) {
             hoverContent.add(documentation.description().get());
@@ -109,8 +110,10 @@ public class HoverUtil {
             params.addAll(classSymbol.fieldDescriptors().entrySet().stream()
                     .map(fieldEntry -> {
                         String desc = paramsMap.get(fieldEntry.getKey());
-                        return quotedString(fieldEntry.getValue().typeDescriptor().signature()) + " "
-                                + italicString(boldString(fieldEntry.getKey())) + " : " + desc;
+                        String modifiedTypeName =
+                                CommonUtil.getModifiedTypeName(context, fieldEntry.getValue().typeDescriptor());
+                        return quotedString(modifiedTypeName) + " " + italicString(boldString(fieldEntry.getKey()))
+                                + " : " + desc;
                     }).collect(Collectors.toList()));
 
             hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
@@ -120,7 +123,7 @@ public class HoverUtil {
         classSymbol.methods().forEach((name, method) -> {
             StringBuilder methodInfo = new StringBuilder();
             Optional<Documentation> methodDoc = method.documentation();
-            methodInfo.append(quotedString(method.typeDescriptor().signature()));
+            methodInfo.append(quotedString(CommonUtil.getModifiedTypeName(context, method.typeDescriptor())));
             if (methodDoc.isPresent() && methodDoc.get().description().isPresent()) {
                 methodInfo.append(CommonUtil.MD_LINE_SEPARATOR).append(methodDoc.get().description().get());
             }
@@ -141,7 +144,7 @@ public class HoverUtil {
         return hover;
     }
 
-    private static Hover getTypeDefHoverMarkupContent(TypeDefinitionSymbol symbol) {
+    private static Hover getTypeDefHoverMarkupContent(TypeDefinitionSymbol symbol, HoverContext context) {
         TypeSymbol rawType = CommonUtil.getRawType(symbol.typeDescriptor());
         Optional<Documentation> documentation = symbol.documentation();
 
@@ -150,26 +153,28 @@ public class HoverUtil {
         }
 
         if (rawType.typeKind() == TypeDescKind.RECORD) {
-            return getRecordTypeHoverContent(documentation.get(), (RecordTypeSymbol) rawType);
+            return getRecordTypeHoverContent(documentation.get(), (RecordTypeSymbol) rawType, context);
         }
         if (rawType.typeKind() == TypeDescKind.OBJECT) {
-            return getObjectHoverMarkupContent(documentation.get(), (ObjectTypeSymbol) rawType);
+            return getObjectHoverMarkupContent(documentation.get(), (ObjectTypeSymbol) rawType, context);
         }
 
         return getDescriptionOnlyHoverObject(documentation.get());
     }
 
-    private static Hover getClassHoverMarkupContent(ClassSymbol symbol) {
+    private static Hover getClassHoverMarkupContent(ClassSymbol symbol, HoverContext context) {
         Optional<Documentation> documentation = symbol.documentation();
 
         if (documentation.isEmpty()) {
             return getDefaultHoverObject();
         }
 
-        return getObjectHoverMarkupContent(documentation.get(), symbol);
+        return getObjectHoverMarkupContent(documentation.get(), symbol, context);
     }
 
-    private static Hover getRecordTypeHoverContent(Documentation documentation, RecordTypeSymbol recordType) {
+    private static Hover getRecordTypeHoverContent(Documentation documentation,
+                                                   RecordTypeSymbol recordType,
+                                                   HoverContext ctx) {
         List<String> hoverContent = new ArrayList<>();
         if (documentation.description().isPresent()) {
             hoverContent.add(documentation.description().get());
@@ -183,12 +188,13 @@ public class HoverUtil {
             params.addAll(recordType.fieldDescriptors().entrySet().stream()
                     .map(fieldEntry -> {
                         String desc = paramsMap.get(fieldEntry.getKey());
-                        return quotedString(fieldEntry.getValue().typeDescriptor().signature()) + " "
-                                + italicString(boldString(fieldEntry.getKey())) + " : " + desc;
+                        String typeName = CommonUtil.getModifiedTypeName(ctx, fieldEntry.getValue().typeDescriptor());
+                        return quotedString(typeName) + " " + italicString(boldString(fieldEntry.getKey()))
+                                + " : " + desc;
                     }).collect(Collectors.toList()));
             Optional<TypeSymbol> restTypeDesc = recordType.restTypeDescriptor();
-            restTypeDesc.ifPresent(typeSymbol -> params.add(quotedString(typeSymbol.signature() + "...")));
-
+            restTypeDesc.ifPresent(typeSymbol ->
+                    params.add(quotedString(CommonUtil.getModifiedTypeName(ctx, typeSymbol) + "...")));
             hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
         }
 
@@ -202,8 +208,8 @@ public class HoverUtil {
     }
 
     private static Hover getTypeRefHoverMarkupContent(TypeReferenceTypeSymbol typeSymbol, SemanticModel model,
-                                                      Document srcFile) {
-        Optional<Symbol> associatedDef = model.symbol(srcFile, typeSymbol.location().lineRange().startLine());
+                                                      Document srcFile, HoverContext context) {
+        Optional<Symbol> associatedDef = model.symbol(srcFile, typeSymbol.getLocation().get().lineRange().startLine());
 
         if (associatedDef.isEmpty()) {
             return getDefaultHoverObject();
@@ -211,11 +217,11 @@ public class HoverUtil {
 
         switch (associatedDef.get().kind()) {
             case TYPE_DEFINITION:
-                return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) associatedDef.get());
+                return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) associatedDef.get(), context);
             case ENUM:
                 return getDescriptionOnlyHoverObject(associatedDef.get());
             case CLASS:
-                return getClassHoverMarkupContent((ClassSymbol) associatedDef.get());
+                return getClassHoverMarkupContent((ClassSymbol) associatedDef.get(), context);
         }
 
         return getDefaultHoverObject();
@@ -275,7 +281,7 @@ public class HoverUtil {
 //        return false;
 //    }
 
-    private static Hover getFunctionHoverMarkupContent(FunctionSymbol symbol) {
+    private static Hover getFunctionHoverMarkupContent(FunctionSymbol symbol, HoverContext ctx) {
         Optional<Documentation> documentation = symbol.documentation();
         if (documentation.isEmpty()) {
             return getDefaultHoverObject();
@@ -292,22 +298,22 @@ public class HoverUtil {
 
             params.addAll(symbol.typeDescriptor().parameters().stream()
                     .map(param -> {
-                        if (param.name().isEmpty()) {
-                            return quotedString(param.typeDescriptor().signature());
+                        if (param.getName().isEmpty()) {
+                            return quotedString(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()));
                         }
-                        String paramName = param.name().get();
+                        String paramName = param.getName().get();
                         String desc = paramsMap.get(paramName);
-                        return quotedString(param.typeDescriptor().signature()) + " "
+                        return quotedString(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor())) + " "
                                 + italicString(boldString(paramName)) + " : " + desc;
                     }).collect(Collectors.toList()));
 
             Optional<ParameterSymbol> restParam = symbol.typeDescriptor().restParam();
             if (restParam.isPresent()) {
-                StringBuilder restParamBuilder =
-                        new StringBuilder(quotedString(restParam.get().typeDescriptor().signature() + "..."));
-                if (restParam.get().name().isPresent()) {
-                    restParamBuilder.append(" ").append(italicString(boldString(restParam.get().name().get())))
-                            .append(" : ").append(paramsMap.get(restParam.get().name().get()));
+                String modifiedTypeName = CommonUtil.getModifiedTypeName(ctx, restParam.get().typeDescriptor());
+                StringBuilder restParamBuilder = new StringBuilder(quotedString(modifiedTypeName + "..."));
+                if (restParam.get().getName().isPresent()) {
+                    restParamBuilder.append(" ").append(italicString(boldString(restParam.get().getName().get())))
+                            .append(" : ").append(paramsMap.get(restParam.get().getName().get()));
                 }
                 params.add(restParamBuilder.toString());
             }
@@ -316,7 +322,7 @@ public class HoverUtil {
         }
         if (documentation.get().returnDescription().isPresent()) {
             String returnDoc = header(3, ContextConstants.RETURN_TITLE) + CommonUtil.MD_LINE_SEPARATOR +
-                    symbol.typeDescriptor().returnTypeDescriptor().get().signature()
+                    CommonUtil.getModifiedTypeName(ctx, symbol.typeDescriptor().returnTypeDescriptor().orElseThrow())
                     + documentation.get().returnDescription().get();
             hoverContent.add(returnDoc);
         }

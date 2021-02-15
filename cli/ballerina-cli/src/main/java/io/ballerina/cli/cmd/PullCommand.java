@@ -19,6 +19,8 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
@@ -34,13 +36,13 @@ import java.io.PrintStream;
 import java.net.Proxy;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
-import static io.ballerina.projects.util.ProjectConstants.PKG_NAME_REGEX;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
+import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
+import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static java.nio.file.Files.createDirectories;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
@@ -54,6 +56,8 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
         description = "download the module source and binaries from a remote repository")
 public class PullCommand implements BLauncherCmd {
     private PrintStream errStream;
+    private static final String USAGE_TEXT =
+            "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}";
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -100,14 +104,13 @@ public class PullCommand implements BLauncherCmd {
         String packageName;
         String version;
 
-        if (!validPackageName(resourceName)) {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the org name ",
-                    "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}", false);
-            return;
-        }
-
         // Get org name
         String[] moduleInfo = resourceName.split("/");
+        if (moduleInfo.length != 2) {
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+                                   USAGE_TEXT, false);
+            return;
+        }
         orgName = moduleInfo[0];
         String moduleNameAndVersion = moduleInfo[1];
 
@@ -116,19 +119,44 @@ public class PullCommand implements BLauncherCmd {
         if (packageInfo.length == 2) {
             packageName = packageInfo[0];
             version = packageInfo[1];
-        } else {
+        } else if (packageInfo.length == 1) {
             packageName = moduleNameAndVersion;
             version = Names.EMPTY.getValue();
+        } else {
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+                                   USAGE_TEXT, false);
+            return;
         }
 
-        Path packagePathInBaloCache = ProjectUtils.createAndGetHomeReposPath()
-                .resolve(ProjectConstants.BALO_DIR_NAME).resolve(orgName).resolve(packageName);
-        // create directory path in balo cache
+        // Validate package org, name and version
+        if (!validateOrgName(orgName)) {
+            CommandUtil.printError(errStream, "invalid organization. Provide the package name with the organization ",
+                                   USAGE_TEXT, false);
+            return;
+        }
+        if (!validatePackageName(packageName)) {
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+                                   USAGE_TEXT, false);
+            return;
+        }
+        if (!version.equals(Names.EMPTY.getValue())) {
+            // check version is compatible with semver
+            try {
+                SemanticVersion.from(version);
+            } catch (ProjectException e) {
+                CommandUtil.printError(errStream, "invalid package version. " + e.getMessage(), USAGE_TEXT, false);
+                return;
+            }
+        }
+
+        Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
+                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(orgName).resolve(packageName);
+        // create directory path in bala cache
         try {
-            createDirectories(packagePathInBaloCache);
+            createDirectories(packagePathInBalaCache);
         } catch (IOException e) {
             throw createLauncherException(
-                    "unexpected error occurred while creating package repository in balo cache: " + e.getMessage());
+                    "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
         }
 
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
@@ -136,7 +164,7 @@ public class PullCommand implements BLauncherCmd {
                 Settings settings = readSettings();
                 Proxy proxy = initializeProxy(settings.getProxy());
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
-                client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform,
+                client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                                    RepoUtils.getBallerinaVersion(), false);
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
@@ -168,13 +196,5 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-    }
-
-    private String getPullCommandRegex() {
-        return PKG_NAME_REGEX;
-    }
-
-    private boolean validPackageName(String str) {
-        return Pattern.matches(getPullCommandRegex(), str);
     }
 }

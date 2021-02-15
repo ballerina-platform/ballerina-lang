@@ -29,7 +29,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.VERSION_NU
 public class CompiledBinaryFile {
 
     /**
-     * {@code PackageFile} is the representation of a compiled Ballerina package (BALO).
+     * {@code PackageFile} is the representation of a compiled Ballerina package (BALA).
      *
      * @since 0.963.0
      */

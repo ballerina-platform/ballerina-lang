@@ -38,7 +38,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
 /**
- * Suspended debug context related information.
+ * Context holder for debug suspended state related information.
  */
 public class SuspendedContext {
 
@@ -56,13 +56,13 @@ public class SuspendedContext {
     private ClassLoaderReference classLoader;
     private DebugExpressionCompiler debugCompiler;
 
-    SuspendedContext(Project project, String projectRoot, VirtualMachineProxyImpl vm,
-                     ThreadReferenceProxyImpl threadRef, StackFrameProxyImpl frame) {
+    SuspendedContext(Project project, VirtualMachineProxyImpl vm, ThreadReferenceProxyImpl threadRef,
+                     StackFrameProxyImpl frame) {
         this.attachedVm = vm;
         this.owningThread = threadRef;
         this.frame = frame;
         this.project = project;
-        this.projectRoot = projectRoot;
+        this.projectRoot = project.sourceRoot().toAbsolutePath().toString();
         this.sourceType = (project instanceof SingleFileProject) ? DebugSourceType.SINGLE_FILE :
                 DebugSourceType.PACKAGE;
         this.lineNumber = -1;

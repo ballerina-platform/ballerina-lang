@@ -109,7 +109,8 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         for (String type : types) {
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(paramTypeRange.get(), type));
-            String commandTitle = String.format(CommandConstants.CHANGE_PARAM_TYPE_TITLE, paramSymbol.name(), type);
+            String commandTitle = String.format(CommandConstants.CHANGE_PARAM_TYPE_TITLE, paramSymbol.getName().get(),
+                                                type);
             actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         }
         return actions;

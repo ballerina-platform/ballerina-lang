@@ -19,7 +19,7 @@
   {
     "description": "Chained access.",
     "code": "Person? p2 = getPerson(\"John\", 30); p2?.addr?.city;",
-    "expr": "Santa Clara"
+    "expr": "\"Santa Clara\""
   },
   {
     "description": "Chained null access.",
@@ -32,6 +32,6 @@
   {
     "description": "Default value usage.",
     "code": "string defaultCity = \"San Jose\"; p3?.addr?.city ?: defaultCity;",
-    "expr": "San Jose"
+    "expr": "\"San Jose\""
   }
 ]

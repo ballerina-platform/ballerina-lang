@@ -14,5 +14,8 @@ public type Error CacheError;
 # Represents gRPC related errors.
 public type GrpcError CancelledError | UnKnownError | CacheError;
 
-# Represents union of builtin error
-public type YErrorType error|never;
+# Represents union of builtin error and string.
+public type YErrorType error | string;
+
+# Represents link to YErrorType.
+public type LinktoYError YErrorType;

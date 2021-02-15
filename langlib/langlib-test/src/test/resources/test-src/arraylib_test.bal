@@ -367,7 +367,7 @@ function testTupleRemoveAll() returns [int, string] {
     return t;
 }
 
-function testTupleRemoveAllForTupleWithRestMemberType() returns [int, string] {
+function testTupleRemoveAllForTupleWithRestMemberType() returns [int, string, boolean...] {
     [int, string, boolean...] t = [1, "hello", true];
     t.removeAll();
     return t;
@@ -535,8 +535,11 @@ function testInvalidPushOnUnionOfSameBasicType() {
     assertTrue(res is error);
 
     error err = <error> res;
+
+    var message = err.detail()["message"];
+    string detailMessage = message is error? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
-    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()["message"].toString());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage);
 
     fn = function () {
         arr.unshift("foo");
@@ -546,8 +549,11 @@ function testInvalidPushOnUnionOfSameBasicType() {
     assertTrue(res is error);
 
     err = <error> res;
+
+    message = err.detail()["message"];
+    detailMessage = message is error? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
-    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()["message"].toString());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage);
 }
 
 function testShiftOperation() {
@@ -565,8 +571,10 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     assertTrue(res is error);
 
     error err = <error> res;
+    var message = err.detail()["message"];
+    string detailMessage = message is error? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
-    assertValueEquality("shift() not supported on type 'null'", err.detail()["message"].toString());
+    assertValueEquality("shift() not supported on type 'null'", detailMessage);
 }
 
 type Student record {|

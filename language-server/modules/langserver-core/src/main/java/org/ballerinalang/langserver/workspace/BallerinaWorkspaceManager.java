@@ -24,11 +24,11 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.CloudToml;
 import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.KubernetesToml;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.Package;
@@ -235,10 +235,10 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // create or update Dependencies.toml
             //TODO: Remove this call with workspace events
             updateDependenciesToml(params.getTextDocument().getText(), projectPair, true);
-        } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.KUBERNETES_TOML))) {
-            // create or update Kubernetes.toml
+        } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.CLOUD_TOML))) {
+            // create or update Cloud.toml
             //TODO: Remove this call with workspace events
-            updateKubernetesToml(params.getTextDocument().getText(), projectPair, true);
+            updateCloudToml(params.getTextDocument().getText(), projectPair, true);
         } else if (ProjectPaths.isBalFile(filePath)) {
             // update .bal document, if not exists reload project instance
             //TODO: Remove this call with workspace events
@@ -268,9 +268,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.DEPENDENCIES_TOML))) {
             // create or update Dependencies.toml
             updateDependenciesToml(params.getContentChanges().get(0).getText(), projectPair.get(), false);
-        } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.KUBERNETES_TOML))) {
-            // create or update Kubernetes.toml
-            updateKubernetesToml(params.getContentChanges().get(0).getText(), projectPair.get(), false);
+        } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.CLOUD_TOML))) {
+            // create or update Cloud.toml
+            updateCloudToml(params.getContentChanges().get(0).getText(), projectPair.get(), false);
         } else if (ProjectPaths.isBalFile(filePath)) {
             // update .bal document
             updateDocument(filePath, params.getContentChanges().get(0).getText(), projectPair.get(), false);
@@ -330,30 +330,30 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    private void updateKubernetesToml(String content, ProjectPair projectPair, boolean createIfNotExists)
+    private void updateCloudToml(String content, ProjectPair projectPair, boolean createIfNotExists)
             throws WorkspaceDocumentException {
         // Lock Project Instance
         projectPair.locker().lock();
         try {
-            Optional<KubernetesToml> kubernetesToml = projectPair.project().currentPackage().kubernetesToml();
+            Optional<CloudToml> cloudToml = projectPair.project().currentPackage().cloudToml();
             // Get toml
-            if (kubernetesToml.isEmpty()) {
+            if (cloudToml.isEmpty()) {
                 if (createIfNotExists) {
                     DocumentConfig documentConfig = DocumentConfig.from(
-                            DocumentId.create(ProjectConstants.KUBERNETES_TOML, null), content,
-                            ProjectConstants.KUBERNETES_TOML
+                            DocumentId.create(ProjectConstants.CLOUD_TOML, null), content,
+                            ProjectConstants.CLOUD_TOML
                     );
                     Package pkg = projectPair.project().currentPackage().modify()
-                            .addKubernetesToml(documentConfig)
+                            .addCloudToml(documentConfig)
                             .apply();
                     // Update project instance
                     projectPair.setProject(pkg.project());
                     return;
                 }
-                throw new WorkspaceDocumentException(ProjectConstants.KUBERNETES_TOML + " does not exists!");
+                throw new WorkspaceDocumentException(ProjectConstants.CLOUD_TOML + " does not exists!");
             }
             // Update toml
-            KubernetesToml updatedToml = kubernetesToml.get().modify().withContent(content).apply();
+            CloudToml updatedToml = cloudToml.get().modify().withContent(content).apply();
             // Update project instance
             projectPair.setProject(updatedToml.packageInstance().project());
         } finally {

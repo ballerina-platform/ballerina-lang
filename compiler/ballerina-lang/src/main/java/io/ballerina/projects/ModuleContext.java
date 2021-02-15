@@ -66,7 +66,7 @@ class ModuleContext {
     private final boolean isDefaultModule;
     private final Map<DocumentId, DocumentContext> srcDocContextMap;
     private final Collection<DocumentId> testSrcDocIds;
-    private final MdDocument moduleMd;
+    private final MdDocumentContext moduleMdContext;
     private final Map<DocumentId, DocumentContext> testDocContextMap;
     private final Project project;
     private final CompilationCache compilationCache;
@@ -86,7 +86,7 @@ class ModuleContext {
                   boolean isDefaultModule,
                   Map<DocumentId, DocumentContext> srcDocContextMap,
                   Map<DocumentId, DocumentContext> testDocContextMap,
-                  MdDocument moduleMd,
+                  MdDocumentContext moduleMd,
                   List<ModuleDescriptor> moduleDescDependencies) {
         this.project = project;
         this.moduleId = moduleId;
@@ -96,7 +96,7 @@ class ModuleContext {
         this.srcDocIds = Collections.unmodifiableCollection(srcDocContextMap.keySet());
         this.testDocContextMap = testDocContextMap;
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
-        this.moduleMd = moduleMd;
+        this.moduleMdContext = moduleMd;
         this.moduleDescDependencies = Collections.unmodifiableList(moduleDescDependencies);
 
         ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
@@ -117,7 +117,8 @@ class ModuleContext {
 
         return new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleDescriptor(),
                 moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap,
-                moduleConfig.moduleMd(), moduleConfig.dependencies());
+                moduleConfig.moduleMd().map(c ->MdDocumentContext.from(c)).orElse(null),
+                moduleConfig.dependencies());
     }
 
     ModuleId moduleId() {
@@ -254,7 +255,7 @@ class ModuleContext {
 
     void resolveDependencies(DependencyResolution dependencyResolution) {
         Set<ModuleDependency> moduleDependencies = new HashSet<>();
-        if (this.project.kind() == ProjectKind.BALR_PROJECT) {
+        if (this.project.kind() == ProjectKind.BALA_PROJECT) {
             for (ModuleDescriptor dependencyModDesc : moduleDescDependencies) {
                 // Dependencies loaded from cache should not contain test dependencies
                 addModuleDependency(dependencyModDesc.org(), dependencyModDesc.packageName(),
@@ -420,7 +421,7 @@ class ModuleContext {
         moduleContext.birBytes = moduleContext.compilationCache.getBir(moduleContext.moduleName());
     }
 
-    static void resolveDependenciesFromBALOInternal(ModuleContext moduleContext) {
+    static void resolveDependenciesFromBALAInternal(ModuleContext moduleContext) {
         // TODO implement
     }
 
@@ -439,7 +440,7 @@ class ModuleContext {
         // TODO implement
     }
 
-    public Optional<MdDocument> moduleMd() {
-        return Optional.ofNullable(this.moduleMd);
+    Optional<MdDocumentContext> moduleMdContext() {
+        return Optional.ofNullable(this.moduleMdContext);
     }
 }

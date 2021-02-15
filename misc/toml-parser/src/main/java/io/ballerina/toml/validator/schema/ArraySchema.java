@@ -18,20 +18,18 @@
 
 package io.ballerina.toml.validator.schema;
 
+import java.util.Map;
+
 /**
  * Represents array schema in JSON schema.
  *
  * @since 2.0.0
  */
 public class ArraySchema extends AbstractSchema {
-    private AbstractSchema items;
+    private final AbstractSchema items;
 
-    public ArraySchema(Type type) {
-        super(type);
-    }
-
-    public ArraySchema(Type type, AbstractSchema items) {
-        super(type);
+    public ArraySchema(Type type, Map<String, String> message, AbstractSchema items) {
+        super(type, message);
         this.items = items;
     }
 

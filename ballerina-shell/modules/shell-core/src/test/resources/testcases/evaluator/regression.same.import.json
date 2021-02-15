@@ -22,6 +22,6 @@
   {
     "description": "Use java lib II.",
     "code": "java:toString(x)",
-    "expr": "Hello"
+    "expr": "\"Hello\""
   }
 ]

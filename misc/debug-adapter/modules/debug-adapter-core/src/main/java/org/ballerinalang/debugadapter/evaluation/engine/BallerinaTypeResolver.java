@@ -122,7 +122,7 @@ public class BallerinaTypeResolver {
         return semanticContext.moduleSymbols()
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS)
-                .filter(symbol -> encodeIdentifier(symbol.name(), IdentifierModifier.IdentifierType.OTHER)
+                .filter(symbol -> encodeIdentifier(symbol.getName().get(), IdentifierModifier.IdentifierType.OTHER)
                         .equals(typeName))
                 .findAny();
     }

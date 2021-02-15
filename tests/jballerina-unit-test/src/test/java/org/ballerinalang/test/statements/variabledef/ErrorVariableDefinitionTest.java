@@ -229,6 +229,14 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[1].stringValue(), "{\"message\":\"Msg\"}");
     }
 
+    @Test(description = "Test error binding pattern")
+    public void testErrorBindingPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorBindingPattern");
+        Assert.assertEquals(returns[0].stringValue(), "Detail Info");
+        Assert.assertEquals(returns[1].stringValue(), "true");
+        Assert.assertEquals(returns[2].stringValue(), "{A:\"a\", B:\"b\"}");
+    }
+
     @Test
     public void testNegativeErrorVariables() {
         CompileResult resultNegative = BCompileUtil.

@@ -223,4 +223,58 @@ public class SymbolLookupTest {
         Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, 19, 4, moduleID);
         assertList(symbolsInFile, Arrays.asList("test", "x"));
     }
+
+    @Test
+    public void testSymbolLookupInOnFail() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_onfail.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        Map<String, Symbol> symbolsInDo = getSymbolsInFile(model, srcFile, 20, 21, moduleID);
+        assertList(symbolsInDo, Arrays.asList("test", "e1", "str"));
+
+        Map<String, Symbol> symbolsInTrx = getSymbolsInFile(model, srcFile, 24, 18, moduleID);
+        assertList(symbolsInTrx, Arrays.asList("test", "res"));
+
+        Map<String, Symbol> symbolsInTrxOnFail = getSymbolsInFile(model, srcFile, 26, 21, moduleID);
+        assertList(symbolsInTrxOnFail, Arrays.asList("test", "e2", "str"));
+    }
+
+    @Test
+    public void testSymbolLookupInQuery() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_query.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        Map<String, Symbol> symbolsForWhere = getSymbolsInFile(model, srcFile, 22, 21, moduleID);
+        assertList(symbolsForWhere, Arrays.asList("test", "arr1", "arr2", "i", "j"));
+
+        Map<String, Symbol> symbolsForSelect = getSymbolsInFile(model, srcFile, 28, 21, moduleID);
+        assertList(symbolsForSelect, Arrays.asList("test", "arr1", "arr2", "i", "j", "stringVal", "intVal", "res1"));
+
+        Map<String, Symbol> symbolsForQueryAct = getSymbolsInFile(model, srcFile, 31, 20, moduleID);
+        assertList(symbolsForQueryAct, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "ii"));
+
+        Map<String, Symbol> symbolsForJoinLHS = getSymbolsInFile(model, srcFile, 36, 20, moduleID);
+        assertList(symbolsForJoinLHS, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "i"));
+
+        Map<String, Symbol> symbolsForJoinRHS = getSymbolsInFile(model, srcFile, 36, 28, moduleID);
+        assertList(symbolsForJoinRHS, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "j"));
+
+        Map<String, Symbol> symbolsForOrderBy = getSymbolsInFile(model, srcFile, 50, 25, moduleID);
+        assertList(symbolsForOrderBy, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "p1",
+                "p2", "personList", "p"));
+    }
 }

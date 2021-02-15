@@ -33,18 +33,15 @@ import java.util.Collections;
 public class STListMatchPatternNode extends STNode {
     public final STNode openBracket;
     public final STNode matchPatterns;
-    public final STNode restMatchPattern;
     public final STNode closeBracket;
 
     STListMatchPatternNode(
             STNode openBracket,
             STNode matchPatterns,
-            STNode restMatchPattern,
             STNode closeBracket) {
         this(
                 openBracket,
                 matchPatterns,
-                restMatchPattern,
                 closeBracket,
                 Collections.emptyList());
     }
@@ -52,19 +49,16 @@ public class STListMatchPatternNode extends STNode {
     STListMatchPatternNode(
             STNode openBracket,
             STNode matchPatterns,
-            STNode restMatchPattern,
             STNode closeBracket,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.LIST_MATCH_PATTERN, diagnostics);
         this.openBracket = openBracket;
         this.matchPatterns = matchPatterns;
-        this.restMatchPattern = restMatchPattern;
         this.closeBracket = closeBracket;
 
         addChildren(
                 openBracket,
                 matchPatterns,
-                restMatchPattern,
                 closeBracket);
     }
 
@@ -72,7 +66,6 @@ public class STListMatchPatternNode extends STNode {
         return new STListMatchPatternNode(
                 this.openBracket,
                 this.matchPatterns,
-                this.restMatchPattern,
                 this.closeBracket,
                 diagnostics);
     }
@@ -80,12 +73,10 @@ public class STListMatchPatternNode extends STNode {
     public STListMatchPatternNode modify(
             STNode openBracket,
             STNode matchPatterns,
-            STNode restMatchPattern,
             STNode closeBracket) {
         if (checkForReferenceEquality(
                 openBracket,
                 matchPatterns,
-                restMatchPattern,
                 closeBracket)) {
             return this;
         }
@@ -93,7 +84,6 @@ public class STListMatchPatternNode extends STNode {
         return new STListMatchPatternNode(
                 openBracket,
                 matchPatterns,
-                restMatchPattern,
                 closeBracket,
                 diagnostics);
     }

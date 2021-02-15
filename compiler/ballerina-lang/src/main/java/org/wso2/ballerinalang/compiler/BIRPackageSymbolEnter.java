@@ -335,7 +335,7 @@ public class BIRPackageSymbolEnter {
         String pkgVersion = getStringCPEntryValue(dataInStream);
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageCache.getSymbol(importPkgID);
-        //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
+        //TODO: after bala_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
         this.env.pkgSymbol.imports.add(importPackageSymbol);
@@ -425,6 +425,9 @@ public class BIRPackageSymbolEnter {
         byte origin = dataInStream.readByte();
 
         byte[] docBytes = readDocBytes(dataInStream);
+
+        // Skip annotation attachments for now
+        dataInStream.skip(dataInStream.readLong());
 
         BType type = readBType(dataInStream);
         if (type.tag == TypeTags.INVOKABLE) {
@@ -1262,6 +1265,11 @@ public class BIRPackageSymbolEnter {
                         tupleMemberTypes.add(readTypeFromCp());
                     }
                     bTupleType.tupleTypes = tupleMemberTypes;
+
+                    if (inputStream.readBoolean()) {
+                        bTupleType.restType = readTypeFromCp();
+                    }
+
                     return bTupleType;
                 case TypeTags.FUTURE:
                     BFutureType bFutureType = new BFutureType(TypeTags.FUTURE, null, symTable.futureType.tsymbol);
