@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.evaluation.utils;
 
 import com.sun.jdi.ClassObjectReference;
 import com.sun.jdi.ClassType;
+import com.sun.jdi.InvocationException;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
@@ -35,6 +36,7 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -49,6 +51,7 @@ public class EvaluationUtils {
     public static final String B_UNARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.unary";
     public static final String B_BINARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.binary";
     public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.internal.TypeChecker";
+    public static final String B_TYPE_CREATOR_CLASS = "io.ballerina.runtime.api.creators.TypeCreator";
     public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.utils.StringUtils";
     public static final String B_TYPE_UTILS_CLASS = "io.ballerina.runtime.api.utils.TypeUtils";
     public static final String B_XML_FACTORY_CLASS = "io.ballerina.runtime.internal.XmlFactory";
@@ -57,9 +60,11 @@ public class EvaluationUtils {
     public static final String B_STRING_CLASS = "io.ballerina.runtime.api.values.BString";
     public static final String FROM_STRING_CLASS = "org.ballerinalang.langlib.xml.FromString";
     public static final String B_TYPE_CLASS = "io.ballerina.runtime.api.types.Type";
+    public static final String B_TYPE_ARRAY_CLASS = "io.ballerina.runtime.api.types.Type[]";
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
     private static final String B_LINK_CLASS = "io.ballerina.runtime.api.values.BLink";
+    private static final String B_ERROR_VALUE_CLASS = "io.ballerina.runtime.internal.values.ErrorValue";
     private static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
     private static final String JAVA_LONG_CLASS = "java.lang.Long";
     private static final String JAVA_DOUBLE_CLASS = "java.lang.Double";
@@ -88,6 +93,8 @@ public class EvaluationUtils {
     public static final String B_UNARY_NOT_METHOD = "unaryNot";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String CHECK_IS_TYPE_METHOD = "checkIsType";
+    public static final String CHECK_CAST_METHOD = "checkCast";
+    public static final String CREATE_UNION_TYPE_METHOD = "createUnionType";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String VALUE_FROM_STRING_METHOD = "fromString";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
@@ -201,6 +208,9 @@ public class EvaluationUtils {
      */
     public static Value getValueAsObject(SuspendedContext context, Value value) throws EvaluationException {
         BVariable bVar = VariableFactory.getVariable(context, value);
+        if (value instanceof ObjectReference) {
+            return value;
+        }
         return getValueAsObject(context, bVar);
     }
 
@@ -300,6 +310,21 @@ public class EvaluationUtils {
                 argTypeNames);
         fromStringMethod.setArgValues(Collections.singletonList(stringRef));
         return fromStringMethod.invoke();
+    }
+
+    /**
+     * Checks if a given invocation exception is an instance of {@link io.ballerina.runtime.api.values.BError} and if
+     * so, returns it as a JDI value instance.
+     */
+    public static Optional<Value> getBError(Exception e) {
+        if (!(e instanceof InvocationException)) {
+            return Optional.empty();
+        }
+        String typeName = ((InvocationException) e).exception().referenceType().name();
+        if (typeName.equals(B_ERROR_VALUE_CLASS)) {
+            return Optional.ofNullable(((InvocationException) e).exception());
+        }
+        return Optional.empty();
     }
 
     private static boolean compare(List<String> list1, List<String> list2) {
