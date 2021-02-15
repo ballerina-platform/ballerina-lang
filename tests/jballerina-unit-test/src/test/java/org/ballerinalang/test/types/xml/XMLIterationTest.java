@@ -54,7 +54,7 @@ public class XMLIterationTest {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 17);
+        Assert.assertEquals(negative.getErrorCount(), 19);
         int index = 0;
         BAssertUtil.validateError(negative, index++,
                                   "invalid tuple binding pattern: attempted to infer a tuple type, but found 'xml'",
@@ -105,9 +105,15 @@ public class XMLIterationTest {
                 "incompatible types: '(xml<xml:Element>|xml<xml:Text>)' is not an iterable collection",
                 68, 44);
         BAssertUtil.validateError(negative, index++,
+                "function invocation on type '(xml:Element|xml:Text)' is not supported",
+                72, 68);
+        BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
                 72, 68);
+        BAssertUtil.validateError(negative, index++,
+                "function invocation on type '(xml<xml:Element>|xml<xml:Text>)' is not supported",
+                73, 68);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",

@@ -144,7 +144,7 @@ function xmlTest() returns [int, int, xml] {
     xml ch = xdata.getChildren().elements()[1];
     'xml:Element che = <'xml:Element> ch;
     xml m = che.getChildren().elements()
-                             .'map(function ('xml:Element|'xml:Text x) returns ('xml:Element|'xml:Text) {
+                             .'map(function (xml x) returns (xml) {
                                 index += 1;
                                 if x is 'xml:Element {
                                     return x;
