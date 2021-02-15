@@ -28,14 +28,12 @@ import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -49,12 +47,8 @@ import java.util.regex.Matcher;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
-    private static final String UNDEFINED_FUNCTION = "undefined function";
 
-    @Override
-    public boolean isEnabled(LanguageServerContext serverContext) {
-        return true;
-    }
+    private static final String UNDEFINED_FUNCTION = "undefined function";
 
     /**
      * {@inheritDoc}
@@ -77,35 +71,40 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
         Node cursorNode = context.positionDetails().matchedNode();
 
-        FunctionCallExpressionNode callExpr = null;
-        if (cursorNode != null) {
-            if (cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
-                callExpr = (FunctionCallExpressionNode) cursorNode;
-            } else if (cursorNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
-                VariableDeclarationNode varNode = (VariableDeclarationNode) cursorNode;
-                Optional<ExpressionNode> initializer = varNode.initializer();
-                if (initializer.isPresent() && initializer.get().kind() == SyntaxKind.FUNCTION_CALL) {
-                    callExpr = (FunctionCallExpressionNode) initializer.get();
-                }
-            } else if (cursorNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
-                AssignmentStatementNode assignmentNode = (AssignmentStatementNode) cursorNode;
-                if (assignmentNode.expression().kind() == SyntaxKind.FUNCTION_CALL) {
-                    callExpr = (FunctionCallExpressionNode) assignmentNode.expression();
-                }
-            }
+        if (cursorNode == null) {
+            return Collections.emptyList();
         }
         
-        if (callExpr != null) {
-            boolean isWithinFile = callExpr.functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
-            if (isWithinFile) {
-                String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);
-                CodeAction action = new CodeAction(commandTitle);
-                action.setKind(CodeActionKind.QuickFix);
-                action.setCommand(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args));
-                action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
-                return Collections.singletonList(action);
+        FunctionCallExpressionNode callExpr = null;
+        if (cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
+            callExpr = (FunctionCallExpressionNode) cursorNode;
+        } else if (cursorNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
+            VariableDeclarationNode varNode = (VariableDeclarationNode) cursorNode;
+            Optional<ExpressionNode> initializer = varNode.initializer();
+            if (initializer.isPresent() && initializer.get().kind() == SyntaxKind.FUNCTION_CALL) {
+                callExpr = (FunctionCallExpressionNode) initializer.get();
+            }
+        } else if (cursorNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
+            AssignmentStatementNode assignmentNode = (AssignmentStatementNode) cursorNode;
+            if (assignmentNode.expression().kind() == SyntaxKind.FUNCTION_CALL) {
+                callExpr = (FunctionCallExpressionNode) assignmentNode.expression();
             }
         }
-        return new ArrayList<>();
+
+        if (callExpr == null) {
+            return Collections.emptyList();
+        }
+
+        boolean isWithinFile = callExpr.functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
+        if (isWithinFile) {
+            String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);
+            CodeAction action = new CodeAction(commandTitle);
+            action.setKind(CodeActionKind.QuickFix);
+            action.setCommand(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args));
+            action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
+            return Collections.singletonList(action);
+        }
+
+        return Collections.emptyList();
     }
 }

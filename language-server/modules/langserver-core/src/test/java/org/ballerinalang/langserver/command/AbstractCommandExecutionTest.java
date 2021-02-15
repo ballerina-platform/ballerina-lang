@@ -42,8 +42,6 @@ import java.util.List;
 
 /**
  * Command Execution Test Cases.
- *
- * @since 0.982.0
  */
 public abstract class AbstractCommandExecutionTest {
 

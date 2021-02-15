@@ -98,27 +98,30 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         SyntaxTree syntaxTree = context.workspace().syntaxTree(filePath.get()).orElseThrow();
         NonTerminalNode cursorNode = CommonUtil.findNode(new Range(position, position), syntaxTree);
+
+        if (cursorNode == null) {
+            return Collections.emptyList();
+        }
+
         // TODO: We can replace the following with a visitor later since the same logic is used in the code action
         FunctionCallExpressionNode fnCallExprNode = null;
-        if (cursorNode != null) {
-            if (cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
-                fnCallExprNode = (FunctionCallExpressionNode) cursorNode;
-            } else if (cursorNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
-                VariableDeclarationNode varNode = (VariableDeclarationNode) cursorNode;
-                Optional<ExpressionNode> initializer = varNode.initializer();
-                if (initializer.isPresent() && initializer.get().kind() == SyntaxKind.FUNCTION_CALL) {
-                    fnCallExprNode = (FunctionCallExpressionNode) initializer.get();
-                }
-            } else if (cursorNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
-                AssignmentStatementNode assignmentNode = (AssignmentStatementNode) cursorNode;
-                if (assignmentNode.expression().kind() == SyntaxKind.FUNCTION_CALL) {
-                    fnCallExprNode = (FunctionCallExpressionNode) assignmentNode.expression();
-                }
-            } else if (cursorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) cursorNode;
-                if (nameReferenceNode.parent().kind() == SyntaxKind.FUNCTION_CALL) {
-                    fnCallExprNode = (FunctionCallExpressionNode) nameReferenceNode.parent();
-                }
+        if (cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
+            fnCallExprNode = (FunctionCallExpressionNode) cursorNode;
+        } else if (cursorNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
+            VariableDeclarationNode varNode = (VariableDeclarationNode) cursorNode;
+            Optional<ExpressionNode> initializer = varNode.initializer();
+            if (initializer.isPresent() && initializer.get().kind() == SyntaxKind.FUNCTION_CALL) {
+                fnCallExprNode = (FunctionCallExpressionNode) initializer.get();
+            }
+        } else if (cursorNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
+            AssignmentStatementNode assignmentNode = (AssignmentStatementNode) cursorNode;
+            if (assignmentNode.expression().kind() == SyntaxKind.FUNCTION_CALL) {
+                fnCallExprNode = (FunctionCallExpressionNode) assignmentNode.expression();
+            }
+        } else if (cursorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) cursorNode;
+            if (nameReferenceNode.parent().kind() == SyntaxKind.FUNCTION_CALL) {
+                fnCallExprNode = (FunctionCallExpressionNode) nameReferenceNode.parent();
             }
         }
 

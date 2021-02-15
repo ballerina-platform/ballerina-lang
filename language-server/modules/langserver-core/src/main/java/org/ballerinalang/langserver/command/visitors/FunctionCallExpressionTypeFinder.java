@@ -34,6 +34,8 @@ import java.util.Optional;
  * Finds the expected {@link TypeSymbol} of a provided {@link FunctionCallExpressionNode} node. This will try its
  * best to return a valid {@link TypeSymbol}. Else, the returned result will probably be a
  * {@link TypeDescKind#COMPILATION_ERROR}. Rarely, will return {@code null}.
+ *
+ * @since 2.0.0
  */
 public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
