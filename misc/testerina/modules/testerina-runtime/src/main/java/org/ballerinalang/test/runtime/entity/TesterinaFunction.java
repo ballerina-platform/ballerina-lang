@@ -89,9 +89,11 @@ public class TesterinaFunction {
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
             return method.invoke(null, args);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new BallerinaTestException("Failed to invoke the function '" +
                                              funcName + " due to " + e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            throw new BallerinaTestException(e.getTargetException().getMessage());
         }
     }
 

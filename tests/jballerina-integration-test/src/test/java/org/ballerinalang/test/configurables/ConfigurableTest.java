@@ -72,6 +72,14 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
+    public void testAPICNegativeTest() throws BallerinaTestException {
+        String errorMsg = "Configurable feature is yet to be supported for type '(int[] & readonly)[] & readonly' " +
+                "used in variable 'configPkg:invalidArr'";
+        executeBalCommand("/testErrorProject", new LogLeecher(errorMsg, ERROR), "test",
+                "configPkg", null);
+    }
+
+    @Test
     public void testEnvironmentVariableBasedConfigFile() throws BallerinaTestException {
         String configFilePath = Paths.get(testFileLocation, "config_files", "Config.toml").toString();
         executeBalCommand("", testsPassed, "run", "envVarPkg", addEnvVariables(configFilePath));
