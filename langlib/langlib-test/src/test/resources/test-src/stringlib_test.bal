@@ -137,3 +137,9 @@ function testEqualsIgnoreCaseAscii() {
 function testIncludes() returns boolean {
     return strings:includes(str1, str, 6);
 }
+
+function testChainedStringFunctions() returns string {
+    string foo = "foo1";
+    foo = foo.concat("foo2").concat("foo3").concat("foo4");
+    return foo;
+}

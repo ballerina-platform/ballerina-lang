@@ -105,12 +105,12 @@ class AIDataMapperCodeActionUtil {
         }
 
         List<DiagnosticProperty<?>> props = diagnostic.properties();
+        TypeDescKind leftSymbolType = ((TypeSymbol) props.get(LEFT_SYMBOL_INDEX).value()).typeKind();
+
         if (props.size() != 2 || props.get(RIGHT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC ||
-                props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC) {
-            return fEdits;
-        } else if ((((TypeSymbol) props.get(0).value()).typeKind() != TypeDescKind.TYPE_REFERENCE) &&
-                (((TypeSymbol) props.get(0).value()).typeKind() != TypeDescKind.RECORD) &&
-                (((TypeSymbol) props.get(0).value()).typeKind() != TypeDescKind.UNION)) {
+                props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC ||
+                ((leftSymbolType != TypeDescKind.TYPE_REFERENCE) && (leftSymbolType != TypeDescKind.RECORD) &&
+                (leftSymbolType != TypeDescKind.UNION))) {
             return fEdits;
         } else {
             Symbol lftTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
