@@ -144,10 +144,9 @@ public class TransactionLocalContext {
         return true;
     }
 
-
-    public void rollbackTransaction(String transactionBlockId) {
+    public void notifyAbortAndClearTransaction(String transactionBlockId) {
         transactionContextStore.clear();
-        transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId);
+        transactionResourceManager.notifyAbort(globalTransactionId, transactionBlockId);
     }
 
     public void setRollbackOnlyError(Object error) {
