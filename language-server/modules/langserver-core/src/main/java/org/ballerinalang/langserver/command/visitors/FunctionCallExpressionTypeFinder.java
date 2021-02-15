@@ -35,13 +35,13 @@ import java.util.Optional;
  * best to return a valid {@link TypeSymbol}. Else, the returned result will probably be a
  * {@link TypeDescKind#COMPILATION_ERROR}. Rarely, will return {@code null}.
  */
-public class UndefinedFunctionTypeFinder extends NodeVisitor {
+public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     private final SemanticModel semanticModel;
     private TypeSymbol result;
     private boolean resultFound = false;
 
-    public UndefinedFunctionTypeFinder(SemanticModel semanticModel) {
+    public FunctionCallExpressionTypeFinder(SemanticModel semanticModel) {
         this.semanticModel = semanticModel;
     }
 

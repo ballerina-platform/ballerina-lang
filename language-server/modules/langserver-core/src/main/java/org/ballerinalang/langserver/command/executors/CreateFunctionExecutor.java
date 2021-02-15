@@ -33,7 +33,7 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.CommandUtil;
-import org.ballerinalang.langserver.command.visitors.UndefinedFunctionTypeFinder;
+import org.ballerinalang.langserver.command.visitors.FunctionCallExpressionTypeFinder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
@@ -98,6 +98,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         SyntaxTree syntaxTree = context.workspace().syntaxTree(filePath.get()).orElseThrow();
         NonTerminalNode cursorNode = CommonUtil.findNode(new Range(position, position), syntaxTree);
+        // TODO: We can replace the following with a visitor later since the same logic is used in the code action
         FunctionCallExpressionNode fnCallExprNode = null;
         if (cursorNode != null) {
             if (cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
@@ -127,7 +128,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         SemanticModel semanticModel = context.workspace().semanticModel(filePath.get()).orElseThrow();
 
-        UndefinedFunctionTypeFinder typeFinder = new UndefinedFunctionTypeFinder(semanticModel);
+        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
         TypeSymbol returnTypeSymbol = typeFinder.typeOf(fnCallExprNode).orElse(null);
 
         // Return type symbol of kind compilation error is treated as void
