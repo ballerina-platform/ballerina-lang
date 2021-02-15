@@ -52,6 +52,7 @@ public class ModuleTupleVariableTest {
                 "testTupleBindingWithRecordsAndObjects",
                 "testTupleBindingPatternWithRestBindingPattern",
                 "testDeclaredWithVar",
+                "testDeclaredWithVar2",
                 "testTupleVarWithAnnotations",
                 "testVariableForwardReferencing",
                 "testVariableDeclaredInTupleAsAnnotationValue"

@@ -77,6 +77,26 @@ public function testVariableDeclaredWithVar() {
     assertFalse(married5);
 }
 
+var {fieldA: [fieldAVar], fieldB: {a: fieldBMapVar}, fieldC: error(message), ...restInt} = foo();
+
+type complexRecord record {|
+    [int] fieldA;
+    map<string> fieldB;
+    error fieldC;
+    int...;
+|};
+
+function foo() returns complexRecord =>
+    {fieldA: [8], fieldB: {a: "Ballerina"}, fieldC: error("NullPointer"), "int1": 1, "int2": 2};
+
+function testVariableDeclaredWithVar2() {
+    assertEquality(8, fieldAVar);
+    assertEquality("Ballerina", fieldBMapVar);
+    assertEquality("NullPointer", message);
+    assertEquality(1, restInt["int1"]);
+    assertEquality(2, restInt["int2"]);
+}
+
 // Test record variable with rest binding pattern
 Student {name: studentName, age: studentAge, grade: studentGrade, ...marks} = getStudentDetails();
 var {name: studentName2, age: studentAge2, grade: studentGrade2, ...marks2} = getStudentDetails2();

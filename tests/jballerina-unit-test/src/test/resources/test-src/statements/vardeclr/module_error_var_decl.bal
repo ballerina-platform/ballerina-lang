@@ -115,6 +115,27 @@ function testErrorVarDeclaredWithVar() {
     assertTrue(otherDetails3["recoverable"]);
 }
 
+type varTestErrorDetail record {
+    [int] fieldA;
+    map<boolean> fieldB;
+    error fieldC;
+};
+
+type varTestError error<varTestErrorDetail>;
+
+var error(m, error(c), fieldA = [varA], fieldB = {a: varB}, fieldC = error(msgVar)) = <varTestError>foo();
+
+function foo() returns error =>
+        error("message", error("cause"), fieldA = [3], fieldB = {a: true}, fieldC = error("fieldC message"), oth = 1);
+
+function testErrorVarDeclaredWithVar2() {
+    assertEquality("message", m);
+    assertEquality("cause", c);
+    assertEquality(3, varA);
+    assertTrue(varB);
+    assertEquality("fieldC message", msgVar);
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

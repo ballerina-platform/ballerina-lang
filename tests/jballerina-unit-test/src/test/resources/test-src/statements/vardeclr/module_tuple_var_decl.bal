@@ -67,6 +67,18 @@ function testDeclaredWithVar() {
     assertEquality("", i);
 }
 
+var [[intVar], {a: intVar2}, error(message), ...restBp] = getComplexTuple();
+
+function getComplexTuple() returns [[int], map<int>, error, int...] => [[5], {a: 6}, error("error msg"), 12, 13];
+
+function testDeclaredWithVar2() {
+    assertEquality(5, intVar);
+    assertEquality(6, intVar2);
+    assertEquality("error msg", message);
+    assertEquality(12, restBp[0]);
+    assertEquality(13, restBp[1]);
+}
+
 // Test tuple var declaration with annotations
 const annotation map<string> annot on source var;
 

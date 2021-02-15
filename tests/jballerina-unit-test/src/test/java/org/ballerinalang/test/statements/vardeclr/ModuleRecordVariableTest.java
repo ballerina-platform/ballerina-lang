@@ -54,6 +54,7 @@ public class ModuleRecordVariableTest {
                 "testRecordVarWithAnnotations",
                 "testVariableForwardReferencing",
                 "testVariableDeclaredWithVar",
+                "testVariableDeclaredWithVar2",
                 "testRecordVariableWithRestBP",
                 "testVariableDeclaredInRecordAsAnnotationValue"
         };

@@ -1897,6 +1897,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable varNode) {
         if (varNode.isDeclaredWithVar) {
+            varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, symTable.noType,
+                    names.fromString(anonymousModelHelper.getNextTupleVarKey(env.enclPkg.packageID)), env,
+                    varNode.internal);
             // Symbol enter with type other
             List<BLangVariable> memberVariables = new ArrayList<>(varNode.memberVariables);
             if (varNode.restVariable != null) {
@@ -1919,11 +1922,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, SymbolEnv env) {
-        Name varName = names.fromString(anonymousModelHelper.getNextTupleVarKey(env.enclPkg.packageID));
-        varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env, varNode.internal);
+    boolean checkTypeAndVarCountConsistency(BLangTupleVariable var, SymbolEnv env) {
+        if (var.symbol == null) {
+            Name varName = names.fromString(anonymousModelHelper.getNextTupleVarKey(env.enclPkg.packageID));
+            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.type, varName, env, var.internal);
+        }
         
-        return checkTypeAndVarCountConsistency(varNode, null, env);
+        return checkTypeAndVarCountConsistency(var, null, env);
     }
 
     boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode,
@@ -2051,6 +2056,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable recordVar) {
         if (recordVar.isDeclaredWithVar) {
+            recordVar.symbol = defineVarSymbol(recordVar.pos, recordVar.flagSet, symTable.noType,
+                    names.fromString(anonymousModelHelper.getNextRecordVarKey(env.enclPkg.packageID)), env,
+                    recordVar.internal);
             // Symbol enter each member with type other.
             for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
                 BLangVariable value = variable.getValue();
@@ -2076,12 +2084,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    boolean symbolEnterAndValidateRecordVariable(BLangRecordVariable recordVar, SymbolEnv env) {
-        Name varName = names.fromString(anonymousModelHelper.getNextRecordVarKey(env.enclPkg.packageID));
-        recordVar.symbol =
-                defineVarSymbol(recordVar.pos, recordVar.flagSet, recordVar.type, varName, env, recordVar.internal);
+    boolean symbolEnterAndValidateRecordVariable(BLangRecordVariable var, SymbolEnv env) {
+        if (var.symbol == null) {
+            Name varName = names.fromString(anonymousModelHelper.getNextRecordVarKey(env.enclPkg.packageID));
+            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.type, varName, env, var.internal);
+        }
 
-        return validateRecordVariable(recordVar, env);
+        return validateRecordVariable(var, env);
     }
 
     boolean validateRecordVariable(BLangRecordVariable recordVar, SymbolEnv env) {
@@ -2410,6 +2419,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariable errorVar) {
         if (errorVar.isDeclaredWithVar) {
+            errorVar.symbol = defineVarSymbol(errorVar.pos, errorVar.flagSet, symTable.noType,
+                    names.fromString(anonymousModelHelper.getNextErrorVarKey(env.enclPkg.packageID)), env,
+                    errorVar.internal);
+
             // Symbol enter each member with type other.
             BLangSimpleVariable errorMsg = errorVar.message;
             if (errorMsg != null) {
@@ -2449,12 +2462,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    boolean symbolEnterAndValidateErrorVariable(BLangErrorVariable errorVar, SymbolEnv env) {
-        Name varName = names.fromString(anonymousModelHelper.getNextErrorVarKey(env.enclPkg.packageID));
-        errorVar.symbol =
-                defineVarSymbol(errorVar.pos, errorVar.flagSet, errorVar.type, varName, env, errorVar.internal);
+    boolean symbolEnterAndValidateErrorVariable(BLangErrorVariable var, SymbolEnv env) {
+        if (var.symbol == null) {
+            Name varName = names.fromString(anonymousModelHelper.getNextErrorVarKey(env.enclPkg.packageID));
+            var.symbol = defineVarSymbol(var.pos, var.flagSet, var.type, varName, env, var.internal);
+        }
 
-        return validateErrorVariable(errorVar, env);
+        return validateErrorVariable(var, env);
     }
 
     boolean validateErrorVariable(BLangErrorVariable errorVariable, SymbolEnv env) {
@@ -2666,7 +2680,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Module level variables declared with `var` already defined
         if ((env.scope.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE && memberVar.isDeclaredWithVar) {
             memberVar.symbol.type = type;
-            return;
+            memberVar.isDeclaredWithVar = false;
+            // Need to assign resolved type for member variables inside complex variable declared with `var`
+            if (memberVar.getKind() == NodeKind.VARIABLE) {
+                return;
+            }
         }
         defineNode(memberVar, env);
     }

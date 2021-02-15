@@ -1194,11 +1194,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     variable.type = symTable.semanticError;
                     return;
                 }
+
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
                 if (errorVariable.typeNode != null) {
                     symResolver.resolveTypeNode(errorVariable.typeNode, env);
                 }
                 errorVariable.type = rhsType;
+
                 if (!this.symbolEnter.symbolEnterAndValidateErrorVariable(errorVariable, env)) {
                     errorVariable.type = symTable.semanticError;
                     return;

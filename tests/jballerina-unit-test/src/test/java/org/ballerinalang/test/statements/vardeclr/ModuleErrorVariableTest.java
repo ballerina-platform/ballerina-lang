@@ -56,7 +56,8 @@ public class ModuleErrorVariableTest {
                 "testErrorVarWithAnnotations",
                 "testVariableForwardReferencing",
                 "testErrorVarWithRestVariable",
-                "testErrorVarDeclaredWithVar"
+                "testErrorVarDeclaredWithVar",
+                "testErrorVarDeclaredWithVar2"
         };
     }
 

@@ -1729,18 +1729,24 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (parentErrorVariable.cause != null) {
+            parentErrorVariable.cause.expr = generateErrorCauseLanglibFunction(parentErrorVariable.cause.pos,
+                    parentErrorVariable.cause.type, convertedErrorVarSymbol, null);
             BLangVariable errorCause = parentErrorVariable.cause;
+
             if (errorCause.getKind() == NodeKind.ERROR_VARIABLE) {
                 BLangErrorVariableDef errorVarDef = createErrorVariableDef(errorCause.pos,
                         (BLangErrorVariable) errorCause);
-                parentBlockStmt.addStatement(errorVarDef);
+                BLangNode blockStatementNode = rewrite(errorVarDef, env);
+                List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
+
+                for (BLangStatement statement : statements) {
+                    parentBlockStmt.addStatement(statement);
+                }
             } else {
                 BLangSimpleVariableDef causeVariableDef =
                         ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.cause.pos, parentBlockStmt);
                 causeVariableDef.var = (BLangSimpleVariable) parentErrorVariable.cause;
             }
-            parentErrorVariable.cause.expr = generateErrorCauseLanglibFunction(parentErrorVariable.cause.pos,
-                    parentErrorVariable.cause.type, convertedErrorVarSymbol, null);
         }
 
         if ((parentErrorVariable.detail == null || parentErrorVariable.detail.isEmpty())
