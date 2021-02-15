@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.model.ArgumentState;
 import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
@@ -89,6 +90,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DISPLAY_ANNOTATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
@@ -117,6 +119,7 @@ class JvmObservabilityGen {
     private int lambdaIndex;
     private int desugaredBBIndex;
     private int constantIndex;
+    private int defaultServiceIndex;
 
     private final Map<Object, BIROperand> compileTimeConstants;
 
@@ -127,6 +130,7 @@ class JvmObservabilityGen {
         this.lambdaIndex = 0;
         this.desugaredBBIndex = 0;
         this.constantIndex = 0;
+        this.defaultServiceIndex = 0;
     }
 
     /**
@@ -389,7 +393,16 @@ class JvmObservabilityGen {
             swapBasicBlockContent(startBB, newStartBB);
 
             if (isResource || isRemote) {
-                String serviceName = cleanUpServiceName(attachedTypeDef.internalName.value);
+                String serviceName = cleanUpServiceName(pkg.packageID.orgName.value + "_" +
+                        pkg.packageID.name.value + "_" + defaultServiceIndex++);
+                for (BIRNode.BIRAnnotationAttachment annotationAttachment : attachedTypeDef.annotAttachments) {
+                    if (!DISPLAY_ANNOTATION.equals(annotationAttachment.annotTagRef.value)) {
+                        continue;
+                    }
+                    serviceName = ((BIRNode.BIRAnnotationLiteralValue) (((BIRNode.BIRAnnotationRecordValue)
+                            annotationAttachment.annotValues.get(0)).annotValueEntryMap).get("label")).value.toString();
+                    defaultServiceIndex--;
+                }
                 String resourcePathOrFunction = functionName;
                 String resourceAccessor = null;
                 if (isResource) {
