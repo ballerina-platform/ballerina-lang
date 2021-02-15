@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -264,15 +265,19 @@ public class ConfigTomlParser {
         Type constraintType = tableType.getConstrainedType();
         int tableSize = tableNodeList.size();
         ListInitialValueEntry.ExpressionEntry[] tableEntries = new ListInitialValueEntry.ExpressionEntry[tableSize];
+        String[] keys = tableType.getFieldNames();
         for (int i = 0; i < tableSize; i++) {
-            validateKeyField(tableNodeList.get(i), tableType.getFieldNames(), tableType, variableName);
+            if (keys != null) {
+                validateKeyField(tableNodeList.get(i), keys, tableType, variableName);
+            }
             Object value = retrieveRecordValues(tableNodeList.get(i), variableName, (BIntersectionType) constraintType);
             tableEntries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         ArrayValue tableData =
                 new ArrayValueImpl(TypeCreator.createArrayType(constraintType), tableSize, tableEntries);
-        return new TableValueImpl<>((BTableType) tableType, tableData,
-                (ArrayValue) StringUtils.fromStringArray(tableType.getFieldNames()));
+        ArrayValue keyNames = keys == null ? (ArrayValue) ValueCreator.createArrayValue(new BString[]{}) :
+                (ArrayValue) StringUtils.fromStringArray(keys);
+        return new TableValueImpl<>((BTableType) tableType, tableData, keyNames);
     }
 
     private static void validateKeyField(TomlTableNode recordTable, String[] fieldNames, Type tableType,

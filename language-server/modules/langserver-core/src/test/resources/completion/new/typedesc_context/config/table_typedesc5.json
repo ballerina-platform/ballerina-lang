@@ -239,7 +239,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "record {\n\t${1}\n}",
+      "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -247,7 +247,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "record {|\n\t${1}\n|}",
+      "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -263,7 +263,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "object {\n\t${1}\n}",
+      "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     }
   ]

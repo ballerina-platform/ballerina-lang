@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Code Action for handling Invalid Liveness probe resource in Kubernetes.toml.
+ * Code Action for handling Invalid Liveness probe resource in Cloud.toml.
  *
  * @since 2.0.0
  */
