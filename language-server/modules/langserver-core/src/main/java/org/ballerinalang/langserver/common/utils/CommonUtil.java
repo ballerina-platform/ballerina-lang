@@ -46,6 +46,7 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
@@ -709,8 +710,23 @@ public class CommonUtil {
             String[] moduleParts = moduleName.split("/");
             String orgName = moduleParts[0];
             String alias = moduleParts[1];
+
             pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
             pkgPrefix = (preDeclaredLangLib) ? "'" + pkgPrefix : pkgPrefix;
+
+            // See if an alias (ex: import project.module1 as mod1) is used
+            List<ImportDeclarationNode> existingModuleImports = context.currentDocImports().stream()
+                    .filter(importDeclarationNode -> 
+                            CodeActionModuleId.from(importDeclarationNode).moduleName().equals(moduleID.moduleName()))
+                    .collect(Collectors.toList());
+
+            if (existingModuleImports.size() == 1) {
+                ImportDeclarationNode importDeclarationNode = existingModuleImports.get(0);
+                if (importDeclarationNode.prefix().isPresent()) {
+                    pkgPrefix = importDeclarationNode.prefix().get().prefix().text() + ":";
+                }
+            }
+            
             if (importsAcceptor != null && !preDeclaredLangLib) {
                 importsAcceptor.getAcceptor().accept(orgName, alias);
             }

@@ -51,13 +51,13 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 // TODO Doesn't work as expected because http module import failure
                 // {"createUndefinedFunction6.json", "createUndefinedFunction4.bal"},
 
-                 {"createUndefinedFunction7.json", "createUndefinedFunction5.bal"},
-                 {"createUndefinedFunction8.json", "createUndefinedFunction5.bal"},
-                 {"createUndefinedFunction9.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction7.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction8.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction9.json", "createUndefinedFunction5.bal"},
                 // TODO Doesn't work as expected because http module import failure
                 // {"createUndefinedFunction10.json", "createUndefinedFunction5.bal"},
-                 {"createUndefinedFunction11.json", "createUndefinedFunction5.bal"},
-                 {"createUndefinedFunction12.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction11.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction12.json", "createUndefinedFunction5.bal"},
                 // TODO Need to fix records support
                 // {"createUndefinedFunction13.json", "createUndefinedFunction5.bal"},
 
@@ -70,6 +70,8 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 // {"projectCreateUndefinedFunction5.json", "testproject/school.bal"},
                 // TODO Assignment let expressions not supported yet
                 // {"projectCreateUndefinedFunction6.json", "testproject/school.bal"},
+                {"projectCreateUndefinedFunctionWithModAlias.json", "testproject/modAlias.bal"},
+                {"projectCreateUndefinedFunctionWithModAlias2.json", "testproject/modAlias.bal"},
         };
     }
 
