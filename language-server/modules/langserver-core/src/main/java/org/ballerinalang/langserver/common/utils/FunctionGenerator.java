@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -185,21 +186,18 @@ public class FunctionGenerator {
      */
     public static String generateFunction(CodeActionContext context, boolean newLineAtStart, String functionName,
                                           List<String> args, TypeSymbol returnTypeSymbol) {
-        String returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol);
+        Optional<String> returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol);
 
         // padding
         int padding = 4;
         String paddingStr = StringUtils.repeat(" ", padding);
 
-        // returns clause
         String returnsClause = "";
-        if (returnType != null) {
-            returnsClause = "returns " + returnType;
-        }
-
-        // return statement
         String returnStmt = "";
-        if (returnType != null) {
+        if (returnType.isPresent()) {
+            // returns clause
+            returnsClause = "returns " + returnType.get();
+            // return statement
             returnStmt = "return " + CommonUtil.getDefaultValueForType(returnTypeSymbol) +
                     CommonKeys.SEMI_COLON_SYMBOL_KEY;
         }
@@ -245,14 +243,15 @@ public class FunctionGenerator {
      * @param typeSymbol Type symbol to be converted to a string
      * @return Return type as string
      */
-    public static String getReturnTypeAsString(DocumentServiceContext context, TypeSymbol typeSymbol) {
+    public static Optional<String> getReturnTypeAsString(DocumentServiceContext context, TypeSymbol typeSymbol) {
+        String typeName = null;
         // Unknown types are treated as no return type
-        if (typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR) {
-            return null;
+        if (typeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
+            ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+            typeName = processModuleIDsInText(importsAcceptor, typeSymbol.signature(), context);
         }
 
-        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        return processModuleIDsInText(importsAcceptor, typeSymbol.signature(), context);
+        return Optional.ofNullable(typeName);
     }
 
     /**

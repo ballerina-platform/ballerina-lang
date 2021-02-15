@@ -74,28 +74,14 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         if (cursorNode == null) {
             return Collections.emptyList();
         }
-        
-        FunctionCallExpressionNode callExpr = null;
-        if (cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
-            callExpr = (FunctionCallExpressionNode) cursorNode;
-        } else if (cursorNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
-            VariableDeclarationNode varNode = (VariableDeclarationNode) cursorNode;
-            Optional<ExpressionNode> initializer = varNode.initializer();
-            if (initializer.isPresent() && initializer.get().kind() == SyntaxKind.FUNCTION_CALL) {
-                callExpr = (FunctionCallExpressionNode) initializer.get();
-            }
-        } else if (cursorNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
-            AssignmentStatementNode assignmentNode = (AssignmentStatementNode) cursorNode;
-            if (assignmentNode.expression().kind() == SyntaxKind.FUNCTION_CALL) {
-                callExpr = (FunctionCallExpressionNode) assignmentNode.expression();
-            }
-        }
 
-        if (callExpr == null) {
+        Optional<FunctionCallExpressionNode> callExpr = getFunctionCallExpressionNodeAtCursor(cursorNode);
+
+        if (callExpr.isEmpty()) {
             return Collections.emptyList();
         }
 
-        boolean isWithinFile = callExpr.functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
+        boolean isWithinFile = callExpr.get().functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
         if (isWithinFile) {
             String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);
             CodeAction action = new CodeAction(commandTitle);
@@ -106,5 +92,46 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         }
 
         return Collections.emptyList();
+    }
+
+    /**
+     * Tries to get the function call expression at the cursor.
+     *
+     * @param cursorNode Node at the cursor
+     * @return Optional function call expression at the cursor
+     */
+    public static Optional<FunctionCallExpressionNode> getFunctionCallExpressionNodeAtCursor(Node cursorNode) {
+        Optional<FunctionCallExpressionNode> fnCallExprNode = checkAndGetFunctionCallExpressionNode(cursorNode);
+        if (fnCallExprNode.isEmpty()) {
+            if (cursorNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
+                VariableDeclarationNode varNode = (VariableDeclarationNode) cursorNode;
+                Optional<ExpressionNode> initializer = varNode.initializer();
+                if (initializer.isPresent()) {
+                    fnCallExprNode = checkAndGetFunctionCallExpressionNode(initializer.get());
+                }
+            } else if (cursorNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
+                AssignmentStatementNode assignmentNode = (AssignmentStatementNode) cursorNode;
+                fnCallExprNode = checkAndGetFunctionCallExpressionNode(assignmentNode.expression());
+            } else if (cursorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                fnCallExprNode = checkAndGetFunctionCallExpressionNode(cursorNode.parent());
+            }
+        }
+
+        return fnCallExprNode;
+    }
+
+    /**
+     * Get the function call expression node if the provided node is a function call.
+     *
+     * @param node Node to be checked if it's a function call
+     * @return Optional function call expression node
+     */
+    public static Optional<FunctionCallExpressionNode> checkAndGetFunctionCallExpressionNode(Node node) {
+        FunctionCallExpressionNode functionCallExpressionNode = null;
+        if (node.kind() == SyntaxKind.FUNCTION_CALL) {
+            functionCallExpressionNode = (FunctionCallExpressionNode) node;
+        }
+
+        return Optional.ofNullable(functionCallExpressionNode);
     }
 }
