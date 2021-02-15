@@ -28,6 +28,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -198,7 +199,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getOutputStream()).thenReturn(outputStream);
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
 
-            this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
+            this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, RepoUtils.getBallerinaVersion());
             String buildLog = readOutput();
             given().with().pollInterval(Duration.ONE_SECOND).and()
                     .with().pollDelay(Duration.ONE_SECOND)
@@ -221,7 +222,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
             when(connection.getErrorStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
 
-            this.pushPackage(balaPath, "foo", "github", "1.8.3", ACCESS_TOKEN);
+            this.pushPackage(balaPath, "foo", "github", "1.8.3", ACCESS_TOKEN, RepoUtils.getBallerinaVersion());
         }
     }
 
@@ -239,7 +240,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
             when(connection.getURL()).thenReturn(new URL("https://api.central.ballerina.io/registry"));
 
-            this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
+            this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, RepoUtils.getBallerinaVersion());
         }
     }
 
@@ -251,7 +252,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(connection.getInputStream()).thenReturn(new FileInputStream(packageSearchJson));
 
-        PackageSearchResult pkgSearchResult = this.searchPackage("org=foo");
+        PackageSearchResult pkgSearchResult = this.searchPackage("org=foo", RepoUtils.getBallerinaVersion());
         Assert.assertNotNull(pkgSearchResult);
         Assert.assertEquals(pkgSearchResult.getCount(), 1);
         Assert.assertFalse(pkgSearchResult.getPackages().isEmpty());
@@ -266,7 +267,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
         when(connection.getErrorStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
 
-        this.searchPackage("org=foo-org");
+        this.searchPackage("org=foo-org", RepoUtils.getBallerinaVersion());
     }
 
     private void setBallerinaHome() {
