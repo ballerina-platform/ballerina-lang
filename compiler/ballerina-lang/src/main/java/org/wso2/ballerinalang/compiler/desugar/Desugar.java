@@ -7807,25 +7807,18 @@ public class Desugar extends BLangNodeVisitor {
                 return;
             }
 
-            BArrayType restParamArrayType = (BArrayType) invokableSymbol.restParam.type;
-            BType elemType = restParamArrayType.eType;
-
             BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
-            arrayLiteral.type = restParamArrayType;
             List<BLangExpression> exprs = new ArrayList<>();
+
+            BArrayType arrayType = (BArrayType) invokableSymbol.restParam.type;
+            BType elemType = arrayType.eType;
+
             for (BLangExpression restArg : restArgs) {
-                // If the restArg is an array (where expected elemType is not an array),
-                // we have to flatten that and create a single array.
-                if (elemType.tag != TypeTags.ARRAY && restArg.getKind() == NodeKind.ARRAY_LITERAL_EXPR) {
-                    BLangArrayLiteral args = (BLangArrayLiteral) restArg;
-                    for (BLangExpression expr : args.exprs) {
-                        exprs.add(addConversionExprIfRequired(expr, elemType));
-                    }
-                } else {
-                    exprs.add(addConversionExprIfRequired(restArg, elemType));
-                }
+                exprs.add(addConversionExprIfRequired(restArg, elemType));
             }
+
             arrayLiteral.exprs = exprs;
+            arrayLiteral.type = arrayType;
 
             if (restArgCount != 0) {
                 iExpr.restArgs = new ArrayList<>();
