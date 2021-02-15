@@ -48,7 +48,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.getModulePref
  */
 public class FunctionGenerator {
 
-    public static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)\\/([\\w.]+):([\\d.]+):");
+    public static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)\\/([\\w.]+):(.+):");
 
     /**
      * Returns signature of the return type.
