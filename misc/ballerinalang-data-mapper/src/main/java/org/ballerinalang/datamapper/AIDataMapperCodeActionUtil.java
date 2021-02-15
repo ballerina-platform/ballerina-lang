@@ -54,6 +54,7 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -142,8 +143,15 @@ class AIDataMapperCodeActionUtil {
             switch (symbolAtCursorType) {
                 case "RECORD":
                 case "TYPE_REFERENCE":
-                    generatedFunctionName =
-                            String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
+                    //Check if the rhs is defined with var
+                    if ("".equals(foundTypeRight)) {
+                        generatedFunctionName =
+                                String.format("map%sTo%s(%s)", symbolAtCursorName, foundTypeLeft, symbolAtCursorName);
+                        foundTypeRight = symbolAtCursorName;
+                    } else {
+                        generatedFunctionName =
+                                String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
+                    }
                     fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     break;
 
@@ -229,8 +237,15 @@ class AIDataMapperCodeActionUtil {
                         leftModule = lftModule.modulePrefix();
                     }
                 }
+
+                //To get the signature of the rhsSymbol to the generated Function - Var solution
+                String rhsSignature = "";
+                if (symbolAtCursorName.equals(foundTypeRight)) {
+                    rhsSignature = SymbolUtil.getTypeDescriptor(symbolAtCursor).get().signature();
+                }
+
                 String generatedRecordMappingFunction = generateMappingFunction(mappingFromServer, foundTypeLeft,
-                        foundTypeRight, leftModule, rightModule);
+                        foundTypeRight, leftModule, rightModule, rhsSignature);
                 fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
                 return fEdits;
             }
@@ -269,25 +284,20 @@ class AIDataMapperCodeActionUtil {
         JsonObject rightRecordJSON = new JsonObject();
         JsonObject leftRecordJSON = new JsonObject();
 
-        // Schema 1
-        TypeSymbol rhsSymbol = ((TypeReferenceTypeSymbol) rhsTypeSymbol).typeDescriptor();
-        if ("RECORD".equals(rhsSymbol.typeKind().name())) {
-            RecordTypeSymbol rightSymbol = (RecordTypeSymbol) rhsSymbol;
-            Map<String, RecordFieldSymbol> rightSchemaFields = rightSymbol.fieldDescriptors();
+
+        List<RecordTypeSymbol> symbolList = checkMappingCapability(lftTypeSymbol, rhsTypeSymbol);
+        if (!symbolList.contains(null)) {
+            // Schema 1
+            Map<String, RecordFieldSymbol> rightSchemaFields = symbolList.get(0).fieldDescriptors();
             JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields.values());
 
             rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
             rightRecordJSON.addProperty(ID, "dummy_id");
             rightRecordJSON.addProperty(TYPE, "object");
             rightRecordJSON.add(PROPERTIES, rightSchema);
-        }
 
-        // Schema 2
-        TypeSymbol lftSymbol = ((TypeReferenceTypeSymbol) lftTypeSymbol).typeDescriptor();
-        if ("RECORD".equals(lftSymbol.typeKind().name())) {
-            RecordTypeSymbol leftSymbol = (RecordTypeSymbol) lftSymbol;
-            Map<String, RecordFieldSymbol> leftSchemaFields = leftSymbol.fieldDescriptors();
-
+            // Schema 2
+            Map<String, RecordFieldSymbol> leftSchemaFields = symbolList.get(1).fieldDescriptors();
             JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields.values());
             leftRecordJSON.addProperty(SCHEMA, foundTypeLeft);
             leftRecordJSON.addProperty(ID, "dummy_id");
@@ -398,11 +408,29 @@ class AIDataMapperCodeActionUtil {
         }
     }
 
+    /**
+     * Create the mapping function
+     *
+     * @param mappingFromServer {@link String}
+     * @param foundTypeLeft {@link String}
+     * @param foundTypeRight {@link String}
+     * @param leftModule {@link String}
+     * @param rightModule {@link String}
+     * @param rhsSignature {@link String}
+     * @return - Generated mapping Function
+     */
     private static String generateMappingFunction(String mappingFromServer, String foundTypeLeft,
-                                                  String foundTypeRight, String leftModule, String rightModule) {
+                                                  String foundTypeRight, String leftModule, String rightModule,
+                                                  String rhsSignature) {
 
         String leftType = foundTypeLeft;
-        String rightType = foundTypeRight;
+        String rightType;
+        // To add the rhs signature to parameter of the mapping function
+        if (rhsSignature.isEmpty()) {
+            rightType = foundTypeRight;
+        } else {
+            rightType = rhsSignature;
+        }
 
         mappingFromServer = mappingFromServer.replaceAll("\"", "");
         mappingFromServer = mappingFromServer.replaceAll(",", ", ");
@@ -422,5 +450,34 @@ class AIDataMapperCodeActionUtil {
                 "\n\treturn " + foundTypeLeft.toLowerCase() + ";\n}\n";
 
         return mappingFunction;
+    }
+
+    /**
+     * Properly type caste the symbols
+     *
+     * @param lftTypeSymbol {@link Symbol}
+     * @param rhsTypeSymbol {@link String}
+     * @return - Type casted symbol list
+     */
+    private static List<RecordTypeSymbol> checkMappingCapability(Symbol lftTypeSymbol, Symbol rhsTypeSymbol) {
+        // rhs Schema
+        RecordTypeSymbol rightSymbol = null;
+        if (rhsTypeSymbol.getName().isEmpty()) {
+            rightSymbol = (RecordTypeSymbol) rhsTypeSymbol;
+        } else {
+            TypeSymbol rhsSymbol = ((TypeReferenceTypeSymbol) rhsTypeSymbol).typeDescriptor();
+            if ("RECORD".equals(rhsSymbol.typeKind().name())) {
+                rightSymbol = (RecordTypeSymbol) rhsSymbol;
+            }
+        }
+
+        // lfs Schema
+        TypeSymbol lftSymbol = ((TypeReferenceTypeSymbol) lftTypeSymbol).typeDescriptor();
+        RecordTypeSymbol leftSymbol = null;
+        if ("RECORD".equals(lftSymbol.typeKind().name())) {
+            leftSymbol = (RecordTypeSymbol) lftSymbol;
+        }
+
+        return Arrays.asList(rightSymbol, leftSymbol);
     }
 }
