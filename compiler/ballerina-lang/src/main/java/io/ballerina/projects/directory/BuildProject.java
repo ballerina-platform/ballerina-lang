@@ -187,10 +187,14 @@ public class BuildProject extends Project {
             if (!pkgDependencies.isEmpty()) {
                 String content = getDependenciesTomlContent(pkgDependencies);
 
-                DocumentConfig documentConfig = DocumentConfig
-                        .from(DocumentId.create(ProjectConstants.DEPENDENCIES_TOML, null), content,
-                              ProjectConstants.DEPENDENCIES_TOML);
-                currentPackage.modify().addDependenciesToml(documentConfig);
+                if (currentPackage.dependenciesToml().isPresent()) {
+                    currentPackage.dependenciesToml().get().modify().withContent(content).apply();
+                } else {
+                    DocumentConfig documentConfig = DocumentConfig
+                            .from(DocumentId.create(ProjectConstants.DEPENDENCIES_TOML, null), content,
+                                  ProjectConstants.DEPENDENCIES_TOML);
+                    currentPackage.modify().addDependenciesToml(documentConfig);
+                }
 
                 // write content to Dependencies.toml file
                 createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML), content);
