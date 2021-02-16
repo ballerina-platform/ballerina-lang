@@ -1,7 +1,7 @@
 import ballerina/module1;
 
 function testNewFunction() {
-    TestObject2 obj2 = new 
+    TestObject2 obj2 = new()
     int testVar = 12;
 }
 
