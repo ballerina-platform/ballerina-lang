@@ -55,7 +55,7 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class TypeCastCodeAction extends AbstractCodeActionProvider {
-    private final static int FOUND_SYMBOL_INDEX = 1;
+    private static final int FOUND_SYMBOL_INDEX = 1;
 
     /**
      * {@inheritDoc}
