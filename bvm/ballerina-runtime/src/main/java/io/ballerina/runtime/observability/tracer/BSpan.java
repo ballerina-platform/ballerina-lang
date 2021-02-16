@@ -37,25 +37,19 @@ public class BSpan {
     private final Tracer tracer;
     private final Span span;
 
-    private BSpan(SpanContext parentSpanContext, String serviceName, String operationName, boolean isClientContext) {
-        tracer = TracersStore.getInstance().getTracer(serviceName);
-        span = tracer.buildSpan(operationName)
-                .asChildOf(parentSpanContext)
-                .withTag(TraceConstants.TAG_KEY_SPAN_KIND, isClientContext
-                        ? TraceConstants.TAG_SPAN_KIND_CLIENT
-                        : TraceConstants.TAG_SPAN_KIND_SERVER)
-                .start();
+    private BSpan(Tracer tracer, Span span) {
+        this.tracer = tracer;
+        this.span = span;
     }
 
-    private <C> BSpan(Format<C> format, C carrier, String serviceName, String operationName, boolean isClientContext) {
-        tracer = TracersStore.getInstance().getTracer(serviceName);
-        SpanContext parentSpanContext = tracer.extract(format, carrier);
-        span = tracer.buildSpan(operationName)
+    private static BSpan start(Tracer tracer, SpanContext parentSpanContext, String operationName, boolean isClient) {
+        Span span = tracer.buildSpan(operationName)
                 .asChildOf(parentSpanContext)
-                .withTag(TraceConstants.TAG_KEY_SPAN_KIND, isClientContext
+                .withTag(TraceConstants.TAG_KEY_SPAN_KIND, isClient
                         ? TraceConstants.TAG_SPAN_KIND_CLIENT
                         : TraceConstants.TAG_SPAN_KIND_SERVER)
                 .start();
+        return new BSpan(tracer, span);
     }
 
     /**
@@ -67,7 +61,8 @@ public class BSpan {
      * @return The new span
      */
     public static BSpan start(String serviceName, String operationName, boolean isClient) {
-        return new BSpan(null, serviceName, operationName, isClient);
+        Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
+        return start(tracer, null, operationName, isClient);
     }
 
     /**
@@ -80,7 +75,8 @@ public class BSpan {
      * @return The new span
      */
     public static BSpan start(BSpan parentSpan, String serviceName, String operationName, boolean isClient) {
-        return new BSpan(parentSpan.span.context(), serviceName, operationName, isClient);
+        Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
+        return start(tracer, parentSpan.span.context(), operationName, isClient);
     }
 
     /**
@@ -96,8 +92,10 @@ public class BSpan {
      */
     public static BSpan start(Map<String, String> parentTraceContext, String serviceName, String operationName,
                               boolean isClient) {
-        return new BSpan(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(parentTraceContext), serviceName,
-                operationName, isClient);
+        Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
+        SpanContext parentSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS,
+                new TextMapExtractAdapter(parentTraceContext));
+        return start(tracer, parentSpanContext, operationName, isClient);
     }
 
     public void finishSpan() {
