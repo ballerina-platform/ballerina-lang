@@ -333,9 +333,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         } catch (NoSuchMethodException e) {
             addErrorDiagnostic(methodName + " method not found: " + e.getMessage());
             throw new InvokerException(e);
-        } catch (RuntimeException e) {
-            addErrorDiagnostic("Unexpected error: " + e.getMessage());
-            throw new InvokerException(e);
         }
     }
 
@@ -373,9 +370,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             throw new InvokerException(e);
         } catch (InvocationTargetException e) {
             addErrorDiagnostic(methodName + " exception at target: " + e.getTargetException());
-            throw new InvokerException(e);
-        } catch (RuntimeException e) {
-            addErrorDiagnostic("Unexpected error: " + e.getMessage());
             throw new InvokerException(e);
         }
     }
