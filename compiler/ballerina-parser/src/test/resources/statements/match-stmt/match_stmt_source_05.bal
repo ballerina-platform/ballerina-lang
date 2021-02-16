@@ -10,7 +10,7 @@ function foo() {
         }
         () => {
         }
-        var {a:b} => {
+        var {a: b} => {
         }
         "east" => {
         }

@@ -4755,7 +4755,6 @@ public class TypeChecker extends BLangNodeVisitor {
             BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
             typedescExpr.resolvedType = expType;
             typedescExpr.type = typedescType;
-            argExprs.add(exprWithCheckingKeyword);
             argExprs.add(typedescExpr);
             BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_ENSURE_TYPE,
                     argExprs, exprWithCheckingKeyword, checkedExpr.pos);
@@ -5331,9 +5330,7 @@ public class TypeChecker extends BLangNodeVisitor {
         iExpr.langLibInvocation = true;
         SymbolEnv enclEnv = this.env;
         this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
-        if (iExpr.argExprs.isEmpty() || !iExpr.argExprs.get(0).equals(iExpr.expr)) {
-            iExpr.argExprs.add(0, iExpr.expr);
-        }
+        iExpr.argExprs.add(0, iExpr.expr);
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
 
