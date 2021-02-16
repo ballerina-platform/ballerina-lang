@@ -81,6 +81,11 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
         UnionTypeSymbol varTypeSymbol = varTypeSymbolAndTypeDescNodePair.get().getLeft();
+        boolean hasCompilationError = varTypeSymbol.memberTypeDescriptors().stream()
+                .anyMatch(s -> s.typeKind() == TypeDescKind.COMPILATION_ERROR);
+        if (hasCompilationError) {
+            return Collections.emptyList();
+        }
 
         // Get var name
         Optional<String> varName = getVariableName(matchedNode);
