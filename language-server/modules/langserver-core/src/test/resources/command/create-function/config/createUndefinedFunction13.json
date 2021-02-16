@@ -1,0 +1,34 @@
+{
+    "arguments": {
+        "node.position": {
+            "line": 32,
+            "character": 17
+        }
+    },
+    "expected": {
+        "result": {
+            "edit": {
+                "documentChanges": [
+                    {
+                        "edits": [
+                            {
+                                "range": {
+                                    "start": {
+                                        "line": 34,
+                                        "character": 0
+                                    },
+                                    "end": {
+                                        "line": 34,
+                                        "character": 0
+                                    }
+                                },
+                                "newText": "\n\nfunction thisIsANewFunction(record {| string recField; anydata...; |} testRec) returns record {| int recField; anydata...; |} {\n    \n    return {};\n}\n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "jsonrpc": "2.0"
+    }
+}

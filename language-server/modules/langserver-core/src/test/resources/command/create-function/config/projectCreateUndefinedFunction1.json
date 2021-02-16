@@ -1,7 +1,9 @@
 {
     "arguments": {
-        "node.line": 25,
-        "node.column": 4
+        "node.position": {
+            "line": 8,
+            "character": 30
+        }
     },
     "expected": {
         "result": {
@@ -12,15 +14,15 @@
                             {
                                 "range": {
                                     "start": {
-                                        "line": 34,
+                                        "line": 17,
                                         "character": 0
                                     },
                                     "end": {
-                                        "line": 34,
+                                        "line": 17,
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction printField(int name){\n\n}\n"
+                                "newText": "\n\nfunction createStudent(string a, any b) returns module1:Student {\n    \n    return {};\n}\n"
                             }
                         ]
                     }

@@ -1,7 +1,9 @@
 {
   "arguments": {
-    "node.line": 12,
-    "node.column": 21
+    "node.position": {
+      "line": 4,
+      "character": 3
+    }
   },
   "expected": {
     "result": {
@@ -12,15 +14,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 34,
+                    "line": 8,
                     "character": 0
                   },
                   "end": {
-                    "line": 34,
+                    "line": 8,
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction partition(string recs, string a, function (string a) returns boolean spliter) returns string[][][] {\n    return [[[\"\"]]];\n}\n"
+                "newText": "\n\nfunction addTwoIntegers(int a, float b, boolean c) {\n    \n}\n"
               }
             ]
           }
