@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langserver.contexts;
 
-import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.projects.PackageCompilation;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
@@ -28,8 +28,8 @@ import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Language server context implementation.
@@ -66,8 +66,8 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     @Override
     public List<io.ballerina.tools.diagnostics.Diagnostic> allDiagnostics() {
         if (diagnostics == null) {
-            Optional<SemanticModel> semanticModel = this.workspace().semanticModel(this.filePath());
-            semanticModel.ifPresent(model -> this.diagnostics = model.diagnostics());
+            PackageCompilation compilation = workspace().waitAndGetPackageCompilation(this.filePath()).orElseThrow();
+            this.diagnostics = new ArrayList<>(compilation.diagnosticResult().diagnostics());
         }
 
         return this.diagnostics;
@@ -105,10 +105,10 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
 
         public CodeActionContext build() {
             return new CodeActionContextImpl(this.operation,
-                    this.fileUri,
-                    this.wsManager,
-                    this.params,
-                    this.serverContext);
+                                             this.fileUri,
+                                             this.wsManager,
+                                             this.params,
+                                             this.serverContext);
         }
 
         @Override
