@@ -17,6 +17,7 @@
 import ballerina/testobserve;
 import intg_tests/tracing_tests.utils as utils;
 
+@display { label:"testServiceFive" }
 service /testServiceFive on new testobserve:Listener(9095) {
     # Resource function for testing async remote call wait
     resource function post resourceOne(testobserve:Caller caller) {

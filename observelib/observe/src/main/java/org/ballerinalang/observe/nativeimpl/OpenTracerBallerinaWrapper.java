@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_MODULE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_POSITION;
 import static io.ballerina.runtime.observability.ObservabilityConstants.DEFAULT_SERVICE_NAME;
 
 /**
@@ -90,6 +92,10 @@ public class OpenTracerBallerinaWrapper {
             serviceName = prevObserverContext.getServiceName();
             observerContext.setEntrypointFunctionModule(prevObserverContext.getEntrypointFunctionModule());
             observerContext.setEntrypointFunctionPosition(prevObserverContext.getEntrypointFunctionPosition());
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE,
+                    prevObserverContext.getEntrypointFunctionModule());
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION,
+                    prevObserverContext.getEntrypointFunctionPosition());
         } else {
             serviceName = DEFAULT_SERVICE_NAME;
         }

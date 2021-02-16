@@ -226,7 +226,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         Assert.assertEquals(httpResponse.getData(), "Sum of numbers: 120");
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(serviceName, resourceName);
+        List<BMockSpan> spans = this.getFinishedSpans(serviceName, DEFAULT_MODULE_ID, resourceFunctionPosition);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),

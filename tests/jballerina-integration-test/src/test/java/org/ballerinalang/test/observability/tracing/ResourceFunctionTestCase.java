@@ -45,9 +45,9 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
 
     @DataProvider(name = "success-response-data-provider")
     public Object[][] getSuccessResponseData() {
-        return new Object[][] {
-                {"resourceOne", "15", FILE_NAME + ":22:5", FILE_NAME + ":28:20", "Sum of numbers: 120"},
-                {"resourceTwo", "16", FILE_NAME + ":32:5", FILE_NAME + ":38:20", "Sum of numbers: 136"}
+        return new Object[][]{
+                {"resourceOne", "15", FILE_NAME + ":23:5", FILE_NAME + ":29:20", "Sum of numbers: 120"},
+                {"resourceTwo", "16", FILE_NAME + ":33:5", FILE_NAME + ":39:20", "Sum of numbers: 136"}
         };
     }
 
@@ -60,7 +60,7 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
         Assert.assertEquals(httpResponse.getData(), expectedResponsePayload);
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, resourceName);
+        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, DEFAULT_MODULE_ID, resourceFunctionPosition);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
@@ -75,7 +75,7 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
         span1.ifPresent(span -> {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
-            Assert.assertEquals(span.getOperationName(), resourceName);
+            Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
@@ -84,9 +84,12 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("src.object.name", SERVER_CONNECTOR_NAME)
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("src.object.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
+                    new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
+                    new AbstractMap.SimpleEntry<>("src.resource.path", "/" + resourceName)
             ));
         });
 
@@ -103,8 +106,8 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", callerResponsePosition),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
@@ -113,24 +116,36 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
 
     @DataProvider(name = "error-response-data-provider")
     public Object[][] getErrorResponseData() {
-        return new Object[][] {
-                {"resourceThree", FILE_NAME + ":42:5", "Test Error 1"},
-                {"resourceFour", FILE_NAME + ":58:5", "Test Error 2"},
-                {"resourceFive", FILE_NAME + ":75:5", "Test Error. Sum: 91"},
-                {"resourceSix", FILE_NAME + ":81:5", "Test Error. Sum: 153"}
+        return new Object[][]{
+                {"resourceThree", FILE_NAME + ":43:5", "Test Error 1", "Test Error 1\n" +
+                        "    at intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceThree" +
+                        "(02_resource_function.bal:54)"},
+                {"resourceFour", FILE_NAME + ":59:5", "Test Error 2", "Test Error 2\n" +
+                        "    at intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceFour" +
+                        "(02_resource_function.bal:70),"},
+                {"resourceFive", FILE_NAME + ":76:5", "Test Error. Sum: 91", "Test Error. Sum: 91\n" +
+                        "    at intg_tests.tracing_tests.0_0_1:panicAfterCalculatingSum(commons.bal:36)\n" +
+                        "       intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceFive" +
+                        "(02_resource_function.bal:77)"},
+                {"resourceSix", FILE_NAME + ":82:5", "Test Error. Sum: 153", "Test Error. Sum: 153\n" +
+                        "    at intg_tests.tracing_tests.0_0_1:panicAfterCalculatingSum(commons.bal:36)\n" +
+                        "       intg_tests.tracing_tests.0_0_1.$anonType$_0:panicAfterCalculatingSum$lambda0$" +
+                        "(02_resource_function.bal:83)\n" +
+                        "       intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceSix" +
+                        "(02_resource_function.bal:84)"}
         };
     }
 
     @Test(dataProvider = "error-response-data-provider")
     public void testResourceSingleSpanErrorResponse(String resourceName, String resourceFunctionPosition,
-                                                    String expectedResponsePayload) throws Exception {
+                                                    String expectedResponsePayload, String errorMessage) throws Exception {
         HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName,
                 "15", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 500);
         Assert.assertEquals(httpResponse.getData(), expectedResponsePayload);
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, resourceName);
+        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, DEFAULT_MODULE_ID, resourceFunctionPosition);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
@@ -145,29 +160,34 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
         span1.ifPresent(span -> {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
-            Assert.assertEquals(span.getOperationName(), resourceName);
-            Assert.assertEquals(span.getTags(), toMap(
-                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
-                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("src.position", resourceFunctionPosition),
-                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
-                    new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
-                    new AbstractMap.SimpleEntry<>("http.method", "POST"),
-                    new AbstractMap.SimpleEntry<>("protocol", "http"),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("src.object.name", SERVER_CONNECTOR_NAME),
-                    new AbstractMap.SimpleEntry<>("error", "true")
-            ));
+            Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
+//            TODO: Uncomment this assertion once https://github.com/ballerina-platform/ballerina-lang/issues/28686 is fixed
+//            Assert.assertEquals(span.getTags(), toMap(
+//                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+//                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
+//                    new AbstractMap.SimpleEntry<>("src.position", resourceFunctionPosition),
+//                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
+//                    new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
+//                    new AbstractMap.SimpleEntry<>("http.method", "POST"),
+//                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+//                    new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
+//                    new AbstractMap.SimpleEntry<>("src.object.name", SERVICE_NAME),
+//                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+//                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+//                    new AbstractMap.SimpleEntry<>("error", "true"),
+//                    new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
+//                    new AbstractMap.SimpleEntry<>("error.message", errorMessage),
+//                    new AbstractMap.SimpleEntry<>("src.resource.path", "/" + resourceName)
+//            ));
         });
     }
 
     @DataProvider(name = "simple-remote-call-data-provider")
     public Object[][] getSimpleRemoteCallData() {
-        return new Object[][] {
-                {"resourceSeven", FILE_NAME + ":88:5", FILE_NAME + ":90:30", FILE_NAME + ":97:20",
+        return new Object[][]{
+                {"resourceSeven", FILE_NAME + ":89:5", FILE_NAME + ":91:30", FILE_NAME + ":98:20",
                         "Sum of numbers: 12"},
-                {"resourceEight", FILE_NAME + ":101:5", FILE_NAME + ":102:24", FILE_NAME + ":104:24",
+                {"resourceEight", FILE_NAME + ":102:5", FILE_NAME + ":103:24", FILE_NAME + ":105:24",
                         "Successfully executed"}
         };
     }
@@ -182,7 +202,7 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
         Assert.assertEquals(httpResponse.getData(), expectedPayload);
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, resourceName);
+        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, DEFAULT_MODULE_ID, resourceFunctionPosition);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
@@ -197,7 +217,7 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
         span1.ifPresent(span -> {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
-            Assert.assertEquals(span.getOperationName(), resourceName);
+            Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
@@ -206,9 +226,12 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("src.object.name", SERVER_CONNECTOR_NAME)
+                    new AbstractMap.SimpleEntry<>("src.object.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
+                    new AbstractMap.SimpleEntry<>("src.resource.path", "/" + resourceName)
             ));
         });
 
@@ -225,8 +248,8 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", remoteCallPosition),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
                     new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithReturn")
             ));
@@ -245,8 +268,8 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", callerRespondPosition),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));

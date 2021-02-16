@@ -108,7 +108,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSE
 class JvmObservabilityGen {
     private static final String ENTRY_POINT_MAIN_METHOD_NAME = "main";
     private static final String NEW_BB_PREFIX = "observabilityDesugaredBB";
-    private static final String SERVICE_IDENTIFIER = "$$service$";
     private static final String INVOCATION_INSTRUMENTATION_TYPE = "invocation";
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
     private static final Location COMPILE_TIME_CONST_POS =
@@ -148,9 +147,9 @@ class JvmObservabilityGen {
             rewriteAsyncInvocations(func, null, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
             if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
-                rewriteObservableFunctionBody(func, pkg, null, func.name.value, false, false, true, false);
+                rewriteObservableFunctionBody(func, pkg, null, func.name.value, "", false, false, true, false);
             } else if ((func.flags & Flags.WORKER) == Flags.WORKER) {   // Identifying lambdas generated for workers
-                rewriteObservableFunctionBody(func, pkg, null, func.workerName.value, false, false, false, true);
+                rewriteObservableFunctionBody(func, pkg, null, func.workerName.value, "", false, false, false, true);
             }
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
@@ -158,6 +157,20 @@ class JvmObservabilityGen {
                 continue;
             }
             boolean isService = (typeDef.type.flags & Flags.SERVICE) == Flags.SERVICE;
+            String serviceName = null;
+            if (isService) {
+                for (BIRNode.BIRAnnotationAttachment annotationAttachment : typeDef.annotAttachments) {
+                    if (!DISPLAY_ANNOTATION.equals(annotationAttachment.annotTagRef.value)) {
+                        continue;
+                    }
+                    serviceName = ((BIRNode.BIRAnnotationLiteralValue) (((BIRNode.BIRAnnotationRecordValue)
+                            annotationAttachment.annotValues.get(0)).annotValueEntryMap).get("label")).value.toString();
+                    break;
+                }
+            }
+            if (serviceName == null) {
+                serviceName = pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_" + defaultServiceIndex++;
+            }
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
                 BIRFunction func = typeDef.attachedFuncs.get(i);
                 if (isService) {
@@ -170,9 +183,9 @@ class JvmObservabilityGen {
                 rewriteObservableFunctionInvocations(func, pkg);
                 if (isService) {
                     if ((func.flags & Flags.RESOURCE) == Flags.RESOURCE) {
-                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, true, false, false, false);
+                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, serviceName, true, false, false, false);
                     } else if ((func.flags & Flags.REMOTE) == Flags.REMOTE) {
-                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, false, true, false, false);
+                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, serviceName, false, true, false, false);
                     }
                 }
             }
@@ -384,8 +397,8 @@ class JvmObservabilityGen {
      * @param isWorker True if the function was a worker
      */
     private void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, BIRTypeDefinition attachedTypeDef,
-                                               String functionName, boolean isResource, boolean isRemote,
-                                               boolean isMainEntryPoint, boolean isWorker) {
+                                               String functionName, String serviceName, boolean isResource,
+                                               boolean isRemote, boolean isMainEntryPoint, boolean isWorker) {
         // Injecting observe start call at the start of the function body
         {
             BIRBasicBlock startBB = func.basicBlocks.get(0);    // Every non-abstract function should have function body
@@ -393,16 +406,6 @@ class JvmObservabilityGen {
             swapBasicBlockContent(startBB, newStartBB);
 
             if (isResource || isRemote) {
-                String serviceName = cleanUpServiceName(pkg.packageID.orgName.value + "_" +
-                        pkg.packageID.name.value + "_" + defaultServiceIndex++);
-                for (BIRNode.BIRAnnotationAttachment annotationAttachment : attachedTypeDef.annotAttachments) {
-                    if (!DISPLAY_ANNOTATION.equals(annotationAttachment.annotTagRef.value)) {
-                        continue;
-                    }
-                    serviceName = ((BIRNode.BIRAnnotationLiteralValue) (((BIRNode.BIRAnnotationRecordValue)
-                            annotationAttachment.annotValues.get(0)).annotValueEntryMap).get("label")).value.toString();
-                    defaultServiceIndex--;
-                }
                 String resourcePathOrFunction = functionName;
                 String resourceAccessor = null;
                 if (isResource) {
@@ -969,20 +972,6 @@ class JvmObservabilityGen {
             }
         }
         return isCovered;
-    }
-
-    /**
-     * Remove the additional prefixes and postfixes added by the compiler.
-     * This is done to get the original name used by the developer.
-     *
-     * @param serviceName The service name to be cleaned up
-     * @return The cleaned up service name which should be equal to the name given by the developer
-     */
-    private String cleanUpServiceName(String serviceName) {
-        if (serviceName.contains(SERVICE_IDENTIFIER)) {
-            return serviceName.substring(0, serviceName.indexOf(SERVICE_IDENTIFIER));
-        }
-        return serviceName;
     }
 
     /**
