@@ -59,6 +59,10 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ImplicitNewExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.withinArgs(context, node)) {
+            /*
+            Covers
+            lhs = new(<cursor>)
+             */
             completionItems.addAll(this.getCompletionsWithinArgs(context));
         } else {
             /*
