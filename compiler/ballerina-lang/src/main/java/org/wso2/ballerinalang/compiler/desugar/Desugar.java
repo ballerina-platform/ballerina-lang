@@ -4654,10 +4654,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause, BLangBlockStmt blockStmt) {
         if (onFailClause != null) {
-            if(this.onFailClause != null && this.onFailCallFuncDef != null) {
-                this.enclosingOnFailClause.add(this.onFailClause);
-                this.enclosingOnFailCallFunc.add(this.onFailCallFuncDef);
-            }
+            this.enclosingOnFailClause.add(this.onFailClause);
+            this.enclosingOnFailCallFunc.add(this.onFailCallFuncDef);
             this.onFailClause = onFailClause;
             if (onFailClause.bodyContainsFail) {
                 blockStmt.isBreakable = false;
@@ -4670,8 +4668,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangBlockStmt rewriteNestedOnFail(BLangOnFailClause onFailClause, BLangFail fail) {
         BLangOnFailClause currentOnFail = this.onFailClause;
         BLangSimpleVariableDef currentOnFailDef = this.onFailCallFuncDef;
-        this.onFailClause = null;
-        this.onFailCallFuncDef = null;
 
         BLangBlockStmt onFailBody = ASTBuilderUtil.createBlockStmt(onFailClause.pos);
         onFailBody.stmts.addAll(onFailClause.body.stmts);
@@ -4688,14 +4684,11 @@ public class Desugar extends BLangNodeVisitor {
         onFailBody.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
         onFailBody.stmts.add(0, errorVarDef);
 
-        if (!this.enclosingOnFailClause.isEmpty()) {
-            int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
-            int enclosingOnFailIndex = currentOnFailIndex == -1 ? this.enclosingOnFailClause.size() - 1
-                    : (currentOnFailIndex - 1);
-            this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
-            this.onFailCallFuncDef = this.enclosingOnFailCallFunc.get(enclosingOnFailIndex);
-        }
-
+        int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
+        int enclosingOnFailIndex = currentOnFailIndex == -1 ? this.enclosingOnFailClause.size() - 1
+                : (currentOnFailIndex - 1);
+        this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
+        this.onFailCallFuncDef = this.enclosingOnFailCallFunc.get(enclosingOnFailIndex);
         onFailBody = rewrite(onFailBody, env);
         if (onFailClause.isInternal && fail.exprStmt != null) {
             if (fail.exprStmt instanceof BLangPanic) {

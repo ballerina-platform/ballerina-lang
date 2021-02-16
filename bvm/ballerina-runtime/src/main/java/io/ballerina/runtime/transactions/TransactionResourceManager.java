@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BString;
@@ -477,29 +476,30 @@ public class TransactionResourceManager {
     public BArray getRegisteredRollbackHandlerList() {
         List<BFunctionPointer> abortFunctions =
                 abortedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
-        if (!abortFunctions.isEmpty()) {
+        if (abortFunctions != null && !abortFunctions.isEmpty()) {
             Collections.reverse(abortFunctions);
             return ValueCreator.createArrayValue(abortFunctions.toArray(),
                     TypeCreator.createArrayType(abortFunctions.get(0).getType()));
         } else {
-            return getAnyEmptyArray();
+            return getNillArray();
         }
     }
 
     public BArray getRegisteredCommitHandlerList() {
         List<BFunctionPointer> commitFunctions =
                 committedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
-        if (!commitFunctions.isEmpty()) {
+        if (commitFunctions != null && !commitFunctions.isEmpty()) {
             Collections.reverse(commitFunctions);
             return ValueCreator.createArrayValue(commitFunctions.toArray(),
                     TypeCreator.createArrayType(commitFunctions.get(0).getType()));
         } else {
-            return getAnyEmptyArray();
+            return getNillArray();
         }
     }
 
-    private BArray getAnyEmptyArray() {
-        return ValueCreator.createArrayValue((ArrayType) PredefinedTypes.TYPE_ANY);
+    private BArray getNillArray() {
+
+        return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_NULL));
     }
 
     /**
