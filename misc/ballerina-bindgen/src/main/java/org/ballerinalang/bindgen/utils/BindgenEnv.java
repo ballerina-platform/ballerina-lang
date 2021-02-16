@@ -20,13 +20,8 @@ package org.ballerinalang.bindgen.utils;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.TomlDocument;
-import org.ballerinalang.bindgen.model.JError;
 
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * The model that stores the details which will be passed on and updated while generating the mappings.
@@ -44,16 +39,6 @@ public class BindgenEnv {
 
     // Flag depicting whether the current class being generated is a direct class or a dependent class
     private boolean directJavaClass = true;
-
-    private Set<String> classPaths = new HashSet<>();
-    private Set<String> javaClasses = new HashSet<>(); // Java classes stored during a single iteration
-    private Set<String> allPackages = new HashSet<>();
-    private Set<String> allJavaClasses = new HashSet<>(); // Java classes collected through all the iterations
-    private Set<String> classListForLooping = new HashSet<>();
-    private Set<JError> exceptionList = new HashSet<>();
-
-    private Map<String, String> failedClassGens = new HashMap<>(); // Failed class generations
-    private Map<String, String> aliases = new HashMap<>(); // Aliases for Java classes with common short names
 
     public void setModulesFlag(boolean modulesFlag) {
         this.modulesFlag = modulesFlag;
@@ -109,69 +94,5 @@ public class BindgenEnv {
 
     public String getOutputPath() {
         return outputPath;
-    }
-
-    public Set<String> getClassPaths() {
-        return classPaths;
-    }
-
-    public void addClasspath(String classpath) {
-        this.classPaths.add(classpath);
-    }
-
-    public Set<String> getJavaClasses() {
-        return javaClasses;
-    }
-
-    public void setJavaClasses(Set<String> javaClasses) {
-        this.javaClasses = javaClasses;
-    }
-
-    public Set<String> getAllPackages() {
-        return allPackages;
-    }
-
-    public void setAllPackages(Set<String> allPackages) {
-        this.allPackages = allPackages;
-    }
-
-    public Set<String> getAllJavaClasses() {
-        return allJavaClasses;
-    }
-
-    public void setAllJavaClasses(Set<String> allJavaClasses) {
-        this.allJavaClasses = allJavaClasses;
-    }
-
-    public Set<String> getClassListForLooping() {
-        return classListForLooping;
-    }
-
-    public void setClassListForLooping(Set<String> classListForLooping) {
-        this.classListForLooping = classListForLooping;
-    }
-
-    public Set<JError> getExceptionList() {
-        return exceptionList;
-    }
-
-    public void setExceptionList(Set<JError> exceptionList) {
-        this.exceptionList = exceptionList;
-    }
-
-    public Map<String, String> getFailedClassGens() {
-        return failedClassGens;
-    }
-
-    public void setFailedClassGens(Map<String, String> failedClassGens) {
-        this.failedClassGens = failedClassGens;
-    }
-
-    public Map<String, String> getAliases() {
-        return aliases;
-    }
-
-    public void setAliases(Map<String, String> aliases) {
-        this.aliases = aliases;
     }
 }
