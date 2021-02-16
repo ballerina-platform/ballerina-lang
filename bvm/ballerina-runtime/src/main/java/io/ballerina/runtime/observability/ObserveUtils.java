@@ -360,7 +360,7 @@ public class ObserveUtils {
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {
         BSpan bSpan = observerContext.getSpan();
         if (bSpan != null) {
-            return bSpan.extractContextForHttp();
+            return bSpan.extractContextAsHttpHeaders();
         }
         return Collections.emptyMap();
     }

@@ -47,22 +47,22 @@ public class TracingUtils {
      */
     public static void startObservation(ObserverContext observerContext, boolean isClient) {
         BSpan span;
+        String serviceName = observerContext.getServiceName();
+        String operationName = observerContext.getOperationName();
         if (observerContext.getParent() != null) {
             BSpan parentSpan = observerContext.getParent().getSpan();
-            span = BSpan.start(parentSpan, observerContext.getServiceName(), observerContext.getOperationName(),
-                    isClient);
+            span = BSpan.start(parentSpan, serviceName, operationName, isClient);
         } else {
             Map<String, String> httpHeaders =
                     (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
             if (httpHeaders != null) {
-                span = BSpan.start(httpHeaders, observerContext.getServiceName(), observerContext.getOperationName(),
-                        isClient);
+                span = BSpan.start(httpHeaders, serviceName, operationName, isClient);
             } else {
-                span = BSpan.start(observerContext.getServiceName(), observerContext.getOperationName(), isClient);
+                span = BSpan.start(serviceName, operationName, isClient);
             }
         }
         if (isClient) {
-            observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, span.extractContextForHttp());
+            observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, span.extractContextAsHttpHeaders());
         }
         observerContext.setSpan(span);
     }

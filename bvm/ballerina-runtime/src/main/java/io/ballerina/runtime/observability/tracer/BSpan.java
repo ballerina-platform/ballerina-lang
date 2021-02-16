@@ -107,14 +107,16 @@ public class BSpan {
     }
 
     public void addTags(Map<String, String> tags) {
-        tags.forEach(span::setTag);
+        for (Map.Entry<String, String> entry : tags.entrySet()) {
+            span.setTag(entry.getKey(), entry.getValue());
+        }
     }
 
     public void addTag(String tagKey, String tagValue) {
         span.setTag(tagKey, tagValue);
     }
 
-    public Map<String, String> extractContextForHttp() {
+    public Map<String, String> extractContextAsHttpHeaders() {
         Map<String, String> carrierMap;
         if (span != null) {
             carrierMap = new HashMap<>();
