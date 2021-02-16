@@ -152,7 +152,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         }
 
         String functionName = ((SimpleNameReferenceNode) fnCallExprNode.get().functionName()).name().text();
-        if (functionName == null || functionName.isEmpty()) {
+        if (functionName.isEmpty()) {
             return Collections.emptyList();
         }
 

@@ -44,18 +44,16 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"createUndefinedFunction1.json", "createUndefinedFunction.bal"},
                 {"createUndefinedFunction2.json", "createUndefinedFunction.bal"},
                 {"createUndefinedFunction3.json", "createUndefinedFunction.bal"},
-                // TODO Doesn't work as expected because http module import failure
-                // {"createUndefinedFunction4.json", "createUndefinedFunction2.bal"},
+                {"createUndefinedFunction4.json", "createUndefinedFunction2.bal"},
                 // TODO Doesn't support method creation in objects
                 // {"createUndefinedFunction5.json", "createUndefinedFunction3.bal"},
-                // TODO Doesn't work as expected because http module import failure
+                // TODO Doesn't support methods inside services yet
                 // {"createUndefinedFunction6.json", "createUndefinedFunction4.bal"},
 
                 {"createUndefinedFunction7.json", "createUndefinedFunction5.bal"},
                 {"createUndefinedFunction8.json", "createUndefinedFunction5.bal"},
                 {"createUndefinedFunction9.json", "createUndefinedFunction5.bal"},
-                // TODO Doesn't work as expected because http module import failure
-                // {"createUndefinedFunction10.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction10.json", "createUndefinedFunction5.bal"},
                 {"createUndefinedFunction11.json", "createUndefinedFunction5.bal"},
                 {"createUndefinedFunction12.json", "createUndefinedFunction5.bal"},
                 // TODO Need to fix records support

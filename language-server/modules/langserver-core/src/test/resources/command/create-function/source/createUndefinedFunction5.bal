@@ -1,4 +1,4 @@
-import ballerina/http;
+import ballerina/module1;
 import ballerina/math;
 
 type Fruit object {
@@ -17,8 +17,8 @@ function foo(string filePath) returns error? {
     [int, string[][]] tup = addAndPrintTwoIntegers(a, b);
     int result = addAndGetResultOfTwoIntegers(a, b);
 
-    http:Client c = new ("");
-    http:Response res = callEndpoint(a, b, c);
+    module1:Listener c = new (8080);
+    module1:TestClass1 res = callEndpoint(a, b, c);
 
     float nanVal = 0.0 / 0.0;
     printThis(nanVal.isNaN());

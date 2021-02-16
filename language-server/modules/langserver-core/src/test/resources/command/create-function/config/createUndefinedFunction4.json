@@ -22,7 +22,7 @@
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction getResponse(int a, int b) returns http:Response {\n    return new http:Response();\n}\n"
+                "newText": "\n\nfunction getResponse(int a, int b) returns module1:TestRecord2 {\n    \n    return {};\n}\n"
               }
             ]
           }

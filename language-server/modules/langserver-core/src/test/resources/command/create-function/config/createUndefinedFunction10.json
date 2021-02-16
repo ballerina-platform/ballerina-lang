@@ -2,7 +2,7 @@
     "arguments": {
         "node.position": {
             "line": 20,
-            "character": 24
+            "character": 29
         }
     },
     "expected": {
@@ -22,7 +22,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction callEndpoint(int a, int b, http:Client c) returns http:Response {\n    \n    return new http:Response();\n}\n"
+                                "newText": "\n\nfunction callEndpoint(int a, int b, module1:Listener c) returns module1:TestClass1 {\n    \n    return new();\n}\n"
                             }
                         ]
                     }

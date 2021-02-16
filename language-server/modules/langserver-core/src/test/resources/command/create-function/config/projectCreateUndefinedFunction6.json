@@ -1,8 +1,8 @@
 {
     "arguments": {
         "node.position": {
-            "line": 6,
-            "character": 55
+            "line": 4,
+            "character": 44
         }
     },
     "expected": {
