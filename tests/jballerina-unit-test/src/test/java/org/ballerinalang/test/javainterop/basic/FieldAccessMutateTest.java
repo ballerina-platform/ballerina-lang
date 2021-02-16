@@ -81,8 +81,8 @@ public class FieldAccessMutateTest {
     }
 
     @Test(description = "Test static boolean field mutate")
-    public void testStaticPrimitiveFieldMutate2() {
-        BRunUtil.invoke(result, "testStaticPrimitiveFieldMutate2");
+    public void testStaticBooleanFieldMutate() {
+        BRunUtil.invoke(result, "testStaticBooleanFieldMutate");
     }
 
     @Test(description = "Test ballerina finite to java boolean cast")

@@ -1,4 +1,5 @@
 import ballerina/jballerina.java;
+import ballerina/test;
 
 function testStaticFieldAccess() returns handle {
     return getContractId();
@@ -16,17 +17,17 @@ function testStaticPrimitiveFieldMutate(int shortValue) {
     return setShortValue(shortValue);
 }
 
-function testStaticPrimitiveFieldMutate2() {
+function testStaticBooleanFieldMutate() {
     boolean bool = true;
     setBoolean(bool);
-    assertValueEquality(getBoolean(), true);
+    test:assertEquals(getBoolean(), true);
 }
 
 public type bool true|false|5;
 function testBFiniteToJBooleanCast() {
     bool arg = true;
     setFiniteToBoolean(arg);
-    assertValueEquality(getBoolean(), true);
+    test:assertEquals(getBoolean(), true);
 }
 
 function testInstanceFieldAccess(handle receiver) returns handle {
@@ -44,17 +45,6 @@ function testInstancePrimitiveFieldAccess(handle receiver) returns boolean {
 function testInstancePrimitiveFieldMutate(handle receiver, float value) {
     setLKR(receiver, value);
 }
-
-const ASSERTION_ERROR_REASON = "AssertionError";
-function assertValueEquality(anydata expected, anydata actual) {
-    if expected == actual {
-        return;
-    }
-
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
-}
-
 
 // Java interoperability external functions
 
