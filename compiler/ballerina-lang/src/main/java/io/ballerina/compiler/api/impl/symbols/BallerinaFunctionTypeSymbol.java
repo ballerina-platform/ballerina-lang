@@ -51,7 +51,7 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
 
     public BallerinaFunctionTypeSymbol(CompilerContext context, ModuleID moduleID,
                                        BInvokableTypeSymbol invokableSymbol) {
-        super(context, TypeDescKind.FUNCTION, moduleID, invokableSymbol.type);
+        super(context, TypeDescKind.FUNCTION, invokableSymbol.type);
         this.typeSymbol = invokableSymbol;
     }
 

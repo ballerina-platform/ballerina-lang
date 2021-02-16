@@ -23,9 +23,9 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -47,13 +47,10 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     private final boolean isExternal;
     private final boolean deprecated;
 
-    protected BallerinaFunctionSymbol(String name,
-                                      PackageID moduleID,
-                                      List<Qualifier> qualifiers,
-                                      List<AnnotationSymbol> annots,
-                                      FunctionTypeSymbol typeDescriptor,
-                                      BInvokableSymbol invokableSymbol) {
-        super(name, moduleID, SymbolKind.FUNCTION, invokableSymbol);
+    protected BallerinaFunctionSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
+                                      FunctionTypeSymbol typeDescriptor, BInvokableSymbol invokableSymbol,
+                                      CompilerContext context) {
+        super(name, SymbolKind.FUNCTION, invokableSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
         this.docAttachment = getDocAttachment(invokableSymbol);
@@ -106,12 +103,12 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
         protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected FunctionTypeSymbol typeDescriptor;
 
-        public FunctionSymbolBuilder(String name, PackageID moduleID, BInvokableSymbol bSymbol) {
-            this(name, moduleID, SymbolKind.FUNCTION, bSymbol);
+        public FunctionSymbolBuilder(String name, BInvokableSymbol bSymbol, CompilerContext context) {
+            this(name, SymbolKind.FUNCTION, bSymbol, context);
         }
 
-        public FunctionSymbolBuilder(String name, PackageID moduleID, SymbolKind kind, BInvokableSymbol bSymbol) {
-            super(name, moduleID, kind, bSymbol);
+        public FunctionSymbolBuilder(String name, SymbolKind kind, BInvokableSymbol bSymbol, CompilerContext context) {
+            super(name, kind, bSymbol, context);
         }
 
         public FunctionSymbolBuilder withTypeDescriptor(FunctionTypeSymbol typeDescriptor) {
@@ -136,8 +133,8 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
 
         @Override
         public BallerinaFunctionSymbol build() {
-            return new BallerinaFunctionSymbol(this.name, this.moduleID, this.qualifiers, this.annots,
-                                               this.typeDescriptor, (BInvokableSymbol) this.bSymbol);
+            return new BallerinaFunctionSymbol(this.name, this.qualifiers, this.annots,
+                                               this.typeDescriptor, (BInvokableSymbol) this.bSymbol, this.context);
         }
     }
 }

@@ -33,3 +33,20 @@ scopes=["write", "read"]
 username = "john"
 id = 33
 password="password3"
+
+[[main.nonKeyUsers]]
+username = "alice"
+id = 11
+password="password1"
+scopes=["write"]
+
+[[main.nonKeyUsers]]
+username = "bob"
+id = 22
+password="password2"
+scopes=["write", "read"]
+
+[[main.nonKeyUsers]]
+username = "john"
+id = 33
+password="password3"

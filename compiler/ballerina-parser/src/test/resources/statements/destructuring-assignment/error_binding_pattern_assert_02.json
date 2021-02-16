@@ -356,13 +356,7 @@
                               ]
                             },
                             {
-                              "kind": "COLON_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "COLON_TOKEN"
                             },
                             {
                               "kind": "ERROR_BINDING_PATTERN",
@@ -485,13 +479,7 @@
                               ]
                             },
                             {
-                              "kind": "COLON_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "COLON_TOKEN"
                             },
                             {
                               "kind": "ERROR_BINDING_PATTERN",
@@ -716,10 +704,22 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "d"
+                              "value": "d",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
-                              "kind": "EQUAL_TOKEN"
+                              "kind": "EQUAL_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "ERROR_BINDING_PATTERN",
@@ -925,10 +925,22 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "d"
+                              "value": "d",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
-                              "kind": "EQUAL_TOKEN"
+                              "kind": "EQUAL_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "ERROR_BINDING_PATTERN",

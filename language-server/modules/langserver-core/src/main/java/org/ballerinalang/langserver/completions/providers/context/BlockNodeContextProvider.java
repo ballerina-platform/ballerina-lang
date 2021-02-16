@@ -238,10 +238,12 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                         return false;
                     }
                     TypeSymbol typeDesc = ((VariableSymbol) symbol).typeDescriptor();
-                    return typeDesc.typeKind() == TypeDescKind.UNION && !capturedSymbols.contains(symbol.name());
+                    return typeDesc.typeKind() == TypeDescKind.UNION
+                            && !capturedSymbols.contains(symbol.getName().get());
                 })
                 .map(symbol -> {
-                    capturedSymbols.add(symbol.name());
+                    String symbolName = symbol.getName().get();
+                    capturedSymbols.add(symbolName);
                     List<TypeSymbol> errorTypes = new ArrayList<>();
                     List<TypeSymbol> resultTypes = new ArrayList<>();
                     List<TypeSymbol> members
@@ -257,7 +259,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     if (errorTypes.size() == 1) {
                         resultTypes.addAll(errorTypes);
                     }
-                    String symbolName = symbol.name();
                     String label = symbolName + " - typeguard " + symbolName;
                     String detail = "Destructure the variable " + symbolName + " with typeguard";
                     StringBuilder snippet = new StringBuilder();

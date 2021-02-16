@@ -40,7 +40,6 @@ import java.nio.file.Paths;
 import javax.ws.rs.core.HttpHeaders;
 
 import static org.ballerinalang.cli.module.util.CliModuleConstants.BALLERINA_PLATFORM;
-import static org.ballerinalang.cli.module.util.CliModuleConstants.BAL_LANG_SPEC_VERSION;
 import static org.ballerinalang.cli.module.util.CliModuleConstants.IDENTITY;
 import static org.ballerinalang.cli.module.util.CliModuleConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.cli.module.util.Utils.convertToUrl;
@@ -75,13 +74,12 @@ public class Pull {
      * @param supportedVersionRange supported version range
      * @param isBuild               pulling happens when building
      * @param isNightlyBuild        is nightly build
-     * @param langSpecVersion       lang spec version
      * @param platform              supported version
      * @param clientId              client version
      */
     public static void execute(String url, String modulePathInBalaCache, String moduleNameWithOrg, String proxyHost,
             int proxyPort, String proxyUsername, String proxyPassword, String supportedVersionRange, boolean isBuild,
-            boolean isNightlyBuild, String langSpecVersion, String platform, String clientId) {
+            boolean isNightlyBuild, String platform, String clientId) {
         if (isBuild) {
             logFormatter = new BuildLogFormatter();
         }
@@ -97,7 +95,6 @@ public class Pull {
 
             // Set headers
             conn.setRequestProperty(BALLERINA_PLATFORM, platform);
-            conn.setRequestProperty(BAL_LANG_SPEC_VERSION, langSpecVersion);
             conn.setRequestProperty(HttpHeaders.ACCEPT_ENCODING, IDENTITY);
             conn.setRequestProperty(HttpHeaders.USER_AGENT, clientId);
 

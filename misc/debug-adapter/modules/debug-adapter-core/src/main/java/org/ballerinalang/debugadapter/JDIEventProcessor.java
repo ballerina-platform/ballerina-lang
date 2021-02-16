@@ -35,7 +35,6 @@ import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
-import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.slf4j.Logger;
@@ -76,16 +75,20 @@ public class JDIEventProcessor {
                 try {
                     EventSet eventSet = context.getDebuggee().eventQueue().remove();
                     EventIterator eventIterator = eventSet.eventIterator();
-                    while (eventIterator.hasNext()) {
+                    while (eventIterator.hasNext() && vmAttached) {
                         vmAttached = processEvent(eventSet, eventIterator.next());
                     }
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage(), e);
                 }
             }
-            // It is not required to terminate the debuggee (remote VM) in here, since it must be disconnected or dead
-            // by now.
-            context.getAdapter().exit(false);
+            // Tries terminating the debug server, only if there is no any termination requests received from the
+            // debug client.
+            if (!context.getAdapter().isTerminationRequestReceived()) {
+                // It is not required to terminate the debuggee (remote VM) in here, since it must be disconnected or
+                // dead by now.
+                context.getAdapter().terminateServer(false);
+            }
         });
     }
 
@@ -117,9 +120,6 @@ public class JDIEventProcessor {
         } else if (event instanceof VMDisconnectEvent
                 || event instanceof VMDeathEvent
                 || event instanceof VMDisconnectedException) {
-            ExitedEventArguments exitedEventArguments = new ExitedEventArguments();
-            exitedEventArguments.setExitCode(0L);
-            context.getClient().exited(exitedEventArguments);
             return false;
         } else {
             eventSet.resume();
