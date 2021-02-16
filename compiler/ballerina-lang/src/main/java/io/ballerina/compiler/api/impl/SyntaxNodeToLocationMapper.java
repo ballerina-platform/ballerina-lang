@@ -17,42 +17,74 @@
 
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumMemberNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.LetExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NilLiteralNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TransactionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceTypeDescNode;
+import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Optional;
@@ -258,6 +290,170 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
     @Override
     public Optional<Location> transform(IdentifierToken identifier) {
         return Optional.of(identifier.location());
+    }
+
+    // Nodes relevant for type()
+
+    @Override
+    public Optional<Location> transform(NilLiteralNode nilLiteralNode) {
+        return Optional.of(nilLiteralNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(BasicLiteralNode basicLiteralNode) {
+        return basicLiteralNode.literalToken().apply(this);
+    }
+
+    @Override
+    public Optional<Location> transform(ByteArrayLiteralNode byteArrayLiteralNode) {
+        return Optional.of(byteArrayLiteralNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(TemplateExpressionNode templateExpressionNode) {
+        return Optional.of(templateExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(ListConstructorExpressionNode listConstructorExpressionNode) {
+        return Optional.of(listConstructorExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(TableConstructorExpressionNode tableConstructorExpressionNode) {
+        return Optional.of(tableConstructorExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(MappingConstructorExpressionNode mappingConstructorExpressionNode) {
+        return Optional.of(mappingConstructorExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        return Optional.of(objectConstructorExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        return Optional.of(explicitNewExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        return Optional.of(implicitNewExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+        return builtinSimpleNameReferenceNode.name().apply(this);
+    }
+
+    @Override
+    public Optional<Location> transform(FieldAccessExpressionNode fieldAccessExpressionNode) {
+        return Optional.of(fieldAccessExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        return Optional.of(optionalFieldAccessExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        return Optional.of(annotAccessExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(IndexedExpressionNode indexedExpressionNode) {
+        return Optional.of(indexedExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        return Optional.of(errorConstructorExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(
+            ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        return Optional.of(explicitAnonymousFunctionExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(
+            ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        return Optional.of(implicitAnonymousFunctionExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(LetExpressionNode letExpressionNode) {
+        return Optional.of(letExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(TypeCastExpressionNode typeCastExpressionNode) {
+        return Optional.of(typeCastExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(TypeofExpressionNode typeofExpressionNode) {
+        return Optional.of(typeofExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(UnaryExpressionNode unaryExpressionNode) {
+        return Optional.of(unaryExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(TypeTestExpressionNode typeTestExpressionNode) {
+        return Optional.of(typeTestExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(BinaryExpressionNode binaryExpressionNode) {
+        return Optional.of(binaryExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(ConditionalExpressionNode conditionalExpressionNode) {
+        return Optional.of(conditionalExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(CheckExpressionNode checkExpressionNode) {
+        return Optional.of(checkExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(TrapExpressionNode trapExpressionNode) {
+        return Optional.of(trapExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(QueryExpressionNode queryExpressionNode) {
+        return Optional.of(queryExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(XMLFilterExpressionNode xmlFilterExpressionNode) {
+        return Optional.of(xmlFilterExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(XMLStepExpressionNode xmlStepExpressionNode) {
+        return Optional.of(xmlStepExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(TransactionalExpressionNode transactionalExpressionNode) {
+        return Optional.of(transactionalExpressionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(BracedExpressionNode bracedExpressionNode) {
+        return bracedExpressionNode.expression().apply(this);
     }
 
     @Override

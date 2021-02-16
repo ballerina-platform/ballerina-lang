@@ -48,7 +48,7 @@ public enum CompilerOptionName {
 
     TARGET_BINARY_PATH("targetBinaryPath"),
 
-    BALO_GENERATION("genBalo"),
+    BALA_GENERATION("genBala"),
 
     SKIP_MODULE_DEPENDENCIES("skipModuleDependencies"),
 

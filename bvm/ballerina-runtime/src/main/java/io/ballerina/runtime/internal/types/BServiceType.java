@@ -52,7 +52,7 @@ public class BServiceType extends BObjectType implements ServiceType {
     @Override
     public RemoteMethodType[] getRemoteMethods() {
         if (remoteMethods == null) {
-            RemoteMethodType[] funcs = getRemoteFunctions(getMethods());
+            RemoteMethodType[] funcs = getRemoteMethods(getMethods());
             synchronized (this) {
                 if (remoteMethods == null) {
                     remoteMethods = funcs;
@@ -62,9 +62,9 @@ public class BServiceType extends BObjectType implements ServiceType {
         return remoteMethods;
     }
 
-    private RemoteMethodType[] getRemoteFunctions(MethodType[] attachedFunctions) {
+    private RemoteMethodType[] getRemoteMethods(MethodType[] methodTypes) {
         ArrayList<MethodType> functions = new ArrayList<>();
-        for (MethodType funcType : attachedFunctions) {
+        for (MethodType funcType : methodTypes) {
             if (SymbolFlags.isFlagOn(((BMethodType) funcType).flags, SymbolFlags.REMOTE)) {
                 functions.add(funcType);
             }

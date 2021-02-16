@@ -21,7 +21,6 @@ package toml.parser.test.api.core;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
-import io.ballerina.toml.semantic.ast.TomlValueNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -40,20 +39,22 @@ public class TableTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/tables/table.toml");
         Toml read = Toml.read(inputStream);
-        Long rootKey = ((TomlLongValueNode) read.get("rootKey")).getValue();
-        String dotNotation = ((TomlStringValueNode) read.getTable("first").get("key")).getValue();
-        Toml firstTable = read.getTable("first");
-        String queryFromSubTable = ((TomlStringValueNode) firstTable.get("key")).getValue();
-
-        String subDotNotation = ((TomlStringValueNode) read.getTable("first").getTable("sub").get("key")).getValue();
-        Toml subTable = read.getTable("first").getTable("sub");
-        String queryFromDeepSubTable = ((TomlStringValueNode) subTable.get("key")).getValue();
-
+        Long rootKey = ((TomlLongValueNode) read.get("rootKey").get()).getValue();
         Assert.assertEquals(rootKey, Long.valueOf(22L));
-        Assert.assertEquals(dotNotation, "sdsad");
+
+        Toml firstTable = read.getTable("first").get();
+        String queryFromSubTable = ((TomlStringValueNode) firstTable.get("key").get()).getValue();
         Assert.assertEquals(queryFromSubTable, "sdsad");
 
+        String dotNotation = ((TomlStringValueNode) read.get("first.key").get()).getValue();
+        Assert.assertEquals(dotNotation, "sdsad");
+
+
+        String subDotNotation = ((TomlStringValueNode) read.get("first.sub.key").get()).getValue();
+        Toml subTable = read.getTable("first.sub").get();
         Assert.assertEquals(subDotNotation, "ewww");
+
+        String queryFromDeepSubTable = ((TomlStringValueNode) subTable.get("key").get()).getValue();
         Assert.assertEquals(queryFromDeepSubTable, "ewww");
     }
 
@@ -63,16 +64,16 @@ public class TableTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/tables/array-of-tables.toml");
         Toml read = Toml.read(inputStream);
-        String valueInTable = ((TomlStringValueNode) read.getTable("products").get("hello1")).getValue();
+        String valueInTable = ((TomlStringValueNode) read.getTable("products").get().get("hello1").get()).getValue();
         Assert.assertEquals(valueInTable, "hi");
 
-        List<Toml> tables = read.getTable("products").getTables("hello");
-        String firstElement = ((TomlStringValueNode) tables.get(0).get("name")).getValue();
-        TomlValueNode nullElement = tables.get(1).get("name");
-        String thridElement = ((TomlStringValueNode) tables.get(2).get("name")).getValue();
+        List<Toml> tables = read.getTable("products").get().getTables("hello");
+        String firstElement = ((TomlStringValueNode) tables.get(0).get("name").get()).getValue();
+        boolean nullElement = tables.get(1).get("name").isEmpty();
+        String thridElement = ((TomlStringValueNode) tables.get(2).get("name").get()).getValue();
 
         Assert.assertEquals(firstElement, "Hammer");
-        Assert.assertNull(nullElement);
+        Assert.assertTrue(nullElement);
         Assert.assertEquals(thridElement, "Nail");
     }
 }

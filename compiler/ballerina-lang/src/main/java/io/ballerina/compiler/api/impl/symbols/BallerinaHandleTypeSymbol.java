@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaHandleTypeSymbol extends AbstractTypeSymbol implements HandleTypeSymbol {
 
     public BallerinaHandleTypeSymbol(CompilerContext context, ModuleID moduleID, BHandleType handleType) {
-        super(context, TypeDescKind.HANDLE, moduleID, handleType);
+        super(context, TypeDescKind.HANDLE, handleType);
     }
 
     @Override

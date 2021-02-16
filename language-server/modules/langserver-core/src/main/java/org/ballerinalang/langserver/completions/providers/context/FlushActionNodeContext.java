@@ -52,7 +52,8 @@ public class FlushActionNodeContext extends AbstractCompletionProvider<FlushActi
 
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getCompletionItemList(filteredWorkers, context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
-
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 }

@@ -21,8 +21,13 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.FileUtils;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.nio.file.Paths;
 
 /**
  * Test class containting tests related to Rerun failed test functionality.
@@ -44,9 +49,9 @@ public class RerunFailedTest extends BaseTestCase {
         String msg2 = "2 failing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
-
-        balClient.runMain("test", new String[]{"rerun-failed-tests"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
+        String[] args = mergeCoverageArgs(new String[]{"rerun-failed-tests"});
+        balClient.runMain("test", args,
+                null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
 
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
@@ -59,11 +64,20 @@ public class RerunFailedTest extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
 
-        balClient.runMain("test", new String[]{"--rerun-failed", "rerun-failed-tests"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
+        String[] args = mergeCoverageArgs(new String[]{"--rerun-failed", "rerun-failed-tests"});
+        balClient.runMain("test", args,
+                null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
 
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
     }
 
+    @AfterMethod
+    public void copyExec() {
+        try {
+            FileUtils.copyBallerinaExec(Paths.get(projectPath), String.valueOf(System.currentTimeMillis()));
+        } catch (IOException e) {
+            // ignore exception
+        }
+    }
 }

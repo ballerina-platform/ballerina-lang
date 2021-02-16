@@ -15,12 +15,12 @@
   {
     "description": "Member access can be used to retrieve a value from a map.",
     "code": "string? countryValue = addrMap[\"country\"]; countryValue",
-    "expr": "Sri Lanka"
+    "expr": "\"Sri Lanka\""
   },
   {
     "description": "Retrieve a value using the `.get()` method.",
     "code": "addrMap.get(\"line2\");",
-    "expr": "Palm Grove"
+    "expr": "\"Palm Grove\""
   },
   {
     "description": "The `.hasKey()` function checks if a map contains the specified key.",
@@ -45,7 +45,7 @@
   {
     "description": "Fields can be removed using the `.remove()` method.",
     "code": "addrMap.remove(\"code\");",
-    "expr": "00300"
+    "expr": "\"00300\""
   },
   {
     "description": "Maps support functional iteration.",

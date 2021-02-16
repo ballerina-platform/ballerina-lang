@@ -32,7 +32,7 @@ public class StaticCompletionItem extends AbstractLSCompletionItem {
     private final Kind kind;
 
     public StaticCompletionItem(BallerinaCompletionContext lsContext, CompletionItem completionItem, Kind kind) {
-        super(lsContext, completionItem);
+        super(lsContext, completionItem, CompletionItemType.STATIC);
         this.kind = kind;
     }
 

@@ -259,6 +259,21 @@ public class MemberAccessTest {
         };
     }
 
+    @Test(dataProvider = "optionalMappingMemberAccessFunctions2")
+    public void testOptionalMappingMemberAccess2(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "optionalMappingMemberAccessFunctions2")
+    public Object[][] optionalMappingMemberAccessFunctions2() {
+        return new Object[][] {
+                { "testUnavailableFinalAccessInNestedAccess" },
+                { "testAvailableFinalAccessInNestedAccess" },
+                { "testUnavailableIntermediateAccessInNestedAccess" },
+                { "testNilValuedFinalAccessInNestedAccess" }
+        };
+    }
+
     @Test(dataProvider = "mappingUnionMemberAccessFunctions")
     public void testMappingUnionMemberAccess(String function) {
         BValue[] returns = BRunUtil.invoke(result, function);

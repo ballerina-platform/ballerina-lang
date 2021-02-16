@@ -46,7 +46,9 @@ public class SkipTestsTestCase extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
-        balClient.runMain("test", new String[]{"dependson-skip-test.bal"}, null, new String[]{},
+
+        String[] args = mergeCoverageArgs(new String[]{"dependson-skip-test.bal"});
+        balClient.runMain("test", args, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
@@ -61,7 +63,9 @@ public class SkipTestsTestCase extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
-        balClient.runMain("test", new String[]{"skip-when-before-fails.bal"}, null, new String[]{},
+
+        String[] args = mergeCoverageArgs(new String[]{"skip-when-before-fails.bal"});
+        balClient.runMain("test", args, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
@@ -76,7 +80,9 @@ public class SkipTestsTestCase extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
-        balClient.runMain("test", new String[]{"skip-when-after-fails.bal"}, null, new String[]{},
+
+        String[] args = mergeCoverageArgs(new String[]{"skip-when-after-fails.bal"});
+        balClient.runMain("test", args, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
@@ -91,7 +97,9 @@ public class SkipTestsTestCase extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
-        balClient.runMain("test", new String[]{"skip-when-beforeEach-fails.bal"}, null, new String[]{},
+
+        String[] args = mergeCoverageArgs(new String[]{"skip-when-beforeEach-fails.bal"});
+        balClient.runMain("test", args, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
@@ -107,7 +115,9 @@ public class SkipTestsTestCase extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
-        balClient.runMain("test", new String[]{"skip-when-afterEach-fails.bal"}, null, new String[]{},
+
+        String[] args = mergeCoverageArgs(new String[]{"skip-when-afterEach-fails.bal"});
+        balClient.runMain("test", args, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
@@ -122,7 +132,9 @@ public class SkipTestsTestCase extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
-        balClient.runMain("test", new String[]{"skip-when-beforeSuite-fails.bal"}, null, new String[]{},
+
+        String[] args = mergeCoverageArgs(new String[]{"skip-when-beforeSuite-fails.bal"});
+        balClient.runMain("test", args, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
@@ -137,7 +149,9 @@ public class SkipTestsTestCase extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
-        balClient.runMain("test", new String[]{"skip-when-beforeGroups-fails.bal"}, null, new String[]{},
+
+        String[] args = mergeCoverageArgs(new String[]{"skip-when-beforeGroups-fails.bal"});
+        balClient.runMain("test", args, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
@@ -152,7 +166,9 @@ public class SkipTestsTestCase extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         LogLeecher clientLeecher3 = new LogLeecher(msg3);
-        balClient.runMain("test", new String[]{"skip-when-afterGroups-fails.bal"}, null, new String[]{},
+
+        String[] args = mergeCoverageArgs(new String[]{"skip-when-afterGroups-fails.bal"});
+        balClient.runMain("test", args, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);

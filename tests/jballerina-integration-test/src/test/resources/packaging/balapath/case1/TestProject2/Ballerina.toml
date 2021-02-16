@@ -1,0 +1,6 @@
+[project]
+org-name = "foo"
+version = "2.0.0"
+
+[dependencies]
+"bar/bee" = { path = "../TestProject1/target/bala/bee-2020r2-any-1.2.0.bala"}

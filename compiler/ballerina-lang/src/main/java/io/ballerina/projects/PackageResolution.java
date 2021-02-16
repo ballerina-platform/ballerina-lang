@@ -140,8 +140,8 @@ public class PackageResolution {
      */
     private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph() {
         // TODO We should get diagnostics as well. Need to design that contract
-        if (rootPackageContext.project().kind() == ProjectKind.BALR_PROJECT) {
-            createDependencyGraphFromBALR();
+        if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
+            createDependencyGraphFromBALA();
         } else {
             createDependencyGraphFromSources();
         }
@@ -197,18 +197,18 @@ public class PackageResolution {
         return null;
     }
 
-    private void createDependencyGraphFromBALR() {
-        DependencyGraph<PackageDescriptor> dependencyGraphStoredInBALR = rootPackageContext.dependencyGraph();
-        Collection<PackageDescriptor> directDependenciesOfBALR =
-                dependencyGraphStoredInBALR.getDirectDependencies(rootPackageContext.descriptor());
+    private void createDependencyGraphFromBALA() {
+        DependencyGraph<PackageDescriptor> dependencyGraphStoredInBALA = rootPackageContext.dependencyGraph();
+        Collection<PackageDescriptor> directDependenciesOfBALA =
+                dependencyGraphStoredInBALA.getDirectDependencies(rootPackageContext.descriptor());
 
-        // 1) Create ResolutionRequest instances for each direct dependency of the balr
+        // 1) Create ResolutionRequest instances for each direct dependency of the bala
         LinkedHashSet<ResolutionRequest> resolutionRequests = new LinkedHashSet<>();
-        for (PackageDescriptor packageDescriptor : directDependenciesOfBALR) {
+        for (PackageDescriptor packageDescriptor : directDependenciesOfBALA) {
             resolutionRequests.add(ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT));
         }
 
-        // 2) Resolve direct dependencies. My assumption is that, all these dependencies comes from BALRs
+        // 2) Resolve direct dependencies. My assumption is that, all these dependencies comes from BALAs
         List<ResolutionResponse> resolutionResponses =
                 packageResolver.resolvePackages(new ArrayList<>(resolutionRequests), rootPackageContext.project());
         for (ResolutionResponse resolutionResponse : resolutionResponses) {

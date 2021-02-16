@@ -9,13 +9,15 @@
       "label": "function name . () {}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "function ${1:name} ${2:.} (${3}) {\n\t${4}\n}",
+      "sortText": "O",
+      "insertText": "function ${1:name} ${2:.} (${3})${4} {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     }

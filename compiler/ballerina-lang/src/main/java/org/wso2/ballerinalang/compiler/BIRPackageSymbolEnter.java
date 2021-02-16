@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -334,7 +335,7 @@ public class BIRPackageSymbolEnter {
         String pkgVersion = getStringCPEntryValue(dataInStream);
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageCache.getSymbol(importPkgID);
-        //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
+        //TODO: after bala_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
         this.env.pkgSymbol.imports.add(importPackageSymbol);
@@ -424,6 +425,9 @@ public class BIRPackageSymbolEnter {
         byte origin = dataInStream.readByte();
 
         byte[] docBytes = readDocBytes(dataInStream);
+
+        // Skip annotation attachments for now
+        dataInStream.skip(dataInStream.readLong());
 
         BType type = readBType(dataInStream);
         if (type.tag == TypeTags.INVOKABLE) {
@@ -1168,6 +1172,11 @@ public class BIRPackageSymbolEnter {
                     var poppedUnionType = compositeStack.pop();
                     assert poppedUnionType == unionType;
 
+                    boolean isEnum = inputStream.readBoolean();
+                    if (isEnum) {
+                        readAndSetEnumSymbol(unionType, flags);
+                    }
+
                     if (hasName) {
                         if (unionsPkgId.equals(env.pkgSymbol.pkgID)) {
                             return unionType;
@@ -1256,6 +1265,11 @@ public class BIRPackageSymbolEnter {
                         tupleMemberTypes.add(readTypeFromCp());
                     }
                     bTupleType.tupleTypes = tupleMemberTypes;
+
+                    if (inputStream.readBoolean()) {
+                        bTupleType.restType = readTypeFromCp();
+                    }
+
                     return bTupleType;
                 case TypeTags.FUTURE:
                     BFutureType bFutureType = new BFutureType(TypeTags.FUTURE, null, symTable.futureType.tsymbol);
@@ -1434,6 +1448,35 @@ public class BIRPackageSymbolEnter {
                 typeInclusions.add(inclusion);
             }
             return typeInclusions;
+        }
+
+        private void readAndSetEnumSymbol(BUnionType unionType, long flags) throws IOException {
+            PackageID enumPkgId = getPackageId(inputStream.readInt());
+            String enumName = getStringCPEntryValue(inputStream);
+            int memberCount = inputStream.readInt();
+            BSymbol pkgSymbol = packageCache.getSymbol(enumPkgId);
+
+            // pkg symbol will be null if it's an enum in the current module.
+            if (pkgSymbol == null) {
+                pkgSymbol = env.pkgSymbol;
+            }
+
+            SymbolEnv enumPkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+
+            // pkg env will be null if it's an enum in the current module.
+            if (enumPkgEnv == null) {
+                enumPkgEnv = SymbolEnv.createPkgEnv(null, env.pkgSymbol.scope, null);
+            }
+
+            List<BConstantSymbol> members = new ArrayList<>();
+            for (int i = 0; i < memberCount; i++) {
+                String memName = getStringCPEntryValue(inputStream);
+                BSymbol sym = symbolResolver.lookupSymbolInMainSpace(enumPkgEnv, names.fromString(memName));
+                members.add((BConstantSymbol) sym);
+            }
+
+            unionType.tsymbol = new BEnumSymbol(members, flags, names.fromString(enumName), pkgSymbol.pkgID, unionType,
+                                                pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
         }
     }
 

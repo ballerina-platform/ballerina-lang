@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
@@ -25,6 +26,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,11 +43,17 @@ public class TypeofExpressionNodeContext extends AbstractCompletionProvider<Type
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TypeofExpressionNode node)
             throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(context, qRef), context);
+            List<Symbol> expressionContextEntries = QNameReferenceUtil.getExpressionContextEntries(context, qRef);
+            completionItems.addAll(this.getCompletionItemList(expressionContextEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
         }
-        return this.expressionCompletions(context);
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 }

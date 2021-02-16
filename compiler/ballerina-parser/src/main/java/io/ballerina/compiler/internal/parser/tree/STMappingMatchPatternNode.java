@@ -33,18 +33,15 @@ import java.util.Collections;
 public class STMappingMatchPatternNode extends STNode {
     public final STNode openBraceToken;
     public final STNode fieldMatchPatterns;
-    public final STNode restMatchPattern;
     public final STNode closeBraceToken;
 
     STMappingMatchPatternNode(
             STNode openBraceToken,
             STNode fieldMatchPatterns,
-            STNode restMatchPattern,
             STNode closeBraceToken) {
         this(
                 openBraceToken,
                 fieldMatchPatterns,
-                restMatchPattern,
                 closeBraceToken,
                 Collections.emptyList());
     }
@@ -52,19 +49,16 @@ public class STMappingMatchPatternNode extends STNode {
     STMappingMatchPatternNode(
             STNode openBraceToken,
             STNode fieldMatchPatterns,
-            STNode restMatchPattern,
             STNode closeBraceToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.MAPPING_MATCH_PATTERN, diagnostics);
         this.openBraceToken = openBraceToken;
         this.fieldMatchPatterns = fieldMatchPatterns;
-        this.restMatchPattern = restMatchPattern;
         this.closeBraceToken = closeBraceToken;
 
         addChildren(
                 openBraceToken,
                 fieldMatchPatterns,
-                restMatchPattern,
                 closeBraceToken);
     }
 
@@ -72,7 +66,6 @@ public class STMappingMatchPatternNode extends STNode {
         return new STMappingMatchPatternNode(
                 this.openBraceToken,
                 this.fieldMatchPatterns,
-                this.restMatchPattern,
                 this.closeBraceToken,
                 diagnostics);
     }
@@ -80,12 +73,10 @@ public class STMappingMatchPatternNode extends STNode {
     public STMappingMatchPatternNode modify(
             STNode openBraceToken,
             STNode fieldMatchPatterns,
-            STNode restMatchPattern,
             STNode closeBraceToken) {
         if (checkForReferenceEquality(
                 openBraceToken,
                 fieldMatchPatterns,
-                restMatchPattern,
                 closeBraceToken)) {
             return this;
         }
@@ -93,7 +84,6 @@ public class STMappingMatchPatternNode extends STNode {
         return new STMappingMatchPatternNode(
                 openBraceToken,
                 fieldMatchPatterns,
-                restMatchPattern,
                 closeBraceToken,
                 diagnostics);
     }

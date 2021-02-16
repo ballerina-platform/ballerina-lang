@@ -33,7 +33,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -61,6 +60,8 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
              */
             return new ArrayList<>();
         }
+        
+        List<LSCompletionItem> completionItems = new ArrayList<>();
 
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
@@ -75,31 +76,30 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
             }
-            List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
+            completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.addAll(this.getTypeItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-
-            return completionItems;
-        }
-        if (node.inKeyword().isMissing()) {
+        } else if (node.inKeyword().isMissing()) {
             /*
             Covers the following cases
             Eg:
             (1) var tesVar = stream from var item <cursor>
             (2) var tesVar = stream from var item <cursor>i
              */
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
-        }
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
+        } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-            return this.getCompletionItemList(exprEntries, context);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
         }
-
-        return this.expressionCompletions(context);
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 
     @Override

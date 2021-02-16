@@ -9,6 +9,7 @@
       "label": "distinct",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
@@ -16,6 +17,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     },
@@ -23,6 +25,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
     },
@@ -30,6 +33,7 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "client ",
       "insertTextFormat": "Snippet"
     },
@@ -37,6 +41,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     }

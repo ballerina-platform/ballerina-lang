@@ -7,29 +7,33 @@
   "items": [
     {
       "label": "Element",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "Element",
+      "sortText": "M",
       "insertText": "Element",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "ProcessingInstruction",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "Processinginstruction",
+      "sortText": "M",
       "insertText": "ProcessingInstruction",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Comment",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "Comment",
+      "sortText": "M",
       "insertText": "Comment",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Text",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "Text",
+      "sortText": "M",
       "insertText": "Text",
       "insertTextFormat": "Snippet"
     }

@@ -18,8 +18,9 @@
 
 package io.ballerina.shell.invoker;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
@@ -118,16 +119,9 @@ public abstract class Invoker extends DiagnosticReporter {
      * @return Created template
      * @throws InvokerException If reading template failed.
      */
-    protected Template getTemplate(String templateName) throws InvokerException {
-        Configuration cfg = new Configuration(Configuration.VERSION_2_3_30);
-        cfg.setClassForTemplateLoading(getClass(), "/");
-        cfg.setDefaultEncoding("UTF-8");
-        try {
-            return cfg.getTemplate(templateName);
-        } catch (IOException e) {
-            addDiagnostic(Diagnostic.error("Template file read failed: " + e.getMessage()));
-            throw new InvokerException(e);
-        }
+    protected Mustache getTemplate(String templateName) throws InvokerException {
+        MustacheFactory mf = new DefaultMustacheFactory();
+        return mf.compile(templateName);
     }
 
     /**

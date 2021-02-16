@@ -6,7 +6,7 @@
   {
     "description": "Define simple error.",
     "code": "error simpleError = error(\"Simple error occurred\"); simpleError.message()",
-    "expr": "Simple error occurred"
+    "expr": "\"Simple error occurred\""
   },
   {
     "description": "Get result which is an error.",

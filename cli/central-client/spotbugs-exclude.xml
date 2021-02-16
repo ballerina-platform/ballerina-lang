@@ -18,7 +18,7 @@
 <FindBugsFilter>
     <Match>
         <Class name="org.ballerinalang.central.client.Utils"/>
-        <Method name="writeBaloFile"/>
+        <Method name="writeBalaFile"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
     </Match>
 </FindBugsFilter>

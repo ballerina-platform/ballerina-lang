@@ -46,14 +46,14 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, QueryExpressionNode node)
             throws LSCompletionException {
-
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.onQueryPipeLine(context, node)) {
             /*
              * we suggest intermediate clause snippets, the keywords and the select keyword as well. This is to support
              * multiple intermediate clauses and the select clause.
              * query-expr := [query-construct-type] query-pipeline select-clause [on-conflict-clause]
              */
-            List<LSCompletionItem> completionItems = new ArrayList<>(Arrays.asList(
+            completionItems.addAll(new ArrayList<>(Arrays.asList(
                     new SnippetCompletionItem(context, Snippet.KW_FROM.get()),
                     new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()),
                     new SnippetCompletionItem(context, Snippet.KW_WHERE.get()),
@@ -62,7 +62,7 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
                     new SnippetCompletionItem(context, Snippet.KW_JOIN.get()),
                     new SnippetCompletionItem(context, Snippet.CLAUSE_JOIN.get()),
                     new SnippetCompletionItem(context, Snippet.KW_ORDERBY.get()),
-                    new SnippetCompletionItem(context, Snippet.KW_LIMIT.get())));
+                    new SnippetCompletionItem(context, Snippet.KW_LIMIT.get()))));
             if (!node.queryPipeline().fromClause().isMissing()) {
                 /*
                  * It is mandatory to have at least one pipeline clause.
@@ -70,11 +70,10 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
                  */
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SELECT.get()));
             }
-
-            return completionItems;
         }
+        this.sort(context, node, completionItems);
 
-        return new ArrayList<>();
+        return completionItems;
     }
 
     private boolean onQueryPipeLine(BallerinaCompletionContext context, QueryExpressionNode node) {

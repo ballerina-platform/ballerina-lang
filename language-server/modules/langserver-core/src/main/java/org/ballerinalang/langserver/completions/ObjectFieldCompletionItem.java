@@ -32,7 +32,7 @@ public class ObjectFieldCompletionItem extends AbstractLSCompletionItem {
 
     public ObjectFieldCompletionItem(BallerinaCompletionContext lsContext, ObjectFieldSymbol fieldSymbol,
                                      CompletionItem completionItem) {
-        super(lsContext, completionItem);
+        super(lsContext, completionItem, CompletionItemType.OBJECT_FIELD);
         this.fieldSymbol = fieldSymbol;
     }
 

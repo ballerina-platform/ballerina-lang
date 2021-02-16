@@ -9,22 +9,28 @@
       "label": "typeAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "Q",
       "insertText": "typeAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "typeAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "Q",
       "insertText": "typeAnnotation2",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "typeAnnotation3",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "Q",
       "insertText": "typeAnnotation3",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }

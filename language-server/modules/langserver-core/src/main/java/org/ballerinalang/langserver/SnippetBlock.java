@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.completions.builder.CompletionItemBuilder;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
@@ -34,7 +35,7 @@ import java.util.Optional;
  *
  * @since 0.982.0
  */
-public class SnippetBlock {
+public class SnippetBlock extends CompletionItemBuilder {
 
     private String label = "";
     private String detail = "";
@@ -96,7 +97,7 @@ public class SnippetBlock {
         if (!detail.isEmpty()) {
             completionItem.setDetail(detail);
         }
-        completionItem.setKind(getCompletionItemKind());
+        completionItem.setKind(this.getKind(this));
 
         return completionItem;
     }

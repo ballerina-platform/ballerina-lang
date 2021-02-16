@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.completions;
 
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 
 import javax.annotation.Nullable;
@@ -29,16 +28,16 @@ import javax.annotation.Nullable;
  *
  * @since 2.0.0
  */
-public class TypeCompletionItem extends AbstractLSCompletionItem {
+public class TypeCompletionItem extends SymbolCompletionItem {
     private final TypeSymbol typeDescriptor;
 
-    public TypeCompletionItem(BallerinaCompletionContext lsContext, @Nullable TypeSymbol typeDescriptor,
+    public TypeCompletionItem(BallerinaCompletionContext lsContext, @Nullable TypeSymbol typeSymbol,
                               CompletionItem completionItem) {
-        super(lsContext, completionItem);
-        this.typeDescriptor = typeDescriptor;
+        super(lsContext, typeSymbol, completionItem, CompletionItemType.TYPE);
+        this.typeDescriptor = typeSymbol;
     }
 
-    public TypeSymbol getTypeDescriptor() {
+    public TypeSymbol getTypeSymbol() {
         return typeDescriptor;
     }
 }

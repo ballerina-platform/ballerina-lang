@@ -15,6 +15,7 @@
           "value": ""
         }
       },
+      "sortText": "B",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     }

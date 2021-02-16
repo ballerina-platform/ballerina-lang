@@ -1592,6 +1592,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.lhsExpr = clone(source.lhsExpr);
         clone.rhsExpr = clone(source.rhsExpr);
+        clone.equalsKeywordPos = source.equalsKeywordPos;
     }
 
     @Override

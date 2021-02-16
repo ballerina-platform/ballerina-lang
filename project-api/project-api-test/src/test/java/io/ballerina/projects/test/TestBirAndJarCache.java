@@ -53,7 +53,7 @@ public class TestBirAndJarCache {
 
     @Test(description = "tests writing of the BIR and Jar files")
     public void testBirAndJarCaching() throws IOException {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectOne");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("balawriter").resolve("projectOne");
 
         // 1) Initialize the project instance
         Path cacheDirPath = null;

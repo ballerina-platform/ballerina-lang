@@ -42,6 +42,8 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ModulePartNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         if (ModulePartNodeContextUtil.onServiceTypeDescContext(context.getTokenAtCursor(), context)) {
             /*
             Covers the following cases
@@ -57,17 +59,14 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             (2) isolated service m<cursor>
              */
             List<Symbol> objectSymbols = ModulePartNodeContextUtil.serviceTypeDescContextSymbols(context);
-            List<LSCompletionItem> items = this.getCompletionItemList(objectSymbols, context);
-            items.addAll(this.getModuleCompletionItems(context));
-            items.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
-
-            return items;
+            completionItems.addAll(this.getCompletionItemList(objectSymbols, context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+        } else {
+            completionItems.addAll(ModulePartNodeContextUtil.getTopLevelItems(context));
+            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
         }
-
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(ModulePartNodeContextUtil.getTopLevelItems(context));
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getModuleCompletionItems(context));
         this.sort(context, node, completionItems);
 
         return completionItems;

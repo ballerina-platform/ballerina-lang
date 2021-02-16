@@ -30,7 +30,7 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,30 +50,32 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, OnClauseNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onSuggestEqualsKeyword(context, node)) {
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_EQUALS.get()));
-        }
-
-        /*
-         * Covers the remaining rule content,
-         * (1) on <cursor>
-         * (2) on e<cursor>
-         * (3) on expr equals <cursor>
-         * (4) on expr equals e<cursor>
-         * (5) on expr equals module:<cursor>
-         */
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_EQUALS.get()));
+        } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            /*
+             * Covers the remaining rule content,
+             * (1) on <cursor>
+             * (2) on e<cursor>
+             * (3) on expr equals <cursor>
+             * (4) on expr equals e<cursor>
+             * (5) on expr equals module:<cursor>
+             */
             /*
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-            return this.getCompletionItemList(exprEntries, context);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
         }
-
-        return this.expressionCompletions(context);
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 
     @Override

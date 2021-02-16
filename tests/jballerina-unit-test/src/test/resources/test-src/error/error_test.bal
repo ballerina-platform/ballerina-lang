@@ -126,7 +126,8 @@ function testOneLinePanic() returns string[] {
         results[3] = error3.message();
         var detail = error3.detail();
         results[4] = <string> checkpanic detail.get("message");
-        results[5] = detail.get("statusCode").toString();
+        var statusCode = detail.get("statusCode");
+        results[5] = statusCode is error? statusCode.toString() : statusCode.toString();
     }
 
     return results;
@@ -369,6 +370,23 @@ function testUnionErrorTypeDescriptionInferring() {
     error|TrxError e = error("IAmAInferedUnionErr");
     error<*> err = e;
     assertEquality(err.detail().toString(), e.detail().toString());
+}
+
+type SampleErrorData record {
+    string message?;
+    error cause?;
+    string info;
+    boolean fatal;
+};
+
+type SampleError error<SampleErrorData>;
+
+function testErrorBindingPattern() {
+    string i;
+    boolean b;
+    error(info=i,fatal=b) = error SampleError("Sample Error", info = "Some Info", fatal = false);
+    assertEquality(i, "Some Info");
+    assertEquality(b, false);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

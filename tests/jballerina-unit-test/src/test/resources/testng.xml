@@ -128,7 +128,7 @@
             <package name="org.ballerinalang.test.types.constant.*" />
             <package name="org.ballerinalang.test.types.bytetype.*"/>
             <package name="org.ballerinalang.test.types.handle.*"/>
-            <package name="org.ballerinalang.test.balo.*"/>
+            <package name="org.ballerinalang.test.bala.*"/>
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
             <package name="org.ballerinalang.test.expressions.literals.*"/>
             <package name="org.ballerinalang.test.expressions.varref.*"/>
@@ -149,7 +149,7 @@
         <classes>
             <class name="org.ballerinalang.test.parser.ResilientParserTest"/>
             <class name="org.ballerinalang.test.typedefs.DistinctTypeDefTest"/>
-            <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
+            <class name="org.ballerinalang.test.bala.constant.SimpleConstantBalaNegativeTests"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest"></class>
@@ -195,6 +195,8 @@
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementSyntaxErrorsTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.CaptureBindingPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.ListBindingPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.MappingBindingPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.ErrorBindingPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtListMatchPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtMappingMatchPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtTypeNarrowingTest"></class>
@@ -233,8 +235,8 @@
                     <exclude name="testAsyncNonNativeBasic11" />
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
-            <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.bala.record.OpenRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.bala.record.ClosedRecordTypeReferenceTest" />
         </classes>
     </test>
 </suite>

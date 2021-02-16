@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -52,16 +53,21 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectFieldNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         if (this.onExpressionContext(context, node)) {
-            return this.getExpressionContextCompletions(context);
-        }
-        if (this.onModuleTypeDescriptorsOnly(context, node)) {
+            completionItems.addAll(this.getExpressionContextCompletions(context));
+        } else if (this.onModuleTypeDescriptorsOnly(context, node)) {
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
+            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
+            completionItems.addAll(this.getCompletionItemList(typesInModule, context));
+        } else {
+            completionItems.addAll(this.getClassBodyCompletions(context, node));
         }
-
-        return this.getClassBodyCompletions(context, node);
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 
     private List<LSCompletionItem> getClassBodyCompletions(BallerinaCompletionContext context, ObjectFieldNode node) {

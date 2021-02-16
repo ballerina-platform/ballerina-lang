@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,15 +43,15 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ClassDefinitionNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.withinBody(context, node)) {
-            return this.getClassBodyCompletions(context, node);
+            completionItems.addAll(this.getClassBodyCompletions(context, node));
+        } else if (onClassTypeQualifiers(context, node)) {
+            completionItems.addAll(getClassTypeCompletions(context));
         }
-
-        if (onClassTypeQualifiers(context, node)) {
-            return getClassTypeCompletions(context);
-        }
-
-        return Collections.emptyList();
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 
     @Override

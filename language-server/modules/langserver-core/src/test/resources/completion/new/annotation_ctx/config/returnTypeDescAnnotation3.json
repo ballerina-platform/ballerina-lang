@@ -9,15 +9,19 @@
       "label": "returnAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "Q",
       "insertText": "returnAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "returnAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "Q",
       "insertText": "returnAnnotation2",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }
