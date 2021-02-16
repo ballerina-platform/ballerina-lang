@@ -75,10 +75,7 @@ public class StringUtils {
      *     int i = "Hello";
      *             ^-----^
      * </pre>
-     * However if the error is multiline, it would follow following format,
-     * <pre>
-     *
-     * </pre>
+     * However if the error is multiline, it would not highlight the error.
      *
      * @param textDocument Text document to extract source code.
      * @param diagnostic   Diagnostic to show.
