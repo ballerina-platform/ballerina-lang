@@ -48,7 +48,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
+import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
 /**
  * JDI Event processor implementation.
@@ -105,17 +107,27 @@ public class JDIEventProcessor {
             context.getClient().stopped(stoppedEventArguments);
             context.getEventManager().deleteEventRequests(stepEventRequests);
         } else if (event instanceof StepEvent) {
-            if (((StepEvent) event).location().lineNumber() > 0) {
+            StepEvent e = (StepEvent) event;
+            if (isBalSourceAttached(e)) {
+                // If the current step event is related to a ballerina source, suspends all threads and notifies the
+                // client that the debuggee is stopped.
                 context.getEventManager().deleteEventRequests(stepEventRequests);
                 StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
                 stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
-                stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
+                stoppedEventArguments.setThreadId(e.thread().uniqueID());
                 stoppedEventArguments.setAllThreadsStopped(true);
                 context.getClient().stopped(stoppedEventArguments);
             } else {
-                long threadId = ((StepEvent) event).thread().uniqueID();
-                int stepType = ((StepRequest) event.request()).depth();
-                sendStepRequest(threadId, stepType);
+                long threadId = e.thread().uniqueID();
+                if (context.getAdapter().getContext().getLastInstruction() == DebugInstruction.STEP_IN) {
+                    // If the current step-in event is not related to a ballerina source, sends step-out request to
+                    // rollback into the last stable state.
+                    context.getAdapter().sendOutput("WARNING: Trying to step-in into an unsupported source", STDOUT);
+                    context.getAdapter().stepOut(threadId);
+                } else {
+                    int stepType = ((StepRequest) event.request()).depth();
+                    sendStepRequest(threadId, stepType);
+                }
             }
         } else if (event instanceof VMDisconnectEvent
                 || event instanceof VMDeathEvent
@@ -125,6 +137,16 @@ public class JDIEventProcessor {
             eventSet.resume();
         }
         return true;
+    }
+
+    private boolean isBalSourceAttached(StepEvent event) {
+        try {
+            String sourceName = event.location().sourceName();
+            int sourceLine = event.location().lineNumber();
+            return sourceName.endsWith(BAL_FILE_EXT) && sourceLine > 0;
+        } catch (AbsentInformationException e) {
+            return false;
+        }
     }
 
     void setBreakpointsList(String path, Breakpoint[] breakpointsList) {
@@ -182,7 +204,7 @@ public class JDIEventProcessor {
     }
 
     private void configureDynamicBreakPoints(long threadId) {
-        ThreadReferenceProxyImpl threadReference = context.getAdapter().getThreadsMap().get(threadId);
+        ThreadReferenceProxyImpl threadReference = context.getAdapter().getAllThreads().get(threadId);
         try {
             Location currentLocation = threadReference.frames().get(0).location();
             ReferenceType referenceType = currentLocation.declaringType();
@@ -218,7 +240,7 @@ public class JDIEventProcessor {
 
     void createStepRequest(long threadId, int stepType) {
         context.getEventManager().deleteEventRequests(stepEventRequests);
-        ThreadReferenceProxyImpl threadReference = context.getAdapter().getThreadsMap().get(threadId);
+        ThreadReferenceProxyImpl threadReference = context.getAdapter().getAllThreads().get(threadId);
         if (threadReference == null || threadReference.getThreadReference() == null) {
             return;
         }
