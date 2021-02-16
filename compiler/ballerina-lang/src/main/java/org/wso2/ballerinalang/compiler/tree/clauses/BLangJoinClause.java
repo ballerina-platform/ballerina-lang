@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -30,6 +31,7 @@ public class BLangJoinClause extends BLangInputClause {
 
     public boolean isOuterJoin;
     public OnClauseNode onClause;
+    public SymbolEnv env;
 
     public void setOuterJoin(boolean outerJoin) {
         isOuterJoin = outerJoin;

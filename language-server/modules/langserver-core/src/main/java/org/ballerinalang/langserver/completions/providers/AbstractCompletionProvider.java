@@ -40,6 +40,7 @@ import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -152,11 +153,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 VariableSymbol varSymbol = (VariableSymbol) symbol;
                 TypeSymbol typeDesc = (varSymbol).typeDescriptor();
                 String typeName = typeDesc == null ? "" : CommonUtil.getModifiedTypeName(ctx, typeDesc);
-                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
+                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, varSymbol.getName().get(),
+                                                                                   typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
                 // Here skip all the package symbols since the package is added separately
-                CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.name());
+                CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.getName().get());
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, typeCItem));
             } else if (symbol.kind() == SymbolKind.WORKER) {
                 CompletionItem workerItem = WorkerCompletionItemBuilder.build((WorkerSymbol) symbol);
@@ -183,7 +185,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         visibleSymbols.forEach(bSymbol -> {
             if (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS
                     || bSymbol.kind() == ENUM) {
-                CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
+                CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.getName().get());
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
         });
@@ -212,8 +214,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     protected List<LSCompletionItem> getModuleCompletionItems(BallerinaCompletionContext ctx) {
         // First we include the packages from the imported list.
         List<String> processedList = new ArrayList<>();
-        List<ImportDeclarationNode> currentModuleImports = ctx.currentDocImports();
-        List<LSCompletionItem> completionItems = currentModuleImports.stream()
+        List<ImportDeclarationNode> currentDocImports = ctx.currentDocImports();
+        List<LSCompletionItem> completionItems = currentDocImports.stream()
                 .map(importNode -> {
                     String orgName = importNode.orgName().isEmpty()
                             ? "" : importNode.orgName().get().orgName().text();
@@ -255,21 +257,28 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             return completionItems;
         }
         project.get().currentPackage().modules().forEach(module -> {
+            if (module.isDefaultModule()) {
+                // Skip the default module
+                return;
+            }
             String moduleNamePart = module.moduleName().moduleNamePart();
+            // In order to support the hierarchical module names, split and get the last component as the module name
+            String[] moduleNameComponents = moduleNamePart.split("\\.");
+            String insertText = moduleNameComponents[moduleNameComponents.length - 1];
             String pkgName = module.moduleName().packageName().value();
             String label = pkgName + "." + moduleNamePart;
             if (module.equals(currentModule.get()) || module.isDefaultModule() || processedList.contains(label)) {
                 return;
             }
             List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits("", label, ctx);
-            CompletionItem item = this.getModuleCompletionItem(label, moduleNamePart, textEdits);
+            CompletionItem item = this.getModuleCompletionItem(label, insertText, textEdits);
             completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
         });
 
         return completionItems;
     }
 
-    protected boolean onQualifiedNameIdentifier(BallerinaCompletionContext context, Node node) {
+    protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
         if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;
         }
@@ -358,6 +367,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ERROR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FALSE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));

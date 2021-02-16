@@ -79,7 +79,6 @@ public class AESCipherTool {
      */
     public AESCipherTool(Path userSecretFile) throws IOException, AESCipherToolException {
         List<String> userSecret = Files.readAllLines(userSecretFile, StandardCharsets.UTF_8);
-        Files.deleteIfExists(userSecretFile);
 
         if (userSecret.size() > 1) {
             throw new AESCipherToolException("Multi-line user secrets not allowed");

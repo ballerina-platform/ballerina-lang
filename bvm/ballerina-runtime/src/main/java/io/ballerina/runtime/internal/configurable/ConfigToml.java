@@ -109,6 +109,7 @@ public class ConfigToml {
     }
     private List<Diagnostic> getDiagnostics() {
         List<Diagnostic> diagnostics = new ArrayList<>();
+        diagnostics.addAll(tomlAstNode.diagnostics());
         syntaxTree.diagnostics().forEach(diagnostics::add);
         return diagnostics;
     }

@@ -3932,7 +3932,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (receive.matchingSendsError != symTable.nilType && parentNodeKind == NodeKind.EXPRESSION_STATEMENT) {
-            dlog.error(send.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED);
+            dlog.error(send.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED, send.workerSymbol);
         } else {
             types.checkType(send.pos, receive.matchingSendsError, send.expectedType,
                             DiagnosticErrorCode.INCOMPATIBLE_TYPES);

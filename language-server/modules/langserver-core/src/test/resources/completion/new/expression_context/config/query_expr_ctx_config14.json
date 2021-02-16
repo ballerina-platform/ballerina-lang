@@ -149,6 +149,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "false",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -161,7 +177,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "object {\n\t\n};",
+      "insertText": "object {${1}};",
       "insertTextFormat": "Snippet"
     },
     {
@@ -189,11 +205,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "test",
+      "label": "item",
       "kind": "Variable",
       "detail": "$CompilationError$",
       "sortText": "B",
-      "insertText": "test",
+      "insertText": "item",
       "insertTextFormat": "Snippet"
     },
     {

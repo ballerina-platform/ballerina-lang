@@ -75,8 +75,8 @@ public class BalaFiles {
     private BalaFiles() {
     }
 
-    static PackageData loadPackageData(Path balrPath, PackageManifest packageManifest) {
-        URI zipURI = URI.create("jar:" + balrPath.toUri().toString());
+    static PackageData loadPackageData(Path balaPath, PackageManifest packageManifest) {
+        URI zipURI = URI.create("jar:" + balaPath.toUri().toString());
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             // Load default module
             String pkgName = packageManifest.name().toString();
@@ -86,21 +86,21 @@ public class BalaFiles {
                     .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
             // load other modules
             List<ModuleData> otherModules = loadOtherModules(pkgName, packageRoot);
-            return PackageData.from(balrPath, defaultModule, otherModules, null, null, null, packageMd);
+            return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, packageMd);
         } catch (IOException e) {
-            throw new ProjectException("Failed to read balr file:" + balrPath);
+            throw new ProjectException("Failed to read bala file:" + balaPath);
         }
     }
 
-    private static void validatePackageJson(PackageJson packageJson, Path balrPath) {
+    private static void validatePackageJson(PackageJson packageJson, Path balaPath) {
         if (packageJson.getOrganization() == null || "".equals(packageJson.getOrganization())) {
-            throw new ProjectException("'organization' does not exists in 'package.json': " + balrPath);
+            throw new ProjectException("'organization' does not exists in 'package.json': " + balaPath);
         }
         if (packageJson.getName() == null || "".equals(packageJson.getName())) {
-            throw new ProjectException("'name' does not exists in 'package.json': " + balrPath);
+            throw new ProjectException("'name' does not exists in 'package.json': " + balaPath);
         }
         if (packageJson.getVersion() == null || "".equals(packageJson.getVersion())) {
-            throw new ProjectException("'version' does not exists in 'package.json': " + balrPath);
+            throw new ProjectException("'version' does not exists in 'package.json': " + balaPath);
         }
     }
 
@@ -162,48 +162,48 @@ public class BalaFiles {
         }
     }
 
-    public static PackageManifest createPackageManifest(Path balrPath) {
+    public static PackageManifest createPackageManifest(Path balaPath) {
         try {
-            return createManifest(balrPath);
+            return createManifest(balaPath);
         } catch (IOException e) {
-            throw new ProjectException("Failed to read balr file:" + balrPath);
+            throw new ProjectException("Failed to read bala file:" + balaPath);
         }
     }
 
-    public static PackageManifest createManifest(Path balrPath) throws IOException {
-        URI zipURI = URI.create("jar:" + balrPath.toAbsolutePath().toUri().toString());
+    public static PackageManifest createManifest(Path balaPath) throws IOException {
+        URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri().toString());
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-            return readFromArchive(zipFileSystem, balrPath);
+            return readFromArchive(zipFileSystem, balaPath);
         } catch (FileAlreadyExistsException e) {
             try (FileSystem zipFileSystem = FileSystems.getFileSystem(zipURI)) {
-                return readFromArchive(zipFileSystem, balrPath);
+                return readFromArchive(zipFileSystem, balaPath);
             }
         }
     }
 
-    private static PackageManifest readFromArchive(FileSystem zipFileSystem, Path balrPath) {
+    private static PackageManifest readFromArchive(FileSystem zipFileSystem, Path balaPath) {
         Path packageJsonPath = zipFileSystem.getPath(PACKAGE_JSON);
         if (Files.notExists(packageJsonPath)) {
-            throw new ProjectException("package.json does not exists in '" + balrPath + "'");
+            throw new ProjectException("package.json does not exists in '" + balaPath + "'");
         }
 
         // Load `package.json`
-        PackageJson packageJson = readPackageJson(balrPath, packageJsonPath);
-        validatePackageJson(packageJson, balrPath);
-        extractPlatformLibraries(zipFileSystem, packageJson, balrPath);
+        PackageJson packageJson = readPackageJson(balaPath, packageJsonPath);
+        validatePackageJson(packageJson, balaPath);
+        extractPlatformLibraries(zipFileSystem, packageJson, balaPath);
         return getPackageManifest(packageJson);
     }
 
-    static DependencyGraphResult createPackageDependencyGraph(Path balrPath, String packageName) {
-        URI zipURI = URI.create("jar:" + balrPath.toAbsolutePath().toUri().toString());
+    static DependencyGraphResult createPackageDependencyGraph(Path balaPath, String packageName) {
+        URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri().toString());
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path dependencyGraphJsonPath = zipFileSystem.getPath(DEPENDENCY_GRAPH_JSON);
             if (Files.notExists(dependencyGraphJsonPath)) {
-                throw new ProjectException(DEPENDENCY_GRAPH_JSON + " does not exists in '" + balrPath + "'");
+                throw new ProjectException(DEPENDENCY_GRAPH_JSON + " does not exists in '" + balaPath + "'");
             }
 
             // Load `dependency-graph.json`
-            DependencyGraphJson dependencyGraphJson = readDependencyGraphJson(balrPath, dependencyGraphJsonPath);
+            DependencyGraphJson dependencyGraphJson = readDependencyGraphJson(balaPath, dependencyGraphJsonPath);
 
             DependencyGraph<PackageDescriptor> packageDependencyGraph = createPackageDependencyGraph(
                     dependencyGraphJson.getPackageDependencyGraph());
@@ -213,16 +213,16 @@ public class BalaFiles {
             return new DependencyGraphResult(packageDependencyGraph, moduleDescriptorListMap);
 
         } catch (IOException e) {
-            throw new ProjectException("Failed to read balr file:" + balrPath);
+            throw new ProjectException("Failed to read bala file:" + balaPath);
         }
     }
 
-    private static void extractPlatformLibraries(FileSystem zipFileSystem, PackageJson packageJson, Path balrPath) {
+    private static void extractPlatformLibraries(FileSystem zipFileSystem, PackageJson packageJson, Path balaPath) {
         if (packageJson.getPlatformDependencies() == null) {
             return;
         }
         packageJson.getPlatformDependencies().forEach(dependency -> {
-            Path libPath = balrPath.getParent().resolve(dependency.getPath());
+            Path libPath = balaPath.getParent().resolve(dependency.getPath());
             if (!Files.exists(libPath)) {
                 try {
                     Files.createDirectories(libPath.getParent());
@@ -260,14 +260,14 @@ public class BalaFiles {
         return PackageManifest.from(pkgDesc, dependencies, platforms);
     }
 
-    private static PackageJson readPackageJson(Path balrPath, Path packageJsonPath) {
+    private static PackageJson readPackageJson(Path balaPath, Path packageJsonPath) {
         PackageJson packageJson;
         try {
             packageJson = gson.fromJson(Files.newBufferedReader(packageJsonPath), PackageJson.class);
         } catch (JsonSyntaxException e) {
-            throw new ProjectException("Invalid package.json format in '" + balrPath + "'");
+            throw new ProjectException("Invalid package.json format in '" + balaPath + "'");
         } catch (IOException | JsonIOException e) {
-            throw new ProjectException("Failed to read the package.json in '" + balrPath + "'");
+            throw new ProjectException("Failed to read the package.json in '" + balaPath + "'");
         }
         return packageJson;
     }
@@ -312,15 +312,15 @@ public class BalaFiles {
                 .collect(Collectors.toList());
     }
 
-    private static DependencyGraphJson readDependencyGraphJson(Path balrPath, Path dependencyGraphJsonPath) {
+    private static DependencyGraphJson readDependencyGraphJson(Path balaPath, Path dependencyGraphJsonPath) {
         DependencyGraphJson dependencyGraphJson;
         try {
             dependencyGraphJson = gson
                     .fromJson(Files.newBufferedReader(dependencyGraphJsonPath), DependencyGraphJson.class);
         } catch (JsonSyntaxException e) {
-            throw new ProjectException("Invalid " + DEPENDENCY_GRAPH_JSON + " format in '" + balrPath + "'");
+            throw new ProjectException("Invalid " + DEPENDENCY_GRAPH_JSON + " format in '" + balaPath + "'");
         } catch (IOException | JsonIOException e) {
-            throw new ProjectException("Failed to read the " + DEPENDENCY_GRAPH_JSON + " in '" + balrPath + "'");
+            throw new ProjectException("Failed to read the " + DEPENDENCY_GRAPH_JSON + " in '" + balaPath + "'");
         }
         return dependencyGraphJson;
     }

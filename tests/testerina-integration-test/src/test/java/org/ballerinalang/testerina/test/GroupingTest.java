@@ -109,7 +109,7 @@ public class GroupingTest extends BaseTestCase {
 
     @Test
     public void testListingOfTestGroups() throws BallerinaTestException {
-        String msg = "[g1, g2, g3, g4, g6, g5]";
+        String msg = "[g1, g2, g3, g4, g5, g6]";
         LogLeecher clientLeecher = new LogLeecher(msg);
 
         String[] args = mergeCoverageArgs(new String[]{"--list-groups", "groups-test.bal"});

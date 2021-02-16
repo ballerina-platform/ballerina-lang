@@ -389,7 +389,7 @@ class JvmObservabilityGen {
             swapBasicBlockContent(startBB, newStartBB);
 
             if (isResource || isRemote) {
-                String serviceName = cleanUpServiceName(attachedTypeDef.name.value);
+                String serviceName = cleanUpServiceName(attachedTypeDef.internalName.value);
                 String resourcePathOrFunction = functionName;
                 String resourceAccessor = null;
                 if (isResource) {

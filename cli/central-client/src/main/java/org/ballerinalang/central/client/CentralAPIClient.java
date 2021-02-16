@@ -219,8 +219,8 @@ public class CentralAPIClient {
     /**
      * Pushing a package to registry.
      */
-    public void pushPackage(Path balaPath, String org, String name, String version, String accessToken)
-            throws CentralClientException {
+    public void pushPackage(Path balaPath, String org, String name, String version, String accessToken,
+            String ballerinaVersion) throws CentralClientException {
         final int noOfBytes = 64;
         final int bufferSize = 1024 * noOfBytes;
 
@@ -232,6 +232,7 @@ public class CentralAPIClient {
         // Set headers
         conn.setRequestProperty(AUTHORIZATION, "Bearer " + accessToken);
         conn.setRequestProperty(CONTENT_TYPE, APPLICATION_OCTET_STREAM);
+        conn.setRequestProperty(USER_AGENT, ballerinaVersion);
 
         conn.setDoOutput(true);
         conn.setChunkedStreamingMode(bufferSize);
@@ -359,11 +360,13 @@ public class CentralAPIClient {
     /**
      * Search packages in registry.
      */
-    public PackageSearchResult searchPackage(String query) throws CentralClientException {
+    public PackageSearchResult searchPackage(String query, String ballerinaVersion) throws CentralClientException {
         initializeSsl();
         HttpURLConnection conn = createHttpUrlConnection(PACKAGES + "/?q=" + query);
         conn.setInstanceFollowRedirects(false);
+
         setRequestMethod(conn, Utils.RequestMethod.GET);
+        conn.setRequestProperty(USER_AGENT, ballerinaVersion);
 
         // Handle response
         int statusCode = getStatusCode(conn);

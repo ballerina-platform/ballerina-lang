@@ -49,6 +49,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
 import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
 import static org.ballerinalang.model.elements.PackageID.ARRAY;
 import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
+import static org.ballerinalang.model.elements.PackageID.CONFIG;
 import static org.ballerinalang.model.elements.PackageID.DECIMAL;
 import static org.ballerinalang.model.elements.PackageID.ERROR;
 import static org.ballerinalang.model.elements.PackageID.FLOAT;
@@ -154,6 +155,7 @@ public class CompilerDriver {
             symResolver.bootstrapCloneableType();
             symResolver.defineOperators();
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
+            symbolTable.langConfigModuleSymbol = pkgLoader.loadPackageSymbol(CONFIG, null, null);
             symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
             symbolTable.langFloatModuleSymbol = pkgLoader.loadPackageSymbol(FLOAT, null, null);
@@ -172,6 +174,7 @@ public class CompilerDriver {
             symbolTable.langRuntimeModuleSymbol = pkgLoader.loadPackageSymbol(RUNTIME, null, null);
             symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
             symbolTable.loadPredeclaredModules();
+            symbolTable.updateBuiltinSubtypeOwners();
             return;
         }
 
@@ -220,6 +223,8 @@ public class CompilerDriver {
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
+            symbolTable.updateStringSubtypeOwners();
+            symbolTable.updateXMLSubtypeOwners();
         }
 
         if (langLib.equals(TRANSACTION)) {
@@ -229,6 +234,7 @@ public class CompilerDriver {
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
+            symbolTable.updateStringSubtypeOwners();
         }
 
         if (langLib.equals(ERROR)) {

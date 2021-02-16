@@ -75,7 +75,8 @@ public class ListenerEndpointTest {
         servicesServerInstance = new BServerInstance(balServer);
         String sourcesDir = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "listener_tests").getAbsolutePath();
-        servicesServerInstance.startServer(sourcesDir, "listener_tests", null, new String[0], new int[]{9091});
+        servicesServerInstance.startServer(sourcesDir, "listener_tests-0.0.1", null, new String[0],
+                new int[]{9091});
     }
 
     @AfterGroups(value = "mock-listener-tests", alwaysRun = true)

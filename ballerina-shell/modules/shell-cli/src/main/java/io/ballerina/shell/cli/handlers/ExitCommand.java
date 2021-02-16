@@ -19,6 +19,7 @@
 package io.ballerina.shell.cli.handlers;
 
 import io.ballerina.shell.cli.BallerinaShell;
+import io.ballerina.shell.cli.ShellExitException;
 
 /**
  * Exits from the shell.
@@ -31,8 +32,7 @@ public class ExitCommand extends AbstractCommand {
     }
 
     @Override
-    public void run(String... args) {
-        ballerinaShell.exit();
-        ballerinaShell.outputInfo("Bye!!!");
+    public void run(String... args) throws ShellExitException {
+        throw new ShellExitException();
     }
 }

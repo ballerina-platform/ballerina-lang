@@ -95,11 +95,11 @@ public class BuildLangLib {
             Path balaDirPath = pkgTargetPath.resolve("bala");
 
             // Create bala cache directory
-            Path balrPath = balaDirPath.resolve(pkgDesc.org().toString())
+            Path balaPath = balaDirPath.resolve(pkgDesc.org().toString())
                     .resolve(pkgDesc.name().value())
                     .resolve(pkgDesc.version().toString());
-            Files.createDirectories(balrPath);
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balrPath);
+            Files.createDirectories(balaPath);
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
 
             // Create zip file
             Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");

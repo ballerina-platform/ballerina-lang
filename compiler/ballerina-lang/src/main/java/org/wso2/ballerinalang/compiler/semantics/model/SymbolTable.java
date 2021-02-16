@@ -187,6 +187,7 @@ public class SymbolTable {
     public BPackageSymbol langAnnotationModuleSymbol;
     public BPackageSymbol langJavaModuleSymbol;
     public BPackageSymbol langArrayModuleSymbol;
+    public BPackageSymbol langConfigModuleSymbol;
     public BPackageSymbol langDecimalModuleSymbol;
     public BPackageSymbol langErrorModuleSymbol;
     public BPackageSymbol langFloatModuleSymbol;
@@ -409,6 +410,32 @@ public class SymbolTable {
     private void defineType(BType type, BTypeSymbol tSymbol) {
         type.tsymbol = tSymbol;
         rootScope.define(tSymbol.name, tSymbol);
+    }
+
+    public void updateBuiltinSubtypeOwners() {
+        updateIntSubtypeOwners();
+        updateStringSubtypeOwners();
+        updateXMLSubtypeOwners();
+    }
+
+    public void updateIntSubtypeOwners() {
+        this.signed8IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.unsigned8IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.signed16IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.unsigned16IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.signed32IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.unsigned32IntType.tsymbol.owner = this.langIntModuleSymbol;
+    }
+
+    public void updateStringSubtypeOwners() {
+        this.charStringType.tsymbol.owner = this.langStringModuleSymbol;
+    }
+
+    public void updateXMLSubtypeOwners() {
+        this.xmlElementType.tsymbol.owner = this.langXmlModuleSymbol;
+        this.xmlCommentType.tsymbol.owner = this.langXmlModuleSymbol;
+        this.xmlPIType.tsymbol.owner = this.langXmlModuleSymbol;
+        this.xmlTextType.tsymbol.owner = this.langXmlModuleSymbol;
     }
 
     public void defineOperators() {
