@@ -129,7 +129,7 @@ public class CommonUtil {
 
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
-            "lang.string", "lang.table", "lang.typedesc", "lang.xml", "lang.annotations", "lang.transaction");
+            "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
@@ -162,7 +162,8 @@ public class CommonUtil {
 
     /**
      * Get the text edit for an auto import statement.
-     * Here we do not check whether the package is not already imported. Particular check should be done before usage
+     * Here we do not check whether the package is not already imported or a predeclared lang-lib, Particular
+     * check should be done before usage
      *
      * @param orgName package org name
      * @param pkgName package name
@@ -178,17 +179,11 @@ public class CommonUtil {
             int endLine = last.lineRange().endLine().line();
             start = new Position(endLine, 0);
         }
-        String pkgNameComponent;
-        // Check for the lang lib module insert text
-        if ("ballerina".equals(orgName) && pkgName.startsWith("lang.")) {
-            pkgNameComponent = pkgName.replace(".", ".'");
-        } else {
-            pkgNameComponent = pkgName;
-        }
         String importStatement = ItemResolverConstants.IMPORT + " "
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
-                + pkgNameComponent + SEMI_COLON_SYMBOL_KEY
+                + pkgName + SEMI_COLON_SYMBOL_KEY
                 + CommonUtil.LINE_SEPARATOR;
+        
         return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
     }
 
@@ -595,7 +590,11 @@ public class CommonUtil {
      * @return {@link Boolean} whether langlib or not
      */
     public static boolean isLangLib(ModuleID moduleID) {
-        return moduleID.orgName().equals("ballerina") && moduleID.moduleName().startsWith("lang.");
+        return isLangLib(moduleID.orgName(), moduleID.moduleName());
+    }
+    
+    public static boolean isLangLib(String orgName, String moduleName) {
+        return orgName.equals("ballerina") && moduleName.startsWith("lang.");
     }
 
     private static String generateVariableName(int suffix, String name, Set<String> names) {
