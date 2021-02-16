@@ -48,3 +48,16 @@ boolean n = false;
 function getVarValues() returns record {string name;} {
     return {name: "Sam"};
 }
+
+// Incompatible types test
+var {fieldA: {fieldAVar}, fieldB: error(msg)} = foo();
+
+type ComplexRecord record {|
+    [int] fieldA;
+    map<string> fieldB;
+    error fieldC;
+    int...;
+|};
+
+function foo() returns ComplexRecord =>
+    {fieldA: [8], fieldB: {a: "Ballerina"}, fieldC: error("NullPointer"), "int1": 1, "int2": 2};

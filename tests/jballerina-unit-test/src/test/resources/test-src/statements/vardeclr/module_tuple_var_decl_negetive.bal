@@ -42,3 +42,8 @@ boolean n = false;
 function getVarValues() returns [boolean, int] {
     return [true, 43];
 }
+
+// Incompatible types test
+var [[intVar], {a: intVar2}, error(message), ...restBp] = getComplexTuple();
+
+function getComplexTuple() returns [int, map<int>, float, int...] => [5, {a: 6}, 4.5, 12, 13];

@@ -72,6 +72,11 @@ public class ModuleTupleVariableTest {
         validateError(compileResultNegative, index++, "annotation 'annot' is not allowed on var", 35, 1);
         validateError(compileResultNegative, index++, "incompatible types: expected 'int', found 'other'", 38, 25);
         validateError(compileResultNegative, index++, "redeclared symbol 'n'", 40, 9);
+        validateError(compileResultNegative, index++,
+                "incompatible types: expected '[[other],other,other,other...]', found '[int,map<int>,float,int...]'",
+                47, 59);
+        validateError(compileResultNegative, index++,
+                "invalid tuple binding pattern: attempted to infer a tuple type, but found 'other'", 47, 59);
         assertEquals(compileResultNegative.getErrorCount(), index);
     }
 

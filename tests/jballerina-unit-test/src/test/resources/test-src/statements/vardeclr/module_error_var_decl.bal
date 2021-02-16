@@ -14,21 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type userDefinedError error <basicErrorDetail>;
-type basicErrorDetail record {|
+type UserDefinedError error <BasicErrorDetail>;
+type BasicErrorDetail record {|
     int basicErrorNo?;
     anydata...;
 |};
 
-userDefinedError error (message1, basicErrorNo = detail1) = error userDefinedError("error message one", basicErrorNo = 1);
+UserDefinedError error(message1, basicErrorNo = detail1) = error UserDefinedError("error message one", basicErrorNo = 1);
 
 function testBasic() {
     assertEquality("error message one", message1);
     assertEquality(1, detail1);
 }
 
-error cause = error ("error message one", basicErrorNo = 1);
-userDefinedError error (message2, errorCause2, basicErrorNo = detail2) = error userDefinedError("error message two",
+error cause = error("error message one", basicErrorNo = 1);
+UserDefinedError error(message2, errorCause2, basicErrorNo = detail2) = error UserDefinedError("error message two",
                                                                                             cause, basicErrorNo = 2);
 function testWithErrorCause() {
     assertEquality("error message one", error:message(<error> cause));
@@ -36,13 +36,13 @@ function testWithErrorCause() {
     assertEquality(2, detail2);
 }
 
-type userDefinedErrorWithTuple error <errorWithTupleDetail>;
+type UserDefinedErrorWithTuple error <errorWithTupleDetail>;
 type errorWithTupleDetail record {
     [int, string] basicErrorNo?;
 };
 
-userDefinedErrorWithTuple error (message3, basicErrorNo = [detail3, otherDetails]) =
-                            error userDefinedErrorWithTuple("error message three", basicErrorNo = [3, "myErrorList"]);
+UserDefinedErrorWithTuple error(message3, basicErrorNo = [detail3, otherDetails]) =
+                            error UserDefinedErrorWithTuple("error message three", basicErrorNo = [3, "myErrorList"]);
 
 function testTupleVarInsideErrorVar() {
     assertEquality("error message three", message3);
@@ -50,19 +50,19 @@ function testTupleVarInsideErrorVar() {
     assertEquality("myErrorList", otherDetails);
 }
 
-type myRecord record {
+type MyRecord record {
     int firstValue;
     string secondValue;
 };
 
-type userDefinedError2 error<userDefinedErrorDetail2>;
-type userDefinedErrorDetail2 record {
-    myRecord recordVar?;
-    userDefinedError errorVar?;
+type UserDefinedError2 error<UserDefinedErrorDetail2>;
+type UserDefinedErrorDetail2 record {
+    MyRecord recordVar?;
+    UserDefinedError errorVar?;
     int errorNo?;
 };
 
-userDefinedError2 error (message4, recordVar = {firstValue, secondValue}) = error userDefinedError2(
+UserDefinedError2 error(message4, recordVar = {firstValue, secondValue}) = error UserDefinedError2(
                                         "error message four", recordVar = {firstValue: 5, secondValue: "Second value"});
 
 function testRecordVarInsideErrorVar() {
@@ -71,8 +71,8 @@ function testRecordVarInsideErrorVar() {
     assertEquality("Second value", secondValue);
 }
 
-userDefinedError2 error (message5, errorVar = error (message6, basicErrorNo = detail6)) =
-                            error userDefinedError2("error message five", errorVar = error userDefinedError("error message six",
+UserDefinedError2 error(message5, errorVar = error (message6, basicErrorNo = detail6)) =
+                            error UserDefinedError2("error message five", errorVar = error UserDefinedError("error message six",
                             basicErrorNo = 7));
 
 function testErrorVarInsideErrorVar() {
@@ -83,28 +83,28 @@ function testErrorVarInsideErrorVar() {
 
 const annotation annot on source var;
 @annot
-userDefinedError2 error(message7) = error userDefinedError2("error message seven");
+UserDefinedError2 error(message7) = error UserDefinedError2("error message seven");
 
 function testErrorVarWithAnnotations() {
     assertEquality("error message seven", message7);
 }
 
-userDefinedError2 error(message9, errorNo = errorNo2) = error userDefinedError2(message8, errorNo = <int> errorNo1);
-userDefinedError2 error(message8, errorNo = errorNo1) = error userDefinedError2("error message nine", errorNo = 1);
+UserDefinedError2 error(message9, errorNo = errorNo2) = error UserDefinedError2(message8, errorNo = <int> errorNo1);
+UserDefinedError2 error(message8, errorNo = errorNo1) = error UserDefinedError2("error message nine", errorNo = 1);
 
 function testVariableForwardReferencing() {
     assertEquality("error message nine", message9);
     assertEquality(1, errorNo2);
 }
 
-userDefinedError error(message10, ...otherDetails2) = error userDefinedError("error message ten", time = 2.21, riskLevel = "High");
+UserDefinedError error(message10, ...otherDetails2) = error UserDefinedError("error message ten", time = 2.21, riskLevel = "High");
 
 function testErrorVarWithRestVariable() {
     assertEquality(2.21, otherDetails2["time"]);
     assertEquality("High", otherDetails2["riskLevel"]);
 }
 
-var error(message11, basicErrorNo = errorNo3, ...otherDetails3) = error userDefinedError(
+var error(message11, basicErrorNo = errorNo3, ...otherDetails3) = error UserDefinedError(
                         "error message eleven", basicErrorNo = 8, lineNo = 342, fileName = "myfile", recoverable = true);
 
 function testErrorVarDeclaredWithVar() {
@@ -115,18 +115,18 @@ function testErrorVarDeclaredWithVar() {
     assertTrue(otherDetails3["recoverable"]);
 }
 
-type varTestErrorDetail record {
+type VarTestErrorDetail record {
     [int] fieldA;
     map<boolean> fieldB;
     error fieldC;
 };
 
-type varTestError error<varTestErrorDetail>;
+type VarTestError error<VarTestErrorDetail>;
 
-var error(m, error(c), fieldA = [varA], fieldB = {a: varB}, fieldC = error(msgVar)) = <varTestError>foo();
+var error(m, error(c), fieldA = [varA], fieldB = {a: varB}, fieldC = error(msgVar)) = foo();
 
-function foo() returns error =>
-        error("message", error("cause"), fieldA = [3], fieldB = {a: true}, fieldC = error("fieldC message"), oth = 1);
+function foo() returns VarTestError =>
+        error VarTestError("message", error("cause"), fieldA = [3], fieldB = {a: true}, fieldC = error("fieldC message"), oth = 1);
 
 function testErrorVarDeclaredWithVar2() {
     assertEquality("message", m);

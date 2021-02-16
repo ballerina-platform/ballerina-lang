@@ -79,6 +79,10 @@ public class ModuleRecordVariableTest {
                 "missing non-defaultable required record field 'married'", 42, 24);
         validateError(compileResultNegetive, index++,
                 "incompatible types: expected 'string', found 'other'", 44, 50);
+        validateError(compileResultNegetive, index++,
+                "invalid record binding pattern with type '[int]'", 53, 14);
+        validateError(compileResultNegetive, index++,
+                "invalid error binding pattern with type 'map<string>'", 53, 35);
         assertEquals(compileResultNegetive.getErrorCount(), index);
     }
 

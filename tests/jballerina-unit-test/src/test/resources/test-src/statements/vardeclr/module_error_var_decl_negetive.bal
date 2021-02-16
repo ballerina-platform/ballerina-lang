@@ -14,33 +14,47 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type userDefinedError error <basicErrorDetail>;
-type basicErrorDetail record {|
+type UserDefinedError error <BasicErrorDetail>;
+type BasicErrorDetail record {|
     int basicErrorNo?;
     anydata...;
 |};
 string message1 = "my message one";
 // Redeclare message1 inside error variable
-userDefinedError error(message1, basicErrorNo = detail1) = error userDefinedError("error message one", basicErrorNo = 1);
+UserDefinedError error(message1, basicErrorNo = detail1) = error UserDefinedError("error message one", basicErrorNo = 1);
 // Redeclare detail1 which is already declared inside error var
 boolean detail1 = false;
 
 // Only simple variables are allowed to be isolated
-isolated userDefinedError error(message3, basicErrorNo = detail3) = error userDefinedError("error message three", basicErrorNo = 3);
+isolated UserDefinedError error(message3, basicErrorNo = detail3) = error UserDefinedError("error message three", basicErrorNo = 3);
 
 // Only simple variables are allowed to be configurable
-configurable userDefinedError error(message4) = error userDefinedError("error message four");
+configurable UserDefinedError error(message4) = error UserDefinedError("error message four");
 
 const annotation annot on source function;
 
 @annot
-userDefinedError error (message5) = error userDefinedError("error message five");
+UserDefinedError error (message5) = error UserDefinedError("error message five");
 
-userDefinedError error(message7, basicErrorNo = errorNo2, ...otherDetails) = error userDefinedError(
+UserDefinedError error(message7, basicErrorNo = errorNo2, ...otherDetails) = error UserDefinedError(
                                                                     message6, basicErrorNo = errorNo1, recoverable = n);
 var error(message6, basicErrorNo = errorNo1) = getError();
 boolean n = false;
 
-function getError() returns userDefinedError {
-    return error userDefinedError("error message one", basicErrorNo = 1);
+// Test incompatible types
+type VarTestErrorDetail record {
+    [int] fieldA;
+    map<boolean> fieldB;
+    error fieldC;
+};
+
+type VarTestError error<VarTestErrorDetail>;
+
+var error(m, error(c), fieldA = {a: varA}, fieldD = {a: varB}) = foo();
+
+function foo() returns VarTestError =>
+        error VarTestError("message", error("cause"), fieldA = [3], fieldC = error("fieldC message"), oth = 1);
+
+function getError() returns UserDefinedError {
+    return error UserDefinedError("error message one", basicErrorNo = 1);
 }
