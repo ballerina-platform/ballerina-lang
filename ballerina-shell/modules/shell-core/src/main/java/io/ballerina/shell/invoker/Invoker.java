@@ -143,7 +143,7 @@ public abstract class Invoker extends DiagnosticReporter {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
                     addDiagnostic(Diagnostic.error(highlightedDiagnostic(module, diagnostic)));
-                    addDiagnostic(Diagnostic.error("Compilation aborted because of errors."));
+                    addDiagnostic(Diagnostic.error("Compilation aborted due to errors."));
                     throw new InvokerException();
                 } else if (severity == DiagnosticSeverity.WARNING) {
                     addDiagnostic(Diagnostic.warn(highlightedDiagnostic(module, diagnostic)));

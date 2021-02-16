@@ -50,15 +50,15 @@ public class StringUtilsTest {
     @Test
     public void testHighlightDiagnostic() {
         testHighlightDiagnostic("int i = 100", "" +
-                "missing semicolon token\n" +
+                "error: missing semicolon token\n" +
                 "\tint i = 100\n" +
                 "\t           ^");
         testHighlightDiagnostic("int i\\-\\like\\-hyphens = 100", "" +
-                "invalid escape sequence '\\l'\n" +
+                "error: invalid escape sequence '\\l'\n" +
                 "\tint i\\-\\like\\-hyphens = 100\n" +
                 "\t    ^---------------^");
         testHighlightDiagnostic("\\l", "" +
-                "invalid escape sequence '\\l'\n" +
+                "error: invalid escape sequence '\\l'\n" +
                 "\t\\l\n" +
                 "\t^^");
     }

@@ -111,7 +111,7 @@ public class StringUtils {
         String strippedSourceLine = sourceLine.substring(leadingSpaces);
 
         // Result should be padded with a tab
-        return String.format("%s%n\t%s%n\t%s%s", diagnostic.message(), strippedSourceLine,
+        return String.format("error: %s%n\t%s%n\t%s%s", diagnostic.message(), strippedSourceLine,
                 SPACE.repeat(position - leadingSpaces), caretUnderline);
     }
 
