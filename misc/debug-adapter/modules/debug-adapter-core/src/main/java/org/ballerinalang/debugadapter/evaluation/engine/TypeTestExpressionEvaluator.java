@@ -44,10 +44,10 @@ public class TypeTestExpressionEvaluator extends Evaluator {
     private final TypeTestExpressionNode syntaxNode;
     private final Evaluator exprEvaluator;
 
-    public TypeTestExpressionEvaluator(SuspendedContext context, TypeTestExpressionNode typeofExpressionNode,
+    public TypeTestExpressionEvaluator(SuspendedContext context, TypeTestExpressionNode typetestExpressionNode,
                                        Evaluator exprEvaluator) {
         super(context);
-        this.syntaxNode = typeofExpressionNode;
+        this.syntaxNode = typetestExpressionNode;
         this.exprEvaluator = exprEvaluator;
     }
 
@@ -63,6 +63,11 @@ public class TypeTestExpressionEvaluator extends Evaluator {
             // Resolves runtime type(s) using type descriptor nodes.
             // resolvedTypes.size() > 1 for union types.
             List<Value> resolvedTypes = BallerinaTypeResolver.resolve(context, syntaxNode.typeDescriptor());
+            if (resolvedTypes.isEmpty()) {
+                throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_RESOLVING_ERROR.getString(),
+                        syntaxNode.typeDescriptor().toSourceCode()));
+            }
+
             for (Value type : resolvedTypes) {
                 boolean typeMatched = checkIsType(valueAsObject, type);
                 if (typeMatched) {
