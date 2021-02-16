@@ -74,7 +74,8 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, context);
 
         // Add type guard code action
-        String commandTitle = String.format(CommandConstants.CREATE_VAR_TYPE_GUARD_TITLE, matchedSymbol.name());
+        String commandTitle = String.format(CommandConstants.CREATE_VAR_TYPE_GUARD_TITLE,
+                                            matchedSymbol.getName().get());
         List<TextEdit> edits = CodeActionUtil.getTypeGuardCodeActionEdits(createVarTextEdits.name, range, unionType,
                                                                           context);
         if (edits.isEmpty()) {

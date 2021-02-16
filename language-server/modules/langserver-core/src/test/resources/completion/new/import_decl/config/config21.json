@@ -229,11 +229,11 @@
       ]
     },
     {
-      "label": "lsproject.hierarchy.module4",
+      "label": "lsproject.module2",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module4",
+      "insertText": "module2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -247,7 +247,7 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.hierarchy.module4;\n"
+          "newText": "import lsproject.module2;\n"
         }
       ]
     },
@@ -275,11 +275,11 @@
       ]
     },
     {
-      "label": "lsproject.module2",
+      "label": "lsproject.hierarchy.module4",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module2",
+      "insertText": "module4",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -293,7 +293,7 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.module2;\n"
+          "newText": "import lsproject.hierarchy.module4;\n"
         }
       ]
     },
@@ -492,7 +492,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "record {\n\t${1}\n}",
+      "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -500,7 +500,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "record {|\n\t${1}\n|}",
+      "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -516,7 +516,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
-      "insertText": "object {\n\t${1}\n}",
+      "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     },
     {

@@ -44,7 +44,7 @@ public class BallerinaIntersectionTypeSymbol extends AbstractTypeSymbol implemen
 
     public BallerinaIntersectionTypeSymbol(CompilerContext context, ModuleID moduleID,
                                            BIntersectionType intersectionType) {
-        super(context, TypeDescKind.INTERSECTION, moduleID, intersectionType);
+        super(context, TypeDescKind.INTERSECTION, intersectionType);
     }
 
     @Override

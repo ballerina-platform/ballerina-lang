@@ -1,4 +1,3 @@
-import ballerina/lang.'int;
 // Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,6 +13,8 @@ import ballerina/lang.'int;
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+import ballerina/lang.'int;
 
 type '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Student record {
     string '1st_name;

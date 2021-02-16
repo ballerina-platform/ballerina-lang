@@ -321,9 +321,13 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker implements ImportProc
 
         Set<GlobalVariable> foundVariables = new HashSet<>();
         for (Symbol symbol : symbols) {
+            if (symbol.getName().isEmpty()) {
+                // Do not process symbols without a name
+                continue;
+            }
+
             HashedSymbol hashedSymbol = new HashedSymbol(symbol);
-            // TODO: After name alternative is implemented use it.
-            String variableName = symbol.name();
+            String variableName = symbol.getName().get();
 
             boolean ignoreSymbol = knownSymbols.contains(hashedSymbol)
                     || GlobalVariable.isDefined(foundVariables, variableName)
@@ -380,10 +384,13 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker implements ImportProc
             return Map.entry(enumName.get(), newSnippet.toString());
         } else {
             for (Symbol symbol : symbols) {
+                if (symbol.getName().isEmpty()) {
+                    // A valid module dcln symbol has a name
+                    continue;
+                }
                 if (!symbol.kind().equals(SymbolKind.MODULE)) {
                     this.newSymbols.add(new HashedSymbol(symbol));
-                    // TODO: After name alternative is implemented use it.
-                    return Map.entry(symbol.name(), newSnippet.toString());
+                    return Map.entry(symbol.getName().get(), newSnippet.toString());
                 }
             }
         }
@@ -520,6 +527,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker implements ImportProc
 
         return compilation.getSemanticModel(moduleId)
                 .visibleSymbols(document, cursorPos).stream()
+                .filter((s) -> s.getName().isPresent())
                 .filter((s) -> !knownSymbols.contains(new HashedSymbol(s)))
                 .collect(Collectors.toList());
     }

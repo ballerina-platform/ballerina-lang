@@ -213,15 +213,15 @@ public class TypedescriptorTest {
         Map<String, ClassFieldSymbol> fields = clazz.fieldDescriptors();
         ObjectFieldSymbol field = fields.get("name");
         assertEquals(fields.size(), 1);
-        assertEquals(field.name(), "name");
+        assertEquals(field.getName().get(), "name");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
 
         Map<String, MethodSymbol> methods = clazz.methods();
         MethodSymbol method = methods.get("getName");
         assertEquals(fields.size(), 1);
-        assertEquals(method.name(), "getName");
+        assertEquals(method.getName().get(), "getName");
 
-        assertEquals(clazz.initMethod().get().name(), "init");
+        assertEquals(clazz.initMethod().get().getName().get(), "init");
     }
 
     @Test
@@ -236,7 +236,7 @@ public class TypedescriptorTest {
         assertTrue(fields.containsKey("path"));
 
         RecordFieldSymbol field = fields.get("path");
-        assertEquals(field.name(), "path");
+        assertEquals(field.getName().get(), "path");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
     }
 
@@ -366,7 +366,7 @@ public class TypedescriptorTest {
         TypeSymbol type = symbol.typeDescriptor();
         assertEquals(type.typeKind(), XML);
         assertEquals(((XMLTypeSymbol) type).typeParameter().get().typeKind(), kind);
-        assertEquals(type.name(), name);
+        assertEquals(type.getName().get(), name);
     }
 
     @DataProvider(name = "XMLPosProvider")
@@ -386,7 +386,7 @@ public class TypedescriptorTest {
 
         TableTypeSymbol tableType = (TableTypeSymbol) type;
         assertEquals(tableType.rowTypeParameter().typeKind(), rowTypeKind);
-        assertEquals(tableType.rowTypeParameter().name(), rowTypeName);
+        assertEquals(tableType.rowTypeParameter().getName().get(), rowTypeName);
         assertEquals(tableType.keySpecifiers(), keySpecifiers);
         tableType.keyConstraintTypeParameter().ifPresent(t -> assertEquals(t.typeKind(), keyConstraintTypeKind));
         assertEquals(type.signature(), signature);
@@ -409,7 +409,7 @@ public class TypedescriptorTest {
 
         TypeSymbol type = ((TypeReferenceTypeSymbol) typeRef).typeDescriptor();
         assertEquals(type.typeKind(), kind);
-        assertEquals(type.name(), name);
+        assertEquals(type.getName().get(), name);
     }
 
     @DataProvider(name = "BuiltinTypePosProvider")
@@ -457,7 +457,7 @@ public class TypedescriptorTest {
 
         for (TypeSymbol inclusion : typeInclusions) {
             assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), typeKind);
-            assertTrue(expTypes.contains(inclusion.name()));
+            assertTrue(expTypes.contains(inclusion.getName().get()));
         }
     }
 
@@ -478,7 +478,7 @@ public class TypedescriptorTest {
 
         for (TypeSymbol inclusion : typeInclusions) {
             assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), OBJECT);
-            assertTrue(expTypes.contains(inclusion.name()));
+            assertTrue(expTypes.contains(inclusion.getName().get()));
         }
     }
 
@@ -491,7 +491,7 @@ public class TypedescriptorTest {
 
         for (TypeSymbol inclusion : typeInclusions) {
             assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), OBJECT);
-            assertTrue(expTypes.contains(inclusion.name()));
+            assertTrue(expTypes.contains(inclusion.getName().get()));
         }
     }
 
@@ -500,7 +500,7 @@ public class TypedescriptorTest {
         Optional<TypeSymbol> type =
                 model.type(LineRange.from("typedesc_test.bal", from(160, 37), from(160, 38)));
         assertEquals(type.get().typeKind(), TYPE_REFERENCE);
-        assertEquals(type.get().name(), "Colour");
+        assertEquals(type.get().getName().get(), "Colour");
 
         TypeSymbol enumType = ((TypeReferenceTypeSymbol) type.get()).typeDescriptor();
         assertEquals(enumType.typeKind(), UNION);
@@ -526,7 +526,7 @@ public class TypedescriptorTest {
         List<TypeSymbol> members = ((IntersectionTypeSymbol) type).memberTypeDescriptors();
 
         TypeSymbol mem1 = members.get(0);
-        assertEquals(mem1.name(), "Foo");
+        assertEquals(mem1.getName().get(), "Foo");
         assertEquals(((TypeReferenceTypeSymbol) mem1).typeDescriptor().typeKind(), RECORD);
 
         assertEquals(members.get(1).typeKind(), READONLY);
@@ -599,7 +599,7 @@ public class TypedescriptorTest {
         Symbol symbol = getSymbol(198, 18);
         assertEquals(symbol.kind(), TYPE);
         assertEquals(((TypeSymbol) symbol).typeKind(), TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) symbol).name(), "CancelledError");
+        assertEquals(((TypeReferenceTypeSymbol) symbol).getName().get(), "CancelledError");
     }
 
     private Symbol getSymbol(int line, int column) {

@@ -191,33 +191,37 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
     private JsonObject visibleEP(Node node, TypeSymbol typeSymbol) {
         JsonObject symbolMetaInfo = new JsonObject();
+        ModuleID moduleID = typeSymbol.getModule().isPresent() ? typeSymbol.getModule().get().id() : null;
+        String orgName = moduleID != null ? moduleID.orgName() : "";
+        String moduleName = moduleID != null ? moduleID.moduleName() : "";
+
         if (node.kind() == SyntaxKind.REQUIRED_PARAM) {
             RequiredParameterNode requiredParameterNode = (RequiredParameterNode) node;
             Optional<Token> paramName = requiredParameterNode.paramName();
             symbolMetaInfo.addProperty("name", paramName.isPresent() ? paramName.get().text() : "");
-            symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-            symbolMetaInfo.addProperty("typeName", typeSymbol.name());
-            symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
-            symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
+            symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
+            symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
+            symbolMetaInfo.addProperty("orgName", orgName);
+            symbolMetaInfo.addProperty("moduleName", moduleName);
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
             CaptureBindingPatternNode captureBindingPatternNode =
                     (CaptureBindingPatternNode) variableDeclarationNode.typedBindingPattern().bindingPattern();
             symbolMetaInfo.addProperty("name", captureBindingPatternNode.variableName().text());
-            symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-            symbolMetaInfo.addProperty("typeName", typeSymbol.name());
-            symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
-            symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
+            symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
+            symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
+            symbolMetaInfo.addProperty("orgName", orgName);
+            symbolMetaInfo.addProperty("moduleName", moduleName);
         } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
             if (assignmentStatementNode.varRef() instanceof SimpleNameReferenceNode) {
                 SimpleNameReferenceNode simpleNameReferenceNode =
                         (SimpleNameReferenceNode) assignmentStatementNode.varRef();
                 symbolMetaInfo.addProperty("name", simpleNameReferenceNode.name().text());
-                symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-                symbolMetaInfo.addProperty("typeName", typeSymbol.name());
-                symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
-                symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
+                symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
+                symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
+                symbolMetaInfo.addProperty("orgName", orgName);
+                symbolMetaInfo.addProperty("moduleName", moduleName);
             }
         }
 

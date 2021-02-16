@@ -32,7 +32,7 @@ import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.projects.KubernetesToml;
+import io.ballerina.projects.CloudToml;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Code Action for resource into Kubernetes.toml.
+ * Code Action for adding a resource into Cloud.toml.
  *
  * @since 2.0.0
  */
@@ -76,15 +76,15 @@ public class AddResourceToK8sCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve(ProjectConstants.KUBERNETES_TOML);
-        Optional<KubernetesToml> kubernetesToml =
-                context.workspace().project(context.filePath()).orElseThrow().currentPackage().kubernetesToml();
+        Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve(ProjectConstants.CLOUD_TOML);
+        Optional<CloudToml> cloudToml =
+                context.workspace().project(context.filePath()).orElseThrow().currentPackage().cloudToml();
 
-        if (kubernetesToml.isEmpty()) {
+        if (cloudToml.isEmpty()) {
             return Collections.emptyList();
         }
 
-        SyntaxTree tomlSyntaxTree = kubernetesToml.get().tomlDocument().syntaxTree();
+        SyntaxTree tomlSyntaxTree = cloudToml.get().tomlDocument().syntaxTree();
         DocumentNode documentNode = tomlSyntaxTree.rootNode();
 
         List<ProbeType> probs = getAvailableProbes(documentNode);

@@ -100,7 +100,7 @@ public class SymbolEquivalenceTest {
 
             for (int j = i + 1; j < symbols.size(); j++) {
                 assertFalse(symbol.equals(symbols.get(j)),
-                            "'" + symbol.name() + "' is equal to '" + symbols.get(j).name() + "'");
+                            "'" + symbol.getName().get() + "' is equal to '" + symbols.get(j).getName().get() + "'");
                 assertNotEquals(symbol.hashCode(), symbols.get(j).hashCode());
             }
         }
@@ -164,7 +164,7 @@ public class SymbolEquivalenceTest {
 
             for (int j = i + 1; j < symbols.size(); j++) {
                 assertTrue(symbol.equals(symbols.get(j)),
-                           "'" + symbol.name() + "' not equal to '" + symbols.get(j).name() + "'");
+                           "'" + symbol.getName().get() + "' not equal to '" + symbols.get(j).getName().get() + "'");
                 assertEquals(symbol.hashCode(), symbols.get(j).hashCode());
             }
         }
