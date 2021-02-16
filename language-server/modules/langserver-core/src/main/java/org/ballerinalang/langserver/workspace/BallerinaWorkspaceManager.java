@@ -231,16 +231,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      */
     @Override
     public void didOpen(Path filePath, DidOpenTextDocumentParams params) throws WorkspaceDocumentException {
-        // Create Project, if not exists
-        Path projectRoot = projectRoot(filePath);
-        sourceRootToProject.computeIfAbsent(projectRoot,
-                                            path -> createProject(filePath, LSContextOperation.TXT_DID_OPEN.getName()));
-        // Get document
-        ProjectPair projectPair = sourceRootToProject.get(projectRoot);
-        if (projectPair == null) {
-            // NOTE: This will never happen since we create a project if not exists
-            return;
-        }
+        ProjectPair projectPair = createOrGetProjectPair(filePath, LSContextOperation.TXT_DID_OPEN.getName());
 
         Project project = projectPair.project();
         if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.BALLERINA_TOML))) {
@@ -268,7 +259,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     @Override
     public void didChange(Path filePath, DidChangeTextDocumentParams params) throws WorkspaceDocumentException {
         // Get Project and Lock
-        ProjectPair projectPair = getProjectPair(filePath);
+        ProjectPair projectPair = createOrGetProjectPair(filePath, LSContextOperation.TXT_DID_CHANGE.getName());
 
         Project project = projectPair.project();
         if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.BALLERINA_TOML))) {
@@ -871,10 +862,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         throw new ProjectException("provided path does not belong to the project");
     }
 
-    private ProjectPair getProjectPair(Path filePath) throws WorkspaceDocumentException {
+    private ProjectPair createOrGetProjectPair(Path filePath, String operationName) throws WorkspaceDocumentException {
         Path projectRoot = projectRoot(filePath);
-        sourceRootToProject.computeIfAbsent(projectRoot,
-                                            path -> createProject(filePath, LSContextOperation.TXT_DID_OPEN.getName()));
+        sourceRootToProject.computeIfAbsent(projectRoot, path -> createProject(filePath, operationName));
 
         // Get document
         ProjectPair projectPair = sourceRootToProject.get(projectRoot);
