@@ -19,6 +19,7 @@
 package io.ballerina.shell.cli.handlers;
 
 import io.ballerina.shell.cli.BallerinaShell;
+import io.ballerina.shell.cli.ShellExitException;
 
 /**
  * Base class for handlers.
@@ -36,6 +37,7 @@ public abstract class AbstractCommand {
      * Handle the command. These are handlers for internal commands.
      *
      * @param args Arguments that are passed for the handler.
+     * @throws ShellExitException when user wants to exit.
      */
-    public abstract void run(String... args);
+    public abstract void run(String... args) throws ShellExitException;
 }

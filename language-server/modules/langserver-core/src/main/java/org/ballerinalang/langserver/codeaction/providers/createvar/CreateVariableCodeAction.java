@@ -91,7 +91,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
 
         Position position = CommonUtil.toPosition(context.positionDetails().matchedNode().lineRange().startLine());
         Set<String> allNameEntries = context.visibleSymbols(position).stream()
-                .map(Symbol::name)
+                .filter(s -> s.getName().isPresent())
+                .map(s -> s.getName().get())
                 .collect(Collectors.toSet());
 
         String name = CommonUtil.generateVariableName(matchedSymbol, typeDescriptor, allNameEntries);

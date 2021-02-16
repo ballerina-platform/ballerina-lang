@@ -96,6 +96,8 @@ public abstract class AbstractInvalidResourceCodeAction extends ProbeBasedDiagno
         String serviceResourcePath;
         if (tomlPath.equals(serviceName)) {
             serviceResourcePath = ".";
+        } else if (serviceName.equals("")) {
+            serviceResourcePath = tomlPath;
         } else if (tomlPath.startsWith(serviceName)) {
             serviceResourcePath = tomlPath.substring(serviceName.length() + 1);
         } else {
