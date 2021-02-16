@@ -235,9 +235,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         } catch (Exception e) {
             addErrorDiagnostic("Something went wrong: " + e);
             throw new InvokerException(e);
-        } catch (Error e) {
-            addErrorDiagnostic("Something severely went wrong: " + e);
-            throw new InvokerException(e);
         }
     }
 
@@ -284,7 +281,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
         // First run configure initialization
-        invokeDirectMethod(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
+        invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
                 new Class[]{Path.class}, new Object[]{CONFIG_PATH});
         // Initialize the module
         invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
@@ -355,8 +352,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return The result of the invocation.
      * @throws InvokerException If invocation failed.
      */
-    protected Object invokeDirectMethod(ClassLoader classLoader, String className, String methodName,
-                                        Class<?>[] argTypes, Object[] args) throws InvokerException {
+    protected Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
+                                          Class<?>[] argTypes, Object[] args) throws InvokerException {
         try {
             // Get class and method references
             addDiagnostic(Diagnostic.debug(String.format("Running %s.%s directly", className, methodName)));
