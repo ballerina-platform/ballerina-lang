@@ -477,7 +477,7 @@ public class TransactionResourceManager {
     public BArray getRegisteredRollbackHandlerList() {
         List<BFunctionPointer> abortFunctions =
                 abortedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
-        if(!abortFunctions.isEmpty()) {
+        if (!abortFunctions.isEmpty()) {
             Collections.reverse(abortFunctions);
             return ValueCreator.createArrayValue(abortFunctions.toArray(),
                     TypeCreator.createArrayType(abortFunctions.get(0).getType()));
@@ -489,7 +489,7 @@ public class TransactionResourceManager {
     public BArray getRegisteredCommitHandlerList() {
         List<BFunctionPointer> commitFunctions =
                 committedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
-        if(!commitFunctions.isEmpty()) {
+        if (!commitFunctions.isEmpty()) {
             Collections.reverse(commitFunctions);
             return ValueCreator.createArrayValue(commitFunctions.toArray(),
                     TypeCreator.createArrayType(commitFunctions.get(0).getType()));
