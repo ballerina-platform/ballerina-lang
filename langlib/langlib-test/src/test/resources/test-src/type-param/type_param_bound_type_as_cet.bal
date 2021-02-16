@@ -194,6 +194,6 @@ function assertValueEquality(anydata|error expected, anydata|error actual) {
                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
 
-isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
-    return actual is anydata && expected is anydata && actual == expected || actual === expected;
+isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {
+    return val1 is anydata && val2 is anydata && val1 == val2 || val1 === val2;
 }
