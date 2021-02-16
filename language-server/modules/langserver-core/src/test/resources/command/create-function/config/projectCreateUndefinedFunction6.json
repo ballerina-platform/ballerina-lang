@@ -1,7 +1,9 @@
 {
     "arguments": {
-        "node.line": 20,
-        "node.column": 24
+        "node.position": {
+            "line": 4,
+            "character": 44
+        }
     },
     "expected": {
         "result": {
@@ -12,15 +14,15 @@
                             {
                                 "range": {
                                     "start": {
-                                        "line": 34,
+                                        "line": 7,
                                         "character": 0
                                     },
                                     "end": {
-                                        "line": 34,
+                                        "line": 7,
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction callEndpoint(int a, int b, http:Client c) returns http:Response {\n    return new http:Response();\n}\n"
+                                "newText": "\nfunction createSchool([Grade] grades) returns School {\n    return {};\n}\n"
                             }
                         ]
                     }

@@ -1,7 +1,9 @@
 {
   "arguments": {
-    "node.line": 3,
-    "node.column": 4
+    "node.position": {
+      "line": 6,
+      "character": 7
+    }
   },
   "expected": {
     "result": {
@@ -12,15 +14,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 6,
+                    "line": 8,
                     "character": 0
                   },
                   "end": {
-                    "line": 6,
+                    "line": 8,
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction addTwoIntegers(int a, int b){\n\n}\n"
+                "newText": "\n\nfunction assignInteger(string a, int b, boolean c) returns int {\n    \n    return 0;\n}\n"
               }
             ]
           }

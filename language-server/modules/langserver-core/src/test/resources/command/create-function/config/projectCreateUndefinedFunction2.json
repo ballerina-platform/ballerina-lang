@@ -1,7 +1,9 @@
 {
     "arguments": {
-        "node.line": 32,
-        "node.column": 17
+        "node.position": {
+            "line": 9,
+            "character": 4
+        }
     },
     "expected": {
         "result": {
@@ -12,15 +14,15 @@
                             {
                                 "range": {
                                     "start": {
-                                        "line": 34,
+                                        "line": 17,
                                         "character": 0
                                     },
                                     "end": {
-                                        "line": 34,
+                                        "line": 17,
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction thisIsANewFunction(record {| string recField; anydata...; |} testRec) returns record {| int recField; anydata...; |} {\n    return {recField: 0};\n}\n"
+                                "newText": "\n\nfunction addStudent(module1:Student a) {\n    \n}\n"
                             }
                         ]
                     }
