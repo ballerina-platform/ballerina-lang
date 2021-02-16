@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -45,11 +46,11 @@ public interface CodeActionContext extends DocumentServiceContext {
     PositionDetails positionDetails();
 
     /**
-     * Get the diagnostics in the module.
+     * Get the diagnostics of the file.
      *
      * @return {@link List} of diagnostics
      */
-    List<io.ballerina.tools.diagnostics.Diagnostic> allDiagnostics();
+    List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics(Path filePath);
 
     /**
      * Get the diagnostics at the cursor.

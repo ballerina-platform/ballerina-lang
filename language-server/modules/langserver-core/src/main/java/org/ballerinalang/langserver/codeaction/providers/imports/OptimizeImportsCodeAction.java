@@ -74,7 +74,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
             return actions;
         }
 
-        List<String[]> toBeRemovedImports = extractImportsToBeRemoved(context.allDiagnostics());
+        List<String[]> toBeRemovedImports = extractImportsToBeRemoved(context.diagnostics(context.filePath()));
 
         // Skip, when nothing to remove and only single import pending
         if (fileImports.size() <= 1 && toBeRemovedImports.size() == 0) {
