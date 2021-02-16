@@ -264,7 +264,7 @@ public class LangLibArrayTest {
     @Test(dataProvider = "setLengthDataProvider")
     public void testSetLength(int setLengthTo, int lenAfterSet, String arrayAfterSet, String arrayLenPlusOneAfterSet) {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetLength", new BValue[] {new BInteger(setLengthTo)});
-        assertEquals(((BInteger) returns[0]).intValue(), (long) lenAfterSet);
+        assertEquals(((BInteger) returns[0]).intValue(), lenAfterSet);
         assertEquals(returns[1].stringValue(), arrayAfterSet);
         assertEquals(returns[2].stringValue(), arrayLenPlusOneAfterSet);
     }
@@ -306,17 +306,17 @@ public class LangLibArrayTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
-                    "\\{\"message\":\"cannot change the length of an array of fixed length '7' to '0'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
+                    "\\{\"message\":\"cannot change the length of an array of fixed length '7' to '0'\"}.*")
     public void testRemoveAllFixedLengthArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAllFixedLengthArray");
+        BRunUtil.invoke(compileResult, "testRemoveAllFixedLengthArray");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"cannot change the length"
-                            + " of a tuple of fixed length '2' to '3'\"\\}.*")
+                    "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length"
+                            + " of a tuple of fixed length '2' to '3'\"}.*")
     public void testTupleResize() {
         BRunUtil.invoke(compileResult, "testTupleResize");
         Assert.fail();
@@ -324,8 +324,8 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"cannot change the " +
-                            "length of a tuple of fixed length '2' to '0'\"\\}.*")
+                    "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the " +
+                            "length of a tuple of fixed length '2' to '0'\"}.*")
     public void testTupleRemoveAll() {
         BRunUtil.invoke(compileResult, "testTupleRemoveAll");
         Assert.fail();
@@ -333,8 +333,8 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"cannot change the length"
-                            + " of a tuple with '2' mandatory member\\(s\\) to '0'\"\\}.*")
+                    "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length"
+                            + " of a tuple with '2' mandatory member\\(s\\) to '0'\"}.*")
     public void testTupleRemoveAllForTupleWithRestMemberType() {
         BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithRestMemberType");
         Assert.fail();
@@ -360,8 +360,8 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"cannot change the length " +
-                          "of a tuple with '2' mandatory member\\(s\\) to '1'\"\\}.*")
+                  "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length " +
+                          "of a tuple with '2' mandatory member\\(s\\) to '1'\"}.*")
     public void testTupleSetLengthIllegal() {
         BRunUtil.invoke(compileResult, "testTupleSetLengthIllegal");
         Assert.fail();
@@ -525,7 +525,9 @@ public class LangLibArrayTest {
                 "testSort8",
                 "testSort9",
                 "testSort10",
-                "testReadOnlyArrayFilter"
+                "testReadOnlyArrayFilter",
+                "testTupleFilter",
+                "testTupleReverse"
         };
     }
 }
