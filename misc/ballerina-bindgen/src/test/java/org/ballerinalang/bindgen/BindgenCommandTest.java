@@ -90,7 +90,10 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the correct error is given for incorrect classpaths")
     public void testIncorrectClasspath() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-cp=./incorrect.jar, test.txt, /User/invalidDir", "-o=" + projectDir, "java.lang.Object"};
+        String incorrectJarPath = Paths.get("./incorrect.jar").toString();
+        String invalidDirPath = Paths.get("/User/invalidDir").toString();
+        String[] args = {"-cp=" + incorrectJarPath + ", test.txt, " + invalidDirPath, "-o=" +
+                projectDir, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -99,8 +102,8 @@ public class BindgenCommandTest extends CommandTest {
         String output = readOutput(true);
         Assert.assertTrue(output.contains("Failed to add the following to classpath:"));
         Assert.assertTrue(output.contains("test.txt"));
-        Assert.assertTrue(output.contains("/User/invalidDir"));
-        Assert.assertTrue(output.contains("./incorrect.jar"));
+        Assert.assertTrue(output.contains(invalidDirPath));
+        Assert.assertTrue(output.contains(incorrectJarPath));
     }
 
     @Test(description = "Test if the correct error is given for incorrect maven option value")
@@ -118,15 +121,16 @@ public class BindgenCommandTest extends CommandTest {
 
     @Test(description = "Test if the correct error is given for an incorrect output path")
     public void testOutputPath() throws IOException {
-        String[] args = {"-o=./incorrect", "java.lang.Object"};
+        String incorrectPath = Paths.get("./incorrect").toString();
+        String[] args = {"-o=" + incorrectPath, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Error while generating Ballerina bindings:" + LINE_SEPARATOR +
-                "Output path provided"));
+        Assert.assertTrue(output.contains("Error while generating Ballerina bindings:"));
+        Assert.assertTrue(output.contains("Output path provided"));
     }
 
     @AfterClass
