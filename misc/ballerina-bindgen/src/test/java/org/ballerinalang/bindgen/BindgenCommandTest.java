@@ -77,7 +77,7 @@ public class BindgenCommandTest extends CommandTest {
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
-        String output = readOutput(false);
+        String output = readOutput(true);
         Assert.assertTrue(output.contains("Ballerina project detected at:"));
         Assert.assertTrue(output.contains("Following jars were added to the classpath:"));
         Assert.assertTrue(output.contains("snakeyaml-1.25.jar"));
@@ -96,7 +96,7 @@ public class BindgenCommandTest extends CommandTest {
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
-        String output = readOutput(false);
+        String output = readOutput(true);
         Assert.assertTrue(output.contains("Failed to add the following to classpath:"));
         Assert.assertTrue(output.contains("test.txt"));
         Assert.assertTrue(output.contains("/User/invalidDir"));

@@ -22,6 +22,8 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.TomlDocument;
 
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The model that stores the details which will be passed on and updated while generating the mappings.
@@ -39,6 +41,7 @@ public class BindgenEnv {
 
     // Flag depicting whether the current class being generated is a direct class or a dependent class
     private boolean directJavaClass = true;
+    private Set<String> classPaths = new HashSet<>();
 
     public void setModulesFlag(boolean modulesFlag) {
         this.modulesFlag = modulesFlag;
@@ -94,5 +97,13 @@ public class BindgenEnv {
 
     public String getOutputPath() {
         return outputPath;
+    }
+
+    public Set<String> getClassPaths() {
+        return classPaths;
+    }
+
+    public void addClasspath(String classpath) {
+        this.classPaths.add(classpath);
     }
 }
