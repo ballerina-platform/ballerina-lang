@@ -66,6 +66,11 @@ public class TestIntegrator extends Thread {
             InputStreamReader inStreamReader = new InputStreamReader(inputStream, Charset.defaultCharset());
             BufferedReader testReader = new BufferedReader(inStreamReader);
 
+            // The response here is not testable because it can change.
+            // The first readResponse is to read and ignore all the initial
+            // output from the CLI. (header text, etc...)
+            // The second readResponse is to read and ignore any response to the
+            // first request.
             sendRequest(testPrint, "");
             readResponse(testReader);
             readResponse(testReader);
