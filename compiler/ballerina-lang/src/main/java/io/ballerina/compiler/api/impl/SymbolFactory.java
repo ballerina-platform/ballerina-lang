@@ -317,7 +317,7 @@ public class SymbolFactory {
             annotSymbols.add(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
-        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind);
+        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind, symbol, this.context);
     }
 
     /**
