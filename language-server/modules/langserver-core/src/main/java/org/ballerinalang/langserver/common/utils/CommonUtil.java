@@ -16,11 +16,13 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
@@ -46,6 +48,7 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
@@ -209,7 +212,22 @@ public class CommonUtil {
             case BOOLEAN:
                 typeString = Boolean.toString(false);
                 break;
+            case TUPLE:
+                TupleTypeSymbol tupleType = (TupleTypeSymbol) bType;
+                String memberTypes = tupleType.memberTypeDescriptors().stream()
+                        .map(CommonUtil::getDefaultValueForType)
+                        .collect(Collectors.joining(", "));
+                typeString = "[" + memberTypes + "]";
+                break;
             case ARRAY:
+                // Filler value of an array is []
+                ArrayTypeSymbol arrayType = (ArrayTypeSymbol) bType;
+                if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
+                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor()) + "]";
+                } else {
+                    typeString = "[]";
+                }
+                break;
             case RECORD:
             case MAP:
                 typeString = "{}";
@@ -693,8 +711,23 @@ public class CommonUtil {
             String[] moduleParts = moduleName.split("/");
             String orgName = moduleParts[0];
             String alias = moduleParts[1];
+
             pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
             pkgPrefix = (preDeclaredLangLib) ? "'" + pkgPrefix : pkgPrefix;
+
+            // See if an alias (ex: import project.module1 as mod1) is used
+            List<ImportDeclarationNode> existingModuleImports = context.currentDocImports().stream()
+                    .filter(importDeclarationNode -> 
+                            CodeActionModuleId.from(importDeclarationNode).moduleName().equals(moduleID.moduleName()))
+                    .collect(Collectors.toList());
+
+            if (existingModuleImports.size() == 1) {
+                ImportDeclarationNode importDeclarationNode = existingModuleImports.get(0);
+                if (importDeclarationNode.prefix().isPresent()) {
+                    pkgPrefix = importDeclarationNode.prefix().get().prefix().text() + ":";
+                }
+            }
+            
             if (importsAcceptor != null && !preDeclaredLangLib) {
                 importsAcceptor.getAcceptor().accept(orgName, alias);
             }
