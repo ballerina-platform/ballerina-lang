@@ -20,6 +20,8 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -29,6 +31,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -78,11 +81,15 @@ public class CodeActionRouter {
                 }
             });
         }
-
+        Project project = ctx.workspace().project(ctx.filePath()).orElseThrow();
+        Path projectRoot = (project.kind() == ProjectKind.SINGLE_FILE_PROJECT)
+                ? project.sourceRoot().getParent() :
+                project.sourceRoot();
         // Get available diagnostics based code-actions
         ctx.allDiagnostics().stream().
-                filter(diag -> CommonUtil.isWithinRange(ctx.cursorPosition(),
-                                                        CommonUtil.toRange(diag.location().lineRange())))
+                filter(diag -> projectRoot.resolve(diag.location().lineRange().filePath()).equals(ctx.filePath()) &&
+                        CommonUtil.isWithinRange(ctx.cursorPosition(), CommonUtil.toRange(diag.location().lineRange()))
+                )
                 .forEach(diagnostic -> {
                     Range range = CommonUtil.toRange(diagnostic.location().lineRange());
                     PositionDetails positionDetails = computePositionDetails(range, syntaxTree, ctx);

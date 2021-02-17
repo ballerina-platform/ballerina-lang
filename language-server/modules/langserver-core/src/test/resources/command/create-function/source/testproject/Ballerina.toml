@@ -1,0 +1,7 @@
+[package]
+org = "lstest"
+name = "testproject"
+version = "0.1.0"
+
+[build-options]
+observabilityIncluded = true

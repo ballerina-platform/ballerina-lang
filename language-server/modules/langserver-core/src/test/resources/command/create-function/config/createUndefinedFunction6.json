@@ -1,0 +1,34 @@
+{
+  "arguments": {
+    "node.position": {
+      "line": 4,
+      "character": 49
+    }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 0
+                  }
+                },
+                "newText": "\n\n    function testServiceFunction() returns http:Response {\n    return new http:Response();\n    }\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

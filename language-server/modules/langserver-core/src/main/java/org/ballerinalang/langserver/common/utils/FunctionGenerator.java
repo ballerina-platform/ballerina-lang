@@ -16,11 +16,14 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Module;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -37,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,7 +52,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.getModulePref
  */
 public class FunctionGenerator {
 
-    public static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)\\/([\\w.]+):([\\d.]+):");
+    public static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)\\/([\\w.]+):(.+):");
 
     /**
      * Returns signature of the return type.
@@ -168,5 +172,102 @@ public class FunctionGenerator {
         return (parent != null && parent.parent != null)
                 ? lookupVariableReturnType(importsAcceptor, variableName, parent.parent, context)
                 : "any";
+    }
+
+    /**
+     * Generates a function with the provided parameters.
+     *
+     * @param context          Code action context
+     * @param newLineAtStart   Whether to add an additional newline at the beginning of the function.
+     * @param functionName     Name of the created function
+     * @param args             Function arguments as a string list
+     * @param returnTypeSymbol return type of the function
+     * @return Created function as a string
+     */
+    public static String generateFunction(CodeActionContext context, boolean newLineAtStart, String functionName,
+                                          List<String> args, TypeSymbol returnTypeSymbol) {
+        Optional<String> returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol);
+
+        // padding
+        int padding = 4;
+        String paddingStr = StringUtils.repeat(" ", padding);
+
+        String returnsClause = "";
+        String returnStmt = "";
+        if (returnType.isPresent()) {
+            // returns clause
+            returnsClause = "returns " + returnType.get();
+            // return statement
+            returnStmt = "return " + CommonUtil.getDefaultValueForType(returnTypeSymbol) +
+                    CommonKeys.SEMI_COLON_SYMBOL_KEY;
+        }
+
+        // body
+        String body;
+        if (!returnStmt.isEmpty()) {
+            body = paddingStr + CommonUtil.LINE_SEPARATOR + paddingStr + returnStmt + CommonUtil.LINE_SEPARATOR;
+        } else {
+            body = paddingStr + CommonUtil.LINE_SEPARATOR;
+        }
+
+        StringBuilder fnBuilder = new StringBuilder();
+
+        if (newLineAtStart) {
+            fnBuilder.append(CommonUtil.LINE_SEPARATOR);
+        }
+
+        fnBuilder.append(CommonUtil.LINE_SEPARATOR)
+                .append("function").append(" ").append(functionName)
+                .append(CommonKeys.OPEN_PARENTHESES_KEY)
+                .append(String.join(", ", args))
+                .append(CommonKeys.CLOSE_PARENTHESES_KEY);
+
+        if (!returnsClause.isEmpty()) {
+            fnBuilder.append(" ").append(returnsClause);
+        }
+
+        fnBuilder.append(" ").append(CommonKeys.OPEN_BRACE_KEY)
+                .append(CommonUtil.LINE_SEPARATOR)
+                .append(body)
+                .append(CommonKeys.CLOSE_BRACE_KEY)
+                .append(CommonUtil.LINE_SEPARATOR);
+
+        return fnBuilder.toString();
+    }
+
+    /**
+     * Converts the provided type to a string which is to be used as the return type (ex: in a function definition).
+     * Uses the signature ({@link TypeSymbol#signature()}) of the type symbol to derive the return type string.
+     *
+     * @param context    Context
+     * @param typeSymbol Type symbol to be converted to a string
+     * @return Return type as string
+     */
+    public static Optional<String> getReturnTypeAsString(DocumentServiceContext context, TypeSymbol typeSymbol) {
+        String typeName = null;
+        // Unknown types are treated as no return type
+        if (typeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
+            ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+            typeName = processModuleIDsInText(importsAcceptor, typeSymbol.signature(), context);
+        }
+
+        return Optional.ofNullable(typeName);
+    }
+
+    /**
+     * Converts the provided type symbol to a type name which will be used as a type of a function parameter.
+     *
+     * @param context    Context
+     * @param typeSymbol Type symbol to be converted to a string
+     * @return Type as a string
+     */
+    public static String getParameterTypeAsString(DocumentServiceContext context, TypeSymbol typeSymbol) {
+        // Unknown types are considered as 'any' when generating parameters of a function
+        if (typeSymbol == null || typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR) {
+            return TypeDescKind.ANY.getName();
+        }
+
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        return processModuleIDsInText(importsAcceptor, typeSymbol.signature(), context);
     }
 }

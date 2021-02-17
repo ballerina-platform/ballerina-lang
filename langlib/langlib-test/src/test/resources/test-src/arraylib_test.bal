@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/lang.array;
 import ballerina/lang.'string as strings;
 import ballerina/lang.'int as ints;
@@ -234,8 +235,8 @@ function testReverseRecord() {
 function testArrayReverseEquality() {
     int[] x = [1, 2, 3, 4, 5];
     int[] y = x.reverse();
-    assertValueEquality(x == y, true);
-    assertValueEquality(x === y, true);
+    assertValueEquality(x == y, false);
+    assertValueEquality(x === y, false);
 }
 
 type Person record {|
@@ -1112,6 +1113,49 @@ function testSort10() {
 
     assertValueEquality(sortedArr6, []);
     assertValueEquality(sortedArr6, arr3);
+}
+
+function testTupleReverse() {
+    [int, string, float] tupleArr = [2,  "abc", 2.4];
+    anydata[] y = tupleArr.reverse();
+    (int|string|float)[] expected = [2.4,  "abc", 2];
+    assertValueEquality(expected, y);
+
+    [int, int, int] arr1 = [1, 2, 3];
+    y = arr1.reverse();
+    int[]  res = [3, 2, 1];
+    assertValueEquality(res, y);
+
+
+    [int, int, int...] arr2 = [1, 2, 3, 4, 5];
+    y = arr2.reverse();
+    anydata[]  res1 = [5, 4, 3, 2, 1];
+    assertValueEquality(res1, y);
+}
+
+function testTupleFilter() {
+    [int, string, float] tupleArr = [2,  "abc", 2.4];
+    anydata[] y = tupleArr.filter(function (anydata value) returns boolean {
+        return (value is int);
+    });
+
+    (int|string|float)[] expected = [2];
+    assertValueEquality(expected, y);
+
+    [int, int, int] arr1 = [1, 2, 3];
+    y = arr1.filter(function (int value) returns boolean {
+        return value >= 2;
+    });
+    int[] res = [2, 3];
+    assertValueEquality(res, y);
+
+
+    [int, int, int...] arr2 = [1, 2, 3, 4, 5];
+    y = arr2.filter(function (int value) returns boolean {
+        return value > 2;
+    });
+    anydata[]  res1 = [3, 4, 5];
+    assertValueEquality(res1, y);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

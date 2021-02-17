@@ -24,12 +24,9 @@ import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.providers.context.util.ImportDeclarationContextUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
-import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -67,11 +64,6 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         return completionItems;
     }
 
-    // TODO: Remove the duplicate code with the ImportDeclarationNodeContext
-    private String getLangLibModuleNameInsertText(String pkgName) {
-        return pkgName.replace(".", ".'") + ";";
-    }
-
     private ArrayList<LSCompletionItem> moduleNameContextCompletions(BallerinaCompletionContext context, String orgName,
                                                                      List<Package> packagesList) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
@@ -84,28 +76,17 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
                     && CommonUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
                 if (orgName.equals(Names.BALLERINA_ORG.value)
                         && packageName.startsWith(Names.LANG.value + ".")) {
-                    insertText = getLangLibModuleNameInsertText(packageName);
+                    insertText = ImportDeclarationContextUtil.getLangLibModuleNameInsertText(packageName);
                 } else {
                     insertText = packageName;
                 }
                 pkgNameLabels.add(packageName);
                 // Do not add the semi colon at the end of the insert text since the user might type the as keyword
-                completionItems.add(getImportCompletion(context, packageName, insertText));
+                completionItems.add(ImportDeclarationContextUtil.getImportCompletion(context, packageName, insertText));
             }
         });
 
         return completionItems;
-    }
-
-    private static LSCompletionItem getImportCompletion(BallerinaCompletionContext context,
-                                                        String label, String insertText) {
-        CompletionItem item = new CompletionItem();
-        item.setLabel(label);
-        item.setInsertText(insertText);
-        item.setKind(CompletionItemKind.Module);
-        item.setDetail(ItemResolverConstants.MODULE_TYPE);
-
-        return new StaticCompletionItem(context, item, StaticCompletionItem.Kind.MODULE);
     }
 
     @Override
