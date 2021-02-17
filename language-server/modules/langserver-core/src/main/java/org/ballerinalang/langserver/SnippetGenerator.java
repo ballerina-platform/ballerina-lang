@@ -1223,6 +1223,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Configurable Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getConfigurableKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.CONFIGURABLE_KEYWORD, "configurable",
+                ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
+    }
+
+    /**
      * Get {@code fail} Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

@@ -110,14 +110,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "distinct",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "distinct",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -163,6 +155,14 @@
           "newText": "import ballerina/http;\n"
         }
       ]
+    },
+    {
+      "label": "configurable",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "configurable",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "annotation",
@@ -373,6 +373,14 @@
       "detail": "Keyword",
       "sortText": "P",
       "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "distinct",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
     {

@@ -110,14 +110,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "distinct",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "distinct",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -149,6 +141,14 @@
       "insertText": "service /${1} on new http:Listener(8080) {\n\tresource function ${2:get} ${3:getResource}(http:Caller ${4:caller}, http:Request ${5:req}) {\n\t\t\n\t}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
+    },
+    {
+      "label": "configurable",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "configurable",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "annotation",
@@ -359,6 +359,14 @@
       "detail": "Keyword",
       "sortText": "P",
       "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "distinct",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
     {

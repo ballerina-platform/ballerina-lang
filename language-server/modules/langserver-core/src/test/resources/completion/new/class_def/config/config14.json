@@ -157,6 +157,14 @@
       ]
     },
     {
+      "label": "configurable",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "configurable",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "annotation",
       "kind": "Snippet",
       "detail": "Snippet",
