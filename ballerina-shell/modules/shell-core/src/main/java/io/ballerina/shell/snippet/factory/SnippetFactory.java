@@ -19,7 +19,6 @@
 package io.ballerina.shell.snippet.factory;
 
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.SnippetException;
 import io.ballerina.shell.snippet.Snippet;
@@ -60,15 +59,13 @@ public abstract class SnippetFactory extends DiagnosticReporter {
             snippet = function.create(node);
             if (snippet != null) {
                 String message = String.format("Node identified as a %s snippet.", snippet.getKind());
-                addDiagnostic(Diagnostic.debug(message));
+                addDebugDiagnostic(message);
                 return snippet;
             }
         }
-        addDiagnostic(Diagnostic.error("" +
-                "Could not identify the expression due to syntax errors."));
+        addErrorDiagnostic("Could not identify the expression due to syntax errors.");
         throw new SnippetException();
     }
-
 
     /**
      * Creates a declaration snippet from the given node.
@@ -87,8 +84,7 @@ public abstract class SnippetFactory extends DiagnosticReporter {
         for (DeclarationSnippetCreator function : functions) {
             snippet = function.create(node);
             if (snippet != null) {
-                String message = String.format("Node identified as a %s snippet.", snippet.getKind());
-                addDiagnostic(Diagnostic.debug(message));
+                addDebugDiagnostic(String.format("Node identified as a %s snippet.", snippet.getKind()));
                 return snippet;
             }
         }

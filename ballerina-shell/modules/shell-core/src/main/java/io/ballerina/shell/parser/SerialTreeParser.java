@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.TreeParserException;
 import io.ballerina.shell.parser.trials.EmptyExpressionTrial;
 import io.ballerina.shell.parser.trials.ExpressionTrial;
@@ -77,8 +76,8 @@ public class SerialTreeParser extends TrialTreeParser {
                 errorMessage = "There is a Syntax Error in your code.";
             }
         }
-        addDiagnostic(Diagnostic.error(errorMessage));
-        addDiagnostic(Diagnostic.error("Parsing aborted due to errors."));
+        addErrorDiagnostic(errorMessage);
+        addErrorDiagnostic("Parsing aborted due to errors.");
         throw new TreeParserException();
     }
 
@@ -93,8 +92,8 @@ public class SerialTreeParser extends TrialTreeParser {
                     .forEach(declarationNodes::add);
             return declarationNodes;
         } catch (ParserTrialFailedException e) {
-            addDiagnostic(Diagnostic.error(e.getMessage()));
-            addDiagnostic(Diagnostic.error("Parsing aborted because of errors."));
+            addErrorDiagnostic(e.getMessage());
+            addErrorDiagnostic("Parsing aborted because of errors.");
             throw new TreeParserException();
         }
     }
@@ -106,18 +105,18 @@ public class SerialTreeParser extends TrialTreeParser {
         if (declarationNode instanceof FunctionDefinitionNode) {
             String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
             if (functionName.equals("main")) {
-                addDiagnostic(Diagnostic.warn("Found 'main' function in the declarations.\n" +
-                        "Discarded 'main' function without loading."));
+                addWarnDiagnostic("Found 'main' function in the declarations.\n" +
+                        "Discarded 'main' function without loading.");
                 return false;
             }
             if (functionName.equals("init")) {
-                addDiagnostic(Diagnostic.warn("Found 'init' function in the declarations.\n" +
-                        "Discarded 'init' function without loading."));
+                addWarnDiagnostic("Found 'init' function in the declarations.\n" +
+                        "Discarded 'init' function without loading.");
                 return false;
             }
             if (functionName.startsWith("__")) {
-                addDiagnostic(Diagnostic.warn("Functions starting with '__' are reserved in REPL.\n" +
-                        "Discarded '" + functionName + "' without loading."));
+                addWarnDiagnostic("Functions starting with '__' are reserved in REPL.\n" +
+                        "Discarded '" + functionName + "' without loading.");
                 return false;
             }
         }

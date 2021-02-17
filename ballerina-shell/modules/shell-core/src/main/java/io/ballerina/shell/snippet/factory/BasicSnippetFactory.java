@@ -147,9 +147,9 @@ public class BasicSnippetFactory extends SnippetFactory {
             return null;
         }
         if (dclnNode.initializer().isEmpty()) {
-            addDiagnostic(Diagnostic.error("" +
+            addErrorDiagnostic("" +
                     "Variables without initializers are not permitted. " +
-                    "Give an initial value for your variable."));
+                    "Give an initial value for your variable.");
             return null;
         }
         return new VariableDeclarationSnippet(dclnNode);
@@ -162,7 +162,7 @@ public class BasicSnippetFactory extends SnippetFactory {
             assert MODULE_MEM_DCLNS.containsKey(node.getClass());
             SnippetSubKind subKind = MODULE_MEM_DCLNS.get(node.getClass());
             if (subKind.hasError()) {
-                addDiagnostic(Diagnostic.error(subKind.getError()));
+                addErrorDiagnostic(subKind.getError());
                 throw new SnippetException();
             } else if (subKind.isValid()) {
                 return new ModuleMemberDeclarationSnippet(subKind, (ModuleMemberDeclarationNode) node);
@@ -177,15 +177,15 @@ public class BasicSnippetFactory extends SnippetFactory {
             assert STATEMENTS.containsKey(node.getClass());
             SnippetSubKind subKind = STATEMENTS.get(node.getClass());
             if (subKind.hasError()) {
-                addDiagnostic(Diagnostic.error(subKind.getError()));
+                addErrorDiagnostic(subKind.getError());
                 throw new SnippetException();
             } else if (subKind.isValid()) {
                 return new StatementSnippet(subKind, (StatementNode) node);
             }
         } else if (node instanceof NamedWorkerDeclarator) {
-            addDiagnostic(Diagnostic.error("" +
+            addErrorDiagnostic("" +
                     "Named worker declarators cannot be used in the REPL as top level statement.\n" +
-                    "Please use them in a suitable place such as in a function."));
+                    "Please use them in a suitable place such as in a function.");
         }
         return null;
     }

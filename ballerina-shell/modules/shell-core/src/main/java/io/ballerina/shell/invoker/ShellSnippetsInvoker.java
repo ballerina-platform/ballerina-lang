@@ -37,7 +37,6 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.exceptions.InvokerPanicException;
@@ -246,10 +245,10 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
                     addErrorDiagnostic(highlightedDiagnostic(module, diagnostic));
-                    addDiagnostic(Diagnostic.error("Compilation aborted due to errors."));
+                    addErrorDiagnostic("Compilation aborted due to errors.");
                     throw new InvokerException();
                 } else if (severity == DiagnosticSeverity.WARNING) {
-                    addDiagnostic(Diagnostic.warn(highlightedDiagnostic(module, diagnostic)));
+                    addWarnDiagnostic(highlightedDiagnostic(module, diagnostic));
                 } else {
                     addDebugDiagnostic(diagnostic.message());
                 }

@@ -125,7 +125,7 @@ public class Evaluator extends DiagnosticReporter {
      */
     public void executeFile(File file) throws BallerinaShellException {
         try {
-            addDiagnostic(Diagnostic.debug("Loading file: " + file.getAbsolutePath()));
+            addDebugDiagnostic("Loading file: " + file.getAbsolutePath());
             String statements = timedOperation("preprocessor", () -> preprocessor.processFile(file));
             Collection<Node> nodes = timedOperation("tree parser", () -> treeParser.parseDeclarations(statements));
             List<DeclarationSnippet> declarationSnippets = new ArrayList<>();

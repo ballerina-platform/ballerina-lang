@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.preprocessor;
 
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.PreprocessorException;
 
 import java.io.File;
@@ -41,7 +40,7 @@ public abstract class FilePreprocessor extends Preprocessor {
             Scanner scanner = new Scanner(file, StandardCharsets.UTF_8).useDelimiter(SPECIAL_DELIMITER);
             return scanner.hasNext() ? scanner.next() : "";
         } catch (IOException e) {
-            addDiagnostic(Diagnostic.error("File reading failed: " + file));
+            addErrorDiagnostic("File reading failed: " + file);
             throw new PreprocessorException();
         }
     }
