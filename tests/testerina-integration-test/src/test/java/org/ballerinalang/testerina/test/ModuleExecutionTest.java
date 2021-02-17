@@ -125,6 +125,19 @@ public class ModuleExecutionTest extends BaseTestCase {
         }
     }
 
+    @Test()
+    public void test_Module1_WithGroups() throws BallerinaTestException {
+        String msg1 = "1 passing";
+        String msg2 = "[pass] module1_test2";
+
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "moduleExecution.Module1:*", "--groups", "g1"});
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
+
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            AssertionUtils.assertForTestFailures(output, "module with groups failure");
+        }
+    }
+
     @AfterMethod
     public void copyExec() {
         try {
