@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 2,
-    "character": 7
+    "line": 4,
+    "character": 2
   },
-  "source": "class_def/source/source14.bal",
+  "source": "class_def/source/source22.bal",
   "items": [
     {
       "label": "import",
@@ -237,11 +237,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testClass",
+      "label": "UniqueGreetingsStore",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "K",
-      "insertText": "testClass",
+      "insertText": "UniqueGreetingsStore",
       "insertTextFormat": "Snippet"
     },
     {
@@ -384,14 +384,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "N",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
@@ -480,6 +472,29 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
