@@ -17,17 +17,13 @@
  */
 package org.wso2.ballerinalang.compiler.bir.emit;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +51,6 @@ public class BIREmitter {
     private static final CompilerContext.Key<BIREmitter> BIR_EMITTER = new CompilerContext.Key<>();
     private static final PrintStream console = System.out;
     private boolean dumbBIR;
-    private final String dumpBIRFile;
 
     public static BIREmitter getInstance(CompilerContext context) {
 
@@ -72,19 +67,11 @@ public class BIREmitter {
         context.put(BIR_EMITTER, this);
         CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
         this.dumbBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
-        this.dumpBIRFile = compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE);
     }
 
     public BLangPackage emit(BLangPackage bLangPackage) {
         if (dumbBIR) {
             console.println(emitModule(bLangPackage.symbol.bir));
-        }
-        if (dumpBIRFile != null) {
-            try {
-                Files.write(Paths.get(dumpBIRFile), bLangPackage.symbol.birPackageFile.pkgBirBinaryContent);
-            } catch (IOException e) {
-                throw new BLangCompilerException("BIR file dumping failed", e);
-            }
         }
         return bLangPackage;
     }

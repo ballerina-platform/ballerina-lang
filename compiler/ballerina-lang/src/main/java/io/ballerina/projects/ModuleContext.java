@@ -18,11 +18,14 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.PackageResolution.DependencyResolution;
+import io.ballerina.projects.bir.writer.BIRBinaryWriter;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -36,6 +39,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -73,7 +79,7 @@ class ModuleContext {
     private Set<ModuleDependency> moduleDependencies;
     private BLangPackage bLangPackage;
     private BPackageSymbol bPackageSymbol;
-    private byte[] birBytes = new byte[0];
+    private byte[] birBytes = null;
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
     private Set<ModuleLoadRequest> allModuleLoadRequests;
@@ -129,6 +135,13 @@ class ModuleContext {
 
     ModuleName moduleName() {
         return moduleDescriptor.name();
+    }
+
+    byte[] getBirBytes() {
+        if (birBytes == null) {
+            birBytes = new BIRBinaryWriter(this.bLangPackage.symbol.bir).serialize();
+        }
+        return birBytes;
     }
 
     Collection<DocumentId> srcDocumentIds() {
@@ -386,26 +399,33 @@ class ModuleContext {
             compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
         }
 
-        // Serialize the BIR  model
-        cacheBIR(moduleContext);
-
-        // Skip the code generation phase if there are diagnostics
+        // Skip the code generation phase if there are diagnosticsRun
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
             return;
         }
+        // Cache Bir
+        cacheBIR(moduleContext);
+        // Dump Bir
+        dumpBIR(compilerContext, moduleContext);
         compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
     }
 
     private static void cacheBIR(ModuleContext moduleContext) {
-        // Skip caching BIR if there are diagnostics
-        if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
-            return;
-        }
-
-        // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
-        birContent.writeBytes(moduleContext.bLangPackage.symbol.birPackageFile.pkgBirBinaryContent);
+        birContent.writeBytes(moduleContext.getBirBytes());
         moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+    }
+
+    private static void dumpBIR(CompilerContext context, ModuleContext moduleContext) {
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
+        String dumpBIRFile = compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE);
+        if (dumpBIRFile != null) {
+            try {
+                Files.write(Paths.get(dumpBIRFile), moduleContext.getBirBytes());
+            } catch (IOException e) {
+                throw new BLangCompilerException("BIR file dumping failed", e);
+            }
+        }
     }
 
     static void loadBirBytesInternal(ModuleContext moduleContext) {

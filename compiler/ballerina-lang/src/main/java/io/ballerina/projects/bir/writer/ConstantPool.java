@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.writer;
+package io.ballerina.projects.bir.writer;
 
 
 import io.netty.buffer.ByteBuf;

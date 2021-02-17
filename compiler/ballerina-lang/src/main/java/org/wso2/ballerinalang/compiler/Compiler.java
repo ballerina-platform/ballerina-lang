@@ -46,7 +46,6 @@ public class Compiler {
 
     private final SourceDirectoryManager sourceDirectoryManager;
     private final CompilerDriver compilerDriver;
-    private final BinaryFileWriter binaryFileWriter;
     private final DependencyTree dependencyTree;
     private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
@@ -59,7 +58,6 @@ public class Compiler {
         context.put(COMPILER_KEY, this);
         this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
         this.compilerDriver = CompilerDriver.getInstance(context);
-        this.binaryFileWriter = BinaryFileWriter.getInstance(context);
         this.dependencyTree = DependencyTree.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
@@ -111,17 +109,6 @@ public class Compiler {
             throw new BLangCompilerException("compilation contains errors");
         }
         return bLangPackage;
-    }
-
-    public void write(List<BLangPackage> packageList) {
-        if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
-            this.outStream.println("Generating executables");
-        }
-        packageList.forEach(this.binaryFileWriter::write);
-    }
-
-    public void write(BLangPackage bLangPackage, String targetFileName) {
-        this.binaryFileWriter.write(bLangPackage, targetFileName);
     }
 
     public void list() {

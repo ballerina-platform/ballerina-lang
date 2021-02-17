@@ -173,7 +173,7 @@
         <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer"/>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.compiler.bir.writer.ConstantPool"/>
+        <Class name="io.ballerina.projects.bir.writer.ConstantPool"/>
         <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
     </Match>
     <Match>
@@ -181,15 +181,15 @@
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.compiler.bir.writer.BIRTypeWriter"/>
+        <Class name="io.ballerina.projects.bir.writer.BIRTypeWriter"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.compiler.bir.writer.CPEntry$FloatCPEntry"/>
+        <Class name="io.ballerina.projects.bir.writer.CPEntry$FloatCPEntry"/>
         <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.compiler.bir.writer.BIRInstructionWriter"/>
+        <Class name="io.ballerina.projects.bir.writer.BIRInstructionWriter"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>

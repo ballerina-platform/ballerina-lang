@@ -15,8 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.writer;
+package io.ballerina.projects.bir.writer;
 
+import io.ballerina.projects.bir.writer.CPEntry.ByteCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.FloatCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.IntegerCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.StringCPEntry;
 import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -43,10 +47,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 

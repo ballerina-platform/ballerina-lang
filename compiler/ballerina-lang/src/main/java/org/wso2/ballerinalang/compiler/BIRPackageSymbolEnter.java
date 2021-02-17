@@ -17,6 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import io.ballerina.projects.bir.writer.CPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.ByteCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.FloatCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.IntegerCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.PackageCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.StringCPEntry;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
@@ -27,12 +33,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -86,8 +86,7 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.ByteArrayInputStream;
@@ -164,7 +163,6 @@ public class BIRPackageSymbolEnter {
                                         byte[] packageBinaryContent) {
         BPackageSymbol pkgSymbol = definePackage(packageId, packageRepositoryHierarchy,
                 new ByteArrayInputStream(packageBinaryContent));
-        pkgSymbol.birPackageFile = new CompiledBinaryFile.BIRPackageFile(packageBinaryContent);
         SymbolEnv builtinEnv = this.symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol);
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(null, pkgSymbol.scope, builtinEnv);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
@@ -192,13 +190,13 @@ public class BIRPackageSymbolEnter {
     private BPackageSymbol definePackage(DataInputStream dataInStream) throws IOException {
         byte[] magic = new byte[4];
         dataInStream.read(magic, 0, 4);
-        if (!Arrays.equals(magic, BIRPackageFile.BIR_MAGIC)) {
+        if (!Arrays.equals(magic, ProgramFileConstants.BIR_MAGIC)) {
             // TODO dlog.error() with package name
             throw new BLangCompilerException("invalid magic number " + Arrays.toString(magic));
         }
 
         int version = dataInStream.readInt();
-        if (version != BIRPackageFile.BIR_VERSION) {
+        if (version != ProgramFileConstants.BIR_VERSION_NUMBER) {
             // TODO dlog.error() with package name
             throw new BLangCompilerException("unsupported program file version " + version);
         }

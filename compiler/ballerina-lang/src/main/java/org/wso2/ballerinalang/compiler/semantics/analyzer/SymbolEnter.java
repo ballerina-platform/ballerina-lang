@@ -3336,7 +3336,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         copy.testInitFunctionSymbol = originalSymbol.testInitFunctionSymbol;
         copy.testStartFunctionSymbol = originalSymbol.testStartFunctionSymbol;
         copy.testStopFunctionSymbol = originalSymbol.testStopFunctionSymbol;
-        copy.packageFile = originalSymbol.packageFile;
         copy.compiledPackage = originalSymbol.compiledPackage;
         copy.entryPointExists = originalSymbol.entryPointExists;
         copy.scope = originalSymbol.scope;

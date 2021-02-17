@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.ballerinalang.compiler.bir.writer;
+package io.ballerina.projects.bir.writer;
 
 import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;

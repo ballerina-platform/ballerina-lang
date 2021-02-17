@@ -15,8 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.writer;
+package io.ballerina.projects.bir.writer;
 
+import io.ballerina.projects.bir.writer.CPEntry.ByteCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.FloatCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.IntegerCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.StringCPEntry;
 import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -35,13 +39,9 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.ConstValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.TaintTable;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -90,8 +90,8 @@ public class BIRBinaryWriter {
         // Write the constant pool entries.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (DataOutputStream dataOut = new DataOutputStream(baos)) {
-            dataOut.write(CompiledBinaryFile.BIRPackageFile.BIR_MAGIC);
-            dataOut.writeInt(CompiledBinaryFile.BIRPackageFile.BIR_VERSION);
+            dataOut.write(ProgramFileConstants.BIR_MAGIC);
+            dataOut.writeInt(ProgramFileConstants.BIR_VERSION_NUMBER);
             dataOut.write(cp.serialize());
             dataOut.write(birbuf.nioBuffer().array(), 0, birbuf.nioBuffer().limit());
             return baos.toByteArray();

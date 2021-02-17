@@ -32,7 +32,7 @@ import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -85,17 +85,10 @@ public class BCompileUtil {
             return null;
         }
 
-        BPackageSymbol bPackageSymbol = currentPackage.getCompilation().defaultModuleBLangPackage().symbol;
-        if (bPackageSymbol == null) {
-            return null;
-        }
+        BLangPackage bLangPackage = currentPackage.getCompilation().defaultModuleBLangPackage();
+        BPackageSymbol bPackageSymbol = bLangPackage.symbol;
 
-        CompiledBinaryFile.BIRPackageFile birPackageFile = bPackageSymbol.birPackageFile;
-        if (birPackageFile == null) {
-            return null;
-        }
-
-        return new BIRCompileResult(bPackageSymbol.bir, birPackageFile.pkgBirBinaryContent);
+        return new BIRCompileResult(bPackageSymbol.bir, currentPackage.getDefaultModule().birBytes());
     }
 
     public static CompileResult compileWithoutInitInvocation(String sourceFilePath) {

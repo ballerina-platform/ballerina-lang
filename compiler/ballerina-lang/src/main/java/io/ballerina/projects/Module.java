@@ -87,6 +87,10 @@ public class Module {
         return new DocumentIterable(this.testSrcDocs.values());
     }
 
+    public byte[] birBytes() {
+        return this.moduleContext.getBirBytes();
+    }
+
     public Document document(DocumentId documentId) {
         // TODO Should we throw an error if the moduleId is not present
         if (documentIds().contains(documentId)) {

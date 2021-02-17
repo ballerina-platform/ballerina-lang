@@ -15,17 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.writer;
+package io.ballerina.projects.bir.writer;
 
+import io.ballerina.projects.bir.writer.CPEntry.ByteCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.FloatCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.IntegerCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.PackageCPEntry;
+import io.ballerina.projects.bir.writer.CPEntry.StringCPEntry;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
