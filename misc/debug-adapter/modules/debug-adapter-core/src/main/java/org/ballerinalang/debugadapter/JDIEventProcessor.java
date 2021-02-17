@@ -63,7 +63,6 @@ public class JDIEventProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String BALLERINA_ORG_PREFIX = "ballerina";
     private static final String BALLERINAX_ORG_PREFIX = "ballerinax";
-    private static final String NOTIFICATION_PREFIX = "NOTIFICATION: ";
 
     JDIEventProcessor(ExecutionContext context) {
         this.context = context;
@@ -109,14 +108,14 @@ public class JDIEventProcessor {
             context.getClient().stopped(stoppedEventArguments);
             context.getEventManager().deleteEventRequests(stepEventRequests);
         } else if (event instanceof StepEvent) {
-            StepEvent e = (StepEvent) event;
-            long threadId = e.thread().uniqueID();
-            if (isBallerinaSource(e.location())) {
-                if (isExternalLibSource(e.location())) {
+            StepEvent stepEvent = (StepEvent) event;
+            long threadId = stepEvent.thread().uniqueID();
+            if (isBallerinaSource(stepEvent.location())) {
+                if (isExternalLibSource(stepEvent.location())) {
                     // If the current step-in event is related to an external source (i.e. lang library, standard
                     // library, connector module), notifies the user and rolls back to the previous state.
                     // Todo - add support for external libraries
-                    context.getAdapter().sendOutput(NOTIFICATION_PREFIX + "Stepping into ballerina external modules " +
+                    context.getAdapter().sendOutput("INFO: Stepping into ballerina internal modules " +
                             "is not supported.", STDOUT);
                     context.getAdapter().stepOut(threadId);
                     return true;
@@ -125,7 +124,7 @@ public class JDIEventProcessor {
                 // client that the debuggee is stopped.
                 StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
                 stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
-                stoppedEventArguments.setThreadId(e.thread().uniqueID());
+                stoppedEventArguments.setThreadId(stepEvent.thread().uniqueID());
                 stoppedEventArguments.setAllThreadsStopped(true);
                 context.getClient().stopped(stoppedEventArguments);
                 context.getEventManager().deleteEventRequests(stepEventRequests);
