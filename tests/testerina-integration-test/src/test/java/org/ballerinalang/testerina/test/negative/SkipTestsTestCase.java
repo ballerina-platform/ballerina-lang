@@ -19,10 +19,12 @@ package org.ballerinalang.testerina.test.negative;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.testerina.test.BaseTestCase;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
 
 /**
  * Negative test cases for missing before,after and dependsOn functions.
@@ -43,16 +45,13 @@ public class SkipTestsTestCase extends BaseTestCase {
         String msg1 = "2 passing";
         String msg2 = "1 failing";
         String msg3 = "2 skipped";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
-
         String[] args = mergeCoverageArgs(new String[]{"dependson-skip-test.bal"});
-        balClient.runMain("test", args, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            AssertionUtils.assertForTestFailures(output, "error while skipping test when depends on " +
+                    "function fails");
+        }
     }
 
     @Test
@@ -60,16 +59,12 @@ public class SkipTestsTestCase extends BaseTestCase {
         String msg1 = "1 passing";
         String msg2 = "0 failing";
         String msg3 = "2 skipped";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
-
         String[] args = mergeCoverageArgs(new String[]{"skip-when-before-fails.bal"});
-        balClient.runMain("test", args, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            AssertionUtils.assertForTestFailures(output, "error while skipping test when before test fails");
+        }
     }
 
     @Test
@@ -77,16 +72,12 @@ public class SkipTestsTestCase extends BaseTestCase {
         String msg1 = "2 passing";
         String msg2 = "0 failing";
         String msg3 = "1 skipped";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
-
         String[] args = mergeCoverageArgs(new String[]{"skip-when-after-fails.bal"});
-        balClient.runMain("test", args, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            AssertionUtils.assertForTestFailures(output, "error while skipping test when after test fails");
+        }
     }
 
     @Test
@@ -94,16 +85,12 @@ public class SkipTestsTestCase extends BaseTestCase {
         String msg1 = "0 passing";
         String msg2 = "0 failing";
         String msg3 = "3 skipped";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
-
         String[] args = mergeCoverageArgs(new String[]{"skip-when-beforeEach-fails.bal"});
-        balClient.runMain("test", args, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            AssertionUtils.assertForTestFailures(output, "error while skipping test when before each fails");
+        }
     }
 
 
@@ -112,16 +99,12 @@ public class SkipTestsTestCase extends BaseTestCase {
         String msg1 = "1 passing";
         String msg2 = "0 failing";
         String msg3 = "2 skipped";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
-
         String[] args = mergeCoverageArgs(new String[]{"skip-when-afterEach-fails.bal"});
-        balClient.runMain("test", args, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            AssertionUtils.assertForTestFailures(output, "error while skipping test when after each fails");
+        }
     }
 
     @Test
@@ -129,16 +112,12 @@ public class SkipTestsTestCase extends BaseTestCase {
         String msg1 = "0 passing";
         String msg2 = "0 failing";
         String msg3 = "3 skipped";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
-
         String[] args = mergeCoverageArgs(new String[]{"skip-when-beforeSuite-fails.bal"});
-        balClient.runMain("test", args, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            AssertionUtils.assertForTestFailures(output, "error while skipping test when before suite fails");
+        }
     }
 
     @Test
@@ -146,16 +125,12 @@ public class SkipTestsTestCase extends BaseTestCase {
         String msg1 = "2 passing";
         String msg2 = "0 failing";
         String msg3 = "3 skipped";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
-
         String[] args = mergeCoverageArgs(new String[]{"skip-when-beforeGroups-fails.bal"});
-        balClient.runMain("test", args, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            AssertionUtils.assertForTestFailures(output, "error while skipping test when before groups fails");
+        }
     }
 
     @Test
@@ -163,15 +138,11 @@ public class SkipTestsTestCase extends BaseTestCase {
         String msg1 = "4 passing";
         String msg2 = "0 failing";
         String msg3 = "1 skipped";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
-
         String[] args = mergeCoverageArgs(new String[]{"skip-when-afterGroups-fails.bal"});
-        balClient.runMain("test", args, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            AssertionUtils.assertForTestFailures(output, "error while skipping test when after groups fails");
+        }
     }
 }
