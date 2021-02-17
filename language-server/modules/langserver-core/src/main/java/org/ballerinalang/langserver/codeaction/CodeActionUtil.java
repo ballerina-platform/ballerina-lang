@@ -390,7 +390,8 @@ public class CodeActionUtil {
         return edits;
     }
 
-    public static List<TextEdit> getAddCheckTextEdits(Position pos, NonTerminalNode matchedNode, CodeActionContext context) {
+    public static List<TextEdit> getAddCheckTextEdits(Position pos, NonTerminalNode matchedNode,
+                                                      CodeActionContext context) {
         Optional<FunctionDefinitionNode> enclosedFunc = getEnclosedFunction(matchedNode);
         if (enclosedFunc.isEmpty()) {
             return Collections.emptyList();
