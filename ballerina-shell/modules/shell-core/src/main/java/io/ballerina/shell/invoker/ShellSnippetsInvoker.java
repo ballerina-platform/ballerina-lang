@@ -296,11 +296,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         SingleFileProject project = getProject(context, templateName);
         PackageCompilation compilation = compile(project);
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
-        boolean isExecutionSuccessful = executeProject(jBallerinaBackend);
-        if (!isExecutionSuccessful) {
-            addErrorDiagnostic("Unhandled Runtime Error.");
-            throw new InvokerException();
-        }
+        executeProject(jBallerinaBackend);
         return null;
     }
 
@@ -310,10 +306,9 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * The process is run and the stdout is collected and printed.
      *
      * @param jBallerinaBackend Backed to use.
-     * @return Whether process execution was successful.
      * @throws InvokerException If execution failed.
      */
-    protected boolean executeProject(JBallerinaBackend jBallerinaBackend) throws InvokerException {
+    protected void executeProject(JBallerinaBackend jBallerinaBackend) throws InvokerException {
         if (bufferFile == null) {
             throw new UnsupportedOperationException("Buffer file must be set before execution");
         }
@@ -334,15 +329,13 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             // Start the module
             invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_START_METHOD_NAME);
             // Then call run method
-            Object failError = invokeScheduledMethod(classLoader, mainMethodClassName, MODULE_RUN_METHOD_NAME);
-            if (failError != null) {
-                errorStream.println("Fail: " + failError);
+            Object failErrorMessage = invokeScheduledMethod(classLoader, mainMethodClassName, MODULE_RUN_METHOD_NAME);
+            if (failErrorMessage != null) {
+                errorStream.println("fail: " + failErrorMessage);
             }
-            return true;
         } catch (InvokerPanicException panicError) {
-            Throwable panicCause = panicError.getCause();
-            errorStream.println("Panic: " + panicCause.getMessage());
-            addErrorDiagnostic("Unhandled Runtime Error.");
+            errorStream.println("panic: " + StringUtils.getErrorStringValue(panicError.getCause()));
+            addErrorDiagnostic("Execution aborted due to unhandled runtime error.");
             throw panicError;
         }
     }

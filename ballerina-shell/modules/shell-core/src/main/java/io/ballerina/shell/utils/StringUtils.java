@@ -19,6 +19,7 @@
 package io.ballerina.shell.utils;
 
 import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 
@@ -145,5 +146,18 @@ public class StringUtils {
      */
     public static String getExpressionStringValue(Object object) {
         return io.ballerina.runtime.api.utils.StringUtils.getExpressionStringValue(object, null);
+    }
+
+    /**
+     * Converts {@link Throwable} to a more descriptive format.
+     *
+     * @param error Error object to convert.
+     * @return Converted string.
+     */
+    public static String getErrorStringValue(Throwable error) {
+        if (error instanceof BError) {
+            return ((BError) error).getErrorMessage() + " " + ((BError) error).getDetails();
+        }
+        return error.getMessage();
     }
 }

@@ -7,18 +7,18 @@
   {
     "description": "Fail error value",
     "code": "fail error(\"whoops\")",
-    "stdout": "Fail: whoops\n"
+    "stdout": "fail: whoops {}\n"
   },
   {
     "description": "Panic error value",
     "code": "panic error(\"whoops\")",
-    "stdout": "Panic: whoops\n",
+    "stdout": "panic: whoops {}\n",
     "error": "InvokerPanicException"
   },
   {
     "description": "Runtime error.",
     "code": "1/0",
-    "stdout": "Panic: {ballerina}DivisionByZero\n",
+    "stdout": "panic: {ballerina}DivisionByZero {\"message\":\" / by zero\"}\n",
     "error": "InvokerPanicException"
   }
 ]

@@ -63,7 +63,7 @@ function __stmts() returns any {
             {{/statement}}
         } on fail error e {
             {{{exprVarName}}} = ();
-            return e.message();
+            return e.message() + " " + e.detail().toBalString();
         }
     {{/lastStmt}}
 }
