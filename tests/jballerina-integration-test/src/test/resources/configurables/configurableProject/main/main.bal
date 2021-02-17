@@ -39,7 +39,7 @@ type AuthInfo record {|
 |};
 
 type UserTable table<AuthInfo> key(username);
-type nonKeyTable table<AuthInfo> ;
+type nonKeyTable table<AuthInfo>;
 
 configurable AuthInfo & readonly admin = ?;
 configurable UserTable & readonly users = ?;
@@ -89,7 +89,7 @@ function testRecordValues() {
 }
 
 function testTableValues() {
-    
+
     test:assertEquals(3, users.length());
     test:assertEquals(3, nonKeyUsers.length());
 
@@ -116,6 +116,12 @@ function testTableValues() {
     test:assertEquals(user1, users.get("alice"));
     test:assertEquals(user2, users.get("bob"));
     test:assertEquals(user3, users.get("john"));
+
+    int count = 0;
+    foreach var user in users {
+        count += 1;
+    }
+    test:assertEquals(3, count);
 }
 
 //Extern methods to verify no errors while testing

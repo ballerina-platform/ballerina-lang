@@ -440,7 +440,9 @@ public class ConfigTomlProvider implements ConfigProvider {
                 new ArrayValueImpl(TypeCreator.createArrayType(constraintType), tableSize, tableEntries);
         ArrayValue keyNames = keys == null ? (ArrayValue) ValueCreator.createArrayValue(new BString[]{}) :
                 (ArrayValue) StringUtils.fromStringArray(keys);
-        return new TableValueImpl<>((BTableType) tableType, tableData, keyNames);
+        TableType type =
+                TypeCreator.createTableType(((IntersectionType) constraintType).getEffectiveType(), keys, true);
+        return new TableValueImpl<>((BTableType) type, tableData, keyNames);
     }
 
     private static void validateKeyField(TomlTableNode recordTable, String[] fieldNames, Type tableType,
