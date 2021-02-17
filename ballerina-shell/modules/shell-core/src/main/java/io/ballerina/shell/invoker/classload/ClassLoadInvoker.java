@@ -77,7 +77,6 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     // Context related information
     public static final String CONTEXT_EXPR_VAR_NAME = "__last__";
     // Punctuations
-    protected static final String DOLLAR = "$";
     private static final String DECLARATION_TEMPLATE_FILE = "template.declaration.mustache";
     private static final String EXECUTION_TEMPLATE_FILE = "template.execution.mustache";
 
@@ -116,8 +115,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
     /**
      * Stores all the newly found implicit imports.
-     * Persisted at the end of iteration to `mustImportPrefixes`.
-     * Key is the source snippet name (variable name/dcln name), value is the prefix.
+     * Persisted at the end of iteration to `imports`.
+     * Key is the source snippet name (variable name/dcln name), value is the prefixes.
      */
     private final Map<QuotedIdentifier, Set<QuotedIdentifier>> newImports;
     /**

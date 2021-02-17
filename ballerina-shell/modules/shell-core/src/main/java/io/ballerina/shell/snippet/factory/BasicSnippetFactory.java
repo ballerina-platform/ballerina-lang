@@ -59,7 +59,6 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.SnippetException;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.snippet.types.ExpressionSnippet;

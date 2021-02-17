@@ -89,7 +89,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     private static final String TEMP_FILE_PREFIX = "main-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
     /* Error type codes */
-    private static final String NON_ACCESSIBLE_TYPE_CODE = "BCE2037";
     private static final String MODULE_NOT_FOUND_CODE = "BCE2003";
 
     /**
@@ -452,16 +451,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return The string with position highlighted.
      */
     private String highlightedDiagnostic(Module module, io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
-        // Get the source code
         Optional<DocumentId> documentId = module.documentIds().stream().findFirst();
-        assert documentId.isPresent();
-        Document document = module.document(documentId.get());
-        if (diagnostic.diagnosticInfo().code().equals(NON_ACCESSIBLE_TYPE_CODE)) {
-            return "Error: " + diagnostic.message() + "\n" +
-                    "The initializer returns a non-accessible symbol. " +
-                    "This is currently not supported in REPL. " +
-                    "Please explicitly state the type.";
-        }
+        Document document = module.document(documentId.orElseThrow());
         return StringUtils.highlightDiagnostic(document.textDocument(), diagnostic);
     }
 
