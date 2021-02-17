@@ -45,8 +45,8 @@ public class AddDocumentationTest extends AbstractCodeActionTest {
     public Object[][] dataProvider() {
         return new Object[][]{
                 {"singleDocGeneration.json", "singleDocGeneration.bal"},
-//                {"singleDocGeneration1.json", "singleDocGeneration.bal"},
-//                {"singleDocGeneration2.json", "singleDocGeneration.bal"},
+                {"singleDocGeneration1.json", "singleDocGeneration.bal"},
+                {"singleDocGeneration2.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration3.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration4.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration5.json", "singleDocGeneration.bal"},
