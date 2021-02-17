@@ -367,52 +367,6 @@
       ]
     },
     {
-      "label": "lsproject.module2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import lsproject.module2;\n"
-        }
-      ]
-    },
-    {
-      "label": "lsproject.hierarchy.module4",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module4",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import lsproject.hierarchy.module4;\n"
-        }
-      ]
-    },
-    {
       "label": "boolean",
       "kind": "Unit",
       "detail": "type",
@@ -523,6 +477,52 @@
       "sortText": "Q",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lsproject.module2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.module2;\n"
+        }
+      ]
+    },
+    {
+      "label": "lsproject.hierarchy.module4",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module4",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.hierarchy.module4;\n"
+        }
+      ]
     },
     {
       "label": "StrandData",
@@ -645,6 +645,14 @@
       "detail": "Keyword",
       "sortText": "P",
       "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "distinct",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
     {
