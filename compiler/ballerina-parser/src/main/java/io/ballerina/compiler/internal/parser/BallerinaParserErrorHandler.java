@@ -394,7 +394,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.LT };
 
     private static final ParserRuleContext[] FUNCTION_KEYWORD_RHS =
-            { ParserRuleContext.FUNC_NAME, ParserRuleContext.OPEN_PARENTHESIS };
+            { ParserRuleContext.FUNC_NAME, ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.QUESTION_MARK,
+                     ParserRuleContext.OPEN_BRACKET, ParserRuleContext.BITWISE_AND_OPERATOR, ParserRuleContext.PIPE };
 
     private static final ParserRuleContext[] TYPEDESC_RHS = { ParserRuleContext.END_OF_TYPE_DESC,
             ParserRuleContext.ARRAY_TYPE_DESCRIPTOR, ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE,
@@ -685,7 +686,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.RELATIVE_RESOURCE_PATH };
 
     private static final ParserRuleContext[] FUNC_DEF_OR_TYPE_DESC_RHS =
-            { ParserRuleContext.OPTIONAL_RELATIVE_PATH, ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
+            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET,
+                    ParserRuleContext.IDENTIFIER, ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
 
     private static final ParserRuleContext[] RELATIVE_RESOURCE_PATH_START =
             { ParserRuleContext.DOT, ParserRuleContext.RESOURCE_PATH_SEGMENT };
@@ -2524,6 +2526,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.ON_CLAUSE;
         } else if (parentCtx == ParserRuleContext.ON_CLAUSE) {
             nextContext = ParserRuleContext.EQUALS_KEYWORD;
+        } else if (parentCtx == ParserRuleContext.COMP_UNIT) {
+            nextContext = ParserRuleContext.TOP_LEVEL_NODE;
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
@@ -4766,6 +4770,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.SEMICOLON;
             case ABSOLUTE_RESOURCE_PATH:
                 return ParserRuleContext.ABSOLUTE_RESOURCE_PATH_END;
+            case FUNC_DEF_OR_FUNC_TYPE:
+                return ParserRuleContext.FUNC_DEF_OR_TYPE_DESC_RHS;
             default:
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
