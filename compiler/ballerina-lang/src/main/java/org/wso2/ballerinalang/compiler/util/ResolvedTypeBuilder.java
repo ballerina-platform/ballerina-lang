@@ -416,9 +416,6 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
                 NodeKind kind = arg.getKind();
                 if (kind == NodeKind.NAMED_ARGS_EXPR) {
                     paramValueTypes.put(((BLangNamedArgsExpression) arg).name.value, arg.type);
-                } else if (kind == NodeKind.IGNORE_EXPR) {
-                    String paramName = symbol.params.get(i).name.value;
-                    paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
                 } else {
                     paramValueTypes.put(symbol.params.get(i).name.value, arg.type);
                 }
