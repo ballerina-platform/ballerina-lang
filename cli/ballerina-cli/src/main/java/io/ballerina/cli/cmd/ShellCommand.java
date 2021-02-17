@@ -94,7 +94,7 @@ public class ShellCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal shell [-d|--debug] [-f|--force-dumb] [-o|--open-file] [-t|--time-out]\n");
+        out.append("  bal shell [-d|--debug] [-f|--force-dumb] [-o|--open-file] [-t|--time-out <time-out-ms>]\n");
     }
 
     @Override
