@@ -351,6 +351,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "distinct",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "distinct",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",

@@ -74,7 +74,7 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
                 (2) new a<cursor>
                  */
                 List<ClassSymbol> filteredList = visibleSymbols.stream()
-                        .filter(SymbolUtil::isClass)
+                        .filter(SymbolUtil::isClassDefinition)
                         .map(SymbolUtil::getTypeDescForClassSymbol)
                         .collect(Collectors.toList());
                 for (ClassSymbol classSymbol : filteredList) {
