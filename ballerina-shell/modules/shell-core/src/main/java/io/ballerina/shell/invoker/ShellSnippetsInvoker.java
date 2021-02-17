@@ -44,6 +44,7 @@ import io.ballerina.shell.exceptions.InvokerPanicException;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.types.DeclarationSnippet;
+import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.File;
@@ -78,14 +79,13 @@ import java.util.function.Function;
 public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     /* Constants related to execution */
     protected static final String MODULE_RUN_METHOD_NAME = "__run";
-    // TODO: (#28662) After configurables can be supported, change this to that file location
-    private static final Path CONFIG_PATH = Paths.get(System.getProperty("user.dir"), "Config.toml");
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String CONFIGURE_INIT_CLASS_NAME = "$ConfigurationMapper";
     private static final String MODULE_INIT_METHOD_NAME = "$moduleInit";
     private static final String MODULE_START_METHOD_NAME = "$moduleStart";
     private static final String CONFIGURE_INIT_METHOD_NAME = "$configureInit";
-    // TODO: After configurables can be supported, change this to that file location
+    // TODO: (#28662) After configurables can be supported, change this to that file location
+    private static final Path CONFIG_PATH = Paths.get(System.getProperty("user.dir"), "Config.toml");
     /* Constants related to temp files */
     private static final String TEMP_FILE_PREFIX = "main-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
@@ -246,7 +246,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
                     addErrorDiagnostic(highlightedDiagnostic(module, diagnostic));
-                    addErrorDiagnostic("Compilation aborted because of errors.");
+                    addDiagnostic(Diagnostic.error("Compilation aborted due to errors."));
                     throw new InvokerException();
                 } else if (severity == DiagnosticSeverity.WARNING) {
                     addDiagnostic(Diagnostic.warn(highlightedDiagnostic(module, diagnostic)));
@@ -470,7 +470,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                     "This is currently not supported in REPL. " +
                     "Please explicitly state the type.";
         }
-        return Diagnostic.highlightDiagnostic(document.textDocument(), diagnostic);
+        return StringUtils.highlightDiagnostic(document.textDocument(), diagnostic);
     }
 
     /**

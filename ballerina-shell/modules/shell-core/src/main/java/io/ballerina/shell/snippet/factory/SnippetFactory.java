@@ -64,6 +64,8 @@ public abstract class SnippetFactory extends DiagnosticReporter {
                 return snippet;
             }
         }
+        addDiagnostic(Diagnostic.error("" +
+                "Could not identify the expression due to syntax errors."));
         throw new SnippetException();
     }
 
