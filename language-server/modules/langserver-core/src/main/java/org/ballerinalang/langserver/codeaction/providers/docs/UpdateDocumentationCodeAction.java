@@ -79,6 +79,12 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
         if (topLevelNode.isEmpty()) {
             return Collections.emptyList();
         }
+
+        // TODO: #27493 Documenting services is not fully supported yet due to a limitation in semantic API
+        if (topLevelNode.get().kind() == SyntaxKind.SERVICE_DECLARATION) {
+            return Collections.emptyList();
+        }
+        
         NonTerminalNode node = topLevelNode.get();
         if (node.kind() == SyntaxKind.MARKDOWN_DOCUMENTATION) {
             // If diagnostic message positions inside docs, get parent() node
