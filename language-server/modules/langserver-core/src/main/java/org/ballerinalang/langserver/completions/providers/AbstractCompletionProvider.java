@@ -363,12 +363,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         query pipeline starts with from keyword and also being added with the actions
          */
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TABLE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
-        // to support start of string template expression
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_STRING.get()));
-        // to support start of xml template expression
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XML.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
@@ -398,8 +393,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
     private List<LSCompletionItem> getBasicAndOtherTypeCompletions(BallerinaCompletionContext context) {
         // Types in the predeclared langlibs are handled and extracted via #getPredeclaredLangLibCompletions
-        List<String> types = Arrays.asList("readonly", "handle", "never", "json", "anydata", "any", "service",
-                "byte");
+        List<String> types = Arrays.asList("readonly", "handle", "never", "json", "anydata", "any", "service", "byte");
         List<LSCompletionItem> completionItems = new ArrayList<>();
         types.forEach(type -> {
             CompletionItem cItem = TypeCompletionItemBuilder.build(null, type);

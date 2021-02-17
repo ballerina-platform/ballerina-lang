@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.observability;
+package io.ballerina.runtime.observability.tracer;
 
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.observability.metrics.Tag;
-import io.ballerina.runtime.observability.tracer.BSpan;
 
 import java.util.Collections;
 import java.util.Map;
@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_ERROR_VALUE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
 import static io.ballerina.runtime.observability.tracer.TraceConstants.TAG_KEY_HTTP_STATUS_CODE;
 import static io.ballerina.runtime.observability.tracer.TraceConstants.TAG_KEY_STR_ERROR_MESSAGE;
 
@@ -47,24 +46,25 @@ public class TracingUtils {
      * @param isClient        true if the starting span is a client
      */
     public static void startObservation(ObserverContext observerContext, boolean isClient) {
-        BSpan span = new BSpan(observerContext, isClient);
-        span.setServiceName(observerContext.getServiceName());
-
-        span.setOperationName(observerContext.getOperationName());
-        if (isClient) {
-            observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, span.getProperties());
+        BSpan span;
+        String serviceName = observerContext.getServiceName();
+        String operationName = observerContext.getOperationName();
+        if (observerContext.getParent() != null) {
+            BSpan parentSpan = observerContext.getParent().getSpan();
+            span = BSpan.start(parentSpan, serviceName, operationName, isClient);
         } else {
             Map<String, String> httpHeaders =
                     (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
-
             if (httpHeaders != null) {
-                httpHeaders.entrySet()
-                        .forEach(e -> span.addProperty(e.getKey(), e.getValue()));
+                span = BSpan.start(httpHeaders, serviceName, operationName, isClient);
+            } else {
+                span = BSpan.start(serviceName, operationName, isClient);
             }
         }
-
-        observerContext.addProperty(KEY_SPAN, span);
-        span.startSpan();
+        if (isClient) {
+            observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, span.extractContextAsHttpHeaders());
+        }
+        observerContext.setSpan(span);
     }
 
     /**
@@ -73,7 +73,7 @@ public class TracingUtils {
      * @param observerContext context that holds the span to be finished
      */
     public static void stopObservation(ObserverContext observerContext) {
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
+        BSpan span = observerContext.getSpan();
         if (span != null) {
             // Adding error message to Trace Span
             ErrorValue bError = (ErrorValue) observerContext.getProperty(PROPERTY_ERROR_VALUE);
