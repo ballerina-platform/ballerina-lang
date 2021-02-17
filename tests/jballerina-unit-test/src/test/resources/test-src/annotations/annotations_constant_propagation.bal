@@ -7,14 +7,14 @@ const string SERVICE_BASE_PATH = "/hello";
 const string SERVICE_HOST = "b7a.default";
 const string RESOURCE_BODY = "person";
 
-type resourcePath service object {
+type ser service object {
 };
 
 @test:ServiceConfig {
     basePath: SERVICE_BASE_PATH,
     host: SERVICE_HOST
 }
-service resourcePath on pathEP {
+service ser on pathEP {
 
     @test:ResourceConfig {
         path: RESOURCE_PATH,
@@ -25,6 +25,6 @@ service resourcePath on pathEP {
      resource function get hello(string req, string person) {
         json responseJson = { "Person": person };
         test:Caller caller = new test:Caller();
-        string res = caller -> respond(req);
+        string res = caller->respond(req);
     }
 }

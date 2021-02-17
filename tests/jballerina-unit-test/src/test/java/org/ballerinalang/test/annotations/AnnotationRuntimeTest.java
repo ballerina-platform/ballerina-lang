@@ -46,35 +46,18 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 @Test
 public class AnnotationRuntimeTest {
 
-    private CompileResult resultOne;
-    private CompileResult resultTwo;
-    private CompileResult resultThree;
-    private CompileResult resultFour;
     private CompileResult resultAccessNegative;
-    private CompileResult readOnlyValues;
 
     @BeforeClass
     public void setup() {
-        resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
-        Assert.assertEquals(resultOne.getErrorCount(), 0);
-
-        resultTwo = BCompileUtil.compile("test-src/annotations/annot_access_with_source_only_points.bal");
-        Assert.assertEquals(resultTwo.getErrorCount(), 0);
-
-        resultThree = BCompileUtil.compile("test-src/annotations/annotations_constant_propagation.bal");
-        Assert.assertEquals(resultThree.getErrorCount(), 0);
-
-        resultFour = BCompileUtil.compile("test-src/annotations/annot_availability.bal");
-        Assert.assertEquals(resultFour.getErrorCount(), 0);
-
         resultAccessNegative = BCompileUtil.compile("test-src/annotations/annotation_access_negative.bal");
-
-        readOnlyValues = BCompileUtil.compile("test-src/annotations/annotation_readonly_types.bal");
     }
 
     @Test(description = "test accessing source only annots at runtime, the annots should not be available",
             dataProvider = "annotAccessWithSourceOnlyPointsTests")
     public void testSourceOnlyAnnotAccess(String testFunction) {
+        CompileResult resultTwo = BCompileUtil.compile("test-src/annotations/annot_access_with_source_only_points.bal");
+        Assert.assertEquals(resultTwo.getErrorCount(), 0);
         BValue[] returns = BRunUtil.invoke(resultTwo, testFunction);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -84,6 +67,8 @@ public class AnnotationRuntimeTest {
     @Test(description = "Test if constants used in annotation are replaced on constant propagation phase",
           enabled = false)
     public void testConstantPropagationOnAnnotation() {
+        CompileResult resultThree = BCompileUtil.compile("test-src/annotations/annotations_constant_propagation.bal");
+        Assert.assertEquals(resultThree.getErrorCount(), 0);
         BLangPackage pkg = (BLangPackage) resultThree.getAST();
 
         BLangService service = pkg.services.get(0);
@@ -111,8 +96,8 @@ public class AnnotationRuntimeTest {
                 { "testServiceAnnotAccess3" },
                 { "testServiceAnnotAccess4" },
                 { "testFunctionAnnotAccess1" },
-                { "testFunctionAnnotAccess2" }
-                // { "testInlineAnnotAccess" } // TODO: #17936
+                { "testFunctionAnnotAccess2" },
+                { "testInlineAnnotAccess" }
         };
     }
 
@@ -130,6 +115,8 @@ public class AnnotationRuntimeTest {
 
     @Test
     public void testAnnotAvailabilty() {
+        CompileResult resultFour = BCompileUtil.compile("test-src/annotations/annot_availability.bal");
+        Assert.assertEquals(resultFour.getErrorCount(), 0);
         Object obj = BRunUtil.invokeAndGetJVMResult(resultFour, "testStructureAnnots");
         Assert.assertEquals(TypeChecker.getType(obj).getTag(), TypeTags.TUPLE_TAG);
 
@@ -185,6 +172,7 @@ public class AnnotationRuntimeTest {
     }
 
     public void testReadonlyTypeAnnotationAttachment() {
+        CompileResult readOnlyValues = BCompileUtil.compile("test-src/annotations/annotation_readonly_types.bal");
         BRunUtil.invoke(readOnlyValues, "testReadonlyTypeAnnotationAttachment");
     }
 }
