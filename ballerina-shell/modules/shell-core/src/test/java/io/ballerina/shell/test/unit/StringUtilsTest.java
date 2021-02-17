@@ -28,6 +28,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test for {@link StringUtils}.
+ *
+ * @since 2.0.0
  */
 public class StringUtilsTest {
     @Test
