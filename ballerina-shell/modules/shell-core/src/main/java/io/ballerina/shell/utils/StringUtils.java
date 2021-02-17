@@ -20,6 +20,7 @@ package io.ballerina.shell.utils;
 
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 
 import java.util.StringJoiner;
@@ -83,8 +84,9 @@ public class StringUtils {
      */
     public static String highlightDiagnostic(TextDocument textDocument,
                                              io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
-        LinePosition startLine = diagnostic.location().lineRange().startLine();
-        LinePosition endLine = diagnostic.location().lineRange().endLine();
+        LineRange lineRange = diagnostic.location().lineRange();
+        LinePosition startLine = lineRange.startLine();
+        LinePosition endLine = lineRange.endLine();
 
         if (startLine.line() != endLine.line()) {
             // Error spans for several lines, will not highlight error
@@ -99,7 +101,7 @@ public class StringUtils {
         // Error is same line, can highlight using ^-----^
         // Error will expand as ^, ^^, ^-^, ^--^
         int position = startLine.offset();
-        int length = Math.max(endLine.offset() - startLine.offset(), 1);
+        int length = Math.max(endLine.offset() - position, 1);
         String caretUnderline = length == 1
                 ? CARET : CARET + DASH.repeat(length - 2) + CARET;
 

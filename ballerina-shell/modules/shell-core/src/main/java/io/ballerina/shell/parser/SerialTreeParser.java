@@ -70,7 +70,7 @@ public class SerialTreeParser extends TrialTreeParser {
                 errorMessage = "Invalid statement: " + e.getMessage();
                 break;
             } catch (Throwable e) {
-                errorMessage = "There is a Syntax Error in your code.";
+                errorMessage = "Code contains syntax error(s).";
             }
         }
         addDiagnostic(Diagnostic.error(errorMessage));
