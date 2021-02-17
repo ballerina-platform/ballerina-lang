@@ -17,7 +17,11 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 /**
  * Test cases for adding ballerina service as a liveness or readiness probe to Cloud.toml.
@@ -26,6 +30,11 @@ import org.testng.annotations.DataProvider;
  */
 public class CloudProbesTest extends AbstractCodeActionTest {
 
+    @Test(dataProvider = "codeaction-data-provider")
+    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
+        super.test(config, source);
+    }
+    
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {

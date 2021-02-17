@@ -59,6 +59,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -154,7 +155,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 TypeSymbol typeDesc = (varSymbol).typeDescriptor();
                 String typeName = typeDesc == null ? "" : CommonUtil.getModifiedTypeName(ctx, typeDesc);
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, varSymbol.getName().get(),
-                                                                                   typeName);
+                        typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
                 // Here skip all the package symbols since the package is added separately
@@ -183,8 +184,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(bSymbol -> {
-            if (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS
-                    || bSymbol.kind() == ENUM) {
+            // Specifically remove the error type, since this is covered with langlib suggestion and type builtin types
+            if (!Names.ERROR.getValue().equals(bSymbol.getName().orElse(""))
+                    && (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS
+                    || bSymbol.kind() == ENUM)) {
                 CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.getName().get());
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
@@ -198,6 +201,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()),
                 new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()),
+                new SnippetCompletionItem(context, Snippet.KW_DISTINCT.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get())
         ));
 
@@ -215,34 +219,44 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         // First we include the packages from the imported list.
         List<String> processedList = new ArrayList<>();
         List<ImportDeclarationNode> currentDocImports = ctx.currentDocImports();
-        List<LSCompletionItem> completionItems = currentDocImports.stream()
-                .map(importNode -> {
-                    String orgName = importNode.orgName().isEmpty()
-                            ? "" : importNode.orgName().get().orgName().text();
-                    String pkgName = importNode.moduleName().stream()
-                            .map(Token::text)
-                            .collect(Collectors.joining("."));
-                    String processedModuleHash = orgName.isEmpty() ?
-                            pkgName : orgName + CommonKeys.SLASH_KEYWORD_KEY + pkgName;
-                    String prefix;
-                    if (importNode.prefix().isEmpty()) {
-                        prefix = importNode.moduleName().get(importNode.moduleName().size() - 1).text();
-                    } else {
-                        prefix = importNode.prefix().get().prefix().text();
-                    }
-                    String label = prefix;
-                    String insertText = prefix;
-                    CompletionItem item = this.getModuleCompletionItem(label, insertText, new ArrayList<>());
-                    processedList.add(processedModuleHash);
-                    return new SymbolCompletionItem(ctx, null, item);
-                }).collect(Collectors.toList());
+        // Generate completion items for the import statements in the current document
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        currentDocImports.forEach(importNode -> {
+            String orgName = importNode.orgName().isEmpty() ? "" : importNode.orgName().get().orgName().text();
+            String pkgName = importNode.moduleName().stream()
+                    .map(Token::text)
+                    .collect(Collectors.joining("."));
+            /*
+            For the predeclared langlibs with prefix/alias, we suggest the alias.
+            If the import does not have an alias, skip
+             */
+            if (CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkgName.replace("'", ""))) {
+                CompletionItem cItem = TypeCompletionItemBuilder.build(null, pkgName.replace("'", ""));
+                completionItems.add(new SymbolCompletionItem(ctx, null, cItem));
+                return;
+            }
+            String processedModuleHash = orgName.isEmpty() ? pkgName : orgName + CommonKeys.SLASH_KEYWORD_KEY + pkgName;
+            String prefix;
+            if (importNode.prefix().isEmpty()) {
+                prefix = importNode.moduleName().get(importNode.moduleName().size() - 1).text();
+            } else {
+                prefix = importNode.prefix().get().prefix().text();
+            }
+            String label = prefix;
+            String insertText = prefix;
+            CompletionItem item = this.getModuleCompletionItem(label, insertText, new ArrayList<>());
+            processedList.add(processedModuleHash);
+            completionItems.add(new SymbolCompletionItem(ctx, null, item));
+        });
 
+        // Generate completion items for the distribution repo packages excluding the pre-declared lang-libs
         List<Package> packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages();
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
             String orgName = pkg.packageOrg().value();
             if (CommonUtil.matchingImportedModule(ctx, pkg).isEmpty()
-                    && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)) {
+                    && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)
+                    && !CommonUtil.PRE_DECLARED_LANG_LIBS.contains(name)) {
                 String[] pkgNameComps = name.split("\\.");
                 String insertText = pkgNameComps[pkgNameComps.length - 1];
                 List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, ctx);
@@ -253,6 +267,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         Optional<Module> currentModule = ctx.workspace().module(ctx.filePath());
+        completionItems.addAll(this.getPredeclaredLangLibCompletions(ctx));
         if (project.isEmpty() || project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT || currentModule.isEmpty()) {
             return completionItems;
         }
@@ -338,9 +353,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 new SnippetCompletionItem(context, Snippet.KW_START.get()),
                 new SnippetCompletionItem(context, Snippet.KW_WAIT.get()),
                 new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()),
-                new SnippetCompletionItem(context, Snippet.KW_FROM.get()),
-                new SnippetCompletionItem(context, Snippet.KW_CHECK.get()),
-                new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get())
+                new SnippetCompletionItem(context, Snippet.KW_FROM.get())
         );
     }
 
@@ -351,12 +364,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         query pipeline starts with from keyword and also being added with the actions
          */
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TABLE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
-        // to support start of string template expression
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_STRING.get()));
-        // to support start of xml template expression
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XML.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
@@ -369,6 +377,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FALSE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));
@@ -383,15 +393,30 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     }
 
     private List<LSCompletionItem> getBasicAndOtherTypeCompletions(BallerinaCompletionContext context) {
-        List<String> types = Arrays.asList("float", "xml", "readonly", "handle", "never", "decimal", "string", "stream",
-                "json", "table", "anydata", "any", "int", "boolean", "future", "service", "typedesc", "byte");
+        // Types in the predeclared langlibs are handled and extracted via #getPredeclaredLangLibCompletions
+        List<String> types = Arrays.asList("readonly", "handle", "never", "json", "anydata", "any", "service", "byte");
         List<LSCompletionItem> completionItems = new ArrayList<>();
         types.forEach(type -> {
-
             CompletionItem cItem = TypeCompletionItemBuilder.build(null, type);
             completionItems.add(new SymbolCompletionItem(context, null, cItem));
         });
 
+        return completionItems;
+    }
+
+    /**
+     * Get the predeclared langlib completions.
+     * 
+     * @param context completion context
+     * @return {@link List}
+     */
+    private List<LSCompletionItem> getPredeclaredLangLibCompletions(BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        CommonUtil.PRE_DECLARED_LANG_LIBS.forEach(langlib -> {
+            CompletionItem cItem = TypeCompletionItemBuilder.build(null, langlib.replace("lang.", ""));
+            completionItems.add(new SymbolCompletionItem(context, null, cItem));
+        });
+        
         return completionItems;
     }
 

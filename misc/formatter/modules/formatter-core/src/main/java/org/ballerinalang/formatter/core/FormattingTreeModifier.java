@@ -1706,7 +1706,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public FieldBindingPatternFullNode transform(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
         SimpleNameReferenceNode variableName = formatNode(fieldBindingPatternFullNode.variableName(), 0, 0);
-        Token colon = formatToken(fieldBindingPatternFullNode.colon(), 0, 0);
+        Token colon = formatToken(fieldBindingPatternFullNode.colon(), 1, 0);
         BindingPatternNode bindingPatternNode = formatNode(fieldBindingPatternFullNode.bindingPattern(),
                 env.trailingWS, env.leadingNL);
         return fieldBindingPatternFullNode.modify()

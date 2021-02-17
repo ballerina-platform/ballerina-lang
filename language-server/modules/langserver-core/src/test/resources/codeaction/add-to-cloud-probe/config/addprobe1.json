@@ -4,17 +4,33 @@
     "expected": [
         {
             "title": "Document this",
-            "command": "ADD_DOC",
-            "arguments": [
-                {
-                    "argumentK": "node.line",
-                    "argumentV": "16"
-                }
-            ]
+            "command": {
+                "title": "Document this",
+                "command": "ADD_DOC",
+                "arguments": [
+                    {
+                        "key": "node.range",
+                        "value": {
+                            "start": {
+                                "line": 16,
+                                "character": 4
+                            },
+                            "end": {
+                                "line": 27,
+                                "character": 5
+                            }
+                        }
+                    }
+                ]
+            }
         },
         {
             "title": "Document all",
-            "command": "ADD_ALL_DOC"
+            "command": {
+                "title": "Document all",
+                "command": "ADD_ALL_DOC",
+                "arguments": []
+            }
         },
         {
             "title": "Add as liveness probe",
