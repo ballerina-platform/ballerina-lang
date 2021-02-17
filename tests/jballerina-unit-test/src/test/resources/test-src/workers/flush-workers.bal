@@ -206,9 +206,9 @@ function flushInDefaultError() returns error? {
        error err = error("err", message = "err msg");
               return err;
      }
-     a = <- default;
+     a = <- function;
      b = a + b;
-     b -> default;
+     b -> function;
      return ;
    }
    int a = 10;
@@ -223,9 +223,9 @@ function flushInDefault() returns int {
    worker w2 {
      int a = 0;
      int b = 15;
-     a = <- default;
+     a = <- function;
      b = a + b;
-     b -> default;
+     b -> function;
    }
    int a = 10;
     a -> w2;

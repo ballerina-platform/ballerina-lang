@@ -10,9 +10,9 @@ public client class ABCClient {
         @strand{thread:"any"}
         worker sampleWorker {
             string m = "";
-            m = <- default;
+            m = <- function;
             string v = "result from sampleWorker";
-            v -> default;
+            v -> function;
         }
 
         "xxx" -> sampleWorker;
@@ -24,7 +24,7 @@ public client class ABCClient {
     remote function testAction2() returns string {
         @strand{thread:"any"}
         worker sampleWorker {
-            "request" -> default;
+            "request" -> function;
         }
 
         string result = "";
@@ -79,7 +79,7 @@ public function testDefaultError () returns string{
 function test1(int c) returns error|() {
     @strand{thread:"any"}
     worker w1 returns int {
-        int|error a = <- default;
+        int|error a = <- function;
         //need to verify this line is reached
         testStr = "REACHED";
         return 8;
