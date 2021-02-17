@@ -219,8 +219,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
         newImports.clear();
 
-        // TODO: Fix the closure bug. Following will not work with isolated functions.
-        // newSnippet.modify(new GlobalLoadModifier(globalVars));
+        // TODO: (#28036) Fix the closure bug.
 
         if (newSnippet instanceof ImportDeclarationSnippet) {
             // Only compilation to find import validity and exit.
