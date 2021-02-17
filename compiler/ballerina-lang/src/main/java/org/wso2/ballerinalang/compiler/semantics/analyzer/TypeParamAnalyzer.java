@@ -300,7 +300,7 @@ public class TypeParamAnalyzer {
             case TypeTags.XML:
                 if (!TypeTags.isXMLTypeTag(actualType.tag)) {
                     if (actualType.tag == TypeTags.UNION) {
-                        dlog.error(loc, DiagnosticErrorCode.INVALID_FUNCTION_INVOCATION, actualType);
+                        dlog.error(loc, DiagnosticErrorCode.INVALID_FUNCTION_INVOCATION_TYPE, actualType);
                     }
                     return;
                 }

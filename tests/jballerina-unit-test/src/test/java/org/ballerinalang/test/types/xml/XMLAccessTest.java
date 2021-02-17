@@ -235,10 +235,9 @@ public class XMLAccessTest {
                 "'(xml:Comment|xml<never> & readonly)' does not support indexing", 32, 10);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
                 "'(xml:ProcessingInstruction|xml<never> & readonly)' does not support indexing", 33, 11);
-        BAssertUtil.validateError(negativeResult, i++, "function invocation on type" +
-                " '(xml:Element|xml<never> & readonly)' is not supported", 35, 25);
+        BAssertUtil.validateError(negativeResult, i++, "type '(xml:Element|xml<never> & readonly)' " +
+                "cannot be used to invoke function", 35, 25);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
-
     }
 
 
