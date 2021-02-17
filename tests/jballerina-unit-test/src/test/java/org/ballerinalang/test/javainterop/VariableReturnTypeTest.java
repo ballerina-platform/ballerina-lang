@@ -96,6 +96,12 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++, "incompatible types: expected 'Quuz', found 'Qux'", 183, 17);
         validateError(errors, indx++, "incompatible types: expected 'Corge', found 'Grault'", 185, 19);
         validateError(errors, indx++, "incompatible types: expected 'Grault', found 'Corge'", 186, 21);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 196, 16);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 197, 16);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 198, 13);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 199, 13);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 200, 13);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 201, 13);
 
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
@@ -144,7 +150,8 @@ public class VariableReturnTypeTest {
                 {"testComplexTypes"},
                 {"testObjectExternFunctions"},
                 {"testDependentlyTypedMethodsWithObjectTypeInclusion"},
-                {"testSubtypingWithDependentlyTypedMethods"}
+                {"testSubtypingWithDependentlyTypedMethods"},
+                {"testDependentlyTypedFunctionWithDefaultableParams"}
         };
     }
 
