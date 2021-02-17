@@ -20,7 +20,7 @@ package io.ballerina.shell;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.shell.exceptions.BallerinaShellException;
-import io.ballerina.shell.invoker.Invoker;
+import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.parser.TreeParser;
 import io.ballerina.shell.preprocessor.Preprocessor;
 import io.ballerina.shell.snippet.Snippet;
@@ -44,10 +44,10 @@ public class Evaluator extends DiagnosticReporter {
     private final Preprocessor preprocessor;
     private final TreeParser treeParser;
     private final SnippetFactory snippetFactory;
-    private final Invoker invoker;
+    private final ShellSnippetsInvoker invoker;
 
     public Evaluator(Preprocessor preprocessor, TreeParser treeParser,
-                     SnippetFactory snippetFactory, Invoker invoker) {
+                     SnippetFactory snippetFactory, ShellSnippetsInvoker invoker) {
         this.preprocessor = preprocessor;
         this.treeParser = treeParser;
         this.snippetFactory = snippetFactory;
@@ -146,7 +146,7 @@ public class Evaluator extends DiagnosticReporter {
         return snippetFactory;
     }
 
-    public Invoker getInvoker() {
+    public ShellSnippetsInvoker getInvoker() {
         return invoker;
     }
 

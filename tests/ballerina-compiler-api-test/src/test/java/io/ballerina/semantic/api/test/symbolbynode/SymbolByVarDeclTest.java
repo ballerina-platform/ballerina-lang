@@ -82,7 +82,7 @@ public class SymbolByVarDeclTest extends SymbolByNodeTest {
             @Override
             public void visit(TypedBindingPatternNode typedBindingPatternNode) {
                 Optional<Symbol> symbol = model.symbol(typedBindingPatternNode);
-                Object[] expVals = expVarDetails.get(symbol.get().name());
+                Object[] expVals = expVarDetails.get(symbol.get().getName().get());
                 assertSymbol(symbol.get(), (String) expVals[0], (TypeDescKind) expVals[1]);
 
                 typedBindingPatternNode.bindingPattern().accept(this);
@@ -91,7 +91,7 @@ public class SymbolByVarDeclTest extends SymbolByNodeTest {
             @Override
             public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
                 Optional<Symbol> symbol = model.symbol(captureBindingPatternNode);
-                Object[] expVals = expVarDetails.get(symbol.get().name());
+                Object[] expVals = expVarDetails.get(symbol.get().getName().get());
                 assertSymbol(symbol.get(), (String) expVals[0], (TypeDescKind) expVals[1]);
             }
         };
@@ -104,7 +104,7 @@ public class SymbolByVarDeclTest extends SymbolByNodeTest {
 
     private void assertSymbol(Symbol symbol, String name, TypeDescKind typeKind) {
         assertEquals(symbol.kind(), VARIABLE);
-        assertEquals(symbol.name(), name);
+        assertEquals(symbol.getName().get(), name);
         assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), typeKind);
         incrementAssertCount();
     }

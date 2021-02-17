@@ -26,7 +26,7 @@
           "character":1
         }
       },
-        "newText":"\nfunction mapStudentToGrades (Student student) returns Grades {\n// Some record fields might be missing in the AI based mapping.\n\tGrades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, physics: student.grades.physics};\n\treturn grades;\n}"
+        "newText":"\nfunction mapApplicantToAddress (Applicant applicant) returns Address {\n// Some record fields might be missing in the AI based mapping.\n\tAddress address = {maths: student.grades.maths, chemistry: student.grades.chemistry, physics: student.grades.physics};\n\treturn address;\n}\n"
       }
     ]
   }

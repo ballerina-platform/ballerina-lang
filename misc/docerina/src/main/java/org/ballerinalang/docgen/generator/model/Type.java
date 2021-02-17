@@ -16,6 +16,7 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
@@ -249,9 +250,18 @@ public class Type {
     }
 
     public static void resolveSymbol(Type type, Symbol symbol) {
-        type.moduleName = symbol.moduleID().moduleName();
-        type.orgName = symbol.moduleID().orgName();
-        type.version = symbol.moduleID().version();
+        ModuleID moduleID = symbol.getModule().isPresent() ? symbol.getModule().get().id() : null;
+
+        if (moduleID != null) {
+            type.moduleName = moduleID.moduleName();
+            type.orgName = moduleID.orgName();
+            type.version = moduleID.version();
+        } else {
+            type.moduleName = "UNK_MOD";
+            type.orgName = "UNK_ORG";
+            type.version = "UNK_VER";
+        }
+
         if (symbol instanceof TypeReferenceTypeSymbol) {
             TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) symbol;
             if (typeSymbol.typeDescriptor() != null) {
@@ -290,7 +300,7 @@ public class Type {
             if (classSymbol.qualifiers().contains(Qualifier.CLIENT)) {
                 return "clients";
             } else if (classSymbol.qualifiers().contains(Qualifier.LISTENER) ||
-                    typeDescriptor.name().equals("Listener")) {
+                    "Listener".equals(typeDescriptor.getName().orElse(null))) {
                 return "listeners";
             } else {
                 return "classes";

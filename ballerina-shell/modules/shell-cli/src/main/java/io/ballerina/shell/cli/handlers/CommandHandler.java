@@ -18,6 +18,8 @@
 
 package io.ballerina.shell.cli.handlers;
 
+import io.ballerina.shell.cli.ShellExitException;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,8 +54,9 @@ public class CommandHandler {
      *
      * @param source The source to handle.
      * @return Whether it was handled.
+     * @throws ShellExitException when user wants to exit.
      */
-    public boolean handle(String source) {
+    public boolean handle(String source) throws ShellExitException {
         if (source.isBlank()) {
             // Empty strings are handled
             return true;
