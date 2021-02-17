@@ -201,6 +201,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "distinct",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "distinct",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",
