@@ -27,7 +27,6 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
@@ -151,7 +150,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     @Override
     public void initialize() throws InvokerException {
         ClassLoadContext emptyContext = new ClassLoadContext(contextId, imports.getUsedImports());
-        SingleFileProject project = getProject(emptyContext, DECLARATION_TEMPLATE_FILE);
+        Project project = getProject(emptyContext, DECLARATION_TEMPLATE_FILE);
         PackageCompilation compilation = compile(project);
         // Remember all the visible var symbols
         // Also use this to cache ANY type symbol
@@ -340,7 +339,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         // Compile declaration template
         ClassLoadContext context = createDeclarationContext(variableDeclarations.keySet(), variableNames,
                 moduleDeclarations);
-        SingleFileProject project = getProject(context, DECLARATION_TEMPLATE_FILE);
+        Project project = getProject(context, DECLARATION_TEMPLATE_FILE);
         PackageCompilation compilation = compile(project);
 
         // Only execute if there are variable declarations

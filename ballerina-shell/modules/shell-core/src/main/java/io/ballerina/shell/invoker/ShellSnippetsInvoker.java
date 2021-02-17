@@ -195,7 +195,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return Created ballerina project.
      * @throws InvokerException If file writing failed.
      */
-    protected SingleFileProject getProject(Object context, String templateFile) throws InvokerException {
+    protected Project getProject(Object context, String templateFile) throws InvokerException {
         Mustache template = getTemplate(templateFile);
         try (StringWriter stringWriter = new StringWriter()) {
             template.execute(stringWriter, context);
@@ -213,7 +213,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return Created ballerina project.
      * @throws InvokerException If file writing failed.
      */
-    protected SingleFileProject getProject(String source) throws InvokerException {
+    protected Project getProject(String source) throws InvokerException {
         try {
             File mainBal = writeToFile(source);
             BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
@@ -269,7 +269,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @throws InvokerException If import cannot be resolved.
      */
     protected void compileImportStatement(String importStatement) throws InvokerException {
-        SingleFileProject project = getProject(importStatement);
+        Project project = getProject(importStatement);
         PackageCompilation compilation = project.currentPackage().getCompilation();
 
         // Detect if import is valid.
@@ -292,7 +292,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @throws InvokerException If execution/compilation failed.
      */
     protected Object executeProject(ClassLoadContext context, String templateName) throws InvokerException {
-        SingleFileProject project = getProject(context, templateName);
+        Project project = getProject(context, templateName);
         PackageCompilation compilation = compile(project);
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         executeProject(jBallerinaBackend);
