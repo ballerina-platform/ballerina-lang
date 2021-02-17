@@ -19,19 +19,27 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.DocumentConfig;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 
 import java.io.PrintStream;
+import java.util.Collection;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
 
 /**
  * Task for compiling a package.
@@ -65,6 +73,8 @@ public class CompileTask implements Task {
         this.out.println("\t" + sourceName);
 
         try {
+            updateDependenciesToml(project);
+
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
             DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
@@ -75,6 +85,27 @@ public class CompileTask implements Task {
             project.save();
         } catch (ProjectException e) {
             throw createLauncherException("compilation failed: " + e.getMessage());
+        }
+    }
+
+    private void updateDependenciesToml(Project project) {
+        Package currentPackage = project.currentPackage();
+
+        ResolvedPackageDependency resolvedPackageDependency =
+                new ResolvedPackageDependency(currentPackage, PackageDependencyScope.DEFAULT);
+        Collection<ResolvedPackageDependency> directDependencies = project.currentPackage().getResolution()
+                .dependencyGraph().getDirectDependencies(resolvedPackageDependency);
+
+        if (!directDependencies.isEmpty()) {
+            if (currentPackage.dependenciesToml().isPresent()) {
+                currentPackage.dependenciesToml().get().modify()
+                        .withContent(getDependenciesTomlContent(directDependencies)).apply();
+            } else {
+                DocumentConfig documentConfig = DocumentConfig
+                        .from(DocumentId.create(ProjectConstants.DEPENDENCIES_TOML, null),
+                              getDependenciesTomlContent(directDependencies), ProjectConstants.DEPENDENCIES_TOML);
+                currentPackage.modify().addDependenciesToml(documentConfig);
+            }
         }
     }
 

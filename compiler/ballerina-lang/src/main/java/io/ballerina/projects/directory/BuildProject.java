@@ -19,7 +19,6 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
-import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
@@ -45,6 +44,7 @@ import java.util.Optional;
 
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
 
 /**
  * {@code BuildProject} represents Ballerina project instance created from the project directory.
@@ -185,33 +185,11 @@ public class BuildProject extends Project {
                     currentPackage.getResolution().dependencyGraph().getDirectDependencies(resolvedPackageDependency);
 
             if (!pkgDependencies.isEmpty()) {
-                String content = getDependenciesTomlContent(pkgDependencies);
-
-                if (currentPackage.dependenciesToml().isPresent()) {
-                    currentPackage.dependenciesToml().get().modify().withContent(content).apply();
-                } else {
-                    DocumentConfig documentConfig = DocumentConfig
-                            .from(DocumentId.create(ProjectConstants.DEPENDENCIES_TOML, null), content,
-                                  ProjectConstants.DEPENDENCIES_TOML);
-                    currentPackage.modify().addDependenciesToml(documentConfig);
-                }
-
                 // write content to Dependencies.toml file
-                createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML), content);
+                createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML),
+                                          getDependenciesTomlContent(pkgDependencies));
             }
         }
-    }
-
-    private String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgDependencies) {
-        StringBuilder content = new StringBuilder();
-        for (ResolvedPackageDependency dependency : pkgDependencies) {
-            content.append("[[dependency]]\n");
-            content.append("org = \"").append(dependency.packageInstance().packageOrg().value()).append("\"\n");
-            content.append("name = \"").append(dependency.packageInstance().packageName().value()).append("\"\n");
-            content.append("version = \"").append(dependency.packageInstance().packageVersion().value()).append("\"\n");
-            content.append("\n");
-        }
-        return String.valueOf(content);
     }
 
     private static void createIfNotExistsAndWrite(Path filePath, String content) {
