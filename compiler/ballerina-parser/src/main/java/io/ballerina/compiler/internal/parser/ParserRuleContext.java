@@ -539,6 +539,7 @@ public enum ParserRuleContext {
     FIELD_OR_FUNC_NAME("field-or-func-name"),
     ORDER_DIRECTION("order-direction"),
     VAR_REF_COLON("var-ref-colon"),
+    FUNC_NAME_RHS("func-name-rhs"),
 
     // Expressions
     EXPRESSION("expression"),

@@ -397,6 +397,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.FUNC_NAME, ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.QUESTION_MARK,
                      ParserRuleContext.OPEN_BRACKET, ParserRuleContext.BITWISE_AND_OPERATOR, ParserRuleContext.PIPE };
 
+    private static final ParserRuleContext[] FUNC_NAME_RHS =
+            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
+
     private static final ParserRuleContext[] TYPEDESC_RHS = { ParserRuleContext.END_OF_TYPE_DESC,
             ParserRuleContext.ARRAY_TYPE_DESCRIPTOR, ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE,
             ParserRuleContext.BITWISE_AND_OPERATOR };
@@ -1608,6 +1611,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MODULE_VAR_WITHOUT_FIRST_QUAL:
             case MODULE_VAR_WITHOUT_SECOND_QUAL:
             case FUNC_DEF_OR_TYPE_DESC_RHS:
+            case FUNC_NAME_RHS:
                 return true;
             default:
                 return false;
@@ -1985,6 +1989,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case FUNCTION_KEYWORD_RHS:
                 alternativeRules = FUNCTION_KEYWORD_RHS;
+                break;
+            case FUNC_NAME_RHS:
+                alternativeRules = FUNC_NAME_RHS;
                 break;
             case WORKER_NAME_RHS:
                 alternativeRules = WORKER_NAME_RHS;
@@ -2615,7 +2622,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         grandParentCtx == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR) {
                     return ParserRuleContext.OPTIONAL_RELATIVE_PATH;
                 }
-                return ParserRuleContext.OPEN_PARENTHESIS;
+                return ParserRuleContext.FUNC_NAME_RHS;
             case OPEN_BRACE:
                 return getNextRuleForOpenBrace();
             case OPEN_PARENTHESIS:
