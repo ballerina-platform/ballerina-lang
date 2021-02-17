@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.test.bala.functions;
 
-//import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-//import org.ballerinalang.test.bala.BalaCreator;
-//import org.ballerinalang.test.BCompileUtil;
-//import org.ballerinalang.test.BRunUtil;
-//import org.ballerinalang.test.CompileResult;
-//import org.testng.annotations.AfterClass;
-//import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.DataProvider;
-//import org.testng.annotations.Test;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for variable return types in extern functions.
@@ -34,54 +34,54 @@ package org.ballerinalang.test.bala.functions;
  */
 public class VariableReturnTypesBalaTest {
 
-//    CompileResult result;
-//
-//    @BeforeClass
-//    public void setup() {
-//        //        BCompileUtil.compile("test-src/bala/test_projects/test_project", "testorg", "returntypes");
-//        result = BCompileUtil.compile("test-src/javainterop/variable_return_type_bir_test.bal");
-//    }
-//
-//    @Test(expectedExceptions = BLangRuntimeException.class,
-//          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'map' cannot be cast to " +
-//                  "'map<anydata>.*")
-//    public void testRuntimeCastError() {
-//        BRunUtil.invoke(result, "testRuntimeCastError");
-//    }
-//
-//    @Test(expectedExceptions = BLangRuntimeException.class,
-//          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'Person' cannot be cast " +
-//                  "to 'int'.*")
-//    public void testCastingForInvalidValues() {
-//        BRunUtil.invoke(result, "testCastingForInvalidValues");
-//    }
-//
-//    @Test(dataProvider = "FunctionNames")
-//    public void testVariableTypeAsReturnType(String funcName) {
-//        BRunUtil.invoke(result, funcName);
-//    }
-//
-//    @DataProvider(name = "FunctionNames")
-//    public Object[][] getFuncNames() {
-//        return new Object[][]{
-//                {"testRecordVarRef"},
-//                {"testVarRefInMapConstraint"},
-//                {"testVarRefUseInMultiplePlaces"},
-//                {"testSimpleTypes"},
-//                {"testUnionTypes"},
-//                {"testArrayTypes"},
-////                {"testXML"},
-//                {"testStream"},
-//                {"testTable"},
-//                {"testFunctionPointers"},
-//                {"testTypedesc"},
-//                {"testFuture"},
-//                {"testComplexTypes"}
-//        };
-//    }
-//
-//    @AfterClass
-//    public void tearDown() {
-//        BalaCreator.clearPackageFromRepository("test-src/bala/test_projects/test_project", "testorg", "returntypes");
-//    }
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
+        result = BCompileUtil.compile("test-src/javainterop/variable_return_type_bir_test.bal");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible types:" +
+                  " 'map' cannot be cast to 'map<anydata>'.*")
+    public void testRuntimeCastError() {
+        BRunUtil.invoke(result, "testRuntimeCastError");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible types:" +
+                  " 'Person' cannot be cast to 'int'\"}.*")
+    public void testCastingForInvalidValues() {
+        BRunUtil.invoke(result, "testCastingForInvalidValues");
+    }
+
+    @Test(dataProvider = "FunctionNames")
+    public void testVariableTypeAsReturnType(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "FunctionNames")
+    public Object[][] getFuncNames() {
+        return new Object[][]{
+                {"testRecordVarRef"},
+                {"testVarRefInMapConstraint"},
+                {"testVarRefUseInMultiplePlaces"},
+                {"testSimpleTypes"},
+                {"testUnionTypes"},
+                {"testArrayTypes"},
+//                {"testXML"},
+                {"testStream"},
+                {"testTable"},
+                {"testFunctionPointers"},
+                {"testTypedesc"},
+                {"testFuture"},
+                {"testComplexTypes"}
+        };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+    }
 }
