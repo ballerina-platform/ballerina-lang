@@ -473,6 +473,10 @@ public class TransactionResourceManager {
         Scheduler.getStrand().currentTrxContext.notifyAbortAndClearTransaction(transactionBlockId);
     }
 
+    /**
+     * This method retrieves the list of rollback handlers.
+     * @return Array of rollback handlers
+     */
     public BArray getRegisteredRollbackHandlerList() {
         List<BFunctionPointer> abortFunctions =
                 abortedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
@@ -485,6 +489,10 @@ public class TransactionResourceManager {
         }
     }
 
+    /**
+     * This method retrieves the list of commit handlers.
+     * @return Array of commit handlers
+     */
     public BArray getRegisteredCommitHandlerList() {
         List<BFunctionPointer> commitFunctions =
                 committedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
@@ -498,7 +506,6 @@ public class TransactionResourceManager {
     }
 
     private BArray getNillArray() {
-
         return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_NULL));
     }
 
