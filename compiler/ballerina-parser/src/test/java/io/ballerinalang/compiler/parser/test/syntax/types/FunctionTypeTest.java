@@ -75,6 +75,26 @@ public class FunctionTypeTest extends AbstractTypesTest {
 
     @Test
     public void testRecoveryInFuncTypeWithoutSignature() {
-        testFile("func-type/func_type_source_07.bal", "func-type/func_type_assert_07.json");
+        testFile("func-type/func_type_source_12.bal", "func-type/func_type_assert_12.json");
+    }
+
+    @Test
+    public void testRecoveryInFuncTypeWithMissingParenthesis() {
+        testFile("func-type/func_type_source_13.bal", "func-type/func_type_assert_13.json");
+    }
+
+    @Test
+    public void testRecoveryInFuncTypeWithAdditionalToken1() {
+        testFile("func-type/func_type_source_14.bal", "func-type/func_type_assert_14.json");
+    }
+
+    @Test
+    public void testRecoveryInFuncTypeWithAdditionalToken2() {
+        testFile("func-type/func_type_source_15.bal", "func-type/func_type_assert_15.json");
+    }
+
+    @Test
+    public void testRecoveryInFuncTypeWithUnion() {
+        testFile("func-type/func_type_source_16.bal", "func-type/func_type_assert_16.json");
     }
 }
