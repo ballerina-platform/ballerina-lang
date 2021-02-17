@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langserver.commons;
 
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
@@ -39,13 +38,6 @@ public interface CodeActionContext extends DocumentServiceContext {
     Position cursorPosition();
 
     /**
-     * Get position details at the cursor.
-     *
-     * @return {@link PositionDetails}
-     */
-    PositionDetails positionDetails();
-
-    /**
      * Get the diagnostics of the file.
      *
      * @return {@link List} of diagnostics
@@ -58,11 +50,4 @@ public interface CodeActionContext extends DocumentServiceContext {
      * @return {@link  List} of diagnostics at the cursor
      */
     List<Diagnostic> cursorDiagnostics();
-
-    /**
-     * Set position details at the cursor.
-     *
-     * @param positionDetails {@link PositionDetails}
-     */
-    void setPositionDetails(PositionDetails positionDetails);
 }

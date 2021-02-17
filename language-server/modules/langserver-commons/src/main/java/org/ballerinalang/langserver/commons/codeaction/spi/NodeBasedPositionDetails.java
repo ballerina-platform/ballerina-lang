@@ -24,25 +24,25 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
  *
  * @since 2.0.0
  */
-public interface PositionDetails {
+public interface NodeBasedPositionDetails {
     /**
-     * Returns matched scoped node for the current position.
+     * Returns matched top-level node for the current position.
      *
      * @return {@link NonTerminalNode}
      */
-    NonTerminalNode matchedNode();
+    NonTerminalNode matchedTopLevelNode();
 
     /**
-     * Returns matched scoped symbol for the current position.
+     * Returns matched scoped statement node for the current position.
      *
      * @return {@link Symbol}
      */
-    Symbol matchedSymbol();
+    NonTerminalNode matchedStatementNode();
 
     /**
-     * Returns type-descriptor of the matchhed scoped symbol for the current position.
+     * Returns matched type of scoped node for the current position.
      *
-     * @return {@link TypeSymbol}
+     * @return {@link NonTerminalNode}
      */
-    TypeSymbol matchedExprType();
+    TypeSymbol matchedTopLevelTypeSymbol();
 }

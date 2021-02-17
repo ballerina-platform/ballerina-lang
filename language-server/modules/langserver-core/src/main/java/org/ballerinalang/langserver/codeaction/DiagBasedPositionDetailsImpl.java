@@ -18,30 +18,30 @@ package org.ballerinalang.langserver.codeaction;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 
 /**
  * This class holds position details for the code actions.
  *
  * @since 2.0.0
  */
-public class CodeActionPositionDetails implements PositionDetails {
+public class DiagBasedPositionDetailsImpl implements DiagBasedPositionDetails {
     private final NonTerminalNode matchedNode;
     private final Symbol matchedSymbol;
     private final TypeSymbol matchedExprType;
 
-    private CodeActionPositionDetails(NonTerminalNode matchedNode,
-                                      Symbol matchedSymbol,
-                                      TypeSymbol matchedExprType) {
+    private DiagBasedPositionDetailsImpl(NonTerminalNode matchedNode,
+                                         Symbol matchedSymbol,
+                                         TypeSymbol matchedExprType) {
         this.matchedNode = matchedNode;
         this.matchedSymbol = matchedSymbol;
         this.matchedExprType = matchedExprType;
     }
 
-    public static PositionDetails from(NonTerminalNode matchedNode,
-                                       Symbol matchedSymbol,
-                                       TypeSymbol optTypeDesc) {
-        return new CodeActionPositionDetails(matchedNode, matchedSymbol, optTypeDesc);
+    public static DiagBasedPositionDetailsImpl from(NonTerminalNode matchedNode,
+                                                    Symbol matchedSymbol,
+                                                    TypeSymbol optTypeDesc) {
+        return new DiagBasedPositionDetailsImpl(matchedNode, matchedSymbol, optTypeDesc);
     }
 
     /**

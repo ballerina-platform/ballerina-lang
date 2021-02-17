@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Diagnostic;
@@ -45,7 +44,6 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     private Position cursorPosition;
     private List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics;
     private final CodeActionParams params;
-    private PositionDetails positionDetails;
 
     public CodeActionContextImpl(LSOperation operation,
                                  String fileUri,
@@ -87,16 +85,6 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     @Override
     public List<Diagnostic> cursorDiagnostics() {
         return params.getContext().getDiagnostics();
-    }
-
-    @Override
-    public void setPositionDetails(PositionDetails positionDetails) {
-        this.positionDetails = positionDetails;
-    }
-
-    @Override
-    public PositionDetails positionDetails() {
-        return this.positionDetails;
     }
 
     /**
