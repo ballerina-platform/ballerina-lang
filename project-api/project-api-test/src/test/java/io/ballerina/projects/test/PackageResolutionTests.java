@@ -30,7 +30,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
-import io.ballerina.projects.balo.BaloProject;
+import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectUtils;
@@ -64,14 +64,14 @@ public class PackageResolutionTests {
         // and package_b depends on package_c
         // Therefore package_c is transitive dependency of package_a
 
-        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_c");
-        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_b");
-        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_e");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_b");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_e");
 
-        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_unstable_k_alpha");
-        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_unstable_k_beta");
-        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_unstable_k_GA");
-        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_l_with_unstable_dep");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_unstable_k_alpha");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_unstable_k_beta");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_unstable_k_GA");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_l_with_unstable_dep");
     }
 
     @Test(description = "tests resolution with zero direct dependencies")
@@ -150,16 +150,16 @@ public class PackageResolutionTests {
     public void testProjectWithMissingTransitiveDependency() throws IOException {
         // package_missing_transitive_dep --> package_b --> package_c
         // package_missing_transitive_dep --> package_k --> package_z (this is missing)
-        Path baloPath = RESOURCE_DIRECTORY.resolve("balos").resolve("missing_transitive_deps")
-                .resolve("samjs-package_k-any-1.0.0.balo");
-        BCompileUtil.copyBaloToDistRepository(baloPath, "samjs", "package_k", "1.0.0");
+        Path balaPath = RESOURCE_DIRECTORY.resolve("balas").resolve("missing_transitive_deps")
+                .resolve("samjs-package_k-any-1.0.0.bala");
+        BCompileUtil.copyBalaToDistRepository(balaPath, "samjs", "package_k", "1.0.0");
 
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_missing_transitive_dep");
         BuildProject buildProject = BuildProject.load(projectDirPath);
         buildProject.currentPackage().getResolution();
     }
 
-    @Test(description = "Test dependencies should not be stored in balr archive")
+    @Test(description = "Test dependencies should not be stored in bala archive")
     public void testProjectWithTransitiveTestDependencies() throws IOException {
         // package_with_test_dependency --> package_c
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_with_test_dependency");
@@ -178,32 +178,32 @@ public class PackageResolutionTests {
         diagnosticResult.errors().forEach(out::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
-        String balrName = ProjectUtils.getBaloName(buildProject.currentPackage().manifest());
-        Path balrDir = testBuildDirectory.resolve("test_gen_balrs");
-        Path balrPath = balrDir.resolve(balrName);
-        Files.createDirectories(balrDir);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrDir);
+        String balaName = ProjectUtils.getBalaName(buildProject.currentPackage().manifest());
+        Path balaDir = testBuildDirectory.resolve("test_gen_balas");
+        Path balaPath = balaDir.resolve(balaName);
+        Files.createDirectories(balaDir);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaDir);
 
-        // Load the balr file now.
-        BaloProject baloProject = BaloProject.loadProject(BCompileUtil.getTestProjectEnvironmentBuilder(), balrPath);
-        PackageResolution resolution = baloProject.currentPackage().getResolution();
+        // Load the bala file now.
+        BalaProject balaProject = BalaProject.loadProject(BCompileUtil.getTestProjectEnvironmentBuilder(), balaPath);
+        PackageResolution resolution = balaProject.currentPackage().getResolution();
 
         // Dependency graph should contain only one entry
-        DependencyGraph<ResolvedPackageDependency> depGraphOfBalr = resolution.dependencyGraph();
-        Assert.assertEquals(depGraphOfBalr.getNodes().size(), 1);
+        DependencyGraph<ResolvedPackageDependency> depGraphOfBala = resolution.dependencyGraph();
+        Assert.assertEquals(depGraphOfBala.getNodes().size(), 1);
     }
 
     @Test(description = "Ultimate test case")
     public void testProjectWithManyDependencies() {
-        BCompileUtil.compileAndCacheBalo(
+        BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_runtime");
-        BCompileUtil.compileAndCacheBalo(
+        BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_jsonutils");
-        BCompileUtil.compileAndCacheBalo(
+        BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_io_1_4_2");
-        BCompileUtil.compileAndCacheBalo(
+        BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_io_1_5_0");
-        BCompileUtil.compileAndCacheBalo(
+        BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_cache");
 
         Project project = BCompileUtil.loadProject(
@@ -272,22 +272,22 @@ public class PackageResolutionTests {
         buildProject.currentPackage().getResolution();
     }
 
-    @Test(description = "tests loading a valid balo project")
-    public void testBaloProjectDependencyResolution() {
-        Path baloPath = getBaloPath("samjs", "package_b", "0.1.0");
+    @Test(description = "tests loading a valid bala project")
+    public void testBalaProjectDependencyResolution() {
+        Path balaPath = getBalaPath("samjs", "package_b", "0.1.0");
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-        BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
-        PackageResolution resolution = baloProject.currentPackage().getResolution();
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+        PackageResolution resolution = balaProject.currentPackage().getResolution();
         DependencyGraph<ResolvedPackageDependency> dependencyGraph = resolution.dependencyGraph();
         List<ResolvedPackageDependency> nodeInGraph = dependencyGraph.toTopologicallySortedList();
         Assert.assertEquals(nodeInGraph.size(), 2);
     }
 
-    private Path getBaloPath(String org, String pkgName, String version) {
+    private Path getBalaPath(String org, String pkgName, String version) {
         String ballerinaHome = System.getProperty("ballerina.home");
-        Path baloRepoPath = Paths.get(ballerinaHome).resolve("repo").resolve("balo");
-        String baloName = org + "-" + pkgName + "-any-" + version + ".balo";
-        return baloRepoPath.resolve(org).resolve(pkgName).resolve(version).resolve(baloName);
+        Path balaRepoPath = Paths.get(ballerinaHome).resolve("repo").resolve("bala");
+        String balaName = org + "-" + pkgName + "-any-" + version + ".bala";
+        return balaRepoPath.resolve(org).resolve(pkgName).resolve(version).resolve(balaName);
     }
 }

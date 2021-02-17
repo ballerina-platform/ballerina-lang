@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,18 +43,15 @@ public class NamedWorkerDeclarationNodeContext extends AbstractCompletionProvide
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, NamedWorkerDeclarationNode node)
             throws LSCompletionException {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
         boolean inReturnContext = this.withinReturnTypeContext(context, node);
+        if (!inReturnContext) {
+            return Collections.emptyList();
+        }
 
-        if (inReturnContext && node.returnTypeDesc().isEmpty()) {
+        if (node.returnTypeDesc().isEmpty()) {
             return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));
         }
-
-        if (inReturnContext && node.returnTypeDesc().isPresent()) {
-            return CompletionUtil.route(context, node.returnTypeDesc().get());
-        }
-
-        return completionItems;
+        return CompletionUtil.route(context, node.returnTypeDesc().get());
     }
 
     private boolean withinReturnTypeContext(BallerinaCompletionContext context, NamedWorkerDeclarationNode node) {

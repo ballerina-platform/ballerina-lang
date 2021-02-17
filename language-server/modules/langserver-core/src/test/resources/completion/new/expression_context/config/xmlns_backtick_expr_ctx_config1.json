@@ -9,12 +9,7 @@
       "label": "ns0",
       "kind": "Unit",
       "detail": "http://ballerina.com/aa",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
+      "sortText": "Q",
       "insertText": "ns0",
       "insertTextFormat": "Snippet"
     }

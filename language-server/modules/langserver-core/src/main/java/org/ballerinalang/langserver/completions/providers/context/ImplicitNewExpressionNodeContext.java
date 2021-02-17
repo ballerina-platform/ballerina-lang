@@ -38,6 +38,7 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -61,7 +62,8 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         Optional<ClassSymbol> classSymbol = getClassSymbol(context, node);
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
         classSymbol.ifPresent(symbol -> completionItems.add(this.getExplicitNewCompletionItem(symbol, context)));
-
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 
@@ -97,12 +99,13 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
                 return Optional.empty();
             }
             nameReferenceSymbol = pkgSymbol.get().allSymbols().stream()
-                    .filter(symbol -> symbol.name().equals(nameReferenceNode.identifier().text()))
+                    .filter(symbol -> Objects
+                            .equals(symbol.getName().orElse(null), nameReferenceNode.identifier().text()))
                     .findFirst();
         } else if (typeDescriptor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) typeDescriptor;
             nameReferenceSymbol = visibleSymbols.stream()
-                    .filter(symbol -> symbol.name().equals(nameReferenceNode.name().text()))
+                    .filter(symbol -> Objects.equals(symbol.getName().orElse(null), nameReferenceNode.name().text()))
                     .findFirst();
         }
 
@@ -120,7 +123,7 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         }
         String varName = ((SimpleNameReferenceNode) varRefNode).name().text();
         Optional<Symbol> varEntry = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(varName))
+                .filter(symbol -> Objects.equals(symbol.getName().orElse(null), varName))
                 .findFirst();
 
         if (varEntry.isEmpty() || !SymbolUtil.isObject(varEntry.get())) {

@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,6 +40,8 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, QueryPipelineNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         if (node.fromClause().isMissing() || node.fromClause().fromKeyword().isMissing()) {
             /*
             Covers the following
@@ -48,10 +49,11 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
             (2) var test = stream f<cursor>
             This particular section hits when there is at least one statement below (1) and (2)
              */
-            return Arrays.asList(new SnippetCompletionItem(context, Snippet.KW_FROM.get()),
-                    new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
         }
+        this.sort(context, node, completionItems);
 
-        return new ArrayList<>();
+        return completionItems;
     }
 }

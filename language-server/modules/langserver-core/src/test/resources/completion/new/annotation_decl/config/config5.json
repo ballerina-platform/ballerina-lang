@@ -1,1 +1,17 @@
-{"position":{"line":3,"character":51},"source":"annotation_decl/source/source5.bal","items":[{"label":"on","kind":"Keyword","detail":"Keyword","insertText":"on ","insertTextFormat":"Snippet"}]}
+{
+  "position": {
+    "line": 3,
+    "character": 51
+  },
+  "source": "annotation_decl/source/source5.bal",
+  "items": [
+    {
+      "label": "on",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "on ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

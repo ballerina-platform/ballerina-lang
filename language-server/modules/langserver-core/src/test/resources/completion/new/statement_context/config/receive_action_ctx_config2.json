@@ -9,6 +9,7 @@
       "label": "w1",
       "kind": "Variable",
       "detail": "worker",
+      "sortText": "B",
       "insertText": "w1",
       "insertTextFormat": "Snippet"
     },
@@ -16,6 +17,7 @@
       "label": "w2",
       "kind": "Variable",
       "detail": "worker",
+      "sortText": "B",
       "insertText": "w2",
       "insertTextFormat": "Snippet"
     },
@@ -23,6 +25,7 @@
       "label": "default",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "default",
       "insertTextFormat": "Snippet"
     }

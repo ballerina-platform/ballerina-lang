@@ -9,6 +9,7 @@
       "label": "ascending",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "ascending",
       "insertTextFormat": "Snippet"
     },
@@ -16,6 +17,7 @@
       "label": "descending",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "descending",
       "insertTextFormat": "Snippet"
     }

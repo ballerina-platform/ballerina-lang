@@ -20,7 +20,7 @@ package org.ballerinalang.model.tree.matchpatterns;
 import org.ballerinalang.model.tree.Node;
 
 /**
- * The interface with the APIs to implement the wild-card-binding-pattern.
+ * The interface with the APIs to implement the wild-card-match-pattern.
  *
  * @since 2.0.0
  */

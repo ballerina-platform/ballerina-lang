@@ -6,16 +6,10 @@
   "source": "annotation_decl/source/source4.bal",
   "items": [
     {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
+      "sortText": "L",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -23,21 +17,32 @@
       "label": "TestRecord2",
       "kind": "Struct",
       "detail": "Record",
+      "sortText": "L",
       "insertText": "TestRecord2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestMap2",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "Map",
+      "sortText": "M",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestMap3",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "Map",
+      "sortText": "M",
       "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     }
   ]

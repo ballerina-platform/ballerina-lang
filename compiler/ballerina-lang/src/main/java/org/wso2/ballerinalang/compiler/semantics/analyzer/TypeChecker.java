@@ -2463,6 +2463,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        markLeafNode(fieldAccessExpr);
+
         // First analyze the accessible expression.
         BLangExpression containerExpression = fieldAccessExpr.expr;
 
@@ -2591,6 +2593,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
+        markLeafNode(indexBasedAccessExpr);
+
         // First analyze the variable reference expression.
         BLangExpression containerExpression = indexBasedAccessExpr.expr;
         if (containerExpression.getKind() ==  NodeKind.TYPEDESC_EXPRESSION) {
@@ -2821,7 +2825,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, letExpression.env);
         }
-        BType exprType = checkExpr(letExpression.expr, letExpression.env);
+        BType exprType = checkExpr(letExpression.expr, letExpression.env, this.expType);
         types.checkType(letExpression, exprType, this.expType);
     }
 
@@ -4585,7 +4589,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
-        queryEnvs.push(SymbolEnv.createTypeNarrowedEnv(fromClause, queryEnvs.pop()));
+        SymbolEnv fromEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, queryEnvs.pop());
+        fromClause.env = fromEnv;
+        queryEnvs.push(fromEnv);
         checkExpr(fromClause.collection, queryEnvs.peek());
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(fromClause);
@@ -4594,7 +4600,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJoinClause joinClause) {
-        queryEnvs.push(SymbolEnv.createTypeNarrowedEnv(joinClause, queryEnvs.pop()));
+        SymbolEnv joinEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, queryEnvs.pop());
+        joinClause.env = joinEnv;
+        queryEnvs.push(joinEnv);
         checkExpr(joinClause.collection, queryEnvs.peek());
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(joinClause);
@@ -4606,23 +4614,31 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLetClause letClause) {
-        queryEnvs.push(SymbolEnv.createTypeNarrowedEnv(letClause, queryEnvs.pop()));
+        SymbolEnv letEnv = SymbolEnv.createTypeNarrowedEnv(letClause, queryEnvs.pop());
+        letClause.env = letEnv;
+        queryEnvs.push(letEnv);
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, queryEnvs.peek());
+            semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, letEnv);
         }
     }
 
     @Override
     public void visit(BLangWhereClause whereClause) {
-        handleFilterClauses(whereClause.expression);
+        whereClause.env = handleFilterClauses(whereClause.expression);
     }
 
     @Override
     public void visit(BLangSelectClause selectClause) {
+        SymbolEnv letEnv = SymbolEnv.createTypeNarrowedEnv(selectClause, queryEnvs.pop());
+        selectClause.env = letEnv;
+        queryEnvs.push(letEnv);
     }
 
     @Override
     public void visit(BLangDoClause doClause) {
+        SymbolEnv letEnv = SymbolEnv.createTypeNarrowedEnv(doClause, queryEnvs.pop());
+        doClause.env = letEnv;
+        queryEnvs.push(letEnv);
     }
 
     @Override
@@ -4645,15 +4661,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        SymbolEnv lhsExprEnv, rhsExprEnv;
         BType lhsType, rhsType;
         BLangNode joinNode = getLastInputNodeFromEnv(queryEnvs.peek());
         // lhsExprEnv should only contain scope entries before join condition.
-        lhsExprEnv = getEnvBeforeInputNode(queryEnvs.peek(), joinNode);
-        lhsType = checkExpr(onClause.lhsExpr, lhsExprEnv);
+        onClause.lhsEnv = getEnvBeforeInputNode(queryEnvs.peek(), joinNode);
+        lhsType = checkExpr(onClause.lhsExpr, onClause.lhsEnv);
         // rhsExprEnv should only contain scope entries after join condition.
-        rhsExprEnv = getEnvAfterJoinNode(queryEnvs.peek(), joinNode);
-        rhsType = checkExpr(onClause.rhsExpr, rhsExprEnv);
+        onClause.rhsEnv = getEnvAfterJoinNode(queryEnvs.peek(), joinNode);
+        rhsType = checkExpr(onClause.rhsExpr, onClause.rhsEnv != null ? onClause.rhsEnv : queryEnvs.peek());
         if (!types.isAssignable(lhsType, rhsType)) {
             dlog.error(onClause.rhsExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, lhsType, rhsType);
         }
@@ -4661,8 +4676,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOrderByClause orderByClause) {
+        orderByClause.env = queryEnvs.peek();
         for (OrderKeyNode orderKeyNode : orderByClause.getOrderKeyList()) {
-            BType exprType = checkExpr((BLangExpression) orderKeyNode.getOrderKey(), queryEnvs.peek());
+            BType exprType = checkExpr((BLangExpression) orderKeyNode.getOrderKey(), orderByClause.env);
             if (!types.isOrderedType(exprType)) {
                 dlog.error(((BLangOrderKey) orderKeyNode).expression.pos, DiagnosticErrorCode.ORDER_BY_NOT_SUPPORTED);
             }
@@ -4680,14 +4696,16 @@ public class TypeChecker extends BLangNodeVisitor {
         onFailClause.body.stmts.forEach(stmt -> stmt.accept(this));
     }
 
-    private void handleFilterClauses (BLangExpression filterExpression) {
+    private SymbolEnv handleFilterClauses (BLangExpression filterExpression) {
         checkExpr(filterExpression, queryEnvs.peek(), symTable.booleanType);
         BType actualType = filterExpression.type;
         if (TypeTags.TUPLE == actualType.tag) {
             dlog.error(filterExpression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                     symTable.booleanType, actualType);
         }
-        queryEnvs.push(typeNarrower.evaluateTruth(filterExpression, selectClauses.peek(), queryEnvs.pop()));
+        SymbolEnv filterEnv = typeNarrower.evaluateTruth(filterExpression, selectClauses.peek(), queryEnvs.pop());
+        queryEnvs.push(filterEnv);
+        return filterEnv;
     }
 
     private void handleInputClauseVariables(BLangInputClause bLangInputClause, SymbolEnv blockEnv) {
@@ -4737,7 +4755,6 @@ public class TypeChecker extends BLangNodeVisitor {
             BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
             typedescExpr.resolvedType = expType;
             typedescExpr.type = typedescType;
-            argExprs.add(exprWithCheckingKeyword);
             argExprs.add(typedescExpr);
             BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_ENSURE_TYPE,
                     argExprs, exprWithCheckingKeyword, checkedExpr.pos);
@@ -5313,9 +5330,7 @@ public class TypeChecker extends BLangNodeVisitor {
         iExpr.langLibInvocation = true;
         SymbolEnv enclEnv = this.env;
         this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
-        if (iExpr.argExprs.isEmpty() || !iExpr.argExprs.get(0).equals(iExpr.expr)) {
-            iExpr.argExprs.add(0, iExpr.expr);
-        }
+        iExpr.argExprs.add(0, iExpr.expr);
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
 
@@ -6566,7 +6581,8 @@ public class TypeChecker extends BLangNodeVisitor {
                         varRefType, fieldName);
             }
             fieldAccessExpr.nilSafeNavigation = nillableExprType;
-            fieldAccessExpr.originalType = getSafeType(actualType, fieldAccessExpr);
+            fieldAccessExpr.originalType = fieldAccessExpr.leafNode || !nillableExprType ? actualType :
+                    types.getTypeWithoutNil(actualType);
         } else if (types.isLax(effectiveType)) {
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
             actualType = accessCouldResultInError(effectiveType) ?
@@ -6688,7 +6704,8 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             indexBasedAccessExpr.nilSafeNavigation = nillableExprType;
-            indexBasedAccessExpr.originalType = getSafeType(actualType, indexBasedAccessExpr);
+            indexBasedAccessExpr.originalType = indexBasedAccessExpr.leafNode || !nillableExprType ? actualType :
+                    types.getTypeWithoutNil(actualType);
         } else if (types.isSubTypeOfList(varRefType)) {
             checkExpr(indexExpr, this.env, symTable.intType);
 
@@ -6794,9 +6811,10 @@ public class TypeChecker extends BLangNodeVisitor {
                     return symTable.semanticError;
                 }
             }
-
-            indexBasedAccessExpr.originalType = tableType.constraint;
-            actualType = tableType.constraint;
+            BType constraint = tableType.constraint;
+            actualType = addNilForNillableAccessType(constraint);
+            indexBasedAccessExpr.originalType = indexBasedAccessExpr.leafNode || !nillableExprType ? actualType :
+                    types.getTypeWithoutNil(actualType);
         } else if (varRefType == symTable.semanticError) {
             indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
             return symTable.semanticError;
@@ -7149,43 +7167,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         BUnionType.create(null, possibleTypesByMember);
         }
         return actualType;
-    }
-
-    private BType getSafeType(BType type, BLangAccessExpression accessExpr) {
-        if (type.tag != TypeTags.UNION) {
-            return type;
-        }
-
-        // Extract the types without the error and null, and revisit access expression
-        List<BType> lhsTypes = new ArrayList<>(((BUnionType) type).getMemberTypes());
-
-        if (accessExpr.errorSafeNavigation) {
-            if (!lhsTypes.contains(symTable.errorType)) {
-                dlog.error(accessExpr.pos, DiagnosticErrorCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
-                return symTable.semanticError;
-            }
-
-            lhsTypes = lhsTypes.stream()
-                    .filter(memberType -> memberType != symTable.errorType)
-                    .collect(Collectors.toList());
-
-            if (lhsTypes.isEmpty()) {
-                dlog.error(accessExpr.pos, DiagnosticErrorCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
-                return symTable.semanticError;
-            }
-        }
-
-        if (accessExpr.nilSafeNavigation) {
-            lhsTypes = lhsTypes.stream()
-                    .filter(memberType -> memberType != symTable.nilType)
-                    .collect(Collectors.toList());
-        }
-
-        if (lhsTypes.size() == 1) {
-            return lhsTypes.get(0);
-        }
-
-        return BUnionType.create(null, new LinkedHashSet<>(lhsTypes));
     }
 
     private List<BType> getTypesList(BType type) {
@@ -7677,6 +7658,31 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         markTypeAsIsolated(actualObjectType);
+    }
+
+    private void markLeafNode(BLangAccessExpression accessExpression) {
+        BLangNode parent = accessExpression.parent;
+        if (parent == null) {
+            accessExpression.leafNode = true;
+            return;
+        }
+
+        NodeKind kind = parent.getKind();
+
+        while (kind == NodeKind.GROUP_EXPR) {
+            parent = parent.parent;
+
+            if (parent == null) {
+                accessExpression.leafNode = true;
+                break;
+            }
+
+            kind = parent.getKind();
+        }
+
+        if (kind != NodeKind.FIELD_BASED_ACCESS_EXPR && kind != NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            accessExpression.leafNode = true;
+        }
     }
 
     private static class FieldInfo {

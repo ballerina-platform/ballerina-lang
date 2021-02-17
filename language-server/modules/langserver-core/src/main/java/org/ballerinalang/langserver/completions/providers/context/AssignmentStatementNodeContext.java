@@ -37,6 +37,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -55,10 +56,11 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, AssignmentStatementNode node)
             throws LSCompletionException {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.cursorWithinLHS(context, node)) {
             return CompletionUtil.route(context, node.parent());
         }
+
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.onQualifiedNameIdentifier(context, node.expression())) {
             /*
             Captures the following cases
@@ -81,6 +83,8 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             completionItems.addAll(this.getNewExprCompletionItems(context, node));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IS.get()));
         }
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 
@@ -98,7 +102,8 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         if (varRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) varRef).name().text();
             objectType = visibleSymbols.stream()
-                    .filter(symbol -> symbol.name().equals(identifier) && SymbolUtil.isClass(symbol))
+                    .filter(symbol -> Objects.equals(symbol.getName().orElse(null), identifier)
+                            && SymbolUtil.isClass(symbol))
                     .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else {

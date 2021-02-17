@@ -6,16 +6,10 @@
   "source": "typedesc_context/source/map_typedesc3.bal",
   "items": [
     {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
+      "sortText": "L",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -23,20 +17,23 @@
       "label": "TestRecord2",
       "kind": "Struct",
       "detail": "Record",
+      "sortText": "L",
       "insertText": "TestRecord2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestMap2",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "Map",
+      "sortText": "M",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestMap3",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "Map",
+      "sortText": "M",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
@@ -44,7 +41,16 @@
       "label": "TestObject1",
       "kind": "Interface",
       "detail": "Object",
+      "sortText": "K",
       "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
     {
@@ -54,6 +60,7 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
+      "sortText": "I",
       "insertText": "ResponseMessage",
       "insertTextFormat": "Snippet"
     },
@@ -64,20 +71,15 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
       },
+      "sortText": "I",
       "insertText": "RequestMessage",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Listener",
-      "kind": "Interface",
-      "detail": "Class",
-      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
+      "sortText": "K",
       "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
@@ -88,6 +90,7 @@
       "documentation": {
         "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
       },
+      "sortText": "K",
       "insertText": "Client",
       "insertTextFormat": "Snippet"
     },
@@ -98,7 +101,16 @@
       "documentation": {
         "left": "Represents a response.\n"
       },
+      "sortText": "K",
       "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     }
   ]

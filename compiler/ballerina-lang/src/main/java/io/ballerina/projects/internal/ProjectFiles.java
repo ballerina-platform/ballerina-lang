@@ -19,7 +19,6 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
-import io.ballerina.projects.MdDocument;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
@@ -49,8 +48,8 @@ import static io.ballerina.projects.util.ProjectUtils.checkReadPermission;
 public class ProjectFiles {
     public static final PathMatcher BAL_EXTENSION_MATCHER =
             FileSystems.getDefault().getPathMatcher("glob:**.bal");
-    public static final PathMatcher BALR_EXTENSION_MATCHER =
-            FileSystems.getDefault().getPathMatcher("glob:**.balo");
+    public static final PathMatcher BALA_EXTENSION_MATCHER =
+            FileSystems.getDefault().getPathMatcher("glob:**.bala");
 
     private ProjectFiles() {
     }
@@ -69,11 +68,11 @@ public class ProjectFiles {
 
         DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
         DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
-        DocumentData kubernetesToml = loadDocument(packageDirPath.resolve(ProjectConstants.KUBERNETES_TOML));
+        DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
         DocumentData packageMd = loadDocument(packageDirPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
 
         return PackageData.from(packageDirPath, defaultModule, otherModules,
-                ballerinaToml, dependenciesToml, kubernetesToml, packageMd);
+                ballerinaToml, dependenciesToml, cloudToml, packageMd);
     }
 
     private static List<ModuleData> loadOtherModules(Path packageDirPath) {
@@ -112,19 +111,10 @@ public class ProjectFiles {
             testSrcDocs = Collections.emptyList();
         }
 
-        MdDocument moduleMd = loadModuleMd(moduleDirPath);
-        // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
+        DocumentData moduleMd = loadDocument(moduleDirPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
+        // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md
         return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd);
     }
-
-    private static MdDocument loadModuleMd(Path modulePath) {
-        Path moduleMdPath = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-        if (Files.exists(moduleMdPath)) {
-            return new MdDocument(moduleMdPath);
-        }
-        return null;
-    }
-
 
     public static List<DocumentData> loadDocuments(Path dirPath) {
         try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
@@ -237,17 +227,17 @@ public class ProjectFiles {
         checkReadPermission(filePath);
     }
 
-    public static void validateBalrProjectPath(Path balrPath) {
-        if (Files.notExists(balrPath)) {
-            throw new ProjectException("Given .balr file does not exist: " + balrPath);
+    public static void validateBalaProjectPath(Path balaPath) {
+        if (Files.notExists(balaPath)) {
+            throw new ProjectException("Given .bala file does not exist: " + balaPath);
         }
 
-        if (!Files.isRegularFile(balrPath) || !ProjectFiles.BALR_EXTENSION_MATCHER.matches(balrPath)) {
-            throw new ProjectException("Invalid .balr file: " + balrPath);
+        if (!Files.isRegularFile(balaPath) || !ProjectFiles.BALA_EXTENSION_MATCHER.matches(balaPath)) {
+            throw new ProjectException("Invalid .bala file: " + balaPath);
         }
 
-        if (!balrPath.toFile().canRead()) {
-            throw new ProjectException("insufficient privileges to balo: " + balrPath);
+        if (!balaPath.toFile().canRead()) {
+            throw new ProjectException("insufficient privileges to bala: " + balaPath);
         }
     }
 }

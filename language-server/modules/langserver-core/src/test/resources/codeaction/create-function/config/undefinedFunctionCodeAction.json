@@ -4,17 +4,19 @@
   "expected": [
     {
       "title": "Create function 'addTwoIntegers(...)'",
-      "command": "CREATE_FUNC",
-      "arguments": [
-        {
-          "argumentK": "node.line",
-          "argumentV": "3"
-        },
-        {
-          "argumentK": "node.column",
-          "argumentV": "3"
-        }
-      ]
+      "command": {
+        "title": "Create function 'addTwoIntegers(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.position",
+            "value": {
+              "line": 3,
+              "character": 3
+            }
+          }
+        ]
+      }
     }
   ]
 }

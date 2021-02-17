@@ -70,10 +70,10 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains("bal push "));
     }
 
-    @Test(description = "Push package without balo directory")
-    public void testPushWithoutBaloDir() throws IOException {
-        String expected = "cannot find balo file for the package: winery. Run "
-                + "'bal build' to compile and generate the balo.";
+    @Test(description = "Push package without bala directory")
+    public void testPushWithoutBalaDir() throws IOException {
+        String expected = "cannot find bala file for the package: winery. Run "
+                + "'bal build' to compile and generate the bala.";
 
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream);
@@ -85,8 +85,8 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
     }
 
-    @Test(description = "Push package without balo file")
-    public void testPushWithoutBalo() throws IOException {
+    @Test(description = "Push package without bala file")
+    public void testPushWithoutBala() throws IOException {
         Path projectPath = this.testResources.resolve(VALID_PROJECT);
         System.setProperty("user.dir", projectPath.toString());
 
@@ -97,15 +97,15 @@ public class PushCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-bal-project.txt"));
         Assert.assertTrue(
-                projectPath.resolve("target").resolve("balo").resolve("foo-winery-any-0.1.0.balo").toFile().exists());
+                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
-        // Delete balo
+        // Delete bala
         Assert.assertTrue(
-                projectPath.resolve("target").resolve("balo").resolve("foo-winery-any-0.1.0.balo").toFile().delete());
+                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().delete());
 
         // Push
-        String expected = "cannot find balo file for the package: winery. Run "
-                + "'bal build' to compile and generate the balo.";
+        String expected = "cannot find bala file for the package: winery. Run "
+                + "'bal build' to compile and generate the bala.";
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream);
         new CommandLine(pushCommand).parse();
         pushCommand.execute();

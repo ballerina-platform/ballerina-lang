@@ -17,10 +17,22 @@
  */
 package org.ballerinalang.langserver.contexts;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.projects.Document;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.WorkspaceServiceContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.eclipse.lsp4j.Position;
+
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Language server workspace service context implementation.
@@ -34,6 +46,8 @@ public class AbstractWorkspaceServiceContext implements WorkspaceServiceContext 
     private final WorkspaceManager workspaceManager;
 
     private final LanguageServerContext languageServerContext;
+
+    private final Map<String, List<Symbol>> visibleSymbols = new HashMap<>();
 
     AbstractWorkspaceServiceContext(LSOperation operation,
                                     WorkspaceManager wsManager,
@@ -51,6 +65,22 @@ public class AbstractWorkspaceServiceContext implements WorkspaceServiceContext 
     @Override
     public LanguageServerContext languageServercontext() {
         return this.languageServerContext;
+    }
+
+    @Override
+    public List<Symbol> visibleSymbols(Path filePath, Position position) {
+        return visibleSymbols.computeIfAbsent(filePath.toUri().toString(), k -> {
+            Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath);
+            Optional<Document> srcFile = this.workspaceManager.document(filePath);
+
+            if (semanticModel.isEmpty() || srcFile.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            return semanticModel.get()
+                    .visibleSymbols(srcFile.get(), 
+                            LinePosition.from(position.getLine(), position.getCharacter()));            
+        });
     }
 
     @Override

@@ -267,10 +267,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_METADATA("BCE0621", "error.invalid.metadata"),
     ERROR_INVALID_QUALIFIER("BCE0622", "error.invalid.qualifier"),
     ERROR_ANNOTATIONS_ATTACHED_TO_STATEMENT("BCE0623", "error.annotations.attached.to.statement"),
-    ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD("BCE0624", "error.more.field.match.patterns.after.rest.field"),
     ERROR_ACTION_AS_A_WAIT_EXPR("BCE0625", "error.action.as.a.wait.expr"),
     ERROR_INVALID_USAGE_OF_VAR("BCE0626", "error.invalid.usage.of.var"),
-    ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN("BCE0627", "error.more.match.patterns.after.rest.match.pattern"),
+    ERROR_MATCH_PATTERN_AFTER_REST_MATCH_PATTERN("BCE0627", "error.match.pattern.after.rest.match.pattern"),
     ERROR_MATCH_PATTERN_NOT_ALLOWED("BCE0628", "error.match.pattern.not.allowed"),
     ERROR_MATCH_STATEMENT_SHOULD_HAVE_ONE_OR_MORE_MATCH_CLAUSES("BCE0629",
             "error.match.statement.should.have.one.or.more.match.clauses"),
@@ -317,6 +316,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_DEFAULTABLE_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE664",
             "error.defaultable.parameter.cannot.be.included.record.parameter"),
     ERROR_INCOMPLETE_QUOTED_IDENTIFIER("BCE665", "error.incomplete.quoted.identifier"),
+    ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD("BCE666", "error.open.record.cannot.contain.rest.field")
     ;
 
     String diagnosticId;

@@ -89,6 +89,7 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
                     .map(symbol -> (ClassSymbol) symbol)
                     .forEach(symbol -> completionItems.add(this.getExplicitNewCompletionItem(symbol, context)));
         }
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }

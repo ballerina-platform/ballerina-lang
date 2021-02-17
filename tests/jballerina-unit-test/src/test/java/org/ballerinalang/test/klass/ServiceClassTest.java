@@ -66,7 +66,7 @@ public class ServiceClassTest {
     @Test
     public void testServiceObjectAndUsingServiceObjectAsATypeInclusionNegative() {
         CompileResult result =
-                BCompileUtil.compile("test-src/klass/service_class_resource_remote_function_references_neg.bal");
+                BCompileUtil.compile("test-src/klass/service_type_resource_method_decl_neg.bal");
         int index = 0;
         validateError(result, index++, "resource method declarations are not allowed in an object type definition",
                 19, 5);

@@ -9,6 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     },
@@ -16,7 +17,7 @@
       "label": "rec2f1",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "G",
       "insertText": "rec2f1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -24,7 +25,7 @@
       "label": "rec2f2",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "G",
       "insertText": "rec2f2: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -32,7 +33,7 @@
       "label": "Add All Attributes",
       "kind": "Property",
       "detail": "none",
-      "sortText": "110",
+      "sortText": "Q",
       "insertText": "rec2f1: 0,\nrec2f2: 0",
       "insertTextFormat": "Snippet"
     }

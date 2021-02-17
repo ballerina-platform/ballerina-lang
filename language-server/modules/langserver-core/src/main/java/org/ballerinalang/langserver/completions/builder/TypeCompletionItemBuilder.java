@@ -103,6 +103,7 @@ public class TypeCompletionItemBuilder {
                             item.setKind(CompletionItemKind.Interface);
                             break;
                         default:
+                            item.setKind(CompletionItemKind.TypeParameter);
                             break;
                     }
                 } else {
@@ -119,7 +120,7 @@ public class TypeCompletionItemBuilder {
                 item.setKind(CompletionItemKind.Event);
                 break;
             default:
-                item.setKind(CompletionItemKind.Unit);
+                item.setKind(CompletionItemKind.TypeParameter);
         }
 
         Documentable documentableSymbol = bSymbol instanceof Documentable ? (Documentable) bSymbol : null;

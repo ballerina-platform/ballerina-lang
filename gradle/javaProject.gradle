@@ -214,10 +214,8 @@ publishing {
         mavenJava {
             from components.java
         }
-        if (artifactCodeCoverageReport.exists()) {
-            CodeCov(MavenPublication) {
-                artifact source: artifactCodeCoverageReport, classifier: 'jacoco'
-            }
+        CodeCov(MavenPublication) {
+            artifact source: artifactCodeCoverageReport
         }
     }
 }

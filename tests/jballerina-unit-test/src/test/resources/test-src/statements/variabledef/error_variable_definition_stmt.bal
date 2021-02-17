@@ -190,3 +190,20 @@ function testSealedDetailDestructuring() returns [string, map<anydata|readonly>]
 }
 
 type simpleError record {| (value:Cloneable)...; |};
+
+type SampleErrorData record {
+    string message?;
+    error cause?;
+    string info;
+    boolean fatal;
+};
+
+type SampleError error<SampleErrorData>;
+
+function testErrorBindingPattern() returns [string, boolean, anydata|readonly] {
+    SampleError error(info=info,fatal=fatal) = error SampleError("Sample Error", info = "Detail Info",
+    fatal = true);
+    error error(data=transactionData) = error("TransactionError", data={"A":"a", "B":"b"});
+
+    return [info, fatal, transactionData];
+}

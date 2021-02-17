@@ -30,7 +30,7 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,25 +47,25 @@ public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderBy
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, OrderByClauseNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (onSuggestDirectionKeywords(context, node)) {
-            return Arrays.asList(
-                    new SnippetCompletionItem(context, Snippet.KW_ASCENDING.get()),
-                    new SnippetCompletionItem(context, Snippet.KW_DESCENDING.get())
-            );
-        }
-
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ASCENDING.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DESCENDING.get()));
+        } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-            return this.getCompletionItemList(exprEntries, context);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
         }
+        this.sort(context, node, completionItems);
 
-        return this.expressionCompletions(context);
+        return completionItems;
     }
 
     @Override

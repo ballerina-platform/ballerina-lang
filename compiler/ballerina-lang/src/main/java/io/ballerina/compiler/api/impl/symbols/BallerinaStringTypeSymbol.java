@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaStringTypeSymbol extends AbstractTypeSymbol implements StringTypeSymbol {
 
     public BallerinaStringTypeSymbol(CompilerContext context, ModuleID moduleID, BType stringType) {
-        super(context, TypeDescKind.STRING, moduleID, stringType);
+        super(context, TypeDescKind.STRING, stringType);
     }
 
     @Override

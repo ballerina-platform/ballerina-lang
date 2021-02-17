@@ -8,6 +8,7 @@
     {
       "label": "testClassField",
       "detail": "int",
+      "sortText": "Q",
       "insertText": "testClassField",
       "insertTextFormat": "Snippet"
     },
@@ -21,6 +22,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
         }
       },
+      "sortText": "C",
       "insertText": "testMethod()",
       "insertTextFormat": "Snippet"
     },
@@ -34,6 +36,7 @@
           "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nIf `v` is anydata and does not have cycles, then the result will  \nconform to the grammar for a Ballerina expression and when evaluated  \nwill result in a value that is == to v.  \n  \nThe details of the conversion are specified by the ToString abstract operation  \ndefined in the Ballerina Language Specification, using the expression style.  \n  \n"
         }
       },
+      "sortText": "C",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
     },
@@ -47,6 +50,7 @@
           "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \n  \n**Params**  \n- `TYPEDESC<any>` t  \n  \n**Returns** `any|error`   \n  \n"
         }
       },
+      "sortText": "C",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -64,6 +68,7 @@
           "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nPerforms a direct conversion of a value to a string.\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe details of the conversion are specified by the ToString abstract operation  \ndefined in the Ballerina Language Specification, using the direct style.  \n  \n"
         }
       },
+      "sortText": "C",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
     }

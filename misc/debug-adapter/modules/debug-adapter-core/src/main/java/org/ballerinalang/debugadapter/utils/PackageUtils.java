@@ -26,8 +26,8 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
-import org.ballerinalang.debugadapter.DebugContext;
 import org.ballerinalang.debugadapter.DebugSourceType;
+import org.ballerinalang.debugadapter.ExecutionContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -131,7 +131,7 @@ public class PackageUtils {
      */
     public static List<String> getModuleClassNames(SuspendedContext context) throws EvaluationException {
         try {
-            // Todo - use balo reader to derive module class names by accessing module balo files.
+            // Todo - use bala reader to derive module class names by accessing module bala files.
             return new ArrayList<>();
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
@@ -208,7 +208,7 @@ public class PackageUtils {
      * @param referenceType JDI class reference instance
      * @return full-qualified class name
      */
-    public static String getQualifiedClassName(DebugContext context, ReferenceType referenceType) {
+    public static String getQualifiedClassName(ExecutionContext context, ReferenceType referenceType) {
         try {
             List<String> paths = referenceType.sourcePaths(null);
             List<String> names = referenceType.sourceNames(null);

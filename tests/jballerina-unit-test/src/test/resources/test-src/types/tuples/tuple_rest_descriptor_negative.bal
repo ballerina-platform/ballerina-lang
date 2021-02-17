@@ -31,3 +31,17 @@ function testTupleToTupleAssignmentWithIncompatibleMemCount() {
     [int, float, string...] k = [2, 3];
     [int, float, string, string...] l = k;
 }
+
+function testInvalidTupleAssignmentWithRestDescriptors() {
+    [int, (string|int)...] a = [1, 10, "foo"];
+
+    [int, string|int, string|int...] b = a;
+    [int, string...] c = a;
+    [int] d = a;
+
+    int[3] e = [1, 2, 3];
+
+    [int, int, int, int, int...] f = e;
+    [int, string...] g = e;
+    [string, string, string, string] h = e;
+}

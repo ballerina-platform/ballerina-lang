@@ -193,7 +193,7 @@ public class CodeActionUtil {
      */
     public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> edits,
                                                 DocumentServiceContext context) {
-        if (typeDescriptor.name().startsWith("$")) {
+        if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);

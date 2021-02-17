@@ -50,6 +50,9 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
             return typeDescKind.isPresent() && typeDescKind.get() == TypeDescKind.FUTURE;
         }).collect(Collectors.toList());
 
-        return this.getCompletionItemList(filteredSymbols, context);
+        List<LSCompletionItem> completionItems = this.getCompletionItemList(filteredSymbols, context);
+        this.sort(context, node, completionItems);
+
+        return completionItems;
     }
 }

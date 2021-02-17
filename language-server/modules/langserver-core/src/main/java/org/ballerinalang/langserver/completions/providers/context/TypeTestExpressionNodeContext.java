@@ -15,11 +15,10 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -28,7 +27,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Completion provider for {@link TypeTestExpressionNode} context.
@@ -47,15 +45,15 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.onQualifiedNameIdentifier(context, node.typeDescriptor())) {
-            Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context,
-                    QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) node.typeDescriptor())));
-            module.ifPresent(scopeEntry ->
-                    completionItems.addAll(this.getCompletionItemList(this.filterTypesInModule(module.get()),
-                            context)));
-        } else {
-            completionItems.addAll(this.getTypeItems(context));
-            completionItems.addAll(this.getModuleCompletionItems(context));
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.typeDescriptor();
+            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
+            completionItems.addAll(this.getCompletionItemList(typesInModule, context));
+
+            return completionItems;
         }
+
+        completionItems.addAll(this.getTypeItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
 
         return completionItems;
     }

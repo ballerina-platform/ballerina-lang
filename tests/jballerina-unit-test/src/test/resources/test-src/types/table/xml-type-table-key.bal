@@ -59,7 +59,7 @@ function testMemberAccessWithSingleXMLRecordKey() {
     table<Customer> key(id) customerTable = table [{id: xml `<id>123</id>`, name: {fname: "Sanjiva", lname: "Weerawarana"}, address: "Sri Lanka" },
                                                    {id: xml `<id>234</id>`, name: {fname: "James" , lname: "Clark"}, address: "Thailand" }];
 
-    Customer customer = customerTable[xml `<id>123</id>`];
+    Customer? customer = customerTable[xml `<id>123</id>`];
     assertEquality("Sri Lanka", customer["address"]);
 }
 
@@ -67,7 +67,7 @@ function testMemberAccessWithXMLMultiKeyAsTuple() {
     table<Customer> key(id, name) customerTable = table [{id: xml `<id>123</id>`, name: {fname: "Sanjiva", lname: "Weerawarana"}, address: "Sri Lanka" },
                                                           {id: xml `<id>234</id>`, name: {fname: "James" , lname: "Clark"}, address: "Thailand" }];
 
-    Customer customer = customerTable[[xml `<id>123</id>`, {fname: "Sanjiva", lname: "Weerawarana"}]];
+    Customer? customer = customerTable[[xml `<id>123</id>`, {fname: "Sanjiva", lname: "Weerawarana"}]];
     assertEquality("Sri Lanka", customer["address"]);
 }
 
@@ -75,7 +75,7 @@ function testMemberAccessWithXMLMultiKey() {
     table<Customer> key(id, name) customerTable = table [{id: xml `<id>123</id>`, name: {fname: "Sanjiva", lname: "Weerawarana"}, address: "Sri Lanka" },
                                                          {id: xml `<id>234</id>`, name: {fname: "James" , lname: "Clark"}, address: "Thailand" }];
 
-    Customer customer = customerTable[xml `<id>123</id>`, {fname: "Sanjiva", lname: "Weerawarana"}];
+    Customer? customer = customerTable[xml `<id>123</id>`, {fname: "Sanjiva", lname: "Weerawarana"}];
     assertEquality("Sri Lanka", customer["address"]);
 }
 
@@ -83,14 +83,16 @@ function testMemberAccessWithInvalidXMLRecordKey() {
     table<Customer> key(id) customerTable = table [{id: xml `<id>123</id>`, name: {fname: "Sanjiva", lname: "Weerawarana"}, address: "Sri Lanka" },
                                                    {id: xml `<id>234</id>`, name: {fname: "James" , lname: "Clark"}, address: "Thailand" }];
 
-    Customer customer = customerTable[xml `<id>245</id>`];
+    Customer? customer = customerTable[xml `<id>245</id>`];
+    assertEquality((), customer);
 }
 
 function testMemberAccessWithInvalidXMLMultiKey() {
     table<Customer> key(id, name) customerTable = table [{id: xml `<id>123</id>`, name: {fname: "Sanjiva", lname: "Weerawarana"}, address: "Sri Lanka" },
                                                    {id: xml `<id>234</id>`, name: {fname: "James" , lname: "Clark"}, address: "Thailand" }];
 
-    Customer customer = customerTable[xml `<id>245</id>`, {fname: "Sanjiva", lname: "Weerawarana"}];
+    Customer? customer = customerTable[xml `<id>245</id>`, {fname: "Sanjiva", lname: "Weerawarana"}];
+    assertEquality((), customer);
 }
 
 function runTableTestcasesWithVarType() {

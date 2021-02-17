@@ -25,7 +25,7 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    baloCreat project(':lib-creator')
+    balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')
@@ -35,12 +35,12 @@ dependencies {
     implementation project(':ballerina-io')
     implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system'
 
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
+    balaImplementation project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
+    balaImplementation project(path: ':ballerina-runtime-api', configuration: 'balaImplementation')
+    balaImplementation project(path: ':ballerina-time', configuration: 'balaImplementation')
+    balaImplementation project(path: ':ballerina-lang:internal', configuration: 'balaImplementation')
 
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    balaImplementation project(path: ':ballerina-io', configuration: 'balaImplementation')
 
     interopImports project(':ballerina-time')
     interopImports 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
@@ -54,7 +54,7 @@ dependencies {
     testCompile 'org.awaitility:awaitility'
 }
 
-createBalo {
+createBala {
     jvmTarget = 'true'
 }
 

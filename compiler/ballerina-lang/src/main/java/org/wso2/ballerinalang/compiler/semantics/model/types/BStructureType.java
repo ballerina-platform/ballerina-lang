@@ -60,7 +60,9 @@ public abstract class BStructureType extends BType {
         visitor.visit(this);
     }
 
-    protected boolean shouldPrintShape(Name name) {
+    public boolean shouldPrintShape() {
+        Name name = tsymbol.name;
+
         if (name == null) {
             return false;
         }

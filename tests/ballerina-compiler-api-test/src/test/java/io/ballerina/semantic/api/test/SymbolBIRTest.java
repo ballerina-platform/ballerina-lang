@@ -66,7 +66,7 @@ public class SymbolBIRTest {
 
     @BeforeClass
     public void setup() {
-        CompileResult compileResult = BCompileUtil.compileAndCacheBalo("test-src/testproject");
+        CompileResult compileResult = BCompileUtil.compileAndCacheBala("test-src/testproject");
         if (compileResult.getErrorCount() != 0) {
             Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
             Assert.fail("Compilation contains error");
@@ -94,7 +94,7 @@ public class SymbolBIRTest {
         assertList(symbolsInScope, expSymbolNames);
 
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
-                .filter(sym -> sym.name().equals("testproject")).findAny().get();
+                .filter(sym -> sym.getName().get().equals("testproject")).findAny().get();
         List<String> fooFunctions = getSymbolNames(fooPkgSymbol, SymTag.FUNCTION);
         SemanticAPITestUtils.assertList(fooModule.functions(), fooFunctions);
 
@@ -103,9 +103,11 @@ public class SymbolBIRTest {
 
         List<String> fooTypeDefs = getSymbolNames(getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF), "Digit");
         fooTypeDefs.remove("PersonObj");
+        fooTypeDefs.remove("Colour");
         SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), fooTypeDefs);
 
         SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj"));
+        SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
 
         List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
         SemanticAPITestUtils.assertList(fooModule.allSymbols(), allSymbols);
@@ -118,7 +120,7 @@ public class SymbolBIRTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -146,7 +148,8 @@ public class SymbolBIRTest {
         assertEquals(actualValues.size(), expectedValues.size());
 
         for (SymbolInfo val : expectedValues) {
-            assertTrue(actualValues.stream().anyMatch(sym -> val.equals(new SymbolInfo(sym.name(), sym.kind()))),
+            assertTrue(actualValues.stream()
+                               .anyMatch(sym -> val.equals(new SymbolInfo(sym.getName().get(), sym.kind()))),
                        "Symbol not found: " + val);
 
         }

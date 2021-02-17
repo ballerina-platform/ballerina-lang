@@ -123,7 +123,7 @@ public function cloneMap() returns [map<any>, map<any>, map<any>] {
     return [a, x, y];
 }
 
-public function cloneTable() returns [Employee[], Employee[], Employee[]] {
+public function cloneTable() returns [Employee?[], Employee?[], Employee?[]] {
 
     Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
     Employee e2 = { id: 2, name: "Anne", salary: 100.50 };

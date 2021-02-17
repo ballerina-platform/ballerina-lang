@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,10 +41,14 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, VariableDeclarationNode node)
             throws LSCompletionException {
         if (node.initializer().isEmpty()) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
-        return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
+        List<LSCompletionItem> completionItems
+                = this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 
     @Override

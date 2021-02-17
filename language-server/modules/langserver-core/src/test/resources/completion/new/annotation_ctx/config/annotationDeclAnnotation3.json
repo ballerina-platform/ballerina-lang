@@ -9,15 +9,19 @@
       "label": "sourceAnnotationAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "Q",
       "insertText": "sourceAnnotationAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "sourceAnnotationAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "Q",
       "insertText": "sourceAnnotationAnnotation2",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }

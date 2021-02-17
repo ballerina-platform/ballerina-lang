@@ -30,7 +30,7 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,6 +50,7 @@ public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClause
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, JoinClauseNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onSuggestBindingPattern(context, node)) {
@@ -63,38 +64,36 @@ public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClause
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
             }
-            List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
+            completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.addAll(this.getTypeItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-
-            return completionItems;
-        }
-        if (this.onSuggestInKeyword(context, node)) {
+        } else if (this.onSuggestInKeyword(context, node)) {
             /*
              * Covers the following cases
              * (1) join var test <cursor>
              * (2) join var test i<cursor>
              * (3) join var test i<cursor> expression
              */
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
-        }
-
-        /*
-         * Covers the remaining rule content,
-         * (1) join var test in <cursor>
-         * (2) join var test in e<cursor>
-         * (3) join var test in module:<cursor>
-         */
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
+        } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            /*
+             * Covers the remaining rule content,
+             * (1) join var test in <cursor>
+             * (2) join var test in e<cursor>
+             * (3) join var test in module:<cursor>
+             */
             /*
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-            return this.getCompletionItemList(exprEntries, context);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
         }
+        this.sort(context, node, completionItems);
 
-        return this.expressionCompletions(context);
+        return completionItems;
     }
 
     @Override

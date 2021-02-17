@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * {@code ModuleConfig} contains necessary configuration elements required to create an instance of a {@code Module}.
@@ -31,13 +32,13 @@ public class ModuleConfig {
     private final List<DocumentConfig> srcDocs;
     private final List<DocumentConfig> testSrcDocs;
     private final List<ModuleDescriptor> dependencies;
-    private final MdDocument moduleMd;
+    private final DocumentConfig moduleMd;
 
     private ModuleConfig(ModuleId moduleId,
                          ModuleDescriptor moduleDescriptor,
                          List<DocumentConfig> srcDocs,
                          List<DocumentConfig> testSrcDocs,
-                         MdDocument moduleMd,
+                         DocumentConfig moduleMd,
                          List<ModuleDescriptor> dependencies) {
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
@@ -51,7 +52,7 @@ public class ModuleConfig {
                                     ModuleDescriptor moduleDescriptor,
                                     List<DocumentConfig> srcDocs,
                                     List<DocumentConfig> testSrcDocs,
-                                    MdDocument moduleMd,
+                                    DocumentConfig moduleMd,
                                     List<ModuleDescriptor> dependencies) {
         return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
     }
@@ -80,7 +81,7 @@ public class ModuleConfig {
         return dependencies;
     }
 
-    public MdDocument moduleMd() {
-        return this.moduleMd;
+    public Optional<DocumentConfig> moduleMd() {
+        return Optional.ofNullable(this.moduleMd);
     }
 }

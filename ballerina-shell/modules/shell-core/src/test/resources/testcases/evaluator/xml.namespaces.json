@@ -6,6 +6,6 @@
   {
     "description": "Access namespace.",
     "code": "ns0:foo",
-    "expr": "{http://ballerina.com/aa}foo"
+    "expr": "\"{http://ballerina.com/aa}foo\""
   }
 ]
