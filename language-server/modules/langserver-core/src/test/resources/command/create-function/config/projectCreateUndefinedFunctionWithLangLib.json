@@ -1,0 +1,34 @@
+{
+    "arguments": {
+        "node.position": {
+            "line": 8,
+            "character": 25
+        }
+    },
+    "expected": {
+        "result": {
+            "edit": {
+                "documentChanges": [
+                    {
+                        "edits": [
+                            {
+                                "range": {
+                                    "start": {
+                                        "line": 10,
+                                        "character": 0
+                                    },
+                                    "end": {
+                                        "line": 10,
+                                        "character": 0
+                                    }
+                                },
+                                "newText": "\n\nfunction createListener(int a) returns module1:Listener {\n    \n    return new();\n}\n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "jsonrpc": "2.0"
+    }
+}
