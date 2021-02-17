@@ -130,14 +130,12 @@ public class ModuleExecutionTest extends BaseTestCase {
         String msg1 = "1 passing";
         String msg2 = "[pass] module1_test2";
 
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "moduleExecution.Module1:*", "--groups", "g1"});
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
 
-        balClient.runMain("test", new String[]{"--tests", "moduleExecution.Module1:*", "--groups", "g1"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            AssertionUtils.assertForTestFailures(output, "module with groups failure");
+        }
     }
 
     @AfterMethod
