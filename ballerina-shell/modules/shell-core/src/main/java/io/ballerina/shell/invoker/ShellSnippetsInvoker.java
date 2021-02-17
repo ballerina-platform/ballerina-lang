@@ -78,13 +78,14 @@ import java.util.function.Function;
 public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     /* Constants related to execution */
     protected static final String MODULE_RUN_METHOD_NAME = "__run";
+    // TODO: (#28662) After configurables can be supported, change this to that file location
+    private static final Path CONFIG_PATH = Paths.get(System.getProperty("user.dir"), "Config.toml");
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String CONFIGURE_INIT_CLASS_NAME = "$ConfigurationMapper";
     private static final String MODULE_INIT_METHOD_NAME = "$moduleInit";
     private static final String MODULE_START_METHOD_NAME = "$moduleStart";
     private static final String CONFIGURE_INIT_METHOD_NAME = "$configureInit";
     // TODO: After configurables can be supported, change this to that file location
-    private static final Path CONFIG_PATH = Paths.get(System.getProperty("user.dir"), "Config.toml");
     /* Constants related to temp files */
     private static final String TEMP_FILE_PREFIX = "main-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
@@ -260,9 +261,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         } catch (Exception e) {
             addErrorDiagnostic("Something went wrong: " + e);
             throw new InvokerException(e);
-        } catch (Error e) {
-            addErrorDiagnostic("Something severely went wrong: " + e);
-            throw new InvokerException(e);
         }
     }
 
@@ -330,7 +328,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
             ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
             // First run configure initialization
-            invokeDirectMethod(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
+            invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
                     new Class[]{Path.class}, new Object[]{CONFIG_PATH});
             // Initialize the module
             invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
@@ -395,9 +393,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         } catch (NoSuchMethodException e) {
             addErrorDiagnostic(methodName + " method not found: " + e.getMessage());
             throw new InvokerException(e);
-        } catch (RuntimeException e) {
-            addErrorDiagnostic("Unexpected error: " + e.getMessage());
-            throw new InvokerException(e);
         }
     }
 
@@ -414,8 +409,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return The result of the invocation.
      * @throws InvokerException If invocation failed.
      */
-    protected Object invokeDirectMethod(ClassLoader classLoader, String className, String methodName,
-                                        Class<?>[] argTypes, Object[] args) throws InvokerException {
+    protected Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
+                                          Class<?>[] argTypes, Object[] args) throws InvokerException {
         try {
             // Get class and method references
             addDebugDiagnostic(String.format("Running %s.%s directly", className, methodName));
@@ -433,9 +428,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             throw new InvokerException(e);
         } catch (InvocationTargetException e) {
             addErrorDiagnostic(methodName + " exception at target: " + e.getTargetException());
-            throw new InvokerException(e);
-        } catch (RuntimeException e) {
-            addErrorDiagnostic("Unexpected error: " + e.getMessage());
             throw new InvokerException(e);
         }
     }
