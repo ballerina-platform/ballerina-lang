@@ -29,9 +29,9 @@ import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.utils.QuotedIdentifier;
+import io.ballerina.shell.utils.StringUtils;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -96,7 +96,7 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
             // Get the quoted variable name and type
             CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) rootNode.typedBindingPattern()
                     .bindingPattern();
-            String variableName = IdentifierUtils.unescapeUnicodeCodepoints(bindingPattern.variableName().text());
+            String variableName = StringUtils.unescapeUnicodeCodepoints(bindingPattern.variableName().text());
             QuotedIdentifier quotedVariableName = new QuotedIdentifier(variableName);
             String variableType = typeDescriptorNode.toSourceCode().trim();
 
@@ -106,7 +106,6 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
         }
         return Map.of();
     }
-
 
     /**
      * A helper class to find import prefixes in a type.
@@ -154,11 +153,10 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
         }
 
         private void addIdentifier(Token token) {
-            String unescapedIdentifier = IdentifierUtils.unescapeUnicodeCodepoints(token.text());
+            String unescapedIdentifier = StringUtils.unescapeUnicodeCodepoints(token.text());
             foundVariableIdentifiers.add(new QuotedIdentifier(unescapedIdentifier));
         }
     }
-
 
     /**
      * A helper class to determine if type can be determined

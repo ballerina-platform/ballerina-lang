@@ -116,6 +116,16 @@ public class StringUtils {
     }
 
     /**
+     * Replace the unicode patterns in identifiers into respective unicode characters.
+     *
+     * @param identifier identifier string
+     * @return modified identifier with unicode character
+     */
+    public static String unescapeUnicodeCodepoints(String identifier) {
+        return IdentifierUtils.unescapeUnicodeCodepoints(identifier);
+    }
+
+    /**
      * Escapes the <code>String</code> with the escaping rules of Java language
      * string literals, so it's safe to insert the value into a string literal.
      * The resulting string will not be quoted.
