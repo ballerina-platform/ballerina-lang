@@ -831,7 +831,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     /**
      * Returns a map of thread instances which correspond to an active ballerina strand, against their unique ID.
      */
-    Map<Long, ThreadReferenceProxyImpl> getActiveStrandThreads() {
+    private Map<Long, ThreadReferenceProxyImpl> getActiveStrandThreads() {
         Map<Long, ThreadReferenceProxyImpl> allThreads = getAllThreads();
         if (allThreads == null) {
             return null;
