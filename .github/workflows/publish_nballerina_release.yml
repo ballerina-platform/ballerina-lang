@@ -1,9 +1,6 @@
 name: Publish release of nBallerina
 
 on:
-  push:
-    branches:
-      - nballerina
   workflow_dispatch:
 
 jobs:
