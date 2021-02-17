@@ -260,13 +260,11 @@ public class ErrorVariableDefinitionTest {
                 "incompatible types: expected 'int', found 'map<Cloneable>'", 56, 18);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid error variable; expecting an error type but found 'int' in type definition", 57, 47);
-
-        // TODO: enable the assert case one module record variable is supported
-//        BAssertUtil.validateError(resultNegative, ++i,
-//                "incompatible types: expected 'boolean', found 'string'", 63, 17);
-//        BAssertUtil.validateError(resultNegative, ++i,
-//                "incompatible types: expected 'string', found " +
-//                        "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 64, 16);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'boolean', found 'string'", 63, 17);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'string', found " +
+                        "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 64, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found " +
                         "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 70, 16);

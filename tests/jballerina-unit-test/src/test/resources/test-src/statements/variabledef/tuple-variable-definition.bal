@@ -89,11 +89,11 @@ class BarObj {
     }
 }
 
-//function testRecordInsideTuple() returns [string, int, boolean] {
-//    [string, Foo, boolean] [a, {name, age: theAge}, b] = ["Peter", {name: "Parker", age: 12}, true];
-//    string fullName = a + " " + name;
-//    return [fullName, theAge, b];
-//}
+function testRecordInsideTuple() returns [string, int, boolean] {
+    [string, Foo, boolean] [a, {name, age: theAge}, b] = ["Peter", {name: "Parker", age: 12}, true];
+    string fullName = a + " " + name;
+    return [fullName, theAge, b];
+}
 
 function testTupleVarDef1() returns [string, int, boolean] {
     [string, [int, boolean]] [a, [b, c]] = ["Ballerina", [123, true]];

@@ -138,8 +138,7 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[++i]).intValue(), 56);
     }
 
-    // TODO: enable the test case once module record variable is supported
-    @Test(description = "Test tuple binding with records and objects", enabled = false)
+    @Test(description = "Test tuple binding with records and objects")
     public void testRecordInsideTuple() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTuple");
         Assert.assertEquals(returns.length, 3);
