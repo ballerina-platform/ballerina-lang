@@ -19,18 +19,17 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
-import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -42,7 +41,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 /**
@@ -64,20 +62,23 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                                    NodeBasedPositionDetails posDetails) {
         List<CodeAction> actions = new ArrayList<>();
         String uri = context.fileUri();
         SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
-        NodeList<ImportDeclarationNode> fileImports = ((ModulePartNode) syntaxTree.rootNode()).imports();
+        // Copying to a separate list since there's side effects when modifying same node-list
+        List<ImportDeclarationNode> fileImports = new ArrayList<>();
+        ((ModulePartNode) syntaxTree.rootNode()).imports().stream().forEach(fileImports::add);
 
-        if (fileImports == null || fileImports.isEmpty()) {
-            return actions;
-        }
-
-        List<String[]> toBeRemovedImports = extractImportsToBeRemoved(context.diagnostics(context.filePath()));
+        List<LineRange> toBeRemovedImportsLocations = context.diagnostics(context.filePath()).stream()
+                .filter(diag -> DiagnosticErrorCode.UNUSED_IMPORT_MODULE.diagnosticId()
+                        .equals(diag.diagnosticInfo().code()))
+                .map(diag -> diag.location().lineRange())
+                .collect(Collectors.toList());
 
         // Skip, when nothing to remove and only single import pending
-        if (fileImports.size() <= 1 && toBeRemovedImports.size() == 0) {
+        if (fileImports.isEmpty() || (fileImports.size() <= 1 && toBeRemovedImportsLocations.size() == 0)) {
             return actions;
         }
 
@@ -87,7 +88,6 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         for (int i = 0; i < fileImports.size(); i++) {
             ImportDeclarationNode importPkg = fileImports.get(i);
             LineRange pos = importPkg.lineRange();
-            CodeActionModuleId importModel = CodeActionModuleId.from(importPkg);
 
             // Get imports starting line
             if (importSLine > pos.startLine().line()) {
@@ -98,13 +98,14 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
             importLines.add(CommonUtil.toRange(pos));
 
             // Remove any matching imports on-the-go
-            boolean rmMatched = toBeRemovedImports.stream()
-                    .anyMatch(rmImport -> rmImport[0].equals(importModel.orgName() + importModel.moduleName()) &&
-                            rmImport[1].equals(importModel.version()) && rmImport[2].equals(importModel.modulePrefix())
-                    );
-            if (rmMatched) {
-                fileImports = fileImports.remove(i);
-                i--;
+            for (int j = 0; j < toBeRemovedImportsLocations.size(); j++) {
+                LineRange rmLineRange = toBeRemovedImportsLocations.get(j);
+                if (importPkg.lineRange().equals(rmLineRange)) {
+                    fileImports.remove(i);
+                    toBeRemovedImportsLocations.remove(j);
+                    i--;
+                    break;
+                }
             }
         }
 
@@ -158,39 +159,11 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         return edits;
     }
 
-    private List<ImportDeclarationNode> sortImports(NodeList<ImportDeclarationNode> fileImports) {
-        List<ImportDeclarationNode> allImports = new ArrayList<>();
-        fileImports.iterator().forEachRemaining(allImports::add);
+    private List<ImportDeclarationNode> sortImports(List<ImportDeclarationNode> allImports) {
         return allImports.stream()
                 .sorted(Comparator.comparing((Function<ImportDeclarationNode, String>) o -> o.orgName().isPresent() ?
                         o.orgName().get().orgName().text() : "")
-                        .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
+                                .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
                 .collect(Collectors.toList());
-    }
-
-    private List<String[]> extractImportsToBeRemoved(List<io.ballerina.tools.diagnostics.Diagnostic> allDiagnotics) {
-        List<String[]> importsToBeRemoved = new ArrayList<>();
-
-        // Filter unused imports
-        for (Diagnostic diag : allDiagnotics) {
-            if (diag.message().startsWith(UNUSED_IMPORT_MODULE)) {
-                Matcher matcher = CommandConstants.UNUSED_IMPORT_MODULE_PATTERN.matcher(diag.message());
-                if (matcher.find()) {
-                    String pkgName = matcher.group(1).trim();
-                    String version = matcher.groupCount() > 1 && matcher.group(2) != null ? matcher.group(2) : "";
-                    String alias = matcher.groupCount() > 2 && matcher.group(3) != null
-                            ? matcher.group(3).replace(ALIAS_SEPARATOR + " ", "")
-                            : "";
-                    int aliasIndex = version.indexOf(" " + ALIAS_SEPARATOR + " ");
-                    if (aliasIndex > 0) {
-                        alias = version.substring(aliasIndex + 1).replace(ALIAS_SEPARATOR + " ", "");
-                        version = version.substring(0, aliasIndex);
-                    }
-                    importsToBeRemoved.add(new String[]{pkgName, version, alias});
-                }
-            }
-        }
-
-        return importsToBeRemoved;
     }
 }
