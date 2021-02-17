@@ -60,7 +60,9 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
             if (xmlType == symbolTable.xmlType || this.typeParameter().isEmpty()) {
                 this.typeName = "xml";
             } else {
-                this.typeName = "xml<" + this.typeParameter().get().getName().orElse("") + ">";
+                // if type param name is missing, it should default to xml<never>
+                String typeParamString = this.typeParameter().get().getName().orElse("never");
+                this.typeName = "xml<" + typeParamString + ">";
             }
         }
 
