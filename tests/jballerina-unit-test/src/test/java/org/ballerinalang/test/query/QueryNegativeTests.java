@@ -35,7 +35,7 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 23);
+        Assert.assertEquals(compileResult.getErrorCount(), 24);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
@@ -66,7 +66,9 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "ambiguous type '[string, string]'", 327, 24);
         validateError(compileResult, index++, "redeclared symbol 'fname'", 351, 36);
         validateError(compileResult, index++, "redeclared symbol 'age'", 364, 21);
-        validateError(compileResult, index, "redeclared symbol 'age'", 381, 44);
+        validateError(compileResult, index++, "redeclared symbol 'age'", 381, 44);
+        validateError(compileResult, index, "invalid constraint type. expected subtype of 'map<any|error>' " +
+                "but found 'int'", 401, 22);
     }
 
 

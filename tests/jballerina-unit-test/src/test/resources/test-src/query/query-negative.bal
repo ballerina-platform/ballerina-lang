@@ -385,3 +385,18 @@ public function testMethodParamInQuery(int age) {
                    age: age
              };
 }
+
+type TableRecord record {
+    readonly string name;
+    int id;
+};
+
+function testMultipleWhereClausesWithSimpleVariable() {
+
+    table<TableRecord> key(name) t = table [
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
+
+    table<int> ids = from var x in t select x.id;
+}
