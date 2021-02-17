@@ -77,6 +77,9 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
      * If any of the types cannot be determined this will return {@code Optional.empty()}.
      * Currently, only `A a = INIT` type are processed.
      * Name will be quoted.
+     * <p>
+     * TODO: This method is only required because some inferred signatures are not syntactically correct.
+     * This can be removed after the signatures are fixed. (#28695, #28693, #28434)
      */
     public Map<QuotedIdentifier, TypeInfo> types() {
         // VAR and ARR[*] cannot be determined.
