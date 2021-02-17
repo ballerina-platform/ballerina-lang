@@ -279,35 +279,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "table",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
       "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {

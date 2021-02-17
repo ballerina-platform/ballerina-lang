@@ -66,9 +66,9 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
             completionItems.addAll(this.getCompletionsWithinArgs(context));
         } else {
             /*
-        Supports the following
-        (1) lhs = new <cursor>
-        */
+            Supports the following
+            (1) lhs = new <cursor>
+            */
             Optional<ClassSymbol> classSymbol = getClassSymbol(context, node);
             completionItems.addAll(this.getModuleCompletionItems(context));
             classSymbol.ifPresent(symbol -> completionItems.add(this.getExplicitNewCompletionItem(symbol, context)));
