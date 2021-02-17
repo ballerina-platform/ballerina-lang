@@ -1,1 +1,1 @@
-/exit,/about,/debug,/reset,/imports,/vars,/dclns,/help,/file,/delete
+/exit,/about,/debug,/reset,/imports,/vars,/dclns,/help,/open,/remove

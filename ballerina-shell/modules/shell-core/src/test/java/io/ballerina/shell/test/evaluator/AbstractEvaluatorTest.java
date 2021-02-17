@@ -27,6 +27,9 @@ import io.ballerina.shell.test.evaluator.base.TestInvoker;
 import io.ballerina.shell.test.evaluator.base.TestSession;
 import org.testng.Assert;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Base class for evaluator tests.
  * TODO: Find a way to test concurrency.
@@ -62,9 +65,16 @@ public abstract class AbstractEvaluatorTest {
                 String testCode = testCase.getCode();
 
                 // Evaluating files
-                if (testCode.startsWith("/file")) {
+                if (testCode.startsWith("/open")) {
                     String loadFile = testCode.split("\\s")[1];
                     evaluator.executeFile(TestUtils.getFile(loadFile));
+                    continue;
+                }
+                // Removing declarations
+                if (testCode.startsWith("/remove")) {
+                    List<String> names = Arrays.asList(testCode.split("\\s"));
+                    names.remove(0);
+                    evaluator.delete(names);
                     continue;
                 }
 

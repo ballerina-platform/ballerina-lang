@@ -1,7 +1,7 @@
 [
   {
     "description": "Load the declarations file.",
-    "code": "/file files/unordered.bal"
+    "code": "/open files/unordered.bal"
   },
   {
     "description": "Running the function.",

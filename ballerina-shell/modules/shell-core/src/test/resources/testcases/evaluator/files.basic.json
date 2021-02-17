@@ -1,7 +1,7 @@
 [
   {
     "description": "Load the declarations file.",
-    "code": "/file files/basic.bal"
+    "code": "/open files/basic.bal"
   },
   {
     "description": "Running the function.",
