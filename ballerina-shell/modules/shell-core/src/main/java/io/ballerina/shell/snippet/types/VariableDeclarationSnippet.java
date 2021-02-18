@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
  */
 public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDeclarationNode>
         implements TopLevelDeclarationSnippet {
+    private Set<QuotedIdentifier> names;
+
     public VariableDeclarationSnippet(ModuleVariableDeclarationNode rootNode) {
         super(SnippetSubKind.VARIABLE_DECLARATION, rootNode);
     }
@@ -62,9 +64,13 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
      * Variable names that are defined in this snippet.
      */
     public Set<QuotedIdentifier> names() {
-        Set<QuotedIdentifier> foundVariableIdentifiers = new HashSet<>();
-        rootNode.accept(new VariableNameFinder(foundVariableIdentifiers));
-        return foundVariableIdentifiers;
+        if (names != null) {
+            return names;
+        }
+
+        names = new HashSet<>();
+        rootNode.accept(new VariableNameFinder(names));
+        return names;
     }
 
     /**
