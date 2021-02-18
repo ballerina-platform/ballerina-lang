@@ -67,7 +67,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
 
     @Override
     public List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics(Path filePath) {
-        if (this.diagnostics != null) {
+        if (this.diagnostics == null) {
             PackageCompilation compilation = workspace().waitAndGetPackageCompilation(filePath).orElseThrow();
             Project project = this.workspace().project(this.filePath()).orElseThrow();
             Path projectRoot = (project.kind() == ProjectKind.SINGLE_FILE_PROJECT)
