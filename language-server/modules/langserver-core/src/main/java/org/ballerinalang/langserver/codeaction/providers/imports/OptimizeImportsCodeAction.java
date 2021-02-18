@@ -25,11 +25,9 @@ import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
-import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -39,9 +37,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_IMPORT_MODULE;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.UNUSED_IMPORT_MODULE;
 
 /**
  * Code Action for optimizing all imports.
@@ -50,7 +50,6 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
-    private static final String UNUSED_IMPORT_MODULE = "unused import module";
     private static final String ALIAS_SEPARATOR = "as";
 
 
@@ -72,8 +71,8 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         ((ModulePartNode) syntaxTree.rootNode()).imports().stream().forEach(fileImports::add);
 
         List<LineRange> toBeRemovedImportsLocations = context.diagnostics(context.filePath()).stream()
-                .filter(diag -> DiagnosticErrorCode.UNUSED_IMPORT_MODULE.diagnosticId()
-                        .equals(diag.diagnosticInfo().code()))
+                .filter(diag -> UNUSED_IMPORT_MODULE.diagnosticId().equals(diag.diagnosticInfo().code()) ||
+                        REDECLARED_IMPORT_MODULE.diagnosticId().equals(diag.diagnosticInfo().code()))
                 .map(diag -> diag.location().lineRange())
                 .collect(Collectors.toList());
 
@@ -84,7 +83,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
 
         // Find the imports range
         int importSLine = fileImports.get(0).lineRange().startLine().line();
-        List<Range> importLines = new ArrayList<>();
+        int importELine = fileImports.get(0).lineRange().endLine().line();
         for (int i = 0; i < fileImports.size(); i++) {
             ImportDeclarationNode importPkg = fileImports.get(i);
             LineRange pos = importPkg.lineRange();
@@ -94,8 +93,10 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
                 importSLine = pos.startLine().line();
             }
 
-            // Mark locations of the imports
-            importLines.add(CommonUtil.toRange(pos));
+            // Get imports ending position
+            if (importELine < pos.endLine().line()) {
+                importELine = pos.endLine().line();
+            }
 
             // Remove any matching imports on-the-go
             for (int j = 0; j < toBeRemovedImportsLocations.size(); j++) {
@@ -110,7 +111,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         }
 
         // Re-create imports list text
-        StringJoiner editText = new StringJoiner("");
+        StringBuilder editText = new StringBuilder("");
         sortImports(fileImports).forEach(importNode -> {
             MinutiaeList leadingMinutiae = NodeFactory.createEmptyMinutiaeList();
             MinutiaeList trailingMinutiae = importNode.importKeyword().trailingMinutiae();
@@ -128,41 +129,24 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
             importNode.semicolon();
             importModifier.withSemicolon(importNode.semicolon());
 
-            editText.add(importModifier.apply().toSourceCode());
+            editText.append(importModifier.apply().toSourceCode());
         });
 
-        Position position = new Position(importSLine, 0);
-        List<TextEdit> edits = getImportsRemovalTextEdits(importLines);
-        edits.add(new TextEdit(new Range(position, position), editText.toString()));
+        Position importStart = new Position(importSLine, 0);
+        Position importEnd = new Position(importELine + 1, 0);
+        TextEdit textEdit = new TextEdit(new Range(importStart, importEnd), editText.toString());
+        List<TextEdit> edits = Collections.singletonList(textEdit);
         actions.add(createQuickFixCodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE, edits, uri));
         return actions;
     }
 
-    private List<TextEdit> getImportsRemovalTextEdits(List<Range> importLines) {
-        List<TextEdit> edits = new ArrayList<>();
-        Range txtRange = null;
-        for (Range importRange : importLines) {
-            if (txtRange != null && importRange.getStart().getLine() != txtRange.getEnd().getLine() + 1) {
-                edits.add(new TextEdit(new Range(txtRange.getStart(), txtRange.getEnd()), ""));
-                txtRange = importRange;
-            } else {
-                if (txtRange == null) {
-                    txtRange = importRange;
-                } else {
-                    txtRange.setEnd(importRange.getEnd());
-                }
-            }
-        }
-        if (txtRange != null) {
-            edits.add(new TextEdit(new Range(txtRange.getStart(), txtRange.getEnd()), ""));
-        }
-        return edits;
-    }
-
-    private List<ImportDeclarationNode> sortImports(List<ImportDeclarationNode> allImports) {
-        return allImports.stream()
+    private List<ImportDeclarationNode> sortImports(List<ImportDeclarationNode> fileImports) {
+        return fileImports.stream()
                 .sorted(Comparator.comparing((Function<ImportDeclarationNode, String>) o -> o.orgName().isPresent() ?
-                        o.orgName().get().orgName().text() : "")
+                        o.orgName().get().orgName().text()
+                        : o.moduleName().stream().map(Token::text).collect(Collectors.joining(".")))
+                                .thenComparing(
+                                        o -> o.moduleName().stream().map(Token::text).collect(Collectors.joining(".")))
                                 .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
                 .collect(Collectors.toList());
     }
