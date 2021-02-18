@@ -21,6 +21,7 @@ package io.ballerina.shell.test.unit;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.EvaluatorBuilder;
 import io.ballerina.shell.exceptions.BallerinaShellException;
+import io.ballerina.shell.test.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -60,9 +61,9 @@ public class EvaluatorMiscTest {
         evaluator.evaluate("import ballerina/lang.'float as prefix2");
         Assert.assertEquals(new HashSet<>(evaluator.availableImports()),
                 Set.of(
-                        "('java) import ballerina/'jballerina.'java as 'java;",
-                        "('prefix) import ballerina/'lang.'int as 'prefix;",
-                        "('prefix2) import ballerina/'lang.'float as 'prefix2;"
+                        "('java) import 'ballerina/'jballerina.'java as 'java;",
+                        "('prefix) import 'ballerina/'lang.'int as 'prefix;",
+                        "('prefix2) import 'ballerina/'lang.'float as 'prefix2;"
                 )
         );
         Assert.assertTrue(evaluator.availableVariables().isEmpty());
@@ -71,7 +72,9 @@ public class EvaluatorMiscTest {
 
     @Test
     public void testEvaluatorVarDclns() throws BallerinaShellException {
-        Evaluator evaluator = new EvaluatorBuilder().build();
+        Evaluator evaluator = new EvaluatorBuilder()
+                .treeParser(TestUtils.getTestTreeParser())
+                .build();
         evaluator.initialize();
         evaluator.evaluate("int i = 23");
         evaluator.evaluate("string? k = ()");

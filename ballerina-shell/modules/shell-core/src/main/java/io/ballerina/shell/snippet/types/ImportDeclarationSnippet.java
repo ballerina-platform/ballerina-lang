@@ -22,8 +22,9 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.utils.QuotedIdentifier;
-import io.ballerina.shell.utils.StringUtils;
+import io.ballerina.shell.utils.QuotedImport;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -56,15 +57,14 @@ public class ImportDeclarationSnippet extends AbstractSnippet<ImportDeclarationN
      *
      * @return Imported module expression.
      */
-    public String getImportedModule() {
-        String moduleName = rootNode.moduleName().stream()
+    public QuotedImport getImportedModule() {
+        List<String> moduleNames = rootNode.moduleName().stream()
                 .map(IdentifierToken::text)
-                .map(StringUtils::quoted)
-                .collect(Collectors.joining("."));
+                .collect(Collectors.toList());
         if (rootNode.orgName().isPresent()) {
             String orgName = rootNode.orgName().get().orgName().text();
-            return String.format("%s/%s", orgName, moduleName);
+            return new QuotedImport(orgName, moduleNames);
         }
-        return moduleName;
+        return new QuotedImport(moduleNames);
     }
 }

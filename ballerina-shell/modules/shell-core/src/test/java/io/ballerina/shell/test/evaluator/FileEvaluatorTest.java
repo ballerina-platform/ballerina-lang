@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 public class FileEvaluatorTest extends AbstractEvaluatorTest {
     private static final String BASIC_EVALUATOR_TESTCASE = "testcases/evaluator/files.basic.json";
     private static final String UNORDERED_EVALUATOR_TESTCASE = "testcases/evaluator/files.unordered.json";
+    private static final String MU_USED_EVALUATOR_TESTCASE = "testcases/evaluator/files.mu.used.json";
     private static final String RECURSIVE_EVALUATOR_TESTCASE = "testcases/evaluator/files.mu.recursive.json";
 
     @Test
@@ -38,6 +39,11 @@ public class FileEvaluatorTest extends AbstractEvaluatorTest {
     @Test
     public void testEvaluateFileUnordered() throws Exception {
         testEvaluate(UNORDERED_EVALUATOR_TESTCASE);
+    }
+
+    @Test
+    public void testEvaluateFileMutuallyUsed() throws Exception {
+        testEvaluate(MU_USED_EVALUATOR_TESTCASE);
     }
 
     @Test

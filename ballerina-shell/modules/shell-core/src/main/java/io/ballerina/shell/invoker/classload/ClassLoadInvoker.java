@@ -42,6 +42,7 @@ import io.ballerina.shell.snippet.types.StatementSnippet;
 import io.ballerina.shell.snippet.types.TopLevelDeclarationSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 import io.ballerina.shell.utils.QuotedIdentifier;
+import io.ballerina.shell.utils.QuotedImport;
 import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.shell.utils.timeit.InvokerTimeIt;
 import io.ballerina.shell.utils.timeit.TimedOperation;
@@ -286,10 +287,10 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      * @throws InvokerException If importing failed.
      */
     private QuotedIdentifier processImport(ImportDeclarationSnippet importSnippet) throws InvokerException {
-        String moduleName = importSnippet.getImportedModule();
+        QuotedImport quotedImport = importSnippet.getImportedModule();
         QuotedIdentifier quotedPrefix = importSnippet.getPrefix();
 
-        if (imports.moduleImported(moduleName) && imports.prefix(moduleName).equals(quotedPrefix)) {
+        if (imports.moduleImported(quotedImport) && imports.prefix(quotedImport).equals(quotedPrefix)) {
             // Same module with same prefix. No need to check.
             return quotedPrefix;
         } else if (imports.containsPrefix(quotedPrefix)) {
@@ -340,37 +341,47 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         Project project = getProject(context, DECLARATION_TEMPLATE_FILE);
         PackageCompilation compilation = compile(project);
 
-        // Only execute if there are variable declarations
-        if (!variableNames.isEmpty()) {
-            // Find all the global variables that were defined
-            Collection<GlobalVariableSymbol> globalVariableSymbols = globalVariableSymbols(project, compilation);
+        // Compilation was successful, so we can add the declarations
+        // to the persisted list. Here everything is persisted.
+        // Please note that this would be reversed if something went wrong in execution.
 
-            // Map all variable names with its global variable
-            Map<QuotedIdentifier, GlobalVariable> allNewVariables = new HashMap<>();
-            for (VariableDeclarationSnippet snippet : variableDeclarations.keySet()) {
-                Map<QuotedIdentifier, GlobalVariable> newVariables = createGlobalVariables(
-                        snippet.qualifiersAndMetadata(), snippet.names(), globalVariableSymbols);
-                allNewVariables.putAll(newVariables);
-            }
-
-            // Compile and execute the real program.
-            ClassLoadContext execContext = createVariablesExecutionContext(
-                    variableDeclarations.keySet(), allNewVariables);
-            executeProject(execContext, EXECUTION_TEMPLATE_FILE);
-            globalVars.putAll(allNewVariables);
-            newImports.forEach(imports::storeImportUsages);
-            addDebugDiagnostic("Found new variables: " + allNewVariables);
+        // Find all the global variables that were defined
+        // and Map all variable names with its global variable
+        Collection<GlobalVariableSymbol> globalVariableSymbols = globalVariableSymbols(project, compilation);
+        Map<QuotedIdentifier, GlobalVariable> allNewVariables = new HashMap<>();
+        for (VariableDeclarationSnippet snippet : variableDeclarations.keySet()) {
+            Map<QuotedIdentifier, GlobalVariable> newVariables = createGlobalVariables(
+                    snippet.qualifiersAndMetadata(), snippet.names(), globalVariableSymbols);
+            allNewVariables.putAll(newVariables);
         }
-
-        // All was successful without error - save state
-        this.newImports.forEach(imports::storeImportUsages);
+        // Persist all data
+        globalVars.putAll(allNewVariables);
+        newImports.forEach(imports::storeImportUsages);
+        addDebugDiagnostic("Implicit imports added: " + newImports);
+        addDebugDiagnostic("Found new variables: " + allNewVariables);
         for (Map.Entry<QuotedIdentifier, ModuleMemberDeclarationSnippet> dcln : moduleDeclarations.entrySet()) {
             String moduleDclnCode = dcln.getValue().toString();
-            this.moduleDclns.put(dcln.getKey(), moduleDclnCode);
+            moduleDclns.put(dcln.getKey(), moduleDclnCode);
             addDebugDiagnostic("Module dcln name: " + dcln.getKey());
             addDebugDiagnostic("Module dcln code: " + moduleDclnCode);
         }
-        addDebugDiagnostic("Implicit imports added: " + this.newImports);
+        // No need to execute if none are variable declarations
+        if (variableNames.isEmpty()) {
+            return;
+        }
+
+        try {
+            ClassLoadContext execContext = createVariablesExecutionContext(
+                    variableDeclarations.keySet(), allNewVariables);
+            executeProject(execContext, EXECUTION_TEMPLATE_FILE);
+        } catch (InvokerException e) {
+            // Execution failed... Reverse all by deleting declarations.
+            Set<String> identifiersToDelete = new HashSet<>();
+            allNewVariables.keySet().forEach(id -> identifiersToDelete.add(id.getName()));
+            moduleDeclarations.keySet().forEach(id -> identifiersToDelete.add(id.getName()));
+            delete(identifiersToDelete);
+            throw e;
+        }
     }
 
     /**
@@ -586,16 +597,12 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             // Append up-to start of the match
             newText.append(text, nextStart, matcher.start(1));
             // Identify org name and module names
-            QuotedIdentifier orgName = new QuotedIdentifier(matcher.group(1));
-            String[] moduleNames = Arrays
-                    .stream(matcher.group(2).split("\\.")) // for each module name part
-                    .map(StringUtils::quoted) // quote it
-                    .toArray(String[]::new); // collect as a string array
-            String moduleName = String.join(".", moduleNames);
-            String moduleText = String.format("%s/%s", orgName, moduleName);
+            String orgName = matcher.group(1);
+            List<String> moduleNames = Arrays.asList(matcher.group(2).split("\\."));
+            QuotedImport quotedImport = new QuotedImport(orgName, moduleNames);
 
             // Add the import required
-            QuotedIdentifier quotedPrefix = addImport(moduleText);
+            QuotedIdentifier quotedPrefix = addImport(quotedImport);
             imports.add(quotedPrefix);
 
             // Update next-start position
@@ -614,23 +621,22 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      * This will import the module with an already imported prefix,
      * import with default name or using _I format.
      *
-     * @param moduleText Module to import in 'orgName/module.name' format
+     * @param moduleName Module to import in 'orgName/module.name' format
      * @return Prefix imported.
      */
-    protected QuotedIdentifier addImport(String moduleText) {
+    protected QuotedIdentifier addImport(QuotedImport moduleName) {
         // If this module is already imported, use a previous prefix.
-        if (imports.moduleImported(moduleText)) {
-            return imports.prefix(moduleText);
+        if (imports.moduleImported(moduleName)) {
+            return imports.prefix(moduleName);
         }
 
         // Try to find an available prefix (starting from default prefix and iterate over _I imports)
-        String defaultPrefix = moduleText.replaceAll(".*\\.", "");
-        QuotedIdentifier quotedPrefix = new QuotedIdentifier(defaultPrefix);
+        QuotedIdentifier quotedPrefix = moduleName.getDefaultPrefix();
         while (imports.containsPrefix(quotedPrefix)) {
             quotedPrefix = new QuotedIdentifier("_" + importIndex.incrementAndGet());
         }
 
-        return imports.storeImport(quotedPrefix, moduleText);
+        return imports.storeImport(quotedPrefix, moduleName);
     }
 
     /**

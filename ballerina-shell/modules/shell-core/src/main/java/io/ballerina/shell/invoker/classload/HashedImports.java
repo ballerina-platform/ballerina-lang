@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
 import io.ballerina.shell.utils.QuotedIdentifier;
+import io.ballerina.shell.utils.QuotedImport;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
@@ -60,11 +61,11 @@ public class HashedImports {
      * This is a map of import prefix to the import statement used.
      * Import prefix must be a quoted identifier.
      */
-    private final HashMap<QuotedIdentifier, String> imports;
+    private final HashMap<QuotedIdentifier, QuotedImport> imports;
     /**
      * Reverse map to search the imported module.
      */
-    private final HashMap<String, QuotedIdentifier> reverseImports;
+    private final HashMap<QuotedImport, QuotedIdentifier> reverseImports;
     /**
      * Import prefixes that are used in each module declaration/var declaration.
      * Key is the name of the module/var declaration. (quoted name)
@@ -100,11 +101,11 @@ public class HashedImports {
      * @return The import statement of the prefix.
      */
     public String getImport(QuotedIdentifier prefix) {
-        String moduleName = this.imports.get(prefix);
-        if (moduleName == null) {
+        QuotedImport quotedImport = this.imports.get(prefix);
+        if (quotedImport == null) {
             return null;
         }
-        return String.format("import %s as %s;", moduleName, prefix);
+        return String.format("import %s as %s;", quotedImport, prefix);
     }
 
     /**
@@ -124,7 +125,7 @@ public class HashedImports {
      * @param moduleName Module name to check in 'orgName/module' format.
      * @return If module was added.
      */
-    public boolean moduleImported(String moduleName) {
+    public boolean moduleImported(QuotedImport moduleName) {
         return this.reverseImports.containsKey(moduleName);
     }
 
@@ -134,7 +135,7 @@ public class HashedImports {
      * @param moduleName Module name to check in 'orgName/module' format.
      * @return Prefix of the import.
      */
-    public QuotedIdentifier prefix(String moduleName) {
+    public QuotedIdentifier prefix(QuotedImport moduleName) {
         return this.reverseImports.get(moduleName);
     }
 
@@ -146,7 +147,7 @@ public class HashedImports {
      */
     public QuotedIdentifier storeImport(ImportDeclarationSnippet snippet) {
         QuotedIdentifier quotedPrefix = snippet.getPrefix();
-        String importedModule = snippet.getImportedModule();
+        QuotedImport importedModule = snippet.getImportedModule();
         return storeImport(quotedPrefix, importedModule);
     }
 
@@ -157,7 +158,7 @@ public class HashedImports {
      * @param moduleName   Module name to add.
      * @return The prefix the import was added as.
      */
-    public QuotedIdentifier storeImport(QuotedIdentifier quotedPrefix, String moduleName) {
+    public QuotedIdentifier storeImport(QuotedIdentifier quotedPrefix, QuotedImport moduleName) {
         this.imports.put(quotedPrefix, moduleName);
         this.reverseImports.put(moduleName, quotedPrefix);
         return quotedPrefix;
