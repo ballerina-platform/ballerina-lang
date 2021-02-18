@@ -810,8 +810,9 @@ public class Types {
             return true;
         }
 
-        if (TypeTags.isXMLTypeTag(sourceTag) && isXMLTypeAssignable(source, target, unresolvedTypes)) {
-            return true;
+        if (TypeTags.isXMLTypeTag(sourceTag) &&
+                (TypeTags.isXMLTypeTag(targetTag) || targetTag == TypeTags.STRING)) {
+            return isXMLTypeAssignable(source, target, unresolvedTypes);
         }
 
         if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
@@ -1131,7 +1132,6 @@ public class Types {
                 && target.typeIdSet.isAssignableFrom(source.typeIdSet);
     }
 
-    // TODO: Recheck this to support finite types
     private boolean isXMLTypeAssignable(BType sourceType, BType targetType, Set<TypePair> unresolvedTypes) {
         int sourceTag = sourceType.tag;
         int targetTag = targetType.tag;
@@ -1166,19 +1166,6 @@ public class Types {
                     return true;
                 }
                 return isAssignable(source.constraint, targetType, unresolvedTypes);
-            }
-        } else if (sourceTag == TypeTags.XML_TEXT) {
-            if (targetTag == TypeTags.STRING || targetTag == TypeTags.CHAR_STRING) {
-                return true;
-            }
-
-            if (targetTag == TypeTags.FINITE) {
-                BFiniteType finiteType = (BFiniteType) targetType;
-                for (BLangExpression finiteValue : finiteType.getValueSpace()) {
-                    if (isXMLTypeAssignable(sourceType, finiteValue.type, unresolvedTypes)) {
-                        return true;
-                    }
-                }
             }
         }
         return sourceTag == targetTag;
