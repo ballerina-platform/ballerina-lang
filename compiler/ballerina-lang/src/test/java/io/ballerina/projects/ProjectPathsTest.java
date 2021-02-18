@@ -35,25 +35,34 @@ import java.nio.file.Paths;
  */
 public class ProjectPathsTest {
     Path tempDir;
+    Path tempStandAloneFileInTmpDir;
     Path projectPath;
 
     @BeforeClass
     public void setUp() throws IOException {
         tempDir = Files.createTempDirectory("ballerina-test-" + System.nanoTime());
-        projectPath = tempDir.resolve("testProj");
-        Files.createFile(tempDir.resolve("test.bal"));
 
+        // Create a project
+        projectPath = tempDir.resolve("testProj");
+        // Create default module
         Files.createDirectories(projectPath.resolve("tests"));
         Files.createFile(projectPath.resolve(ProjectConstants.BALLERINA_TOML));
         Files.createFile(projectPath.resolve("main.bal"));
         Files.createFile(projectPath.resolve("tests").resolve("main_test.bal"));
 
+        // Create another module
         Files.createDirectories(projectPath.resolve("modules").resolve("module1").resolve("tests"));
         Files.createFile(projectPath.resolve("modules").resolve("module1").resolve("main.bal"));
         Files.createFile(projectPath.resolve("modules").resolve("module1").resolve("tests").resolve("main_test.bal"));
 
+        // Create standalone files outside project directory
+        Files.createFile(tempDir.resolve("test.bal")); // path - /tmp/ballerina-test-223233/test.bal
+        tempStandAloneFileInTmpDir = Files.createTempFile("temp-test", ".bal"); // path - /tmp/temp-test.bal
+
+        // Create standalone file inside project directory
         Files.createDirectory(projectPath.resolve("test-utils"));
-        Files.createFile(projectPath.resolve("test-utils").resolve("utils.bal"));
+        Files.createFile(projectPath.resolve("test-utils")
+                .resolve("utils.bal")); // path - /tmp/testProj/test-utils/utils.bal
     }
 
     @Test
@@ -86,10 +95,16 @@ public class ProjectPathsTest {
         Assert.assertEquals(ProjectPaths.packageRoot(tempDir.resolve("test.bal")), projectPath);
     }
 
+    @Test(expectedExceptions = ProjectException.class)
+    public void testPackageRootNegative4() {
+        Assert.assertEquals(ProjectPaths.packageRoot(tempStandAloneFileInTmpDir), projectPath);
+    }
+
     @Test
     public void testIsBallerinaSourceFile() {
         Assert.assertTrue(ProjectPaths.isBalFile(projectPath.resolve("main.bal")));
         Assert.assertTrue(ProjectPaths.isBalFile(tempDir.resolve("test.bal")));
+        Assert.assertTrue(ProjectPaths.isBalFile(tempStandAloneFileInTmpDir));
 
         Assert.assertFalse(ProjectPaths.isBalFile(projectPath.resolve("Ballerina.toml")));
         Assert.assertFalse(ProjectPaths.isBalFile(projectPath));
@@ -110,6 +125,15 @@ public class ProjectPathsTest {
         Assert.assertTrue(ProjectPaths.isStandaloneBalFile(
                 projectPath.resolve("test-utils").resolve("utils.bal")));
         Assert.assertTrue(ProjectPaths.isStandaloneBalFile(tempDir.resolve("test.bal")));
+    }
+
+    @Test
+    public void testIsBallerinaStandAloneFileInTmpDirRoot() throws IOException {
+        Assert.assertTrue(ProjectPaths.isStandaloneBalFile(tempStandAloneFileInTmpDir));
+        Path ballerinaToml = Files.createFile(tempStandAloneFileInTmpDir.getParent().resolve("Ballerina.toml"));
+        boolean standaloneBalFile = ProjectPaths.isStandaloneBalFile(tempStandAloneFileInTmpDir);
+        Files.deleteIfExists(ballerinaToml);
+        Assert.assertFalse(standaloneBalFile);
     }
 
     @AfterClass
