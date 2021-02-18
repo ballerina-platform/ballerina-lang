@@ -1,0 +1,22 @@
+{
+  "line": 4,
+  "character": 7,
+  "expected": [
+    {
+      "title": "Create function 'addTwoIntegers3(...)'",
+      "command": {
+        "title": "Create function 'addTwoIntegers3(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.position",
+            "value": {
+              "line": 4,
+              "character": 7
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

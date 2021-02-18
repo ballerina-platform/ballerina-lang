@@ -18,7 +18,9 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -28,6 +30,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
@@ -51,6 +55,7 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class TypeCastCodeAction extends AbstractCodeActionProvider {
+    private static final int FOUND_SYMBOL_INDEX = 1;
 
     /**
      * {@inheritDoc}
@@ -66,6 +71,25 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
                 matchedNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
                 matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
             return Collections.emptyList();
+        }
+
+        List<DiagnosticProperty<?>> props = diagnostic.properties();
+        if (props.size() != 2 || props.get(FOUND_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC) {
+            return Collections.emptyList();
+        }
+
+        Symbol rhsTypeSymbol = ((DiagnosticProperty<Symbol>) props.get(FOUND_SYMBOL_INDEX)).value();
+        if (diagnostic.properties().get(1) == null) {
+            return Collections.emptyList();
+        }
+        if (rhsTypeSymbol instanceof TypeSymbol && ((TypeSymbol) rhsTypeSymbol).typeKind() == TypeDescKind.UNION) {
+            // If RHS is a union and has error member type; skip code-action
+            UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) rhsTypeSymbol;
+            boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
+                    .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
+            if (hasErrorMemberType) {
+                return Collections.emptyList();
+            }
         }
         Optional<ExpressionNode> expressionNode = getExpression(matchedNode);
         Optional<TypeSymbol> variableTypeSymbol = getVariableTypeSymbol(matchedNode, context);
