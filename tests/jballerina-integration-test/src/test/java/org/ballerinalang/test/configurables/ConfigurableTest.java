@@ -189,8 +189,8 @@ public class ConfigurableTest extends BaseTest {
                         " 'main:AuthInfo' in configurable variable 'main:testUser'"},
                 {"record_type_error", "invalid type found for variable 'main:testUser', expected TOML type for type " +
                         "'main:(testOrg/main:0.1.0:AuthInfo & readonly)' is 'TABLE', found 'KEY_VALUE'"},
-                {"record_field_structure_error", "invalid TOML table structure found for record variable " +
-                        "'main:testUser', found TOML table for 'main:testUser.username'"},
+                {"record_field_structure_error", "invalid TOML structure found for variable 'main:testUser.username'," +
+                        " expected structure is 'KEY_VALUE', found 'TABLE"},
                 {"record_field_type_error", "invalid type found for variable 'main:testUser.username', expected " +
                         "TOML type for type 'string' is 'STRING', found 'INTEGER'"},
                 {"missing_table_key", "Value required for key 'username' of type 'table<(main:AuthInfo & readonly)>" +

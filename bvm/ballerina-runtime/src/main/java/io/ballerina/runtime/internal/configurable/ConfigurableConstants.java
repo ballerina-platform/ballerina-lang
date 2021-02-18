@@ -47,8 +47,6 @@ public class ConfigurableConstants {
             "range is (0-255), found '%s'";
     public static final String INVALID_TOML_STRUCTURE = "invalid TOML structure found for variable '%s', expected " +
             "structure is '%s', found '%s'";
-    public static final String INVALID_TOML_STRUCTURE_TABLE = "invalid TOML table structure found for record variable" +
-            " '%s', found TOML table for '%s'";
     public static final String INVALID_MODULE_STRUCTURE = "invalid module structure found for module '%s'. Please " +
             "provide the module name as '[%s]' ";
 

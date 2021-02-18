@@ -93,7 +93,8 @@ public class TesterinaFunction {
             throw new BallerinaTestException("Failed to invoke the function '" +
                                              funcName + " due to " + e.getMessage(), e);
         } catch (InvocationTargetException e) {
-            throw new BallerinaTestException(e.getTargetException().getMessage());
+            Throwable targetException = e.getTargetException();
+            throw new BallerinaTestException(targetException.getMessage(), targetException);
         }
     }
 
