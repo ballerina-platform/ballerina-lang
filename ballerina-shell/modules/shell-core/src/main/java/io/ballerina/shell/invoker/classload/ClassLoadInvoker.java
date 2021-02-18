@@ -313,7 +313,6 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     private void processDeclarations(Collection<TopLevelDeclarationSnippet> declarationSnippets)
             throws InvokerException {
         Map<VariableDeclarationSnippet, Set<QuotedIdentifier>> variableDeclarations = new HashMap<>();
-        Map<QuotedIdentifier, VariableDeclarationSnippet.TypeInfo> variableTypes = new HashMap<>();
         List<QuotedIdentifier> variableNames = new ArrayList<>();
         Map<QuotedIdentifier, ModuleMemberDeclarationSnippet> moduleDeclarations = new HashMap<>();
 
@@ -325,7 +324,6 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             if (declarationSnippet instanceof VariableDeclarationSnippet) {
                 VariableDeclarationSnippet varDclnSnippet = (VariableDeclarationSnippet) declarationSnippet;
                 variableNames.addAll(varDclnSnippet.names());
-                variableTypes.putAll(varDclnSnippet.types());
                 variableDeclarations.put(varDclnSnippet, varDclnSnippet.names());
 
             } else if (declarationSnippet instanceof ModuleMemberDeclarationSnippet) {
@@ -351,7 +349,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             Map<QuotedIdentifier, GlobalVariable> allNewVariables = new HashMap<>();
             for (VariableDeclarationSnippet snippet : variableDeclarations.keySet()) {
                 Map<QuotedIdentifier, GlobalVariable> newVariables = createGlobalVariables(
-                        snippet.qualifiersAndMetadata(), snippet.names(), variableTypes, globalVariableSymbols);
+                        snippet.qualifiersAndMetadata(), snippet.names(), globalVariableSymbols);
                 allNewVariables.putAll(newVariables);
             }
 
@@ -488,15 +486,12 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      *
      * @param qualifiersAndMetadata Variable snippet qualifiers.
      * @param definedVariables      Variables that were defined.
-     * @param definedTypes          Types of the variables.
-     *                              If an entry is missing from this, the signature will be used.
      * @param globalVarSymbols      All global variable symbols.
      * @return Exported found variable information (name and type)
      */
     private Map<QuotedIdentifier, GlobalVariable> createGlobalVariables(
             String qualifiersAndMetadata,
             Set<QuotedIdentifier> definedVariables,
-            Map<QuotedIdentifier, VariableDeclarationSnippet.TypeInfo> definedTypes,
             Collection<GlobalVariableSymbol> globalVarSymbols) {
         Map<QuotedIdentifier, GlobalVariable> foundVariables = new HashMap<>();
         addDebugDiagnostic("Found variables: " + definedVariables);
@@ -516,18 +511,10 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
             // Determine the type information
             boolean isAssignableToAny = typeSymbol.assignableTo(anyTypeSymbol);
-            // Find the variable type - use syntax tree if possible
-            String variableType;
-            if (definedTypes.containsKey(variableName)) {
-                // We can use syntax tree, add required imports
-                VariableDeclarationSnippet.TypeInfo typeInfo = definedTypes.get(variableName);
-                variableType = typeInfo.getType();
-                this.newImports.put(variableName, typeInfo.getImports());
-            } else {
-                Set<QuotedIdentifier> requiredImports = new HashSet<>();
-                variableType = parseTypeSignature(typeSymbol, requiredImports);
-                this.newImports.put(variableName, requiredImports);
-            }
+            // Find the variable type
+            Set<QuotedIdentifier> requiredImports = new HashSet<>();
+            String variableType = parseTypeSignature(typeSymbol, requiredImports);
+            this.newImports.put(variableName, requiredImports);
 
             // Create a global variable
             GlobalVariable globalVariable = new GlobalVariable(variableType, variableName,

@@ -18,23 +18,18 @@
 
 package io.ballerina.shell.snippet.types;
 
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.utils.QuotedIdentifier;
 import io.ballerina.shell.utils.StringUtils;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -73,62 +68,6 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
     }
 
     /**
-     * Variable types for each variable name.
-     * If any of the types cannot be determined this will return {@code Optional.empty()}.
-     * Currently, only `A a = INIT` type are processed.
-     * Name will be quoted.
-     * <p>
-     * TODO: This method is only required because some inferred signatures are not syntactically correct.
-     * This can be removed after the signatures are fixed. (#28695, #28693, #28434)
-     */
-    public Map<QuotedIdentifier, TypeInfo> types() {
-        // VAR and ARR[*] cannot be determined.
-        TypeDescriptorNode typeDescriptorNode = rootNode.typedBindingPattern().typeDescriptor();
-        TypeDeterminableFinder determinableFinder = new TypeDeterminableFinder();
-        typeDescriptorNode.accept(determinableFinder);
-        if (!determinableFinder.isDeterminable()) {
-            return Map.of();
-        }
-
-        // Currently only supports CaptureBindingPatternNode
-        if (rootNode.typedBindingPattern().bindingPattern() instanceof CaptureBindingPatternNode) {
-            // Find the import prefixes required
-            Set<QuotedIdentifier> importPrefixes = new HashSet<>();
-            typeDescriptorNode.accept(new ImportPrefixFinder(importPrefixes));
-
-            // Get the quoted variable name and type
-            CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) rootNode.typedBindingPattern()
-                    .bindingPattern();
-            String variableName = StringUtils.unescapeUnicodeCodepoints(bindingPattern.variableName().text());
-            QuotedIdentifier quotedVariableName = new QuotedIdentifier(variableName);
-            String variableType = typeDescriptorNode.toSourceCode().trim();
-
-            // Return the map
-            TypeInfo typeInfo = new TypeInfo(variableType, importPrefixes);
-            return Map.of(quotedVariableName, typeInfo);
-        }
-        return Map.of();
-    }
-
-    /**
-     * A helper class to find import prefixes in a type.
-     *
-     * @since 2.0.0
-     */
-    private static class ImportPrefixFinder extends NodeVisitor {
-        private final Set<QuotedIdentifier> importPrefixes;
-
-        public ImportPrefixFinder(Set<QuotedIdentifier> importPrefixes) {
-            this.importPrefixes = importPrefixes;
-        }
-
-        @Override
-        public void visit(QualifiedNameReferenceNode node) {
-            importPrefixes.add(new QuotedIdentifier(node.modulePrefix().text()));
-        }
-    }
-
-    /**
      * A helper class to find the var dclns declared in a snippet.
      *
      * @since 2.0.0
@@ -158,67 +97,6 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
         private void addIdentifier(Token token) {
             String unescapedIdentifier = StringUtils.unescapeUnicodeCodepoints(token.text());
             foundVariableIdentifiers.add(new QuotedIdentifier(unescapedIdentifier));
-        }
-    }
-
-    /**
-     * A helper class to determine if type can be determined
-     * from just the syntax tree.
-     * If the syntax tree contains VAR or ARR[*], it cannot be determined.
-     *
-     * @since 2.0.0
-     */
-    private static class TypeDeterminableFinder extends NodeVisitor {
-        private boolean determinable;
-
-        public TypeDeterminableFinder() {
-            this.determinable = true;
-        }
-
-        @Override
-        public void visit(BasicLiteralNode basicLiteralNode) {
-            if (basicLiteralNode.kind().equals(SyntaxKind.ASTERISK_LITERAL)) {
-                determinable = false;
-            }
-        }
-
-        @Override
-        public void visit(Token token) {
-            if (token.kind().equals(SyntaxKind.VAR_KEYWORD)) {
-                determinable = false;
-            }
-        }
-
-        public boolean isDeterminable() {
-            return determinable;
-        }
-    }
-
-    /**
-     * A variable type with import information.
-     *
-     * @since 2.0.0
-     */
-    public static class TypeInfo {
-        private final String type;
-        private final Set<QuotedIdentifier> imports;
-
-        public TypeInfo(String type, Set<QuotedIdentifier> imports) {
-            this.type = type;
-            this.imports = imports;
-        }
-
-        public Set<QuotedIdentifier> getImports() {
-            return imports;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("{type='%s', imports=%s}", type, imports);
         }
     }
 }
