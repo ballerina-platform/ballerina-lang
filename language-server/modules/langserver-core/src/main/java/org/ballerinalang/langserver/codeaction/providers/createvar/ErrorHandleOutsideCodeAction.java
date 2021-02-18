@@ -68,10 +68,12 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
         boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
                 .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
-        if (!hasErrorMemberType) {
+        long nonErrorNonNilMemberCount = unionTypeDesc.memberTypeDescriptors().stream()
+                .filter(member -> member.typeKind() != TypeDescKind.ERROR && member.typeKind() != TypeDescKind.NIL)
+                .count();
+        if (!hasErrorMemberType || nonErrorNonNilMemberCount == 0) {
             return Collections.emptyList();
         }
-
         List<TextEdit> edits = new ArrayList<>();
         edits.addAll(getModifiedCreateVarTextEdits(diagnostic, context, unionTypeDesc));
         edits.addAll(getAddCheckTextEdits(CommonUtil.toRange(diagnostic.location().lineRange()).getStart(), context));
