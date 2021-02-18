@@ -36,14 +36,18 @@ import java.util.Set;
 public class EvaluatorMiscTest {
     @Test
     public void testInitialization() throws BallerinaShellException {
-        Evaluator evaluator = new EvaluatorBuilder().build();
+        Evaluator evaluator = new EvaluatorBuilder()
+                .treeParser(TestUtils.getTestTreeParser())
+                .build();
         evaluator.initialize();
         Assert.assertFalse(evaluator.hasErrors());
     }
 
     @Test
     public void testEvaluatorReset() throws BallerinaShellException {
-        Evaluator evaluator = new EvaluatorBuilder().build();
+        Evaluator evaluator = new EvaluatorBuilder()
+                .treeParser(TestUtils.getTestTreeParser())
+                .build();
         Assert.assertTrue(evaluator.diagnostics().isEmpty());
         evaluator.initialize();
         String result = evaluator.evaluate("int i = 4; i");
@@ -55,7 +59,9 @@ public class EvaluatorMiscTest {
 
     @Test
     public void testEvaluatorImportList() throws BallerinaShellException {
-        Evaluator evaluator = new EvaluatorBuilder().build();
+        Evaluator evaluator = new EvaluatorBuilder()
+                .treeParser(TestUtils.getTestTreeParser())
+                .build();
         evaluator.initialize();
         evaluator.evaluate("import ballerina/lang.'int as prefix");
         evaluator.evaluate("import ballerina/lang.'float as prefix2");
@@ -97,7 +103,9 @@ public class EvaluatorMiscTest {
 
     @Test
     public void testEvaluatorModuleDclns() throws BallerinaShellException {
-        Evaluator evaluator = new EvaluatorBuilder().build();
+        Evaluator evaluator = new EvaluatorBuilder()
+                .treeParser(TestUtils.getTestTreeParser())
+                .build();
         evaluator.initialize();
         evaluator.evaluate("function a() {}");
         evaluator.evaluate("const t = 100");
