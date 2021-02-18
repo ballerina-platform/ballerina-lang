@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package io.ballerina.runtime.observability;
 
 import io.ballerina.runtime.api.Environment;
@@ -28,6 +27,7 @@ import io.ballerina.runtime.internal.configurable.ConfigurableMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.tracer.BSpan;
+import io.opentelemetry.api.common.Attributes;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -212,8 +212,8 @@ public class ObserveUtils {
     /**
      * Add record checkpoint data to active Trace Span.
      *
-     * @param env The Ballerina Environment
-     * @param pkg The package the instrumented code belongs to
+     * @param env      The Ballerina Environment
+     * @param pkg      The package the instrumented code belongs to
      * @param position The source code position the instrumented code defined in
      */
     public static void recordCheckpoint(Environment env, BString pkg, BString position) {
@@ -230,12 +230,12 @@ public class ObserveUtils {
             return;
         }
 
-        // Adding Position and Module ID to the Jaeger Span
-        Map<String, String> eventAttributes = new HashMap<>(2);
-        eventAttributes.put(TAG_KEY_SRC_MODULE, pkg.getValue());
-        eventAttributes.put(TAG_KEY_SRC_POSITION, position.getValue());
-
-        HashMap<String, Object> event = new HashMap<>(1);
+        // Adding Position and Module ID to the Span
+        Attributes eventAttributes = Attributes.builder()
+                .put(TAG_KEY_SRC_MODULE, pkg.getValue())
+                .put(TAG_KEY_SRC_POSITION, position.getValue())
+                .build();
+        HashMap<String, Attributes> event = new HashMap<>(1);
         event.put(CHECKPOINT_EVENT_NAME, eventAttributes);
         span.addEvent(event);
     }

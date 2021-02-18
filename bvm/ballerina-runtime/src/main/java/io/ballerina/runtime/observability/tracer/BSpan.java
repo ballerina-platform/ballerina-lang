@@ -17,13 +17,16 @@
  */
 package io.ballerina.runtime.observability.tracer;
 
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
-import io.opentracing.Tracer;
-import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMapExtractAdapter;
-import io.opentracing.propagation.TextMapInjectAdapter;
+import com.sun.net.httpserver.HttpExchange;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.propagation.TextMapPropagator;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,13 +45,15 @@ public class BSpan {
         this.span = span;
     }
 
-    private static BSpan start(Tracer tracer, SpanContext parentSpanContext, String operationName, boolean isClient) {
-        Span span = tracer.buildSpan(operationName)
-                .asChildOf(parentSpanContext)
-                .withTag(TraceConstants.TAG_KEY_SPAN_KIND, isClient
-                        ? TraceConstants.TAG_SPAN_KIND_CLIENT
-                        : TraceConstants.TAG_SPAN_KIND_SERVER)
-                .start();
+    private static BSpan start(Tracer tracer, Context parentContext, String operationName, boolean isClient) {
+        SpanBuilder builder = tracer.spanBuilder(operationName);
+        if (parentContext != null) {
+            builder.setParent(parentContext);
+        }
+        builder.setAttribute(TraceConstants.TAG_KEY_SPAN_KIND, isClient
+                ? TraceConstants.TAG_SPAN_KIND_CLIENT
+                : TraceConstants.TAG_SPAN_KIND_SERVER);
+        Span span = builder.startSpan();
         return new BSpan(tracer, span);
     }
 
@@ -76,7 +81,8 @@ public class BSpan {
      */
     public static BSpan start(BSpan parentSpan, String serviceName, String operationName, boolean isClient) {
         Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
-        return start(tracer, parentSpan.span.context(), operationName, isClient);
+        Context parentContext = Context.current().with(parentSpan.span);
+        return start(tracer, parentContext, operationName, isClient);
     }
 
     /**
@@ -84,44 +90,83 @@ public class BSpan {
      * The started span is part of a trace which had spanned across multiple services and the parent is in the service
      * which called the current service.
      *
-     * @param parentTraceContext The parent trace context
-     * @param serviceName        The name of the service the span belongs to
-     * @param operationName      The name of the operation the span corresponds to
-     * @param isClient           True if this is a client span
+     * @param httpExchange  Contains header information of the http request received
+     * @param serviceName   The name of the service the span belongs to
+     * @param operationName The name of the operation the span corresponds to
+     * @param isClient      True if this is a client span
      * @return The new span
      */
-    public static BSpan start(Map<String, String> parentTraceContext, String serviceName, String operationName,
-                              boolean isClient) {
+    public static BSpan start(HttpExchange httpExchange, String serviceName, String operationName, boolean isClient) {
+
+        TextMapPropagator.Getter<HttpExchange> getter =
+                new TextMapPropagator.Getter<>() {
+                    @Override
+                    public String get(HttpExchange carrier, String key) {
+                        if (carrier != null && carrier.getRequestHeaders().containsKey(key)) {
+                            return carrier.getRequestHeaders().get(key).get(0);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public Iterable<String> keys(HttpExchange carrier) {
+                        return carrier.getRequestHeaders().keySet();
+                    }
+                };
+
         Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
-        SpanContext parentSpanContext = tracer.extract(Format.Builtin.HTTP_HEADERS,
-                new TextMapExtractAdapter(parentTraceContext));
-        return start(tracer, parentSpanContext, operationName, isClient);
+        Context parentContext = TracersStore.getInstance().getPropagators()
+                .getTextMapPropagator().extract(Context.current(), httpExchange, getter);
+        return start(tracer, parentContext, operationName, isClient);
     }
 
     public void finishSpan() {
-        span.finish();
+        span.end();
     }
 
-    public void addEvent(Map<String, Object> fields) {
-        span.log(fields);
+    public void addEvent(Map<String, Attributes> fields) {
+        fields.forEach(span::addEvent);
     }
 
     public void addTags(Map<String, String> tags) {
-        for (Map.Entry<String, String> entry : tags.entrySet()) {
-            span.setTag(entry.getKey(), entry.getValue());
-        }
+        tags.forEach(span::setAttribute);
     }
 
     public void addTag(String tagKey, String tagValue) {
-        span.setTag(tagKey, tagValue);
+        span.setAttribute(tagKey, tagValue);
     }
 
     public Map<String, String> extractContextAsHttpHeaders() {
         Map<String, String> carrierMap;
         if (span != null) {
+
+            TextMapPropagator.Setter<HttpURLConnection> setter = (carrier, key, value) -> {
+                if (carrier != null) {
+                    carrier.setRequestProperty(key, value);
+                }
+            };
+
+            HttpURLConnection httpURLConnection = new HttpURLConnection(null) {
+                @Override
+                public void disconnect() {
+                }
+
+                @Override
+                public boolean usingProxy() {
+                    return false;
+                }
+
+                @Override
+                public void connect() throws IOException {
+                }
+            };
+
+            TracersStore.getInstance().getPropagators().getTextMapPropagator()
+                    .inject(Context.current(), httpURLConnection, setter);
             carrierMap = new HashMap<>();
-            TextMapInjectAdapter requestInjector = new TextMapInjectAdapter(carrierMap);
-            tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
+            httpURLConnection.getRequestProperties().forEach(
+                    (k, strings) -> strings.forEach(v -> carrierMap.put(k, v))
+            );
         } else {
             carrierMap = Collections.emptyMap();
         }

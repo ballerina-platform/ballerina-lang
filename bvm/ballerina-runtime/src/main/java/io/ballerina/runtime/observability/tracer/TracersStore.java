@@ -15,12 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package io.ballerina.runtime.observability.tracer;
 
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
-import io.opentracing.Tracer;
-import io.opentracing.noop.NoopTracerFactory;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.propagation.ContextPropagators;
 
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -55,25 +54,36 @@ public class TracersStore {
      * @return trace implementations i.e: zipkin, jaeger
      */
     public Tracer getTracer(String serviceName) {
-        Tracer openTracer;
+        Tracer tracer;
         if (store.containsKey(serviceName)) {
-            openTracer = store.get(serviceName);
+            tracer = store.get(serviceName);
         } else {
             if (tracerProvider != null) {
                 try {
-                    openTracer = tracerProvider.getTracer(serviceName);
+                    tracer = tracerProvider.getTracer(serviceName);
                 } catch (Throwable e) {
-                    openTracer = NoopTracerFactory.create();
+                    tracer = Tracer.getDefault();
                     consoleError.println("error: tracing disabled as getting tracer for " + serviceName + " service. "
                             + e.getMessage());
                 }
-                store.put(serviceName, openTracer);
+                store.put(serviceName, tracer);
             } else {
-                openTracer = NoopTracerFactory.create();
+                tracer = Tracer.getDefault();
                 consoleError.println("error: tracing disabled as tracer provider had not been initialized");
             }
         }
-        return openTracer;
+        return tracer;
+    }
+
+    public ContextPropagators getPropagators() {
+        ContextPropagators propagators = null;
+        if (tracerProvider != null) {
+            propagators = tracerProvider.getPropagators();
+        }
+        if (propagators == null) {
+            propagators = ContextPropagators.noop();
+        }
+        return propagators;
     }
 
     /**

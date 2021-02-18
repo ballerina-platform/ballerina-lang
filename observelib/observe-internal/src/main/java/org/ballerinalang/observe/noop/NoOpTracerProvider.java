@@ -18,8 +18,8 @@
 package org.ballerinalang.observe.noop;
 
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
-import io.opentracing.Tracer;
-import io.opentracing.noop.NoopTracerFactory;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.propagation.ContextPropagators;
 
 /**
  * Implementation of No-Op {@link TracerProvider}.
@@ -34,11 +34,16 @@ public class NoOpTracerProvider implements TracerProvider {
 
     @Override
     public void init() {
-        instance = NoopTracerFactory.create();
+        instance = Tracer.getDefault();
     }
 
     @Override
     public Tracer getTracer(String serviceName) {
         return instance;
+    }
+
+    @Override
+    public ContextPropagators getPropagators() {
+        return ContextPropagators.noop();
     }
 }
