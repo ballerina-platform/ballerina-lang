@@ -5635,6 +5635,8 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
             return symTable.semanticError;
         }
+
+        BType restType = null;
         if (vararg != null && !iExpr.restArgs.isEmpty()) {
             // We reach here if args are provided for the rest param as both individual rest args and a vararg.
             // Thus, the rest param type is the original rest param type which is an array type.
@@ -5646,6 +5648,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             checkTypeParamExpr(vararg, this.env, listTypeRestArg, iExpr.langLibInvocation);
             iExpr.restArgs.add(vararg);
+            restType = this.resultType;
         } else if (vararg != null) {
             iExpr.restArgs.add(vararg);
             if (mappingTypeRestArg != null) {
@@ -5657,11 +5660,15 @@ public class TypeChecker extends BLangNodeVisitor {
             } else {
                 checkTypeParamExpr(vararg, this.env, listTypeRestArg, iExpr.langLibInvocation);
             }
+            restType = this.resultType;
         } else if (!iExpr.restArgs.isEmpty()) {
             if (listTypeRestArg.tag == TypeTags.ARRAY) {
                 BType elementType = ((BArrayType) listTypeRestArg).eType;
                 for (BLangExpression restArg : iExpr.restArgs) {
                     checkTypeParamExpr(restArg, this.env, elementType, true);
+                    if (restType != symTable.semanticError && this.resultType == symTable.semanticError) {
+                        restType = this.resultType;
+                    }
                 }
             } else {
                 BTupleType tupleType = (BTupleType) listTypeRestArg;
@@ -5674,8 +5681,15 @@ public class TypeChecker extends BLangNodeVisitor {
                     BLangExpression restArg = iExpr.restArgs.get(j);
                     BType memType = j < tupleMemCount ? tupleMemberTypes.get(j) : tupleRestType;
                     checkTypeParamExpr(restArg, this.env, memType, true);
+                    if (restType != symTable.semanticError && this.resultType == symTable.semanticError) {
+                        restType = this.resultType;
+                    }
                 }
             }
+        }
+
+        if (restType == symTable.semanticError) {
+            return restType;
         }
 
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
