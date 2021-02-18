@@ -196,6 +196,14 @@ public class ProjectUtils {
         return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
+    public static Path getRelativeBalaPath(String org, String pkgName, String version, String platform) {
+        // <orgname>-<packagename>-<platform>-<version>.bala
+        if (platform == null || "".equals(platform)) {
+            platform = "any";
+        }
+        return Paths.get(org, pkgName, version, platform);
+    }
+
     public static String getJarFileName(Package pkg) {
         // <orgname>-<packagename>-<version>.jar
         return pkg.packageOrg().toString() + "-" + pkg.packageName().toString()

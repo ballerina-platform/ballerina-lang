@@ -197,6 +197,15 @@ public class PackageResolution {
         return null;
     }
 
+    String getRepositoryFromPackageManifest(PackageOrg requestedPkgOrg, PackageName requestedPkgName) {
+        for (PackageManifest.Dependency dependency : rootPackageContext.manifest().dependencies()) {
+            if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
+                return dependency.repository();
+            }
+        }
+        return null;
+    }
+
     private void createDependencyGraphFromBALA() {
         DependencyGraph<PackageDescriptor> dependencyGraphStoredInBALA = rootPackageContext.dependencyGraph();
         Collection<PackageDescriptor> directDependenciesOfBALA =
@@ -417,9 +426,10 @@ public class PackageResolution {
                     // Check whether this package is already defined in the package manifest, if so get the version
                     PackageVersion packageVersion = PackageResolution.this.getVersionFromPackageManifest(
                             packageOrg, possiblePkgName);
+                    String repository = PackageResolution.this.getRepositoryFromPackageManifest(packageOrg, possiblePkgName);
 
                     // Try to resolve the package via repositories
-                    PackageDescriptor pkgDesc = PackageDescriptor.from(packageOrg, possiblePkgName, packageVersion);
+                    PackageDescriptor pkgDesc = PackageDescriptor.from(packageOrg, possiblePkgName, packageVersion, repository);
                     ResolutionResponse resolutionResponse = resolvePackage(pkgDesc, scope);
                     if (resolutionResponse.resolutionStatus() == ResolutionStatus.UNRESOLVED) {
                         // There is no such package exists

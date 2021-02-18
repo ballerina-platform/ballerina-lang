@@ -87,12 +87,11 @@ public class FileSystemRepository implements PackageRepository {
                 resolutionRequest.version().get().toString() : "0.0.0";
 
         //First we will check for a bala that match any platform
-        String balaName = ProjectUtils.getBalaName(orgName, packageName, version, null);
-        Path balaPath = this.bala.resolve(orgName).resolve(packageName).resolve(version).resolve(balaName);
+        Path balaPath = this.bala.resolve(
+                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
         if (!Files.exists(balaPath)) {
             //If bala for any platform not exist check for specific platform
-            String javaBalaName = ProjectUtils.getBalaName(orgName, packageName, version, JvmTarget.JAVA_11.code());
-            balaPath = this.bala.resolve(orgName).resolve(packageName).resolve(version).resolve(javaBalaName);
+            ProjectUtils.getRelativeBalaPath(orgName, packageName, version, JvmTarget.JAVA_11.code());
             if (!Files.exists(balaPath)) {
                 return Optional.empty();
             }
