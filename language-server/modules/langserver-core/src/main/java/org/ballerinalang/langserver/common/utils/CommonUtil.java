@@ -16,11 +16,13 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
@@ -37,6 +39,8 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -44,6 +48,7 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
@@ -207,7 +212,22 @@ public class CommonUtil {
             case BOOLEAN:
                 typeString = Boolean.toString(false);
                 break;
+            case TUPLE:
+                TupleTypeSymbol tupleType = (TupleTypeSymbol) bType;
+                String memberTypes = tupleType.memberTypeDescriptors().stream()
+                        .map(CommonUtil::getDefaultValueForType)
+                        .collect(Collectors.joining(", "));
+                typeString = "[" + memberTypes + "]";
+                break;
             case ARRAY:
+                // Filler value of an array is []
+                ArrayTypeSymbol arrayType = (ArrayTypeSymbol) bType;
+                if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
+                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor()) + "]";
+                } else {
+                    typeString = "[]";
+                }
+                break;
             case RECORD:
             case MAP:
                 typeString = "{}";
@@ -691,8 +711,23 @@ public class CommonUtil {
             String[] moduleParts = moduleName.split("/");
             String orgName = moduleParts[0];
             String alias = moduleParts[1];
+
             pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
             pkgPrefix = (preDeclaredLangLib) ? "'" + pkgPrefix : pkgPrefix;
+
+            // See if an alias (ex: import project.module1 as mod1) is used
+            List<ImportDeclarationNode> existingModuleImports = context.currentDocImports().stream()
+                    .filter(importDeclarationNode -> 
+                            CodeActionModuleId.from(importDeclarationNode).moduleName().equals(moduleID.moduleName()))
+                    .collect(Collectors.toList());
+
+            if (existingModuleImports.size() == 1) {
+                ImportDeclarationNode importDeclarationNode = existingModuleImports.get(0);
+                if (importDeclarationNode.prefix().isPresent()) {
+                    pkgPrefix = importDeclarationNode.prefix().get().prefix().text() + ":";
+                }
+            }
+            
             if (importsAcceptor != null && !preDeclaredLangLib) {
                 importsAcceptor.getAcceptor().accept(orgName, alias);
             }
@@ -931,6 +966,51 @@ public class CommonUtil {
         }
         
         return typeSignature;
+    }
+
+    /**
+     * Get the file uri of the symbol within the current project.
+     * This API assumes the symbol is in the same project
+     * 
+     * @param context document service context
+     * @param symbol to be located
+     * @return {@link Optional} URI is empty if the symbol is not located within the current project
+     */
+    public static Optional<String> getSymbolUriInProject(DocumentServiceContext context, Symbol symbol) {
+        Path projectRoot = context.workspace().projectRoot(context.filePath());
+        Optional<Project> project = context.workspace().project(context.filePath());
+        Optional<Location> symbolLocation = symbol.getLocation();
+        ModuleID moduleID = symbol.getModule().get().id();
+        
+        if (project.isEmpty() || symbolLocation.isEmpty() || symbol.getModule().isEmpty()) {
+            return Optional.empty();
+        }
+        
+        String uri;
+        String packageName = project.get().currentPackage().packageName().value();
+        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT && moduleID.moduleName().equals(".")) {
+            // Project is a single file project and also the symbol resides in a single file project
+            uri = projectRoot.toUri().toString();
+        } else if (!project.get().currentPackage().packageOrg().value().equals(moduleID.orgName())) {
+            // in orgname mismatch, we return empty
+            return Optional.empty();
+        } else if (packageName.equals(moduleID.moduleName())) {
+            // Symbol is within the default module
+            uri = projectRoot.resolve(symbolLocation.get().lineRange().filePath()).toUri().toString();
+        } else {
+            /*
+            The hierarchical module names have the following format. Hence replace the package name part
+            packageName.component1.component2 => module name is component1.component2
+             */
+            String moduleName = moduleID.moduleName().replace(packageName + ".", "");
+            String fileName = symbolLocation.get().lineRange().filePath();
+            uri = projectRoot.resolve(ProjectConstants.MODULES_ROOT)
+                    .resolve(moduleName)
+                    .resolve(fileName)
+                    .toUri().toString();
+        }
+        
+        return Optional.ofNullable(uri);
     }
     
     private static String getModulePrefix(DocumentServiceContext context, String orgName, String modName) {

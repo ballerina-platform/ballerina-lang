@@ -20,7 +20,6 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
 import org.testng.annotations.AfterMethod;
@@ -51,20 +50,18 @@ public class ModuleExecutionTest extends BaseTestCase {
                 new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:*"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(output, "default module test failure");
-
     }
 
     @Test()
     public void test_DefaultModule_SingleTest() throws BallerinaTestException {
         String msg1 = "1 passing";
         String msg2 = "[pass] main_test1";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        balClient.runMain("test",
-                new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:main_test1"},
-                null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
+        String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:main_test1"};
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            AssertionUtils.assertForTestFailures(output, "default module single test failure");
+        }
     }
 
     @Test()
@@ -73,20 +70,12 @@ public class ModuleExecutionTest extends BaseTestCase {
         String msg2 = "[pass] main_test1";
         String msg3 = "[pass] main_test2";
         String msg4 = "[pass] main_test3";
-
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
-        LogLeecher clientLeecher4 = new LogLeecher(msg4);
-
-        balClient.runMain("test",
-                new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:main_*"},
-                null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3, clientLeecher4}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
-        clientLeecher4.waitForText(20000);
+        String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:main_*"};
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3) || !output.contains(msg4)) {
+            AssertionUtils.assertForTestFailures(output, "default module wild card test failure");
+        }
     }
 
     @Test()
@@ -95,20 +84,19 @@ public class ModuleExecutionTest extends BaseTestCase {
                 new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution.Module1:*"},
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(output, "module wise test failure");
-
     }
 
     @Test()
     public void test_Module1_SingleTest() throws BallerinaTestException {
         String msg1 = "1 passing";
         String msg2 = "[pass] module1_test1";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        balClient.runMain("test",
-                new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution.Module1:module1_test1"},
-                null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
+        String[] args = new String[]{"--code-coverage", "--includes=*", "--tests",
+                "moduleExecution.Module1:module1_test1"};
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            AssertionUtils.assertForTestFailures(output, "module wise single test failure");
+        }
     }
 
     @Test()
@@ -116,18 +104,12 @@ public class ModuleExecutionTest extends BaseTestCase {
         String msg1 = "2 passing";
         String msg2 = "[pass] module1_test1";
         String msg3 = "[pass] module1_test2";
-
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
-
         String[] args = mergeCoverageArgs(new String[]{"--tests", "moduleExecution.Module1:module1_*"});
-        balClient.runMain("test", args,
-                null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3},
-                projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            AssertionUtils.assertForTestFailures(output, "module wise wild card test failure");
+        }
     }
 
     @Test()
@@ -135,18 +117,25 @@ public class ModuleExecutionTest extends BaseTestCase {
         String msg1 = "1 passing";
         String msg2 = "[pass] commonTest_Module1";
         String msg3 = "[pass] commonTest";
-
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
-
         String[] args = mergeCoverageArgs(new String[]{"--tests", "common*"});
-        balClient.runMain("test", args,
-                null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3},
-                projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            AssertionUtils.assertForTestFailures(output, "wild card test failure");
+        }
+    }
+
+    @Test()
+    public void test_Module1_WithGroups() throws BallerinaTestException {
+        String msg1 = "1 passing";
+        String msg2 = "[pass] module1_test2";
+
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "moduleExecution.Module1:*", "--groups", "g1"});
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
+
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            AssertionUtils.assertForTestFailures(output, "module with groups failure");
+        }
     }
 
     @AfterMethod
