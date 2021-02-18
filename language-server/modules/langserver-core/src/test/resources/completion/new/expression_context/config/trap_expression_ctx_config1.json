@@ -450,7 +450,7 @@
     {
       "label": "testVar",
       "kind": "Variable",
-      "detail": "TYPEDESC<int>|error",
+      "detail": "typedesc<int>|error",
       "sortText": "B",
       "insertText": "testVar",
       "insertTextFormat": "Snippet"

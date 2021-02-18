@@ -46,7 +46,6 @@ import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionPr
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
@@ -61,14 +60,13 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
@@ -194,13 +192,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         });
 
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
-        completionItems.add(new TypeCompletionItem(context, null, Snippet.TYPE_MAP.get().build(context)));
 
         completionItems.addAll(Arrays.asList(
                 new SnippetCompletionItem(context, Snippet.KW_RECORD.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()),
-                new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()),
                 new SnippetCompletionItem(context, Snippet.KW_DISTINCT.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get())
         ));
@@ -406,7 +402,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
     /**
      * Get the predeclared langlib completions.
-     * 
+     *
      * @param context completion context
      * @return {@link List}
      */
@@ -416,7 +412,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             CompletionItem cItem = TypeCompletionItemBuilder.build(null, langlib.replace("lang.", ""));
             completionItems.add(new SymbolCompletionItem(context, null, cItem));
         });
-        
+
         return completionItems;
     }
 
