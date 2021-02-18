@@ -1167,6 +1167,10 @@ public class Types {
                 }
                 return isAssignable(source.constraint, targetType, unresolvedTypes);
             }
+        } else if (sourceTag == TypeTags.XML_TEXT) {
+            if (targetTag == TypeTags.STRING || targetTag == TypeTags.CHAR_STRING) {
+                return true;
+            }
         }
         return sourceTag == targetTag;
     }
