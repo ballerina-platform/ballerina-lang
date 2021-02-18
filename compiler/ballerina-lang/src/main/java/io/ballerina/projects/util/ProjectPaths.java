@@ -45,17 +45,17 @@ public class ProjectPaths {
     public static Path packageRoot(Path filepath) throws ProjectException {
         // check if the file exists
         if (!Files.exists(filepath)) {
-            throw new ProjectException("provided path does not exist");
+            throw new ProjectException("provided path does not exist:" + filepath);
         }
 
         // check if the file is a regular file
         if (!Files.isRegularFile(filepath)) {
-            throw new ProjectException("provided path is not a regular file");
+            throw new ProjectException("provided path is not a regular file: " + filepath);
         }
 
         // Check if the file is inside a Ballerina package directory
         if (findProjectRoot(filepath).isEmpty()) {
-            throw new ProjectException("provided file path does not belong to a Ballerina package");
+            throw new ProjectException("provided file path does not belong to a Ballerina package: " + filepath);
         }
 
         // check if the file is a ballerina project related toml file
@@ -64,7 +64,7 @@ public class ProjectPaths {
         }
 
         if (!isBalFile(filepath)) {
-            throw new ProjectException("provided path is not a valid Ballerina source file");
+            throw new ProjectException("provided path is not a valid Ballerina source file: " + filepath);
         }
         Path absFilePath = filepath.toAbsolutePath().normalize();
 
@@ -89,7 +89,7 @@ public class ProjectPaths {
             return modulesRoot.getParent();
         }
 
-        throw new ProjectException("provided file path does not belong to a Ballerina package");
+        throw new ProjectException("provided file path does not belong to a Ballerina package: " + filepath);
     }
 
     /**
