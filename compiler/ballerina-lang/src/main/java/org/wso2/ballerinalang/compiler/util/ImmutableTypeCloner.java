@@ -333,6 +333,7 @@ public class ImmutableTypeCloner {
 
                 immutableTableType.keyPos = origTableType.keyPos;
                 immutableTableType.constraintPos = origTableType.constraintPos;
+                immutableTableType.isTypeInlineDefined = origTableType.isTypeInlineDefined;
                 immutableTableType.fieldNameList = origTableType.fieldNameList;
 
                 if (immutableTableTSymbol != null) {

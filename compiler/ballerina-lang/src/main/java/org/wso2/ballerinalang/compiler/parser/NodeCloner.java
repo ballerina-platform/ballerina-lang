@@ -1785,6 +1785,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.tableKeySpecifier = clone(source.tableKeySpecifier);
         clone.tableKeyTypeConstraint = clone(source.tableKeyTypeConstraint);
         clone.constraint = clone(source.constraint);
+        clone.isTypeInlineDefined = source.isTypeInlineDefined;
         cloneBLangType(source, clone);
     }
 

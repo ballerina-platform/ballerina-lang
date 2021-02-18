@@ -852,8 +852,6 @@ function testFromJsonWithTypeIntArray() {
     assert(intArr[1], 2);
 }
 
-type TableString table<string>;
-
 type TableFoo2 table<Foo2>;
 type TableFoo3 table<Foo3>;
 type TableFoo4 table<Foo4>;
@@ -861,15 +859,6 @@ type TableFoo5 table<Foo5>;
 type TableFoo6 table<Foo6>;
 
 function testFromJsonWithTypeTable() {
-
-    json j = [
-        "cake",
-        "buscuit"
-    ];
-
-    table<string>|error tabString = j.fromJsonWithType(TableString);
-    assert(tabString is error, true);
-
     json jj = [
         {x3: "abc"},
         {x3: "abc"}
