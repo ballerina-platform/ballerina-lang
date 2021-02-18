@@ -46,7 +46,6 @@ import java.util.Objects;
 public class BindgenCommandTest extends CommandTest {
 
     private Path testResources;
-    private static final String LINE_SEPARATOR = System.lineSeparator();
 
     @BeforeClass
     public void setup() throws IOException {

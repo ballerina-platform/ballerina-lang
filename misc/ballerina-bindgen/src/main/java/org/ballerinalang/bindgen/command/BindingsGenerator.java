@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.bindgen.command;
 
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.TomlDocument;
@@ -44,7 +45,6 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NA
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_11;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MODULES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
@@ -145,7 +145,7 @@ public class BindingsGenerator {
                 PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
                         env.getProjectRoot()).packageManifest();
                 if (packageManifest != null) {
-                    PackageManifest.Platform platform = packageManifest.platform(JAVA_11);
+                    PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_11.code());
                     if (platform != null && platform.dependencies() != null) {
                         for (Map<String, Object> library : platform.dependencies()) {
                             if (library.get("path") != null) {
