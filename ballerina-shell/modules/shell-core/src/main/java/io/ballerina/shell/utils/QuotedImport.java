@@ -29,20 +29,22 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class QuotedImport {
-    private static final String ANON_ORG = "$";
-
     private final QuotedIdentifier orgName;
     private final List<QuotedIdentifier> moduleNames;
 
-    public QuotedImport(String orgName, List<String> moduleNames) {
-        this.orgName = new QuotedIdentifier(orgName);
+    private QuotedImport(QuotedIdentifier orgName, List<String> moduleNames) {
+        this.orgName = orgName;
         this.moduleNames = moduleNames.stream()
                 .map(QuotedIdentifier::new)
                 .collect(Collectors.toList());
     }
 
+    public QuotedImport(String orgName, List<String> moduleNames) {
+        this(new QuotedIdentifier(orgName), moduleNames);
+    }
+
     public QuotedImport(List<String> moduleNames) {
-        this(ANON_ORG, moduleNames);
+        this((QuotedIdentifier) null, moduleNames);
     }
 
     public QuotedIdentifier getDefaultPrefix() {
@@ -58,7 +60,7 @@ public class QuotedImport {
             return false;
         }
         QuotedImport that = (QuotedImport) o;
-        return orgName.equals(that.orgName) &&
+        return Objects.equals(orgName, that.orgName) &&
                 moduleNames.equals(that.moduleNames);
     }
 
@@ -71,6 +73,9 @@ public class QuotedImport {
     public String toString() {
         StringJoiner moduleName = new StringJoiner(".");
         moduleNames.forEach(name -> moduleName.add(name.getName()));
+        if (orgName == null) {
+            return moduleName.toString();
+        }
         return String.format("%s/%s", orgName, moduleName);
     }
 }
