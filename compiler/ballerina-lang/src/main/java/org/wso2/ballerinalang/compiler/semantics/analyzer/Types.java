@@ -811,7 +811,8 @@ public class Types {
         }
 
         if (TypeTags.isXMLTypeTag(sourceTag) &&
-                (TypeTags.isXMLTypeTag(targetTag) || targetTag == TypeTags.STRING)) {
+                (TypeTags.isXMLTypeTag(targetTag) ||
+                        targetTag == TypeTags.STRING || targetTag == TypeTags.CHAR_STRING)) {
             return isXMLTypeAssignable(source, target, unresolvedTypes);
         }
 
