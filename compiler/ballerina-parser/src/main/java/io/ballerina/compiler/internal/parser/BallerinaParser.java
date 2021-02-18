@@ -15721,8 +15721,8 @@ public class BallerinaParser extends AbstractParser {
 
         // We reach here if it is still ambiguous, even after parsing the full list.
         STNode closeBracket = parseCloseBracket();
-        STNode bracketedList = parseStatementStartBracketedList(annots, openBracket, memberList, closeBracket, isRoot,
-                possibleMappingField);
+        STNode bracketedList = parseStatementStartBracketedListRhs(annots, openBracket, memberList, closeBracket,
+                isRoot, possibleMappingField);
         return bracketedList;
     }
 
@@ -15752,14 +15752,17 @@ public class BallerinaParser extends AbstractParser {
                     return getWildcardBindingPattern(varName);
                 }
 
-                if (peek().kind == SyntaxKind.ELLIPSIS_TOKEN) {
+                nextToken = peek();
+                if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
                     STNode ellipsis = parseEllipsis();
                     return STNodeFactory.createRestDescriptorNode(identifier, ellipsis);
                 }
 
-                // we don't know which one
-                // TODO: handle function-binding-pattern
-                // TODO handle & and |
+                if (nextToken.kind != SyntaxKind.OPEN_BRACKET_TOKEN && isValidTypeContinuationToken(nextToken)) {
+                    // This will parse union and intersection type over bitwise expression since it is the valid way
+                    return parseComplexTypeDescriptor(identifier, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
+                }
+
                 return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, identifier, false, true);
             case OPEN_BRACE_TOKEN:
                 // mapping-binding-pattern
@@ -16179,7 +16182,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseStatementStartBracketedList(STNode annots, STNode openBracket, List<STNode> members,
+    private STNode parseStatementStartBracketedListRhs(STNode annots, STNode openBracket, List<STNode> members,
                                                     STNode closeBracket, boolean isRoot, boolean possibleMappingField) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
