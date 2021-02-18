@@ -2543,7 +2543,8 @@ public class Types {
 
         @Override
         public Boolean visit(BFutureType t, BType s) {
-            return s.tag == TypeTags.FUTURE && t.constraint.tag == ((BFutureType) s).constraint.tag;
+            return s.tag == TypeTags.FUTURE &&
+                    isSameType(t.constraint, ((BFutureType) s).constraint, this.unresolvedTypes);
         }
 
         @Override

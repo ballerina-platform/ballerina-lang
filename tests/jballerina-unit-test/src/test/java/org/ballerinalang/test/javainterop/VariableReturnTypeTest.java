@@ -107,15 +107,16 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++,
                       "incompatible types: expected '(int|string|error)', found 'future<(int|string|error)>'",
                       210, 26);
-//        validateError(errors, indx++,
-//        "incompatible types: expected '(int|string|error)', found 'future<(int|string|error)>'", 211, 28);
+        validateError(errors, indx++,
+                      "incompatible types: expected 'future<(int|string)>', found 'future<(int|string|error)>'",
+                      211, 28);
         validateError(errors, indx++, "incompatible types: expected 'future<int>', found 'future<(int|error)>'",
                       213, 21);
         validateError(errors, indx++, "incompatible types: expected 'string', found 'future<(string|error)>'",
                       214, 16);
-//        validateError(errors, indx++,
-//                      "incompatible types: expected 'future<string|error>', found 'future<(int|error)>'",
-//                      215, 30);
+        validateError(errors, indx++,
+                      "incompatible types: expected 'future<(string|error)>', found 'future<(int|error)>'",
+                      215, 30);
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
 
