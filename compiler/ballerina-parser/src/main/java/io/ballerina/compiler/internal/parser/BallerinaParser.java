@@ -2375,6 +2375,9 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidQualifierList(qualifiers);
                 STNode distinctKeyword = consume();
                 return parseDistinctTypeDesc(distinctKeyword, context);
+            case TRANSACTION_KEYWORD:
+                reportInvalidQualifierList(qualifiers);
+                return parseQualifiedIdentWithTransactionPrefix(context);
             default:
                 if (isSingletonTypeDescStart(nextToken.kind, true)) {
                     reportInvalidQualifierList(qualifiers);
@@ -2398,10 +2401,22 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    private STNode parseQualifiedIdentWithTransactionPrefix(ParserRuleContext context) {
+        STToken transactionKeyword = consume();
+        STNode identifier = STNodeFactory.createIdentifierToken(transactionKeyword.text(),
+                transactionKeyword.leadingMinutiae(), transactionKeyword.trailingMinutiae());
+        // If we reach hear `colon` is missing for qualified identifier. Hence, create missing token
+        STNode colon = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.COLON_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN);
+        STNode varOrFuncName = parseIdentifier(context);
+        return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
+    }
+
     private STNode parseQualifiedTypeRefOrTypeDesc(List<STNode> qualifiers, boolean isInConditionalExpr) {
         STToken preDeclaredPrefix = consume();
         STToken nextNextToken = getNextNextToken();
-        if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+        if (preDeclaredPrefix.kind == SyntaxKind.TRANSACTION_KEYWORD ||
+                nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             reportInvalidQualifierList(qualifiers);
             return parseQualifiedIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
         }
@@ -4572,6 +4587,8 @@ public class BallerinaParser extends AbstractParser {
             case BASE16_KEYWORD:
             case BASE64_KEYWORD:
                 return parseByteArrayLiteral();
+            case TRANSACTION_KEYWORD:
+                return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
             default:
                 if (isSimpleType(nextToken.kind)) {
                     return parseSimpleTypeDescriptor();
@@ -9056,6 +9073,7 @@ public class BallerinaParser extends AbstractParser {
             case DISTINCT_KEYWORD:
             case ISOLATED_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case TRANSACTION_KEYWORD:
                 return true;
             default:
                 if (isSingletonTypeDescStart(nodeKind, true)) {
