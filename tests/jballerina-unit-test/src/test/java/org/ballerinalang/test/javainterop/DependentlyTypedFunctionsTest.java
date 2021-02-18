@@ -30,22 +30,23 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
- * Test cases for interop functions with variable return types through typedesc refs.
+ * Test cases for dependently-typed interop functions.
  *
  * @since 2.0.0
  */
-public class VariableReturnTypeTest {
+public class DependentlyTypedFunctionsTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/javainterop/variable_return_type_test.bal");
+        result = BCompileUtil.compile("test-src/javainterop/dependently_typed_functions_test.bal");
     }
 
     @Test
     public void testNegatives() {
-        CompileResult errors = BCompileUtil.compile("test-src/javainterop/variable_return_type_negative.bal");
+        CompileResult errors =
+                BCompileUtil.compile("test-src/javainterop/dependently_typed_functions_test_negative.bal");
         int indx = 0;
         validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 28, 16);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'float'", 30, 13);
