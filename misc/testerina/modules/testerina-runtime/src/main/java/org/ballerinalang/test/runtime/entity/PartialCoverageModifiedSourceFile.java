@@ -7,12 +7,16 @@ import org.jacoco.core.analysis.ISourceFileCoverage;
 
 import java.util.List;
 
-public class ModifiedSourceFileCoverageImpl implements ISourceFileCoverage {
+/**
+ * Represents a source file containing lines modified to consider partially covered coverage info as fully covered.
+ *
+ */
+public class PartialCoverageModifiedSourceFile implements ISourceFileCoverage {
 
     private final ISourceFileCoverage oldSourceFile;
     private final List<ILine> modifiedLines;
 
-    public ModifiedSourceFileCoverageImpl(ISourceFileCoverage oldSourcefile, List<ILine> modifiedLines) {
+    public PartialCoverageModifiedSourceFile(ISourceFileCoverage oldSourcefile, List<ILine> modifiedLines) {
         this.oldSourceFile = oldSourcefile;
         this.modifiedLines = modifiedLines;
     }
@@ -27,7 +31,9 @@ public class ModifiedSourceFileCoverageImpl implements ISourceFileCoverage {
         return oldSourceFile.getLastLine();
     }
 
-    //Return the modified lines instead of lines stored in the original source file
+    /**
+     * Returns the modified lines instead of lines stored in the original source file.
+     */
     @Override
     public ILine getLine(int nr) {
         if (modifiedLines.size() == 0 || nr < getFirstLine() || nr > getLastLine()) {

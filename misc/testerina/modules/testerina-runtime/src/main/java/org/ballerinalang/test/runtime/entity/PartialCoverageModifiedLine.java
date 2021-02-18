@@ -3,14 +3,18 @@ package org.ballerinalang.test.runtime.entity;
 import org.jacoco.core.analysis.ICounter;
 import org.jacoco.core.analysis.ILine;
 
-public class ModifiedLineImpl implements ILine {
+/**
+ * Represents a line modified to consider partially covered coverage info as fully covered.
+ *
+ */
+public class PartialCoverageModifiedLine implements ILine {
 
-    private final ModifiedCounterImpl instructions;
-    private final ModifiedCounterImpl branches;
+    private final PartialCoverageModifiedCounter instructions;
+    private final PartialCoverageModifiedCounter branches;
 
-    public ModifiedLineImpl(ICounter instructions, ICounter branches) {
-        this.instructions = new ModifiedCounterImpl(instructions);
-        this.branches = new ModifiedCounterImpl(branches);
+    public PartialCoverageModifiedLine(ICounter instructions, ICounter branches) {
+        this.instructions = new PartialCoverageModifiedCounter(instructions);
+        this.branches = new PartialCoverageModifiedCounter(branches);
     }
 
     @Override

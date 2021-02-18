@@ -27,8 +27,6 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
-import org.jacoco.core.analysis.ICounter;
-import org.jacoco.core.analysis.ICoverageNode;
 import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
@@ -113,11 +111,11 @@ public class CoverageReport {
             }
             execFileLoader.load(executionDataFile.toFile());
             final CoverageBuilder coverageBuilder = analyzeStructure();
-            IBundleCoverage bundleCoverage = coverageBuilder.getBundle(title);
             ModuleCoverage moduleCoverage = new ModuleCoverage();
+            IBundleCoverage bundleCoverage = coverageBuilder.getBundle(title);
             createReport(bundleCoverage, moduleCoverage);
-//            bundleCoverage = getModifiedBundle(coverageBuilder);
-            createXMLReport(bundleCoverage);
+            IBundleCoverage modifiedBundleCoverage = getPartialCoverageModifiedBundle(coverageBuilder);
+            createXMLReport(modifiedBundleCoverage);
             CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
             return moduleCoverage;
         } else {
@@ -133,9 +131,9 @@ public class CoverageReport {
         return coverageBuilder;
     }
 
-    private IBundleCoverage getModifiedBundle(CoverageBuilder coverageBuilder) {
+    private IBundleCoverage getPartialCoverageModifiedBundle(CoverageBuilder coverageBuilder) {
         final Collection<ISourceFileCoverage> sourcefiles = coverageBuilder.getSourceFiles();
-        final Collection<ISourceFileCoverage> modifiedSourceFiles = modifySources(sourcefiles);
+        final Collection<ISourceFileCoverage> modifiedSourceFiles = modifySourceFiles(sourcefiles);
         final IBundleCoverage bundleCoverage = new BundleCoverageImpl(title, coverageBuilder.getClasses(),
                 modifiedSourceFiles);
         return bundleCoverage;
@@ -192,7 +190,6 @@ public class CoverageReport {
                     }
                 }
             }
-
         }
     }
 
@@ -207,188 +204,24 @@ public class CoverageReport {
         return filteredPathList;
     }
 
-    public Collection<ISourceFileCoverage> modifySources(Collection<ISourceFileCoverage> sourcefiles) {
+    public Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {
         Collection<ISourceFileCoverage> modifiedSourceFiles = new ArrayList<>();
         for (ISourceFileCoverage sourcefile : sourcefiles) {
-            List<ILine> modifiedLines = new ArrayList<>();
-            for (int i = sourcefile.getFirstLine(); i <= sourcefile.getLastLine(); i++) {
-                ILine line = sourcefile.getLine(i);
-                ILine modifiedLine = new ILine() {
-                    private final CustomCounterImpl instructions = new CustomCounterImpl(line.getInstructionCounter());
-                    private final CustomCounterImpl branches = new CustomCounterImpl(line.getBranchCounter());
-
-                    @Override
-                    public ICounter getInstructionCounter() {
-                        return instructions;
-                    }
-
-                    @Override
-                    public ICounter getBranchCounter() {
-                        return branches;
-                    }
-
-                    @Override
-                    public int getStatus() {
-                        return branches.getStatus() | instructions.getStatus();
-                    }
-                };
-                modifiedLines.add(modifiedLine);
+            if (sourcefile.getName().contains(BLANG_SRC_FILE_SUFFIX)) {
+                List<ILine> modifiedLines = new ArrayList<>();
+                for (int i = sourcefile.getFirstLine(); i <= sourcefile.getLastLine(); i++) {
+                    ILine line = sourcefile.getLine(i);
+                    ILine modifiedLine = new PartialCoverageModifiedLine(line.getInstructionCounter(),
+                            line.getBranchCounter());
+                    modifiedLines.add(modifiedLine);
+                }
+                ISourceFileCoverage modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
+                        modifiedLines);
+                modifiedSourceFiles.add(modifiedSourceFile);
+            } else {
+                modifiedSourceFiles.add(sourcefile);
             }
-            ISourceFileCoverage modifiedSourceFile = new ISourceFileCoverage() {
-                @Override
-                public String getPackageName() {
-                    return sourcefile.getPackageName();
-                }
-
-                @Override
-                public int getFirstLine() {
-                    return sourcefile.getFirstLine();
-                }
-
-                @Override
-                public int getLastLine() {
-                    return sourcefile.getLastLine();
-                }
-
-                //Return the modified lines instead of lines stored in the original source file
-                @Override
-                public ILine getLine(int nr) {
-                    if (modifiedLines.size() == 0 || nr < getFirstLine() || nr > getLastLine()) {
-                        return sourcefile.getLine(nr);
-                    }
-                    ILine reqLine = modifiedLines.get(nr - getFirstLine());
-                    return reqLine == null ? sourcefile.getLine(nr) : reqLine;
-                }
-
-                @Override
-                public ElementType getElementType() {
-                    return sourcefile.getElementType();
-                }
-
-                @Override
-                public String getName() {
-                    return sourcefile.getName();
-                }
-
-                @Override
-                public ICounter getInstructionCounter() {
-                    return sourcefile.getInstructionCounter();
-                }
-
-                @Override
-                public ICounter getBranchCounter() {
-                    return sourcefile.getBranchCounter();
-                }
-
-                @Override
-                public ICounter getLineCounter() {
-                    return sourcefile.getLineCounter();
-                }
-
-                @Override
-                public ICounter getComplexityCounter() {
-                    return sourcefile.getComplexityCounter();
-                }
-
-                @Override
-                public ICounter getMethodCounter() {
-                    return sourcefile.getMethodCounter();
-                }
-
-                @Override
-                public ICounter getClassCounter() {
-                    return sourcefile.getClassCounter();
-                }
-
-                @Override
-                public ICounter getCounter(CounterEntity entity) {
-                    return sourcefile.getCounter(entity);
-                }
-
-                @Override
-                public boolean containsCode() {
-                    return sourcefile.containsCode();
-                }
-
-                @Override
-                public ICoverageNode getPlainCopy() {
-                    return sourcefile.getPlainCopy();
-                }
-            };
-            modifiedSourceFiles.add(modifiedSourceFile);
         }
         return modifiedSourceFiles;
-    }
-
-    private class CustomCounterImpl implements ICounter {
-        private int covered;
-        private int missed;
-
-        public CustomCounterImpl(ICounter prevCounter) {
-            this.covered = prevCounter.getCoveredCount();
-            this.missed = prevCounter.getMissedCount();
-            modifyCoverageNumbers();
-        }
-
-        //Modify the covered and missed numbers in cases the counter status is calculated as PARTLY_COVERED
-        //It converts the counter status to FULLY_COVERED
-        public void modifyCoverageNumbers() {
-            if (getStatus() == PARTLY_COVERED) {
-                covered = covered + missed;
-                missed = 0;
-            }
-        }
-
-        @Override
-        public double getValue(CounterValue value) {
-            switch (value) {
-                case TOTALCOUNT:
-                    return getTotalCount();
-                case MISSEDCOUNT:
-                    return getMissedCount();
-                case COVEREDCOUNT:
-                    return getCoveredCount();
-                case MISSEDRATIO:
-                    return getMissedRatio();
-                case COVEREDRATIO:
-                    return getCoveredRatio();
-                default:
-                    throw new AssertionError(value);
-            }
-        }
-
-        @Override
-        public int getTotalCount() {
-            return covered + missed;
-        }
-
-        @Override
-        public int getCoveredCount() {
-            return covered;
-        }
-
-        @Override
-        public int getMissedCount() {
-            return missed;
-        }
-
-        @Override
-        public double getCoveredRatio() {
-            return (double) covered / (missed + covered);
-        }
-
-        @Override
-        public double getMissedRatio() {
-            return (double) missed / (missed + covered);
-        }
-
-        @Override
-        public int getStatus() {
-            int status = covered > 0 ? FULLY_COVERED : EMPTY;
-            if (missed > 0) {
-                status |= NOT_COVERED;
-            }
-            return status;
-        }
     }
 }
