@@ -33,20 +33,16 @@ public class PatternEvaluatorTest extends AbstractEvaluatorTest {
 
     @Test
     public void testEvaluateTuple() throws BallerinaShellException {
-        // TODO: (#27824) Module level list binding patterns are unsupported
         testEvaluate(TUPLE_EVALUATOR_TESTCASE);
     }
 
     @Test
     public void testEvaluateRecord() throws BallerinaShellException {
-        // TODO: (#27824) Module level mapping binding patterns are unsupported
         testEvaluate(RECORD_EVALUATOR_TESTCASE);
     }
 
     @Test
     public void testEvaluateArray() throws BallerinaShellException {
-        // TODO: (#28434) Fix issue of float[3] type converting to float[]
-        // TODO: (#27824) Module level array binding patterns are unsupported
-        // testEvaluate(ARRAY_EVALUATOR_TESTCASE);
+         testEvaluate(ARRAY_EVALUATOR_TESTCASE);
     }
 }

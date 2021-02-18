@@ -1,7 +1,7 @@
 [
   {
     "description": "Define variables with tuple binding pattern.",
-    "code": "string name = \"\"; string address = \"\"; int age = 0; [name, age, address] = [\"Jack Smith\", 23, \"380 Lakewood Dr. Desoto, TX 75115\"];"
+    "code": "[string, int, string] [name, age, address] = [\"Jack Smith\", 23, \"380 Lakewood Dr. Desoto, TX 75115\"];"
   },
   {
     "description": "View values.",
@@ -19,7 +19,7 @@
   },
   {
     "description": "Nested define variables with tuple binding pattern.",
-    "code": "string eventId = \"\";float score1 = 0;float score2 = 0;float score3 = 0; [eventId, [score1, score2, score3]] = [\"E335\", [9.8, 9.6, 9.5]];"
+    "code": "[string, [float, float, float]][eventId, [score1, score2, score3]] = [\"E335\", [9.8, 9.6, 9.5]];"
   },
   {
     "description": "View values.",
