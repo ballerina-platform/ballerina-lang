@@ -22,8 +22,8 @@ import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -76,7 +76,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
 
-        SimpleVariableNode variableNode = packageNode.getGlobalVariables().get(1);
+        VariableNode variableNode = packageNode.getGlobalVariables().get(1);
         Assert.assertNotNull(variableNode);
         BLangMarkdownDocumentation documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -151,9 +151,9 @@ public class MarkdownDocumentationTest {
 
         // Todo - need to come up with a proper way to document finite types
 
-        List<? extends SimpleVariableNode> globalVariables = packageNode.getGlobalVariables();
+        List<? extends VariableNode> globalVariables = packageNode.getGlobalVariables();
 
-        SimpleVariableNode variableNode = globalVariables.get(1);
+        VariableNode variableNode = globalVariables.get(1);
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -369,7 +369,7 @@ public class MarkdownDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 37);
+        Assert.assertEquals(compileResult.getWarnCount(), 46);
 
         int index = 0;
 
@@ -423,7 +423,19 @@ public class MarkdownDocumentationTest {
                 "invalid identifier in documentation reference '9function'", 108, 13);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid reference in documentation 'filePath1' for type 'parameter'", 109, 3);
-        BAssertUtil.validateWarning(compileResult, index, "undocumented parameter 'filePath'", 110, 22);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented parameter 'filePath'", 110, 22);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'a'", 114, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 115, 1);
+        BAssertUtil.validateWarning(compileResult, index++,
+                "invalid usage of parameter reference outside of function definition 'invalidParameter'", 116, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'a'", 119, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 120, 1);
+        BAssertUtil.validateWarning(compileResult, index++,
+                "invalid usage of parameter reference outside of function definition 'invalidParameter'", 121, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'message'", 124, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 125, 1);
+        BAssertUtil.validateWarning(compileResult, index,
+                "invalid usage of parameter reference outside of function definition 'invalidParameter'", 126, 3);
     }
 
     @Test(description = "Test doc service")

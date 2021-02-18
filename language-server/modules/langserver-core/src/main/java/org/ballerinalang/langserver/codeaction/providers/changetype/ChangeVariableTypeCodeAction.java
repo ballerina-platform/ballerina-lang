@@ -86,16 +86,32 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         }
 
         // Derive possible types
+        Optional<String> typeNodeStr = getTypeNodeStr(typeNode.get());
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
         List<String> types = CodeActionUtil.getPossibleTypes((TypeSymbol) rhsTypeSymbol, importEdits, context);
         for (String type : types) {
+            if (typeNodeStr.isPresent() && typeNodeStr.get().equals(type)) {
+                // Skip suggesting same type
+                continue;
+            }
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(CommonUtil.toRange(typeNode.get().lineRange()), type));
             String commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), type);
             actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         }
         return actions;
+    }
+
+    private Optional<String> getTypeNodeStr(ExpressionNode expressionNode) {
+        if (expressionNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            SimpleNameReferenceNode sRefNode = (SimpleNameReferenceNode) expressionNode;
+            return Optional.of(sRefNode.name().text());
+        } else if (expressionNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qnRefNode = (QualifiedNameReferenceNode) expressionNode;
+            return Optional.of(qnRefNode.modulePrefix().text() + ":" + qnRefNode.identifier().text());
+        }
+        return Optional.empty();
     }
 
     private Optional<ExpressionNode> getTypeNode(Node matchedNode, CodeActionContext context) {

@@ -1,0 +1,81 @@
+/*
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+package org.ballerinalang.langserver.command;
+
+import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
+
+/**
+ * Command Execution Test Cases for create function.
+ */
+public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest {
+
+    private static final Logger log = LoggerFactory.getLogger(CreateFunctionCommandExecTest.class);
+
+    @Test(dataProvider = "create-function-data-provider")
+    public void testCreateFunction(String config, String source) throws IOException {
+        performTest(config, source, CreateFunctionExecutor.COMMAND);
+    }
+
+    @DataProvider(name = "create-function-data-provider")
+    public Object[][] createFunctionDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CreateFunctionExecutor.COMMAND);
+        return new Object[][]{
+                {"createUndefinedFunction1.json", "createUndefinedFunction.bal"},
+                {"createUndefinedFunction2.json", "createUndefinedFunction.bal"},
+                {"createUndefinedFunction3.json", "createUndefinedFunction.bal"},
+                {"createUndefinedFunction4.json", "createUndefinedFunction2.bal"},
+                // TODO Doesn't support method creation in objects
+                // {"createUndefinedFunction5.json", "createUndefinedFunction3.bal"},
+                // TODO Doesn't support methods inside services yet
+                // {"createUndefinedFunction6.json", "createUndefinedFunction4.bal"},
+
+                {"createUndefinedFunction7.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction8.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction9.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction10.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction11.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction12.json", "createUndefinedFunction5.bal"},
+                // TODO Need to fix records support
+                // {"createUndefinedFunction13.json", "createUndefinedFunction5.bal"},
+
+                {"projectCreateUndefinedFunction1.json", "testproject/main.bal"},
+                {"projectCreateUndefinedFunction2.json", "testproject/main.bal"},
+                {"projectCreateUndefinedFunction3.json", "testproject/main.bal"},
+                // TODO Determining types within records not supported yet
+                // {"projectCreateUndefinedFunction4.json", "testproject/main.bal"},
+                // TODO Assignment to module declaration not supported yet
+                // {"projectCreateUndefinedFunction5.json", "testproject/school.bal"},
+                // TODO Assignment let expressions not supported yet
+                // {"projectCreateUndefinedFunction6.json", "testproject/school.bal"},
+                {"projectCreateUndefinedFunctionWithModAlias.json", "testproject/modAlias.bal"},
+                {"projectCreateUndefinedFunctionWithModAlias2.json", "testproject/modAlias.bal"},
+                {"projectCreateUndefinedFunctionWithLangLib.json", "testproject/langlib.bal"},
+        };
+    }
+
+    @Override
+    protected String getSourceRoot() {
+        return "create-function";
+    }
+}
