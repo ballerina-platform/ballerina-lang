@@ -198,7 +198,6 @@ public enum ParserRuleContext {
     FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL("func-type-desc-start-without-first-qual"),
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
-    INFERRED_TYPE_DESC("*"),
     SELECT_CLAUSE("select-clause"),
     WHERE_CLAUSE("where-clause"),
     FROM_CLAUSE("from-clause"),

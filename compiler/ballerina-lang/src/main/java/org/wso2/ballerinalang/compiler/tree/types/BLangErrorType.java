@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangErrorType extends BLangType implements ErrorTypeNode {
     public BLangType detailType;
-    public boolean inferErrorType;
 
     public BLangErrorType() {
     }
@@ -43,9 +42,6 @@ public class BLangErrorType extends BLangType implements ErrorTypeNode {
     @Override
     public String toString() {
         StringBuilder val = new StringBuilder(this.type.toString());
-        if (this.inferErrorType) {
-            val.append("<*>");
-        }
         return val.toString();
     }
 

@@ -9697,15 +9697,12 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse error type descriptor.
      * <p>
-     * error-type-descriptor := error [error-type-param]
-     * error-type-param := < (detail-type-descriptor | inferred-type-descriptor) >
-     * detail-type-descriptor := type-descriptor
-     * inferred-type-descriptor := *
+     * error-type-descriptor := error [error-type-parameter]
+     * error-type-parameter := < type-descriptor >
      * </p>
      *
      * @return Parsed node
      */
-
     private STNode parseErrorTypeDescriptor() {
         STNode errorKeywordToken = parseErrorKeyword();
         return parseErrorTypeDescriptor(errorKeywordToken);
@@ -9725,22 +9722,14 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse error type param node.
      * <p>
-     * error-type-param := < (detail-type-descriptor | inferred-type-descriptor) >
-     * detail-type-descriptor := type-descriptor
-     * inferred-type-descriptor := *
+     * error-type-parameter := < type-descriptor >
      * </p>
      *
      * @return Parsed node
      */
     private STNode parseErrorTypeParamsNode() {
         STNode ltToken = parseLTToken();
-        STNode parameter;
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
-            parameter = consume();
-        } else {
-            parameter = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
-        }
+        STNode parameter = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
         STNode gtToken = parseGTToken();
         return STNodeFactory.createErrorTypeParamsNode(ltToken, parameter, gtToken);
     }

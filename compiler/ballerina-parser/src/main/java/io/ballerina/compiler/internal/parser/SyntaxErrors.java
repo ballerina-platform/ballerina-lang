@@ -256,7 +256,6 @@ public class SyntaxErrors {
             case FIELD_DESCRIPTOR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case ASTERISK:
-            case INFERRED_TYPE_DESC:
                 return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
             case CLOSED_RECORD_BODY_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_PIPE_TOKEN;

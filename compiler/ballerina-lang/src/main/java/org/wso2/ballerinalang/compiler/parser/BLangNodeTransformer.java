@@ -973,8 +973,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 if (parent.kind() != SyntaxKind.TYPE_DEFINITION) {
                     return deSugarTypeAsUserDefType(errorType);
                 }
-            } else {
-                errorType.inferErrorType = true;
             }
         }
 

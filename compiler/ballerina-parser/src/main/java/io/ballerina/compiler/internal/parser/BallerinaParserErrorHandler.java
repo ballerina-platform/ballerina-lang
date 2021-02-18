@@ -376,8 +376,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TABLE_KEY_RHS =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
-    private static final ParserRuleContext[] ERROR_TYPE_PARAMS =
-            { ParserRuleContext.INFERRED_TYPE_DESC, ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS };
+    private static final ParserRuleContext[] ERROR_TYPE_PARAMS = { ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS };
 
     private static final ParserRuleContext[] LET_VAR_DECL_START =
             { ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, ParserRuleContext.ANNOTATIONS };
@@ -1137,7 +1136,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.BACKTICK_TOKEN;
                     break;
                 case ASTERISK:
-                case INFERRED_TYPE_DESC:
                     hasMatch = nextToken.kind == SyntaxKind.ASTERISK_TOKEN;
                     break;
                 case BITWISE_AND_OPERATOR:
@@ -3033,8 +3031,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 // a context manually here.
                 startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
                 return ParserRuleContext.TYPEDESC_RHS;
-            case INFERRED_TYPE_DESC:
-                return ParserRuleContext.GT;
             case ROW_TYPE_PARAM:
                 return ParserRuleContext.LT;
             case PARENTHESISED_TYPE_DESC_START:
@@ -5137,7 +5133,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SEMICOLON:
                 return SyntaxKind.SEMICOLON_TOKEN;
             case ASTERISK:
-            case INFERRED_TYPE_DESC:
                 return SyntaxKind.ASTERISK_TOKEN;
             case CLOSED_RECORD_BODY_END:
                 return SyntaxKind.CLOSE_BRACE_PIPE_TOKEN;
