@@ -41,8 +41,8 @@ import java.util.StringJoiner;
  */
 public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements RecordTypeSymbol {
 
-    private Map<String, RecordFieldSymbol> fieldSymbols;
     private final boolean isInclusive;
+    private Map<String, RecordFieldSymbol> fieldSymbols;
     private TypeSymbol restTypeDesc;
     private List<TypeSymbol> typeInclusions;
 
@@ -114,9 +114,12 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
             joiner.add(ballerinaFieldSignature);
         }
 
-        restTypeDescriptor().ifPresent(typeDescriptor -> {
-            joiner.add(typeDescriptor.signature() + "...;");
-        });
+        // No rest descriptor if the record in inclusive
+        if (!this.isInclusive) {
+            restTypeDescriptor().ifPresent(typeDescriptor -> {
+                joiner.add(typeDescriptor.signature() + "...;");
+            });
+        }
 
         return "record " + joiner.toString();
     }
