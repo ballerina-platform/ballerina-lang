@@ -28,14 +28,6 @@ public class StatementContext {
     private final boolean statement;
 
     /**
-     * Creates a null expression.
-     */
-    public StatementContext() {
-        this.code = "()";
-        this.statement = false;
-    }
-
-    /**
      * Creates a statement/expression context.
      *
      * @param snippet   Snippet content.

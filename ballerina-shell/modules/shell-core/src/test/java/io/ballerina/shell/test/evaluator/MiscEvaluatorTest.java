@@ -43,7 +43,6 @@ public class MiscEvaluatorTest extends AbstractEvaluatorTest {
 
     @Test
     public void testEvaluateLet() throws BallerinaShellException {
-        // TODO: (#28434) Fixed size arrays are not defined as such
         testEvaluate(LET_EVALUATOR_TESTCASE);
     }
 }

@@ -45,14 +45,13 @@ any|error {{{exprVarName}}} = __recall_any_error("{{{exprVarName}}}");
 // Handle statements/expressions
 // We put statements separately to trap any panics
 function __stmts() returns any {
-    {{#lastStmt}}
-        do {
+    do {
+        {{#lastStmts}}
             // Statement evaluation
             {{#statement}}
                 if (true) {
                     {{{code}}}
                 }
-                {{{exprVarName}}} = ();
             {{/statement}}
 
             // Expression evaluation
@@ -61,11 +60,15 @@ function __stmts() returns any {
                     {{{code}}}
                 );
             {{/statement}}
-        } on fail error e {
+        {{/lastStmts}}
+
+        {{#noExpressions}}
             {{{exprVarName}}} = ();
-            return e.message() + " " + e.detail().toBalString();
-        }
-    {{/lastStmt}}
+        {{/noExpressions}}
+    } on fail error e {
+        {{{exprVarName}}} = ();
+        return e.message() + " " + e.detail().toBalString();
+    }
 }
 
 // This will execute the statement and initialize and save vars.

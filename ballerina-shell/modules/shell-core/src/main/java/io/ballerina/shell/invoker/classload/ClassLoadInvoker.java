@@ -34,18 +34,14 @@ import io.ballerina.shell.invoker.classload.context.StatementContext;
 import io.ballerina.shell.invoker.classload.context.VariableContext;
 import io.ballerina.shell.rt.InvokerMemory;
 import io.ballerina.shell.snippet.Snippet;
-import io.ballerina.shell.snippet.types.DeclarationSnippet;
 import io.ballerina.shell.snippet.types.ExecutableSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
 import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.StatementSnippet;
-import io.ballerina.shell.snippet.types.TopLevelDeclarationSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 import io.ballerina.shell.utils.QuotedIdentifier;
 import io.ballerina.shell.utils.QuotedImport;
 import io.ballerina.shell.utils.StringUtils;
-import io.ballerina.shell.utils.timeit.InvokerTimeIt;
-import io.ballerina.shell.utils.timeit.TimedOperation;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -211,7 +207,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     }
 
     @Override
-    public Optional<Object> execute(Snippet newSnippet) throws InvokerException {
+    public Optional<Object> execute(Collection<Snippet> newSnippets) throws InvokerException {
         if (!this.initialized.get()) {
             throw new IllegalStateException("Invoker execution not initialized.");
         }
@@ -220,122 +216,58 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
         // TODO: (#28036) Fix the closure bug.
 
-        if (newSnippet instanceof ImportDeclarationSnippet) {
-            // Only compilation to find import validity and exit.
-            ImportDeclarationSnippet importDcln = (ImportDeclarationSnippet) newSnippet;
-            QuotedIdentifier importPrefix = timedOperation("processing import", () -> processImport(importDcln));
-            Objects.requireNonNull(importPrefix, "Import prefix identification failed.");
-            addDebugDiagnostic("Import prefix identified as: " + importPrefix);
-            return Optional.empty();
-
-        } else if (newSnippet instanceof TopLevelDeclarationSnippet) {
-            // Process the declarations
-            processDeclarations(List.of((TopLevelDeclarationSnippet) newSnippet));
-            return Optional.empty();
-
-        } else if (newSnippet instanceof ExecutableSnippet) {
-            // Compile and execute the real program. Also output the EXPR result.
-            ClassLoadContext context = createStatementExecutionContext((ExecutableSnippet) newSnippet);
-            timedOperation("statement execution", () -> executeProject(context, EXECUTION_TEMPLATE_FILE));
-            Object executionResult = InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME);
-            addDebugDiagnostic("Implicit imports added: " + this.newImports);
-            return Optional.ofNullable(executionResult);
-
-        } else {
-            addErrorDiagnostic("Unexpected snippet type");
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    @Override
-    public Object executeDeclarations(Collection<DeclarationSnippet> newSnippets) throws InvokerException {
-        if (!this.initialized.get()) {
-            throw new IllegalStateException("Invoker execution not initialized.");
-        }
-
-        // First filter out imports, run imports
-        List<TopLevelDeclarationSnippet> declarationSnippets = new ArrayList<>();
-        List<ImportDeclarationSnippet> importDeclarationSnippets = new ArrayList<>();
-        for (DeclarationSnippet newSnippet : newSnippets) {
-            if (newSnippet instanceof TopLevelDeclarationSnippet) {
-                declarationSnippets.add((TopLevelDeclarationSnippet) newSnippet);
-            } else if (newSnippet instanceof ImportDeclarationSnippet) {
-                importDeclarationSnippets.add((ImportDeclarationSnippet) newSnippet);
-            } else {
-                throw new UnsupportedOperationException();
-            }
-        }
-
-        // Execute imports
-        for (ImportDeclarationSnippet snippet : importDeclarationSnippets) {
-            execute(snippet);
-        }
-        // Execute other snippets
-        if (!declarationSnippets.isEmpty()) {
-            processDeclarations(declarationSnippets);
-        }
-        return null;
-    }
-
-    /**
-     * This is an import. A test import is done to check for errors.
-     * It should not give 'module not found' error.
-     * Only compilation is done to verify package resolution.
-     *
-     * @param importSnippet New import snippet string.
-     * @return Imported prefix name.
-     * @throws InvokerException If importing failed.
-     */
-    private QuotedIdentifier processImport(ImportDeclarationSnippet importSnippet) throws InvokerException {
-        QuotedImport quotedImport = importSnippet.getImportedModule();
-        QuotedIdentifier quotedPrefix = importSnippet.getPrefix();
-
-        if (imports.moduleImported(quotedImport) && imports.prefix(quotedImport).equals(quotedPrefix)) {
-            // Same module with same prefix. No need to check.
-            return quotedPrefix;
-        } else if (imports.containsPrefix(quotedPrefix)) {
-            // Prefix is already used. (Not for the same module - checked above)
-            addErrorDiagnostic("The import prefix was already used by another import.");
-            throw new InvokerException();
-        }
-
-        compileImportStatement(importSnippet.toString());
-        return imports.storeImport(importSnippet);
-    }
-
-    /**
-     * Processes declarations (module dcln/var dclns).
-     * Compiles once to check syntax and infer variable types.
-     * Execution is only done if there is at least one variable dcln.
-     *
-     * @param declarationSnippets Declarations to process.
-     * @throws InvokerException If compilation failed.
-     */
-    private void processDeclarations(Collection<TopLevelDeclarationSnippet> declarationSnippets)
-            throws InvokerException {
         Map<VariableDeclarationSnippet, Set<QuotedIdentifier>> variableDeclarations = new HashMap<>();
-        List<QuotedIdentifier> variableNames = new ArrayList<>();
         Map<QuotedIdentifier, ModuleMemberDeclarationSnippet> moduleDeclarations = new HashMap<>();
+        List<ExecutableSnippet> executableSnippets = new ArrayList<>();
+        List<QuotedIdentifier> variableNames = new ArrayList<>();
 
         // Fill the required arrays/maps
-        for (DeclarationSnippet declarationSnippet : declarationSnippets) {
-            Set<QuotedIdentifier> usedPrefixes = new HashSet<>();
-            declarationSnippet.usedImports().forEach(p -> usedPrefixes.add(new QuotedIdentifier(p)));
+        // Only compilation to find import validity.
+        // All imports are done on-the-spot.
+        // Others are processed later.
+        for (Snippet newSnippet : newSnippets) {
 
-            if (declarationSnippet instanceof VariableDeclarationSnippet) {
-                VariableDeclarationSnippet varDclnSnippet = (VariableDeclarationSnippet) declarationSnippet;
+            if (newSnippet instanceof ImportDeclarationSnippet) {
+                processImport((ImportDeclarationSnippet) newSnippet);
+
+            } else if (newSnippet instanceof VariableDeclarationSnippet) {
+                VariableDeclarationSnippet varDclnSnippet = (VariableDeclarationSnippet) newSnippet;
                 variableNames.addAll(varDclnSnippet.names());
                 variableDeclarations.put(varDclnSnippet, varDclnSnippet.names());
 
-            } else if (declarationSnippet instanceof ModuleMemberDeclarationSnippet) {
-                ModuleMemberDeclarationSnippet moduleDclnSnippet = (ModuleMemberDeclarationSnippet) declarationSnippet;
+            } else if (newSnippet instanceof ModuleMemberDeclarationSnippet) {
+                ModuleMemberDeclarationSnippet moduleDclnSnippet = (ModuleMemberDeclarationSnippet) newSnippet;
                 QuotedIdentifier moduleDeclarationName = moduleDclnSnippet.name();
                 moduleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);
-                this.newImports.put(moduleDeclarationName, usedPrefixes);
+                Set<QuotedIdentifier> usedPrefixes = newSnippet.usedImports().stream()
+                        .map(QuotedIdentifier::new).collect(Collectors.toSet());
+                newImports.put(moduleDeclarationName, usedPrefixes);
+
+            } else if (newSnippet instanceof ExecutableSnippet) {
+                executableSnippets.add((ExecutableSnippet) newSnippet);
+
+            } else {
+                throw new UnsupportedOperationException("Unimplemented snippet category.");
             }
         }
 
-        // Compile declaration template
+        boolean noModuleDeclarations = moduleDeclarations.isEmpty();
+        boolean noVariableDeclarations = variableDeclarations.isEmpty();
+        boolean noExecutables = executableSnippets.isEmpty();
+
+        // If there are only imports (no other snippets), just stop execution.
+        if (noModuleDeclarations && noVariableDeclarations && noExecutables) {
+            return Optional.empty();
+        }
+
+        // If there are no declarations/variables, we can simply execute.
+        if (noModuleDeclarations && noVariableDeclarations) {
+            ClassLoadContext execContext = createVariablesExecutionContext(List.of(), executableSnippets, Map.of());
+            executeProject(execContext, EXECUTION_TEMPLATE_FILE);
+            return Optional.ofNullable(InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME));
+        }
+
+        // Compile declaration template if there were declarations
         ClassLoadContext context = createDeclarationContext(variableDeclarations.keySet(), variableNames,
                 moduleDeclarations);
         Project project = getProject(context, DECLARATION_TEMPLATE_FILE);
@@ -365,15 +297,17 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             addDebugDiagnostic("Module dcln name: " + dcln.getKey());
             addDebugDiagnostic("Module dcln code: " + moduleDclnCode);
         }
-        // No need to execute if none are variable declarations
-        if (variableNames.isEmpty()) {
-            return;
+        // No need to execute if none are variable declarations/executable snippets
+        // But we have to set memory variable to null.
+        if (variableDeclarations.isEmpty() && executableSnippets.isEmpty()) {
+            return Optional.empty();
         }
 
         try {
             ClassLoadContext execContext = createVariablesExecutionContext(
-                    variableDeclarations.keySet(), allNewVariables);
+                    variableDeclarations.keySet(), executableSnippets, allNewVariables);
             executeProject(execContext, EXECUTION_TEMPLATE_FILE);
+            return Optional.ofNullable(InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME));
         } catch (InvokerException e) {
             // Execution failed... Reverse all by deleting declarations.
             Set<String> identifiersToDelete = new HashSet<>();
@@ -382,6 +316,33 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             delete(identifiersToDelete);
             throw e;
         }
+    }
+
+    /**
+     * This is an import. A test import is done to check for errors.
+     * It should not give 'module not found' error.
+     * Only compilation is done to verify package resolution.
+     *
+     * @param importSnippet New import snippet string.
+     * @throws InvokerException If importing failed.
+     */
+    private void processImport(ImportDeclarationSnippet importSnippet) throws InvokerException {
+        QuotedImport quotedImport = importSnippet.getImportedModule();
+        QuotedIdentifier quotedPrefix = importSnippet.getPrefix();
+
+        if (imports.moduleImported(quotedImport) && imports.prefix(quotedImport).equals(quotedPrefix)) {
+            // Same module with same prefix. No need to check.
+            addDebugDiagnostic("Detected reimport: " + quotedPrefix);
+            return;
+        } else if (imports.containsPrefix(quotedPrefix)) {
+            // Prefix is already used. (Not for the same module - checked above)
+            addErrorDiagnostic("The import prefix was already used by another import.");
+            throw new InvokerException();
+        }
+
+        compileImportStatement(importSnippet.toString());
+        addDebugDiagnostic("Adding import: " + importSnippet);
+        imports.storeImport(importSnippet);
     }
 
     /**
@@ -436,44 +397,37 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
     /**
      * Creates the context object to be passed to template.
-     * Only executable snippets are processed.
-     * So, only statements and expressions are processed.
-     *
-     * @param newSnippet New snippet from user.
-     * @return Created context.
-     */
-    private ClassLoadContext createStatementExecutionContext(ExecutableSnippet newSnippet) {
-        Map<QuotedIdentifier, VariableContext> varDclnsMap = globalVariableContexts();
-        Set<String> importStrings = getRequiredImportStatements(newSnippet);
-
-        boolean isStatement = newSnippet instanceof StatementSnippet;
-        StatementContext lastStatement = new StatementContext(newSnippet.toString(), isStatement);
-        return new ClassLoadContext(this.contextId, importStrings, moduleDclns.values(),
-                varDclnsMap.values(), null, lastStatement);
-    }
-
-    /**
-     * Creates the context object to be passed to template.
      * This will process variable snippets.
      *
-     * @param newSnippets  New snippets from user.
-     * @param newVariables Variables defined in new snippets.
+     * @param variableDeclarationSnippets New snippets from user.
+     * @param executableSnippets          New executable snippets.
+     * @param newVariables                Variables defined in new snippets.
      * @return Created context.
      */
-    private ClassLoadContext createVariablesExecutionContext(Collection<VariableDeclarationSnippet> newSnippets,
-                                                             Map<QuotedIdentifier, GlobalVariable> newVariables) {
+    private ClassLoadContext createVariablesExecutionContext(
+            Collection<VariableDeclarationSnippet> variableDeclarationSnippets,
+            Collection<ExecutableSnippet> executableSnippets,
+            Map<QuotedIdentifier, GlobalVariable> newVariables) {
+
         Map<QuotedIdentifier, VariableContext> varDclnsMap = globalVariableContexts();
         StringJoiner newVariableDclns = new StringJoiner("\n");
         Set<String> importStrings = new HashSet<>();
 
-        for (VariableDeclarationSnippet snippet : newSnippets) {
+        for (VariableDeclarationSnippet snippet : variableDeclarationSnippets) {
             importStrings.addAll(getRequiredImportStatements(snippet));
             newVariableDclns.add(snippet.toString());
         }
 
+        List<StatementContext> lastStatements = new ArrayList<>();
+        for (ExecutableSnippet newSnippet : executableSnippets) {
+            importStrings.addAll(getRequiredImportStatements(newSnippet));
+            boolean isStatement = newSnippet instanceof StatementSnippet;
+            lastStatements.add(new StatementContext(newSnippet.toString(), isStatement));
+        }
+
         newVariables.forEach((k, v) -> varDclnsMap.put(k, VariableContext.newVar(v)));
         return new ClassLoadContext(this.contextId, importStrings, moduleDclns.values(),
-                varDclnsMap.values(), newVariableDclns.toString(), null);
+                varDclnsMap.values(), newVariableDclns.toString(), lastStatements);
     }
 
     /**
@@ -693,20 +647,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     /**
      * @return Error stream to print out error messages.
      */
+    @Override
     protected PrintStream getErrorStream() {
         return System.err;
-    }
-
-    /**
-     * Time the operation and add diagnostics to {@link ClassLoadInvoker}.
-     *
-     * @param category  Category to add diagnostics. Should be unique per operation.
-     * @param operation Operation to perform.
-     * @param <T>       operation return type.
-     * @return Return value of operation.
-     * @throws InvokerException If operation failed.
-     */
-    private <T> T timedOperation(String category, TimedOperation<T> operation) throws InvokerException {
-        return InvokerTimeIt.timeIt(category, this, operation);
     }
 }

@@ -42,7 +42,6 @@ import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.exceptions.InvokerPanicException;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.snippet.Snippet;
-import io.ballerina.shell.snippet.types.DeclarationSnippet;
 import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
@@ -133,23 +132,14 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     public abstract void delete(Set<String> declarationNames) throws InvokerException;
 
     /**
-     * Executes a snippet and returns the output lines.
+     * Executes snippets and returns the output lines.
      * Snippets parameter should only include newly added snippets.
      * Old snippets should be managed as necessary by the implementation.
      *
-     * @param newSnippet New snippet to execute.
+     * @param newSnippets New snippets to execute.
      * @return Execution output result.
      */
-    public abstract Optional<Object> execute(Snippet newSnippet) throws InvokerException;
-
-    /**
-     * Load all the declarations given.
-     * If any declaration is skipped, a warning is emitted.
-     *
-     * @param newSnippets Declarations to load.
-     * @throws InvokerException If loading failed.
-     */
-    public abstract Object executeDeclarations(Collection<DeclarationSnippet> newSnippets) throws InvokerException;
+    public abstract Optional<Object> execute(Collection<Snippet> newSnippets) throws InvokerException;
 
     /**
      * Returns available imports in the module.

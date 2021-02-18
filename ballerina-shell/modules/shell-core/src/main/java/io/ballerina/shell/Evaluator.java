@@ -25,7 +25,6 @@ import io.ballerina.shell.parser.TreeParser;
 import io.ballerina.shell.preprocessor.Preprocessor;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.factory.SnippetFactory;
-import io.ballerina.shell.snippet.types.DeclarationSnippet;
 import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.shell.utils.timeit.TimeIt;
 import io.ballerina.shell.utils.timeit.TimedOperation;
@@ -79,29 +78,23 @@ public class Evaluator extends DiagnosticReporter {
      * <p>
      * An input line may contain one or more statements separated by semicolons.
      * The result will be written via the {@code ShellResultController}.
-     * Each stage of the evaluator will be notified wia the controller.
      * <p>
      * If the execution failed, an error will be thrown instead.
-     * If there was an error in one of the statements in the line,
-     * then this will stop execution without evaluating later lines.
      *
      * @param source Input line from user.
      * @return String output from the evaluator. This will be the last output.
      */
     public String evaluate(String source) throws BallerinaShellException {
-        String response = null;
         try {
             Collection<String> statements = timedOperation("preprocessor", () -> preprocessor.process(source));
+            List<Snippet> snippets = new ArrayList<>();
             for (String statement : statements) {
                 Node rootNode = timedOperation("tree parser", () -> treeParser.parse(statement));
                 Snippet snippet = timedOperation("snippet factory", () -> snippetFactory.createSnippet(rootNode));
-                Optional<Object> invokerOut = timedOperation("invoker", () -> invoker.execute(snippet));
-
-                if (invokerOut.isPresent()) {
-                    response = StringUtils.getExpressionStringValue(invokerOut.get());
-                }
+                snippets.add(snippet);
             }
-            return response;
+            Optional<Object> invokerOut = timedOperation("invoker", () -> invoker.execute(snippets));
+            return invokerOut.map(StringUtils::getExpressionStringValue).orElse(null);
         } finally {
             addAllDiagnostics(preprocessor.diagnostics());
             addAllDiagnostics(treeParser.diagnostics());
@@ -128,11 +121,11 @@ public class Evaluator extends DiagnosticReporter {
             addDebugDiagnostic("Loading file: " + file.getAbsolutePath());
             String statements = timedOperation("preprocessor", () -> preprocessor.processFile(file));
             Collection<Node> nodes = timedOperation("tree parser", () -> treeParser.parseDeclarations(statements));
-            List<DeclarationSnippet> declarationSnippets = new ArrayList<>();
+            List<Snippet> declarationSnippets = new ArrayList<>();
             for (Node node : nodes) {
                 declarationSnippets.add(snippetFactory.createDeclarationSnippet(node));
             }
-            timedOperation("invoker", () -> invoker.executeDeclarations(declarationSnippets));
+            timedOperation("invoker", () -> invoker.execute(declarationSnippets));
         } finally {
             addAllDiagnostics(preprocessor.diagnostics());
             addAllDiagnostics(treeParser.diagnostics());

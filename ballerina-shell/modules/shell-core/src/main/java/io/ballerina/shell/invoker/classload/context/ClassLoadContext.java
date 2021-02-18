@@ -37,7 +37,7 @@ public class ClassLoadContext {
     private final Collection<String> moduleDclns;
     private final String lastVarDcln;
     private final Collection<VariableContext> varDclns;
-    private final StatementContext lastStmt;
+    private final Collection<StatementContext> lastStmts;
 
     /**
      * Creates a context for class load invoker.
@@ -51,15 +51,15 @@ public class ClassLoadContext {
      * @param lastVarDcln Last variable declaration if the last snippet was a var dcln.
      *                    If not, this should be null.
      * @param varDclns    Variable declarations to initialize with values.
-     * @param lastStmt    Last expression if last value was a statement or an expression.
+     * @param lastStmts   List of last expressions if last values were statements or expressions.
      */
     public ClassLoadContext(String contextId,
                             Collection<String> imports,
                             Collection<String> moduleDclns,
                             Collection<VariableContext> varDclns,
                             String lastVarDcln,
-                            StatementContext lastStmt) {
-        this.lastStmt = Objects.requireNonNullElse(lastStmt, new StatementContext());
+                            Collection<StatementContext> lastStmts) {
+        this.lastStmts = Objects.requireNonNullElse(lastStmts, List.of());
         this.lastVarDcln = Objects.requireNonNullElse(lastVarDcln, "");
         this.contextId = Objects.requireNonNull(contextId);
         this.imports = Objects.requireNonNull(imports);
@@ -107,8 +107,8 @@ public class ClassLoadContext {
         return lastVarDcln;
     }
 
-    public StatementContext lastStmt() {
-        return lastStmt;
+    public Collection<StatementContext> lastStmts() {
+        return lastStmts;
     }
 
     public Collection<VariableContext> varDclns() {
@@ -125,5 +125,9 @@ public class ClassLoadContext {
 
     public String memoryRef() {
         return InvokerMemory.class.getCanonicalName();
+    }
+
+    public boolean noExpressions() {
+        return lastStmts.stream().allMatch(StatementContext::statement);
     }
 }
