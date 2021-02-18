@@ -401,7 +401,8 @@ public class Generator {
         for (Node member : typeDescriptorNode.members()) {
             if (member instanceof MethodDeclarationNode) {
                 MethodDeclarationNode methodNode = (MethodDeclarationNode) member;
-                if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
+                if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD) ||
+                        containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD)) {
                     String methodName = methodNode.methodName().text();
 
                     List<Variable> returnParams = new ArrayList<>();
