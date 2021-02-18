@@ -23,50 +23,50 @@ import org.testng.annotations.Test;
  * Test parsing quoted identifier literals.
  *
  */
-public class QuotedIdentifierTest extends AbstractMiscTest {
+public class IdentifierTest extends AbstractMiscTest {
 
     // Valid syntax
 
     @Test
-    public void testAlphanumericIdentifier() {
-        testFile("quoted-identifiers/alphanumeric_identifier_source.bal",
-                "quoted-identifiers/alphanumeric_identifier_assert.json");
+    public void testAlphanumericQuotedIdentifier() {
+        testFile("identifiers/alphanumeric_identifier_source.bal",
+                "identifiers/alphanumeric_identifier_assert.json");
     }
 
     @Test
     public void testSpecialCharacterIdentifier() {
-        testFile("quoted-identifiers/special_char_identifier_source.bal",
-                "quoted-identifiers/special_char_identifier_assert.json");
+        testFile("identifiers/special_char_identifier_source.bal",
+                "identifiers/special_char_identifier_assert.json");
     }
 
     @Test
     public void testUnicodeCharacterIdentifier() {
-        testFile("quoted-identifiers/unicode_char_identifier_source.bal",
-                "quoted-identifiers/unicode_char_identifier_assert.json");
+        testFile("identifiers/unicode_char_identifier_source.bal",
+                "identifiers/unicode_char_identifier_assert.json");
     }
 
     @Test
     public void testUnicodeCodePointIdentifier() {
-        testFile("quoted-identifiers/unicode_codepoint_source.bal", "quoted-identifiers/unicode_codepoint_assert.json");
+        testFile("identifiers/unicode_codepoint_source.bal", "identifiers/unicode_codepoint_assert.json");
     }
 
     // Invalid Syntax
 
     @Test
     public void testInvalidQuotedIdentifier() {
-        testFile("quoted-identifiers/invalid_identifier_source_01.bal",
-                "quoted-identifiers/invalid_identifier_assert_01.json");
+        testFile("identifiers/invalid_identifier_source_01.bal",
+                "identifiers/invalid_identifier_assert_01.json");
     }
 
     @Test
-    public void testQuotedIdentifierWithInvalidEscapes() {
-        testFile("quoted-identifiers/invalid_identifier_source_02.bal",
-                "quoted-identifiers/invalid_identifier_assert_02.json");
+    public void testIdentifierWithInvalidEscapes() {
+        testFile("identifiers/invalid_identifier_source_02.bal",
+                "identifiers/invalid_identifier_assert_02.json");
     }
 
     @Test
     public void testIncompleteQuotedIdentifier() {
-        testFile("quoted-identifiers/incomplete_identifier_source.bal",
-                "quoted-identifiers/incomplete_identifier_assert.json");
+        testFile("identifiers/incomplete_identifier_source.bal",
+                "identifiers/incomplete_identifier_assert.json");
     }
 }

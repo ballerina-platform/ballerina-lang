@@ -107,7 +107,7 @@
                                         "children": [
                                           {
                                             "kind": "INVALID_TOKEN",
-                                            "value": "😃invalidToken"
+                                            "value": "invalidToken"
                                           }
                                         ]
                                       }
