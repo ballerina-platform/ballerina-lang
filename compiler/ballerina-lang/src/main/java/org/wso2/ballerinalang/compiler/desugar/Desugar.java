@@ -6079,7 +6079,7 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
         if (Symbols.isFlagOn(invSym.retType.flags, Flags.PARAMETERIZED)) {
             BType retType = typeBuilder.build(invSym.retType);
-            invocation.type = retType;
+            invocation.type = invocation.async ? new BFutureType(TypeTags.FUTURE, retType, null) : retType;
         }
 
         if (invocation.expr == null) {

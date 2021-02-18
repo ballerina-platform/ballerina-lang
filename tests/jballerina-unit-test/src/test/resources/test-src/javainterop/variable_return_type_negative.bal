@@ -200,3 +200,35 @@ function testDependentlyTypedFunctionWithDefaultableParamsNegative() {
     int e = getWithDefaultableParams(x = 1, y = "", z = string);
     int f = getWithDefaultableParams(z = string, x = 1, y = "");
 }
+
+type IntOrString int|string;
+
+public function testStartActionWithDependentlyTypedFunctionsNegative() {
+    Client cl = new;
+
+    future<int> a = start getWithUnion("", IntOrString);
+    int|string|error b = start cl.get("", IntOrString);
+    future<int|string> c = start cl->remoteGet("", IntOrString);
+
+    future<int> d = start getWithUnion("hello", int);
+    string e = start cl.get(3, string);
+    future<string|error> f = start cl.get("");
+}
+
+function getWithUnion(int|string x, typedesc<int|string> y) returns y|error =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getWithUnion"
+    } external;
+
+client class Client {
+    function get(int|string x, typedesc<int|string> y = int) returns y|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "clientGetWithUnion"
+    } external;
+
+    remote function remoteGet(int|string x, typedesc<int|string> y) returns y|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "clientRemoteGetWithUnion"
+    } external;
+}

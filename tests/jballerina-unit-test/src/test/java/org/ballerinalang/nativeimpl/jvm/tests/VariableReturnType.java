@@ -18,17 +18,19 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -266,8 +268,8 @@ public class VariableReturnType {
     }
 
     public static Object getWithDefaultableParams(Object x, Object y, BTypedesc z) {
-        Type xType = TypeChecker.getType(x);
-        Type yType = TypeChecker.getType(y);
+        Type xType = TypeUtils.getType(x);
+        Type yType = TypeUtils.getType(y);
 
         if (z.getDescribingType().getTag() == INT_TAG) {
             long xAsInt = xType.getTag() == INT_TAG ? (long) x : Long.valueOf(((BString) x).getValue());
@@ -278,5 +280,27 @@ public class VariableReturnType {
         BString xAsString = xType.getTag() == INT_TAG ? StringUtils.fromString(Long.toString((long) x)) : (BString) x;
         BString yAsString = yType.getTag() == INT_TAG ? StringUtils.fromString(Long.toString((long) y)) : (BString) y;
         return xAsString.concat(yAsString);
+    }
+
+    public static Object getWithUnion(Object x, BTypedesc y) {
+        int tag = y.getDescribingType().getTag();
+        if (tag == INT_TAG) {
+            return TypeUtils.getType(x).getTag() == INT_TAG ? (long) x + 1 : (long) ((BString) x).length();
+        }
+
+        if (tag == STRING_TAG) {
+            return TypeUtils.getType(x).getTag() == INT_TAG ? StringUtils.fromString(Long.toString((long) x)) :
+                    (BString) x;
+        }
+
+        return ErrorCreator.createError(StringUtils.fromString("Error!"), StringUtils.fromString("Union typedesc"));
+    }
+
+    public static Object clientGetWithUnion(BObject client, Object x, BTypedesc y) {
+        return getWithUnion(x, y);
+    }
+
+    public static Object clientRemoteGetWithUnion(BObject client, Object x, BTypedesc y) {
+        return getWithUnion(x, y);
     }
 }

@@ -102,7 +102,20 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 199, 13);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 200, 13);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 201, 13);
-
+        validateError(errors, indx++, "incompatible types: expected 'future<int>', found 'future<(int|string|error)>'",
+                      209, 21);
+        validateError(errors, indx++,
+                      "incompatible types: expected '(int|string|error)', found 'future<(int|string|error)>'",
+                      210, 26);
+//        validateError(errors, indx++,
+//        "incompatible types: expected '(int|string|error)', found 'future<(int|string|error)>'", 211, 28);
+        validateError(errors, indx++, "incompatible types: expected 'future<int>', found 'future<(int|error)>'",
+                      213, 21);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'future<(string|error)>'",
+                      214, 16);
+//        validateError(errors, indx++,
+//                      "incompatible types: expected 'future<string|error>', found 'future<(int|error)>'",
+//                      215, 30);
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
 
@@ -151,7 +164,8 @@ public class VariableReturnTypeTest {
                 {"testObjectExternFunctions"},
                 {"testDependentlyTypedMethodsWithObjectTypeInclusion"},
                 {"testSubtypingWithDependentlyTypedMethods"},
-                {"testDependentlyTypedFunctionWithDefaultableParams"}
+                {"testDependentlyTypedFunctionWithDefaultableParams"},
+                {"testStartActionWithDependentlyTypedFunctions"}
         };
     }
 
