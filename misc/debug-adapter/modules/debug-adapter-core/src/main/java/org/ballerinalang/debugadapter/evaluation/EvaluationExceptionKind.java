@@ -31,6 +31,7 @@ public enum EvaluationExceptionKind {
     FIELD_NOT_FOUND("Undefined field '%s' in `%s`"),
     VARIABLE_NOT_FOUND("Undefined variable '%s'"),
     FUNCTION_EXECUTION_ERROR("Error occurred when executing method: '%s'"),
+    TYPE_RESOLVING_ERROR("Failed to resolve type: '%s'"),
     STRAND_NOT_FOUND("Error occurred when trying to get the current strand instance for executing the method: %s"),
     INVALID_ARGUMENT("Unsupported/invalid argument found: %s"),
     TYPE_MISMATCH("Incompatible types: expected `%s`, but found '%s': in '%s'"),

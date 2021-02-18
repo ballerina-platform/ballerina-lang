@@ -57,7 +57,7 @@ public class BLangCompilerConstants {
     public static final String QUERY_VERSION = "0.0.1";
     public static final String RUNTIME_VERSION = "0.0.1";
     public static final String TRANSACTION_VERSION = "0.0.1";
-    public static final String TRANSACTION_INTERNAL_VERSION = "1.0.6";
+    public static final String TRANSACTION_INTERNAL_VERSION = "1.0.8";
     public static final String OBSERVE_INTERNAL_VERSION = "0.9.0";
     public static final String OBSERVE_VERSION = "0.9.0";
 

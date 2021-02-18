@@ -63,7 +63,7 @@ public class ModulePartNodeContextUtil {
         List<Snippet> snippets = Arrays.asList(
                 Snippet.KW_IMPORT, Snippet.KW_FUNCTION, Snippet.KW_TYPE, Snippet.KW_PUBLIC, Snippet.KW_ISOLATED,
                 Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT, Snippet.KW_VAR,
-                Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS, Snippet.KW_DISTINCT, Snippet.KW_TRANSACTIONAL,
+                Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS, Snippet.KW_TRANSACTIONAL,
                 Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION, Snippet.DEF_SERVICE, /*Snippet.DEF_SERVICE_WEBSOCKET,
                 Snippet.DEF_SERVICE_WS_CLIENT, Snippet.DEF_SERVICE_GRPC,*/ Snippet.DEF_ANNOTATION, Snippet.DEF_RECORD,
                 Snippet.STMT_NAMESPACE_DECLARATION, Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM,

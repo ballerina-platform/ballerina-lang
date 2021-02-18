@@ -67,7 +67,8 @@ public class LSPackageLoader {
         List<Package> packages = new ArrayList<>();
         pkgMap.forEach((key, value) -> value.forEach(nameEntry -> {
             String[] components = nameEntry.split(":");
-            if (components.length != 2 || components[0].startsWith("lang.")) {
+            if (components.length != 2 || components[0].equals("lang.annotations")
+                    || components[0].equals("lang.__internal")) {
                 return;
             }
             String nameComponent = components[0];
