@@ -70,7 +70,6 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     private DiagnosticLog diagnosticLog;
     private PackageCache packageCache;
     private Map<BPackageSymbol, SymbolEnv> packageEnvironmentMap;
-    private BLangPackage parent;
     private SymbolResolver symbolResolver;
     private Types typeChecker;
 
@@ -136,8 +135,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
 
     @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
-
-        parent = (BLangPackage) ((BLangFunction) functionNode).parent;
+        BLangPackage parent = (BLangPackage) ((BLangFunction) functionNode).parent;
         String packageName = getPackageName(parent);
         annotations = annotations.stream().distinct().collect(Collectors.toList());
 
@@ -150,6 +148,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                 String[] vals = new String[2];
                 // TODO: when default values are supported in annotation struct we can remove this
                 vals[0] = packageName;
+                vals[1] = "";
 
                 if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
                     List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
@@ -214,7 +213,6 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                             (BLangTestablePackage) ((BLangFunction) functionNode).parent;
                     bLangTestablePackage.addMockFunction(functionToMockID + MOCK_FN_DELIMITER + vals[1],
                             functionName);
-
                 }
 
             }
