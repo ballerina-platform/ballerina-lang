@@ -51,6 +51,12 @@ public class ModuleCoverage {
         setCoveragePercentage();
     }
 
+    /**
+     * Check if given source file is already added to module coverage.
+     *
+     * @param fileName String
+     * @return boolean
+     */
     public boolean containsSourceFile(String fileName) {
         boolean isAvailable = false;
         for (SourceFile sourceFile : sourceFiles) {
@@ -62,6 +68,13 @@ public class ModuleCoverage {
         return isAvailable;
     }
 
+    /**
+     * Update coverage information for a given source file.
+     *
+     * @param document Document
+     * @param coveredLines List<Integer>
+     * @param missedLines List<Integer>
+     */
     public void updateCoverage(Document document, List<Integer> coveredLines,
                                List<Integer> missedLines) {
         List<SourceFile> sourceFileList = new ArrayList<>(sourceFiles);
@@ -102,6 +115,12 @@ public class ModuleCoverage {
         return name;
     }
 
+    /**
+     * Get the missed lines list for a source file.
+     *
+     * @param sourceFileName String
+     * @return list of missed lines
+     */
     public List<Integer> getMissedLinesList(String sourceFileName) {
         for (SourceFile sourceFile : this.sourceFiles) {
             if (sourceFile.getName().equals(sourceFileName)) {
@@ -111,6 +130,12 @@ public class ModuleCoverage {
         return null;
     }
 
+    /**
+     * Get the covered lines list for a source file.
+     *
+     * @param sourceFileName String
+     * @return list of covered lines
+     */
     public List<Integer> getCoveredLinesList(String sourceFileName) {
         for (SourceFile sourceFile : this.sourceFiles) {
             if (sourceFile.getName().equals(sourceFileName)) {

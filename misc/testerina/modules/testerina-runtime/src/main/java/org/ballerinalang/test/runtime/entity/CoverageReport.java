@@ -175,7 +175,7 @@ public class CoverageReport {
                     if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX)
                             && !sourceFileCoverage.getName().contains("tests/")) {
                         if (moduleCoverage.containsSourceFile(sourceFileCoverage.getName())) {
-                            //update missed lines if they are covered now
+                            //Update coverage for missed lines if covered
                             List<Integer> missedLines = moduleCoverage.getMissedLinesList(
                                     sourceFileCoverage.getName());
                             List<Integer> coveredLines =
@@ -200,7 +200,7 @@ public class CoverageReport {
                                 }
                             }
                         } else {
-                            //Evaluate from beginning
+                            //Calculate coverage for new source file
                             List<Integer> coveredLines = new ArrayList<>();
                             List<Integer> missedLines = new ArrayList<>();
                             for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine();
@@ -239,6 +239,12 @@ public class CoverageReport {
         return filteredPathList;
     }
 
+    /**
+     * Retrieve relevant document for provided file name.
+     *
+     * @param sourceFileName String
+     * @return Document
+     */
     private Document getDocument(String sourceFileName) {
         Document document = null;
         for (Module moduleInstance : module.packageInstance().modules()) {

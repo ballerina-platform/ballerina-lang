@@ -77,12 +77,11 @@ public class TestReport {
         this.moduleCoverage = moduleCoverage;
     }
 
-//    public void addCoverage(String moduleName, ModuleCoverage coverage) {
-//        if (coverage != null) {
-//            coverage.setName(moduleName);
-//            this.moduleCoverage.add(coverage);
-//        }
-//    }
+    /**
+     * Add coverage information to test report.
+     *
+     * @param moduleCoverageMap Map<String, ModuleCoverage>
+     */
     public void addCoverage(Map<String, ModuleCoverage> moduleCoverageMap) {
         if (moduleCoverageMap != null) {
             for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
