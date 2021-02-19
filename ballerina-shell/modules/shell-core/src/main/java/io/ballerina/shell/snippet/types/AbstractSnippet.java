@@ -37,7 +37,7 @@ import java.util.Set;
  */
 public class AbstractSnippet<T extends Node> implements Snippet {
     protected final SnippetSubKind subKind;
-    protected T rootNode;
+    protected final T rootNode;
 
     protected AbstractSnippet(SnippetSubKind subKind, T rootNode) {
         this.subKind = subKind;

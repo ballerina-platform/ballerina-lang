@@ -55,10 +55,6 @@ public class QuotedIdentifier {
         return name;
     }
 
-    public boolean contains(String substring) {
-        return name.contains(substring);
-    }
-
     @Override
     public String toString() {
         return name;

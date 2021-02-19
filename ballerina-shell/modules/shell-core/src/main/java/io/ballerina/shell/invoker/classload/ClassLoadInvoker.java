@@ -590,7 +590,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             quotedPrefix = new QuotedIdentifier("_" + importIndex.incrementAndGet());
         }
 
-        return imports.storeImport(quotedPrefix, moduleName);
+        imports.storeImport(quotedPrefix, moduleName);
+        return quotedPrefix;
     }
 
     /**

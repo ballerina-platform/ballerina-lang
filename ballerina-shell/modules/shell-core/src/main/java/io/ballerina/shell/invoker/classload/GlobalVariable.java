@@ -20,7 +20,6 @@ package io.ballerina.shell.invoker.classload;
 
 import io.ballerina.shell.utils.QuotedIdentifier;
 
-import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -42,26 +41,6 @@ public class GlobalVariable {
         this.isAssignableToAny = isAssignableToAny;
         this.qualifiersAndMetadata = Objects.requireNonNull(qualifiersAndMetadata);
         this.variableName = variableName;
-    }
-
-    private GlobalVariable(QuotedIdentifier variableName) {
-        // This constructor is only used to create a temp global
-        // variable to search in a hashmap using the variable name.
-        this.type = null;
-        this.variableName = variableName;
-        this.isAssignableToAny = false;
-        this.qualifiersAndMetadata = null;
-    }
-
-    /**
-     * Function to check whether a variable name is defined inside a collection.
-     *
-     * @param globalVariables Global variable collection to search.
-     * @param variableName    Variable name to search.
-     * @return Whether the variable is contained inside the collection.
-     */
-    public static boolean isDefined(Collection<GlobalVariable> globalVariables, QuotedIdentifier variableName) {
-        return globalVariables.contains(new GlobalVariable(variableName));
     }
 
     public String getType() {

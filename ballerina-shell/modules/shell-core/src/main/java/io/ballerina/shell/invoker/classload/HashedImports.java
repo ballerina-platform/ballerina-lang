@@ -143,12 +143,11 @@ public class HashedImports {
      * Add the prefix and import to the set of remembered imports.
      *
      * @param snippet Import snippet to add.
-     * @return The prefix the import was added as.
      */
-    public QuotedIdentifier storeImport(ImportDeclarationSnippet snippet) {
+    public void storeImport(ImportDeclarationSnippet snippet) {
         QuotedIdentifier quotedPrefix = snippet.getPrefix();
         QuotedImport importedModule = snippet.getImportedModule();
-        return storeImport(quotedPrefix, importedModule);
+        storeImport(quotedPrefix, importedModule);
     }
 
     /**
@@ -156,12 +155,10 @@ public class HashedImports {
      *
      * @param quotedPrefix Prefix of import.
      * @param moduleName   Module name to add.
-     * @return The prefix the import was added as.
      */
-    public QuotedIdentifier storeImport(QuotedIdentifier quotedPrefix, QuotedImport moduleName) {
+    public void storeImport(QuotedIdentifier quotedPrefix, QuotedImport moduleName) {
         this.imports.put(quotedPrefix, moduleName);
         this.reverseImports.put(moduleName, quotedPrefix);
-        return quotedPrefix;
     }
 
     /**

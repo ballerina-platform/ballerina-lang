@@ -278,15 +278,13 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      *
      * @param context      Context to use.
      * @param templateName Template to evaluate.
-     * @return Always null.
      * @throws InvokerException If execution/compilation failed.
      */
-    protected Object executeProject(ClassLoadContext context, String templateName) throws InvokerException {
+    protected void executeProject(ClassLoadContext context, String templateName) throws InvokerException {
         Project project = getProject(context, templateName);
         PackageCompilation compilation = compile(project);
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         executeProject(jBallerinaBackend);
-        return null;
     }
 
     /**

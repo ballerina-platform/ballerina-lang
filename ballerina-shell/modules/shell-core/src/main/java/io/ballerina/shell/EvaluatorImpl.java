@@ -27,8 +27,6 @@ import io.ballerina.shell.preprocessor.Preprocessor;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.factory.SnippetFactory;
 import io.ballerina.shell.utils.StringUtils;
-import io.ballerina.shell.utils.timeit.TimeIt;
-import io.ballerina.shell.utils.timeit.TimedOperation;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -62,10 +60,10 @@ class EvaluatorImpl extends Evaluator {
     @Override
     public String evaluate(String source) throws BallerinaShellException {
         try {
-            Collection<String> statements = timedOperation("preprocessor", () -> preprocessor.process(source));
-            Collection<Node> nodes = timedOperation("parser", () -> treeParser.parse(statements));
-            Collection<Snippet> snippets = timedOperation("snippets", () -> snippetFactory.createSnippets(nodes));
-            Optional<Object> invokerOut = timedOperation("invoker", () -> invoker.execute(snippets));
+            Collection<String> statements = preprocessor.process(source);
+            Collection<Node> nodes = treeParser.parse(statements);
+            Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
+            Optional<Object> invokerOut = invoker.execute(snippets);
             return invokerOut.map(StringUtils::getExpressionStringValue).orElse(null);
         } finally {
             addAllDiagnostics(preprocessor.diagnostics());
@@ -83,9 +81,9 @@ class EvaluatorImpl extends Evaluator {
     public void evaluateDeclarationFile(String filePath) throws BallerinaShellException {
         try {
             String statements = Files.readString(Paths.get(filePath), Charset.defaultCharset());
-            Collection<Node> nodes = timedOperation("parser", () -> treeParser.parseDeclarations(statements));
-            Collection<Snippet> snippets = timedOperation("snippets", () -> snippetFactory.createSnippets(nodes));
-            timedOperation("invoker", () -> invoker.execute(snippets));
+            Collection<Node> nodes = treeParser.parseDeclarations(statements);
+            Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
+            invoker.execute(snippets);
         } catch (IOException e) {
             addErrorDiagnostic("File open failed: " + filePath);
             throw new PreprocessorException();
@@ -119,18 +117,5 @@ class EvaluatorImpl extends Evaluator {
         invoker.resetDiagnostics();
         this.resetDiagnostics();
         invoker.reset();
-    }
-
-    /**
-     * Time the operation and add diagnostics to {@link Evaluator}.
-     *
-     * @param category  Category to add diagnostics. Should be unique per operation.
-     * @param operation Operation to perform.
-     * @param <T>       operation return type.
-     * @return Return value of operation.
-     * @throws BallerinaShellException If operation failed.
-     */
-    private <T> T timedOperation(String category, TimedOperation<T> operation) throws BallerinaShellException {
-        return TimeIt.timeIt(category, this, operation);
     }
 }
