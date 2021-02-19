@@ -184,9 +184,11 @@ class JvmObservabilityGen {
                 rewriteObservableFunctionInvocations(func, pkg);
                 if (isService) {
                     if ((func.flags & Flags.RESOURCE) == Flags.RESOURCE) {
-                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, serviceName, true, false, false, false);
+                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, serviceName,
+                                true, false, false, false);
                     } else if ((func.flags & Flags.REMOTE) == Flags.REMOTE) {
-                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, serviceName, false, true, false, false);
+                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, serviceName,
+                                false, true, false, false);
                     }
                 }
             }

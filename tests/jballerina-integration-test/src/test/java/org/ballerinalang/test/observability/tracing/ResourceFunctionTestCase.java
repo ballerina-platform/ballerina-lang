@@ -45,7 +45,7 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
 
     @DataProvider(name = "success-response-data-provider")
     public Object[][] getSuccessResponseData() {
-        return new Object[][]{
+        return new Object[][] {
                 {"resourceOne", "15", FILE_NAME + ":23:5", FILE_NAME + ":29:20", "Sum of numbers: 120"},
                 {"resourceTwo", "16", FILE_NAME + ":33:5", FILE_NAME + ":39:20", "Sum of numbers: 136"}
         };
@@ -116,7 +116,7 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
 
     @DataProvider(name = "error-response-data-provider")
     public Object[][] getErrorResponseData() {
-        return new Object[][]{
+        return new Object[][] {
                 {"resourceThree", FILE_NAME + ":43:5", "Test Error 1", "Test Error 1\n" +
                         "    at intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceThree" +
                         "(02_resource_function.bal:54)"},
@@ -138,7 +138,8 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
 
     @Test(dataProvider = "error-response-data-provider")
     public void testResourceSingleSpanErrorResponse(String resourceName, String resourceFunctionPosition,
-                                                    String expectedResponsePayload, String errorMessage) throws Exception {
+                                                    String expectedResponsePayload, String errorMessage)
+            throws Exception {
         HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName,
                 "15", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 500);
@@ -161,7 +162,7 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
-//            TODO: Uncomment this assertion once https://github.com/ballerina-platform/ballerina-lang/issues/28686 is fixed
+//            TODO: Uncomment this assertion once #ballerina-lang/issues/28686 is fixed
 //            Assert.assertEquals(span.getTags(), toMap(
 //                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
 //                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
@@ -184,7 +185,7 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
 
     @DataProvider(name = "simple-remote-call-data-provider")
     public Object[][] getSimpleRemoteCallData() {
-        return new Object[][]{
+        return new Object[][] {
                 {"resourceSeven", FILE_NAME + ":89:5", FILE_NAME + ":91:30", FILE_NAME + ":98:20",
                         "Sum of numbers: 12"},
                 {"resourceEight", FILE_NAME + ":102:5", FILE_NAME + ":103:24", FILE_NAME + ":105:24",

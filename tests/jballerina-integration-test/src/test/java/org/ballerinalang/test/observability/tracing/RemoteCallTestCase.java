@@ -192,7 +192,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
-//            TODO: Uncomment this assertion once https://github.com/ballerina-platform/ballerina-lang/issues/28686 is fixed
+//            TODO: Uncomment this assertion once #ballerina-lang/issues/28686 is fixed
 //            Assert.assertEquals(span.getTags(), toMap(
 //                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
 //                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
@@ -220,7 +220,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithErrorReturn");
-//            TODO: Uncomment this assertion once https://github.com/ballerina-platform/ballerina-lang/issues/28686 is fixed
+//            TODO: Uncomment this assertion once #ballerina-lang/issues/28686 is fixed
 //            Assert.assertEquals(span.getTags(), toMap(
 //                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
 //                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
@@ -292,7 +292,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithErrorReturn");
-//            TODO: Uncomment this assertion once https://github.com/ballerina-platform/ballerina-lang/issues/28686 is fixed
+//            TODO: Uncomment this assertion once #ballerina-lang/issues/28686 is fixed
 //            Assert.assertEquals(span.getTags(), toMap(
 //                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
 //                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
@@ -387,7 +387,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithPanic");
-//            TODO: Uncomment this assertion once https://github.com/ballerina-platform/ballerina-lang/issues/28686 is fixed
+//            TODO: Uncomment this assertion once #ballerina-lang/issues/28686 is fixed
 //            Assert.assertEquals(span.getTags(), toMap(
 //                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
 //                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
