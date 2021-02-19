@@ -245,6 +245,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "stream<> streamName = new;",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "stream<${1}> ${2:streamName} = new;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",

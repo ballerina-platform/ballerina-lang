@@ -198,6 +198,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "stream<> streamName = new;",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "stream<${1}> ${2:streamName} = new;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
@@ -479,29 +487,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lsproject.module2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import lsproject.module2;\n"
-        }
-      ]
-    },
-    {
       "label": "lsproject.hierarchy.module4",
       "kind": "Module",
       "detail": "Module",
@@ -521,6 +506,29 @@
             }
           },
           "newText": "import lsproject.hierarchy.module4;\n"
+        }
+      ]
+    },
+    {
+      "label": "lsproject.module2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.module2;\n"
         }
       ]
     },
