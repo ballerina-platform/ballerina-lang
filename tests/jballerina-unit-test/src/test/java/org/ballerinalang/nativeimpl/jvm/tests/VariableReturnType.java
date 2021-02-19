@@ -303,4 +303,23 @@ public class VariableReturnType {
     public static Object clientRemoteGetWithUnion(BObject client, Object x, BTypedesc y) {
         return getWithUnion(x, y);
     }
+
+    public static Object getWithRestParam(long i, BTypedesc j, long... k) {
+        int tag = j.getDescribingType().getTag();
+
+        long total = i;
+        for (long val : k) {
+            total += val;
+        }
+
+        if (tag == STRING_TAG) {
+            return total == 0 ? true : (total == 1 ? false : StringUtils.fromString(Long.toString(total)));
+        }
+
+        return total;
+    }
+
+    public static Object getWithMultipleTypedescs(long i, BTypedesc j, BTypedesc k, BTypedesc... l) {
+        return true;
+    }
 }

@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'xml;
 import ballerina/jballerina.java;
 
-type ItemType 'xml:Element|'xml:Comment|'xml:ProcessingInstruction|'xml:Text;
+type ItemType xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text;
+type XmlElement xml:Element;
 
 type Person record {
     readonly string name;
@@ -90,11 +90,11 @@ function testCastingForInvalidValues() {
     int x = getInvalidValue(int, Person);
 }
 
-//function testXML() {
-//    'xml:Element elem1 = xml `<hello>xml content</hello>`;
-//    xml<'xml:Element> x1 = getXML('xml:Element, elem1);
-//    assert(elem1, x1);
-//}
+function testXML() {
+    xml:Element elem1 = xml `<hello>xml content</hello>`;
+    xml<xml:Element> x1 = getXML(XmlElement, elem1);
+    assert(elem1, x1);
+}
 
 function testStream() {
     string[] stringList = ["hello", "world", "from", "ballerina"];
@@ -579,6 +579,121 @@ client class Client {
         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
         name: "clientRemoteGetWithUnion"
     } external;
+}
+
+function getWithRestParam(int i, typedesc<int|string> j, int... k) returns j|boolean =
+     @java:Method {
+         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+     } external;
+
+function getWithMultipleTypedescs(int i, typedesc<int|string> j, typedesc<int> k, typedesc<int>... l)
+    returns j|k|boolean = @java:Method { 'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType" } external;
+
+function testArgsForDependentlyTypedFunctionViaTupleRestArg() {
+    [typedesc<string>] a = [string];
+    string|error b = getWithUnion(123, ...a);
+    assert("123", checkpanic b);
+
+    [int, typedesc<int>] c = [10, int];
+    int|error d = getWithUnion(...c);
+    assert(11, checkpanic d);
+
+    [int, typedesc<string>] e = [0, string];
+    string|boolean f = getWithRestParam(...e);
+    assert(true, f);
+
+    [typedesc<string>] g = [string];
+    string|boolean h = getWithRestParam(1, ...g);
+    assert(false, h);
+
+    [int, typedesc<int>, int...] i = [101, int, 1, 2, 3];
+    int|boolean j = getWithRestParam(...i);
+    assert(107, j);
+
+    [int, typedesc<int>, int...] k = [101, int];
+    assert(101, getWithRestParam(...k));
+
+    int|boolean l = getWithRestParam(102, int, 1, 2);
+    assert(105, l);
+
+    [int, typedesc<string>, typedesc<int>, typedesc<int>] m = [1, string, int, int];
+    int|string|boolean n = getWithMultipleTypedescs(...m);
+    assert(true, n);
+
+    [typedesc<string>, typedesc<int>, typedesc<int>] o = [string, int, int];
+    int|string|boolean p = getWithMultipleTypedescs(1, ...o);
+    assert(true, p);
+
+    [int, typedesc<byte>, typedesc<byte>, typedesc<int>...] q = [1, byte, byte, int];
+    byte|boolean r = getWithMultipleTypedescs(...q);
+    assert(true, r);
+}
+
+function testArgsForDependentlyTypedFunctionViaArrayRestArg() {
+    typedesc<string>[1] a = [string];
+    string|error b = getWithUnion(123, ...a);
+    assert("123", checkpanic b);
+
+    typedesc<int>[1] c = [int];
+    int|error d = getWithUnion(10, ...c);
+    assert(11, checkpanic d);
+
+    assert(101, getWithRestParam(101, ...c));
+
+    typedesc<int>[2] m = [int, int];
+    int|string|boolean n = getWithMultipleTypedescs(1, string, ...m);
+    assert(true, n);
+
+    typedesc<byte>[4] q = [byte, byte, byte, byte];
+    byte|boolean r = getWithMultipleTypedescs(1, ...q);
+    assert(true, r);
+}
+
+type XY record {|
+    int|string x;
+    typedesc<int> y = int;
+|};
+
+type IJ record {|
+    int i;
+    typedesc<string> j;
+|};
+
+type IJK record {|
+    int i;
+    typedesc<string> j;
+    typedesc<int> k;
+|};
+
+function testArgsForDependentlyTypedFunctionViaRecordRestArg() {
+    record {| typedesc<string> y; |} a = {y: string};
+    string|error b = getWithUnion(123, ...a);
+    assert("123", checkpanic b);
+
+    XY c = {x: 10};
+    int|error d = getWithUnion(...c);
+    assert(11, checkpanic d);
+
+    // https://github.com/ballerina-platform/ballerina-lang/issues/28774
+    //IJ e = {i: 0, j: string};
+    //string|boolean f = getWithRestParam(...e);
+    //assert(true, f);
+    //
+    //record {| typedesc<string> j = string; |} g = {};
+    //string|boolean h = getWithRestParam(1, ...g);
+    //assert(false, h);
+    //
+    //IJK m = {i: 1, j: string, k: int};
+    //int|string|boolean n = getWithMultipleTypedescs(...m);
+    //assert(true, n);
+    //
+    //record {| typedesc<string> j = string; typedesc<int> k; |} o = {k: int};
+    //int|string|boolean p = getWithMultipleTypedescs(1, ...o);
+    //assert(true, p);
+    //
+    //record {| int i; typedesc<byte> j = byte; typedesc<byte> k; |} q = {i: 1, k: byte};
+    //byte|boolean r = getWithMultipleTypedescs(...q);
+    //assert(true, r);
 }
 
 // Util functions

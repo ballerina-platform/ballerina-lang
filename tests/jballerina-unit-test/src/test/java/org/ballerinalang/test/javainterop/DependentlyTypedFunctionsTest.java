@@ -118,6 +118,42 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++,
                       "incompatible types: expected 'future<(string|error)>', found 'future<(int|error)>'",
                       215, 30);
+        validateError(errors, indx++, "incompatible types: expected '(int|error)', found '(string|error)'", 246, 19);
+        validateError(errors, indx++, "incompatible types: expected '(string|error)', found '(int|error)'", 249, 22);
+        validateError(errors, indx++, "incompatible types: expected '(string|boolean)', found '(j|boolean)'", 252, 24);
+        validateError(errors, indx++, "incompatible types: expected '([int,typedesc<(int|string)>,int...]|record {| " +
+                "int i; typedesc<(int|string)> j; |})', found '[int]'", 252, 44);
+        validateError(errors, indx++, "missing required parameter 'j' in call to 'getWithRestParam()'", 254, 24);
+        validateError(errors, indx++, "incompatible types: expected '(int|boolean)', found '(string|boolean)'", 257,
+                      21);
+        validateError(errors, indx++, "incompatible types: expected '(string|boolean)', found '(int|boolean)'", 260,
+                      24);
+        validateError(errors, indx++, "incompatible types: expected '(string|boolean)', found '(j|k|boolean)'", 263,
+                      24);
+        validateError(errors, indx++, "incompatible types: expected '([typedesc<(int|string)>,typedesc<int>," +
+                "typedesc<int>...]|record {| typedesc<(int|string)> j; typedesc<int> k; |})', found " +
+                "'[typedesc<string>]'", 263, 55);
+        validateError(errors, indx++, "incompatible types: expected '(int|error)', found '(string|error)'", 268, 19);
+        validateError(errors, indx++, "incompatible types: expected '(int|error)', found '(y|error)'", 271, 19);
+        validateError(errors, indx++, "incompatible types: expected '([typedesc<(int|string)>]|record {| typedesc<" +
+                "(int|string)> y; |})', found 'typedesc<int>[]'", 271, 39);
+        validateError(errors, indx++, "incompatible types: expected '([(int|string),typedesc<(int|string)>]|record {|" +
+                " (int|string) x; typedesc<(int|string)> y; |})', found 'int[1]'", 274, 29);
+        validateError(errors, indx++, "incompatible types: expected '(string|boolean)', " +
+                "found '(string|int|boolean)'", 277, 24);
+        validateError(errors, indx++, "incompatible types: expected '(byte|boolean)', found '(j|k|boolean)'", 280, 22);
+        validateError(errors, indx++, "incompatible types: expected '([typedesc<(int|string)>,typedesc<int>," +
+                "typedesc<int>...]|record {| typedesc<(int|string)> j; typedesc<int> k; |})', found " +
+                "'typedesc<byte>[1]'", 280, 53);
+        validateError(errors, indx++, "incompatible types: expected '(string|error)', found '(int|error)'", 301, 22);
+        validateError(errors, indx++, "incompatible types: expected '(int|error)', found '(string|error)'", 304, 19);
+        validateError(errors, indx++, "incompatible types: expected '(int|boolean)', found '(string|boolean)'", 307,
+                      21);
+        validateError(errors, indx++, "incompatible types: expected '(string|boolean)', found '(j|boolean)'", 310, 24);
+        validateError(errors, indx++, "incompatible types: expected '([typedesc<(int|string)>,int...]|record {| " +
+                "typedesc<(int|string)> j; |})', found 'record {| |} & readonly'", 310, 47);
+        validateError(errors, indx++, "incompatible types: expected '(string|boolean)', found '(string|int|boolean)'",
+                      313, 24);
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
 
@@ -156,7 +192,7 @@ public class DependentlyTypedFunctionsTest {
                 {"testSimpleTypes"},
                 {"testUnionTypes"},
                 {"testArrayTypes"},
-//                {"testXML"},
+                {"testXML"},
                 {"testStream"},
                 {"testTable"},
                 {"testFunctionPointers"},
@@ -167,7 +203,10 @@ public class DependentlyTypedFunctionsTest {
                 {"testDependentlyTypedMethodsWithObjectTypeInclusion"},
                 {"testSubtypingWithDependentlyTypedMethods"},
                 {"testDependentlyTypedFunctionWithDefaultableParams"},
-                {"testStartActionWithDependentlyTypedFunctions"}
+                {"testStartActionWithDependentlyTypedFunctions"},
+                {"testArgsForDependentlyTypedFunctionViaTupleRestArg"},
+                {"testArgsForDependentlyTypedFunctionViaArrayRestArg"},
+                {"testArgsForDependentlyTypedFunctionViaRecordRestArg"}
         };
     }
 

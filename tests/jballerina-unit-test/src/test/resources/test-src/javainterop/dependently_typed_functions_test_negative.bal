@@ -232,3 +232,83 @@ client class Client {
         name: "clientRemoteGetWithUnion"
     } external;
 }
+
+function getWithRestParam(int i, typedesc<int|string> j, int... k) returns j|boolean =
+     @java:Method {
+         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+     } external;
+
+function getWithMultipleTypedescs(int i, typedesc<int|string> j, typedesc<int> k, typedesc<int>... l)
+    returns j|k|boolean = @java:Method { 'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType" } external;
+
+function testArgsForDependentlyTypedFunctionViaTupleRestArgNegative() {
+    [typedesc<string>] a = [string];
+    int|error b = getWithUnion(123, ...a);
+
+    [int, typedesc<int>] c = [10, int];
+    string|error d = getWithUnion(...c);
+
+    [int] e = [0];
+    string|boolean f = getWithRestParam(...e);
+
+    string|boolean g = getWithRestParam(1);
+
+    [int, typedesc<string>] h = [101, string];
+    int|boolean i = getWithRestParam(...h);
+
+    [int, typedesc<int>, typedesc<int>] j = [1, int, int];
+    string|boolean k = getWithMultipleTypedescs(...j);
+
+    [typedesc<string>] l = [string];
+    string|boolean m = getWithMultipleTypedescs(1, ...l);
+}
+
+function testArgsForDependentlyTypedFunctionViaArrayRestArgNegative() {
+    typedesc<string>[1] a = [string];
+    int|error b = getWithUnion(123, ...a);
+
+    typedesc<int>[] c = [int];
+    int|error d = getWithUnion(10, ...c);
+
+    int[1] e = [1];
+    var f = getWithUnion(...e);
+
+    typedesc<int>[2] m = [int, int];
+    string|boolean n = getWithMultipleTypedescs(1, string, ...m);
+
+    typedesc<byte>[1] q = [byte];
+    byte|boolean r = getWithMultipleTypedescs(1, ...q);
+}
+
+type XY record {|
+    int|string x;
+    typedesc<int> y = int;
+|};
+
+type IJ record {|
+    int i;
+    typedesc<string> j;
+|};
+
+type IJK record {|
+    int i;
+    typedesc<string> j;
+    typedesc<int> k;
+|};
+
+function testArgsForDependentlyTypedFunctionViaRecordRestArgNegative() {
+    XY a = {x: 1, y: int};
+    string|error b = getWithUnion(...a);
+
+    record {| typedesc<string> y; |} c = {y: string};
+    int|error d = getWithUnion(123, ...c);
+
+    IJ e = {i: 0, j: string};
+    int|boolean f = getWithRestParam(...e);
+
+    record {| |} g = {};
+    string|boolean h = getWithRestParam(1, ...g);
+
+    IJK i = {i: 1, j: string, k: int};
+    string|boolean j = getWithMultipleTypedescs(...i);
+}
