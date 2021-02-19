@@ -365,7 +365,7 @@ public class BallerinaDocGenerator {
         List<ConstructSearchJson> searchClients = new ArrayList<>();
         List<ConstructSearchJson> searchListeners = new ArrayList<>();
         List<ConstructSearchJson> searchAnnotations = new ArrayList<>();
-        List<ConstructSearchJson> searchAbstractObjects = new ArrayList<>();
+        List<ConstructSearchJson> searchObjectTypes = new ArrayList<>();
         List<ConstructSearchJson> searchEnums = new ArrayList<>();
 
         for (DocPackage docPackage: packageLib.packages) {
@@ -385,8 +385,8 @@ public class BallerinaDocGenerator {
                         searchClasses.add(new ConstructSearchJson(bClass.name, module.id, module.orgName,
                                 module.version, getFirstLine(bClass.description))));
 
-                module.abstractObjects.forEach((absObj) ->
-                        searchAbstractObjects.add(new ConstructSearchJson(absObj.name, module.id, module.orgName,
+                module.objectTypes.forEach((absObj) ->
+                        searchObjectTypes.add(new ConstructSearchJson(absObj.name, module.id, module.orgName,
                                 module.version, getFirstLine(absObj.description))));
 
                 module.clients.forEach((client) ->
@@ -425,7 +425,7 @@ public class BallerinaDocGenerator {
 
         SearchJson searchJson = new SearchJson(searchModules, searchClasses, searchFunctions, searchRecords,
                 searchConstants, searchErrors, searchTypes, searchClients, searchListeners, searchAnnotations,
-                searchAbstractObjects, searchEnums);
+                searchObjectTypes, searchEnums);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         File jsonFile = new File(searchDir + File.separator + SEARCH_DATA_JSON);
         File jsFile = new File(searchDir + File.separator + SEARCH_DATA_JS);
@@ -556,7 +556,7 @@ public class BallerinaDocGenerator {
                 module.classes.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
                 module.clients.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
                 module.listeners.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-                module.abstractObjects.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+                module.objectTypes.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
                 module.enums.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
                 module.types.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
                 module.constants.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));

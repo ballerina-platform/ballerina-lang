@@ -20,18 +20,18 @@ import com.google.gson.annotations.Expose;
 import java.util.List;
 
 /**
- * Represent documentation for an Abstract Object.
+ * Represent documentation for an Object Type.
  *
  * @since 2.0
  */
-public class BAbstractObject extends Construct {
+public class BObjectType extends Construct {
     @Expose
     public List<DefaultableVariable> fields;
     @Expose
     public List<Function> methods;
 
-    public BAbstractObject(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-                           List<Function> methods) {
+    public BObjectType(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
+                       List<Function> methods) {
         super(name, description, isDeprecated);
         this.fields = fields;
         this.methods = methods;
