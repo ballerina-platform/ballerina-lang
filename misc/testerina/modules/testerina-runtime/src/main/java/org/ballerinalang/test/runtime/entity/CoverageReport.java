@@ -112,10 +112,8 @@ public class CoverageReport {
             execFileLoader.load(executionDataFile.toFile());
             final CoverageBuilder coverageBuilder = analyzeStructure();
             ModuleCoverage moduleCoverage = new ModuleCoverage();
-            IBundleCoverage bundleCoverage = coverageBuilder.getBundle(title);
-            createReport(bundleCoverage, moduleCoverage);
-            IBundleCoverage modifiedBundleCoverage = getPartialCoverageModifiedBundle(coverageBuilder);
-            createXMLReport(modifiedBundleCoverage);
+            createReport(coverageBuilder.getBundle(title), moduleCoverage);
+            createXMLReport(getPartialCoverageModifiedBundle(coverageBuilder));
             CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
             return moduleCoverage;
         } else {
