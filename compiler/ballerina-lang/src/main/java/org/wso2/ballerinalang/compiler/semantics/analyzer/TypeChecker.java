@@ -5688,13 +5688,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        if (restType == symTable.semanticError) {
-            return restType;
-        }
-
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
-        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE)
-                && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+        if (restType != symTable.semanticError &&
+                Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE) &&
+                Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
             retType = typeBuilder.build(retType, iExpr);
         }
 

@@ -1,5 +1,3 @@
-import ballerina/math;
-
 type BooleanArray boolean[];
 type StringArray string[];
 
@@ -35,7 +33,7 @@ function testReturnFuncInvocationWithinFuncInvocation(int a, int b) returns (int
 }
 
 function testReturnNativeFuncInvocationWithinNativeFuncInvocation(float x) returns (float) {
-    return math:sqrt(math:pow(x, 2.0));
+    return float:sqrt(float:pow(x, 2.0));
 }
 
 function sum (int a) returns @untainted int {
@@ -49,7 +47,7 @@ function sum (int a) returns @untainted int {
 }
 
 function getPowerOfN (float a, float n) returns (float) {
-    float v = math:pow(a, n);
+    float v = float:pow(a, n);
     return v;
 }
 
@@ -325,7 +323,7 @@ function assertTrue(any|error actual) {
     }
 
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'true', found '" + actual.toString () + "'");
+                message = "expected 'true', found '" + (actual is error ? actual.toString() : actual.toString()) + "'");
 }
 
 function assertFalse(any|error actual) {
@@ -334,7 +332,7 @@ function assertFalse(any|error actual) {
     }
 
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'false', found '" + actual.toString () + "'");
+                message = "expected 'false', found '" + (actual is error ? actual.toString() : actual.toString()) + "'");
 }
 
 function assertValueEquality(anydata|error expected, anydata|error actual) {
