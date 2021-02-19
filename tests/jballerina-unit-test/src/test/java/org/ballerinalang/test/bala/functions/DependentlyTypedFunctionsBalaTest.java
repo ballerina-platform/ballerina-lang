@@ -69,7 +69,7 @@ public class DependentlyTypedFunctionsBalaTest {
                 {"testSimpleTypes"},
                 {"testUnionTypes"},
                 {"testArrayTypes"},
-//                {"testXML"},
+                {"testXML"},
                 {"testStream"},
                 {"testTable"},
                 {"testFunctionPointers"},

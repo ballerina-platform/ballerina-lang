@@ -14,10 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'xml;
 import testorg/foo.dependently_typed as rt;
-
-type ItemType 'xml:Element|'xml:Comment|'xml:ProcessingInstruction|'xml:Text;
 
 type Person record {
     readonly string name;
@@ -90,11 +87,13 @@ function testCastingForInvalidValues() {
     int x = rt:getInvalidValue(int, Person);
 }
 
-//function testXML() {
-//    'xml:Element elem1 = xml `<hello>xml content</hello>`;
-//    xml<'xml:Element> x1 = rt:getXML('xml:Element, elem1);
-//    assert(elem1, x1);
-//}
+type XmlElement xml:Element;
+
+function testXML() {
+    xml:Element elem1 = xml `<hello>xml content</hello>`;
+    xml<xml:Element> x1 = rt:getXML(XmlElement, elem1);
+    assert(elem1, x1);
+}
 
 function testStream() {
     string[] stringList = ["hello", "world", "from", "ballerina"];

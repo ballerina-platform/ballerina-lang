@@ -753,11 +753,13 @@ public class BIRPackageSymbolEnter {
                                                   invSymbol, varType.paramSymbol.pos, VIRTUAL);
                 break;
             case TypeTags.MAP:
-            case TypeTags.XML:
             case TypeTags.FUTURE:
             case TypeTags.TYPEDESC:
                 ConstrainedType constrainedType = (ConstrainedType) type;
                 populateParameterizedType((BType) constrainedType.getConstraint(), paramsMap, invSymbol);
+                break;
+            case TypeTags.XML:
+                populateParameterizedType(((BXMLType) type).constraint, paramsMap, invSymbol);
                 break;
             case TypeTags.ARRAY:
                 populateParameterizedType(((BArrayType) type).eType, paramsMap, invSymbol);
@@ -956,6 +958,9 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.XML:
                     BType constraintType = readTypeFromCp();
                     BXMLType mutableXmlType = new BXMLType(constraintType, symTable.xmlType.tsymbol);
+                    if (Symbols.isFlagOn(flags, Flags.PARAMETERIZED)) {
+                        mutableXmlType.flags |= Flags.PARAMETERIZED;
+                    }
                     return isImmutable(flags) ? getEffectiveImmutableType(mutableXmlType) : mutableXmlType;
                 case TypeTags.NIL:
                     return symTable.nilType;
