@@ -1645,7 +1645,6 @@ public class BallerinaParser extends AbstractParser {
                     isObjectTypeDesc);
         }
 
-        return parseVarDeclTypeDescRhs(typeDesc, metadata, varDeclQualifiers, false, true);
         STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
         return parseVarDeclRhs(metadata, extractQualifiersList, typedBindingPattern, true);
     }
