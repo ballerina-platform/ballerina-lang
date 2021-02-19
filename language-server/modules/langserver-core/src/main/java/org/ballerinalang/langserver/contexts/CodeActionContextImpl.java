@@ -30,7 +30,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,18 +66,17 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
 
     @Override
     public List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics(Path filePath) {
-        if (this.diagnostics == null) {
-            PackageCompilation compilation = workspace().waitAndGetPackageCompilation(filePath).orElseThrow();
-            Project project = this.workspace().project(this.filePath()).orElseThrow();
-            Path projectRoot = (project.kind() == ProjectKind.SINGLE_FILE_PROJECT)
-                    ? project.sourceRoot().getParent() :
-                    project.sourceRoot();
-            Collection<io.ballerina.tools.diagnostics.Diagnostic> diagnostics =
-                    compilation.diagnosticResult().diagnostics();
-            this.diagnostics = diagnostics.stream()
-                    .filter(diag -> projectRoot.resolve(diag.location().lineRange().filePath()).equals(filePath))
-                    .collect(Collectors.toList());
+        if (this.diagnostics != null) {
+            return this.diagnostics;
         }
+        PackageCompilation compilation = workspace().waitAndGetPackageCompilation(filePath).orElseThrow();
+        Project project = this.workspace().project(this.filePath()).orElseThrow();
+        Path projectRoot = (project.kind() == ProjectKind.SINGLE_FILE_PROJECT)
+                ? project.sourceRoot().getParent() :
+                project.sourceRoot();
+        this.diagnostics = compilation.diagnosticResult().diagnostics().stream()
+                .filter(diag -> projectRoot.resolve(diag.location().lineRange().filePath()).equals(filePath))
+                .collect(Collectors.toList());
         return this.diagnostics;
     }
 

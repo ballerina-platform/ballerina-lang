@@ -20,7 +20,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 
 /**
- * This class holds position details for the code actions.
+ * This class holds position details for the node-based code actions.
  *
  * @since 2.0.0
  */
