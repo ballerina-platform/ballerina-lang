@@ -90,12 +90,12 @@ public class OpenTracerBallerinaWrapper {
         String serviceName;
         if (prevObserverContext != null) {
             serviceName = prevObserverContext.getServiceName();
-            observerContext.setEntrypointFunctionModule(prevObserverContext.getEntrypointFunctionModule());
-            observerContext.setEntrypointFunctionPosition(prevObserverContext.getEntrypointFunctionPosition());
-            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE,
-                    prevObserverContext.getEntrypointFunctionModule());
-            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION,
-                    prevObserverContext.getEntrypointFunctionPosition());
+            String entrypointFunctionModule = prevObserverContext.getEntrypointFunctionModule();
+            String entrypointFunctionPosition = prevObserverContext.getEntrypointFunctionPosition();
+            observerContext.setEntrypointFunctionModule(entrypointFunctionModule);
+            observerContext.setEntrypointFunctionPosition(entrypointFunctionPosition);
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, entrypointFunctionModule);
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION, entrypointFunctionPosition);
         } else {
             serviceName = DEFAULT_SERVICE_NAME;
         }
