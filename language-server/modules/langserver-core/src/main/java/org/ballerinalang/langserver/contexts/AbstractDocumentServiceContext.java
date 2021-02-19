@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.tools.text.LinePosition;
@@ -36,7 +37,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -142,6 +142,16 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     }
 
     @Override
+    public Optional<SemanticModel> currentSemanticModel() {
+        return this.workspaceManager.semanticModel(this.filePath);
+    }
+
+    @Override
+    public Optional<SyntaxTree> currentSyntaxTree() {
+        return this.workspaceManager.syntaxTree(this.filePath);
+    }
+
+    @Override
     public LanguageServerContext languageServercontext() {
         return this.languageServerContext;
     }
@@ -161,7 +171,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
         /**
          * Context Builder constructor.
          *
-         * @param lsOperation LS Operation for the particular invocation
+         * @param lsOperation   LS Operation for the particular invocation
          * @param serverContext Language server context
          */
         public AbstractContextBuilder(LSOperation lsOperation, LanguageServerContext serverContext) {

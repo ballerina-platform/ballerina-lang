@@ -143,7 +143,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
 
     protected Optional<VariableSymbol> getVariableSymbol(CodeActionContext context, Node matchedNode) {
         AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
+        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
         Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
         Optional<Symbol> symbol = semanticModel.symbol(srcFile,
                                                        assignmentStmtNode.varRef().lineRange().startLine());

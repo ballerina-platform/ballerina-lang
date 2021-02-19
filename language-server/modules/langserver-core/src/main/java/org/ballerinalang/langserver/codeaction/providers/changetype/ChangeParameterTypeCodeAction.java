@@ -77,7 +77,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         // Get parameter symbol
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
+        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
         Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
         Optional<Symbol> optParamSymbol = semanticModel.symbol(srcFile,
                                                                initializer.get().lineRange().startLine());
@@ -96,7 +96,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         // Get line-range of type-desc of parameter
-        SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
+        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
         Optional<Range> paramTypeRange = getParameterTypeRange(CommonUtil.findNode(paramSymbol, syntaxTree));
         if (paramTypeRange.isEmpty()) {
             return Collections.emptyList();
