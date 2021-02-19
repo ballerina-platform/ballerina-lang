@@ -167,9 +167,10 @@ class JvmObservabilityGen {
                             annotationAttachment.annotValues.get(0)).annotValueEntryMap).get("label")).value.toString();
                     break;
                 }
-            }
-            if (serviceName == null) {
-                serviceName = pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_" + defaultServiceIndex++;
+                if (serviceName == null) {
+                    serviceName = pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_" +
+                            defaultServiceIndex++;
+                }
             }
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
                 BIRFunction func = typeDef.attachedFuncs.get(i);
