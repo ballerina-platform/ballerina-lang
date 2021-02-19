@@ -93,37 +93,41 @@
                   ]
                 },
                 {
-                  "kind": "TYPE_REFERENCE",
+                  "kind": "OBJECT_FIELD",
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "ASTERISK_TOKEN",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_ASTERISK_TOKEN"
-                      ]
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
-                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "kind": "FUNCTION_TYPE_DESC",
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "FUNCTION_KEYWORD",
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_MISSING_IDENTIFIER"
+                            "ERROR_MISSING_FUNCTION_KEYWORD"
                           ]
                         }
                       ]
                     },
                     {
-                      "kind": "SEMICOLON_TOKEN",
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_INVALID_METADATA"
-                      ],
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    },
+                    {
+                      "kind": "SEMICOLON_TOKEN",
                       "leadingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
