@@ -49,7 +49,7 @@ function testStartsWithFunctionInString() returns boolean {
 }
 
 function testTrxInfoRecordTypeUse() returns boolean {
-    'transaction:Info info;
+    transaction:Info info;
     return true;
 }
 
