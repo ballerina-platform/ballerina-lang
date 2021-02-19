@@ -1,10 +1,27 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.test.runtime.entity;
 
 import org.jacoco.core.analysis.ICounter;
 
 /**
  * Represents a counter that eliminates partially covered counter status and coverts it to fully covered status.
- *
+ * @since 2.0.0
  */
 public class PartialCoverageModifiedCounter implements ICounter {
 
@@ -21,7 +38,7 @@ public class PartialCoverageModifiedCounter implements ICounter {
      * Modify the covered and missed numbers in cases the counter status is calculated as PARTLY_COVERED.
      * It converts the counter status to FULLY_COVERED.
      */
-    public void modifyCoverageNumbers() {
+    private void modifyCoverageNumbers() {
         if (getStatus() == PARTLY_COVERED) {
             covered = covered + missed;
             missed = 0;
@@ -42,7 +59,7 @@ public class PartialCoverageModifiedCounter implements ICounter {
             case COVEREDRATIO:
                 return getCoveredRatio();
             default:
-                throw new AssertionError(value);
+                throw new RuntimeException("No such CounterValue object");
         }
     }
 

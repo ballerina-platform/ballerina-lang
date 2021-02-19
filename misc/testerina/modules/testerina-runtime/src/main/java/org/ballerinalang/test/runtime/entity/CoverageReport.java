@@ -132,11 +132,8 @@ public class CoverageReport {
     }
 
     private IBundleCoverage getPartialCoverageModifiedBundle(CoverageBuilder coverageBuilder) {
-        final Collection<ISourceFileCoverage> sourcefiles = coverageBuilder.getSourceFiles();
-        final Collection<ISourceFileCoverage> modifiedSourceFiles = modifySourceFiles(sourcefiles);
-        final IBundleCoverage bundleCoverage = new BundleCoverageImpl(title, coverageBuilder.getClasses(),
-                modifiedSourceFiles);
-        return bundleCoverage;
+        return new BundleCoverageImpl(title, coverageBuilder.getClasses(),
+                modifySourceFiles(coverageBuilder.getSourceFiles()));
     }
 
     private void createXMLReport(IBundleCoverage bundleCoverage) throws IOException {
@@ -204,10 +201,10 @@ public class CoverageReport {
         return filteredPathList;
     }
 
-    public Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {
+    private Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {
         Collection<ISourceFileCoverage> modifiedSourceFiles = new ArrayList<>();
         for (ISourceFileCoverage sourcefile : sourcefiles) {
-            if (sourcefile.getName().contains(BLANG_SRC_FILE_SUFFIX)) {
+            if (sourcefile.getName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
                 List<ILine> modifiedLines = new ArrayList<>();
                 for (int i = sourcefile.getFirstLine(); i <= sourcefile.getLastLine(); i++) {
                     ILine line = sourcefile.getLine(i);
