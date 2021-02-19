@@ -431,7 +431,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
 
         if (actualType.tag == TypeTags.UNION) {
-            dlog.error(xmlNavigation.pos, DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS,
+            dlog.error(xmlNavigation.pos, DiagnosticErrorCode.TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS,
                     xmlNavigation.expr.type);
         }
 

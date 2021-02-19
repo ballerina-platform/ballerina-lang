@@ -109,14 +109,14 @@ public class XMLIterationTest {
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
                 72, 68);
         BAssertUtil.validateError(negative, index++,
-                "type '(xml:Element|xml:Text)' cannot be used to invoke function",
+                "xml langlib functions does not support union types as their arguments",
                 72, 68);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
                 73, 68);
         BAssertUtil.validateError(negative, index++,
-                "type '(xml<xml:Element>|xml<xml:Text>)' cannot be used to invoke function",
+                "xml langlib functions does not support union types as their arguments",
                 73, 68);
     }
 

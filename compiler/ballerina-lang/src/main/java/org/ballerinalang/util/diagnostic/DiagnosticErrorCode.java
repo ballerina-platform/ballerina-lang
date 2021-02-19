@@ -687,8 +687,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     CONTINUE_NOT_ALLOWED("BCE3987", "continue.not.allowed"),
     BREAK_NOT_ALLOWED("BCE3988", "break.not.allowed"),
-    OPERATION_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3989", "operation.does.not.support.xml.navigation.access"),
-    INVALID_FUNCTION_INVOCATION_TYPE("BCE3990", "invalid.function.invocation.type")
+    TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3989", "type.does.not.support.xml.navigation.access"),
+    XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3990", "xml.function.does.not.support.argument.type")
     ;
 
     private String diagnosticId;
