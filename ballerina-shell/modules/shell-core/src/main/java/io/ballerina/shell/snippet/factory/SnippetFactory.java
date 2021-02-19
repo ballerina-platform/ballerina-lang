@@ -22,13 +22,13 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.SnippetException;
 import io.ballerina.shell.snippet.Snippet;
-import io.ballerina.shell.snippet.types.DeclarationSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
 import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.StatementSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -39,6 +39,22 @@ import java.util.List;
  * @since 2.0.0
  */
 public abstract class SnippetFactory extends DiagnosticReporter {
+    /**
+     * Creates a snippet from the given node.
+     * This will throw and error if the resultant snippet is an erroneous snippet.
+     *
+     * @param nodes Root node to create snippet from.
+     * @return Snippet that contains the node.
+     * @throws SnippetException If couldn't identify the snippet.
+     */
+    public Collection<Snippet> createSnippets(Collection<Node> nodes) throws SnippetException {
+        List<Snippet> snippets = new ArrayList<>();
+        for (Node node : nodes) {
+            snippets.add(createSnippet(node));
+        }
+        return snippets;
+    }
+
     /**
      * Creates a snippet from the given node.
      * This will throw and error if the resultant snippet is an erroneous snippet.
@@ -64,30 +80,6 @@ public abstract class SnippetFactory extends DiagnosticReporter {
             }
         }
         addErrorDiagnostic("Could not identify the expression due to syntax errors.");
-        throw new SnippetException();
-    }
-
-    /**
-     * Creates a declaration snippet from the given node.
-     * This will throw and error if the resultant snippet is an not a valid declaration snippet.
-     *
-     * @param node Root node to create snippet from.
-     * @return Snippet that contains the node.
-     * @throws SnippetException If couldn't identify the snippet.
-     */
-    public DeclarationSnippet createDeclarationSnippet(Node node) throws SnippetException {
-        List<DeclarationSnippetCreator> functions = new ArrayList<>();
-        functions.add(this::createImportSnippet);
-        functions.add(this::createVariableDeclarationSnippet);
-        functions.add(this::createModuleMemberDeclarationSnippet);
-        DeclarationSnippet snippet;
-        for (DeclarationSnippetCreator function : functions) {
-            snippet = function.create(node);
-            if (snippet != null) {
-                addDebugDiagnostic(String.format("Node identified as a %s snippet.", snippet.getKind()));
-                return snippet;
-            }
-        }
         throw new SnippetException();
     }
 
@@ -144,14 +136,5 @@ public abstract class SnippetFactory extends DiagnosticReporter {
      */
     private interface SnippetCreator {
         Snippet create(Node node) throws SnippetException;
-    }
-
-    /**
-     * Declaration Snippet creation helper interface.
-     *
-     * @since 2.0.0
-     */
-    private interface DeclarationSnippetCreator {
-        DeclarationSnippet create(Node node) throws SnippetException;
     }
 }

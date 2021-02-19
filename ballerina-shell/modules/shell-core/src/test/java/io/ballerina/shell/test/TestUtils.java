@@ -22,7 +22,6 @@ import com.google.gson.Gson;
 import io.ballerina.shell.parser.TreeParser;
 import io.ballerina.shell.parser.TrialTreeParser;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -65,10 +64,10 @@ public abstract class TestUtils {
         }
     }
 
-    public static File getFile(String fileName) {
+    public static String getPath(String fileName) {
         URL url = TestUtils.class.getClassLoader().getResource(fileName);
         Objects.requireNonNull(url, "Test file does not exist: " + fileName);
-        return new File(url.getPath());
+        return url.getPath();
     }
 
     /**

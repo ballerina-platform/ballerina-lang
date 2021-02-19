@@ -18,23 +18,14 @@
 
 package io.ballerina.shell;
 
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.shell.exceptions.BallerinaShellException;
 import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.parser.TreeParser;
 import io.ballerina.shell.preprocessor.Preprocessor;
-import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.factory.SnippetFactory;
-import io.ballerina.shell.utils.StringUtils;
-import io.ballerina.shell.utils.timeit.TimeIt;
-import io.ballerina.shell.utils.timeit.TimedOperation;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Main shell entry point.
@@ -43,14 +34,14 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class Evaluator extends DiagnosticReporter {
-    private final Preprocessor preprocessor;
-    private final TreeParser treeParser;
-    private final SnippetFactory snippetFactory;
-    private final ShellSnippetsInvoker invoker;
+public abstract class Evaluator extends DiagnosticReporter {
+    protected final Preprocessor preprocessor;
+    protected final TreeParser treeParser;
+    protected final SnippetFactory snippetFactory;
+    protected final ShellSnippetsInvoker invoker;
 
-    public Evaluator(Preprocessor preprocessor, TreeParser treeParser,
-                     SnippetFactory snippetFactory, ShellSnippetsInvoker invoker) {
+    protected Evaluator(Preprocessor preprocessor, TreeParser treeParser,
+                        SnippetFactory snippetFactory, ShellSnippetsInvoker invoker) {
         this.preprocessor = preprocessor;
         this.treeParser = treeParser;
         this.snippetFactory = snippetFactory;
@@ -64,14 +55,7 @@ public class Evaluator extends DiagnosticReporter {
      *
      * @throws BallerinaShellException If initialization failed.
      */
-    public void initialize() throws BallerinaShellException {
-        try {
-            invoker.initialize();
-        } catch (BallerinaShellException e) {
-            addAllDiagnostics(invoker.diagnostics());
-            throw e;
-        }
-    }
+    public abstract void initialize() throws BallerinaShellException;
 
     /**
      * Base evaluation function which evaluates an input line.
@@ -84,59 +68,19 @@ public class Evaluator extends DiagnosticReporter {
      * @param source Input line from user.
      * @return String output from the evaluator. This will be the last output.
      */
-    public String evaluate(String source) throws BallerinaShellException {
-        try {
-            Collection<String> statements = timedOperation("preprocessor", () -> preprocessor.process(source));
-            List<Snippet> snippets = new ArrayList<>();
-            for (String statement : statements) {
-                Node rootNode = timedOperation("tree parser", () -> treeParser.parse(statement));
-                Snippet snippet = timedOperation("snippet factory", () -> snippetFactory.createSnippet(rootNode));
-                snippets.add(snippet);
-            }
-            Optional<Object> invokerOut = timedOperation("invoker", () -> invoker.execute(snippets));
-            return invokerOut.map(StringUtils::getExpressionStringValue).orElse(null);
-        } finally {
-            addAllDiagnostics(preprocessor.diagnostics());
-            addAllDiagnostics(treeParser.diagnostics());
-            addAllDiagnostics(snippetFactory.diagnostics());
-            addAllDiagnostics(invoker.diagnostics());
-            preprocessor.resetDiagnostics();
-            treeParser.resetDiagnostics();
-            snippetFactory.resetDiagnostics();
-            invoker.resetDiagnostics();
-        }
-    }
+    public abstract String evaluate(String source) throws BallerinaShellException;
 
     /**
-     * Executes a ballerina file as if it was entered to the shell.
+     * Evaluate a ballerina file as if it was entered to the shell.
+     * This file should only include declarations.
      * Some functions, (eg: main) are skipped.
      * All other top level declarations will be processed.
      * Whole file will run as a one whole snippet.
      * Main function will be skipped.
      *
-     * @param file File to execute.
+     * @param filePath Path of file to execute.
      */
-    public void executeFile(File file) throws BallerinaShellException {
-        try {
-            addDebugDiagnostic("Loading file: " + file.getAbsolutePath());
-            String statements = timedOperation("preprocessor", () -> preprocessor.processFile(file));
-            Collection<Node> nodes = timedOperation("tree parser", () -> treeParser.parseDeclarations(statements));
-            List<Snippet> declarationSnippets = new ArrayList<>();
-            for (Node node : nodes) {
-                declarationSnippets.add(snippetFactory.createDeclarationSnippet(node));
-            }
-            timedOperation("invoker", () -> invoker.execute(declarationSnippets));
-        } finally {
-            addAllDiagnostics(preprocessor.diagnostics());
-            addAllDiagnostics(treeParser.diagnostics());
-            addAllDiagnostics(snippetFactory.diagnostics());
-            addAllDiagnostics(invoker.diagnostics());
-            preprocessor.resetDiagnostics();
-            treeParser.resetDiagnostics();
-            snippetFactory.resetDiagnostics();
-            invoker.resetDiagnostics();
-        }
-    }
+    public abstract void evaluateDeclarationFile(String filePath) throws BallerinaShellException;
 
     /**
      * Deletes a collection of names from the evaluator state.
@@ -147,27 +91,12 @@ public class Evaluator extends DiagnosticReporter {
      * @param declarationNames Names to delete.
      * @throws BallerinaShellException if deletion failed.
      */
-    public void delete(Collection<String> declarationNames) throws BallerinaShellException {
-
-        try {
-            invoker.delete(new HashSet<>(declarationNames));
-        } finally {
-            addAllDiagnostics(invoker.diagnostics());
-            invoker.resetDiagnostics();
-        }
-    }
+    public abstract void delete(Collection<String> declarationNames) throws BallerinaShellException;
 
     /**
      * Reset evaluator so that the execution can be start over.
      */
-    public void reset() {
-        preprocessor.resetDiagnostics();
-        treeParser.resetDiagnostics();
-        snippetFactory.resetDiagnostics();
-        invoker.resetDiagnostics();
-        this.resetDiagnostics();
-        invoker.reset();
-    }
+    public abstract void reset();
 
     public List<String> availableImports() {
         return invoker.availableImports();
@@ -195,18 +124,5 @@ public class Evaluator extends DiagnosticReporter {
 
     public ShellSnippetsInvoker getInvoker() {
         return invoker;
-    }
-
-    /**
-     * Time the operation and add diagnostics to {@link Evaluator}.
-     *
-     * @param category  Category to add diagnostics. Should be unique per operation.
-     * @param operation Operation to perform.
-     * @param <T>       operation return type.
-     * @return Return value of operation.
-     * @throws BallerinaShellException If operation failed.
-     */
-    private <T> T timedOperation(String category, TimedOperation<T> operation) throws BallerinaShellException {
-        return TimeIt.timeIt(category, this, operation);
     }
 }

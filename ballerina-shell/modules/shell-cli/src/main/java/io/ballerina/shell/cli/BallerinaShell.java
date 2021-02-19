@@ -32,7 +32,6 @@ import io.ballerina.shell.cli.handlers.ToggleDebugCommand;
 import io.ballerina.shell.cli.utils.FileUtils;
 import io.ballerina.shell.exceptions.BallerinaShellException;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Duration;
@@ -89,7 +88,7 @@ public class BallerinaShell {
             // If a start file is given, run it in initialization
             Optional<String> startFile = configuration.getStartFile();
             if (startFile.isPresent()) {
-                evaluator.executeFile(new File(startFile.get()));
+                evaluator.evaluateDeclarationFile(startFile.get());
             }
         } catch (BallerinaShellException e) {
             terminal.println("\nShell Initialization Failed!!!");
@@ -138,8 +137,7 @@ public class BallerinaShell {
      */
     public void runFile(String fileName) {
         try {
-            File file = new File(fileName);
-            evaluator.executeFile(file);
+            evaluator.evaluateDeclarationFile(fileName);
         } catch (BallerinaShellException e) {
             outputException(e);
         }

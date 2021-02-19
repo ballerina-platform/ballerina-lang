@@ -54,7 +54,7 @@ public abstract class AbstractEvaluatorTest {
                 .invoker(invoker).build();
         try {
             evaluator.initialize();
-            evaluator.executeFile(TestUtils.getFile(TEST_HEADER));
+            evaluator.evaluateDeclarationFile(TestUtils.getPath(TEST_HEADER));
         } catch (Exception e) {
             Assert.fail(evaluator.diagnostics().toString());
         }
@@ -67,7 +67,7 @@ public abstract class AbstractEvaluatorTest {
                 // Evaluating files
                 if (testCode.startsWith("/open")) {
                     String loadFile = testCode.split("\\s")[1];
-                    evaluator.executeFile(TestUtils.getFile(loadFile));
+                    evaluator.evaluateDeclarationFile(TestUtils.getPath(loadFile));
                     continue;
                 }
                 // Removing declarations
