@@ -388,11 +388,12 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 prevAttemptVarSymbol);
     }
 
-    BLangBlockStmt desugar(BLangRollback rollbackNode, BLangLiteral transactionBlockID) {
+    BLangBlockStmt desugar(BLangRollback rollbackNode, BLangLiteral transactionBlockID,
+                           BLangSimpleVarRef retryManagerRef) {
         // Rollback desugar implementation
         BLangBlockStmt rollbackBlockStmt = ASTBuilderUtil.createBlockStmt(rollbackNode.pos);
         BLangStatementExpression rollbackExpr = invokeRollbackFunc(rollbackNode.pos, rollbackNode.expr,
-                transactionBlockID);
+                transactionBlockID, retryManagerRef);
         BLangExpressionStmt rollbackStmt = ASTBuilderUtil.createExpressionStmt(rollbackNode.pos, rollbackBlockStmt);
         rollbackStmt.expr = rollbackExpr;
         return rollbackBlockStmt;
@@ -404,7 +405,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
     //        check panic rollback $trxError$;
     //    }
     void createRollbackIfFailed(Location pos, BLangBlockStmt onFailBodyBlock,
-                                BSymbol trxFuncResultSymbol, BLangLiteral trxBlockId) {
+                                BSymbol trxFuncResultSymbol, BLangLiteral trxBlockId,
+                                BLangSimpleVarRef retryManagerRef) {
         BLangIf rollbackCheck = (BLangIf) TreeBuilder.createIfElseStatementNode();
         rollbackCheck.pos = pos;
         int stmtIndex = onFailBodyBlock.stmts.isEmpty() ? 0 : 1;
@@ -445,7 +447,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         // rollbackTransaction(transactionBlockID);
         BLangStatementExpression rollbackInvocation = invokeRollbackFunc(pos,
-                desugar.addConversionExprIfRequired(trxResultRef, symTable.errorOrNilType), trxBlockId);
+                desugar.addConversionExprIfRequired(trxResultRef, symTable.errorOrNilType), trxBlockId, retryManagerRef);
 
         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckPanickedExpr(pos, rollbackInvocation,
                 symTable.nilType);
@@ -477,7 +479,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     BLangStatementExpression invokeRollbackFunc(Location pos, BLangExpression rollbackExpr,
-                                                BLangLiteral trxBlockId) {
+                                                BLangLiteral trxBlockId, BLangSimpleVarRef retryManagerRef) {
         // Rollback desugar implementation
         BLangBlockStmt rollbackBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
 
@@ -488,6 +490,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
         args.add(trxBlockId);
         if (rollbackExpr != null) {
             args.add(rollbackExpr);
+        }
+        if(retryManagerRef != null) {
+            args.add(retryManagerRef);
         }
         BLangInvocation rollbackTransactionInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(pos, rollbackTransactionInvokableSymbol, args, symResolver);

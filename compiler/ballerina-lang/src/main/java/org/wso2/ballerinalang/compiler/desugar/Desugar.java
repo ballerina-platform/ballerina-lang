@@ -385,6 +385,7 @@ public class Desugar extends BLangNodeVisitor {
     private List<BLangSimpleVariableDef> enclosingOnFailCallFunc = new ArrayList<>();
     private Map<BLangOnFailClause, BLangSimpleVarRef> enclosingShouldPanic = new HashMap<>();
     private List<BLangSimpleVarRef> enclosingShouldContinue = new ArrayList<>();
+    private BLangSimpleVarRef retryManagerRef;
 
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
@@ -2750,6 +2751,7 @@ public class Desugar extends BLangNodeVisitor {
             result = rewrite(doStmt, env);
         } else {
             Location pos = retryNode.retryBody.pos;
+            BLangSimpleVarRef prevRetryManagerRef = this.retryManagerRef;
             BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
             retryBlockStmt.parent = env.enclInvokable;
             retryBlockStmt.scope = new Scope(env.scope.owner);
@@ -2772,7 +2774,7 @@ public class Desugar extends BLangNodeVisitor {
                     retryManagerVarDef.var.symbol.type, retryManagerVarRef, retryMangerRefVarSymbol);
             retryBlockStmt.scope.define(retryMangerRefVarSymbol.name, retryMangerRefVarSymbol);
             BLangSimpleVariableDef retryMangerRefDef = ASTBuilderUtil.createVariableDef(pos, retryMangerRefVar);
-            BLangSimpleVarRef retryManagerRef = ASTBuilderUtil.createVariableRef(pos, retryMangerRefVarSymbol);
+            this.retryManagerRef = ASTBuilderUtil.createVariableRef(pos, retryMangerRefVarSymbol);
             retryBlockStmt.stmts.add(retryMangerRefDef);
 
             // error? $retryResult$ = ();
@@ -2801,7 +2803,7 @@ public class Desugar extends BLangNodeVisitor {
 
             //while ((retryRes == ()) || (retryRes is error && shouldRetryRes)) {
             // }
-            BLangWhile whileLoop = createRetryWhileLoop(pos, retryNode.retryBody, retryManagerRef, retryResultRef,
+            BLangWhile whileLoop = createRetryWhileLoop(pos, retryNode.retryBody, this.retryManagerRef, retryResultRef,
                     shouldRetryRef, false);
             retryBlockStmt.stmts.add(whileLoop);
 
@@ -2860,6 +2862,7 @@ public class Desugar extends BLangNodeVisitor {
             // }
             result = rewrite(retryBlockStmt, env);
             enclosingShouldContinue.remove(enclosingShouldContinue.size() - 1);
+            this.retryManagerRef = prevRetryManagerRef;
         }
     }
 
@@ -5106,7 +5109,8 @@ public class Desugar extends BLangNodeVisitor {
         //     $shouldCleanUp$ = true;
         //     check panic rollback $trxError$;
         // }
-        transactionDesugar.createRollbackIfFailed(pos, trxOnFailClause.body, trxOnFailErrorSym, trxBlockId);
+        transactionDesugar.createRollbackIfFailed(pos, trxOnFailClause.body, trxOnFailErrorSym,
+                trxBlockId, this.retryManagerRef);
 
         BLangGroupExpr shouldNotPanic = new BLangGroupExpr();
         shouldNotPanic.type = symTable.booleanType;
@@ -5253,7 +5257,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRollback rollbackNode) {
-        BLangBlockStmt rollbackStmtExpr = transactionDesugar.desugar(rollbackNode, trxBlockId);
+        BLangBlockStmt rollbackStmtExpr = transactionDesugar.desugar(rollbackNode, trxBlockId, this.retryManagerRef);
         result = rewrite(rollbackStmtExpr, env);
     }
 
@@ -5288,7 +5292,8 @@ public class Desugar extends BLangNodeVisitor {
         internalOnFail.body.stmts.add(continueLoopTrue);
 
         if (shouldRollback) {
-            transactionDesugar.createRollbackIfFailed(pos, internalOnFail.body, caughtErrorSym, trxBlockId);
+            transactionDesugar.createRollbackIfFailed(pos, internalOnFail.body, caughtErrorSym,
+                    trxBlockId, this.retryManagerRef);
         }
 
         // $shouldRetry$ = $retryManager$.shouldRetry();
