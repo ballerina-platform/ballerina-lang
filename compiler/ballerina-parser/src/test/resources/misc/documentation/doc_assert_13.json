@@ -12,15 +12,19 @@
       "children": [
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "MARKDOWN_DOCUMENTATION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "MARKDOWN_DOCUMENTATION_LINE",
@@ -71,6 +75,7 @@
                         },
                         {
                           "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
@@ -102,7 +107,11 @@
                             },
                             {
                               "kind": "MINUS_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "WARNING_MISSING_HYPHEN_TOKEN"
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -123,6 +132,7 @@
                         },
                         {
                           "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
@@ -144,11 +154,19 @@
                             },
                             {
                               "kind": "PARAMETER_NAME",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "WARNING_MISSING_PARAMETER_NAME"
+                              ]
                             },
                             {
                               "kind": "MINUS_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "WARNING_MISSING_HYPHEN_TOKEN"
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -270,6 +288,7 @@
                         },
                         {
                           "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
@@ -301,7 +320,11 @@
                             },
                             {
                               "kind": "MINUS_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "WARNING_MISSING_HYPHEN_TOKEN"
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -490,6 +513,7 @@
                         },
                         {
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
@@ -502,6 +526,7 @@
                             },
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
@@ -509,6 +534,7 @@
                                 },
                                 {
                                   "kind": "INLINE_CODE_REFERENCE",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "BACKTICK_TOKEN"
@@ -525,7 +551,11 @@
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
-                                      "isMissing": true
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "WARNING_MISSING_SINGLE_BACKTICK_TOKEN"
+                                      ]
                                     }
                                   ]
                                 }
@@ -633,7 +663,11 @@
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
-                                      "isMissing": true
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "WARNING_MISSING_SINGLE_BACKTICK_TOKEN"
+                                      ]
                                     }
                                   ]
                                 }
