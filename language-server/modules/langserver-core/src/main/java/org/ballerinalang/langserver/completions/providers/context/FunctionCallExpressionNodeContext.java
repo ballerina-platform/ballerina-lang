@@ -23,8 +23,6 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +50,6 @@ public class FunctionCallExpressionNodeContext extends BlockNodeContextProvider<
         completionItems.addAll(this.expressionCompletions(ctx));
         // TODO: implement the following
 //        completionItems.addAll(this.getNewExprCompletionItems(ctx, node));
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_IS.get()));
 
         return completionItems;
     }

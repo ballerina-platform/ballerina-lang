@@ -114,7 +114,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "O",
-      "insertText": "if (${1:true}) {\n\t${2}\n}",
+      "insertText": "if ${1:true} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
     {
