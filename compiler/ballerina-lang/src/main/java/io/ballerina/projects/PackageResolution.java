@@ -40,6 +40,8 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.PackageName.LANG_LIB_PACKAGE_NAME_PREFIX;
+
 /**
  * Resolves dependencies and handles version conflicts in the dependency graph.
  *
@@ -411,7 +413,8 @@ public class PackageResolution {
             }
 
             PackageOrg packageOrg = importModuleRequest.packageOrg();
-            List<PackageName> possiblePkgNames = getPossiblePackageNames(importModuleRequest);
+            List<PackageName> possiblePkgNames;
+            possiblePkgNames = getPossiblePackageNames(importModuleRequest);
             for (PackageName possiblePkgName : possiblePkgNames) {
                 if (packageOrg.equals(rootPackageContext.packageOrg()) &&
                         possiblePkgName.equals(rootPackageContext.packageName())) {
@@ -486,6 +489,11 @@ public class PackageResolution {
         }
 
         private List<PackageName> getPossiblePackageNames(ImportModuleRequest importModuleRequest) {
+            if (importModuleRequest.packageOrg().isBallerinaOrg()) {
+                if (importModuleRequest.moduleName().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX)
+                        || importModuleRequest.moduleName().equals(Names.JAVA.toString()))
+                return Collections.singletonList(PackageName.from(importModuleRequest.moduleName()));
+            }
             String[] modNameParts = importModuleRequest.moduleName().split("\\.");
             StringJoiner pkgNameBuilder = new StringJoiner(".");
             List<PackageName> possiblePkgNames = new ArrayList<>(modNameParts.length);

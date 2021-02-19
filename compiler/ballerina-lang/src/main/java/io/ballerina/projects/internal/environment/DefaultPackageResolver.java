@@ -143,10 +143,11 @@ public class DefaultPackageResolver implements PackageResolver {
                     // TODO: add to diagnostic
                     return null;
                 }
-            }
-            resolvedPackage = ballerinaDistRepo.getPackage(resolutionRequest);
-            if (resolvedPackage.isEmpty()) {
-                resolvedPackage = ballerinaCentralRepo.getPackage(resolutionRequest);
+            } else {
+                resolvedPackage = ballerinaDistRepo.getPackage(resolutionRequest);
+                if (resolvedPackage.isEmpty()) {
+                    resolvedPackage = ballerinaCentralRepo.getPackage(resolutionRequest);
+                }
             }
             return resolvedPackage.orElse(null);
         }
@@ -197,6 +198,7 @@ public class DefaultPackageResolver implements PackageResolver {
 
     private Package resolveLangLibPackage(ResolutionRequest resolutionRequest) {
         Optional<Package> resolvedPackage;
+
         if (resolutionRequest.version().isPresent()) {
             resolvedPackage = ballerinaDistRepo.getPackage(resolutionRequest);
         } else {

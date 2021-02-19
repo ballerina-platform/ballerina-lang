@@ -271,8 +271,8 @@ public class ManifestBuilder {
                 PackageOrg depOrg = PackageOrg.from(getStringValueFromDependencyNode(dependencyNode, "org"));
                 PackageVersion depVersion = PackageVersion
                         .from(getStringValueFromDependencyNode(dependencyNode, VERSION));
-                String repository = getStringValueFromDependencyNode(dependencyNode, "repository");
-                if (repository != null) {
+                if (dependencyNode.entries().containsKey("repository")) {
+                    String repository = getStringValueFromDependencyNode(dependencyNode, "repository");
                     dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, repository));
                 }
                 dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion));

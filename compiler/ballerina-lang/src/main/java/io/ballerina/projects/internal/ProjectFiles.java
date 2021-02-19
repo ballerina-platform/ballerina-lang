@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -229,15 +230,33 @@ public class ProjectFiles {
 
     public static void validateBalaProjectPath(Path balaPath) {
         if (Files.notExists(balaPath)) {
-            throw new ProjectException("Given .bala file does not exist: " + balaPath);
+            throw new ProjectException("Given bala path does not exist: " + balaPath);
         }
 
-        if (!Files.isRegularFile(balaPath) || !ProjectFiles.BALA_EXTENSION_MATCHER.matches(balaPath)) {
+        if (!isValidBalaFile(balaPath) && !isValidBalaDir(balaPath)) {
             throw new ProjectException("Invalid .bala file: " + balaPath);
         }
 
         if (!balaPath.toFile().canRead()) {
             throw new ProjectException("insufficient privileges to bala: " + balaPath);
         }
+    }
+
+    private static boolean isValidBalaDir(Path balaPath) {
+        if (Files.notExists(balaPath.resolve(ProjectConstants.DEPENDENCY_GRAPH_JSON))) {
+            return false;
+        }
+        if (Files.notExists(balaPath.resolve(ProjectConstants.PACKAGE_JSON))) {
+            return false;
+        }
+        if (Files.notExists(balaPath.resolve(ProjectConstants.BALA_JSON))) {
+            return false;
+        }
+        Path modulesRoot = balaPath.resolve(ProjectConstants.MODULES_ROOT);
+        return Files.isDirectory(modulesRoot) && Objects.requireNonNull(modulesRoot.toFile().listFiles()).length >= 1;
+    }
+
+    private static boolean isValidBalaFile(Path balaPath) {
+        return Files.isRegularFile(balaPath) && ProjectFiles.BALA_EXTENSION_MATCHER.matches(balaPath);
     }
 }

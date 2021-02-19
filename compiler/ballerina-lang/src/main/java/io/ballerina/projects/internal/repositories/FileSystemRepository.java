@@ -40,6 +40,7 @@ import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +92,8 @@ public class FileSystemRepository implements PackageRepository {
                 ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
         if (!Files.exists(balaPath)) {
             //If bala for any platform not exist check for specific platform
-            ProjectUtils.getRelativeBalaPath(orgName, packageName, version, JvmTarget.JAVA_11.code());
+            balaPath = this.bala.resolve(
+                    ProjectUtils.getRelativeBalaPath(orgName, packageName, version, JvmTarget.JAVA_11.code()));
             if (!Files.exists(balaPath)) {
                 return Optional.empty();
             }
@@ -109,19 +111,29 @@ public class FileSystemRepository implements PackageRepository {
         // if version and org name is empty we add empty string so we return empty package anyway
         String packageName = resolutionRequest.packageName().value();
         String orgName = resolutionRequest.orgName().value();
-
-        // Here we dont rely on directories we check for available balas
-        String globFilePart = orgName + "-" + packageName + "-*.bala";
-        String glob = "glob:**/" + orgName + "/" + packageName + "/*/" + globFilePart;
-        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(glob);
         List<Path> versions = new ArrayList<>();
         try {
-            Files.walkFileTree(bala.resolve(orgName).resolve(packageName)
-                    , new SearchModules(pathMatcher, versions));
+            Path balaPackagePath = bala.resolve(orgName).resolve(packageName);
+            if (Files.exists(balaPackagePath)) {
+                versions.addAll(Files.list(balaPackagePath).collect(Collectors.toList()));
+            }
         } catch (IOException e) {
-            // in any error we should report to the top
             throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
         }
+
+
+//        // Here we dont rely on directories we check for available balas
+//        String globFilePart = orgName + "-" + packageName + "-*.bala";
+//        String glob = "glob:**/" + orgName + "/" + packageName + "/*/" + globFilePart;
+//        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(glob);
+//        List<Path> versions = new ArrayList<>();
+//        try {
+//            Files.walkFileTree(bala.resolve(orgName).resolve(packageName)
+//                    , new SearchModules(pathMatcher, versions));
+//        } catch (IOException e) {
+//            // in any error we should report to the top
+//            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
+//        }
 
         return pathToVersions(versions);
     }
@@ -174,7 +186,7 @@ public class FileSystemRepository implements PackageRepository {
     private List<PackageVersion> pathToVersions(List<Path> versions) {
         return versions.stream()
                 .map(path -> {
-                    String version = Optional.ofNullable(path.getParent())
+                    String version = Optional.ofNullable(path)
                             .map(parent -> parent.getFileName())
                             .map(file -> file.toString())
                             .orElse("0.0.0");
