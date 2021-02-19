@@ -1478,7 +1478,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void addErrorTypeDefinition(BErrorType errorType, SymbolEnv pkgEnv, Location pos) {
         BTypeSymbol errorTSymbol = errorType.tsymbol;
         BLangErrorType bLangErrorType =
-                TypeDefBuilderHelper.createBLangErrorType(pos, errorType.detailType, env, names);
+                TypeDefBuilderHelper.createBLangErrorType(pos, errorType.detailType, env, names, anonymousModelHelper);
         bLangErrorType.type = errorType;
         BLangTypeDefinition errorTypeDefinition = TypeDefBuilderHelper
                 .addTypeDefinition(errorType, errorTSymbol, bLangErrorType, pkgEnv);

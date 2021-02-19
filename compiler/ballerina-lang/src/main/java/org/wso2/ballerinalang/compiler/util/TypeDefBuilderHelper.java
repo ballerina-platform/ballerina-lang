@@ -21,6 +21,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -221,7 +222,8 @@ public class TypeDefBuilderHelper {
         return classDefNode;
     }
 
-    public static BLangErrorType createBLangErrorType(Location pos, BType detailType, SymbolEnv env, Names names) {
+    public static BLangErrorType createBLangErrorType(Location pos, BType detailType, SymbolEnv env, Names names,
+                                                      BLangAnonymousModelHelper anonymousModelHelper) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         BLangUserDefinedType userDefinedTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         userDefinedTypeNode.pos = pos;
@@ -232,7 +234,7 @@ public class TypeDefBuilderHelper {
         boolean userDefinedDetailTypeAvailable = detailType.tsymbol != null;
         String typeName = userDefinedDetailTypeAvailable
                 ? detailType.tsymbol.name.value
-                : "$synthetic$error$detail$" + errorDetailAnnonCount++;
+                : anonymousModelHelper.getNextAnonymousIntersectionErrorDetailTypeName(env.enclPkg.packageID);
 
         userDefinedTypeNode.typeName = createIdentifier(pos, typeName);
         userDefinedTypeNode.type = detailType;
