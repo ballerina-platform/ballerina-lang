@@ -45,7 +45,6 @@ import io.ballerina.shell.utils.StringUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,9 +56,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -76,9 +72,6 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     private static final String DECLARATION_TEMPLATE_FILE = "template.declaration.mustache";
     private static final String EXECUTION_TEMPLATE_FILE = "template.execution.mustache";
 
-    private static final AtomicInteger importIndex = new AtomicInteger(0);
-    private static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)/([\\w.]+):([\\d.]+):");
-
     /**
      * Set of identifiers that are known or seen at the initialization.
      * These can't be overridden.
@@ -88,7 +81,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      * List of imports done.
      * These are imported to the read generated code as necessary.
      */
-    private final HashedImports imports;
+    private final ImportsManager importsManager;
     /**
      * List of module level declarations such as functions, classes, etc...
      * The snippets are saved as is.
@@ -133,7 +126,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         this.globalVars = new HashMap<>();
         this.newImports = new HashMap<>();
         this.initialIdentifiers = new HashSet<>();
-        this.imports = new HashedImports();
+        this.importsManager = new ImportsManager();
     }
 
     /**
@@ -146,7 +139,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      */
     @Override
     public void initialize() throws InvokerException {
-        ClassLoadContext emptyContext = new ClassLoadContext(contextId, imports.getUsedImports());
+        ClassLoadContext emptyContext = new ClassLoadContext(contextId, importsManager.getUsedImports(List.of()));
         Project project = getProject(emptyContext, DECLARATION_TEMPLATE_FILE);
         PackageCompilation compilation = compile(project);
         // Remember all the visible var symbols
@@ -174,36 +167,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         InvokerMemory.forgetAll(contextId);
         this.initialIdentifiers.clear();
         this.initialized.set(false);
-        this.imports.reset();
-    }
-
-    @Override
-    public void delete(Set<String> declarationNames) throws InvokerException {
-        Map<QuotedIdentifier, GlobalVariable> queuedGlobalVars = new HashMap<>();
-        Map<QuotedIdentifier, String> queuedModuleDclns = new HashMap<>();
-        for (String declarationName : declarationNames) {
-            QuotedIdentifier identifier = new QuotedIdentifier(declarationName);
-            if (globalVars.containsKey(identifier)) {
-                queuedGlobalVars.put(identifier, globalVars.get(identifier));
-            } else if (moduleDclns.containsKey(identifier)) {
-                queuedModuleDclns.put(identifier, moduleDclns.get(identifier));
-            } else {
-                addErrorDiagnostic(declarationName + " is not defined.\n" +
-                        "Please enter names of declarations that are already defined.");
-                throw new InvokerException();
-            }
-        }
-
-        try {
-            queuedGlobalVars.keySet().forEach(globalVars::remove);
-            queuedModuleDclns.keySet().forEach(moduleDclns::remove);
-            processCurrentState();
-        } catch (InvokerException e) {
-            globalVars.putAll(queuedGlobalVars);
-            moduleDclns.putAll(queuedModuleDclns);
-            addErrorDiagnostic("Deleting declaration(s) failed.");
-            throw e;
-        }
+        this.importsManager.reset();
     }
 
     @Override
@@ -288,7 +252,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         }
         // Persist all data
         globalVars.putAll(allNewVariables);
-        newImports.forEach(imports::storeImportUsages);
+        newImports.forEach(importsManager::storeImportUsages);
         addDebugDiagnostic("Implicit imports added: " + newImports);
         addDebugDiagnostic("Found new variables: " + allNewVariables);
         for (Map.Entry<QuotedIdentifier, ModuleMemberDeclarationSnippet> dcln : moduleDeclarations.entrySet()) {
@@ -298,11 +262,11 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             addDebugDiagnostic("Module dcln code: " + moduleDclnCode);
         }
         // No need to execute if none are variable declarations/executable snippets
-        // But we have to set memory variable to null.
         if (variableDeclarations.isEmpty() && executableSnippets.isEmpty()) {
             return Optional.empty();
         }
 
+        // Recompile and Execute.
         try {
             ClassLoadContext execContext = createVariablesExecutionContext(
                     variableDeclarations.keySet(), executableSnippets, allNewVariables);
@@ -318,6 +282,37 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         }
     }
 
+    @Override
+    public void delete(Set<String> declarationNames) throws InvokerException {
+        Map<QuotedIdentifier, GlobalVariable> queuedGlobalVars = new HashMap<>();
+        Map<QuotedIdentifier, String> queuedModuleDclns = new HashMap<>();
+        for (String declarationName : declarationNames) {
+            QuotedIdentifier identifier = new QuotedIdentifier(declarationName);
+            if (globalVars.containsKey(identifier)) {
+                queuedGlobalVars.put(identifier, globalVars.get(identifier));
+            } else if (moduleDclns.containsKey(identifier)) {
+                queuedModuleDclns.put(identifier, moduleDclns.get(identifier));
+            } else {
+                addErrorDiagnostic(declarationName + " is not defined.\n" +
+                        "Please enter names of declarations that are already defined.");
+                throw new InvokerException();
+            }
+        }
+
+        try {
+            queuedGlobalVars.keySet().forEach(globalVars::remove);
+            queuedModuleDclns.keySet().forEach(moduleDclns::remove);
+            processCurrentState();
+        } catch (InvokerException e) {
+            globalVars.putAll(queuedGlobalVars);
+            moduleDclns.putAll(queuedModuleDclns);
+            addErrorDiagnostic("Deleting declaration(s) failed.");
+            throw e;
+        }
+    }
+
+    /* Process Snippets */
+
     /**
      * This is an import. A test import is done to check for errors.
      * It should not give 'module not found' error.
@@ -330,11 +325,11 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         QuotedImport quotedImport = importSnippet.getImportedModule();
         QuotedIdentifier quotedPrefix = importSnippet.getPrefix();
 
-        if (imports.moduleImported(quotedImport) && imports.prefix(quotedImport).equals(quotedPrefix)) {
+        if (importsManager.moduleImported(quotedImport) && importsManager.prefix(quotedImport).equals(quotedPrefix)) {
             // Same module with same prefix. No need to check.
             addDebugDiagnostic("Detected reimport: " + quotedPrefix);
             return;
-        } else if (imports.containsPrefix(quotedPrefix)) {
+        } else if (importsManager.containsPrefix(quotedPrefix)) {
             // Prefix is already used. (Not for the same module - checked above)
             addErrorDiagnostic("The import prefix was already used by another import.");
             throw new InvokerException();
@@ -342,7 +337,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
         compileImportStatement(importSnippet.toString());
         addDebugDiagnostic("Adding import: " + importSnippet);
-        imports.storeImport(importSnippet);
+        importsManager.storeImport(importSnippet);
     }
 
     /**
@@ -478,7 +473,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             boolean isAssignableToAny = typeSymbol.assignableTo(anyTypeSymbol);
             // Find the variable type
             Set<QuotedIdentifier> requiredImports = new HashSet<>();
-            String variableType = parseTypeSignature(typeSymbol, requiredImports);
+            String variableType = importsManager.extractImportsFromType(typeSymbol, requiredImports);
             this.newImports.put(variableName, requiredImports);
 
             // Create a global variable
@@ -519,79 +514,9 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         // Add all used imports in this snippet
         snippet.usedImports().stream()
                 .map(QuotedIdentifier::new)
-                .map(imports::getImport).filter(Objects::nonNull)
+                .map(importsManager::getImport).filter(Objects::nonNull)
                 .forEach(importStrings::add);
         return importStrings;
-    }
-
-
-    /**
-     * Converts a type symbol into its string counterpart.
-     * Any imports that need to be done are calculated.
-     * Eg: if the type was abc/z:TypeA then it will be converted as
-     * 'import abc/z' will be added as an import.
-     * We need to traverse all the sub-typed because any sub-type
-     * may need to be imported.
-     * Also, this will compute all the replacements that should be done.
-     * In above case, abc/z:TypeA will be replaced with z:TypeA.
-     *
-     * @param typeSymbol Type to process.
-     * @param imports    Imports set to store imports.
-     * @return Type signature after parsing.
-     */
-    protected String parseTypeSignature(TypeSymbol typeSymbol, Set<QuotedIdentifier> imports) {
-        String text = typeSymbol.signature();
-        StringBuilder newText = new StringBuilder();
-        Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(text);
-        int nextStart = 0;
-        // Matching Fully-Qualified-Module-IDs (eg.`abc/mod1:1.0.0`)
-        // Purpose is to transform `int|abc/mod1:1.0.0:Person` into `int|mod1:Person` or `int|Person`
-        // identifying the potential imports required.
-        while (matcher.find()) {
-            // Append up-to start of the match
-            newText.append(text, nextStart, matcher.start(1));
-            // Identify org name and module names
-            String orgName = matcher.group(1);
-            List<String> moduleNames = Arrays.asList(matcher.group(2).split("\\."));
-            QuotedImport quotedImport = new QuotedImport(orgName, moduleNames);
-
-            // Add the import required
-            QuotedIdentifier quotedPrefix = addImport(quotedImport);
-            imports.add(quotedPrefix);
-
-            // Update next-start position
-            newText.append(quotedPrefix.getName()).append(":");
-            nextStart = matcher.end(3) + 1;
-        }
-        // Append the remaining
-        if (nextStart != 0) {
-            newText.append(text.substring(nextStart));
-        }
-        return newText.length() > 0 ? newText.toString() : text;
-    }
-
-    /**
-     * Adds a import to this shell session.
-     * This will import the module with an already imported prefix,
-     * import with default name or using _I format.
-     *
-     * @param moduleName Module to import in 'orgName/module.name' format
-     * @return Prefix imported.
-     */
-    protected QuotedIdentifier addImport(QuotedImport moduleName) {
-        // If this module is already imported, use a previous prefix.
-        if (imports.moduleImported(moduleName)) {
-            return imports.prefix(moduleName);
-        }
-
-        // Try to find an available prefix (starting from default prefix and iterate over _I imports)
-        QuotedIdentifier quotedPrefix = moduleName.getDefaultPrefix();
-        while (imports.containsPrefix(quotedPrefix)) {
-            quotedPrefix = new QuotedIdentifier("_" + importIndex.incrementAndGet());
-        }
-
-        imports.storeImport(quotedPrefix, moduleName);
-        return quotedPrefix;
     }
 
     /**
@@ -600,9 +525,9 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      * @return List of imports.
      */
     private Set<String> getRequiredImportStatements() {
-        Set<String> importStrings = new HashSet<>(imports.getUsedImports()); // Anon imports
-        importStrings.addAll(imports.getUsedImports(globalVars.keySet())); // Imports from vars
-        importStrings.addAll(imports.getUsedImports(moduleDclns.keySet())); // Imports from module dclns
+        Set<String> importStrings = new HashSet<>();
+        importStrings.addAll(importsManager.getUsedImports(globalVars.keySet())); // Imports from vars
+        importStrings.addAll(importsManager.getUsedImports(moduleDclns.keySet())); // Imports from module dclns
         return importStrings;
     }
 
@@ -612,8 +537,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     public List<String> availableImports() {
         // Imports with prefixes
         List<String> importStrings = new ArrayList<>();
-        for (QuotedIdentifier prefix : imports.prefixes()) {
-            importStrings.add(String.format("(%s) %s", prefix, imports.getImport(prefix)));
+        for (QuotedIdentifier prefix : importsManager.prefixes()) {
+            importStrings.add(String.format("(%s) %s", prefix, importsManager.getImport(prefix)));
         }
         return importStrings;
     }

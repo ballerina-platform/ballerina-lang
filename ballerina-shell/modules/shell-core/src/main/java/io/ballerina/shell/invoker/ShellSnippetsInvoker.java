@@ -125,13 +125,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     public abstract void reset();
 
     /**
-     * Deletes a collection of names from the evaluator state.
-     * If any of the names did not exist, this will throw an error.
-     * A compilation will be done to make sure that no new errors are there.
-     */
-    public abstract void delete(Set<String> declarationNames) throws InvokerException;
-
-    /**
      * Executes snippets and returns the output lines.
      * Snippets parameter should only include newly added snippets.
      * Old snippets should be managed as necessary by the implementation.
@@ -140,6 +133,13 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return Execution output result.
      */
     public abstract Optional<Object> execute(Collection<Snippet> newSnippets) throws InvokerException;
+
+    /**
+     * Deletes a collection of names from the evaluator state.
+     * If any of the names did not exist, this will throw an error.
+     * A compilation will be done to make sure that no new errors are there.
+     */
+    public abstract void delete(Set<String> declarationNames) throws InvokerException;
 
     /**
      * Returns available imports in the module.
@@ -468,6 +468,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     private File getBufferFile() throws IOException {
         if (this.bufferFile == null) {
             this.bufferFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
+            addDebugDiagnostic("Using temp file: " + bufferFile.getAbsolutePath());
             this.bufferFile.deleteOnExit();
         }
         return this.bufferFile;
