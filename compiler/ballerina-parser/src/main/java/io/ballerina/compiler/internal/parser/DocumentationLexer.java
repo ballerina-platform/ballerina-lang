@@ -465,7 +465,8 @@ public class DocumentationLexer extends AbstractLexer {
             return getDocSyntaxToken(SyntaxKind.HASH_TOKEN);
         }
 
-        throw new IllegalStateException("documentation line should always start with a hash");
+        assert false : "Documentation line should always start with a hash";
+        return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
     }
 
     /*
@@ -739,7 +740,8 @@ public class DocumentationLexer extends AbstractLexer {
             case LexerTerminals.CONST:
                 return getDocSyntaxToken(SyntaxKind.CONST_DOC_REFERENCE_TOKEN);
             default:
-                throw new IllegalStateException();
+                assert false : "Invalid reference type";
+                return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
     }
 
@@ -831,6 +833,7 @@ public class DocumentationLexer extends AbstractLexer {
         }
 
         if (getLexeme().isEmpty()) {
+            // We only reach here for ``<empty_code>`` and ```<empty_code>```
             return readCodeReferenceEndToken();
         }
 
@@ -868,7 +871,8 @@ public class DocumentationLexer extends AbstractLexer {
             }
         }
 
-        throw new IllegalStateException("Invalid character: Expected a backtick");
+        assert false : "Invalid character: Expected a backtick";
+        return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
     }
 
     /*
@@ -888,6 +892,7 @@ public class DocumentationLexer extends AbstractLexer {
             return getCodeLineStartHashToken();
         }
 
-        throw new IllegalStateException("Invalid character: Expected a hash");
+        assert false : "Invalid character: Expected a hash";
+        return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
     }
 }
