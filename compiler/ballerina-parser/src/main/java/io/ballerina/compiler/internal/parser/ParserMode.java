@@ -23,12 +23,16 @@ package io.ballerina.compiler.internal.parser;
  * @since 1.3.0
  */
 public enum ParserMode {
+
+    // Ballerina Parser
     DEFAULT,
     IMPORT,
     TEMPLATE,
     INTERPOLATION,
     INTERPOLATION_BRACED_CONTENT,
-    DOC_LINE_INIT_HASH,
+
+    // Documentation Parser
+    DOC_LINE_START_HASH,
     DOC_LINE_DIFFERENTIATOR,
     DOC_INTERNAL,
     DOC_PARAMETER,
@@ -37,7 +41,9 @@ public enum ParserMode {
     DOC_DOUBLE_BACKTICK_CONTENT,
     DOC_TRIPLE_BACKTICK_CONTENT,
     DOC_CODE_REF_END,
-    DOC_CODE_LINE_INIT_HASH,
+    DOC_CODE_LINE_START_HASH,
+
+    // XML Parser
     XML_CONTENT,
     XML_ELEMENT_START_TAG,
     XML_ELEMENT_END_TAG,

@@ -5304,13 +5304,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
 
         StringBuilder docText = new StringBuilder();
-        codeBlockNode.langAttribute().ifPresentOrElse(
-                (langAttribute) -> {
-                    docText.append(codeBlockNode.startBacktick().text());
-                    docText.append(langAttribute.toString());
-                },
-                () -> docText.append(codeBlockNode.startBacktick().toString())
-        );
+
+        if (codeBlockNode.langAttribute().isPresent()) {
+            docText.append(codeBlockNode.startBacktick().text());
+            docText.append(codeBlockNode.langAttribute().get().toString());
+        } else {
+            docText.append(codeBlockNode.startBacktick().toString());
+        }
 
         codeBlockNode.codeLines().forEach(codeLine -> docText.append(codeLine.toString()));
         docText.append(codeBlockNode.endLineHashToken().toString());
