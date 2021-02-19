@@ -235,6 +235,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
                 new FileSystemWatcher("/**/" + ProjectConstants.BALLERINA_TOML, WatchKind.Create + WatchKind.Delete));
         watchers.add(
                 new FileSystemWatcher("/**/" + ProjectConstants.CLOUD_TOML, WatchKind.Create + WatchKind.Delete));
+        watchers.add(
+                new FileSystemWatcher("/**/" + ProjectConstants.DEPENDENCIES_TOML, WatchKind.Create + WatchKind.Delete));
         DidChangeWatchedFilesRegistrationOptions opts = new DidChangeWatchedFilesRegistrationOptions(watchers);
         Registration registration = new Registration(UUID.randomUUID().toString(),
                                                      "workspace/didChangeWatchedFiles", opts);
