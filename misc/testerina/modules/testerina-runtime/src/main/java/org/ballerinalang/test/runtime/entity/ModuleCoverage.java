@@ -38,17 +38,43 @@ public class ModuleCoverage {
     /**
      * Adds the code snippet from the source file highlighted with covered and missed lines.
      *
-     * @param document source file
+     * @param document     source file
      * @param coveredLines list of lines covered
-     * @param missedLines list of lines missed
+     * @param missedLines  list of lines missed
      */
-    public void addSourceFileCoverage (Document document, List<Integer> coveredLines,
-                                       List<Integer> missedLines) {
+    public void addSourceFileCoverage(Document document, List<Integer> coveredLines,
+                                      List<Integer> missedLines) {
         SourceFile sourceFile = new SourceFile(document, coveredLines, missedLines);
         this.sourceFiles.add(sourceFile);
         this.coveredLines += coveredLines.size();
         this.missedLines += missedLines.size();
         setCoveragePercentage();
+    }
+
+    public boolean containsSourceFile(String fileName) {
+        boolean isAvailable = false;
+        for (SourceFile sourceFile : sourceFiles) {
+            if (sourceFile.getName().equals(fileName)) {
+                isAvailable = true;
+                break;
+            }
+        }
+        return isAvailable;
+    }
+
+    public void updateCoverage(Document document, List<Integer> coveredLines,
+                               List<Integer> missedLines) {
+        List<SourceFile> sourceFileList = new ArrayList<>(sourceFiles);
+        for (SourceFile sourceFile : sourceFileList) {
+            if (sourceFile.getName().equals(document.name())) {
+                //Remove outdated source file details
+                this.coveredLines -= sourceFile.coveredLines.size();
+                this.missedLines -= sourceFile.missedLines.size();
+                sourceFiles.remove(sourceFile);
+                //Add updated source file details
+                addSourceFileCoverage(document, coveredLines, missedLines);
+            }
+        }
     }
 
     private void setCoveragePercentage() {
@@ -75,6 +101,25 @@ public class ModuleCoverage {
     public String getName() {
         return name;
     }
+
+    public List<Integer> getMissedLinesList(String sourceFileName) {
+        for (SourceFile sourceFile : this.sourceFiles) {
+            if (sourceFile.getName().equals(sourceFileName)) {
+                return sourceFile.missedLines;
+            }
+        }
+        return null;
+    }
+
+    public List<Integer> getCoveredLinesList(String sourceFileName) {
+        for (SourceFile sourceFile : this.sourceFiles) {
+            if (sourceFile.getName().equals(sourceFileName)) {
+                return sourceFile.coveredLines;
+            }
+        }
+        return null;
+    }
+
 
     /**
      * Inner class for the SourceFile in Json.

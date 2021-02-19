@@ -43,6 +43,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
@@ -83,7 +84,8 @@ public class CoverageReport {
      *
      * @throws IOException when file operations are failed
      */
-    public ModuleCoverage generateReport(JarResolver jarResolver) throws IOException {
+    public void generateReport(JarResolver jarResolver, Map<String, ModuleCoverage> moduleCoverageMap)
+            throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
         String version = this.module.packageInstance().packageVersion().toString();
@@ -108,19 +110,17 @@ public class CoverageReport {
                     if (Files.exists(coverageDir.resolve(BIN_DIR))) {
                         CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
                     }
-                    return null;
+                    return;
                 }
             }
 
             execFileLoader.load(executionDataFile.toFile());
             final IBundleCoverage bundleCoverage = analyzeStructure();
 
-            ModuleCoverage moduleCoverage = new ModuleCoverage();
-            createReport(bundleCoverage, moduleCoverage);
+            createReport(bundleCoverage, moduleCoverageMap);
 
             createXMLReport(bundleCoverage);
             CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
-            return moduleCoverage;
         } else {
             String msg = "Unable to generate code coverage for the module " + packageName + ". Jar files dont exist.";
             throw new NoSuchFileException(msg);
@@ -135,23 +135,23 @@ public class CoverageReport {
     }
 
     private void createXMLReport(IBundleCoverage bundleCoverage) throws IOException {
-            XMLFormatter xmlFormatter = new XMLFormatter();
-            File reportFile = new File(target.getReportPath().resolve(
-                    this.module.moduleName().toString()).resolve(REPORT_XML_FILE).toString());
-            reportFile.getParentFile().mkdirs();
+        XMLFormatter xmlFormatter = new XMLFormatter();
+        File reportFile = new File(target.getReportPath().resolve(
+                this.module.moduleName().toString()).resolve(REPORT_XML_FILE).toString());
+        reportFile.getParentFile().mkdirs();
 
-            try (FileOutputStream fileOutputStream = new FileOutputStream(reportFile)) {
-                IReportVisitor visitor = xmlFormatter.createVisitor(fileOutputStream);
-                visitor.visitInfo(execFileLoader.getSessionInfoStore().getInfos(),
-                        execFileLoader.getExecutionDataStore().getContents());
+        try (FileOutputStream fileOutputStream = new FileOutputStream(reportFile)) {
+            IReportVisitor visitor = xmlFormatter.createVisitor(fileOutputStream);
+            visitor.visitInfo(execFileLoader.getSessionInfoStore().getInfos(),
+                    execFileLoader.getExecutionDataStore().getContents());
 
-                visitor.visitBundle(bundleCoverage, null);
+            visitor.visitBundle(bundleCoverage, null);
 
-                visitor.visitEnd();
-            }
+            visitor.visitEnd();
+        }
     }
 
-    private void createReport(final IBundleCoverage bundleCoverage, ModuleCoverage moduleCoverage) {
+    private void createReport(final IBundleCoverage bundleCoverage, Map<String, ModuleCoverage> moduleCoverageMap) {
         boolean containsSourceFiles = true;
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
@@ -165,30 +165,60 @@ public class CoverageReport {
                     // This is done since some source files come from other modules
                     // sourceFileCoverage : "<orgname>/<moduleName>:<version>
                     String sourceFileModule = decodeIdentifier(sourceFileCoverage.getPackageName().split("/")[1]);
-
-                    // Only add the source files that belong to the same module and it is a source bal file
-                    if (sourceFileModule.equals(this.module.moduleName().toString())
-                            && sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX)
+                    ModuleCoverage moduleCoverage;
+                    if (moduleCoverageMap.containsKey(sourceFileModule)) {
+                        moduleCoverage = moduleCoverageMap.get(sourceFileModule);
+                    } else {
+                        moduleCoverage = new ModuleCoverage();
+                    }
+                    // If file is a source bal file
+                    if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX)
                             && !sourceFileCoverage.getName().contains("tests/")) {
-                        List<Integer> coveredLines = new ArrayList<>();
-                        List<Integer> missedLines = new ArrayList<>();
-
-                        for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine(); i++) {
-                            ILine line = sourceFileCoverage.getLine(i);
-                            if (line.getStatus() == NOT_COVERED) {
-                                missedLines.add(i);
-                            } else if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
-                                coveredLines.add(i);
+                        if (moduleCoverage.containsSourceFile(sourceFileCoverage.getName())) {
+                            //update missed lines if they are covered now
+                            List<Integer> missedLines = moduleCoverage.getMissedLinesList(
+                                    sourceFileCoverage.getName());
+                            List<Integer> coveredLines =
+                                    moduleCoverage.getCoveredLinesList(
+                                            sourceFileCoverage.getName());
+                            List<Integer> existingMissedLines = new ArrayList<>(missedLines);
+                            if (coveredLines != null && missedLines != null) {
+                                boolean isCoverageUpdated = false;
+                                for (int missedLine : existingMissedLines) {
+                                    ILine line = sourceFileCoverage.getLine(missedLine);
+                                    if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
+                                        isCoverageUpdated = true;
+                                        missedLines.remove(Integer.valueOf(missedLine));
+                                        coveredLines.add(Integer.valueOf(missedLine));
+                                    }
+                                }
+                                if (isCoverageUpdated) {
+                                    Document document = getDocument(sourceFileCoverage.getName());
+                                    if (document != null) {
+                                        moduleCoverage.updateCoverage(document, coveredLines, missedLines);
+                                    }
+                                }
                             }
-                        }
-                        Document document = null;
-                        for (DocumentId documentId : module.documentIds()) {
-                            if (module.document(documentId).name().equals(sourceFileCoverage.getName())) {
-                                document = module.document(documentId);
+                        } else {
+                            //Evaluate from beginning
+                            List<Integer> coveredLines = new ArrayList<>();
+                            List<Integer> missedLines = new ArrayList<>();
+                            for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine();
+                                 i++) {
+                                ILine line = sourceFileCoverage.getLine(i);
+                                if (line.getStatus() == NOT_COVERED) {
+                                    missedLines.add(i);
+                                } else if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
+                                    coveredLines.add(i);
+                                }
                             }
+                            Document document = getDocument(sourceFileCoverage.getName());
+                            if (document != null) {
+                                moduleCoverage.addSourceFileCoverage(document, coveredLines,
+                                        missedLines);
+                            }
+                            moduleCoverageMap.put(sourceFileModule, moduleCoverage);
                         }
-                        moduleCoverage.addSourceFileCoverage(document, coveredLines, missedLines);
-
                     }
                 }
             }
@@ -208,4 +238,17 @@ public class CoverageReport {
 
         return filteredPathList;
     }
+
+    private Document getDocument(String sourceFileName) {
+        Document document = null;
+        for (Module moduleInstance : module.packageInstance().modules()) {
+            for (DocumentId documentId : moduleInstance.documentIds()) {
+                if (moduleInstance.document(documentId).name().equals(sourceFileName)) {
+                    document = moduleInstance.document(documentId);
+                }
+            }
+        }
+        return document;
+    }
+
 }
