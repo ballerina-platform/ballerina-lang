@@ -51,16 +51,6 @@ function getPowerOfN (float a, float n) returns (float) {
     return v;
 }
 
-function testInvocationWithArgVarargMix() {
-    testInvocationWithArgVarargMixWithoutDefaultableParam();
-    testInvocationWithArgVarargMixWithDefaultableParam();
-    testVarargEvaluationCount();
-    testMethodInvocationWithArgVarargMixWithoutDefaultableParam();
-    testMethodInvocationWithArgVarargMixWithDefaultableParam();
-    testMethodVarargEvaluationCount();
-    testVarargForParamsOfDifferentKinds();
-}
-
 function testInvocationWithArgVarargMixWithoutDefaultableParam() {
     var a = [true, false];
     var b = [2];
@@ -313,6 +303,44 @@ function testVarargForParamsOfDifferentKinds() {
 
 function takeParamsOfDifferentKinds(boolean b, int i, string... s) returns ArgsAsRecord {
     return {b, i, s};
+}
+
+function testArrayVarArg() {
+    int[2] a = [1, 2];
+    assertValueEquality(3, allInts(...a));
+
+    int[3] b = [1, 2, 3];
+    assertValueEquality(6, allInts(...b));
+
+    int[5] c = [1, 2, 3, 1, 2];
+    assertValueEquality(9, allInts(...c));
+
+    int[] d = [1, 1, 2, 2, 1];
+    assertValueEquality(7, intRestParam(...d));
+
+    assertValueEquality(3, intRestParam(...a));
+
+    assertValueEquality(6, intsWithStringRestParam(...a));
+}
+
+function allInts(int i, int j, int... k) returns int {
+    int tot = i + j;
+    foreach int x in k {
+        tot += x;
+    }
+    return tot;
+}
+
+function intsWithStringRestParam(int i, int j, string... k) returns int {
+    return 2 * (i + j + k.length());
+}
+
+function intRestParam(int... i) returns int {
+     int tot = 0;
+     foreach int x in i {
+         tot += x;
+     }
+     return tot;
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -25,6 +25,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -135,9 +136,23 @@ public class FuncInvocationExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test
-    public void testInvocationWithArgVarargMix() {
-        BRunUtil.invoke(funcInvocationExpResult, "testInvocationWithArgVarargMix");
+    @Test(dataProvider = "invocationWithArgVarargMixTestFunctions")
+    public void testInvocationWithArgVarargMix(String function) {
+        BRunUtil.invoke(funcInvocationExpResult, function);
+    }
+
+    @DataProvider(name = "invocationWithArgVarargMixTestFunctions")
+    public Object[][] invocationWithArgVarargMixTestFunctions() {
+        return new Object[][]{
+                {"testInvocationWithArgVarargMixWithoutDefaultableParam"},
+                {"testInvocationWithArgVarargMixWithDefaultableParam"},
+                {"testVarargEvaluationCount"},
+                {"testMethodInvocationWithArgVarargMixWithoutDefaultableParam"},
+                {"testMethodInvocationWithArgVarargMixWithDefaultableParam"},
+                {"testMethodVarargEvaluationCount"},
+                {"testVarargForParamsOfDifferentKinds"},
+                {"testArrayVarArg"}
+        };
     }
 
     @Test
@@ -168,6 +183,27 @@ public class FuncInvocationExprTest {
                       "incompatible types: expected '([float,boolean...]|record {| float f?; |})', found 'boolean[]'",
                       41, 23);
         validateError(funcInvocationNegative, i++, "incompatible types: expected 'boolean', found 'float'", 47, 20);
+        validateError(funcInvocationNegative, i++,
+                      "incompatible types: expected '([int,int,int...]|record {| int i; int j; |})', found 'int[1]'",
+                      59, 24);
+        validateError(funcInvocationNegative, i++,
+                      "incompatible types: expected '([int,int,int...]|record {| int i; int j; |})', found '" +
+                              "(int|string)[3]'", 62, 24);
+        validateError(funcInvocationNegative, i++,
+                      "incompatible types: expected '([int,int,string...]|record {| int i; int j; |})', found '" +
+                              "(int|string)[3]'", 63, 40);
+        validateError(funcInvocationNegative, i++,
+                      "incompatible types: expected '([int]|record {| int i; |})', found 'int[5]'", 66, 25);
+        validateError(funcInvocationNegative, i++,
+                      "incompatible types: expected '([int,int,string...]|record {| int i; int j; |})', found " +
+                              "'int[5]'", 69, 40);
+        validateError(funcInvocationNegative, i++,
+                      "incompatible types: expected '([int,int,string...]|record {| int i; int j; |})', found " +
+                              "'int[]'", 70, 40);
+        validateError(funcInvocationNegative, i++,
+                      "incompatible types: expected 'int[]', found '(int|string)[3]'", 73, 29);
+        validateError(funcInvocationNegative, i++,
+                      "incompatible types: expected 'int[]', found 'anydata[]'", 74, 29);
         Assert.assertEquals(i,  funcInvocationNegative.getErrorCount());
     }
 
