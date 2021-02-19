@@ -1200,6 +1200,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                      typeSymbol.name, env.enclPkg.symbol.pkgID, tableType,
                                                      env.scope.owner, tableTypeNode.pos, SOURCE);
         tableType.constraintPos = tableTypeNode.constraint.pos;
+        tableType.isTypeInlineDefined = tableTypeNode.isTypeInlineDefined;
 
         if (tableTypeNode.tableKeyTypeConstraint != null) {
             tableType.keyTypeConstraint = resolveTypeNode(tableTypeNode.tableKeyTypeConstraint.keyType, env);
@@ -1215,6 +1216,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         markParameterizedType(tableType, constraintType);
+        tableTypeNode.tableType = tableType;
 
         resultType = tableType;
     }

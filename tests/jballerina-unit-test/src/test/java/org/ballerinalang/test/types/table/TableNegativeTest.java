@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 24);
+        Assert.assertEquals(compileResult.getErrorCount(), 25);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -84,7 +84,9 @@ public class TableNegativeTest {
                 141, 25);
         validateError(compileResult, index++, "incompatible types: expected 'User', found '(User|Customer)?'",
                 147, 17);
-        validateError(compileResult, index, "incompatible types: expected 'Customer', found 'Customer?'",
+        validateError(compileResult, index++, "incompatible types: expected 'Customer', found 'Customer?'",
                 154, 25);
+        validateError(compileResult, index, "field 'name' used in key specifier must be a readonly field",
+                162, 36);
     }
 }
