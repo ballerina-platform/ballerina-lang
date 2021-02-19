@@ -38,6 +38,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -60,6 +61,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
@@ -72,7 +74,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         Symbol rhsTypeSymbol = ((DiagnosticProperty<Symbol>) props.get(FOUND_SYMBOL_INDEX)).value();
 
         // Skip, non-local var declarations
-        Node matchedNode = context.positionDetails().matchedNode();
+        Node matchedNode = positionDetails.matchedNode();
         if (matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
                 matchedNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
                 matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {

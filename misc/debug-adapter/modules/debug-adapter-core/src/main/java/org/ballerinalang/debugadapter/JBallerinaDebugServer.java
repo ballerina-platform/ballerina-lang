@@ -131,7 +131,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private String projectRoot;
     private ThreadReferenceProxyImpl activeThread;
     private SuspendedContext suspendedContext;
-    private DebugInstruction lastInstruction;
     private boolean terminationRequestReceived = false;
 
     private final AtomicLong nextVarReference = new AtomicLong();
@@ -285,7 +284,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (eventProcessor == null) {
             return CompletableFuture.completedFuture(threadsResponse);
         }
-        Map<Long, ThreadReferenceProxyImpl> threadsMap = getThreadsMap();
+        Map<Long, ThreadReferenceProxyImpl> threadsMap = getActiveStrandThreads();
         if (threadsMap == null) {
             return CompletableFuture.completedFuture(threadsResponse);
         }
@@ -302,7 +301,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
-        activeThread = getThreadsMap().get(args.getThreadId());
+        activeThread = getAllThreads().get(args.getThreadId());
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         stackTraceResponse.setStackFrames(new StackFrame[0]);
         try {
@@ -403,7 +402,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         context.getDebuggee().resume();
         ContinueResponse continueResponse = new ContinueResponse();
         continueResponse.setAllThreadsContinued(true);
-        lastInstruction = DebugInstruction.CONTINUE;
+        context.setLastInstruction(DebugInstruction.CONTINUE);
         return CompletableFuture.completedFuture(continueResponse);
     }
 
@@ -411,7 +410,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> next(NextArguments args) {
         prepareFor(DebugInstruction.STEP_OVER);
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OVER);
-        lastInstruction = DebugInstruction.STEP_OVER;
+        context.setLastInstruction(DebugInstruction.STEP_OVER);
         return CompletableFuture.completedFuture(null);
     }
 
@@ -419,7 +418,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> stepIn(StepInArguments args) {
         prepareFor(DebugInstruction.STEP_IN);
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
-        lastInstruction = DebugInstruction.STEP_IN;
+        context.setLastInstruction(DebugInstruction.STEP_IN);
         return CompletableFuture.completedFuture(null);
     }
 
@@ -429,10 +428,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return CompletableFuture.completedFuture(null);
     }
 
-    private void stepOut(long threadId) {
+    void stepOut(long threadId) {
         prepareFor(DebugInstruction.STEP_OUT);
         eventProcessor.sendStepRequest(threadId, StepRequest.STEP_OUT);
-        lastInstruction = DebugInstruction.STEP_OUT;
+        context.setLastInstruction(DebugInstruction.STEP_OUT);
     }
 
     public void sendOutput(String output, String category) {
@@ -813,27 +812,46 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * Thread objects that have not yet been started (see {@link java.lang.Thread#start Thread.start()})
      * and thread objects that have completed their execution are not included in the returned list.
      */
-    Map<Long, ThreadReferenceProxyImpl> getThreadsMap() {
+    Map<Long, ThreadReferenceProxyImpl> getAllThreads() {
         if (context.getDebuggee() == null) {
             return null;
         }
         Collection<ThreadReference> threadReferences = context.getDebuggee().getVirtualMachine().allThreads();
-        Map<Long, ThreadReferenceProxyImpl> breakPointThreads = new HashMap<>();
+        Map<Long, ThreadReferenceProxyImpl> threadsMap = new HashMap<>();
 
         // Filter thread references which are suspended, whose thread status is running, and which represents an active
         // ballerina strand.
         for (ThreadReference threadReference : threadReferences) {
+            threadsMap.put(threadReference.uniqueID(), new ThreadReferenceProxyImpl(context.getDebuggee(),
+                    threadReference));
+        }
+        return threadsMap;
+    }
+
+    /**
+     * Returns a map of thread instances which correspond to an active ballerina strand, against their unique ID.
+     */
+    private Map<Long, ThreadReferenceProxyImpl> getActiveStrandThreads() {
+        Map<Long, ThreadReferenceProxyImpl> allThreads = getAllThreads();
+        if (allThreads == null) {
+            return null;
+        }
+
+        Map<Long, ThreadReferenceProxyImpl> balStrandThreads = new HashMap<>();
+        // Filter thread references which are suspended, whose thread status is running, and which represents an active
+        // ballerina strand.
+        allThreads.forEach((id, threadProxy) -> {
+            ThreadReference threadReference = threadProxy.getThreadReference();
             if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
                     && !threadReference.name().equals("Reference Handler")
                     && !threadReference.name().equals("Signal Dispatcher")
                     && threadReference.isSuspended()
                     && isBalStrand(threadReference)
             ) {
-                breakPointThreads.put(threadReference.uniqueID(), new ThreadReferenceProxyImpl(context.getDebuggee(),
-                        threadReference));
+                balStrandThreads.put(id, new ThreadReferenceProxyImpl(context.getDebuggee(), threadReference));
             }
-        }
-        return breakPointThreads;
+        });
+        return balStrandThreads;
     }
 
     /**
