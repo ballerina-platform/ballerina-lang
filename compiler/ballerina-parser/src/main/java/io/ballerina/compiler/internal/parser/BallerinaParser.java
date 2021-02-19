@@ -11638,8 +11638,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseReceiveField() {
         switch (peek().kind) {
             case FUNCTION_KEYWORD:
-                STNode defaultKeyword = consume();
-                return STNodeFactory.createSimpleNameReferenceNode(defaultKeyword);
+                STNode functionKeyword = consume();
+                return STNodeFactory.createSimpleNameReferenceNode(functionKeyword);
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseIdentifier(ParserRuleContext.RECEIVE_FIELD_NAME);
                 return createQualifiedReceiveField(identifier);
