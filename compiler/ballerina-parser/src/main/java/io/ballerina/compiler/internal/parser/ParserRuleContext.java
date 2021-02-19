@@ -659,6 +659,7 @@ public enum ParserRuleContext {
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),
     TYPEDESC_RHS("type-desc-rhs"),
+    FUNC_TYPEDESC_RHS("func-typedesc-rhs"),
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
     KEY_CONSTRAINTS_RHS("key-constraints-rhs"),

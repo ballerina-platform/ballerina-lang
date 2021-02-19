@@ -1047,6 +1047,36 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse optional relative resource path.
+     *
+     * @param isObjectMember Whether object member or not
+     * @return Parsed node
+     */
+    private STNode parseOptionalRelativePath(boolean isObjectMember) {
+        STNode resourcePath;
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case DOT_TOKEN:
+            case IDENTIFIER_TOKEN:
+            case OPEN_BRACKET_TOKEN:
+                resourcePath = parseRelativeResourcePath();
+                break;
+            case OPEN_PAREN_TOKEN:
+                return STNodeFactory.createEmptyNodeList();
+            default:
+                recover(nextToken, ParserRuleContext.OPTIONAL_RELATIVE_PATH);
+                return parseOptionalRelativePath(isObjectMember);
+        }
+
+        if (!isObjectMember) {
+            addInvalidNodeToNextToken(resourcePath, DiagnosticErrorCode.ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION);
+            return STNodeFactory.createEmptyNodeList();
+        }
+
+        return resourcePath;
+    }
+
+    /**
      * Parse function definition for the function type descriptor.
      * <p>
      * <code>
@@ -1098,30 +1128,22 @@ public class BallerinaParser extends AbstractParser {
                                               boolean isObjectTypeDesc) {
         switch (peek().kind) {
             case OPEN_PAREN_TOKEN:
-                STNode resourcePath = STNodeFactory.createEmptyNodeList();
-                return parseFunctionDefinition(metadata, visibilityQualifier, resourcePath, qualifiers, functionKeyword,
-                                               isObjectMember, isObjectTypeDesc, name);
             case DOT_TOKEN:
             case IDENTIFIER_TOKEN:
             case OPEN_BRACKET_TOKEN:
-                resourcePath = parseRelativeResourcePath();
-                if (!isObjectMember) {
-                    addInvalidNodeToNextToken(resourcePath,
-                                              DiagnosticErrorCode.ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION);
-                    resourcePath = STNodeFactory.createEmptyNodeList();
-                }
+                STNode resourcePath = parseOptionalRelativePath(isObjectMember);
                 return parseFunctionDefinition(metadata, visibilityQualifier, resourcePath, qualifiers, functionKeyword,
                                                isObjectMember, isObjectTypeDesc, name);
             case EQUAL_TOKEN:
             case SEMICOLON_TOKEN:
                 endContext();
-                functionKeyword = validateVisibilityQualifiersOfFunctionType(visibilityQualifier, qualifiers,
-                                                                             functionKeyword, isObjectMember);
-                List<STNode> extractQualifiersList = extractQualifiersOfFunctionType(qualifiers, isObjectMember,
-                                                                                     isObjectTypeDesc);
-                STNode qualifierNodeList = createFuncTypeQualNodeList(qualifiers, false);
-                STNode typeDesc = STNodeFactory.createFunctionTypeDescriptorNode(qualifierNodeList, functionKeyword,
-                                                                                 STNodeFactory.createEmptyNode());
+                functionKeyword = validateVisibilityQualifierOfFuncType(visibilityQualifier, qualifiers,
+                                                                        functionKeyword, isObjectMember);
+                List<STNode> extractQualifiersList = extractVarDeclOrObjectFieldQualifiers(qualifiers, isObjectMember,
+                                                                                           isObjectTypeDesc);
+                STNode typeDesc = createFunctionTypeDescriptor(visibilityQualifier, qualifiers, functionKeyword,
+                                                               STNodeFactory.createEmptyNode(), isObjectMember, false);
+
                 if (isObjectMember) {
                     STNode objectFieldQualNodeList = STNodeFactory.createNodeList(extractQualifiersList);
                     return parseObjectFieldRhs(metadata, visibilityQualifier, objectFieldQualNodeList, typeDesc, name,
@@ -1569,16 +1591,16 @@ public class BallerinaParser extends AbstractParser {
         return funcDef;
     }
 
-    private List<STNode> extractQualifiersOfFunctionType(List<STNode> qualifierList, boolean isObjectMember,
-                                                         boolean isObjectTypeDesc) {
+    private List<STNode> extractVarDeclOrObjectFieldQualifiers(List<STNode> qualifierList, boolean isObjectMember,
+                                                               boolean isObjectTypeDesc) {
         if (isObjectMember) {
             return extractObjectFieldQualifiers(qualifierList, isObjectTypeDesc);
         }
         return extractVarDeclQualifiers(qualifierList);
     }
 
-    private STNode validateVisibilityQualifiersOfFunctionType(STNode visibilityQualifier, List<STNode> qualifierList,
-                                                              STNode functionKeyword, boolean isObjectMember) {
+    private STNode validateVisibilityQualifierOfFuncType(STNode visibilityQualifier, List<STNode> qualifierList,
+                                                         STNode functionKeyword, boolean isObjectMember) {
         if (!isObjectMember && visibilityQualifier != null) {
             STToken invalidQualifier = (STToken) visibilityQualifier;
             if (qualifierList.isEmpty()) {
@@ -1593,17 +1615,23 @@ public class BallerinaParser extends AbstractParser {
         return functionKeyword;
     }
 
+    private STNode createFunctionTypeDescriptor(STNode visibilityQualifier, List<STNode> qualifierList,
+                                               STNode functionKeyword, STNode funcSignature, boolean isObjectMember,
+                                               boolean hasFuncSignature) {
+        functionKeyword = validateVisibilityQualifierOfFuncType(visibilityQualifier, qualifierList, functionKeyword,
+                                                                isObjectMember);
+        STNode qualifierNodeList = createFuncTypeQualNodeList(qualifierList, hasFuncSignature);
+        return STNodeFactory.createFunctionTypeDescriptorNode(qualifierNodeList, functionKeyword, funcSignature);
+    }
+
     private STNode parseVarDeclWithFunctionType(STNode metadata, STNode visibilityQualifier, List<STNode> qualifierList,
                                                 STNode functionKeyword, STNode funcSignature, boolean isObjectMember,
                                                 boolean isObjectTypeDesc, boolean hasFuncSignature) {
         switchContext(ParserRuleContext.VAR_DECL_STMT);
-        functionKeyword = validateVisibilityQualifiersOfFunctionType(visibilityQualifier, qualifierList,
-                                                                     functionKeyword, isObjectMember);
-        List<STNode> extractQualifiersList = extractQualifiersOfFunctionType(qualifierList, isObjectMember,
-                                                                             isObjectTypeDesc);
-        STNode qualifierNodeList = createFuncTypeQualNodeList(qualifierList, hasFuncSignature);
-        STNode typeDesc = STNodeFactory.createFunctionTypeDescriptorNode(qualifierNodeList, functionKeyword,
-                                                                         funcSignature);
+        List<STNode> extractQualifiersList = extractVarDeclOrObjectFieldQualifiers(qualifierList, isObjectMember,
+                                                                                   isObjectTypeDesc);
+        STNode typeDesc = createFunctionTypeDescriptor(visibilityQualifier, qualifierList, functionKeyword,
+                                                       funcSignature, isObjectMember, hasFuncSignature);
 
         // Check if it is a complex type desc starting with function type.
         typeDesc = parseComplexTypeDescriptor(typeDesc,
