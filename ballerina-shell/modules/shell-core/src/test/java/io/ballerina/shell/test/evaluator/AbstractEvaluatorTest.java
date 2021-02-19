@@ -56,7 +56,7 @@ public abstract class AbstractEvaluatorTest {
             evaluator.initialize();
             evaluator.evaluateDeclarationFile(TestUtils.getPath(TEST_HEADER));
         } catch (Exception e) {
-            Assert.fail(evaluator.diagnostics().toString());
+            Assert.fail(evaluator.diagnostics().toString(), e);
         }
 
         TestSession testSession = TestUtils.loadTestCases(fileName, TestSession.class);
