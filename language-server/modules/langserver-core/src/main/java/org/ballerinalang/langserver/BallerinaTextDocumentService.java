@@ -49,6 +49,7 @@ import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.util.rename.RenameUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -467,7 +468,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
             WorkspaceEdit workspaceEdit = new WorkspaceEdit();
-            Map<String, List<TextEdit>> changes = new HashMap<>();
 
             try {
                 ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
@@ -475,16 +475,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         this.serverContext,
                         params.getPosition());
 
-                Map<Module, List<io.ballerina.tools.diagnostics.Location>> locationMap = 
-                        ReferencesUtil.getReferences(context);
-                Path projectRoot = context.workspace().projectRoot(context.filePath());
-
-                locationMap.forEach((module, locations) ->
-                        locations.forEach(location -> {
-                            String uri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
-                            List<TextEdit> textEdits = changes.computeIfAbsent(uri, k -> new ArrayList<>());
-                            textEdits.add(new TextEdit(ReferencesUtil.getRange(location), params.getNewName()));
-                        }));
+                Map<String, List<TextEdit>> changes = RenameUtil.rename(context, params.getNewName());
+                workspaceEdit.setChanges(changes);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
             } catch (Throwable e) {
@@ -492,7 +484,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 this.clientLogger.logError(msg, e, params.getTextDocument(), params.getPosition());
             }
 
-            workspaceEdit.setChanges(changes);
             return workspaceEdit;
         });
     }

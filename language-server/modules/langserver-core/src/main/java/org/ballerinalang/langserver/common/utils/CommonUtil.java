@@ -50,6 +50,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
+import org.ballerinalang.langserver.common.constants.PatternConstants;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -690,6 +691,20 @@ public class CommonUtil {
             newName = generateName(++suffix, names);
         }
         return newName;
+    }
+
+    /**
+     * Checks if the provided identifier is valid as per the ballerina specification
+     *
+     * @param identifier Identifier to be checked for validity
+     * @return True, if the identifier is valid as per the ballerina specification
+     */
+    public static boolean isIdentifierValid(String identifier) {
+        if (identifier == null || identifier.isEmpty()) {
+            return false;
+        }
+
+        return identifier.matches(PatternConstants.IDENTIFIER_PATTERN);
     }
 
     /**
