@@ -58,8 +58,6 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     private List<ImportDeclarationNode> currentDocImports;
 
-    private Module currentModule;
-    
     private final LanguageServerContext languageServerContext;
 
     AbstractDocumentServiceContext(LSOperation operation,
@@ -140,11 +138,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     @Override
     public Optional<Module> currentModule() {
-        if (this.currentModule == null) {
-            this.currentModule = this.workspaceManager.module(this.filePath).orElse(null);
-        }
-
-        return Optional.ofNullable(this.currentModule);
+        return this.workspaceManager.module(this.filePath);
     }
 
     @Override
