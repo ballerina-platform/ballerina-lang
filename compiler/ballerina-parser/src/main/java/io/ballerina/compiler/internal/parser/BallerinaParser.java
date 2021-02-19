@@ -7031,6 +7031,7 @@ public class BallerinaParser extends AbstractParser {
             case IDENTIFIER_TOKEN: // Binding pattern starts with identifier
             case OPEN_BRACE_TOKEN: // Mapping binding pattern
             case ERROR_KEYWORD: // Error binding pattern
+                endContext(); // End `SERVICE_DECL` context
                 typeDesc = modifyObjectTypeDescWithALeadingQualifier(typeDesc, serviceKeyword);
                 STNodeList qualifiers = (STNodeList) serviceDeclQualNodeList;
                 if (!qualifiers.isEmpty()) {
@@ -12317,7 +12318,7 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidQualifierList(qualifiers);
                 return parseTransactionStatement(transactionKeyword);
             case COLON_TOKEN:
-                if (peek(2).kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                if (getNextNextToken().kind == SyntaxKind.IDENTIFIER_TOKEN) {
                     STNode typeDesc = parseQualifiedIdentifierWithPredeclPrefix(transactionKeyword, false);
                     return parseVarDeclTypeDescRhs(typeDesc, annots, qualifiers, true, false);
                 }

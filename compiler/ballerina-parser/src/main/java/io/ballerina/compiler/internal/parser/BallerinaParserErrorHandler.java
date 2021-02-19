@@ -733,7 +733,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.COLON, ParserRuleContext.TYPEDESC_RHS };
 
     private static final ParserRuleContext[] TRANSACTION_STMT_RHS_OR_TYPE_REF =
-            { ParserRuleContext.TYPE_REF_COLON , ParserRuleContext.TRANSACTION_STMT_TRANSACTION_KEYWORD_RHS};
+            { ParserRuleContext.TYPE_REF_COLON, ParserRuleContext.TRANSACTION_STMT_TRANSACTION_KEYWORD_RHS };
 
     private static final ParserRuleContext[] TABLE_CONS_OR_QUERY_EXPR_OR_VAR_REF =
             { ParserRuleContext.VAR_REF_COLON, ParserRuleContext.EXPRESSION_START_TABLE_KEYWORD_RHS };
