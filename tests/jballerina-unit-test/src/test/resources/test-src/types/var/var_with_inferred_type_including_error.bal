@@ -20,12 +20,20 @@ function foo() returns [int, int|error] => [1, 1];
 var [a, ...b] = bar();
 function bar() returns [error, error...] => [error("one"), error("two"), error("three")];
 
+var [x2, y2] = foo();
+
+var [a2, ...b2] = bar();
+
 var m = error("Error!");
 
 function testVarInVarDeclWithTypeIncludingError() {
     var [x1, y1] = foo();
 
     var [a1, ...b1] = bar();
+
+    var [x2, y2] = foo();
+
+    var [a2, ...b2] = bar();
 
     var m1 = error("Error!");
 
@@ -45,8 +53,26 @@ function baz() returns record {[error|boolean, int] q; error r; MyError s; int t
 
 string str = let var {q: [e, i], r, s: error MyError(err = err), t} = baz() in
     (<error> e).message() + r.message() + err.message() + t.toString();
+string str2 = let var {q: [e, i], r, s: error MyError(err = err), t} = baz() in t.toString();
 
 function testVarInBindingPatternWithTypeIncludingError() {
-    string str2 = let var {q: [e, i], r, s: error MyError(err = err), t} = baz() in
+    string str3 = let var {q: [e, i], r, s: error MyError(err = err), t} = baz() in
         (<error> e).message() + r.message() + err.message() + t.toString();
+    string str4 = let var {q: [e, i], r, s: error MyError(err = err), t} = baz() in t.toString();
+}
+
+function testForEachLoopWithError() {
+    foreach var e in errs {
+
+    }
+
+    int tot = 0;
+    foreach error e in errs {
+        tot += 1;
+    }
+
+    tot = 0;
+    foreach var error(m, c) in errs {
+        tot += 1;
+    }
 }

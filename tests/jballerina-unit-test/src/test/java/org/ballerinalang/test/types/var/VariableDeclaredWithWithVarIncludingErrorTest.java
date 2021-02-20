@@ -43,22 +43,14 @@ public class VariableDeclaredWithWithVarIncludingErrorTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/types/var/var_with_inferred_type_including_error_negative.bal");
         int index = 0;
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("y"), 17, 9);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("a"), 20, 6);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("m"), 23, 1);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("y1"), 26, 14);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("a1"), 28, 10);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("m1"), 30, 5);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e1"), 33, 20);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e2"), 33, 43);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e1"), 36, 25);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e3"), 36, 76);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e"), 44, 27);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("r"), 44, 34);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("err"), 44, 60);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e"), 47, 32);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("r"), 47, 39);
-        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("err"), 47, 65);
+        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("a"), 19, 1);
+        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("m"), 21, 1);
+        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("a1"), 25, 5);
+        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("m1"), 27, 5);
+        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e1"), 30, 20);
+        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e2"), 30, 43);
+        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e1"), 33, 25);
+        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e3"), 33, 76);
         assertEquals(index, negativeResult.getErrorCount());
     }
 

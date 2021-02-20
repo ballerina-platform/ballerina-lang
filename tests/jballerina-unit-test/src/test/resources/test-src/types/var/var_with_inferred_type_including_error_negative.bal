@@ -14,18 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-var [x, y] = foo();
 function foo() returns [int, int|error] => [1, 1];
-
-var [a, ...b] = bar();
-function bar() returns [error, error...] => [error("one"), error("two"), error("three")];
+var [x, y] = foo();
+var a = y;
 
 var m = error("Error!");
 
 function testVarInVarDeclWithTypeIncludingErrorNegative() {
     var [x1, y1] = foo();
-
-    var [a1, ...b1] = bar();
+    var a1 = y1;
 
     var m1 = error("Error!");
 }
@@ -40,9 +37,3 @@ type MyError error<record {error err;}>;
 
 function baz() returns record {[error|boolean, int] q; error r; MyError s; int t;} =>
     {q: [error("four"), 1], r: error("five"), s: error MyError("five", err = error("six")), t: 101};
-
-string str = let var {q: [e, i], r, s: error MyError(err = err), t} = baz() in t.toString();
-
-function testVarInBindingPatternWithTypeIncludingErrorNegative() {
-    string str2 = let var {q: [e, i], r, s: error MyError(err = err), t} = baz() in t.toString();
-}
