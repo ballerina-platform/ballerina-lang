@@ -69,7 +69,8 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
         }
 
         names = new HashSet<>();
-        rootNode.accept(new VariableNameFinder(names));
+        rootNode.typedBindingPattern().bindingPattern()
+                .accept(new VariableNameFinder(names));
         return names;
     }
 
