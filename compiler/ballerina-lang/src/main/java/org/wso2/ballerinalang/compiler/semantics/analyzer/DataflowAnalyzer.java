@@ -532,7 +532,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         try {
             if (variable.expr != null) {
                 if (variable.isDeclaredWithVar) {
-                    addVarsWithInferredTypeIncludingError(variable);
+                    addVarIfInferredTypeIncludesError(variable);
                 }
 
                 analyzeNode(variable.expr, env);
@@ -1698,27 +1698,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         analyzeNode(bLangTupleVariable.typeNode, env);
-
-        boolean hasExpr = bLangTupleVariable.expr != null;
-        if (hasExpr) {
+        if (bLangTupleVariable.expr != null) {
             this.currDependentSymbol.push(bLangTupleVariable.symbol);
             analyzeNode(bLangTupleVariable.expr, env);
             this.currDependentSymbol.pop();
-
-            if (!bLangTupleVariable.isDeclaredWithVar) {
-                return;
-            }
+            return;
         }
-
-        boolean nonNestedBindingPattern = isNonNestedBindingPattern(bLangTupleVariable.parent);
 
         for (BLangVariable member: bLangTupleVariable.memberVariables) {
             if (member.getKind() == NodeKind.VARIABLE) {
-                addVarsWithInferredTypeIncludingError((BLangSimpleVariable) member);
-
-                if (!hasExpr && nonNestedBindingPattern) {
-                    addUninitializedVar(member);
-                }
+                addUninitializedVar(member);
                 continue;
             }
             analyzeNode(member, env);
@@ -1726,11 +1715,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         BLangSimpleVariable restVar = (BLangSimpleVariable) bLangTupleVariable.restVariable;
         if (restVar != null) {
-            addVarsWithInferredTypeIncludingError(restVar);
-
-            if (!hasExpr && nonNestedBindingPattern) {
-                addUninitializedVar(restVar);
-            }
+            addUninitializedVar(restVar);
         }
     }
 
@@ -1742,28 +1727,17 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         analyzeNode(bLangRecordVariable.typeNode, env);
-
-        boolean hasExpr = bLangRecordVariable.expr != null;
-        if (hasExpr) {
+        if (bLangRecordVariable.expr != null) {
             this.currDependentSymbol.push(bLangRecordVariable.symbol);
             analyzeNode(bLangRecordVariable.expr, env);
             this.currDependentSymbol.pop();
-
-            if (!bLangRecordVariable.isDeclaredWithVar) {
-                return;
-            }
+            return;
         }
-
-        boolean nonNestedBindingPattern = isNonNestedBindingPattern(bLangRecordVariable.parent);
 
         for (BLangRecordVariable.BLangRecordVariableKeyValue memberKeyValue : bLangRecordVariable.variableList) {
             BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
             if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
-                addVarsWithInferredTypeIncludingError((BLangSimpleVariable) valueBindingPattern);
-
-                if (!hasExpr && nonNestedBindingPattern) {
-                    addUninitializedVar(valueBindingPattern);
-                }
+                addUninitializedVar(valueBindingPattern);
                 continue;
             }
             analyzeNode(valueBindingPattern, env);
@@ -1771,11 +1745,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         BLangSimpleVariable restParam = (BLangSimpleVariable) bLangRecordVariable.restParam;
         if (restParam != null) {
-            addVarsWithInferredTypeIncludingError(restParam);
-
-            if (!hasExpr && nonNestedBindingPattern) {
-                addUninitializedVar(restParam);
-            }
+            addUninitializedVar(restParam);
         }
     }
 
@@ -1787,22 +1757,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
         analyzeNode(bLangErrorVariable.typeNode, env);
-
-        boolean hasExpr = bLangErrorVariable.expr != null;
-        if (hasExpr) {
+        if (bLangErrorVariable.expr != null) {
             this.currDependentSymbol.push(bLangErrorVariable.symbol);
             analyzeNode(bLangErrorVariable.expr, env);
             this.currDependentSymbol.pop();
-
-            if (!bLangErrorVariable.isDeclaredWithVar) {
-                return;
-            }
+            return;
         }
 
-        boolean nonNestedBindingPattern = isNonNestedBindingPattern(bLangErrorVariable.parent);
-
         BLangSimpleVariable message = bLangErrorVariable.message;
-        if (message != null && !hasExpr && nonNestedBindingPattern) {
+        if (message != null) {
             addUninitializedVar(message);
         }
 
@@ -1814,11 +1777,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         for (BLangErrorVariable.BLangErrorDetailEntry memberKeyValue : bLangErrorVariable.detail) {
             BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
             if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
-                addVarsWithInferredTypeIncludingError((BLangSimpleVariable) valueBindingPattern);
-
-                if (!hasExpr && nonNestedBindingPattern) {
-                    addUninitializedVar(valueBindingPattern);
-                }
+                addUninitializedVar(valueBindingPattern);
                 continue;
             }
             analyzeNode(valueBindingPattern, env);
@@ -1826,11 +1785,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         BLangSimpleVariable restDetail = bLangErrorVariable.restDetail;
         if (restDetail != null) {
-            addVarsWithInferredTypeIncludingError(restDetail);
-
-            if (!hasExpr && nonNestedBindingPattern) {
-                addUninitializedVar(restDetail);
-            }
+            addUninitializedVar(restDetail);
         }
     }
 
@@ -2101,7 +2056,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void addVarsWithInferredTypeIncludingError(BLangSimpleVariable variable) {
+    private void addVarIfInferredTypeIncludesError(BLangSimpleVariable variable) {
         BType type = variable.type;
         if (type == null) {
             // Type can be null when the rest binding pattern is `..._`.
@@ -2113,10 +2068,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 typeIntersection != symTable.semanticError && typeIntersection != symTable.noType) {
             unusedErrorVarsDeclaredWithVar.put(variable.symbol, variable.pos);
         }
-    }
-
-    private boolean isNonNestedBindingPattern(BLangNode parent) {
-        return parent != null && (parent.getKind() == NodeKind.VARIABLE_DEF || parent.getKind() == NodeKind.PACKAGE);
     }
 
     private enum InitStatus {
