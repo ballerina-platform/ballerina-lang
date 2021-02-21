@@ -1474,11 +1474,14 @@ public class Desugar extends BLangNodeVisitor {
             //     t[t.length()] = <T> tupleLiteral[$foreach$i];
             // }
             BLangExpression tupleExpr = parentTupleVariable.expr;
+            // Make sure the tupleExpr rest type can hold parent tuple's rest types
+            if (tupleExpr.type.tag == TypeTags.TUPLE) {
+                ((BTupleType) tupleExpr.type).restType = ((BArrayType) parentTupleVariable.restVariable.type).eType;
+            }
             BLangSimpleVarRef arrayVarRef = ASTBuilderUtil.createVariableRef(pos, arrayVar.symbol);
 
             BLangLiteral startIndexLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-            startIndexLiteral.value = (long) (isTupleType ? ((BTupleType) parentTupleVariable.type).tupleTypes.size()
-                    : parentTupleVariable.memberVariables.size());
+            startIndexLiteral.value = (long) parentTupleVariable.memberVariables.size();
             startIndexLiteral.type = symTable.intType;
             BLangInvocation lengthInvocation = createLengthInvocation(pos, tupleExpr);
             BLangInvocation intRangeInvocation = replaceWithIntRange(pos, startIndexLiteral,

@@ -2008,28 +2008,57 @@ public class SymbolEnter extends BLangNodeVisitor {
                 case TypeTags.TUPLE:
                     tupleTypeNode = (BTupleType) varNode.type;
                     break;
+                case TypeTags.ARRAY:
+                    List<BType> tupleTypes = new ArrayList<>();
+                    BArrayType arrayType = (BArrayType) varNode.type;
+                    for (int i = 0; i < arrayType.size; i++) {
+                        tupleTypes.add(arrayType.eType);
+                    }
+                    tupleTypeNode = new BTupleType(tupleTypes);
+                    break;
                 default:
                     dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
                     return false;
             }
         }
 
-        if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()
-                || (tupleTypeNode.restType == null && varNode.restVariable != null)
-                ||  (tupleTypeNode.restType != null && varNode.restVariable == null)) {
+        if (varNode.memberVariables.size() > tupleTypeNode.tupleTypes.size()) {
             dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN);
             return false;
         }
 
         int ignoredCount = 0;
         List<BLangVariable> memberVariables = new ArrayList<>(varNode.memberVariables);
+        int tupleNodeMemCount = tupleTypeNode.tupleTypes.size();
+        int varNodeMemCount = varNode.memberVariables.size();
+        BType restType = tupleTypeNode.restType;
         if (varNode.restVariable != null) {
             memberVariables.add(varNode.restVariable);
+            if (varNodeMemCount < tupleNodeMemCount) {
+                LinkedHashSet<BType> varTypes = new LinkedHashSet<>();
+                for (int i = varNodeMemCount; i < tupleNodeMemCount; i++) {
+                    varTypes.add(tupleTypeNode.tupleTypes.get(i));
+                }
+                if (restType != null) {
+                    varTypes.add(restType);
+                }
+                restType = BUnionType.create(null, varTypes);
+            }
         }
-        for (int i = 0; i < memberVariables.size(); i++) {
+        int memVarCount = memberVariables.size();
+        for (int i = 0; i < memVarCount; i++) {
             BLangVariable var = memberVariables.get(i);
-            BType type = (i <= tupleTypeNode.tupleTypes.size() - 1) ? tupleTypeNode.tupleTypes.get(i) :
-                    new BArrayType(tupleTypeNode.restType);
+            BType type;
+            if (varNode.restVariable != null && i == memVarCount - 1) {
+                if (restType != null) {
+                    type = new BArrayType(restType);
+                } else {
+                    LinkedHashSet<BType> varTypes = new LinkedHashSet<>(tupleTypeNode.tupleTypes);
+                    type = new BArrayType(BUnionType.create(null, varTypes));
+                }
+            } else {
+                type = tupleTypeNode.tupleTypes.get(i);
+            }
             if (var.getKind() == NodeKind.VARIABLE) {
                 // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
                 BLangSimpleVariable simpleVar = (BLangSimpleVariable) var;

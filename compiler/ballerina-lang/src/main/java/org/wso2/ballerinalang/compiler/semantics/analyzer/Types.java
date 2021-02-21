@@ -1222,6 +1222,11 @@ public class Types {
         BTupleType lhsTupleType = (BTupleType) target;
         BTupleType rhsTupleType = (BTupleType) source;
 
+        if ((!lhsTupleType.tupleTypes.isEmpty() && lhsTupleType.tupleTypes.stream().allMatch(this::isNoType)) ||
+                (lhsTupleType.restType != null && lhsTupleType.restType.tag == TypeTags.NONE)) {
+            return true;
+        }
+
         if (lhsTupleType.restType == null && rhsTupleType.restType != null) {
             return false;
         }
@@ -1248,6 +1253,19 @@ public class Types {
             }
         }
         return true;
+    }
+
+    private boolean isNoType(BType type) {
+        switch (type.tag) {
+            case TypeTags.NONE:
+                return true;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) type;
+                if (tupleType.tupleTypes.stream().allMatch(this::isNoType)) {
+                    return true;
+                }
+        }
+        return false;
     }
 
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
@@ -1283,6 +1301,15 @@ public class Types {
                 return false;
             }
 
+            if (target.tupleTypes.stream().allMatch(this::isNoType)) {
+                // if declared with var
+                return true;
+            }
+        }
+
+        if (target.restType != null && target.restType.tag == TypeTags.NONE) {
+            // if declared with var
+            return true;
         }
 
         List<BType> targetTypes = new ArrayList<>(target.tupleTypes);
