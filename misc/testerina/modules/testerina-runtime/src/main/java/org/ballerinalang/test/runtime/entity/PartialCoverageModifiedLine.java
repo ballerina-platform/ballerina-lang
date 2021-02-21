@@ -22,6 +22,7 @@ import org.jacoco.core.analysis.ILine;
 
 /**
  * Represents a line modified to consider partially covered coverage info as fully covered.
+ *
  * @since 2.0.0
  */
 public class PartialCoverageModifiedLine implements ILine {

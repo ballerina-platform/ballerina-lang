@@ -21,6 +21,7 @@ import org.jacoco.core.analysis.ICounter;
 
 /**
  * Represents a counter that eliminates partially covered counter status and coverts it to fully covered status.
+ *
  * @since 2.0.0
  */
 public class PartialCoverageModifiedCounter implements ICounter {

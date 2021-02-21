@@ -71,6 +71,7 @@ public class CoverageReport {
     public CoverageReport(Module module) throws IOException {
         this.module = module;
         this.target = new Target(module.project().sourceRoot());
+
         this.coverageDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR);
         this.title = coverageDir.toFile().getName();
         this.classesDirectory = coverageDir.resolve(TesterinaConstants.BIN_DIR);
@@ -89,6 +90,7 @@ public class CoverageReport {
         String version = this.module.packageInstance().packageVersion().toString();
 
         List<Path> filteredPathList;
+
         if (!module.testDocumentIds().isEmpty()) {
             filteredPathList =
                     filterPaths(jarResolver.getJarFilePathsRequiredForTestExecution(this.module.moduleName()));
@@ -96,6 +98,7 @@ public class CoverageReport {
             filteredPathList =
                     filterPaths(jarResolver.getJarFilePathsRequiredForExecution());
         }
+
         if (!filteredPathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
             for (Path jarPath : filteredPathList) {
@@ -109,6 +112,7 @@ public class CoverageReport {
                     return null;
                 }
             }
+
             execFileLoader.load(executionDataFile.toFile());
             final CoverageBuilder coverageBuilder = analyzeStructure();
             ModuleCoverage moduleCoverage = new ModuleCoverage();
@@ -135,31 +139,37 @@ public class CoverageReport {
     }
 
     private void createXMLReport(IBundleCoverage bundleCoverage) throws IOException {
-        final XMLFormatter xmlFormatter = new XMLFormatter();
-        final File reportFile = new File(target.getReportPath().resolve(
+        XMLFormatter xmlFormatter = new XMLFormatter();
+        File reportFile = new File(target.getReportPath().resolve(
                 this.module.moduleName().toString()).resolve(REPORT_XML_FILE).toString());
         reportFile.getParentFile().mkdirs();
+
         try (FileOutputStream fileOutputStream = new FileOutputStream(reportFile)) {
             IReportVisitor visitor = xmlFormatter.createVisitor(fileOutputStream);
             visitor.visitInfo(execFileLoader.getSessionInfoStore().getInfos(),
                     execFileLoader.getExecutionDataStore().getContents());
+
             visitor.visitBundle(bundleCoverage, null);
+
             visitor.visitEnd();
         }
     }
 
     private void createReport(final IBundleCoverage bundleCoverage, ModuleCoverage moduleCoverage) {
         boolean containsSourceFiles = true;
+
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
             if (TesterinaConstants.DOT.equals(this.module.moduleName())) {
                 containsSourceFiles = packageCoverage.getName().isEmpty();
             }
+
             if (containsSourceFiles) {
                 for (ISourceFileCoverage sourceFileCoverage : packageCoverage.getSourceFiles()) {
                     // Extract the Module name individually for each source file
                     // This is done since some source files come from other modules
                     // sourceFileCoverage : "<orgname>/<moduleName>:<version>
                     String sourceFileModule = decodeIdentifier(sourceFileCoverage.getPackageName().split("/")[1]);
+
                     // Only add the source files that belong to the same module and it is a source bal file
                     if (sourceFileModule.equals(this.module.moduleName().toString())
                             && sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX)
@@ -182,6 +192,7 @@ public class CoverageReport {
                             }
                         }
                         moduleCoverage.addSourceFileCoverage(document, coveredLines, missedLines);
+
                     }
                 }
             }
@@ -190,12 +201,14 @@ public class CoverageReport {
 
     private List<Path> filterPaths(Collection<Path> pathCollection) {
         List<Path> filteredPathList = new ArrayList<>();
+
         for (Path path : pathCollection) {
             if (path.toString().contains(this.module.project().sourceRoot().toString()) &&
                     path.toString().contains(target.cachesPath().toString())) {
                 filteredPathList.add(path);
             }
         }
+
         return filteredPathList;
     }
 

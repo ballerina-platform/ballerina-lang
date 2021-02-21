@@ -26,6 +26,7 @@ import java.util.List;
 
 /**
  * Represents a source file containing lines modified to consider partially covered coverage info as fully covered.
+ *
  * @since 2.0.0
  */
 public class PartialCoverageModifiedSourceFile implements ISourceFileCoverage {
@@ -52,12 +53,12 @@ public class PartialCoverageModifiedSourceFile implements ISourceFileCoverage {
      * Returns the modified lines instead of lines stored in the original source file.
      */
     @Override
-    public ILine getLine(int nr) {
-        if (modifiedLines.size() == 0 || nr < getFirstLine() || nr > getLastLine()) {
-            return oldSourceFile.getLine(nr);
+    public ILine getLine(int lineNumber) {
+        if (modifiedLines.size() == 0 || lineNumber < getFirstLine() || lineNumber > getLastLine()) {
+            return oldSourceFile.getLine(lineNumber);
         }
-        ILine reqLine = modifiedLines.get(nr - getFirstLine());
-        return reqLine == null ? oldSourceFile.getLine(nr) : reqLine;
+        ILine reqLine = modifiedLines.get(lineNumber - getFirstLine());
+        return reqLine == null ? oldSourceFile.getLine(lineNumber) : reqLine;
     }
 
     @Override
