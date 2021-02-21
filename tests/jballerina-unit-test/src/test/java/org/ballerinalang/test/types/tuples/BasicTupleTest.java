@@ -175,7 +175,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 30);
+        Assert.assertEquals(resultNegative.getErrorCount(), 33);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++, "tuple and expression size does not match", 18, 32);
@@ -241,6 +241,25 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, i++,
                                   "invalid list index expression: value space '(3|4|5|6)' out of range", 158, 19);
         BAssertUtil.validateError(resultNegative, i, "list index out of range: index: '-1'", 165, 19);
+    }
+
+    @Test(description = "Test tuple declared with var")
+    public void testTupleDeclaredWithVar() {
+        BRunUtil.invoke(result, "testTupleDeclaredWithVar1");
+        BRunUtil.invoke(result, "testTupleDeclaredWithVar2");
+        BRunUtil.invoke(result, "testTupleDeclaredWithVar3");
+        BRunUtil.invoke(result, "testTupleDeclaredWithVar4");
+    }
+
+    @Test(description = "Test invalid var declaration with tuples")
+    public void testInvalidTupleDeclaredWithVar() {
+        int i = 30;
+        BAssertUtil.validateError(resultNegative, i++, "invalid tuple binding pattern; member variable count mismatch" +
+                " with member type count", 172, 9);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[other,other,other]', found " +
+                "'int[2]'", 173, 22);
+        BAssertUtil.validateError(resultNegative, i, "invalid tuple binding pattern: attempted to infer a tuple " +
+                "type, but found 'other'", 173, 22);
     }
 
     @AfterClass
