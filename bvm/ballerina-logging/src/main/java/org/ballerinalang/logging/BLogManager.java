@@ -117,19 +117,6 @@ public class BLogManager extends LogManager {
 
     }
 
-    public BLogLevel getPackageLogLevel(String pkg) {
-        return loggerLevels.containsKey(pkg) ? loggerLevels.get(pkg) : ballerinaUserLogLevel;
-    }
-
-    /**
-     * Checks if module log level has been enabled.
-     *
-     * @return true if module log level has been enabled, false if not.
-     */
-    public boolean isModuleLogLevelEnabled() {
-        return loggerLevels.size() > 1;
-    }
-
     /**
      * Initializes the HTTP trace logger.
      */
@@ -272,6 +259,16 @@ public class BLogManager extends LogManager {
     }
 
     /**
+     * Sets the global log level.
+     *
+     * @param logLevel log level
+     */
+    public void setGlobalLogLevel(BLogLevel logLevel) {
+        ballerinaUserLogLevel = logLevel;
+        loggerLevels.put(".", logLevel);
+    }
+
+    /**
      * Sets the module log level.
      *
      * @param logLevel log level
@@ -279,6 +276,16 @@ public class BLogManager extends LogManager {
      */
     public void setModuleLogLevel(BLogLevel logLevel, String moduleName) {
         loggerLevels.put(moduleName, logLevel);
+    }
+
+    /**
+     * Get the log level of a given package.
+     *
+     * @param pkg package name
+     * @return the log level
+     */
+    public BLogLevel getPackageLogLevel(String pkg) {
+        return loggerLevels.containsKey(pkg) ? loggerLevels.get(pkg) : ballerinaUserLogLevel;
     }
 
     /**
