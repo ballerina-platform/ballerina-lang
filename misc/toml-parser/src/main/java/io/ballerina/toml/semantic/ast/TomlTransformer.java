@@ -41,9 +41,12 @@ import io.ballerina.toml.syntax.tree.TableArrayNode;
 import io.ballerina.toml.syntax.tree.TableNode;
 import io.ballerina.toml.syntax.tree.Token;
 import io.ballerina.toml.syntax.tree.ValueNode;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import org.apache.commons.text.StringEscapeUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,7 +77,9 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     }
 
     private TomlTableNode createRootTable(DocumentNode modulePartNode) {
-        TomlKeyNode tomlKeyNode = new TomlKeyNode(null);
+        TomlKeyEntryNode root = new TomlKeyEntryNode(new TomlUnquotedKeyNode("__root", getPosition(modulePartNode)));
+        List<TomlKeyEntryNode> tomlKeyEntryNodes = Collections.singletonList(root);
+        TomlKeyNode tomlKeyNode = new TomlKeyNode(tomlKeyEntryNodes, getLocationOfKeyEntryList(tomlKeyEntryNodes));
         return new TomlTableNode(tomlKeyNode, getPosition(modulePartNode));
     }
 
@@ -120,7 +125,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         if (isDottedKey(keys)) {
             List<TomlKeyEntryNode> list = new ArrayList<>();
             list.add(keys.get(keys.size() - 1));
-            TomlKeyNode newKey = new TomlKeyNode(list);
+            TomlKeyNode newKey = new TomlKeyNode(list, getLocationOfKeyEntryList(list));
             transformedKeyValuePair = new TomlKeyValueNode(newKey, transformedKeyValuePair.value(),
                     transformedKeyValuePair.location());
         }
@@ -141,7 +146,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     private TomlTableNode createDottedKeyParentTable(TomlTableNode parentTable, TomlKeyEntryNode dottedKey) {
         List<TomlKeyEntryNode> list = new ArrayList<>();
         list.add(dottedKey);
-        TomlKeyNode newTableKey = new TomlKeyNode(list);
+        TomlKeyNode newTableKey = new TomlKeyNode(list, getLocationOfKeyEntryList(list));
         TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, null);
         addChildToTableAST(parentTable, newTomlTableNode);
         return newTomlTableNode;
@@ -154,8 +159,8 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         List<TomlKeyEntryNode> list = new ArrayList<>();
         list.add(tomlKeyEntryNode);
 
-        TomlTableArrayNode newTomlTableArray = new TomlTableArrayNode(new TomlKeyNode(list),
-                tableArrayChild.location(), tableArrayChild.children());
+        TomlTableArrayNode newTomlTableArray = new TomlTableArrayNode(new TomlKeyNode(list,
+                getLocationOfKeyEntryList(list)), tableArrayChild.location(), tableArrayChild.children());
         TopLevelNode topLevelNode = parentTable.entries().get(newTomlTableArray.key().name());
         if (topLevelNode == null) {
             addChildToTableAST(parentTable, newTomlTableArray);
@@ -208,7 +213,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         TomlKeyEntryNode lastKeyEntry = getLastKeyEntry(tableChild);
         List<TomlKeyEntryNode> entries = new ArrayList<>();
         entries.add(lastKeyEntry);
-        TomlTableNode newTableNode = new TomlTableNode(new TomlKeyNode(entries),
+        TomlTableNode newTableNode = new TomlTableNode(new TomlKeyNode(entries,getLocationOfKeyEntryList(entries)),
                 tableChild.generated(), tableChild.location(), tableChild.entries());
         if (topLevelNode == null) {
             addChildToTableAST(parentTable, newTableNode);
@@ -235,7 +240,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     private TomlTableNode generateTable(TomlTableNode parentTable, TomlKeyEntryNode parentString, boolean isGenerated) {
         List<TomlKeyEntryNode> list = new ArrayList<>();
         list.add(parentString);
-        TomlKeyNode newTableKey = new TomlKeyNode(list); //TODO Revisit
+        TomlKeyNode newTableKey = new TomlKeyNode(list,getLocationOfKeyEntryList(list));
         TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, isGenerated, null);
         addChildToTableAST(parentTable, newTomlTableNode);
         return newTomlTableNode;
@@ -291,7 +296,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     private TomlTableNode addChildsToTableArray(TableArrayNode tableArrayNode) {
         NodeList<KeyValueNode> children = tableArrayNode.fields();
         TomlNodeLocation position = getPosition(tableArrayNode);
-        TomlKeyNode anonKey = new TomlKeyNode(null);
+        TomlKeyNode anonKey = new TomlKeyNode(null, null);
         TomlTableNode anonTable = new TomlTableNode(anonKey, position);
         for (KeyValueNode child : children) {
             TomlNode transformedChild = child.apply(this);
@@ -322,7 +327,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             nodeList.add(new TomlKeyEntryNode(transformedNode));
         }
 
-        return new TomlKeyNode(nodeList);
+        return new TomlKeyNode(nodeList, getLocationOfKeyEntryList(nodeList));
     }
 
     private TomlValueNode transformValue(ValueNode valueToken) {
@@ -349,6 +354,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return new TomlNodeLocation(node.lineRange(), node.textRange());
     }
 
+    /**
+     * Transforms ST StringLiteralNode into AST string node.
+     *
+     * @param stringLiteralNode Syntax Tree representative for string nodes
+     * @return AST string value representative node
+     */
     @Override
     public TomlNode transform(StringLiteralNode stringLiteralNode) {
         boolean multilineString = isMultilineString(stringLiteralNode.startDoubleQuote());
@@ -378,6 +389,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return output.toString();
     }
 
+    /**
+     * Transforms ST LiteralStringLiteralNode into AST literal string node.
+     *
+     * @param literalStringLiteralNode Syntax Tree representative for literal string nodes
+     * @return AST Literal string value representative node
+     */
     @Override
     public TomlNode transform(LiteralStringLiteralNode literalStringLiteralNode) {
         boolean multilineString = isMultilineString(literalStringLiteralNode.startSingleQuote());
@@ -411,6 +428,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return value;
     }
 
+    /**
+     * Transforms ST NumericLiteralNode into AST numerical node.
+     *
+     * @param numericLiteralNode Syntax Tree representative for numerical nodes
+     * @return AST Numerical Value representative node
+     */
     @Override
     public TomlNode transform(NumericLiteralNode numericLiteralNode) {
         String sign = "";
@@ -444,6 +467,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         }
     }
 
+    /**
+     * Transforms ST BoolLiteralNode into AST TomlBooleanValue Node.
+     *
+     * @param boolLiteralNode Syntax Tree representative for boolean
+     * @return AST Boolean Value representative node
+     */
     @Override
     public TomlNode transform(BoolLiteralNode boolLiteralNode) {
         if (boolLiteralNode.value().kind() == SyntaxKind.TRUE_KEYWORD) {
@@ -456,5 +485,21 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     @Override
     public TomlNode transform(IdentifierLiteralNode identifierLiteralNode) {
         return new TomlUnquotedKeyNode(identifierLiteralNode.value().text(), getPosition(identifierLiteralNode));
+    }
+
+    private TomlNodeLocation getLocationOfKeyEntryList(List<TomlKeyEntryNode> keys) {
+        if (keys.size() == 0) {
+            return null;
+        }
+        int startOffset = keys.get(0).location().textRange().startOffset();
+        int length = 0;
+        for (TomlKeyEntryNode entryNode : keys) {
+            length += entryNode.location().textRange().length() + 1;
+        }
+        TextRange textRange = TextRange.from(startOffset, length - 1);
+        LineRange lineRange = LineRange
+                .from(keys.get(0).location().lineRange().filePath(), keys.get(0).location().lineRange().startLine(),
+                        keys.get(keys.size() - 1).location().lineRange().endLine());
+        return new TomlNodeLocation(lineRange, textRange);
     }
 }
