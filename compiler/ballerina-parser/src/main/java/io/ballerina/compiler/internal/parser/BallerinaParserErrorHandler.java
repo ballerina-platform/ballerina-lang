@@ -3298,8 +3298,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPEDESC_TYPE_DESCRIPTOR:
                 return ParserRuleContext.TYPEDESC_KEYWORD;
             case FUNC_TYPEDESC_RHS:
-                switchContext(ParserRuleContext.VAR_DECL_STMT);
-                startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                if (getGrandParentContext() == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR) {
+                    switchContext(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
+                } else if (getParentContext() == ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE) {
+                    switchContext(ParserRuleContext.VAR_DECL_STMT);
+                    startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                }
                 return ParserRuleContext.TYPEDESC_RHS;
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
