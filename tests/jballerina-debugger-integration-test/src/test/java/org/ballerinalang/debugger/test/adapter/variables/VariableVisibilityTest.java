@@ -170,8 +170,8 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(globalVariables, "nameMap", "map", "map");
         debugTestRunner.assertVariable(globalVariables, "nilWithoutType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "nilWithType", "()", "nil");
-        debugTestRunner.assertVariable(globalVariables, "RED", "()", "nil");
         // TODO - Enable test
+        // debugTestRunner.assertVariable(globalVariables, "RED", "RED", "string");
         // debugTestRunner.assertVariable(globalVariables, "BLUE", "Blue", "string");
 
         // global variables
@@ -278,7 +278,7 @@ public class VariableVisibilityTest extends BaseTestCase {
     }
 
     @Test(dependsOnMethods = "globalVariableVisibilityTest",
-        description = " Child variable visibility test for local variables at the last line of main() method")
+        description = "Child variable visibility test for local variables at the last line of main() method")
     public void localVariableChildrenVisibilityTest() throws BallerinaTestException {
         // xml child variable visibility test
         Map<String, Variable> xmlChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("xmlVar"));
