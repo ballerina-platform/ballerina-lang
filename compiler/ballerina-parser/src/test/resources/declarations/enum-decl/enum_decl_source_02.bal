@@ -1,4 +1,4 @@
-#this is doc comment
+# this is doc comment
 & enum SyntaxKind {
     A,
     B,

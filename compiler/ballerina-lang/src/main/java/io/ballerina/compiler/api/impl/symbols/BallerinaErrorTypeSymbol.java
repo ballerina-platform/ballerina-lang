@@ -32,9 +32,10 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements ErrorTypeSymbol {
 
     private TypeSymbol detail;
+    private String signature;
 
     public BallerinaErrorTypeSymbol(CompilerContext context, ModuleID moduleID, BErrorType errorType) {
-        super(context, TypeDescKind.ERROR, moduleID, errorType);
+        super(context, TypeDescKind.ERROR, errorType);
     }
 
     /**
@@ -53,12 +54,25 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
 
     @Override
     public String signature() {
-        String definitionName = getBType().tsymbol.name.value;
-        if (this.moduleID().moduleName().equals("lang.annotations") && this.moduleID().orgName().equals("ballerina")) {
-            return definitionName;
+        if (this.signature != null) {
+            return this.signature;
         }
-        return this.moduleID().orgName() + Names.ORG_NAME_SEPARATOR +
-                this.moduleID().moduleName() + Names.VERSION_SEPARATOR + this.moduleID().version() + ":" +
-                definitionName;
+
+        String definitionName = getBType().tsymbol.name.value;
+
+        if (this.getModule().isEmpty()) {
+            this.signature = definitionName;
+            return this.signature;
+        }
+
+        ModuleID moduleID = this.getModule().get().id();
+        if ("lang.annotations".equals(moduleID.moduleName()) && "ballerina".equals(moduleID.orgName())) {
+            this.signature = definitionName;
+        } else {
+            this.signature = moduleID.orgName() + Names.ORG_NAME_SEPARATOR + moduleID.moduleName() +
+                    Names.VERSION_SEPARATOR + moduleID.version() + ":" + definitionName;
+        }
+
+        return this.signature;
     }
 }

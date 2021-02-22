@@ -122,6 +122,9 @@ public class IntersectionTypeTest {
         validateError(result, index++,
                       "invalid error detail rest arg 'z' passed to open detail record '"
                               + "record {| string x; string...; |}'", 56, 15);
+        validateError(result, index++, "error constructor does not accept additional detail args 'z' when " +
+                        "error detail type 'record {| string x; string...; |}' contains individual field descriptors",
+                56, 63);
         validateError(result, index++,
                       "incompatible types: expected 'DistinctErrorIntersection', found 'IntersectionErrorFour'", 57,
                       38);

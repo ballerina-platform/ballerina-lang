@@ -104,6 +104,7 @@ function checkEqualityToNilNegative(any a) returns boolean {
 type ErrorDetail record {
     string message?;
     error cause?;
+    int intVal?;
 };
 
 type MyError error<ErrorDetail>;

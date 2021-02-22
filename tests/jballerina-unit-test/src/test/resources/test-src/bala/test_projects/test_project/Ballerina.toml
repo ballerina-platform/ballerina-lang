@@ -2,4 +2,4 @@
 org= "testorg"
 name="foo"
 version= "1.0.0"
-exported=["foo", "foo.records"]
+exported=["foo", "foo.records", "foo.returntypes"]

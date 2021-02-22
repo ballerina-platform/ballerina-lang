@@ -74,7 +74,7 @@ public class AnnotationsTest {
 
         assertEquals(annotSymbols.size(), annots.size());
         for (int i = 0; i < annotSymbols.size(); i++) {
-            assertEquals(annotSymbols.get(i).name(), annots.get(i));
+            assertEquals(annotSymbols.get(i).getName().get(), annots.get(i));
         }
     }
 

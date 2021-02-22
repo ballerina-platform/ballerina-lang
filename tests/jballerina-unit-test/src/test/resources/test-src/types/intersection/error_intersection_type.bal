@@ -82,19 +82,17 @@ function testIntersectionForAnonymousDetail() {
 }
 
 function testIntersectionForDetailRecordAndDetailMap() {
-    var err = error IntersectionErrorFour("message", x = "x", z = "z");
+    var err = error IntersectionErrorFour("message", x = "x");
     assertEquality(err.detail().x, "x");
-    assertEquality(err.detail()["z"], "z");
 }
 
 function testDistinctIntersectionType() {
     var err = getDistinctError();
     assertEquality(err.detail().x, "x");
-    assertEquality(err.detail()["z"], "z");
 }
 
 function getDistinctError() returns DistinctIntersectionError {
-    var err = error DistinctIntersectionError("message", x = "x", z = "z");
+    var err = error DistinctIntersectionError("message", x = "x");
     return err;
 }
 

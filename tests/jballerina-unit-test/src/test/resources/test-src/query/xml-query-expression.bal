@@ -14,6 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type Person record {|
+   readonly string name;
+   string country;
+|};
+
 function testSimpleQueryExprForXML() returns xml {
     xml book1 = xml `<book>
                            <name>Sherlock Holmes</name>
@@ -502,4 +507,89 @@ function testQueryExpressionIteratingOverXMLInFromInInnerQueries() returns xml? 
     xml res = from var book in (from xml:Element e in bookStore/<book>/<author> select e)
               select book;
     return res;
+}
+
+function testXMLTemplateWithQueryExpression() returns xml {
+   Person p1 = {name: "Mike", country: "Germany"};
+   Person p2 = {name:"Anne", country: "France"};
+   Person p3 = {name: "John", country: "Russia"};
+   Person[] persons = [p1, p2, p3];
+   xml res = xml`<data>${
+      from var {name, country} in persons
+      select xml`<person country="${country}">${name}</person>`}</data>`;
+   return res;
+}
+
+function testXMLTemplateWithQueryExpression2() returns xml {
+   Person p1 = {name: "Mike", country: "Germany"};
+   Person p2 = {name:"Anne", country: "France"};
+   Person p3 = {name: "John", country: "Russia"};
+   Person[] persons = [p1, p2, p3];
+
+   xml res = xml`<data>${
+      from var {name, country} in persons
+      select xml`${name}`}</data>`;
+   return res;
+}
+
+function testXMLTemplateWithQueryExpression3() returns xml {
+   Person p1 = {name: "Mike", country: "Germany"};
+   Person p2 = {name:"Anne", country: "France"};
+   Person p3 = {name: "John", country: "Russia"};
+   Person[] persons = [p1, p2, p3];
+
+   xml res = xml`<data>${
+      from var {name, country} in persons.toStream()
+      select xml`<person country="${country}">${name}</person>`}</data>`;
+   return res;
+}
+
+function testXMLTemplateWithQueryExpression4() returns xml {
+   table<Person> personTable = table key(name) [
+       {name: "Mike", country: "Germany"},
+       {name:"Anne", country: "France"},
+       {name: "John", country: "Russia"}];
+
+   xml res = xml`<data>${
+      from var {name, country} in personTable
+      order by country descending
+      limit 2
+      select xml`<person country="${country}">${name}</person>`}</data>`;
+   return res;
+}
+
+function testQueryExpressionIteratingOverXMLWithNamespaces() returns xml {
+    xmlns "foo" as ns;
+    xml x = xml `<name><fname ns:status="active">Mike</fname><fname>Jane</fname><lname>Eyre</lname></name>`;
+
+    xml res = from var fname in x/<fname>
+              where fname?.ns:status == "active"
+              select fname;
+    return res;
+}
+
+function testQueryExpressionIteratingOverTableReturningXML() returns xml {
+   table<Person> personTable = table key(name) [
+       {name: "Mike", country: "Germany"},
+       {name:"Anne", country: "France"},
+       {name: "John", country: "Russia"}];
+
+   xml res = from var {name, country} in personTable
+             order by country descending
+             limit 2
+             select xml`<person country="${country}">${name}</person>`;
+   return res;
+}
+
+function testQueryExpressionIteratingOverStreamReturningXML() returns xml {
+   Person p1 = {name: "Mike", country: "Germany"};
+   Person p2 = {name:"Anne", country: "France"};
+   Person p3 = {name: "John", country: "Russia"};
+   Person[] personList = [p1, p2, p3];
+
+   xml res = from var {name, country} in personList.toStream()
+             order by country descending
+             limit 2
+             select xml`<person country="${country}">${name}</person>`;
+   return res;
 }
