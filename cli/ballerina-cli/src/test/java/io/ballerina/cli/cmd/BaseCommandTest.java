@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -32,8 +33,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import static io.ballerina.cli.utils.FileUtils.deleteDirectory;
 
 
 /**
@@ -109,6 +108,6 @@ public abstract class BaseCommandTest {
 
     @AfterClass (alwaysRun = true)
     public void cleanup() throws IOException {
-        deleteDirectory(this.tmpDir);
+        ProjectUtils.deleteDirectory(this.tmpDir);
     }
 }

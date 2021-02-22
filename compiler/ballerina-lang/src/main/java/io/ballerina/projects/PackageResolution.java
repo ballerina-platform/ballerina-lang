@@ -489,9 +489,7 @@ public class PackageResolution {
         }
 
         private List<PackageName> getPossiblePackageNames(ImportModuleRequest importModuleRequest) {
-            if (importModuleRequest.packageOrg().isBallerinaOrg()) {
-                if (importModuleRequest.moduleName().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX)
-                        || importModuleRequest.moduleName().equals(Names.JAVA.toString()))
+            if (langLibPackage(importModuleRequest.packageOrg(), importModuleRequest.moduleName())) {
                 return Collections.singletonList(PackageName.from(importModuleRequest.moduleName()));
             }
             String[] modNameParts = importModuleRequest.moduleName().split("\\.");
@@ -502,6 +500,13 @@ public class PackageResolution {
                 possiblePkgNames.add(PackageName.from(pkgNameBuilder.toString()));
             }
             return possiblePkgNames;
+        }
+
+        private boolean langLibPackage(PackageOrg packageOrg, String moduleName) {
+            if (packageOrg.isBallerinaOrg()) {
+                return moduleName.startsWith(LANG_LIB_PACKAGE_NAME_PREFIX) || moduleName.equals(Names.JAVA.toString());
+            }
+            return false;
         }
     }
 }

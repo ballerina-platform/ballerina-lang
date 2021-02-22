@@ -36,17 +36,22 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -59,6 +64,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.ASM_COMMONS_JAR;
@@ -511,5 +517,30 @@ public class ProjectUtils {
             content.append("\n");
         }
         return String.valueOf(content);
+    }
+
+    public static void extractBala(Path balaFilePath, Path balaFileDestPath) throws IOException {
+        Files.createDirectories(balaFileDestPath);
+        URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
+        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+            Path packageRoot = zipFileSystem.getPath("/");
+            List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
+            for (Path path : paths) {
+                Path destPath = balaFileDestPath.resolve(packageRoot.relativize(path).toString());
+                // Handle overwriting existing bala
+                if (destPath.toFile().isDirectory()) {
+                    org.apache.commons.io.FileUtils.deleteDirectory(destPath.toFile());
+                }
+                Files.copy(path, destPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
+    }
+
+    public static void deleteDirectory(Path dirPath) throws IOException {
+        org.apache.commons.io.FileUtils.deleteDirectory(dirPath.toFile());
+    }
+
+    public static String getPlatformFromBala(String balaName, String packageName, String version) {
+        return balaName.split(packageName + "-")[1].split("-" + version)[0];
     }
 }

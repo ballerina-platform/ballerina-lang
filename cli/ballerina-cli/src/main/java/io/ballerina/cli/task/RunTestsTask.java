@@ -462,7 +462,11 @@ public class RunTestsTask implements Task {
 
     private void cleanTempCache(Project project, Path cachesRoot) {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            FileUtils.deleteDirectory(cachesRoot);
+            try {
+                ProjectUtils.deleteDirectory(cachesRoot);
+            } catch (IOException e) {
+                createLauncherException("couldn't delete temp cache created for test execution" + e.getMessage());
+            }
         }
     }
 

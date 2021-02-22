@@ -18,7 +18,10 @@
 
 package io.ballerina.cli.utils;
 
+import io.ballerina.projects.util.ProjectUtils;
+
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -88,26 +91,5 @@ public class FileUtils {
             int lastWindowsPos = filename.lastIndexOf(92);
             return Math.max(lastUnixPos, lastWindowsPos);
         }
-    }
-
-    /**
-     * Delete the given directory along with all files and sub directories.
-     *
-     * @param directoryPath Directory to delete.
-     */
-    public static boolean deleteDirectory(Path directoryPath) {
-        File directory = new File(String.valueOf(directoryPath));
-        if (directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File f : files) {
-                    boolean success = deleteDirectory(f.toPath());
-                    if (!success) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return directory.delete();
     }
 }

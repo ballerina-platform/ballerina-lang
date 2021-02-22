@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -154,7 +155,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), hippoJarLog);
 
         Assert.assertTrue(Files.exists(helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar")));
-        deleteDirectory(helloExecutableTmpDir);
+        ProjectUtils.deleteDirectory(helloExecutableTmpDir);
     }
 
     @Test(description = "Build non .bal file")

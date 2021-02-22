@@ -114,16 +114,7 @@ public class BuildLangLib {
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
 
             Path balaFilePath = Files.list(balaPath).findAny().orElseThrow();
-
-            URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
-            try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-                Path packageRoot = zipFileSystem.getPath("/");
-                List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
-                System.out.println(paths);
-                for (Path path : paths) {
-                    Files.copy(path, balaPath.resolve(packageRoot.relativize(path).toString()));
-                }
-            }
+            ProjectUtils.extractBala(balaFilePath, balaPath);
             Files.delete(balaFilePath);
 
 
