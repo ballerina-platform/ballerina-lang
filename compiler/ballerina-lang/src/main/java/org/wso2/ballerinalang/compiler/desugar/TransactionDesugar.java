@@ -392,8 +392,13 @@ public class TransactionDesugar extends BLangNodeVisitor {
                            BLangSimpleVarRef retryManagerRef) {
         // Rollback desugar implementation
         BLangBlockStmt rollbackBlockStmt = ASTBuilderUtil.createBlockStmt(rollbackNode.pos);
+
+        // $retryManager$.shouldRetry();
+        BLangInvocation shouldRetryInvocation = desugar.createRetryManagerShouldRetryInvocation(rollbackNode.pos,
+                retryManagerRef, rollbackNode.expr);
+
         BLangStatementExpression rollbackExpr = invokeRollbackFunc(rollbackNode.pos, rollbackNode.expr,
-                transactionBlockID, retryManagerRef);
+                transactionBlockID, shouldRetryInvocation);
         BLangExpressionStmt rollbackStmt = ASTBuilderUtil.createExpressionStmt(rollbackNode.pos, rollbackBlockStmt);
         rollbackStmt.expr = rollbackExpr;
         return rollbackBlockStmt;
@@ -479,7 +484,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     BLangStatementExpression invokeRollbackFunc(Location pos, BLangExpression rollbackExpr,
-                                                BLangLiteral trxBlockId, BLangSimpleVarRef retryManagerRef) {
+                                                BLangLiteral trxBlockId, BLangExpression shouldRetry) {
         // Rollback desugar implementation
         BLangBlockStmt rollbackBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
 
@@ -491,8 +496,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
         if (rollbackExpr != null) {
             args.add(rollbackExpr);
         }
-        if(retryManagerRef != null) {
-            args.add(retryManagerRef);
+        if(shouldRetry != null) {
+            args.add(shouldRetry);
         }
         BLangInvocation rollbackTransactionInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(pos, rollbackTransactionInvokableSymbol, args, symResolver);

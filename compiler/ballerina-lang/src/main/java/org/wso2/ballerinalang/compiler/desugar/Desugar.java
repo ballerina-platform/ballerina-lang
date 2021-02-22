@@ -3035,7 +3035,7 @@ public class Desugar extends BLangNodeVisitor {
 
     BLangInvocation createRetryManagerShouldRetryInvocation(Location location,
                                                             BLangSimpleVarRef managerVarRef,
-                                                            BLangSimpleVarRef trapResultRef) {
+                                                            BLangExpression trapResultRef) {
         BInvokableSymbol shouldRetryFuncSymbol = getShouldRetryFunc((BVarSymbol) managerVarRef.symbol).symbol;
         BLangInvocation shouldRetryInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         shouldRetryInvocation.pos = location;
@@ -5291,17 +5291,19 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
         internalOnFail.body.stmts.add(continueLoopTrue);
 
+        // $shouldRetry$ = $retryManager$.shouldRetry();
+        BLangInvocation shouldRetryInvocation = createRetryManagerShouldRetryInvocation(pos,
+                retryManagerRef, caughtErrorRef);
+        BLangAssignment shouldRetryAssignment = ASTBuilderUtil.createAssignmentStmt(pos, shouldRetryRef,
+                shouldRetryInvocation);
+        internalOnFail.body.stmts.add(shouldRetryAssignment);
+
         if (shouldRollback) {
             transactionDesugar.createRollbackIfFailed(pos, internalOnFail.body, caughtErrorSym,
                     trxBlockId, this.retryManagerRef);
         }
 
-        // $shouldRetry$ = $retryManager$.shouldRetry();
-        BLangInvocation shouldRetryInvocation = createRetryManagerShouldRetryInvocation(pos,
-                retryManagerRef, caughtErrorRef);
-        BLangAssignment shouldRetryAssignment = ASTBuilderUtil.createAssignmentStmt(pos, shouldRetryRef,
-        shouldRetryInvocation);
-        internalOnFail.body.stmts.add(shouldRetryAssignment);
+
 
         BLangGroupExpr shouldNotRetryCheck = new BLangGroupExpr();
         shouldNotRetryCheck.type = symTable.booleanType;
