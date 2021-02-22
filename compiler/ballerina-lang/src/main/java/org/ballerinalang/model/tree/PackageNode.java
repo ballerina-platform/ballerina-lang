@@ -18,6 +18,7 @@
 package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.tree.statements.ConstantNode;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 import java.util.List;
 
@@ -40,7 +41,7 @@ public interface PackageNode extends Node {
 
     List<? extends ConstantNode> getConstants();
 
-    List<? extends SimpleVariableNode> getGlobalVariables();
+    List<? extends BLangVariable> getGlobalVariables();
 
     void addGlobalVariable(SimpleVariableNode globalVar);
 

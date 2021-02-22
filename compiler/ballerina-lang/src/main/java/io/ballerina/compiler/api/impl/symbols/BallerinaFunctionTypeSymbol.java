@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Collections;
@@ -50,8 +51,8 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
     private final BInvokableTypeSymbol typeSymbol;
 
     public BallerinaFunctionTypeSymbol(CompilerContext context, ModuleID moduleID,
-                                       BInvokableTypeSymbol invokableSymbol) {
-        super(context, TypeDescKind.FUNCTION, invokableSymbol.type);
+                                       BInvokableTypeSymbol invokableSymbol, BType type) {
+        super(context, TypeDescKind.FUNCTION, type);
         this.typeSymbol = invokableSymbol;
     }
 

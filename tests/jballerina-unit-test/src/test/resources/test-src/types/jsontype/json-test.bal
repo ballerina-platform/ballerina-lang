@@ -1,5 +1,3 @@
-import ballerina/io;
-
 function remove () returns (json) {
     json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state":"CA", "age":20};
     map<json> jm = <map<json>> j;
@@ -12,8 +10,7 @@ function toString (json msg) returns (string?) {
 }
 
 function testParse (string jsonStr) returns @tainted (json | error) {
-    io:StringReader reader = new(jsonStr);
-    return reader.readJson();
+    return jsonStr.fromJsonString();
 }
 
 function testGetKeys () returns (string[]) {
@@ -24,8 +21,7 @@ function testGetKeys () returns (string[]) {
 
 function testStringToJSONConversion() returns @tainted (json | error) {
     string s = "{\"foo\": \"bar\"}";
-    io:StringReader reader = new(s);
-    return reader.readJson();
+    return s.fromJsonString();
 }
 
 function testJSONArrayToJsonAssignment() returns (json) {
