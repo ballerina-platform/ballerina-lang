@@ -139,6 +139,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_PANIC.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_STREAM.get()));
         Optional<Node> nodeBeforeCursor = this.nodeBeforeCursor(context, node);
         if (nodeBeforeCursor.isPresent()) {
             switch (nodeBeforeCursor.get().kind()) {

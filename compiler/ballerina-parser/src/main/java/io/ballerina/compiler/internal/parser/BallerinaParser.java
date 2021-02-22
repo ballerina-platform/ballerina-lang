@@ -8129,9 +8129,9 @@ public class BallerinaParser extends AbstractParser {
         STNode name;
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            case DEFAULT_KEYWORD:
-                STNode defaultKeyword = parseDefaultKeyword();
-                name = STNodeFactory.createSimpleNameReferenceNode(defaultKeyword);
+            case FUNCTION_KEYWORD:
+                STNode functionKeyword = consume();
+                name = STNodeFactory.createSimpleNameReferenceNode(functionKeyword);
                 return parseAsyncSendAction(expression, rightArrow, name);
             case IDENTIFIER_TOKEN:
                 name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
@@ -8159,21 +8159,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 recover(peek(), ParserRuleContext.REMOTE_CALL_OR_ASYNC_SEND_END, expression, rightArrow, name);
                 return parseRemoteCallOrAsyncSendEnd(expression, rightArrow, name);
-        }
-    }
-
-    /**
-     * Parse default keyword.
-     *
-     * @return default keyword node
-     */
-    private STNode parseDefaultKeyword() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.DEFAULT_KEYWORD) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.DEFAULT_KEYWORD);
-            return parseDefaultKeyword();
         }
     }
 
@@ -11327,7 +11312,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse peer worker.
      * <p>
-     * <code>peer-worker := worker-name | default</code>
+     * <code>peer-worker := worker-name | function</code>
      *
      * @return peer worker name node
      */
@@ -11335,7 +11320,7 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
-            case DEFAULT_KEYWORD:
+            case FUNCTION_KEYWORD:
                 return STNodeFactory.createSimpleNameReferenceNode(consume());
             default:
                 return STNodeFactory.createEmptyNode();
@@ -11536,7 +11521,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse peer worker.
      * <p>
-     * <code>peer-worker := worker-name | default</code>
+     * <code>peer-worker := worker-name | function</code>
      *
      * @return peer worker name node
      */
@@ -11544,7 +11529,7 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
-            case DEFAULT_KEYWORD:
+            case FUNCTION_KEYWORD:
                 return STNodeFactory.createSimpleNameReferenceNode(consume());
             default:
                 recover(token, ParserRuleContext.PEER_WORKER_NAME);
@@ -11584,7 +11569,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseReceiveWorkers() {
         switch (peek().kind) {
-            case DEFAULT_KEYWORD:
+            case FUNCTION_KEYWORD:
             case IDENTIFIER_TOKEN:
                 return parsePeerWorkerName();
             case OPEN_BRACE_TOKEN:
@@ -11676,9 +11661,9 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseReceiveField() {
         switch (peek().kind) {
-            case DEFAULT_KEYWORD:
-                STNode defaultKeyword = parseDefaultKeyword();
-                return STNodeFactory.createSimpleNameReferenceNode(defaultKeyword);
+            case FUNCTION_KEYWORD:
+                STNode functionKeyword = consume();
+                return STNodeFactory.createSimpleNameReferenceNode(functionKeyword);
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseIdentifier(ParserRuleContext.RECEIVE_FIELD_NAME);
                 return createQualifiedReceiveField(identifier);

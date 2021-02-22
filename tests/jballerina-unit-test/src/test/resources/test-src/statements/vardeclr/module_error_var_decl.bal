@@ -14,10 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.value;
+
 type UserDefinedError error <BasicErrorDetail>;
 type BasicErrorDetail record {|
     int basicErrorNo?;
     anydata...;
+|};
+
+type UserDefinedOpenError error <OpenErrorDetail>;
+type OpenErrorDetail record {|
+    value:Cloneable...;
 |};
 
 UserDefinedError error(message1, basicErrorNo = detail1) = error UserDefinedError("error message one", basicErrorNo = 1);
@@ -97,14 +104,14 @@ function testVariableForwardReferencing() {
     assertEquality(1, errorNo2);
 }
 
-UserDefinedError error(message10, ...otherDetails2) = error UserDefinedError("error message ten", time = 2.21, riskLevel = "High");
+UserDefinedOpenError error(message10, ...otherDetails2) = error UserDefinedOpenError("error message ten", time = 2.21, riskLevel = "High");
 
 function testErrorVarWithRestVariable() {
     assertEquality(2.21, otherDetails2["time"]);
     assertEquality("High", otherDetails2["riskLevel"]);
 }
 
-var error(message11, basicErrorNo = errorNo3, ...otherDetails3) = error UserDefinedError(
+var error(message11, basicErrorNo = errorNo3, ...otherDetails3) = error UserDefinedOpenError(
                         "error message eleven", basicErrorNo = 8, lineNo = 342, fileName = "myfile", recoverable = true);
 
 function testErrorVarDeclaredWithVar() {
@@ -126,7 +133,7 @@ type VarTestError error<VarTestErrorDetail>;
 var error(m, error(c), fieldA = [varA], fieldB = {a: varB}, fieldC = error(msgVar)) = foo();
 
 function foo() returns VarTestError =>
-        error VarTestError("message", error("cause"), fieldA = [3], fieldB = {a: true}, fieldC = error("fieldC message"), oth = 1);
+        error VarTestError("message", error("cause"), fieldA = [3], fieldB = {a: true}, fieldC = error("fieldC message"));
 
 function testErrorVarDeclaredWithVar2() {
     assertEquality("message", m);

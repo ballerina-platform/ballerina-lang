@@ -437,7 +437,6 @@ public enum ParserRuleContext {
     SELECT_KEYWORD("select"),
     START_KEYWORD("start"),
     FLUSH_KEYWORD("flush"),
-    DEFAULT_KEYWORD("default"),
     WAIT_KEYWORD("wait"),
     DO_KEYWORD("do"),
     TRANSACTION_KEYWORD("transaction"),

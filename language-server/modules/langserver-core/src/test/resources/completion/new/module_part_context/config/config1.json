@@ -110,14 +110,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "distinct",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "distinct",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -163,6 +155,14 @@
           "newText": "import ballerina/http;\n"
         }
       ]
+    },
+    {
+      "label": "configurable",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "configurable",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "annotation",
@@ -242,6 +242,14 @@
       "detail": "Snippet",
       "sortText": "O",
       "insertText": "type ${1:TypeName} table<${2}> key${3}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream<> streamName = new;",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "stream<${1}> ${2:streamName} = new;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -328,14 +336,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map",
-      "kind": "TypeParameter",
-      "detail": "type ",
-      "sortText": "Q",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -360,11 +360,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "object",
+      "label": "distinct",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "object ",
+      "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
     {
