@@ -540,7 +540,6 @@ public enum ParserRuleContext {
     ORDER_DIRECTION("order-direction"),
     VAR_REF_COLON("var-ref-colon"),
     TYPE_REF_COLON("type-ref-colon"),
-    FUNC_NAME_RHS("func-name-rhs"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -660,7 +659,8 @@ public enum ParserRuleContext {
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),
     TYPEDESC_RHS("type-desc-rhs"),
-    FUNC_TYPEDESC_RHS("func-typedesc-rhs"),
+    FUNC_TYPEDESC_OR_FUNC_KEYWORD_RHS("func-typedesc-or-func-keyword-rhs"),
+    FUNC_TYPEDESC_OR_FUNC_KEYWORD_RHS_START("func-typedesc-or-func-keyword-rhs-start"),
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
     KEY_CONSTRAINTS_RHS("key-constraints-rhs"),

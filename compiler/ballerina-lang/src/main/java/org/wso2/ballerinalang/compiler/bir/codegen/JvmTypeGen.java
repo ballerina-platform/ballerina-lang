@@ -1830,22 +1830,27 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, FUNCTION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        // Create param types array
-        mv.visitLdcInsn((long) bType.paramTypes.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, TYPE);
-        int i = 0;
-        for (BType paramType : bType.paramTypes) {
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
+        if (!Symbols.isFlagOn(bType.flags, Flags.ANY_FUNCTION)) {
+            // Create param types array
+            mv.visitLdcInsn((long) bType.paramTypes.size());
             mv.visitInsn(L2I);
+            mv.visitTypeInsn(ANEWARRAY, TYPE);
+            int i = 0;
+            for (BType paramType : bType.paramTypes) {
+                mv.visitInsn(DUP);
+                mv.visitLdcInsn((long) i);
+                mv.visitInsn(L2I);
 
-            // load param type
-            loadType(mv, paramType);
+                // load param type
+                loadType(mv, paramType);
 
-            // Add the member to the array
-            mv.visitInsn(AASTORE);
-            i += 1;
+                // Add the member to the array
+                mv.visitInsn(AASTORE);
+                i += 1;
+            }
+        } else {
+            mv.visitLdcInsn(0);
+            mv.visitTypeInsn(ANEWARRAY, TYPE);
         }
 
         BType restType = bType.restType;

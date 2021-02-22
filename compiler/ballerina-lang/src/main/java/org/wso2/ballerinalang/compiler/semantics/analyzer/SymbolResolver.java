@@ -1495,7 +1495,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         boolean foundDefaultableParam = false;
         List<String> paramNames = new ArrayList<>();
         if (Symbols.isFlagOn(flags, Flags.ANY_FUNCTION)) {
-            BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
+            BInvokableType bInvokableType = new BInvokableType(null, null, symTable.nilType, null);
             bInvokableType.flags = flags;
             BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                                                                              env.enclPkg.symbol.pkgID, bInvokableType,

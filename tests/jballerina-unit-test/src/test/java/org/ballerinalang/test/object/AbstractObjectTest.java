@@ -87,17 +87,10 @@ public class AbstractObjectTest {
         BAssertUtil.validateError(compileResult, index++, "missing object keyword", 6, 85);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 6, 85);
         BAssertUtil.validateError(compileResult, index++, "invalid token '}'", 6, 89);
-        BAssertUtil.validateError(compileResult, index++, "missing function keyword", 8, 70);
-        BAssertUtil.validateError(compileResult, index++, "missing open paren token", 8, 70);
+        BAssertUtil.validateError(compileResult, index++, "missing close brace token", 8, 70);
+        BAssertUtil.validateError(compileResult, index++, "missing identifier", 8, 70);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 8, 70);
-        BAssertUtil.validateError(compileResult, index++, "missing type desc", 8, 70);
-        BAssertUtil.validateError(compileResult, index++, "missing close paren token", 8, 75);
-        BAssertUtil.validateError(compileResult, index++, "missing identifier", 8, 75);
-        BAssertUtil.validateError(compileResult, index++, "invalid token 'return'", 9, 12);
-        BAssertUtil.validateError(compileResult, index++, "missing identifier", 9, 13);
-        BAssertUtil.validateError(compileResult, index++, "missing close brace token", 11, 1);
-        BAssertUtil.validateError(compileResult, index++, "missing identifier", 11, 1);
-        BAssertUtil.validateError(compileResult, index, "missing semicolon token", 11, 1);
+        BAssertUtil.validateError(compileResult, index, "cannot initialize abstract object '$anonType$_6'", 8, 72);
     }
 
     @Test

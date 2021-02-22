@@ -255,12 +255,14 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
     public BType visit(BInvokableType originalType, BType newType) {
         boolean hasNewType = false;
         List<BType> paramTypes = new ArrayList<>();
-        for (BType type : originalType.paramTypes) {
-            BType newT = type.accept(this, null);
-            paramTypes.add(newT);
+        if (!Symbols.isFlagOn(originalType.flags, Flags.ANY_FUNCTION)) {
+            for (BType type : originalType.paramTypes) {
+                BType newT = type.accept(this, null);
+                paramTypes.add(newT);
 
-            if (newT != type) {
-                hasNewType = true;
+                if (newT != type) {
+                    hasNewType = true;
+                }
             }
         }
 
