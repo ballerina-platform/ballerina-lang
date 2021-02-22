@@ -73,7 +73,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testAPICNegativeTest() throws BallerinaTestException {
-        String errorMsg = "Configurable feature is yet to be supported for type '(int[] & readonly)[] & readonly' " +
+        String errorMsg = "configurable feature is yet to be supported for type '(int[] & readonly)[] & readonly' " +
                 "used in variable 'configPkg:invalidArr'";
         executeBalCommand("/testErrorProject", new LogLeecher(errorMsg, ERROR), "test",
                 "configPkg", null);
@@ -113,7 +113,7 @@ public class ConfigurableTest extends BaseTest {
         String tomlError1 = "missing identifier [Config.toml:(0:9,0:9)]";
         String tomlError2 = "missing identifier [Config.toml:(0:20,0:20)]";
         String tomlError3 = "missing identifier [Config.toml:(0:21,0:21)]";
-        String errorMsg = "error: Invalid `Config.toml` file : ";
+        String errorMsg = "error: invalid `Config.toml` file : ";
         LogLeecher errorLeecher1 = new LogLeecher(errorMsg, ERROR);
         LogLeecher errorLeecher2 = new LogLeecher(tomlError1, ERROR);
         LogLeecher errorLeecher3 = new LogLeecher(tomlError2, ERROR);
@@ -130,13 +130,16 @@ public class ConfigurableTest extends BaseTest {
     @DataProvider(name = "negative-projects")
     public Object[][] getNegativeTestProjects() {
         return new Object[][]{
-                {"invalidComplexArray", "Configurable feature is yet to be supported for type" +
-                        " '(int[] & readonly)[] & readonly' used in variable 'main:intComplexArr'" },
-                {"invalidRecordField", "Configurable feature is yet to be supported for field type " +
+                {"invalidComplexArray", "configurable feature is yet to be supported for type " +
+                        "'(int[] & readonly)[] & readonly' used in variable 'main:intComplexArr'" },
+                {"invalidRecordField", "configurable feature is yet to be supported for field type " +
                         "'string[][]' in variable 'main:testUser' of record 'main:AuthInfo'"},
-                {"invalidMapType", "Configurable feature is yet to be supported for type 'map<int> & readonly'"},
                 {"invalidByteRange", "Value provided for byte variable 'byteVar' is out of range. Expected " +
-                        "range is (0-255), found '355'"}
+                        "range is (0-255), found '355'"},
+                {"invalidMapType", "configurable feature is yet to be supported for type " +
+                        "'map<int> & readonly' used in variable 'main:intMap'"},
+                {"invalidTableConstraint", "configurable feature is yet to be supported for table " +
+                        "constraint type 'string' used in variable 'main:tab'"}
         };
     }
 
@@ -168,35 +171,35 @@ public class ConfigurableTest extends BaseTest {
                         "Please provide the module name as '[testOrg.main]'" },
                 {"invalid_module_structure", "invalid module structure found for module 'main'. " +
                         "Please provide the module name as '[main]'" },
-                {"invalid_sub_module_structure", "invalid module structure found for module 'foo'. " +
-                        "Please provide the module name as '[foo]'" },
+                {"invalid_sub_module_structure", "invalid module structure found for module 'main.foo'. " +
+                        "Please provide the module name as '[main.foo]'" },
                 {"required_negative", "Value not provided for required configurable variable 'main:stringVar'"},
-                {"primitive_type_error", "invalid type found for variable 'main:intVar', expected TOML type " +
-                        "for type 'int' is 'INTEGER', found 'DOUBLE'"},
-                {"primitive_structure_error", "invalid TOML structure found for variable 'main:intVar', " +
-                        "expected structure is 'KEY_VALUE', found 'TABLE'"},
-                {"array_type_error", "invalid type found for variable 'main:intArr', expected TOML type " +
-                        "for type 'int[] & readonly' is 'ARRAY', found 'STRING'"},
-                {"array_structure_error", "invalid TOML structure found for variable 'main:intArr', " +
-                        "expected structure is 'KEY_VALUE', found 'TABLE'"},
-                {"array_element_structure", "invalid TOML structure found for variable 'main:intArr[2]', " +
-                        "expected structure is 'INTEGER', found 'ARRAY'"},
-                {"array_multi_type", "invalid TOML structure found for variable 'main:intArr[1]', " +
-                        "expected structure is 'INTEGER', found 'STRING'"},
-                {"additional_field", "Additional field 'scopes' provided for configurable variable 'main:testUser'" +
+                {"primitive_type_error", "configurable variable 'main:intVar' is expected to be of type 'int', " +
+                        "but found 'float'"},
+                {"primitive_structure_error", "configurable variable 'main:intVar' is expected to be of type 'int', " +
+                        "but found 'record'"},
+                {"array_type_error", "configurable variable 'main:intArr' is expected to be of type " +
+                        "'int[] & readonly', but found 'string'"},
+                {"array_structure_error", "configurable variable 'main:intArr' is expected to be of type " +
+                        "'int[] & readonly', but found 'record'"},
+                {"array_element_structure", "configurable variable 'main:intArr[2]' is expected to be of type 'int'," +
+                        " but found 'array'"},
+                {"array_multi_type", "configurable variable 'main:intArr[1]' is expected to be of type 'int'," +
+                        " but found 'string'"},
+                {"additional_field", "additional field 'scopes' provided for configurable variable 'main:testUser'" +
                         " of record 'main:AuthInfo' is not supported"},
-                {"missing_record_field", "Value not provided for non-defaultable required field 'username' of record" +
+                {"missing_record_field", "value not provided for non-defaultable required field 'username' of record" +
                         " 'main:AuthInfo' in configurable variable 'main:testUser'"},
-                {"record_type_error", "invalid type found for variable 'main:testUser', expected TOML type for type " +
-                        "'main:(testOrg/main:0.1.0:AuthInfo & readonly)' is 'TABLE', found 'KEY_VALUE'"},
-                {"record_field_structure_error", "invalid TOML structure found for variable 'main:testUser.username'," +
-                        " expected structure is 'KEY_VALUE', found 'TABLE"},
-                {"record_field_type_error", "invalid type found for variable 'main:testUser.username', expected " +
-                        "TOML type for type 'string' is 'STRING', found 'INTEGER'"},
-                {"missing_table_key", "Value required for key 'username' of type 'table<(main:AuthInfo & readonly)>" +
+                {"record_type_error", "configurable variable 'main:testUser' is expected to be of type " +
+                        "'main:(testOrg/main:0.1.0:AuthInfo & readonly)', but found 'string'"},
+                {"record_field_structure_error", "record field 'username' from configurable variable 'main:testUser' " +
+                        "is expected to be of type 'string', but found 'record'"},
+                {"record_field_type_error", "record field 'username' from configurable variable 'main:testUser' " +
+                        "is expected to be of type 'string', but found 'int'"},
+                {"missing_table_key", "value required for key 'username' of type 'table<(main:AuthInfo & readonly)>" +
                         " key(username) & readonly' in configurable variable 'main:users'"},
-                {"table_type_error", "invalid type found for variable 'main:users', expected TOML type for type " +
-                        "'table<(main:AuthInfo & readonly)> key(username) & readonly' is 'TABLE_ARRAY', found 'TABLE'"},
+                {"table_type_error", "configurable variable 'main:users' is expected to be of type " +
+                        "'table<(main:AuthInfo & readonly)> key(username) & readonly', but found 'record'"},
         };
     }
 
