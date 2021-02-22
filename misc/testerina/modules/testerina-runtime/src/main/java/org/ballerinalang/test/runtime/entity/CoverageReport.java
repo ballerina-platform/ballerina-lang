@@ -89,14 +89,13 @@ public class CoverageReport {
         String packageName = this.module.packageInstance().packageName().toString();
         String version = this.module.packageInstance().packageVersion().toString();
 
-        List<Path> filteredPathList;
+        Collection<Path> filteredPathList;
 
         if (!module.testDocumentIds().isEmpty()) {
             filteredPathList =
                     filterPaths(jarResolver.getJarFilePathsRequiredForTestExecution(this.module.moduleName()));
         } else {
-            filteredPathList =
-                    filterPaths(jarResolver.getJarFilePathsRequiredForExecution());
+            filteredPathList = filterPaths(jarResolver.getJarFilePathsRequiredForExecution());
         }
 
         if (!filteredPathList.isEmpty()) {
@@ -204,7 +203,8 @@ public class CoverageReport {
 
         for (Path path : pathCollection) {
             if (path.toString().contains(this.module.project().sourceRoot().toString()) &&
-                    path.toString().contains(target.cachesPath().toString())) {
+                    (path.toString().contains(target.cachesPath().toString()) ||
+                            path.toString().contains("build/libs"))) {
                 filteredPathList.add(path);
             }
         }
