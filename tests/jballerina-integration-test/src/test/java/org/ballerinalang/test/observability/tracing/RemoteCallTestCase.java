@@ -242,7 +242,6 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
         });
     }
 
-    //
     @Test
     public void testIgnoredErrorReturnInRemoteCall() throws Exception {
         final String resourceName = "resourceFour";
