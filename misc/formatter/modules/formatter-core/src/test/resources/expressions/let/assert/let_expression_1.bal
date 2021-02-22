@@ -21,6 +21,6 @@ public function foo() {
     int tupleBindingResult = let [int, int] [d1, d2] = v1, int d3 = d1 + d2
                              in d3 * 2;
 
-    int age = let Person {age:personAge} = getPerson()
+    int age = let Person {age: personAge} = getPerson()
               in personAge;
 }

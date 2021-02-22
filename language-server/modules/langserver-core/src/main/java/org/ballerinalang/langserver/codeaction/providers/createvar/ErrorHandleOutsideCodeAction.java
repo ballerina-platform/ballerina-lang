@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -55,12 +56,14 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
+                                                    CodeActionContext context) {
         String uri = context.fileUri();
         if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
-        TypeSymbol typeSymbol = context.positionDetails().matchedExprType();
+        TypeSymbol typeSymbol = positionDetails.matchedExprType();
         if (typeSymbol == null || typeSymbol.typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }
@@ -68,26 +71,30 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
         boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
                 .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
-        if (!hasErrorMemberType) {
+        long nonErrorNonNilMemberCount = unionTypeDesc.memberTypeDescriptors().stream()
+                .filter(member -> member.typeKind() != TypeDescKind.ERROR && member.typeKind() != TypeDescKind.NIL)
+                .count();
+        if (!hasErrorMemberType || nonErrorNonNilMemberCount == 0) {
             return Collections.emptyList();
         }
-
         List<TextEdit> edits = new ArrayList<>();
-        edits.addAll(getModifiedCreateVarTextEdits(diagnostic, context, unionTypeDesc));
-        edits.addAll(getAddCheckTextEdits(CommonUtil.toRange(diagnostic.location().lineRange()).getStart(), context));
+        edits.addAll(getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails, context));
+        edits.addAll(getAddCheckTextEdits(CommonUtil.toRange(diagnostic.location().lineRange()).getStart(),
+                                          positionDetails.matchedNode(), context));
 
-        String commandTitle = String.format(CommandConstants.CREATE_VAR_ADD_CHECK_TITLE,
-                                            context.positionDetails().matchedSymbol().getName().get());
+        String commandTitle = CommandConstants.CREATE_VAR_ADD_CHECK_TITLE;
         return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(commandTitle, edits, uri));
     }
 
-    private List<TextEdit> getModifiedCreateVarTextEdits(Diagnostic diagnostic, CodeActionContext context,
-                                                         UnionTypeSymbol unionTypeDesc) {
+    private List<TextEdit> getModifiedCreateVarTextEdits(Diagnostic diagnostic,
+                                                         UnionTypeSymbol unionTypeDesc,
+                                                         DiagBasedPositionDetails positionDetails,
+                                                         CodeActionContext context) {
         List<TextEdit> edits = new ArrayList<>();
 
         // Add create variable edits
         Range range = CommonUtil.toRange(diagnostic.location().lineRange());
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, context);
 
         // Change and add type text edit
         String typeWithError = createVarTextEdits.types.get(0);

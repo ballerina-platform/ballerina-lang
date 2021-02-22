@@ -52,7 +52,7 @@ public class ParserTestFormatter extends FormatterTest {
     @Override
     public List<String> skipList() {
         return Arrays.asList(
-                // the following tests need to be skipped since these contain intended extra minutiaes
+                // the following tests need to be skipped since these contain intended extra/no minutiae
                 "minutiae_test_01.bal",
                 "minutiae_test_02.bal",
                 "minutiae_test_03.bal",
@@ -62,12 +62,12 @@ public class ParserTestFormatter extends FormatterTest {
                 "doc_source_15.bal",
                 "doc_source_06.bal",
                 "module_var_decl_source_16.bal",
+                "doc_source_24.bal",
 
                 // the following tests need to be enabled in the future
                 "ambiguity_source_11.bal", // parser issue for indexed expressions #26420
                 "annotations_source_04.bal", // could be considered an invalid scenario
                 "receive_action_source_01.bal", // issue #26376
-                "match_stmt_source_12.bal", // issue #28520
                 "doc_source_21.bal", // issue #28172
 
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",

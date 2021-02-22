@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Token;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,8 +55,9 @@ public class CodeActionModuleId implements ModuleID {
     public static CodeActionModuleId from(ImportDeclarationNode importPkg) {
         String orgName = importPkg.orgName().isPresent() ? importPkg.orgName().get().orgName() + ORG_SEPARATOR : "";
         StringBuilder pkgNameBuilder = new StringBuilder();
-        importPkg.moduleName().forEach(pkgNameBuilder::append);
-        String pkgName = pkgNameBuilder.toString();
+        // Need to add separators (".") manually
+        String pkgName = importPkg.moduleName().stream().map(Token::text).collect(Collectors.joining("."));
+        pkgName = pkgNameBuilder.append(pkgName).toString();
         String alias = importPkg.prefix().isEmpty() ? "" : importPkg.prefix().get().prefix().text();
         return new CodeActionModuleId(orgName, pkgName, alias, "");
     }

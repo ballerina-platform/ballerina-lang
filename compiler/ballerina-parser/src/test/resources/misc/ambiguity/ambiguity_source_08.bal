@@ -1,3 +1,3 @@
 function foo() {
-    {a:[]} = x;
+    {a: []} = x;
 }

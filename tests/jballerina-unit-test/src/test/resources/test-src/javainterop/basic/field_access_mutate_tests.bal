@@ -1,4 +1,5 @@
 import ballerina/jballerina.java;
+import ballerina/test;
 
 function testStaticFieldAccess() returns handle {
     return getContractId();
@@ -16,6 +17,19 @@ function testStaticPrimitiveFieldMutate(int shortValue) {
     return setShortValue(shortValue);
 }
 
+function testStaticBooleanFieldMutate() {
+    boolean bool = true;
+    setBoolean(bool);
+    test:assertEquals(getBoolean(), true);
+}
+
+public type bool true|false|5;
+function testBFiniteToJBooleanCast() {
+    bool arg = true;
+    setFiniteToBoolean(arg);
+    test:assertEquals(getBoolean(), true);
+}
+
 function testInstanceFieldAccess(handle receiver) returns handle {
     return getCreatedAt(receiver);
 }
@@ -31,7 +45,6 @@ function testInstancePrimitiveFieldAccess(handle receiver) returns boolean {
 function testInstancePrimitiveFieldMutate(handle receiver, float value) {
     setLKR(receiver, value);
 }
-
 
 // Java interoperability external functions
 
@@ -56,6 +69,21 @@ public function setShortValue(int shortValue) = @java:FieldSet {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"
 } external;
 
+// Set and Get boolean fields
+public function setBoolean(boolean bool) = @java:FieldSet {
+    name:"isAvailable",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"
+} external;
+
+public function getBoolean() returns boolean = @java:FieldGet {
+    name:"isAvailable",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"
+} external;
+
+public function setFiniteToBoolean(bool arg) = @java:FieldSet {
+    name:"isAvailable",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"
+} external;
 
 // Instance field access and mutate
 public function getCreatedAt(handle receiver) returns handle = @java:FieldGet {

@@ -1,0 +1,34 @@
+{
+  "arguments": {
+    "node.position": {
+      "line": 6,
+      "character": 7
+    }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 0
+                  }
+                },
+                "newText": "\n\nfunction assignInteger(string a, int b, boolean c) returns int {\n    \n    return 0;\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

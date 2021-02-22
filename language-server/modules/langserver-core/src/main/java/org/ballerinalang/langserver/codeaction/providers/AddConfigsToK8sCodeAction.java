@@ -34,6 +34,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
@@ -65,8 +66,9 @@ public class AddConfigsToK8sCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
-        NonTerminalNode matchedNode = context.positionDetails().matchedNode();
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                                    NodeBasedPositionDetails positionDetails) {
+        NonTerminalNode matchedNode = positionDetails.matchedTopLevelNode();
         if (!isConfigurableVariable(matchedNode)) {
             return Collections.emptyList();
         }

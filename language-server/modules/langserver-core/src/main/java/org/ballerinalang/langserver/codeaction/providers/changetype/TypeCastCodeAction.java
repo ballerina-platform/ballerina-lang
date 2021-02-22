@@ -18,7 +18,9 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -28,12 +30,15 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -51,24 +56,45 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class TypeCastCodeAction extends AbstractCodeActionProvider {
+    private static final int FOUND_SYMBOL_INDEX = 1;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
-        Node matchedNode = context.positionDetails().matchedNode();
+        Node matchedNode = positionDetails.matchedNode();
         if (matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
                 matchedNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
                 matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
             return Collections.emptyList();
         }
+
+        List<DiagnosticProperty<?>> props = diagnostic.properties();
+        if (props.size() != 2 || props.get(FOUND_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC) {
+            return Collections.emptyList();
+        }
+
+        Symbol rhsTypeSymbol = ((DiagnosticProperty<Symbol>) props.get(FOUND_SYMBOL_INDEX)).value();
+        if (diagnostic.properties().get(1) == null) {
+            return Collections.emptyList();
+        }
+        if (rhsTypeSymbol instanceof TypeSymbol && ((TypeSymbol) rhsTypeSymbol).typeKind() == TypeDescKind.UNION) {
+            // If RHS is a union and has error member type; skip code-action
+            UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) rhsTypeSymbol;
+            boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
+                    .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
+            if (hasErrorMemberType) {
+                return Collections.emptyList();
+            }
+        }
         Optional<ExpressionNode> expressionNode = getExpression(matchedNode);
-        Optional<TypeSymbol> variableTypeSymbol = getVariableTypeSymbol(matchedNode, context);
+        Optional<TypeSymbol> variableTypeSymbol = getVariableTypeSymbol(matchedNode, positionDetails, context);
         if (expressionNode.isEmpty() || variableTypeSymbol.isEmpty() ||
                 expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Collections.emptyList();
@@ -97,11 +123,13 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         }
     }
 
-    protected Optional<TypeSymbol> getVariableTypeSymbol(Node matchedNode, CodeActionContext context) {
+    protected Optional<TypeSymbol> getVariableTypeSymbol(Node matchedNode,
+                                                         DiagBasedPositionDetails positionDetails,
+                                                         CodeActionContext context) {
         switch (matchedNode.kind()) {
             case LOCAL_VAR_DECL:
             case MODULE_VAR_DECL:
-                return Optional.of(context.positionDetails().matchedExprType());
+                return Optional.of(positionDetails.matchedExprType());
             case ASSIGNMENT_STATEMENT:
                 Optional<VariableSymbol> optVariableSymbol = getVariableSymbol(context, matchedNode);
                 if (optVariableSymbol.isEmpty()) {
