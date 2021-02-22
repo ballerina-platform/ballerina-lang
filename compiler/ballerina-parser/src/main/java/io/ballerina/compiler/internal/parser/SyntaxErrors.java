@@ -18,6 +18,7 @@
 package io.ballerina.compiler.internal.parser;
 
 import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
+import io.ballerina.compiler.internal.diagnostics.DiagnosticWarningCode;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
@@ -79,6 +80,10 @@ public class SyntaxErrors {
 
     public static STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind, ParserRuleContext currentCtx) {
         return createMissingTokenWithDiagnostics(expectedKind, getErrorCode(currentCtx));
+    }
+
+    public static STToken createMissingDocTokenWithDiagnostics(SyntaxKind expectedKind) {
+        return createMissingTokenWithDiagnostics(expectedKind, getDocWarningCode(expectedKind));
     }
 
     public static STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind,
@@ -350,6 +355,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_IMPORT_KEYWORD;
             case FUNCTION_KEYWORD:
             case FUNCTION_IDENT:
+            case OPTIONAL_PEER_WORKER:
+            case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
             case CONST_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_CONST_KEYWORD;
@@ -444,10 +451,6 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_START_KEYWORD;
             case FLUSH_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_FLUSH_KEYWORD;
-            case DEFAULT_KEYWORD:
-            case OPTIONAL_PEER_WORKER:
-            case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
-                return DiagnosticErrorCode.ERROR_MISSING_DEFAULT_KEYWORD;
             case WAIT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_WAIT_KEYWORD;
             case DO_KEYWORD:
@@ -518,6 +521,33 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_DISTINCT_KEYWORD;
             default:
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
+        }
+    }
+
+    private static DiagnosticCode getDocWarningCode(SyntaxKind expectedKind) {
+        switch (expectedKind) {
+            case HASH_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_HASH_TOKEN;
+            case BACKTICK_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_SINGLE_BACKTICK_TOKEN;
+            case DOUBLE_BACKTICK_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_DOUBLE_BACKTICK_TOKEN;
+            case TRIPLE_BACKTICK_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_TRIPLE_BACKTICK_TOKEN;
+            case IDENTIFIER_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_IDENTIFIER_TOKEN;
+            case OPEN_PAREN_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_OPEN_PAREN_TOKEN;
+            case CLOSE_PAREN_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_CLOSE_PAREN_TOKEN;
+            case MINUS_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_HYPHEN_TOKEN;
+            case PARAMETER_NAME:
+                return DiagnosticWarningCode.WARNING_MISSING_PARAMETER_NAME;
+            case CODE_CONTENT:
+                return DiagnosticWarningCode.WARNING_MISSING_CODE_REFERENCE;
+            default:
+                return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
         }
     }
 
