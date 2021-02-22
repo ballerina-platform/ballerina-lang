@@ -43,14 +43,16 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_
  * This class wraps opentracing apis and exposes extern functions to use within ballerina.
  */
 public class OpenTracerBallerinaWrapper {
-    static final int ROOT_SPAN_INDICATOR = -2;
     private static final Logger log = LoggerFactory.getLogger(OpenTracerBallerinaWrapper.class);
+
     private static final OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
-    private static final int SYSTEM_TRACE_INDICATOR = -1;
     private final TracersStore tracerStore;
     private final boolean enabled;
     private final Map<Long, ObserverContext> observerContextMap = new HashMap<>();
     private final AtomicLong spanIdCounter = new AtomicLong();
+
+    private static final int SYSTEM_TRACE_INDICATOR = -1;
+    static final int ROOT_SPAN_INDICATOR = -2;
 
     private OpenTracerBallerinaWrapper() {
         enabled = ObserveUtils.isTracingEnabled();

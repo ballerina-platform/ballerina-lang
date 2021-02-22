@@ -147,9 +147,9 @@ class JvmObservabilityGen {
             rewriteAsyncInvocations(func, null, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
             if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
-                rewriteObservableFunctionBody(func, pkg, null, func.name.value, "", false, false, true, false);
+                rewriteObservableFunctionBody(func, pkg, null, func.name.value, null, false, false, true, false);
             } else if ((func.flags & Flags.WORKER) == Flags.WORKER) {   // Identifying lambdas generated for workers
-                rewriteObservableFunctionBody(func, pkg, null, func.workerName.value, "", false, false, false, true);
+                rewriteObservableFunctionBody(func, pkg, null, func.workerName.value, null, false, false, false, true);
             }
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
@@ -160,15 +160,15 @@ class JvmObservabilityGen {
             String serviceName = null;
             if (isService) {
                 for (BIRNode.BIRAnnotationAttachment annotationAttachment : typeDef.annotAttachments) {
-                    if (!DISPLAY_ANNOTATION.equals(annotationAttachment.annotTagRef.value)) {
-                        continue;
+                    if (DISPLAY_ANNOTATION.equals(annotationAttachment.annotTagRef.value)) {
+                        serviceName = ((BIRNode.BIRAnnotationLiteralValue) (((BIRNode.BIRAnnotationRecordValue)
+                                annotationAttachment.annotValues.get(0)).annotValueEntryMap)
+                                .get("label")).value.toString();
+                        break;
                     }
-                    serviceName = ((BIRNode.BIRAnnotationLiteralValue) (((BIRNode.BIRAnnotationRecordValue)
-                            annotationAttachment.annotValues.get(0)).annotValueEntryMap).get("label")).value.toString();
-                    break;
                 }
                 if (serviceName == null) {
-                    serviceName = pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_" +
+                    serviceName = pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_svc_" +
                             defaultServiceIndex++;
                 }
             }

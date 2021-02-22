@@ -70,8 +70,8 @@ public class TracingBaseTestCase extends ObservabilityBaseTest {
     protected List<BMockSpan> getFinishedSpans(String serviceName, String entrypointModule,
                                                String entrypointPosition) throws IOException {
         return getFinishedSpans(serviceName).stream()
-                .filter(span -> Objects.equals(span.getTags().get("entrypoint.function.module"), entrypointModule))
-                .filter(span -> Objects.equals(span.getTags().get("entrypoint.function.position"), entrypointPosition))
+                .filter(span -> Objects.equals(span.getTags().get("entrypoint.function.module"), entrypointModule) &&
+                        Objects.equals(span.getTags().get("entrypoint.function.position"), entrypointPosition))
                 .collect(Collectors.toList());
     }
 

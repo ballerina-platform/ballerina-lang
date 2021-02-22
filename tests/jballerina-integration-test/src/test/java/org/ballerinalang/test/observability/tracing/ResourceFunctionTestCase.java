@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -162,24 +163,27 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
-//            TODO: Uncomment this assertion once #ballerina-lang/issues/28686 is fixed
-//            Assert.assertEquals(span.getTags(), toMap(
-//                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
-//                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
-//                    new AbstractMap.SimpleEntry<>("src.position", resourceFunctionPosition),
-//                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
-//                    new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
-//                    new AbstractMap.SimpleEntry<>("http.method", "POST"),
-//                    new AbstractMap.SimpleEntry<>("protocol", "http"),
-//                    new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
-//                    new AbstractMap.SimpleEntry<>("src.object.name", SERVICE_NAME),
-//                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-//                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
-//                    new AbstractMap.SimpleEntry<>("error", "true"),
-//                    new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
+            Map<String, Object> tags = span.getTags();
+//            TODO: Remove the bellow line once #ballerina-lang/issues/28686 is fixed
+            tags.keySet().removeIf(key -> key.equals("error.message"));
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("http.method", "POST"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
+                    new AbstractMap.SimpleEntry<>("src.object.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("error", "true"),
+                    new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
+//                    TODO: Uncomment the bellow line once #ballerina-lang/issues/28686 is fixed
 //                    new AbstractMap.SimpleEntry<>("error.message", errorMessage),
-//                    new AbstractMap.SimpleEntry<>("src.resource.path", "/" + resourceName)
-//            ));
+                    new AbstractMap.SimpleEntry<>("src.resource.path", "/" + resourceName)
+            ));
         });
     }
 

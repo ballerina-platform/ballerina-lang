@@ -215,7 +215,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
 
     @Test
     public void testProgrammaticallyStartedService() throws Exception {
-        final String serviceName = "intg_tests_tracing_tests_0";
+        final String serviceName = "intg_tests_tracing_tests_svc_0";
         final String basePath = "testServiceOne";
         final String resourceName = "resourceOne";
         final String resourceFunctionPosition = "01_main_function.bal:45:9";
