@@ -445,9 +445,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 symTable.booleanType, OperatorKind.AND, null);
         rollbackCheck.body = ASTBuilderUtil.createBlockStmt(pos);
 
-        // rollbackTransaction(transactionBlockID);
+        // rollbackTransaction(transactionBlockID, retryManager);
         BLangStatementExpression rollbackInvocation = invokeRollbackFunc(pos,
-                desugar.addConversionExprIfRequired(trxResultRef, symTable.errorOrNilType), trxBlockId, retryManagerRef);
+                desugar.addConversionExprIfRequired(trxResultRef, symTable.errorOrNilType),
+                trxBlockId, retryManagerRef);
 
         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckPanickedExpr(pos, rollbackInvocation,
                 symTable.nilType);
