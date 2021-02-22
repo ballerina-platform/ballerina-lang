@@ -98,7 +98,7 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "WARNING_INLINE_CODE_REFERENCE_NOT_ENDED_WITH_BACKTICKS"
+                                        "WARNING_MISSING_TRIPLE_BACKTICK_TOKEN"
                                       ]
                                     }
                                   ]
@@ -215,14 +215,18 @@
                                     },
                                     {
                                       "kind": "CODE_CONTENT",
-                                      "isMissing": true
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "WARNING_MISSING_CODE_REFERENCE"
+                                      ]
                                     },
                                     {
                                       "kind": "TRIPLE_BACKTICK_TOKEN",
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "WARNING_INLINE_CODE_REFERENCE_NOT_ENDED_WITH_BACKTICKS"
+                                        "WARNING_MISSING_TRIPLE_BACKTICK_TOKEN"
                                       ]
                                     }
                                   ]
@@ -406,7 +410,7 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "WARNING_INLINE_CODE_REFERENCE_NOT_ENDED_WITH_BACKTICKS"
+                                        "WARNING_MISSING_TRIPLE_BACKTICK_TOKEN"
                                       ]
                                     }
                                   ]
@@ -523,14 +527,18 @@
                                     },
                                     {
                                       "kind": "CODE_CONTENT",
-                                      "isMissing": true
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "WARNING_MISSING_CODE_REFERENCE"
+                                      ]
                                     },
                                     {
                                       "kind": "TRIPLE_BACKTICK_TOKEN",
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "WARNING_INLINE_CODE_REFERENCE_NOT_ENDED_WITH_BACKTICKS"
+                                        "WARNING_MISSING_TRIPLE_BACKTICK_TOKEN"
                                       ]
                                     }
                                   ]
@@ -743,7 +751,7 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "WARNING_INLINE_CODE_REFERENCE_NOT_ENDED_WITH_BACKTICKS"
+                                        "WARNING_MISSING_TRIPLE_BACKTICK_TOKEN"
                                       ]
                                     }
                                   ]
@@ -849,7 +857,7 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "WARNING_INLINE_CODE_REFERENCE_NOT_ENDED_WITH_BACKTICKS"
+                                        "WARNING_MISSING_TRIPLE_BACKTICK_TOKEN"
                                       ]
                                     }
                                   ]
@@ -1033,7 +1041,7 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "WARNING_INLINE_CODE_REFERENCE_NOT_ENDED_WITH_BACKTICKS"
+                                        "WARNING_MISSING_TRIPLE_BACKTICK_TOKEN"
                                       ]
                                     }
                                   ]
@@ -1139,7 +1147,7 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "WARNING_INLINE_CODE_REFERENCE_NOT_ENDED_WITH_BACKTICKS"
+                                        "WARNING_MISSING_TRIPLE_BACKTICK_TOKEN"
                                       ]
                                     }
                                   ]
