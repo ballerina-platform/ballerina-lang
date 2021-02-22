@@ -93,8 +93,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (syntaxDiagnostics != null) {
             nodeJson.add("syntaxDiagnostics", DiagnosticUtil.getDiagnostics(syntaxDiagnostics));
         }
-        nodeJson.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()).get(1));
-        nodeJson.add("trailingMinutiae", evaluateMinutiae(node.leadingMinutiae()).get(1));
+        nodeJson.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
+        nodeJson.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
 
         if (node.lineRange() != null) {
             LineRange lineRange = node.lineRange();
@@ -323,10 +323,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeInfo.add(memberEntry.getKey(), memberEntry.getValue());
             });
         }
-        JsonArray responseMinutiae = evaluateMinutiae(node.leadingMinutiae());
-        nodeInfo.add("invalidNodes", responseMinutiae.get(0));
-        nodeInfo.add("leadingMinutiae", responseMinutiae.get(1));
-        nodeInfo.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()).get(1));
+        nodeInfo.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
+        nodeInfo.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
         return nodeInfo;
     }
 
@@ -338,23 +336,15 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     }
 
     private JsonArray evaluateMinutiae(MinutiaeList minutiaeList) {
-        JsonArray invalidNodes = new JsonArray();
         JsonArray nodeMinutiae = new JsonArray();
-        JsonArray response = new JsonArray();
-
         for (Minutiae minutiae : minutiaeList) {
             JsonObject minutiaeJson = new JsonObject();
             minutiaeJson.addProperty("kind", minutiae.kind().toString());
-            if (minutiae.isInvalidNodeMinutiae()) {
-                minutiaeJson.addProperty("value", minutiae.text());
-                invalidNodes.add(minutiaeJson);
-            } else {
-                minutiaeJson.addProperty("minutiae", minutiae.text());
-                nodeMinutiae.add(minutiaeJson);
-            }
+            minutiaeJson.addProperty("minutiae", minutiae.text());
+            minutiaeJson.addProperty("isInvalid", minutiae.isInvalidNodeMinutiae());
+            nodeMinutiae.add(minutiaeJson);
         }
-        response.add(invalidNodes);
-        response.add(nodeMinutiae);
-        return response;
+
+        return nodeMinutiae;
     }
 }
