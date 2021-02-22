@@ -216,13 +216,7 @@ public class CoverageReport {
         Collection<ISourceFileCoverage> modifiedSourceFiles = new ArrayList<>();
         for (ISourceFileCoverage sourcefile : sourcefiles) {
             if (sourcefile.getName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
-                List<ILine> modifiedLines = new ArrayList<>();
-                for (int i = sourcefile.getFirstLine(); i <= sourcefile.getLastLine(); i++) {
-                    ILine line = sourcefile.getLine(i);
-                    ILine modifiedLine = new PartialCoverageModifiedLine(line.getInstructionCounter(),
-                            line.getBranchCounter());
-                    modifiedLines.add(modifiedLine);
-                }
+                List<ILine> modifiedLines = modifyLines(sourcefile);
                 ISourceFileCoverage modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
                         modifiedLines);
                 modifiedSourceFiles.add(modifiedSourceFile);
@@ -231,5 +225,15 @@ public class CoverageReport {
             }
         }
         return modifiedSourceFiles;
+    }
+
+    private List<ILine> modifyLines(ISourceFileCoverage sourcefile) {
+        List<ILine> modifiedLines = new ArrayList<>();
+        for (int i = sourcefile.getFirstLine(); i <= sourcefile.getLastLine(); i++) {
+            ILine line = sourcefile.getLine(i);
+            ILine modifiedLine = new PartialCoverageModifiedLine(line.getInstructionCounter(), line.getBranchCounter());
+            modifiedLines.add(modifiedLine);
+        }
+        return modifiedLines;
     }
 }

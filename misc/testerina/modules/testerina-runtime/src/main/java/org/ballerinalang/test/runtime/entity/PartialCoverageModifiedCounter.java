@@ -46,6 +46,10 @@ public class PartialCoverageModifiedCounter implements ICounter {
         }
     }
 
+    /**
+     * As implemented in
+     * org.jacoco.core.internal.analysis.CounterImpl#getValue(org.jacoco.core.analysis.ICounter.CounterValue)
+     */
     @Override
     public double getValue(CounterValue value) {
         switch (value) {
@@ -89,6 +93,9 @@ public class PartialCoverageModifiedCounter implements ICounter {
         return (double) missed / (missed + covered);
     }
 
+    /**
+     * As implemented in org.jacoco.core.internal.analysis.CounterImpl#getStatus()
+     */
     @Override
     public int getStatus() {
         int status = covered > 0 ? FULLY_COVERED : EMPTY;
