@@ -300,8 +300,8 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private boolean listenerDeclarationFound(List<BLangSimpleVariable> globalVars) {
-        for (BLangSimpleVariable globalVar : globalVars) {
+    private boolean listenerDeclarationFound(List<BLangVariable> globalVars) {
+        for (BLangVariable globalVar : globalVars) {
             if (Symbols.isFlagOn(globalVar.symbol.flags, Flags.LISTENER)) {
                 return true;
             }

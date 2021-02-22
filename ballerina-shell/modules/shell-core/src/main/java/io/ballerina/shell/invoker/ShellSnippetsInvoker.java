@@ -40,6 +40,7 @@ import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.snippet.Snippet;
+import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.File;
@@ -220,7 +221,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
                     addErrorDiagnostic(highlightedDiagnostic(module, diagnostic));
-                    addErrorDiagnostic("Compilation aborted because of errors.");
+                    addErrorDiagnostic("Compilation aborted due to errors.");
                     throw new InvokerException();
                 } else if (severity == DiagnosticSeverity.WARNING) {
                     addDiagnostic(Diagnostic.warn(highlightedDiagnostic(module, diagnostic)));
@@ -412,7 +413,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                     "This is currently not supported in REPL. " +
                     "Please explicitly state the type.";
         }
-        return Diagnostic.highlightDiagnostic(document.textDocument(), diagnostic);
+        return StringUtils.highlightDiagnostic(document.textDocument(), diagnostic);
     }
 
     /**
