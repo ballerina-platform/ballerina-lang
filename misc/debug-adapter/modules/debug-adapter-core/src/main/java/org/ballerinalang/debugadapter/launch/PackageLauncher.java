@@ -17,7 +17,8 @@
 
 package org.ballerinalang.debugadapter.launch;
 
-import java.io.IOException;
+import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
+
 import java.nio.file.Paths;
 import java.util.Map;
 
@@ -26,18 +27,18 @@ import java.util.Map;
  */
 public class PackageLauncher extends Launcher {
 
-    public PackageLauncher(String projectRoot, Map<String, Object> args) {
-        super(projectRoot, args);
+    public PackageLauncher(ClientLaunchConfigHolder configHolder, String projectRoot) {
+        super(configHolder, projectRoot);
     }
 
-    public Process start() throws IOException {
+    public Process start() throws Exception {
         ProcessBuilder processBuilder = new ProcessBuilder();
         // Adds ballerina run/test command with debug flag.
         processBuilder.command(getLauncherCommand(null));
 
         Map<String, String> env = processBuilder.environment();
         // set environment ballerina home
-        env.put("BALLERINA_HOME", getBallerinaHome());
+        env.put("BALLERINA_HOME", configHolder.getBallerinaHome());
         processBuilder.directory(Paths.get(projectRoot).toFile());
         return processBuilder.start();
     }

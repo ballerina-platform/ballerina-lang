@@ -31,6 +31,10 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
+import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
+import org.ballerinalang.debugadapter.config.ClientConfigHolder;
+import org.ballerinalang.debugadapter.config.ClientConfigurationException;
+import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
@@ -123,6 +127,7 @@ import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.L
 public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     private IDebugProtocolClient client;
+    private ClientConfigHolder clientConfigHolder;
     private DebugExecutionManager executionManager;
     private JDIEventProcessor eventProcessor;
     private ExpressionEvaluator evaluator;
@@ -210,68 +215,47 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> launch(Map<String, Object> args) {
-        clearState();
-        loadProjectInfo(args);
-        Launcher launcher = project instanceof SingleFileProject ? new SingleFileLauncher(projectRoot, args) :
-                new PackageLauncher(projectRoot, args);
         try {
+            clearState();
+            loadProjectInfo(clientConfigHolder.getSourcePath());
+            context.setClientConfigHolder(new ClientLaunchConfigHolder(args));
+            Launcher launcher = project instanceof SingleFileProject ?
+                    new SingleFileLauncher((ClientLaunchConfigHolder) clientConfigHolder, projectRoot) :
+                    new PackageLauncher((ClientLaunchConfigHolder) clientConfigHolder, projectRoot);
+
             context.setLaunchedProcess(launcher.start());
-        } catch (IOException e) {
+            startListeningToProgramOutput(launcher);
+            return CompletableFuture.completedFuture(null);
+        } catch (Exception e) {
             sendOutput("Failed to launch the ballerina program due to: " + e.toString(), STDERR);
             return CompletableFuture.completedFuture(null);
         }
-
-        CompletableFuture.runAsync(() -> {
-            if (context.getLaunchedProcess().isPresent()) {
-                BufferedReader errorStream = context.getErrorStream();
-                String line;
-                try {
-                    while ((line = errorStream.readLine()) != null) {
-                        // Todo - Redirect back to error stream, once the ballerina program output is fixed to use
-                        //  the STDOUT stream.
-                        sendOutput(line, STDOUT);
-                    }
-                } catch (IOException ignored) {
-                }
-            }
-        });
-
-        CompletableFuture.runAsync(() -> {
-            if (context.getLaunchedProcess().isPresent()) {
-                BufferedReader inputStream = context.getInputStream();
-                String line;
-                try {
-                    sendOutput("Waiting for debug process to start...", STDOUT);
-                    while ((line = inputStream.readLine()) != null) {
-                        if (line.contains("Listening for transport dt_socket")) {
-                            launcher.attachToLaunchedProcess(this);
-                            eventProcessor.startListening();
-                        }
-                        sendOutput(line, STDOUT);
-                    }
-                } catch (IOException ignored) {
-                }
-            }
-        });
-        return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> attach(Map<String, Object> args) {
-        clearState();
-        loadProjectInfo(args);
-        String hostName = args.get("debuggeeHost") == null ? "" : args.get("debuggeeHost").toString();
-        String portName = args.get("debuggeePort").toString();
-
         try {
+            clearState();
+            loadProjectInfo(clientConfigHolder.getSourcePath());
+            clientConfigHolder = new ClientAttachConfigHolder(args);
+            ClientAttachConfigHolder configHolder = (ClientAttachConfigHolder) clientConfigHolder;
+            String hostName = configHolder.getHostName().orElse("");
+            int portName = configHolder.getDebuggePort();
             executionManager = new DebugExecutionManager(this);
             context.setDebuggee(new VirtualMachineProxyImpl(executionManager.attach(hostName, portName)));
             EventRequestManager erm = context.getEventManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
             classPrepareRequest.enable();
             eventProcessor.startListening();
-        } catch (IOException | IllegalConnectorArgumentsException e) {
-            String host = !hostName.isEmpty() ? hostName : LOCAL_HOST;
+        } catch (IOException | IllegalConnectorArgumentsException | ClientConfigurationException e) {
+            String host = ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST);
+            String portName;
+            try {
+                portName = Integer.toString(clientConfigHolder.getDebuggePort());
+            } catch (ClientConfigurationException clientConfigurationException) {
+                portName = "unknown";
+            }
+            LOGGER.error(e.getMessage());
             sendOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.", host, portName), STDERR);
             return CompletableFuture.completedFuture(null);
         }
@@ -799,9 +783,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }).filter(Objects::nonNull).toArray(Variable[]::new);
     }
 
-    private void loadProjectInfo(Map<String, Object> clientArgs) {
-        String entryFilePath = clientArgs.get("script").toString();
-        project = ProjectLoader.loadProject(Paths.get(entryFilePath));
+    private void loadProjectInfo(String sourcePath) throws ClientConfigurationException {
+        project = ProjectLoader.loadProject(Paths.get(sourcePath));
         context.setSourceProject(project);
         projectRoot = project.sourceRoot().toAbsolutePath().toString();
     }
@@ -893,6 +876,49 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      */
     private static boolean isValidFrame(StackFrame stackFrame) {
         return stackFrame.getSource() != null && stackFrame.getLine() > 0;
+    }
+
+    /**
+     * Asynchronously listens to remote debuggee stdout and error streams and redirects the program outputs to the
+     * client debug console.
+     */
+    private void startListeningToProgramOutput(Launcher launcher) {
+        CompletableFuture.runAsync(() -> {
+            if (context.getLaunchedProcess().isEmpty()) {
+                return;
+            }
+
+            BufferedReader errorStream = context.getErrorStream();
+            String line;
+            try {
+                while ((line = errorStream.readLine()) != null) {
+                    // Todo - Redirect back to error stream, once the ballerina program output is fixed to use
+                    //  the STDOUT stream.
+                    sendOutput(line, STDOUT);
+                }
+            } catch (IOException ignored) {
+            }
+        });
+
+        CompletableFuture.runAsync(() -> {
+            if (context.getLaunchedProcess().isEmpty()) {
+                return;
+            }
+
+            BufferedReader inputStream = context.getInputStream();
+            String line;
+            try {
+                sendOutput("Waiting for debug process to start...", STDOUT);
+                while ((line = inputStream.readLine()) != null) {
+                    if (line.contains("Listening for transport dt_socket")) {
+                        launcher.attachToLaunchedProcess(this);
+                        eventProcessor.startListening();
+                    }
+                    sendOutput(line, STDOUT);
+                }
+            } catch (IOException ignored) {
+            }
+        });
     }
 
     /**

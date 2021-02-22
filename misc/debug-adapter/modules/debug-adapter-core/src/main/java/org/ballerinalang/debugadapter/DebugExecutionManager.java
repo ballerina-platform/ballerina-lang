@@ -36,7 +36,7 @@ public class DebugExecutionManager {
     private VirtualMachine attachedVm;
     private final JBallerinaDebugServer server;
     private String host;
-    private String port;
+    private int port;
 
     public static final String LOCAL_HOST = "localhost";
     private static final String SOCKET_CONNECTOR_NAME = "com.sun.jdi.SocketAttach";
@@ -48,7 +48,7 @@ public class DebugExecutionManager {
         this.server = server;
         this.attachedVm = null;
         this.host = null;
-        this.port = null;
+        this.port = -1;
     }
 
     public boolean isActive() {
@@ -59,25 +59,21 @@ public class DebugExecutionManager {
         return Optional.ofNullable(host);
     }
 
-    public Optional<String> getPort() {
-        return Optional.ofNullable(port);
+    public Optional<Integer> getPort() {
+        return port > 0 ? Optional.of(port) : Optional.empty();
     }
 
     /**
      * Attaches to an existing JVM using an SocketAttachingConnector and returns the attached VM instance.
      */
-    public VirtualMachine attach(String port) throws IOException, IllegalConnectorArgumentsException {
+    public VirtualMachine attach(int port) throws IOException, IllegalConnectorArgumentsException {
         return attach("", port);
     }
 
     /**
      * Attaches to an existing JVM using an SocketAttachingConnector and returns the attached VM instance.
      */
-    public VirtualMachine attach(String hostName, String port) throws IOException, IllegalConnectorArgumentsException {
-        if (port == null || port.isEmpty()) {
-            throw new IllegalConnectorArgumentsException("Port is not defined.", "port");
-        }
-
+    public VirtualMachine attach(String hostName, int port) throws IOException, IllegalConnectorArgumentsException {
         AttachingConnector socketAttachingConnector = Bootstrap.virtualMachineManager().attachingConnectors().stream()
                 .filter(ac -> ac.name().equals(SOCKET_CONNECTOR_NAME))
                 .findFirst()
@@ -87,8 +83,8 @@ public class DebugExecutionManager {
         if (!hostName.isEmpty()) {
             connectorArgs.get(CONNECTOR_ARGS_HOST).setValue(hostName);
         }
-        connectorArgs.get(CONNECTOR_ARGS_PORT).setValue(port);
-        LOGGER.info(String.format("Debugger is attaching to: %s:%s", hostName, port));
+        connectorArgs.get(CONNECTOR_ARGS_PORT).setValue(String.valueOf(port));
+        LOGGER.info(String.format("Debugger is attaching to: %s:%d", hostName, port));
 
         attachedVm = socketAttachingConnector.attach(connectorArgs);
         this.host = !hostName.isEmpty() ? hostName : LOCAL_HOST;
