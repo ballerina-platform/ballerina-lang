@@ -391,7 +391,7 @@ type TableRecord record {
     int id;
 };
 
-function testMultipleWhereClausesWithSimpleVariable() {
+function testTableWithNonMappingType() {
 
     table<TableRecord> key(name) t = table [
             {name: "Amy", id: 1234},
@@ -399,4 +399,14 @@ function testMultipleWhereClausesWithSimpleVariable() {
         ];
 
     table<int> ids = from var x in t select x.id;
+}
+
+function testTableWithNonMappingTypeWithBindingPatterns() {
+
+    table<TableRecord> key(name) t = table [
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
+
+    table<int> ids = from var {id} in t select id;
 }
