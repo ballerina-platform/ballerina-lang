@@ -6,6 +6,14 @@
   "source": "expression_context/source/error_constructor_expr_ctx_source4.bal",
   "items": [
     {
+      "label": "ErrorThree",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "Q",
+      "insertText": "ErrorThree",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ErrorOne",
       "kind": "Event",
       "detail": "Error",

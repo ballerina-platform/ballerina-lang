@@ -11,3 +11,5 @@ public function main1() {
 function getStringVal() returns string {
     returns "Error!";
 }
+
+type ErrorThree ErrorOne;
