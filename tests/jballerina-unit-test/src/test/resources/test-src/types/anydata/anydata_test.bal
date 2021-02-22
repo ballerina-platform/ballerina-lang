@@ -860,21 +860,6 @@ function testTypeCheckingOnAny() returns anydata {
     return ad;
 }
 
-type MyError error<MyErrorDetail>;
-
-type MyErrorDetail record {|
-    error e1;
-    error e2;
-    string message?;
-    error cause?;
-|};
-
-error e1 = error("err reason");
-error e2 = error("err reason 2", str = "string value", e1=e1);
-MyError e3 = error MyError("err reason 3", e1 = e1, e2 = e2);
-
-const ASSERTION_ERROR_REASON = "AssertionError";
-
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
@@ -886,6 +871,6 @@ function assertEquality(any|error expected, any|error actual) {
 
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error(ASSERTION_ERROR_REASON,
+    panic error("AssertionError",
                     message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
