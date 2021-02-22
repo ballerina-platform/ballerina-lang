@@ -385,7 +385,10 @@ public function testCloneArrayWithError() returns boolean {
 
 public function testCloneMapWithError() returns boolean {
     map<error> errMap = {
-        e1: error("h")
+        e1: err1,
+        e2: err2,
+        e3: err3,
+        e4: err4
     };
 
     map<value:Cloneable> ma = {

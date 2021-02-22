@@ -146,10 +146,10 @@ function getFailureError(any|error expected, any|error actual) returns error {
                     message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
 
-isolated function isEqual(any|error actual, any|error expected) returns boolean {
-    if (actual is anydata && expected is anydata) {
-        return (actual == expected);
+isolated function isEqual(any|error val1, any|error val2) returns boolean {
+    if (val1 is anydata && val2 is anydata) {
+        return (val1 == val2);
     } else {
-        return (actual === expected);
+        return (val1 === val2);
     }
 }

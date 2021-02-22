@@ -326,7 +326,7 @@ function testFromBalStringNegative() {
 }
 
 function assert(anydata|error actual, anydata|error expected) {
-    if (!isEqual(expected, actual)) {
+    if (!isEqual(actual, expected)) {
         string expectedValAsString = expected is error ? expected.toString() : expected.toString();
         string actualValAsString = actual is error ? actual.toString() : actual.toString();
 

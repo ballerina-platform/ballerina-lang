@@ -284,10 +284,10 @@ function testFieldAccessOnMapConstruct() returns boolean {
     return "Sanjiva" == name;
 }
 
-isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
-    if (actual is anydata && expected is anydata) {
-        return (actual == expected);
+isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {
+    if (val1 is anydata && val2 is anydata) {
+        return (val1 == val2);
     } else {
-        return (actual === expected);
+        return (val1 === val2);
     }
 }

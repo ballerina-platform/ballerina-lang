@@ -218,7 +218,7 @@ function newByte(int val) returns handle = @java:Constructor {
 } external;
 
 function assertEquals(anydata|error expected, anydata|error actual) {
-    if isEqual(expected, actual) {
+    if isEqual(actual, expected) {
         return;
     }
 
