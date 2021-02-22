@@ -175,7 +175,7 @@ public class CoverageReport {
                     if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX)
                             && !sourceFileCoverage.getName().contains("tests/")) {
                         if (moduleCoverage.containsSourceFile(sourceFileCoverage.getName())) {
-                            //Update coverage for missed lines if covered
+                            // Update coverage for missed lines if covered
                             List<Integer> missedLines = moduleCoverage.getMissedLinesList(
                                     sourceFileCoverage.getName());
                             List<Integer> coveredLines =
@@ -185,6 +185,9 @@ public class CoverageReport {
                             if (coveredLines != null && missedLines != null) {
                                 boolean isCoverageUpdated = false;
                                 for (int missedLine : existingMissedLines) {
+                                    // Traverse through the missed lines of a source file and update
+                                    // coverage status if it is covered in the current module.
+                                    // This is to make sure multi module tests are reflected in test coverage
                                     ILine line = sourceFileCoverage.getLine(missedLine);
                                     if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
                                         isCoverageUpdated = true;
@@ -193,6 +196,8 @@ public class CoverageReport {
                                     }
                                 }
                                 if (isCoverageUpdated) {
+                                    // Retrieve relevant document and update the coverage only if there is
+                                    // a coverage change
                                     Document document = getDocument(sourceFileCoverage.getName());
                                     if (document != null) {
                                         moduleCoverage.updateCoverage(document, coveredLines, missedLines);
@@ -200,7 +205,7 @@ public class CoverageReport {
                                 }
                             }
                         } else {
-                            //Calculate coverage for new source file
+                            // Calculate coverage for new source file
                             List<Integer> coveredLines = new ArrayList<>();
                             List<Integer> missedLines = new ArrayList<>();
                             for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine();
@@ -248,13 +253,29 @@ public class CoverageReport {
     private Document getDocument(String sourceFileName) {
         Document document = null;
         for (Module moduleInstance : module.packageInstance().modules()) {
-            for (DocumentId documentId : moduleInstance.documentIds()) {
-                if (moduleInstance.document(documentId).name().equals(sourceFileName)) {
-                    document = moduleInstance.document(documentId);
-                }
+            document = getDocumentFromModule(moduleInstance, sourceFileName);
+            if (document != null) {
+                break;
             }
         }
         return document;
     }
 
+    /**
+     * Retrieve relevant document from a module if exists.
+     *
+     * @param moduleInstance Module
+     * @param sourceFileName String
+     * @return Document
+     */
+    private Document getDocumentFromModule(Module moduleInstance, String sourceFileName) {
+        Document document = null;
+        for (DocumentId documentId : moduleInstance.documentIds()) {
+            if (moduleInstance.document(documentId).name().equals(sourceFileName)) {
+                document = moduleInstance.document(documentId);
+                break;
+            }
+        }
+        return document;
+    }
 }
