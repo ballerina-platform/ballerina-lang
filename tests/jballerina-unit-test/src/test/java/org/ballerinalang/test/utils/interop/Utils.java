@@ -19,7 +19,9 @@ package org.ballerinalang.test.utils.interop;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
+import io.ballerina.runtime.api.utils.StringUtils;
 
+import java.io.PrintStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 2.0.0
  */
-public class Sleep {
+public class Utils {
 
     private static final int CORE_THREAD_POOL_SIZE = 1;
 
@@ -38,5 +40,33 @@ public class Sleep {
     public static void sleep(Environment env, long delayMillis) {
         Future balFuture = env.markAsync();
         executor.schedule(() -> balFuture.complete(null), delayMillis, TimeUnit.MILLISECONDS);
+    }
+
+    public static void print(Object... values) {
+        PrintStream out = System.out;
+        if (values == null) {
+            out.print((Object) null);
+            return;
+        }
+        for (Object value : values) {
+            if (value != null) {
+                out.print(StringUtils.getStringValue(value, null));
+            }
+        }
+    }
+
+    public static void println(Object... values) {
+        PrintStream out = System.out;
+        if (values == null) {
+            out.println((Object) null);
+            return;
+        }
+        StringBuilder content = new StringBuilder();
+        for (Object value : values) {
+            if (value != null) {
+                content.append(StringUtils.getStringValue(value, null));
+            }
+        }
+        out.println(content);
     }
 }

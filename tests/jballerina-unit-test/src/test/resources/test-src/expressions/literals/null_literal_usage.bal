@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 json gJ = null;
 
 function testNullAssignment() returns json {
@@ -36,7 +34,7 @@ function testNullStringRepresentation() returns string|error {
 
 function testNullStringRepresentation2() returns string {
     json j = null;
-    return io:sprintf("%s", j);
+    return j.toString();
 }
 
 function testNullStringRepresentation3() returns string|error {
@@ -46,7 +44,7 @@ function testNullStringRepresentation3() returns string|error {
 
 function testNullStringRepresentation4() returns string {
     json j = {name:"John Doe", age:25, location:null};
-    return io:sprintf("%s", j.toString());
+    return j.toString();
 }
 
 function testNullReturn() returns json {
