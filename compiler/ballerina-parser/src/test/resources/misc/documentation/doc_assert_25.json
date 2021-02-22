@@ -21,7 +21,7 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
@@ -36,8 +36,12 @@
                               "kind": "LIST",
                               "children": [
                                 {
+                                  "kind": "DEPRECATION_LITERAL",
+                                  "value": "# Deprecated"
+                                },
+                                {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "Write an array of lines to a file.",
+                                  "value": " # Deprecated text",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -50,7 +54,7 @@
                           ]
                         },
                         {
-                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
@@ -65,27 +69,12 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "During the writing operation, a newline character "
-                                },
-                                {
-                                  "kind": "INLINE_CODE_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "BACKTICK_TOKEN"
-                                    },
-                                    {
-                                      "kind": "CODE_CONTENT",
-                                      "value": "\\n"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_TOKEN"
-                                    }
-                                  ]
+                                  "kind": "DEPRECATION_LITERAL",
+                                  "value": "# Deprecated"
                                 },
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " will be added after each line.",
+                                  "value": " + text",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -132,7 +121,7 @@
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "fileWriteLines"
+              "value": "main"
             },
             {
               "kind": "LIST",
@@ -156,46 +145,6 @@
                       "value": " "
                     }
                   ]
-                },
-                {
-                  "kind": "RETURN_TYPE_DESCRIPTOR",
-                  "children": [
-                    {
-                      "kind": "RETURNS_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "OPTIONAL_TYPE_DESC",
-                      "children": [
-                        {
-                          "kind": "INT_TYPE_DESC",
-                          "children": [
-                            {
-                              "kind": "INT_KEYWORD"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "QUESTION_MARK_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
                 }
               ]
             },
@@ -213,46 +162,7 @@
                 },
                 {
                   "kind": "LIST",
-                  "children": [
-                    {
-                      "kind": "RETURN_STATEMENT",
-                      "children": [
-                        {
-                          "kind": "RETURN_KEYWORD",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "NUMERIC_LITERAL",
-                          "children": [
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                              "value": "0"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "SEMICOLON_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
+                  "children": []
                 },
                 {
                   "kind": "CLOSE_BRACE_TOKEN",

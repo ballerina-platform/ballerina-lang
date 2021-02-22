@@ -25,6 +25,16 @@
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "COMMENT_MINUTIAE",
+                                  "value": "// Intentionally kept no whitespaces between hash and triple backticks"
+                                },
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -37,7 +47,7 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "Write an array of lines to a file.",
+                                  "value": "Prints value(s) to the STDOUT.",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -50,14 +60,21 @@
                           ]
                         },
                         {
-                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_CODE_BLOCK",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN",
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "TRIPLE_BACKTICK_TOKEN"
+                            },
+                            {
+                              "kind": "CODE_CONTENT",
+                              "value": "ballerina",
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
                                 }
                               ]
                             },
@@ -65,33 +82,40 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "During the writing operation, a newline character "
-                                },
-                                {
-                                  "kind": "INLINE_CODE_REFERENCE",
+                                  "kind": "MARKDOWN_CODE_LINE",
                                   "children": [
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "HASH_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "CODE_CONTENT",
-                                      "value": "\\n"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "value": "io:print(\"Start processing the CSV file from \", srcFileName);",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
                                     }
                                   ]
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "TRIPLE_BACKTICK_TOKEN",
+                              "trailingMinutiae": [
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " will be added after each line.",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
                                 }
                               ]
                             }
@@ -132,7 +156,7 @@
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "fileWriteLines"
+              "value": "print"
             },
             {
               "kind": "LIST",
@@ -149,53 +173,7 @@
                   "children": []
                 },
                 {
-                  "kind": "CLOSE_PAREN_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "RETURN_TYPE_DESCRIPTOR",
-                  "children": [
-                    {
-                      "kind": "RETURNS_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "OPTIONAL_TYPE_DESC",
-                      "children": [
-                        {
-                          "kind": "INT_TYPE_DESC",
-                          "children": [
-                            {
-                              "kind": "INT_KEYWORD"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "QUESTION_MARK_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
+                  "kind": "CLOSE_PAREN_TOKEN"
                 }
               ]
             },
@@ -213,46 +191,7 @@
                 },
                 {
                   "kind": "LIST",
-                  "children": [
-                    {
-                      "kind": "RETURN_STATEMENT",
-                      "children": [
-                        {
-                          "kind": "RETURN_KEYWORD",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "NUMERIC_LITERAL",
-                          "children": [
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                              "value": "0"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "SEMICOLON_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
+                  "children": []
                 },
                 {
                   "kind": "CLOSE_BRACE_TOKEN",
