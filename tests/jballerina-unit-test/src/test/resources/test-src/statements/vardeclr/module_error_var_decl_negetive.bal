@@ -37,7 +37,7 @@ const annotation annot on source function;
 UserDefinedError error (message5) = error UserDefinedError("error message five");
 
 UserDefinedError error(message7, basicErrorNo = errorNo2, ...otherDetails) = error UserDefinedError(
-                                                                    message6, basicErrorNo = errorNo1, recoverable = n);
+                                                                    message6, basicErrorNo = errorNo1);
 var error(message6, basicErrorNo = errorNo1) = getError();
 boolean n = false;
 
@@ -53,7 +53,7 @@ type VarTestError error<VarTestErrorDetail>;
 var error(m, error(c), fieldA = {a: varA}, fieldD = {a: varB}) = foo();
 
 function foo() returns VarTestError =>
-        error VarTestError("message", error("cause"), fieldA = [3], fieldC = error("fieldC message"), oth = 1);
+        error VarTestError("message", error("cause"), fieldA = [3], fieldC = error("fieldC message"));
 
 function getError() returns UserDefinedError {
     return error UserDefinedError("error message one", basicErrorNo = 1);
