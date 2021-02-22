@@ -20,11 +20,11 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 
 /**
- * This class holds position details for the code actions.
+ * This class holds position details for the diagnostics based code actions.
  *
  * @since 2.0.0
  */
-public interface PositionDetails {
+public interface DiagBasedPositionDetails {
     /**
      * Returns matched scoped node for the current position.
      *

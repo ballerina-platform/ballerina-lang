@@ -238,6 +238,7 @@ public class SyntaxErrors {
             case ERROR_MESSAGE_BINDING_PATTERN_END_COMMA:
                 return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
             case OPEN_BRACE:
+            case TRANSACTION_STMT_RHS_OR_TYPE_REF:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
             case OPEN_PARENTHESIS:
             case ARG_LIST_OPEN_PAREN:
@@ -272,6 +273,8 @@ public class SyntaxErrors {
             case SLASH:
                 return DiagnosticErrorCode.ERROR_MISSING_SLASH_TOKEN;
             case COLON:
+            case VAR_REF_COLON:
+            case TYPE_REF_COLON:
                 return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
             case AT:
                 return DiagnosticErrorCode.ERROR_MISSING_AT_TOKEN;
