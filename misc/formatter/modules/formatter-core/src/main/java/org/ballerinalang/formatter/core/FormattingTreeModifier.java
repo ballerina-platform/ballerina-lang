@@ -1634,7 +1634,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token hashToken;
 
         if (markdownDocumentationLineNode.documentElements().isEmpty()) {
-            hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 0, 1);
+            hashToken = formatToken(markdownDocumentationLineNode.hashToken(), env.trailingWS, env.trailingNL);
         } else {
             hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 1, 0);
         }
@@ -1697,12 +1697,12 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public MarkdownCodeBlockNode transform(MarkdownCodeBlockNode markdownCodeBlockNode) {
         Token startLineHash = formatToken(markdownCodeBlockNode.startLineHashToken(), 1, 0);
-        boolean hasCodeAttribute = markdownCodeBlockNode.langAttribute().isPresent();
-        Token startBacktick = formatToken(markdownCodeBlockNode.startBacktick(), 0, hasCodeAttribute ? 0 : 1);
+        boolean hasLangAttribute = markdownCodeBlockNode.langAttribute().isPresent();
+        Token startBacktick = formatToken(markdownCodeBlockNode.startBacktick(), 0, hasLangAttribute ? 0 : 1);
         Token langAttribute = formatToken(markdownCodeBlockNode.langAttribute().orElse(null), 0, 1);
-        NodeList<MarkdownCodeLineNode> codeLines = formatNodeList(markdownCodeBlockNode.codeLines(), 0, 0, 0, 0);
+        NodeList<MarkdownCodeLineNode> codeLines = formatNodeList(markdownCodeBlockNode.codeLines(), 0, 1, 0, 1);
         Token endLineHash = formatToken(markdownCodeBlockNode.endLineHashToken(), 1, 0);
-        Token endBacktick = formatToken(markdownCodeBlockNode.endBacktick(), 0, 1);
+        Token endBacktick = formatToken(markdownCodeBlockNode.endBacktick(), env.trailingWS, env.trailingNL);
 
         return markdownCodeBlockNode.modify()
                 .withStartLineHashToken(startLineHash)
@@ -1719,7 +1719,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token codeDescription = markdownCodeLineNode.codeDescription();
         boolean hasDescription = !codeDescription.text().isEmpty();
         Token hashToken = formatToken(markdownCodeLineNode.hashToken(), hasDescription ? 1 : 0, 0);
-        codeDescription = formatToken(codeDescription, 0, 1);
+        codeDescription = formatToken(codeDescription, env.trailingWS, env.trailingNL);
 
         return markdownCodeLineNode.modify()
                 .withHashToken(hashToken)
