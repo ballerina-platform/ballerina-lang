@@ -32,6 +32,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Carries a set of utilities to check the types of the symbols.
@@ -317,5 +318,16 @@ public class SymbolUtil {
         }
 
         return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor().typeKind());
+    }
+
+    /**
+     * Predicate to evaluate whether a symbol is a type definition of the provided kind.
+     *
+     * @param typeDescKind to compare the symbol
+     * @return {@link Predicate}
+     */
+    public static Predicate<Symbol> isOfType(TypeDescKind typeDescKind) {
+        return symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION
+                && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind() == typeDescKind;
     }
 }
