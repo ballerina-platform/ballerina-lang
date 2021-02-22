@@ -90,7 +90,7 @@ public class AbstractObjectTest {
         BAssertUtil.validateError(compileResult, index++, "missing close brace token", 8, 70);
         BAssertUtil.validateError(compileResult, index++, "missing identifier", 8, 70);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 8, 70);
-        BAssertUtil.validateError(compileResult, index, "invalid usage of 'new' with type 'any'", 8, 72);
+        BAssertUtil.validateError(compileResult, index, "cannot initialize abstract object '$anonType$_6'", 8, 72);
     }
 
     @Test

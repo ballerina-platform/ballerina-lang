@@ -780,8 +780,20 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
-    public T transform(DocumentationReferenceNode documentationReferenceNode) {
-        return transformSyntaxNode(documentationReferenceNode);
+    public T transform(BallerinaNameReferenceNode ballerinaNameReferenceNode) {
+        return transformSyntaxNode(ballerinaNameReferenceNode);
+    }
+
+    public T transform(InlineCodeReferenceNode inlineCodeReferenceNode) {
+        return transformSyntaxNode(inlineCodeReferenceNode);
+    }
+
+    public T transform(MarkdownCodeBlockNode markdownCodeBlockNode) {
+        return transformSyntaxNode(markdownCodeBlockNode);
+    }
+
+    public T transform(MarkdownCodeLineNode markdownCodeLineNode) {
+        return transformSyntaxNode(markdownCodeLineNode);
     }
 
     public T transform(OrderByClauseNode orderByClauseNode) {

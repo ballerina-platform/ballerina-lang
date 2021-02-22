@@ -732,6 +732,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TYPEDESC_RHS_OR_TYPE_REF =
             { ParserRuleContext.COLON, ParserRuleContext.TYPEDESC_RHS };
 
+    private static final ParserRuleContext[] TRANSACTION_STMT_RHS_OR_TYPE_REF =
+            { ParserRuleContext.TYPE_REF_COLON, ParserRuleContext.TRANSACTION_STMT_TRANSACTION_KEYWORD_RHS };
+
     private static final ParserRuleContext[] TABLE_CONS_OR_QUERY_EXPR_OR_VAR_REF =
             { ParserRuleContext.VAR_REF_COLON, ParserRuleContext.EXPRESSION_START_TABLE_KEYWORD_RHS };
 
@@ -1067,6 +1070,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case COLON:
                 case VAR_REF_COLON:
+                case TYPE_REF_COLON:
                     hasMatch = nextToken.kind == SyntaxKind.COLON_TOKEN;
                     break;
                 case STRING_LITERAL_TOKEN:
@@ -1590,6 +1594,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPEDESC_TYPE_OR_TYPE_REF:
             case XML_TYPE_OR_TYPE_REF:
             case TYPEDESC_RHS_OR_TYPE_REF:
+            case TRANSACTION_STMT_RHS_OR_TYPE_REF:
             case TABLE_CONS_OR_QUERY_EXPR_OR_VAR_REF:
             case QUERY_EXPR_OR_VAR_REF:
             case ERROR_CONS_EXPR_OR_VAR_REF:
@@ -1892,6 +1897,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case TYPEDESC_RHS_OR_TYPE_REF:
                 alternativeRules = TYPEDESC_RHS_OR_TYPE_REF;
+                break;
+            case TRANSACTION_STMT_RHS_OR_TYPE_REF:
+                alternativeRules = TRANSACTION_STMT_RHS_OR_TYPE_REF;
                 break;
             case TABLE_CONS_OR_QUERY_EXPR_OR_VAR_REF:
                 alternativeRules = TABLE_CONS_OR_QUERY_EXPR_OR_VAR_REF;
@@ -2755,6 +2763,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case VAR_REF_COLON:
                 startContext(ParserRuleContext.VARIABLE_REF);
                 return ParserRuleContext.IDENTIFIER;
+            case TYPE_REF_COLON:
+                startContext(ParserRuleContext.VAR_DECL_STMT);
+                startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                return ParserRuleContext.IDENTIFIER;
             case STRING_LITERAL_TOKEN:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.SERVICE_DECL) {
@@ -3514,6 +3526,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.JOIN_KEYWORD;
             case TYPEDESC_KEYWORD:
                 return ParserRuleContext.TYPEDESC_TYPE_DESCRIPTOR_RHS;
+            case TRANSACTION_STMT_TRANSACTION_KEYWORD_RHS:
+                // We reach here without starting the `TRANSACTION_STMT` context. hence, start context
+                startContext(ParserRuleContext.TRANSACTION_STMT);
+                return ParserRuleContext.BLOCK_STMT;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -5112,6 +5128,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_MESSAGE_BINDING_PATTERN_END_COMMA:
                 return SyntaxKind.COMMA_TOKEN;
             case OPEN_BRACE:
+            case TRANSACTION_STMT_RHS_OR_TYPE_REF:
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case OPEN_PARENTHESIS:
             case ARG_LIST_OPEN_PAREN:
@@ -5148,6 +5165,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ABSOLUTE_PATH_SINGLE_SLASH:
                 return SyntaxKind.SLASH_TOKEN;
             case COLON:
+            case TYPE_REF_COLON:
+            case VAR_REF_COLON:
                 return SyntaxKind.COLON_TOKEN;
             case UNARY_OPERATOR:
             case COMPOUND_BINARY_OPERATOR:

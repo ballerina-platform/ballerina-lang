@@ -123,11 +123,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     public ArrayValueImpl(ArrayType type) {
         this.arrayType = type;
-        ArrayType arrayType = type;
-        this.elementType = arrayType.getElementType();
+        this.elementType = type.getElementType();
         initArrayValues(elementType);
-        if (arrayType.getState() == ArrayState.CLOSED) {
-            this.size = maxSize = arrayType.getSize();
+        if (type.getState() == ArrayState.CLOSED) {
+            this.size = maxSize = type.getSize();
         }
     }
 
@@ -731,7 +730,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return refs.get(this);
         }
 
-        ArrayValue valueArray = null;
+        ArrayValue valueArray;
         switch (this.elementType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.SIGNED32_INT_TAG:
@@ -789,7 +788,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param endIndex index of first member not to include in the slice
      * @return array slice within specified range
      */
-    @Deprecated
     public ArrayValueImpl slice(long startIndex, long endIndex) {
         ArrayValueImpl slicedArray;
         int slicedSize = (int) (endIndex - startIndex);

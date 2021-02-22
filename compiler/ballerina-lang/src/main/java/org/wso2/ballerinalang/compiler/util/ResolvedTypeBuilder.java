@@ -245,6 +245,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         newTableType.keyTypeConstraint = newKeyTypeConstraint;
         newTableType.fieldNameList = originalType.fieldNameList;
         newTableType.constraintPos = originalType.constraintPos;
+        newTableType.isTypeInlineDefined = originalType.isTypeInlineDefined;
         newTableType.keyPos = originalType.keyPos;
         setFlags(newTableType, originalType.flags);
         return newTableType;

@@ -17,7 +17,12 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.eclipse.lsp4j.Position;
+
+import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Represents the language server workspace service context.
@@ -26,6 +31,15 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
  */
 public interface WorkspaceServiceContext {
 
+    /**
+     * Get the symbols visible at a given cursor position of a given file.
+     *
+     * @param filePath  Path of the file in which the visible symbols are required to be found
+     * @param position cursor position
+     * @return {@link List}
+     */
+    List<Symbol> visibleSymbols(Path filePath, Position position);
+    
     /**
      * Get the workspace manager instance.
      *

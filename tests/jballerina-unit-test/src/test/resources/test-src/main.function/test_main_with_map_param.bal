@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
+import ballerina/jballerina.java;
 
 public type Employee record {
    string name;
@@ -21,7 +21,11 @@ public type Employee record {
 
 public function main(map<int> intMap, map<string> strMap, map<float> floatMap, map<boolean> boolMap, map<json> jsonMap,
                      map<Employee> empMap) {
-    io:print("integer: " + intMap.get("test").toString() + ", string: " + strMap.get("test") + ", float: " +
+    print("integer: " + intMap.get("test").toString() + ", string: " + strMap.get("test") + ", float: " +
             floatMap.get("test").toString()  + ", boolean: " + boolMap.get("test").toString() + ", json: " +
             jsonMap.get("test").toString() + ", Test Employee Name Field: " + empMap.get("test").name);
 }
+
+public function print(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

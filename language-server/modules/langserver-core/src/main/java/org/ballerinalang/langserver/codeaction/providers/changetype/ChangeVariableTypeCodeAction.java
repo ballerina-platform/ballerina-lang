@@ -38,6 +38,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -60,6 +61,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
@@ -72,7 +74,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         Symbol rhsTypeSymbol = ((DiagnosticProperty<Symbol>) props.get(FOUND_SYMBOL_INDEX)).value();
 
         // Skip, non-local var declarations
-        Node matchedNode = context.positionDetails().matchedNode();
+        Node matchedNode = positionDetails.matchedNode();
         if (matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
                 matchedNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
                 matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
@@ -86,16 +88,32 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         }
 
         // Derive possible types
+        Optional<String> typeNodeStr = getTypeNodeStr(typeNode.get());
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
         List<String> types = CodeActionUtil.getPossibleTypes((TypeSymbol) rhsTypeSymbol, importEdits, context);
         for (String type : types) {
+            if (typeNodeStr.isPresent() && typeNodeStr.get().equals(type)) {
+                // Skip suggesting same type
+                continue;
+            }
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(CommonUtil.toRange(typeNode.get().lineRange()), type));
             String commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), type);
             actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         }
         return actions;
+    }
+
+    private Optional<String> getTypeNodeStr(ExpressionNode expressionNode) {
+        if (expressionNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            SimpleNameReferenceNode sRefNode = (SimpleNameReferenceNode) expressionNode;
+            return Optional.of(sRefNode.name().text());
+        } else if (expressionNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qnRefNode = (QualifiedNameReferenceNode) expressionNode;
+            return Optional.of(qnRefNode.modulePrefix().text() + ":" + qnRefNode.identifier().text());
+        }
+        return Optional.empty();
     }
 
     private Optional<ExpressionNode> getTypeNode(Node matchedNode, CodeActionContext context) {
