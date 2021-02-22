@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
@@ -142,8 +143,8 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
                                                           AnnotationSymbol annotationSymbol) {
         Optional<TypeSymbol> attachedType = annotationSymbol.typeDescriptor();
         CompletionItem item = new CompletionItem();
-        item.setInsertText(annotationSymbol.name());
-        item.setLabel(annotationSymbol.name());
+        item.setInsertText(annotationSymbol.getName().get());
+        item.setLabel(annotationSymbol.getName().get());
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
         item.setKind(CompletionItemKind.Property);
@@ -165,7 +166,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
             case SIMPLE_NAME_REFERENCE:
                 String nameRef = ((SimpleNameReferenceNode) expressionNode).name().text();
                 for (Symbol symbol : visibleSymbols) {
-                    if (symbol.name().equals(nameRef)) {
+                    if (Objects.equals(symbol.getName().orElse(null), nameRef)) {
                         return Optional.of(symbol);
                     }
                 }
@@ -180,7 +181,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
                         return Optional.empty();
                     }
                     for (FunctionSymbol functionSymbol : moduleSymbol.get().functions()) {
-                        if (functionSymbol.name().equals(fName)) {
+                        if (functionSymbol.getName().get().equals(fName)) {
                             return Optional.of(functionSymbol);
                         }
                     }
@@ -188,7 +189,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
                 } else if (refName.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                     String funcName = ((SimpleNameReferenceNode) refName).name().text();
                     for (Symbol symbol : visibleSymbols) {
-                        if (symbol.kind() == FUNCTION && symbol.name().equals(funcName)) {
+                        if (symbol.kind() == FUNCTION && symbol.getName().get().equals(funcName)) {
                             return Optional.of(symbol);
                         }
                     }

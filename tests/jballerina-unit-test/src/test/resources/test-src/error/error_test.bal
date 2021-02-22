@@ -126,7 +126,8 @@ function testOneLinePanic() returns string[] {
         results[3] = error3.message();
         var detail = error3.detail();
         results[4] = <string> checkpanic detail.get("message");
-        results[5] = detail.get("statusCode").toString();
+        var statusCode = detail.get("statusCode");
+        results[5] = statusCode is error? statusCode.toString() : statusCode.toString();
     }
 
     return results;

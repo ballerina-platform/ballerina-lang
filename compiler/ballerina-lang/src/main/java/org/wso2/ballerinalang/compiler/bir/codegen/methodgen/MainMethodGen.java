@@ -107,8 +107,6 @@ public class MainMethodGen {
         // check for java compatibility
         generateJavaCompatibilityCheck(mv);
 
-        // set system properties
-        initConfigurations(mv);
         invokeConfigInit(mv, pkg.packageID);
         // start all listeners
         startListeners(mv, serviceEPAvailable);
@@ -179,14 +177,6 @@ public class MainMethodGen {
         String versionProperty = "java.version";
         String javaVersion = System.getProperty(versionProperty);
         return Objects.requireNonNullElse(javaVersion, "");
-    }
-
-    private void initConfigurations(MethodVisitor mv) {
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, JvmConstants.LAUNCH_UTILS,
-                           "initConfigurations",
-                           String.format("([L%s;)[L%s;", JvmConstants.STRING_VALUE, JvmConstants.STRING_VALUE), false);
-        mv.visitVarInsn(ASTORE, 0);
     }
 
     private void startListeners(MethodVisitor mv, boolean isServiceEPAvailable) {

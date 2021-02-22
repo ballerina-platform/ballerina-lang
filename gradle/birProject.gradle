@@ -29,11 +29,11 @@ task copyTomlFiles(type: Copy) {
 }
 
 task createBir {
-    dependsOn createBalo
+    dependsOn createBala
 
     doLast {
         copy {
-            def zipFile = zipTree("$buildDir/generated-balo/repo/" + project.ext.orgName + "/" + project.ext
+            def zipFile = zipTree("$buildDir/generated-bala/repo/" + project.ext.orgName + "/" + project.ext
                     .moduleName + "/" + project.ext.version + "/" + project.ext.moduleName + ".zip").matching {
                 include "**/*.bir"
             }.files
@@ -42,7 +42,7 @@ task createBir {
         }
     }
 
-    inputs.file "$buildDir/generated-balo/repo/" + project.ext.orgName + "/" + project.ext.moduleName + "/"+ project
+    inputs.file "$buildDir/generated-bala/repo/" + project.ext.orgName + "/" + project.ext.moduleName + "/"+ project
             .ext.version +"/" + project.ext.moduleName + ".zip"
     outputs.dir "$buildDir/generated-bir"
 }
@@ -143,7 +143,7 @@ publishing {
 
 test {
     dependsOn copySelfToBirCache
-    dependsOn createBalo
+    dependsOn createBala
 
     classpath += files("$buildDir/generated-bir-jar/" + project.ext.orgName + '-' + moduleName + "-" + project.ext
             .version + ".jar")
@@ -152,7 +152,7 @@ test {
 artifacts {
     bir file("$buildDir/generated-bir/"), { builtBy(createCacheEntries) }
     birJar file("$buildDir/generated-bir-jar/" + project.ext.orgName + '-' + moduleName + "-" + project.ext.version +
-            ".jar"), { builtBy(createBalo) }
+            ".jar"), { builtBy(createBala) }
 }
 
 def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {

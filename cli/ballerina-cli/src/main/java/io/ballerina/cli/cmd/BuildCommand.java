@@ -21,7 +21,7 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
-import io.ballerina.cli.task.CreateBaloTask;
+import io.ballerina.cli.task.CreateBalaTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunTestsTask;
@@ -250,7 +250,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new RunTestsTask(outStream, errStream, args, includes),
                         project.buildOptions().skipTests() || isSingleFileBuild)
                     // run tests (projects only)
-                .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
+                .addTask(new CreateBalaTask(outStream), isSingleFileBuild) // create the BALA ( build projects only)
                 .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
                 .build();
 

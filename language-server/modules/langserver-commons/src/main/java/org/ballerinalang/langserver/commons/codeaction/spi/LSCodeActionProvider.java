@@ -52,18 +52,22 @@ public interface LSCodeActionProvider {
      * Returns the list of code actions based on node type or diagnostics.
      *
      * @param context         language server context
+     * @param posDetails
      * @return list of Code Actions
      */
-    List<CodeAction> getNodeBasedCodeActions(CodeActionContext context);
+    List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                             NodeBasedPositionDetails posDetails);
 
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
      * @param diagnostic diagnostic to evaluate
+     * @param positionDetails   {@link DiagBasedPositionDetails}
      * @param context    language server context
      * @return list of Code Actions
      */
     List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                             DiagBasedPositionDetails positionDetails,
                                              CodeActionContext context);
 
     /**

@@ -47,7 +47,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Class providing utility methods to generate balo from package.
+ * Class providing utility methods to generate bala from package.
  *
  * @since 2.0.0
  */
@@ -92,14 +92,14 @@ public class BuildLangLib {
             }
 
             PackageManifest pkgDesc = pkg.manifest();
-            Path baloDirPath = pkgTargetPath.resolve("balo");
+            Path balaDirPath = pkgTargetPath.resolve("bala");
 
-            // Create balo cache directory
-            Path balrPath = baloDirPath.resolve(pkgDesc.org().toString())
+            // Create bala cache directory
+            Path balaPath = balaDirPath.resolve(pkgDesc.org().toString())
                     .resolve(pkgDesc.name().value())
                     .resolve(pkgDesc.version().toString());
-            Files.createDirectories(balrPath);
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath);
+            Files.createDirectories(balaPath);
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
 
             // Create zip file
             Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");

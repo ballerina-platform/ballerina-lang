@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
@@ -32,6 +33,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -60,8 +62,9 @@ public class AddCheckCodeAction extends TypeGuardCodeAction {
     }
 
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
-        Node matchedNode = context.positionDetails().matchedNode();
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                                    NodeBasedPositionDetails posDetails) {
+        NonTerminalNode matchedNode = posDetails.matchedStatementNode();
         boolean isAssignment = matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT;
         boolean isVarDeclr = matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL;
         // Skip, if not a var declaration or assignment
@@ -71,7 +74,7 @@ public class AddCheckCodeAction extends TypeGuardCodeAction {
 
         // Get LHS union type-symbol and type-desc-node of the variable
         Optional<Pair<UnionTypeSymbol, TypeDescriptorNode>> varTypeSymbolAndTypeDescNodePair =
-                getVarTypeSymbolAndTypeNode(matchedNode, context);
+                getVarTypeSymbolAndTypeNode(matchedNode, posDetails, context);
         if (varTypeSymbolAndTypeDescNodePair.isEmpty()) {
             return Collections.emptyList();
         }
@@ -91,7 +94,7 @@ public class AddCheckCodeAction extends TypeGuardCodeAction {
 
         // Generate RHS `check` text-edit
         Position pos = CommonUtil.toPosition(rhsExpression.get().lineRange().startLine());
-        List<TextEdit> edits = new ArrayList<>(getAddCheckTextEdits(pos, context));
+        List<TextEdit> edits = new ArrayList<>(getAddCheckTextEdits(pos, matchedNode, context));
 
         // Generate `error` member type removal text-edit
         edits.addAll(getErrorTypeRemovalTextEdits(varTypeDescNode, varTypeSymbol, context));

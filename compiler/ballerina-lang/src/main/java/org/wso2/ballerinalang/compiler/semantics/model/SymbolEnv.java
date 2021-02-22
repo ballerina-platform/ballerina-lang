@@ -345,10 +345,6 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv createStreamingInputEnv(BLangNode node, SymbolEnv env) {
-        return createEnv(node, env);
-    }
-
     public static SymbolEnv createLockEnv(BLangNode node, SymbolEnv env) {
         return createEnv(node, env);
     }

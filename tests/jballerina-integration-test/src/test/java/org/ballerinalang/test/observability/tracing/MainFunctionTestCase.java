@@ -33,6 +33,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.observability.ObservabilityConstants.DEFAULT_SERVICE_NAME;
+
 /**
  * Test cases for main function.
  */
@@ -70,7 +72,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":57:1"),
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":29:9")
         );
-        List<BMockSpan> spans = this.getFinishedSpans("Unknown Service");
+        List<BMockSpan> spans = this.getFinishedSpans(DEFAULT_SERVICE_NAME);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),

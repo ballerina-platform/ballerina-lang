@@ -10,17 +10,17 @@
   {
     "description": "Create XML element.",
     "code": "xmllib:Element x1 = <xmllib:Element> xml `<ns0:book ns0:status=\"available\" count=\"5\"/>`; x1",
-    "expr": "<ns0:book xmlns:ns0=\"http://ballerina.com/aa\" ns0:status=\"available\" count=\"5\"/>"
+    "expr": "xml`<ns0:book xmlns:ns0=\"http://ballerina.com/aa\" ns0:status=\"available\" count=\"5\"/>`"
   },
   {
     "description": "Attribute of the element.",
     "code": "x1.ns0:status",
-    "expr": "available"
+    "expr": "\"available\""
   },
   {
     "description": "Attributes access is lax types.",
     "code": "x1.count",
-    "expr": "5"
+    "expr": "\"5\""
   },
   {
     "description": "Accessing non-existing element will cause error.",
@@ -35,11 +35,11 @@
   {
     "description": "Get using string representation.",
     "code": "attributeMap[\"{http://ballerina.com/aa}status\"]",
-    "expr": "available"
+    "expr": "\"available\""
   },
   {
     "description": "Update attribute.",
     "code": "attributeMap[ns0:status] = \"Not Available\"; x1.ns0:status",
-    "expr": "Not Available"
+    "expr": "\"Not Available\""
   }
 ]

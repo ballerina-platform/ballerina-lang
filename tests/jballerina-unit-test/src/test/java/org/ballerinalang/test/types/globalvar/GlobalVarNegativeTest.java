@@ -84,10 +84,10 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "configurable variable cannot be declared with var", 20, 1);
         BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 22, 22);
         BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 24, 14);
-        BAssertUtil.validateError(result, i++, "missing close brace token", 31, 1);
-        BAssertUtil.validateError(result, i++, "invalid token '}'", 35, 1);
+        BAssertUtil.validateError(result, i++, "missing close brace token", 27, 1);
+        BAssertUtil.validateError(result, i++, "invalid token '}'", 31, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
-                "'(Person & readonly)'", 35, 14);
+                "'(xml & readonly)'", 31, 14);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

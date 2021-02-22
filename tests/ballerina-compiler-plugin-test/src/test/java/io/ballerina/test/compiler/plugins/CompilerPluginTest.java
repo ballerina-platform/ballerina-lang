@@ -40,7 +40,7 @@ public class CompilerPluginTest {
 
     @BeforeClass
     public void setup() {
-        CompileResult result = BCompileUtil.compileAndCacheBalo("test-src/proj");
+        CompileResult result = BCompileUtil.compileAndCacheBala("test-src/proj");
         compileResult = BCompileUtil.compile("test-src/compiler_plugin_test.bal");
     }
 

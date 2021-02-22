@@ -43,7 +43,7 @@ public class DocumentationLexer extends AbstractLexer {
     /**
      * Backtick mode to fall back.
      * <p>
-     * For code references, we switch to {@link ParserMode#DOC_CODE_LINE_INIT_HASH},
+     * For code references, we switch to {@link ParserMode#DOC_CODE_LINE_START_HASH},
      * to capture the initial hash of the code line.
      * Once it is captured, we need to fall back to the previous mode.
      */
@@ -52,7 +52,7 @@ public class DocumentationLexer extends AbstractLexer {
     public DocumentationLexer(CharReader charReader,
                               List<STNode> leadingTriviaList,
                               Collection<STNodeDiagnostic> diagnostics) {
-        super(charReader, ParserMode.DOC_LINE_INIT_HASH, leadingTriviaList, diagnostics);
+        super(charReader, ParserMode.DOC_LINE_START_HASH, leadingTriviaList, diagnostics);
     }
 
     /**
@@ -64,9 +64,9 @@ public class DocumentationLexer extends AbstractLexer {
     public STToken nextToken() {
         STToken token;
         switch (this.mode) {
-            case DOC_LINE_INIT_HASH:
+            case DOC_LINE_START_HASH:
                 processLeadingTrivia();
-                token = readDocLineInitHashToken();
+                token = readDocLineStartHashToken();
                 break;
             case DOC_LINE_DIFFERENTIATOR:
                 processLeadingTrivia();
@@ -95,9 +95,9 @@ public class DocumentationLexer extends AbstractLexer {
             case DOC_CODE_REF_END:
                 token = readCodeReferenceEndToken();
                 break;
-            case DOC_CODE_LINE_INIT_HASH:
+            case DOC_CODE_LINE_START_HASH:
                 processLeadingTrivia();
-                token = readCodeLineInitHashToken();
+                token = readCodeLineStartHashToken();
                 break;
             default:
                 token = null;
@@ -399,7 +399,7 @@ public class DocumentationLexer extends AbstractLexer {
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getCodeInitBacktickToken(SyntaxKind kind) {
+    private STToken getCodeStartBacktickToken(SyntaxKind kind) {
         STNode leadingTrivia = getLeadingTrivia();
 
         // We reach here for double and triple backtick tokens. Trailing trivia for those tokens can only be a newline.
@@ -412,14 +412,14 @@ public class DocumentationLexer extends AbstractLexer {
             reader.mark();
             triviaList.add(processEndOfLine());
             previousBacktickMode = this.mode; // store the the current mode to fall back later
-            switchMode(ParserMode.DOC_CODE_LINE_INIT_HASH);
+            switchMode(ParserMode.DOC_CODE_LINE_START_HASH);
         }
 
         trailingTrivia = STNodeFactory.createNodeList(triviaList);
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getCodeLineInitHashToken() {
+    private STToken getCodeLineStartHashToken() {
         STNode leadingTrivia = getLeadingTrivia();
         STNode trailingTrivia = processTrailingTrivia();
 
@@ -448,11 +448,11 @@ public class DocumentationLexer extends AbstractLexer {
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * DOC_LINE_INIT_HASH Mode
+     * DOC_LINE_START_HASH Mode
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readDocLineInitHashToken() {
+    private STToken readDocLineStartHashToken() {
         reader.mark();
         if (reader.isEOF()) {
             return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
@@ -465,7 +465,8 @@ public class DocumentationLexer extends AbstractLexer {
             return getDocSyntaxToken(SyntaxKind.HASH_TOKEN);
         }
 
-        throw new IllegalStateException("documentation line should always start with a hash");
+        assert false : "Documentation line should always start with a hash";
+        return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
     }
 
     /*
@@ -504,10 +505,10 @@ public class DocumentationLexer extends AbstractLexer {
         if (peek() == LexerTerminals.BACKTICK) {
             reader.advance();
             switchMode(ParserMode.DOC_TRIPLE_BACKTICK_CONTENT);
-            return getCodeInitBacktickToken(SyntaxKind.TRIPLE_BACKTICK_TOKEN);
+            return getCodeStartBacktickToken(SyntaxKind.TRIPLE_BACKTICK_TOKEN);
         } else {
             switchMode(ParserMode.DOC_DOUBLE_BACKTICK_CONTENT);
-            return getCodeInitBacktickToken(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
+            return getCodeStartBacktickToken(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
         }
     }
 
@@ -566,13 +567,13 @@ public class DocumentationLexer extends AbstractLexer {
             if (nextChar != LexerTerminals.BACKTICK) {
                 // double backtick
                 switchMode(ParserMode.DOC_DOUBLE_BACKTICK_CONTENT);
-                return getCodeInitBacktickToken(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
+                return getCodeStartBacktickToken(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
             }
 
             reader.advance();
             // triple backtick
             switchMode(ParserMode.DOC_TRIPLE_BACKTICK_CONTENT);
-            return getCodeInitBacktickToken(SyntaxKind.TRIPLE_BACKTICK_TOKEN);
+            return getCodeStartBacktickToken(SyntaxKind.TRIPLE_BACKTICK_TOKEN);
         }
 
         while (!reader.isEOF()) {
@@ -681,8 +682,8 @@ public class DocumentationLexer extends AbstractLexer {
             }
             // If the parameter name is not followed by a minus token switch the mode.
             // However, if the parameter name ends with a newline DOC_PARAMETER mode is already ended.
-            // Therefore, DOC_LINE_INIT_HASH is the active mode. In that case do not switch mode.
-            if (peek() != LexerTerminals.MINUS && this.mode != ParserMode.DOC_LINE_INIT_HASH) {
+            // Therefore, DOC_LINE_START_HASH is the active mode. In that case do not switch mode.
+            if (peek() != LexerTerminals.MINUS && this.mode != ParserMode.DOC_LINE_START_HASH) {
                 switchMode(ParserMode.DOC_INTERNAL);
             }
             return token;
@@ -739,7 +740,8 @@ public class DocumentationLexer extends AbstractLexer {
             case LexerTerminals.CONST:
                 return getDocSyntaxToken(SyntaxKind.CONST_DOC_REFERENCE_TOKEN);
             default:
-                throw new IllegalStateException();
+                assert false : "Invalid reference type";
+                return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
     }
 
@@ -820,7 +822,7 @@ public class DocumentationLexer extends AbstractLexer {
                 case LexerTerminals.CARRIAGE_RETURN:
                 case LexerTerminals.NEWLINE:
                     previousBacktickMode = this.mode;
-                    switchMode(ParserMode.DOC_CODE_LINE_INIT_HASH);
+                    switchMode(ParserMode.DOC_CODE_LINE_START_HASH);
                     break;
                 default:
                     reader.advance();
@@ -831,6 +833,7 @@ public class DocumentationLexer extends AbstractLexer {
         }
 
         if (getLexeme().isEmpty()) {
+            // We only reach here for ``<empty_code>`` and ```<empty_code>```
             return readCodeReferenceEndToken();
         }
 
@@ -868,16 +871,17 @@ public class DocumentationLexer extends AbstractLexer {
             }
         }
 
-        throw new IllegalStateException("Invalid character: Expected a backtick");
+        assert false : "Invalid character: Expected a backtick";
+        return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
     }
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * DOC_CODE_LINE_INIT_HASH Mode
+     * DOC_CODE_LINE_START_HASH Mode
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readCodeLineInitHashToken() {
+    private STToken readCodeLineStartHashToken() {
         reader.mark();
         if (reader.isEOF()) {
             return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
@@ -885,9 +889,10 @@ public class DocumentationLexer extends AbstractLexer {
         int nextChar = peek();
         if (nextChar == LexerTerminals.HASH) {
             reader.advance();
-            return getCodeLineInitHashToken();
+            return getCodeLineStartHashToken();
         }
 
-        throw new IllegalStateException("Invalid character: Expected a hash");
+        assert false : "Invalid character: Expected a hash";
+        return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
     }
 }

@@ -23,7 +23,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
@@ -34,6 +34,8 @@ import org.ballerinalang.debugadapter.utils.PackageUtils;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
+import static org.ballerinalang.debugadapter.DebugSourceType.SINGLE_FILE;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
@@ -63,8 +65,7 @@ public class SuspendedContext {
         this.frame = frame;
         this.project = project;
         this.projectRoot = project.sourceRoot().toAbsolutePath().toString();
-        this.sourceType = (project instanceof SingleFileProject) ? DebugSourceType.SINGLE_FILE :
-                DebugSourceType.PACKAGE;
+        this.sourceType = (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) ? SINGLE_FILE : PACKAGE;
         this.lineNumber = -1;
         this.fileName = null;
         this.breakPointSourcePath = null;

@@ -363,7 +363,7 @@ function testStaticMatchOrPatterns2() returns string[] {
     anydata t3 = t2;
     [int, string] t4 = [15, "Ballerina"];
     [int, string] t5 = [20, "Ballerina"];
-    [int, string] t6 = [20, "Balo"];
+    [int, string] t6 = [20, "Bala"];
     [int, string] t7 = [20, "NothingToMatch"];
 
     [int, string, byte] t8 = [15, "Bal", 100];
@@ -383,7 +383,7 @@ function caz1(anydata f) returns string {
         15 | [12, "Ballerina"] => {
             return "Value is : " + io:sprintf("%s", f);
         }
-        [15, "Ballerina"] | [20, "Ballerina"] | [20, "Balo"] => {
+        [15, "Ballerina"] | [20, "Ballerina"] | [20, "Bala"] => {
             return "Value is : " + io:sprintf("%s", f);
         }
         [15, "Bal", 100] | [15, "Bal", 200, 400] | [15, "Bal", "Ballerina", 5678, "Test"] => {
