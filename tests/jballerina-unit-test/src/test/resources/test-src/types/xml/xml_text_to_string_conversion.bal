@@ -70,22 +70,8 @@ function getXMLText() returns 'xml:Text {
     return xml `my world`;
 }
 
-function testXMLWithAngleBrackets() {
-    xml xy = xml`x&amp;y`;
-    xml:Element e = xml`<p/>`;
-    e.setChildren(xy);
-    xml exy = xy + e + xy;
-
-    string expected = "x&amp;y<p>x&amp;y</p>x&amp;y";
-    if (exy.toString() == expected) {
-        return;
-    }
-    panic error(ASSERTION_ERR_REASON + ": expected: " + expected + " found: " + exy.toString());
-}
-
 function testXMLTestToStringConversion() {
     assignToString();
     passToFunction();
     invokeLangLibMethods();
-    testXMLWithAngleBrackets();
 }

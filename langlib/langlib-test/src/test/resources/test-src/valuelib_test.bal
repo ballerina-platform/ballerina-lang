@@ -1446,3 +1446,16 @@ function testAssigningCloneableToAnyOrError() {
 
     panic error("Invalid value.", message = "Expected 25");
 }
+
+function testXMLWithAngleBrackets() {
+    xml xy = xml`x&amp;y`;
+    xml:Element e = xml`<p/>`;
+    e.setChildren(xy);
+    xml exy = xy + e + xy;
+
+    string expected = "x&amp;y<p>x&amp;y</p>x&amp;y";
+    if (exy.toString() == expected) {
+        return;
+    }
+    panic error("AssertionError : expected: " + expected + " found: " + exy.toString());
+}
