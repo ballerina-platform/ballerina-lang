@@ -66,12 +66,13 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
     }
 
-    @Test(description = "Variable visibility test at the beginning of the main() method")
+    @Test(description = "Variable visibility test at the beginning(first line) of the main() method")
     public void initialVariableVisibilityTest() throws BallerinaTestException {
         debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         globalVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.GLOBAL);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
 
+        // TODO - enable test
         // local variable visibility test at the beginning of the main() method (should be 0).
         // Assert.assertEquals(localVariables.size(), 0);
 
@@ -80,16 +81,18 @@ public class VariableVisibilityTest extends BaseTestCase {
     }
 
     @Test(dependsOnMethods = "initialVariableVisibilityTest",
-        description = "Variable visibility test in the middle of the main() method")
-    public void midVariableVisibilityTest() throws BallerinaTestException {
+        description = "Variable visibility test in the middle of the main() method for a new variable")
+    public void newVariableVisibilityTest() throws BallerinaTestException {
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
 
+        // TODO - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/28064
         // local variable visibility test in the middle of the main() method,
         // all the variables above the debug point should be visible,
         // Assert.assertEquals(localVariables.size(), 30);
 
+        // TODO - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/28064
         // debug point variable should not be visible
         // Assert.assertFalse(localVariables.containsKey("byteVar"));
 
@@ -97,11 +100,12 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
+        // TODO - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/28064
         // Assert.assertEquals(localVariables.size(), 31);
         Assert.assertTrue(localVariables.containsKey("byteVar"));
     }
 
-    @Test(dependsOnMethods = "midVariableVisibilityTest",
+    @Test(dependsOnMethods = "newVariableVisibilityTest",
         description = "Variable visibility test in control flows")
     public void controlFlowVariableVisibilityTest() throws BallerinaTestException {
 
@@ -132,6 +136,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         // local variable visibility test inside `foreach` loop.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        // TODO - Enable test
         // Assert.assertEquals(localVariables.size(), 37);
 
         // local variable visibility test inside `match` statement.
@@ -164,7 +169,9 @@ public class VariableVisibilityTest extends BaseTestCase {
         // debugTestRunner.assertVariable(globalVariables, "nameWithType", "Ballerina", "string");
         debugTestRunner.assertVariable(globalVariables, "nameMap", "map", "map");
         debugTestRunner.assertVariable(globalVariables, "nilWithoutType", "()", "nil");
+        debugTestRunner.assertVariable(globalVariables, "nilWithType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "RED", "()", "nil");
+        // TODO - Enable test
         // debugTestRunner.assertVariable(globalVariables, "BLUE", "Blue", "string");
 
         // global variables
