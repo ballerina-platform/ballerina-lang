@@ -141,33 +141,46 @@ public class BindingsGenerator {
     private void resolvePlatformLibraries() throws BindgenException {
         if (env.getProjectRoot() != null) {
             TomlDocument tomlDocument = env.getTomlDocument();
-            if (tomlDocument != null) {
-                PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
-                        env.getProjectRoot()).packageManifest();
-                if (packageManifest != null) {
-                    PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_11.code());
-                    if (platform != null && platform.dependencies() != null) {
-                        for (Map<String, Object> library : platform.dependencies()) {
-                            if (library.get("path") != null) {
-                                Path libraryPath;
-                                String libPathVal = library.get("path").toString();
-                                if (Paths.get(libPathVal).isAbsolute()) {
-                                    libraryPath = Paths.get(libPathVal);
-                                } else {
-                                    libraryPath = Paths.get(env.getProjectRoot().toString(), libPathVal);
-                                }
-                                env.addClasspath(libraryPath.toString());
-                            } else if (library.get("groupId") != null && library.get("artifactId") != null &&
-                                    library.get("version") != null) {
-                                new BindgenMvnResolver(outStream, env).mavenResolver(library.get("groupId").toString(),
-                                        library.get("artifactId").toString(), library.get("version").toString(),
-                                        env.getProjectRoot(), false);
-                            }
-                        }
+            PackageManifest.Platform platform = getPackagePlatform(tomlDocument);
+            if (platform != null && platform.dependencies() != null) {
+                for (Map<String, Object> library : platform.dependencies()) {
+                    if (library.get("path") != null) {
+                        handlePathDependency(library.get("path").toString());
+                    } else if (library.get("groupId") != null && library.get("artifactId") != null &&
+                            library.get("version") != null) {
+                        resolveMvnDependency(library.get("groupId").toString(),
+                                library.get("artifactId").toString(), library.get("version").toString());
                     }
                 }
             }
         }
+    }
+
+    private PackageManifest.Platform getPackagePlatform(TomlDocument tomlDocument) {
+        if (tomlDocument != null) {
+            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
+                    env.getProjectRoot()).packageManifest();
+            if (packageManifest != null) {
+                return packageManifest.platform(JvmTarget.JAVA_11.code());
+            }
+        }
+        return null;
+    }
+
+    private void handlePathDependency(String libPath) {
+        Path libraryPath;
+        if (Paths.get(libPath).isAbsolute()) {
+            libraryPath = Paths.get(libPath);
+        } else {
+            libraryPath = Paths.get(env.getProjectRoot().toString(), libPath);
+        }
+        env.addClasspath(libraryPath.toString());
+    }
+
+    private void resolveMvnDependency(String mvnGroupId, String mvnArtifactId, String mvnVersion)
+            throws BindgenException {
+        new BindgenMvnResolver(outStream, env).mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion,
+                env.getProjectRoot(), false);
     }
 
     private ClassLoader setClassLoader() throws BindgenException {
