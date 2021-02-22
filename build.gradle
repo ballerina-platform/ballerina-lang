@@ -81,13 +81,13 @@ def execFilesArray = []
 task copyExecFilesAndJavaClassFiles {
     subprojects.forEach { subproject -> 
         def execFile = new File("${subproject.buildDir}/jacoco/jacoco.exec")
-        if(execFile.exists()){
+        if (execFile.exists()) {
             execFilesArray.push(execFile)
-            fileTree("${subproject.buildDir}/classes").matching{
+            fileTree("${subproject.buildDir}/classes").matching {
                 exclude '**/test/*'
                 exclude '**/module-info.class'
                 include '**/*.class'
-            }.each{file->classFilesArray.push(file)}
+            }.each { file -> classFilesArray.push(file) }
         }
     }
 }
@@ -95,7 +95,7 @@ task copyExecFilesAndJavaClassFiles {
 task copyBallerinaClassFiles {
     subprojects.forEach { subproject -> 
     def ballerinaSourceDirectory = new File("${subproject.buildDir}/ballerina-src")
-        if(ballerinaSourceDirectory.exists() && subproject.projectDir.getParentFile().getName() == "langlib") {
+        if (ballerinaSourceDirectory.exists() && subproject.projectDir.getParentFile().getName() == "langlib") {
             fileTree("${subproject.buildDir}/ballerina-src/target").include("**/*.zip").forEach { zip ->
                 def jarFiles = zipTree(zip).matching { include '**/*.jar' } 
                 jarFiles.forEach { jar ->
@@ -111,7 +111,7 @@ task copyBallerinaClassFiles {
                         exclude '**/$value$_Frame.class'
                         include '**/*.class'
                     }
-                    .each {file-> classFilesArray.push(file)}
+                    .each { file -> classFilesArray.push(file) }
                 }
             }
         }
