@@ -22,6 +22,7 @@ import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static io.ballerina.projects.util.ProjectConstants.INTERNAL_VERSION;
@@ -187,6 +189,12 @@ public class BallerinaTomlTests {
 
     @Test
     public void testBallerinaTomlWithInvalidOrgNameVersion() throws IOException {
+        // TODO: enable this after the alpha2-release
+        String os = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+        if (os.contains("win")) {
+            throw new SkipException("Skipping tests on Windows");
+        }
+
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("invalid-org-name-version.toml"));
         Assert.assertTrue(packageManifest.diagnostics().hasErrors());
         Assert.assertEquals(packageManifest.diagnostics().errors().size(), 3);

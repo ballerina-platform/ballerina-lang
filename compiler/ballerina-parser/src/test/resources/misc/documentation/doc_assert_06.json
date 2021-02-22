@@ -24,14 +24,20 @@
                           "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " Test deprected documentation",
+                                  "value": "Test deprecated documentation",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -44,17 +50,38 @@
                           ]
                         },
                         {
-                          "kind": "MARKDOWN_CODE_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "CODE_DESCRIPTION",
-                                  "value": " ``# WS # WS Deprecated`` is a valid deprecation documentation line",
+                                  "kind": "INLINE_CODE_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CODE_CONTENT",
+                                      "value": "# WS # WS Deprecated"
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": " is a valid deprecation documentation line",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -70,7 +97,13 @@
                           "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -78,12 +111,6 @@
                                 {
                                   "kind": "DEPRECATION_LITERAL",
                                   "value": "# Deprecated",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -99,7 +126,13 @@
                           "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "   "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -107,12 +140,6 @@
                                 {
                                   "kind": "DEPRECATION_LITERAL",
                                   "value": "# Deprecated",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "   "
-                                    }
-                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -128,7 +155,13 @@
                           "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -136,12 +169,6 @@
                                 {
                                   "kind": "DEPRECATION_LITERAL",
                                   "value": "#     Deprecated",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -157,7 +184,13 @@
                           "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "   "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -165,12 +198,6 @@
                                 {
                                   "kind": "DEPRECATION_LITERAL",
                                   "value": "#   Deprecated",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "   "
-                                    }
-                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -209,20 +236,20 @@
                           "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DEPRECATION_LITERAL",
-                                  "value": "# Deprecated",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "# Deprecated"
                                 },
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",

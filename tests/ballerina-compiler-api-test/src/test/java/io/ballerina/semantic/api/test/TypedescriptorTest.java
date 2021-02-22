@@ -73,7 +73,9 @@ import java.util.stream.Collectors;
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
+import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
@@ -600,6 +602,38 @@ public class TypedescriptorTest {
         assertEquals(symbol.kind(), TYPE);
         assertEquals(((TypeSymbol) symbol).typeKind(), TYPE_REFERENCE);
         assertEquals(((TypeReferenceTypeSymbol) symbol).getName().get(), "CancelledError");
+    }
+
+    @Test(dataProvider = "ConstantPosProvider")
+    public void testConstantTypeSignature(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        assertEquals(symbol.kind(), CONSTANT);
+        assertEquals(((ConstantSymbol) symbol).typeKind(), SINGLETON);
+        assertEquals(((ConstantSymbol) symbol).signature(), signature);
+    }
+
+    @DataProvider(name = "ConstantPosProvider")
+    public Object[][] getConstPos() {
+        return new Object[][]{
+                {16, 6, "3.14"},
+                {210, 6, "()"},
+        };
+    }
+
+    @Test(dataProvider = "SingletonPosProvider")
+    public void testSingletonTypeSignature(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        assertEquals(symbol.kind(), TYPE_DEFINITION);
+        assertEquals(((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind(), SINGLETON);
+        assertEquals(((TypeDefinitionSymbol) symbol).typeDescriptor().signature(), signature);
+    }
+
+    @DataProvider(name = "SingletonPosProvider")
+    public Object[][] getSingletonTypePos() {
+        return new Object[][]{
+                {211, 5, "()"},
+                {213, 5, "3.14"},
+        };
     }
 
     private Symbol getSymbol(int line, int column) {
