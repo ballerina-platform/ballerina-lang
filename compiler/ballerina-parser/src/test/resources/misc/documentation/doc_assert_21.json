@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,31 +8,42 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "MARKDOWN_DOCUMENTATION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " Adds two parameters",
+                                  "value": "Adds two parameters",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -47,16 +59,16 @@
                           "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
-                            },
-                            {
-                              "kind": "PLUS_TOKEN",
-                              "leadingMinutiae": [
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
                                   "value": " "
                                 }
-                              ],
+                              ]
+                            },
+                            {
+                              "kind": "PLUS_TOKEN",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -75,14 +87,20 @@
                               ]
                             },
                             {
-                              "kind": "MINUS_TOKEN"
+                              "kind": "MINUS_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " one thing to be added",
+                                  "value": "one thing to be added",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -96,18 +114,19 @@
                         },
                         {
                           "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
-                            },
-                            {
-                              "kind": "PLUS_TOKEN",
-                              "leadingMinutiae": [
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
                                   "value": " "
                                 }
-                              ],
+                              ]
+                            },
+                            {
+                              "kind": "PLUS_TOKEN",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -127,7 +146,11 @@
                             },
                             {
                               "kind": "MINUS_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "WARNING_MISSING_HYPHEN_TOKEN"
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -137,18 +160,19 @@
                         },
                         {
                           "kind": "MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
-                            },
-                            {
-                              "kind": "PLUS_TOKEN",
-                              "leadingMinutiae": [
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
                                   "value": " "
                                 }
-                              ],
+                              ]
+                            },
+                            {
+                              "kind": "PLUS_TOKEN",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -167,7 +191,11 @@
                             },
                             {
                               "kind": "MINUS_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "WARNING_MISSING_HYPHEN_TOKEN"
+                              ]
                             },
                             {
                               "kind": "LIST",

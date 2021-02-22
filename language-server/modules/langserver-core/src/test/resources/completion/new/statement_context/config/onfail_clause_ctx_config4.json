@@ -114,7 +114,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "O",
-      "insertText": "if (${1:true}) {\n\t${2}\n}",
+      "insertText": "if ${1:true} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -122,7 +122,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "O",
-      "insertText": "while (${1:true}) {\n\t${2}\n}",
+      "insertText": "while ${1:true} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -195,6 +195,14 @@
       "detail": "Statement",
       "sortText": "O",
       "insertText": "panic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream<> streamName = new;",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "stream<${1}> ${2:streamName} = new;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -547,14 +555,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map",
-      "kind": "TypeParameter",
-      "detail": "type ",
-      "sortText": "Q",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -576,14 +576,6 @@
       "detail": "Snippet",
       "sortText": "O",
       "insertText": "record {|${1}|}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {

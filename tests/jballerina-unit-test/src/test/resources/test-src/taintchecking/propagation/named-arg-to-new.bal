@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 
 public class Client {
 
@@ -16,14 +16,18 @@ public class Client {
 
 public function main(string... argv) {
     callClient(argv[0]);
-    io:println("Completed");
+    println("Completed");
 }
 
 function callClient(string username) {
      Client|error p1 = new(user=username);
-     io:println("Call Completed");
+     println("Call Completed");
 }
 
 function bar(@untainted string? arg) {
 
 }
+
+public function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

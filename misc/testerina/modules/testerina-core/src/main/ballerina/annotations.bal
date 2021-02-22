@@ -72,4 +72,4 @@ public annotation BeforeEach on function;
 public annotation AfterEach on function;
 
 # Identifies the MockFunction object
-public const annotation MockConfig Mock on source var;
+public const annotation MockConfig Mock on source var, function;

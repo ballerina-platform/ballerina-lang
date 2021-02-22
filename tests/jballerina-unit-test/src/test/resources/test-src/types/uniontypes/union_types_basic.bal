@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 
 function testUnionTypeBasics1() returns [int|float|string, int|string] {
     int|float|string aaa = 12330;
@@ -54,19 +54,19 @@ function testNullableTypeBasics2() returns (int|boolean|()) {
     int|float|() x = ();
 
     if x is float|int {
-        io:println("int");
+        println("int");
     } else {
-        io:println("null");
+        println("null");
     }
 
     int|boolean|() i = ();
 
     if i is int {
-        io:println("int");
+        println("int");
     } else if i is boolean {
-        io:println("boolean");
+        println("boolean");
     } else {
-        io:println(i);
+        println(i);
     }
 
     return i;
@@ -225,3 +225,7 @@ function assertEquality(any|error expected, any|error actual) {
     panic error(ASSERTION_ERR_REASON,
                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
+
+public function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;
