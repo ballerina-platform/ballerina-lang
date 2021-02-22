@@ -436,7 +436,6 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangConstPattern constMatchPattern) {
         find(constMatchPattern.expr);
-        find(constMatchPattern.matchExpr);
     }
 
     @Override
@@ -557,7 +556,6 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
-        find(matchClause.expr);
         find(matchClause.matchGuard);
         find(matchClause.blockStmt);
         find(matchClause.matchPatterns);
