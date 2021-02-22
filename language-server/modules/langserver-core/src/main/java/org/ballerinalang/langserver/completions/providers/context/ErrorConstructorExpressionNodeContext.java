@@ -48,7 +48,8 @@ public class ErrorConstructorExpressionNodeContext extends AbstractCompletionPro
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ErrorConstructorExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
+                                                 ErrorConstructorExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (withinArgs(context, node)) {
