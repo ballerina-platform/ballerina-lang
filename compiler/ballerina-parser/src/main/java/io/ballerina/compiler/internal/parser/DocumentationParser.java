@@ -258,12 +258,6 @@ public class DocumentationParser extends AbstractParser {
     private STNode parseInlineCode(STNode startBacktick) {
         STNode codeDescription = parseInlineCodeContentToken();
         STNode endBacktick = parseCodeEndBacktick(startBacktick.kind);
-
-        if (endBacktick.isMissing() && endBacktick.kind != SyntaxKind.BACKTICK_TOKEN) {
-            endBacktick = SyntaxErrors.addDiagnostic(endBacktick,
-                    DiagnosticWarningCode.WARNING_INLINE_CODE_REFERENCE_NOT_ENDED_WITH_BACKTICKS);
-        }
-
         return STNodeFactory.createInlineCodeReferenceNode(startBacktick, codeDescription, endBacktick);
     }
 
@@ -283,7 +277,7 @@ public class DocumentationParser extends AbstractParser {
             token = consume();
             return convertToCodeContentToken(token);
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.CODE_CONTENT);
+            return createMissingTokenWithDiagnostics(SyntaxKind.CODE_CONTENT);
         }
     }
 
@@ -391,7 +385,7 @@ public class DocumentationParser extends AbstractParser {
         if (token.kind == SyntaxKind.HASH_TOKEN) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.HASH_TOKEN);
+            return createMissingTokenWithDiagnostics(SyntaxKind.HASH_TOKEN);
         }
     }
 
@@ -406,7 +400,7 @@ public class DocumentationParser extends AbstractParser {
         if (token.kind == backtickKind) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(backtickKind);
+            return createMissingTokenWithDiagnostics(backtickKind);
         }
     }
 
@@ -643,7 +637,7 @@ public class DocumentationParser extends AbstractParser {
         if (tokenKind == SyntaxKind.PARAMETER_NAME || tokenKind == SyntaxKind.RETURN_KEYWORD) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.PARAMETER_NAME);
+            return createMissingTokenWithDiagnostics(SyntaxKind.PARAMETER_NAME);
         }
     }
 
@@ -657,7 +651,7 @@ public class DocumentationParser extends AbstractParser {
         if (token.kind == SyntaxKind.MINUS_TOKEN) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.MINUS_TOKEN);
+            return createMissingTokenWithDiagnostics(SyntaxKind.MINUS_TOKEN);
         }
     }
 
@@ -671,7 +665,7 @@ public class DocumentationParser extends AbstractParser {
         if (token.kind == SyntaxKind.BACKTICK_TOKEN) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
+            return createMissingTokenWithDiagnostics(SyntaxKind.BACKTICK_TOKEN);
         }
     }
 
@@ -695,7 +689,7 @@ public class DocumentationParser extends AbstractParser {
 
     private STNode combineAndCreateCodeContentToken() {
         if (!isBacktickExprToken(peek().kind)) {
-            return STNodeFactory.createMissingToken(SyntaxKind.CODE_CONTENT);
+            return createMissingTokenWithDiagnostics(SyntaxKind.CODE_CONTENT);
         }
 
         StringBuilder backtickContent = new StringBuilder();
@@ -792,7 +786,7 @@ public class DocumentationParser extends AbstractParser {
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            return createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN);
         }
     }
 
@@ -847,7 +841,7 @@ public class DocumentationParser extends AbstractParser {
         if (token.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
+            return createMissingTokenWithDiagnostics(SyntaxKind.OPEN_PAREN_TOKEN);
         }
     }
 
@@ -861,8 +855,12 @@ public class DocumentationParser extends AbstractParser {
         if (token.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+            return createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_PAREN_TOKEN);
         }
+    }
+
+    private STNode createMissingTokenWithDiagnostics(SyntaxKind expectedKind) {
+        return SyntaxErrors.createMissingDocTokenWithDiagnostics(expectedKind);
     }
 
     private STNode createMarkdownDocumentationLineNode(STNode hashToken, STNode documentationElements) {
