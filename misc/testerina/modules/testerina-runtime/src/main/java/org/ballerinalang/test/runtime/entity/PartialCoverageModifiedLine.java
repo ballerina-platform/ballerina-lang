@@ -46,7 +46,7 @@ public class PartialCoverageModifiedLine implements ILine {
     }
 
     /**
-     * As implemented in org.jacoco.core.internal.analysis.LineImpl#getStatus()
+     * As implemented in org.jacoco.core.internal.analysis.LineImpl#getStatus().
      */
     @Override
     public int getStatus() {
