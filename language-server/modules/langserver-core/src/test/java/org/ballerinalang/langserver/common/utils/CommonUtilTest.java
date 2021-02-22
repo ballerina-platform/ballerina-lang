@@ -20,12 +20,12 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Tests for {@link CommonUtil}s
+ * Tests for {@link CommonUtil}s.
  */
 public class CommonUtilTest {
 
     /**
-     * Tests the correctness of {@link CommonUtil#isIdentifierValid(String)} method
+     * Tests the correctness of {@link CommonUtil#isIdentifierValid(String)} method.
      */
     @Test(dataProvider = "data-provider")
     public void testIsIdentifierValid(String identifier, boolean valid) {

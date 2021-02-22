@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.common.constants;
 
 /**
- * Holds constants related to regex patterns
+ * Holds constants related to regex patterns.
  *
  * @since 2.0.0
  */
@@ -54,7 +54,7 @@ public class PatternConstants {
             IDENTIFIER_ESCAPE_PATTERN + ")+";
     
     /**
-     * Regex to match a valid identifier name as per the ballerina specification
+     * Regex to match a valid identifier name as per the ballerina specification.
      */
     public static final String IDENTIFIER_PATTERN = UNQUOTED_IDENTIFIER_PATTERN + "|" + QUOTED_IDENTIFIER_PATTERN;
 }

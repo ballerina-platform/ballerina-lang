@@ -694,7 +694,7 @@ public class CommonUtil {
     }
 
     /**
-     * Checks if the provided identifier is valid as per the ballerina specification
+     * Checks if the provided identifier is valid as per the ballerina specification.
      *
      * @param identifier Identifier to be checked for validity
      * @return True, if the identifier is valid as per the ballerina specification

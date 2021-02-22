@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A utility to handle renaming related operations
+ * A utility to handle renaming related operations.
+ * 
+ * @since 2.0.0
  */
 public class RenameUtil {
 
@@ -23,7 +25,7 @@ public class RenameUtil {
     }
 
     /**
-     * Process a rename request and returns the text edits required to be made to complete the rename
+     * Process a rename request and returns the text edits required to be made to complete the rename.
      *
      * @param context Context
      * @param newName Assigned identifier after renaming
