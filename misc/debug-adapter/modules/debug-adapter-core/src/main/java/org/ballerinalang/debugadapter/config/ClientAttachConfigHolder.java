@@ -36,10 +36,10 @@ public class ClientAttachConfigHolder extends ClientConfigHolder {
 
     public Optional<String> getHostName() {
         if (hostName == null) {
-            if (!args.containsKey(ARG_DEBUGGEE_HOST)) {
+            if (!clientRequestArgs.containsKey(ARG_DEBUGGEE_HOST)) {
                 return Optional.empty();
             }
-            hostName = args.get(ARG_DEBUGGEE_HOST).toString();
+            hostName = clientRequestArgs.get(ARG_DEBUGGEE_HOST).toString();
         }
         return Optional.ofNullable(hostName);
     }

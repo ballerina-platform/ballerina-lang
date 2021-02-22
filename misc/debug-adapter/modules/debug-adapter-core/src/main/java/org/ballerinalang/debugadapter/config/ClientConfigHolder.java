@@ -25,27 +25,17 @@ import java.util.Map;
  */
 public class ClientConfigHolder {
 
-    protected Map<String, Object> args;
+    protected Map<String, Object> clientRequestArgs;
     private final ClientConfigKind kind;
-    // Source directory path of the currently opened file in the client side.
     private static String sourcePath;
     private static Integer debuggePort;
 
     protected static final String ARG_FILE_PATH = "script";
-    protected static final String ARG_BALLERINA_HOME = "ballerina.home";
-    protected static final String ARG_DEBUGGEE_HOST = "debuggeePort";
+    protected static final String ARG_DEBUGGEE_HOST = "debuggeeHost";
     protected static final String ARG_DEBUGGEE_PORT = "debuggeePort";
-    protected static final String ARG_BALLERINA_COMMAND = "ballerina.command";
-    protected static final String ARG_TEST_DEBUG = "debugTests";
-    protected static final String ARG_NETWORK_LOGS = "networkLogs";
-    protected static final String ARG_NETWORK_LOGS_PORT = "networkLogsPort";
-    protected static final String ARG_COMMAND_OPTIONS = "commandOptions";
-    protected static final String ARG_SCRIPT_ARGUMENTS = "scriptArguments";
-    protected static final String ARG_NO_DEBUG = "noDebug";
-    protected static final String ARG_ENV = "env";
 
-    protected ClientConfigHolder(Map<String, Object> args, ClientConfigKind kind) {
-        this.args = args;
+    protected ClientConfigHolder(Map<String, Object> clientRequestArgs, ClientConfigKind kind) {
+        this.clientRequestArgs = clientRequestArgs;
         this.kind = kind;
     }
 
@@ -56,7 +46,7 @@ public class ClientConfigHolder {
     public String getSourcePath() throws ClientConfigurationException {
         if (sourcePath == null) {
             failIfMissing(ARG_FILE_PATH);
-            sourcePath = args.get(ARG_FILE_PATH).toString();
+            sourcePath = clientRequestArgs.get(ARG_FILE_PATH).toString();
         }
         return sourcePath;
     }
@@ -64,15 +54,14 @@ public class ClientConfigHolder {
     public int getDebuggePort() throws ClientConfigurationException {
         if (debuggePort == null) {
             failIfMissing(ARG_DEBUGGEE_PORT);
-            debuggePort = Integer.getInteger(args.get(ARG_DEBUGGEE_PORT).toString());
+            debuggePort = Integer.getInteger(clientRequestArgs.get(ARG_DEBUGGEE_PORT).toString());
         }
         return debuggePort;
     }
 
     protected void failIfMissing(String configName) throws ClientConfigurationException {
-        if (args.get(configName) == null) {
+        if (clientRequestArgs.get(configName) == null) {
             throw new ClientConfigurationException("Required client configuration missing: '" + configName + "'");
         }
     }
 }
-

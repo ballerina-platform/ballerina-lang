@@ -38,6 +38,16 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
     private List<String> programArguments;
     private Map<String, String> env;
 
+    private static final String ARG_BALLERINA_HOME = "ballerina.home";
+    private static final String ARG_BALLERINA_COMMAND = "ballerina.command";
+    private static final String ARG_TEST_DEBUG = "debugTests";
+    private static final String ARG_NETWORK_LOGS = "networkLogs";
+    private static final String ARG_NETWORK_LOGS_PORT = "networkLogsPort";
+    private static final String ARG_COMMAND_OPTIONS = "commandOptions";
+    private static final String ARG_SCRIPT_ARGUMENTS = "scriptArguments";
+    private static final String ARG_NO_DEBUG = "noDebug";
+    private static final String ARG_ENV = "env";
+
     public ClientLaunchConfigHolder(Map<String, Object> args) {
         super(args, ClientConfigKind.LAUNCH_CONFIG);
     }
@@ -45,24 +55,24 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
     public String getBallerinaHome() throws ClientConfigurationException {
         if (ballerinaHome == null) {
             failIfMissing(ARG_BALLERINA_HOME);
-            ballerinaHome = args.get(ARG_BALLERINA_HOME).toString();
+            ballerinaHome = clientRequestArgs.get(ARG_BALLERINA_HOME).toString();
         }
         return ballerinaHome;
     }
 
     public Optional<String> getBallerinaCommand() throws ClientConfigurationException {
         if (ballerinaCommand == null) {
-            if (!args.containsKey(ARG_BALLERINA_COMMAND)) {
+            if (!clientRequestArgs.containsKey(ARG_BALLERINA_COMMAND)) {
                 return Optional.empty();
             }
-            ballerinaCommand = args.get(ARG_BALLERINA_COMMAND).toString();
+            ballerinaCommand = clientRequestArgs.get(ARG_BALLERINA_COMMAND).toString();
         }
         return Optional.ofNullable(ballerinaCommand);
     }
 
     public boolean isNoDebug() {
         if (noDebug == null) {
-            Object noDebugObject = args.get(ARG_NO_DEBUG);
+            Object noDebugObject = clientRequestArgs.get(ARG_NO_DEBUG);
             if (noDebugObject instanceof Boolean) {
                 noDebug = (boolean) noDebugObject;
             } else if (noDebugObject instanceof String) {
@@ -76,7 +86,7 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
 
     public boolean isTestDebug() {
         if (testDebug == null) {
-            Object testDebugObj = args.get(ARG_TEST_DEBUG);
+            Object testDebugObj = clientRequestArgs.get(ARG_TEST_DEBUG);
             if (testDebugObj instanceof Boolean) {
                 testDebug = (boolean) testDebugObj;
             } else if (testDebugObj instanceof String) {
@@ -90,7 +100,7 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
 
     public boolean networkLogsEnabled() {
         if (networkLogsEnabled == null) {
-            Object networkLogs = args.get(ARG_NETWORK_LOGS);
+            Object networkLogs = clientRequestArgs.get(ARG_NETWORK_LOGS);
             if (networkLogs instanceof Boolean) {
                 networkLogsEnabled = (boolean) networkLogs;
             } else if (networkLogs instanceof String) {
@@ -104,10 +114,10 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
 
     public Optional<Integer> getNetworkLogsPort() throws ClientConfigurationException {
         if (networkLogsPort == null) {
-            if (args.containsKey(ARG_NETWORK_LOGS_PORT)) {
+            if (clientRequestArgs.containsKey(ARG_NETWORK_LOGS_PORT)) {
                 return Optional.empty();
             }
-            networkLogsPort = Integer.getInteger(args.get(ARG_NETWORK_LOGS_PORT).toString());
+            networkLogsPort = Integer.getInteger(clientRequestArgs.get(ARG_NETWORK_LOGS_PORT).toString());
         }
         return Optional.ofNullable(networkLogsPort);
     }
@@ -115,8 +125,8 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
     public List<String> getCommandOptions() {
         if (commandOptions == null) {
             commandOptions = new ArrayList<>();
-            if (args.get(ARG_COMMAND_OPTIONS) instanceof ArrayList) {
-                commandOptions.addAll((ArrayList<String>) args.get(ARG_COMMAND_OPTIONS));
+            if (clientRequestArgs.get(ARG_COMMAND_OPTIONS) instanceof ArrayList) {
+                commandOptions.addAll((ArrayList<String>) clientRequestArgs.get(ARG_COMMAND_OPTIONS));
             }
         }
         return commandOptions;
@@ -125,8 +135,8 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
     public List<String> getProgramArguments() {
         if (programArguments == null) {
             programArguments = new ArrayList<>();
-            if (args.get(ARG_SCRIPT_ARGUMENTS) instanceof ArrayList) {
-                programArguments.addAll((ArrayList<String>) args.get(ARG_SCRIPT_ARGUMENTS));
+            if (clientRequestArgs.get(ARG_SCRIPT_ARGUMENTS) instanceof ArrayList) {
+                programArguments.addAll((ArrayList<String>) clientRequestArgs.get(ARG_SCRIPT_ARGUMENTS));
             }
         }
         return programArguments;
@@ -134,7 +144,7 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
 
     public Optional<Map<String, String>> getEnv() {
         if (env == null) {
-            Object envObject = args.get(ARG_ENV);
+            Object envObject = clientRequestArgs.get(ARG_ENV);
             if (envObject instanceof Map) {
                 env = (Map<String, String>) envObject;
             }

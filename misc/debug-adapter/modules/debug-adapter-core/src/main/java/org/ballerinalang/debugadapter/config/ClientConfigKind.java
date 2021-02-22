@@ -16,6 +16,11 @@
 
 package org.ballerinalang.debugadapter.config;
 
+/**
+ * Defines the possible types of client(user) configurations
+ *
+ * @since 2.0.0
+ */
 public enum ClientConfigKind {
     ATTACH_CONFIG,
     LAUNCH_CONFIG

@@ -879,8 +879,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     /**
-     * Asynchronously listens to remote debuggee stdout and error streams and redirects the program outputs to the
-     * client debug console.
+     * Asynchronously listens to remote debuggee stdout + error streams and redirects the output to the client debug
+     * console.
      */
     private void startListeningToProgramOutput(Launcher launcher) {
         CompletableFuture.runAsync(() -> {
