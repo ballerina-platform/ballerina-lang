@@ -119,7 +119,8 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             } else {
                 //create the table
                 TomlKeyEntryNode tomlKeyEntryNode = keys.get(i);
-                parentTable = createDottedKeyParentTable(parentTable, tomlKeyEntryNode);
+                parentTable =
+                        createDottedKeyParentTable(parentTable, tomlKeyEntryNode, transformedKeyValuePair.location());
             }
         }
         if (isDottedKey(keys)) {
@@ -143,11 +144,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         }
     }
 
-    private TomlTableNode createDottedKeyParentTable(TomlTableNode parentTable, TomlKeyEntryNode dottedKey) {
+    private TomlTableNode createDottedKeyParentTable(TomlTableNode parentTable, TomlKeyEntryNode dottedKey,
+                                                     TomlNodeLocation location) {
         List<TomlKeyEntryNode> list = new ArrayList<>();
         list.add(dottedKey);
         TomlKeyNode newTableKey = new TomlKeyNode(list, getLocationOfKeyEntryList(list));
-        TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, null);
+        TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, location);
         addChildToTableAST(parentTable, newTomlTableNode);
         return newTomlTableNode;
     }
@@ -198,9 +200,9 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             } else {
                 TomlKeyEntryNode tomlKeyEntryNode = childNode.key().keys().get(i);
                 if (childNode instanceof TomlTableArrayNode) {
-                    parentTable = generateTable(parentTable, tomlKeyEntryNode, false);
+                    parentTable = generateTable(parentTable, tomlKeyEntryNode, false, childNode.location());
                 } else {
-                    parentTable = generateTable(parentTable, tomlKeyEntryNode, true);
+                    parentTable = generateTable(parentTable, tomlKeyEntryNode, true, childNode.location());
                 }
             }
         }
@@ -213,7 +215,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         TomlKeyEntryNode lastKeyEntry = getLastKeyEntry(tableChild);
         List<TomlKeyEntryNode> entries = new ArrayList<>();
         entries.add(lastKeyEntry);
-        TomlTableNode newTableNode = new TomlTableNode(new TomlKeyNode(entries,getLocationOfKeyEntryList(entries)),
+        TomlTableNode newTableNode = new TomlTableNode(new TomlKeyNode(entries, getLocationOfKeyEntryList(entries)),
                 tableChild.generated(), tableChild.location(), tableChild.entries());
         if (topLevelNode == null) {
             addChildToTableAST(parentTable, newTableNode);
@@ -237,11 +239,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         }
     }
 
-    private TomlTableNode generateTable(TomlTableNode parentTable, TomlKeyEntryNode parentString, boolean isGenerated) {
+    private TomlTableNode generateTable(TomlTableNode parentTable, TomlKeyEntryNode parentString, boolean isGenerated
+            , TomlNodeLocation location) {
         List<TomlKeyEntryNode> list = new ArrayList<>();
         list.add(parentString);
-        TomlKeyNode newTableKey = new TomlKeyNode(list,getLocationOfKeyEntryList(list));
-        TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, isGenerated, null);
+        TomlKeyNode newTableKey = new TomlKeyNode(list, getLocationOfKeyEntryList(list));
+        TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, isGenerated, location);
         addChildToTableAST(parentTable, newTomlTableNode);
         return newTomlTableNode;
     }
@@ -296,7 +299,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     private TomlTableNode addChildsToTableArray(TableArrayNode tableArrayNode) {
         NodeList<KeyValueNode> children = tableArrayNode.fields();
         TomlNodeLocation position = getPosition(tableArrayNode);
-        TomlKeyNode anonKey = new TomlKeyNode(null, null);
+        TomlKeyNode anonKey = getTomlKeyNode(tableArrayNode.identifier());
         TomlTableNode anonTable = new TomlTableNode(anonKey, position);
         for (KeyValueNode child : children) {
             TomlNode transformedChild = child.apply(this);
