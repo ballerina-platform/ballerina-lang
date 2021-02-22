@@ -134,8 +134,8 @@ public class ConfigurableTest extends BaseTest {
                         "'(int[] & readonly)[] & readonly' used in variable 'main:intComplexArr'" },
                 {"invalidRecordField", "configurable feature is yet to be supported for field type " +
                         "'string[][]' in variable 'main:testUser' of record 'main:AuthInfo'"},
-                {"invalidByteRange", "Value provided for byte variable 'byteVar' is out of range. Expected " +
-                        "range is (0-255), found '355'"},
+                {"invalidByteRange", "Value provided for byte variable 'main:byteVar' is out of range. " +
+                        "Expected range is (0-255), found '355'"},
                 {"invalidMapType", "configurable feature is yet to be supported for type " +
                         "'map<int> & readonly' used in variable 'main:intMap'"},
                 {"invalidTableConstraint", "configurable feature is yet to be supported for table " +
