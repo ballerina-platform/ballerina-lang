@@ -1222,7 +1222,7 @@ public class Types {
         BTupleType lhsTupleType = (BTupleType) target;
         BTupleType rhsTupleType = (BTupleType) source;
 
-        if ((!lhsTupleType.tupleTypes.isEmpty() && lhsTupleType.tupleTypes.stream().allMatch(this::isNoType)) ||
+        if ((!lhsTupleType.tupleTypes.isEmpty() && checkAllTupleTypeMembersBelongNoType(lhsTupleType)) ||
                 (lhsTupleType.restType != null && lhsTupleType.restType.tag == TypeTags.NONE)) {
             return true;
         }
@@ -1255,15 +1255,14 @@ public class Types {
         return true;
     }
 
-    private boolean isNoType(BType type) {
-        switch (type.tag) {
-            case TypeTags.NONE:
-                return true;
-            case TypeTags.TUPLE:
-                BTupleType tupleType = (BTupleType) type;
-                if (tupleType.tupleTypes.stream().allMatch(this::isNoType)) {
+    private boolean checkAllTupleTypeMembersBelongNoType(BTupleType tupleType) {
+        for (BType memberType : tupleType.tupleTypes) {
+            switch (memberType.tag) {
+                case TypeTags.NONE:
                     return true;
-                }
+                case TypeTags.TUPLE:
+                    return checkAllTupleTypeMembersBelongNoType((BTupleType) memberType);
+            }
         }
         return false;
     }
@@ -1301,7 +1300,7 @@ public class Types {
                 return false;
             }
 
-            if (target.tupleTypes.stream().allMatch(this::isNoType)) {
+            if (checkAllTupleTypeMembersBelongNoType(target)) {
                 // if declared with var
                 return true;
             }
