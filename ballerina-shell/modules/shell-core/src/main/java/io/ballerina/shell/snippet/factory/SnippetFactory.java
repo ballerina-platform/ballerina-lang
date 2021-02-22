@@ -64,9 +64,7 @@ public abstract class SnippetFactory extends DiagnosticReporter {
             }
         }
         addDiagnostic(Diagnostic.error("" +
-                "Sorry couldn't identify the expression. " +
-                "Check your expression for syntax errors." +
-                "Node is of type: " + node.getClass()));
+                "Could not identify the expression due to syntax errors."));
         throw new SnippetException();
     }
 

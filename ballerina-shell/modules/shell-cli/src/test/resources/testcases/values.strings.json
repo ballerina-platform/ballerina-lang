@@ -10,17 +10,17 @@
   {
     "description": "Converts to uppercase.",
     "code": "string s1 = statement.toUpperAscii(); s1",
-    "expr": "LION IN TOWN. CATCH THE LION"
+    "expr": "\"LION IN TOWN. CATCH THE LION\""
   },
   {
     "description": "Converts to lowercase.",
     "code": "string s2 = statement.toLowerAscii(); s2",
-    "expr": "lion in town. catch the lion"
+    "expr": "\"lion in town. catch the lion\""
   },
   {
     "description": "Get the substring.",
     "code": "string s3 = statement.substring(0, 4); s3",
-    "expr": "Lion"
+    "expr": "\"Lion\""
   },
   {
     "description": "Get the index of a substring.",
@@ -39,12 +39,12 @@
   {
     "description": "Concat strings together.",
     "code": "string s4 = hello.concat(\" \", ballerina); s4",
-    "expr": "Hello Ballerina!"
+    "expr": "\"Hello Ballerina!\""
   },
   {
     "description": "Join strings together.",
     "code": "string s5 = \",\".'join(hello, ballerina); s5",
-    "expr": "Hello,Ballerina!"
+    "expr": "\"Hello,Ballerina!\""
   },
   {
     "description": "Get the byte array of string.",
@@ -54,12 +54,12 @@
   {
     "description": "Get the string from bytes.",
     "code": "string|error s6 = 'string:fromBytes(bArray); s6",
-    "expr": "Hello"
+    "expr": "\"Hello\""
   },
   {
     "description": "Trims strings.",
     "code": "string toTrim = \"  Ballerina Programming Language  \"; toTrim.trim();",
-    "expr": "Ballerina Programming Language"
+    "expr": "\"Ballerina Programming Language\""
   },
   {
     "description": "Check for suffix.",
@@ -82,12 +82,12 @@
   {
     "description": "Format a string with given arguments.",
     "code": "sprintf(\"%s scored %d for %s and has an average of %.2f.\", name, marks, subjects[0], average);",
-    "expr": "Sam scored 90 for English and has an average of 71.50."
+    "expr": "\"Sam scored 90 for English and has an average of 71.50.\""
   },
   {
     "description": "Get the character at index.",
     "code": "string country = \"Sri Lanka\"; string c = country[4]; c",
-    "expr": "L"
+    "expr": "\"L\""
   },
   {
     "description": "Exit terminal.",

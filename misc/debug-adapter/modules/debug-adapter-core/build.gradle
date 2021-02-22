@@ -1,4 +1,4 @@
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
 
 repositories {
     mavenCentral()

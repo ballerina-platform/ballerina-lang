@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.command.executors.UpdateDocumentationExecuto
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.eclipse.lsp4j.CodeAction;
@@ -52,7 +53,9 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
+                                                    CodeActionContext context) {
         String code = diagnostic.diagnosticInfo().code();
         if (!DiagnosticWarningCode.UNDOCUMENTED_PARAMETER.diagnosticId().equals(code) &&
                 !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER.diagnosticId().equals(code) &&
@@ -79,6 +82,12 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
         if (topLevelNode.isEmpty()) {
             return Collections.emptyList();
         }
+
+        // TODO: #27493 Documenting services is not fully supported yet due to a limitation in semantic API
+        if (topLevelNode.get().kind() == SyntaxKind.SERVICE_DECLARATION) {
+            return Collections.emptyList();
+        }
+        
         NonTerminalNode node = topLevelNode.get();
         if (node.kind() == SyntaxKind.MARKDOWN_DOCUMENTATION) {
             // If diagnostic message positions inside docs, get parent() node

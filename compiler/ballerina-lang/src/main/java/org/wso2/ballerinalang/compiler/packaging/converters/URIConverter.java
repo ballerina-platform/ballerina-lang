@@ -25,7 +25,7 @@ import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.HomeBalaRepo;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
@@ -38,7 +38,6 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
@@ -46,7 +45,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  */
 public class URIConverter implements Converter<URI> {
 
-    private HomeBaloRepo homeBaloRepo;
+    private HomeBalaRepo homeBalaRepo;
     protected URI base;
     protected final Map<PackageID, Manifest> dependencyManifests;
     private boolean isBuild = true;
@@ -55,14 +54,14 @@ public class URIConverter implements Converter<URI> {
     public URIConverter(URI base, Map<PackageID, Manifest> dependencyManifests) {
         this.base = URI.create(base.toString() + "/modules/");
         this.dependencyManifests = dependencyManifests;
-        this.homeBaloRepo = new HomeBaloRepo(this.dependencyManifests);
+        this.homeBalaRepo = new HomeBalaRepo(this.dependencyManifests);
     }
 
     public URIConverter(URI base, Map<PackageID, Manifest> dependencyManifests, boolean isBuild) {
         this.base = URI.create(base.toString() + "/modules/");
         this.dependencyManifests = dependencyManifests;
         this.isBuild = isBuild;
-        this.homeBaloRepo = new HomeBaloRepo(this.dependencyManifests);
+        this.homeBalaRepo = new HomeBalaRepo(this.dependencyManifests);
     }
 
     /**
@@ -107,16 +106,16 @@ public class URIConverter implements Converter<URI> {
     }
 
     public Stream<CompilerInput> finalize(URI remoteURI, PackageID moduleID) {
-        // if path to balo is not given in the manifest file
+        // if path to bala is not given in the manifest file
         String orgName = moduleID.getOrgName().getValue();
         String moduleName = moduleID.getName().getValue();
-        Path modulePathInBaloCache = RepoUtils.createAndGetHomeReposPath()
-                .resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME)
+        Path modulePathInBalaCache = RepoUtils.createAndGetHomeReposPath()
+                .resolve(ProjectDirConstants.BALA_CACHE_DIR_NAME)
                 .resolve(orgName)
                 .resolve(moduleName);
         
-        // create directory path in balo cache
-        createDirectory(modulePathInBaloCache);
+        // create directory path in bala cache
+        createDirectory(modulePathInBalaCache);
         Proxy proxy = TomlParserUtils.readSettings().getProxy();
 
         String supportedVersionRange = "";
@@ -124,10 +123,10 @@ public class URIConverter implements Converter<URI> {
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             String errorMessage = "";
             try {
-                Pull.execute(remoteURI.toString(), modulePathInBaloCache.toString(), orgName + "/" + moduleName,
-                        proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
-                        supportedVersionRange, this.isBuild, nightlyBuild, IMPLEMENTATION_VERSION, supportedPlatform,
-                        RepoUtils.getBallerinaVersion());
+                Pull.execute(remoteURI.toString(), modulePathInBalaCache.toString(), orgName + "/" + moduleName,
+                             proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
+                             supportedVersionRange, this.isBuild, nightlyBuild,
+                             supportedPlatform, RepoUtils.getBallerinaVersion());
             } catch (CommandException e) {
                 errorMessage = e.getMessage().trim();
             }
@@ -142,9 +141,9 @@ public class URIConverter implements Converter<URI> {
                 if (errorMessage.contains("module already exists in the home repository") && this.isBuild) {
                     // Need to update the version of moduleID that was resolved by remote. But since the version
                     // cannot be returned by the call done to module_pull.bal file we need to set the version from
-                    // the downloaded balo file.
-                    Patten patten = this.homeBaloRepo.calculate(moduleID);
-                    return patten.convertToSources(this.homeBaloRepo.getConverterInstance(), moduleID);
+                    // the downloaded bala file.
+                    Patten patten = this.homeBalaRepo.calculate(moduleID);
+                    return patten.convertToSources(this.homeBalaRepo.getConverterInstance(), moduleID);
                 }
 
                 // check if the message is empty or not. Empty means module not found. Else some other error.
@@ -156,9 +155,9 @@ public class URIConverter implements Converter<URI> {
             } else {
                 // Need to update the version of moduleID that was resolved by remote. But since the version cannot
                 // be returned by the call done to module_pull.bal file we need to set the version from the
-                // downloaded balo file.
-                Patten patten = this.homeBaloRepo.calculate(moduleID);
-                return patten.convertToSources(this.homeBaloRepo.getConverterInstance(), moduleID);
+                // downloaded bala file.
+                Patten patten = this.homeBalaRepo.calculate(moduleID);
+                return patten.convertToSources(this.homeBalaRepo.getConverterInstance(), moduleID);
             }
         }
         return Stream.of();

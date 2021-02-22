@@ -16,11 +16,9 @@
  */
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -49,20 +47,14 @@ public class TableWithXMLKeySpecifierTest {
         BRunUtil.invoke(result, "runMemberAccessTestCases");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
-                    "find key '<id>245</id>'.*")
+    @Test(description = "Test invalid member access in table with a single key field")
     public void testMemberAccessWithInvalidSingleKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidXMLRecordKey");
-        Assert.fail();
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
-                    "find key '<id>245</id> \\{\"fname\":\"Sanjiva\",\"lname\":\"Weerawarana\"}'.*")
+    @Test(description = "Test invalid member access in table with multiple key fields")
     public void testMemberAccessWithInvalidMultiKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidXMLMultiKey");
-        Assert.fail();
     }
 
     @Test(description = "Test Table with var type")

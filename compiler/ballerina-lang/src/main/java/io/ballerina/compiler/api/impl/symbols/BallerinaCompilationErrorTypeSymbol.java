@@ -38,7 +38,7 @@ public class BallerinaCompilationErrorTypeSymbol extends AbstractTypeSymbol impl
     private static final List<FunctionSymbol> langLibMethods = Collections.unmodifiableList(new ArrayList<>());
 
     public BallerinaCompilationErrorTypeSymbol(CompilerContext context, ModuleID moduleID, BType error) {
-        super(context, TypeDescKind.COMPILATION_ERROR, moduleID, error);
+        super(context, TypeDescKind.COMPILATION_ERROR, error);
     }
 
     @Override

@@ -179,7 +179,6 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     }
 
     private TomlTableNode getParentTable(TomlTableNode rootTable, TopLevelNode childNode) {
-        String tableLeadName = getLastKeyEntry(childNode).name().toString();
         List<String> parentTables = new ArrayList<>();
         for (int i = 0; i < (childNode.key().keys().size() - 1); i++) {
             parentTables.add(childNode.key().keys().get(i).name().toString());
@@ -199,13 +198,6 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
                     parentTable = generateTable(parentTable, tomlKeyEntryNode, true);
                 }
             }
-        }
-
-        TopLevelNode lastNode = parentTable.entries().get(tableLeadName);
-        if (lastNode instanceof TomlKeyValueNode) {
-            TomlDiagnostic nodeExists =
-                    dlog.error(childNode.location(), DiagnosticErrorCode.ERROR_EXISTING_NODE, tableLeadName);
-            parentTable.addDiagnostic(nodeExists);
         }
         return parentTable;
     }

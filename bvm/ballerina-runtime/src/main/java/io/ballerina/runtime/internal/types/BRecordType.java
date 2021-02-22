@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -131,7 +132,7 @@ public class BRecordType extends BStructureType implements RecordType {
 
     @Override
     public String getAnnotationKey() {
-        return this.typeName;
+        return IdentifierUtils.decodeIdentifier(this.typeName);
     }
 
     @Override

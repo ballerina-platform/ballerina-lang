@@ -29,9 +29,8 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
-    implementation(group: 'org.freemarker', name: 'freemarker', version: '2.3.30') {
-        because("To render the ballerina file generated code")
-    }
+    implementation project(':ballerina-runtime')
+    implementation 'com.github.spullara.mustache.java:compiler'
 
     testImplementation('org.testng:testng')
     testImplementation('com.google.code.gson:gson')

@@ -163,3 +163,37 @@ function testSimpleSelectQueryWithMultipleFromClauses() returns  Employee[] {
             };
     return  employeeList;
 }
+
+function testQueryExpressionIteratingOverXMLInFromInQueryAction() returns float {
+    xml<xml:Element> bookstore = xml `<bookstore>
+                                          <book category="cooking">
+                                              <title lang="en">Everyday Italian</title>
+                                              <price>30.00</price>
+                                          </book>
+                                          <book category="children">
+                                              <title lang="en">Harry Potter</title>
+                                              <price>29.99</price>
+                                          </book>
+                                          <book category="web">
+                                              <title lang="en">XQuery Kick Start</title>
+                                              <price>49.99</price>
+                                          </book>
+                                          <book category="web" cover="paperback">
+                                              <title lang="en">Learning XML</title>
+                                              <price>39.95</price>
+                                          </book>
+                                      </bookstore>`;
+
+    float total = 0;
+    var res = from xml:Element price in bookstore/<book>/**/<price>
+              do {
+                  var p = price/*;
+                  if (p is xml:Text) {
+                      var i = float:fromString(p.toString());
+                      if (i is float) {
+                          total += i;
+                      }
+                  }
+              };
+    return total;
+}

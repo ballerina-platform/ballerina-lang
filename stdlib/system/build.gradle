@@ -24,9 +24,9 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    distributionBalo project(path: ':ballerina-io', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-io', configuration: 'distributionBala')
 
-    baloCreat project(':lib-creator')
+    balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')

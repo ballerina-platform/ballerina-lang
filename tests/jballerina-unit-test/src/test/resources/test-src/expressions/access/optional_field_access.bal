@@ -281,15 +281,19 @@ function testOptionalFieldAccessErrorLiftingOnLaxUnion() returns boolean {
 
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
-        return je.message() == "{ballerina}JSONOperationError" && je.detail()["message"].toString() == "JSON value is not a mapping";
+        var detailMessage = je.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        return je.message() == "{ballerina}JSONOperationError" && detailMessageString == "JSON value is not a mapping";
     }
     return false;
 }
 
 function assertKeyNotFoundError(json|error je, string key) returns boolean {
     if (je is error) {
+        var detailMessage = je.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
         return je.message() == "{ballerina}KeyNotFound" &&
-                                je.detail()["message"].toString() == "Key '" + key + "' not found in JSON mapping";
+                                detailMessageString == "Key '" + key + "' not found in JSON mapping";
     }
     return false;
 }

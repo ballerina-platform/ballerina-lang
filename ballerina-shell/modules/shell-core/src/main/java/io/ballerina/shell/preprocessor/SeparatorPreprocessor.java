@@ -97,13 +97,6 @@ public class SeparatorPreprocessor extends Preprocessor {
             }
         }
 
-        if (!brackets.isEmpty()) {
-            addDiagnostic(Diagnostic.error("" +
-                    "Syntax Error. " +
-                    "Brackets/Parenthesis must match."));
-            throw new PreprocessorException();
-        }
-
         // Append remaining string to the statements.
         if (builder.length() > 0) {
             addToList(snippets, builder);

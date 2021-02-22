@@ -178,16 +178,16 @@ public class ProjectUtils {
         return packageName;
     }
 
-    public static String getBaloName(PackageManifest pkgDesc) {
-        return ProjectUtils.getBaloName(pkgDesc.org().toString(),
+    public static String getBalaName(PackageManifest pkgDesc) {
+        return ProjectUtils.getBalaName(pkgDesc.org().toString(),
                 pkgDesc.name().toString(),
                 pkgDesc.version().toString(),
                 null
         );
     }
 
-    public static String getBaloName(String org, String pkgName, String version, String platform) {
-        // <orgname>-<packagename>-<platform>-<version>.balo
+    public static String getBalaName(String org, String pkgName, String version, String platform) {
+        // <orgname>-<packagename>-<platform>-<version>.bala
         if (platform == null || "".equals(platform)) {
             platform = "any";
         }
@@ -201,21 +201,21 @@ public class ProjectUtils {
     }
 
     public static String getExecutableName(Package pkg) {
-        // <packagename>.jar
-        return pkg.packageName().toString() + BLANG_COMPILED_JAR_EXT;
+        // <packagename>-<version>.jar
+        return pkg.packageName().toString() + "-" + pkg.packageVersion() + BLANG_COMPILED_JAR_EXT;
     }
 
-    public static String getOrgFromBaloName(String baloName) {
-        return baloName.split("-")[0];
+    public static String getOrgFromBalaName(String balaName) {
+        return balaName.split("-")[0];
     }
 
-    public static String getPackageNameFromBaloName(String baloName) {
-        return baloName.split("-")[1];
+    public static String getPackageNameFromBalaName(String balaName) {
+        return balaName.split("-")[1];
     }
 
-    public static String getVersionFromBaloName(String baloName) {
-        // TODO validate this method of getting the version of the balo
-        String versionAndExtension = baloName.split("-")[3];
+    public static String getVersionFromBalaName(String balaName) {
+        // TODO validate this method of getting the version of the bala
+        String versionAndExtension = balaName.split("-")[3];
         int extensionIndex = versionAndExtension.indexOf(BLANG_COMPILED_PKG_BINARY_EXT);
         return versionAndExtension.substring(0, extensionIndex);
     }

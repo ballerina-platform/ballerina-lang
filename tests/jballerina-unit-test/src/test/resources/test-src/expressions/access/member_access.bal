@@ -554,7 +554,7 @@ function testMemberAccessOnListConstruct() {
 }
 
 function testMemberAccessOnTableConstruct() {
-    Employee emp  = table key(name) [{name: "Sanjiva", registered: true, id: 1},
+    Employee? emp  = table key(name) [{name: "Sanjiva", registered: true, id: 1},
         {name: "James", registered: true, id: 2}]["James"];
     assertEquality(2, emp["id"]);
 }

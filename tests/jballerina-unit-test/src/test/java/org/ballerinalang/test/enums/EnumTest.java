@@ -41,7 +41,7 @@ public class EnumTest {
         compileResult = BCompileUtil.compile("test-src/enums/enums.bal");
         negativeTest = BCompileUtil.compile("test-src/enums/enums-negative.bal");
 
-        BCompileUtil.compileAndCacheBalo("test-src/enums/TestEnumDefinitionProject");
+        BCompileUtil.compileAndCacheBala("test-src/enums/TestEnumDefinitionProject");
         accessTest = BCompileUtil.compile("test-src/enums/enum-access.bal");
         accessTestNegative = BCompileUtil.compile("test-src/enums/enum-access-negative.bal");
     }

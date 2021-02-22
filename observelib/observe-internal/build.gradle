@@ -28,7 +28,7 @@ dependencies {
     implementation 'io.opentracing:opentracing-api'
     implementation 'io.opentracing:opentracing-noop'
 
-    distributionBalo project(path: ':ballerina-observability', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-observability', configuration: 'distributionBala')
 }
 
 task updateVersion {

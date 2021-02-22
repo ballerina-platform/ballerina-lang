@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaDecimalTypeSymbol extends AbstractTypeSymbol implements DecimalTypeSymbol {
 
     public BallerinaDecimalTypeSymbol(CompilerContext context, ModuleID moduleID, BType decimalType) {
-        super(context, TypeDescKind.DECIMAL, moduleID, decimalType);
+        super(context, TypeDescKind.DECIMAL, decimalType);
     }
 
     @Override

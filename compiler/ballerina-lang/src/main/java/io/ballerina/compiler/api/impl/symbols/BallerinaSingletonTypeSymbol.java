@@ -39,7 +39,7 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
 
     public BallerinaSingletonTypeSymbol(CompilerContext context, ModuleID moduleID, BLangExpression shape,
                                         BType bType) {
-        super(context, TypeDescKind.SINGLETON, moduleID, bType);
+        super(context, TypeDescKind.SINGLETON, bType);
         this.typeName = shape.toString();
     }
 

@@ -39,6 +39,7 @@ public class BTableType extends BType implements TableType {
     public BType keyTypeConstraint;
     public List<String> fieldNameList;
     public Location keyPos;
+    public boolean isTypeInlineDefined;
     public Location constraintPos;
     public BIntersectionType immutableType;
 

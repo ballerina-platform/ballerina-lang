@@ -41,8 +41,8 @@ public class HierarchicalPackageNameTests {
 
     @BeforeTest
     public void setup() {
-        BCompileUtil.compileAndCacheBalo("hierarchical_pkg_names/package_a");
-        BCompileUtil.compileAndCacheBalo("hierarchical_pkg_names/package_a.b");
+        BCompileUtil.compileAndCacheBala("hierarchical_pkg_names/package_a");
+        BCompileUtil.compileAndCacheBala("hierarchical_pkg_names/package_a.b");
     }
 
     @Test(description = "tests a project with hierarchical package name")

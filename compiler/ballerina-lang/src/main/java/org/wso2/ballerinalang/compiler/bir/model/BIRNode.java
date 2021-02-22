@@ -432,10 +432,13 @@ public abstract class BIRNode {
      */
     public static class BIRTypeDefinition extends BIRDocumentableNode implements NamedNode {
 
-        /**
-         * Name of the type definition.
-         */
         public Name name;
+
+        /**
+         * internal name of the type definition.
+         * for anonTypes this will be something like $anonType2 while name will reflect the structure
+         */
+        public Name internalName;
 
         public List<BIRFunction> attachedFuncs;
 
@@ -451,17 +454,18 @@ public abstract class BIRNode {
 
         public SymbolOrigin origin;
 
+        public List<BIRAnnotationAttachment> annotAttachments;
+
         /**
          * this is not serialized. it's used to keep the index of the def in the list.
          * otherwise the writer has to *find* it in the list.
          */
         public int index;
 
-        public BIRTypeDefinition(Location pos, Name name, long flags, boolean isLabel, boolean isBuiltin,
-                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
-
+        public BIRTypeDefinition(Location pos, Name internalName, long flags, boolean isLabel, boolean isBuiltin,
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin, Name name) {
             super(pos);
-            this.name = name;
+            this.internalName = internalName;
             this.flags = flags;
             this.isLabel = isLabel;
             this.isBuiltin = isBuiltin;
@@ -469,6 +473,13 @@ public abstract class BIRNode {
             this.attachedFuncs = attachedFuncs;
             this.referencedTypes = new ArrayList<>();
             this.origin = origin;
+            this.name = name;
+            this.annotAttachments = new ArrayList<>();
+        }
+
+        public BIRTypeDefinition(Location pos, Name name, long flags, boolean isLabel, boolean isBuiltin,
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
+            this(pos, name, flags, isLabel, isBuiltin, type, attachedFuncs, origin, name);
         }
 
         @Override
@@ -478,7 +489,7 @@ public abstract class BIRNode {
 
         @Override
         public String toString() {
-            return type + " " + name;
+            return type + " " + internalName;
         }
 
         @Override

@@ -641,24 +641,26 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     INVALID_ISOLATED_QUALIFIER_ON_MODULE_NO_INIT_VAR_DECL(
             "BCE3961", "invalid.isolated.qualifier.on.module.no.init.var.decl"),
-
+    ONLY_A_SIMPLE_VARIABLE_CAN_BE_MARKED_AS_ISOLATED(
+            "BCE3962", "only.a.simple.variable.can.be.marked.as.isolated"),
     BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL(
-            "BCE3962", "binding.pattern.not.yet.supported.in.module.var.decl"),
+            "BCE3963", "binding.pattern.not.yet.supported.in.module.var.decl"),
 
     // Configurable var related error codes
-    CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR("BCE3963",
-            "configurable.variable.cannot.be.declared.with.var"),
-    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY("BCE3964",
-            "configurable.variable.must.be.anydata.and.readonly"),
-    ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE("BCE3965",
-            "only.simple.variables.are.allowed.to.be.configurable"),
-    CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED("BCE3966",
-            "configurable.variable.currently.not.supported"),
 
-    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3967", "remote.function.in.non.network.object"),
-    UNSUPPORTED_PATH_PARAM_TYPE("BCE3968", "unsupported.path.param.type"),
-    UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3969", "unsupported.rest.path.param.type"),
-    OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL("BCE3970",
+    CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR(
+            "BCE3964", "configurable.variable.cannot.be.declared.with.var"),
+    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY(
+            "BCE3965", "configurable.variable.must.be.anydata.and.readonly"),
+    ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE(
+            "BCE3966", "only.simple.variables.are.allowed.to.be.configurable"),
+    CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED(
+            "BCE3967", "configurable.variable.currently.not.supported"),
+
+    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3968", "remote.function.in.non.network.object"),
+    UNSUPPORTED_PATH_PARAM_TYPE("BCE3969", "unsupported.path.param.type"),
+    UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3970", "unsupported.rest.path.param.type"),
+    OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL("BCE3971",
             "unsupported.resource.function.declaration.in.object.type"),
     SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER("BCE3972",
             "error.service.absolute.path.or.literal.required.by.listener"),

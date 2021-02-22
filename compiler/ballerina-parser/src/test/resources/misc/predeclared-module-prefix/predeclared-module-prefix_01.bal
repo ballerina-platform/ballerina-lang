@@ -34,7 +34,10 @@ public function foo() returns int:c {
             io:println("custom object error");
         }
     }
+    transaction:Info info;
 }
+
+transaction:Info info2;
 
 // Predeclared module prefix in conditional expression
 public function bar() {

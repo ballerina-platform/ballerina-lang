@@ -18,8 +18,6 @@
 
 package io.ballerina.shell.invoker.classload;
 
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -31,21 +29,17 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.InvokerException;
-import io.ballerina.shell.invoker.Invoker;
+import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.invoker.classload.context.StatementContext;
 import io.ballerina.shell.invoker.classload.context.VariableContext;
@@ -62,14 +56,6 @@ import io.ballerina.shell.utils.timeit.InvokerTimeIt;
 import io.ballerina.shell.utils.timeit.TimedOperation;
 import io.ballerina.tools.text.LinePosition;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -91,18 +77,11 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class ClassLoadInvoker extends Invoker implements ImportProcessor {
-    // Context related information
+public class ClassLoadInvoker extends ShellSnippetsInvoker implements ImportProcessor {
     public static final String CONTEXT_EXPR_VAR_NAME = "expr";
-    // Main class and method names to invoke
-    public static final String MODULE_NOT_FOUND_CODE = "BCE2003";
-    protected static final String MODULE_INIT_CLASS_NAME = "$_init";
-    protected static final String MODULE_MAIN_METHOD_NAME = "main";
-    protected static final String DOLLAR = "$";
-    // Punctuations
-    private static final String DECLARATION_TEMPLATE_FILE = "template.declaration.ftl";
-    private static final String IMPORT_TEMPLATE_FILE = "template.import.ftl";
-    private static final String EXECUTION_TEMPLATE_FILE = "template.execution.ftl";
+    private static final String DOLLAR = "$";
+    private static final String DECLARATION_TEMPLATE_FILE = "template.declaration.mustache";
+    private static final String EXECUTION_TEMPLATE_FILE = "template.execution.mustache";
 
     private static final AtomicInteger importIndex = new AtomicInteger(0);
 
@@ -213,7 +192,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 ImportDeclarationSnippet importDcln = (ImportDeclarationSnippet) newSnippet;
                 String importPrefix = timedOperation("processing import", () -> processImport(importDcln));
                 Objects.requireNonNull(importPrefix, "Import prefix identification failed.");
-                addDiagnostic(Diagnostic.debug("Import prefix identified as: " + importPrefix));
+                addDebugDiagnostic("Import prefix identified as: " + importPrefix);
                 return Optional.empty();
 
             case MODULE_MEMBER_DECLARATION:
@@ -225,10 +204,10 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 this.knownSymbols.addAll(this.newSymbols);
                 this.newImplicitImports.forEach(imports::storeImplicitPrefix);
                 this.moduleDclns.put(newModuleDcln.getKey(), newModuleDcln.getValue());
-                addDiagnostic(Diagnostic.debug("Module dcln name: " + newModuleDcln.getKey()));
-                addDiagnostic(Diagnostic.debug("Module dcln code: " + newModuleDcln.getValue()));
-                addDiagnostic(Diagnostic.debug("Found new symbols: " + this.newSymbols));
-                addDiagnostic(Diagnostic.debug("Implicit imports added: " + this.newImplicitImports));
+                addDebugDiagnostic("Module dcln name: " + newModuleDcln.getKey());
+                addDebugDiagnostic("Module dcln code: " + newModuleDcln.getValue());
+                addDebugDiagnostic("Found new symbols: " + this.newSymbols);
+                addDebugDiagnostic("Implicit imports added: " + this.newImplicitImports);
                 return Optional.empty();
 
             case VARIABLE_DECLARATION:
@@ -251,10 +230,10 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 JBallerinaBackend jBallerinaBackend = timedOperation("backend fetch",
                         () -> JBallerinaBackend.from(compilation, JvmTarget.JAVA_11));
                 boolean isExecutionSuccessful = timedOperation("project execution",
-                        () -> executeProject(project, jBallerinaBackend));
+                        () -> executeProject(jBallerinaBackend));
 
                 if (!isExecutionSuccessful) {
-                    addDiagnostic(Diagnostic.error("Unhandled Runtime Error."));
+                    addErrorDiagnostic("Unhandled Runtime Error.");
                     throw new InvokerException();
                 }
 
@@ -265,13 +244,13 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 if (newSnippet.isVariableDeclaration()) {
                     globalVars.addAll(newVariables);
                 }
-                addDiagnostic(Diagnostic.debug("Found new variables: " + newVariables));
-                addDiagnostic(Diagnostic.debug("Found new symbols: " + this.newSymbols));
-                addDiagnostic(Diagnostic.debug("Implicit imports added: " + this.newImplicitImports));
+                addDebugDiagnostic("Found new variables: " + newVariables);
+                addDebugDiagnostic("Found new symbols: " + this.newSymbols);
+                addDebugDiagnostic("Implicit imports added: " + this.newImplicitImports);
                 return Optional.ofNullable(executionResult);
 
             default:
-                addDiagnostic(Diagnostic.error("Unexpected snippet type."));
+                addErrorDiagnostic("Unexpected snippet type.");
                 throw new UnsupportedOperationException();
         }
     }
@@ -290,11 +269,11 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         }
 
         // Check if import is successful.
-        if (isImportStatementValid(String.format("import %s as %s;", moduleName, quotedPrefix))) {
-            return imports.storeImport(quotedPrefix, moduleName);
-        }
-        return null;
+        compileImportStatement(String.format("import %s as %s;", moduleName, quotedPrefix));
+        return imports.storeImport(quotedPrefix, moduleName);
     }
+
+    /* Process Snippets */
 
     /**
      * This is an import. A test import is done to check for errors.
@@ -315,14 +294,12 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             return quotedPrefix;
         } else if (imports.containsPrefix(quotedPrefix)) {
             // Prefix is already used. (Not for the same module - checked above)
-            addDiagnostic(Diagnostic.error("The import prefix was already used by another import."));
+            addErrorDiagnostic("The import prefix was already used by another import.");
             throw new InvokerException();
         }
 
-        if (isImportStatementValid(importSnippet.toString())) {
-            return imports.storeImport(importSnippet);
-        }
-        throw new InvokerException();
+        compileImportStatement(importSnippet.toString());
+        return imports.storeImport(importSnippet);
     }
 
     /**
@@ -344,9 +321,13 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
         Set<GlobalVariable> foundVariables = new HashSet<>();
         for (Symbol symbol : symbols) {
+            if (symbol.getName().isEmpty()) {
+                // Do not process symbols without a name
+                continue;
+            }
+
             HashedSymbol hashedSymbol = new HashedSymbol(symbol);
-            // TODO: After name alternative is implemented use it.
-            String variableName = symbol.name();
+            String variableName = symbol.getName().get();
 
             boolean ignoreSymbol = knownSymbols.contains(hashedSymbol)
                     || GlobalVariable.isDefined(foundVariables, variableName)
@@ -403,17 +384,22 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             return Map.entry(enumName.get(), newSnippet.toString());
         } else {
             for (Symbol symbol : symbols) {
+                if (symbol.getName().isEmpty()) {
+                    // A valid module dcln symbol has a name
+                    continue;
+                }
                 if (!symbol.kind().equals(SymbolKind.MODULE)) {
                     this.newSymbols.add(new HashedSymbol(symbol));
-                    // TODO: After name alternative is implemented use it.
-                    return Map.entry(symbol.name(), newSnippet.toString());
+                    return Map.entry(symbol.getName().get(), newSnippet.toString());
                 }
             }
         }
 
-        addDiagnostic(Diagnostic.error("Invalid module level declaration: cannot be compiled."));
+        addErrorDiagnostic("Invalid module level declaration: cannot be compiled.");
         throw new InvokerException();
     }
+
+    /* Context Creation */
 
     /**
      * Creates a context which can be used to check import validation.
@@ -499,108 +485,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         return varDclns;
     }
 
-    /**
-     * Get the project with the context data.
-     *
-     * @param context      Context to create the ballerina file.
-     * @param templateFile Template file to load.
-     * @return Created ballerina project.
-     * @throws InvokerException If file writing failed.
-     */
-    protected SingleFileProject getProject(Object context, String templateFile) throws InvokerException {
-        Template template = super.getTemplate(templateFile);
-        try (StringWriter stringWriter = new StringWriter()) {
-            template.process(context, stringWriter);
-            return getProject(stringWriter.toString());
-        } catch (TemplateException e) {
-            addDiagnostic(Diagnostic.error("Template processing failed: " + e.getMessage()));
-            throw new InvokerException(e);
-        } catch (IOException e) {
-            addDiagnostic(Diagnostic.error("File generation failed: " + e.getMessage()));
-            throw new InvokerException(e);
-        }
-    }
+    /* Util methods */
 
-    /**
-     * Get the project with the context data.
-     *
-     * @param source Source to use for generating project.
-     * @return Created ballerina project.
-     * @throws InvokerException If file writing failed.
-     */
-    protected SingleFileProject getProject(String source) throws InvokerException {
-        try {
-            File mainBal = writeToFile(source);
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
-            return SingleFileProject.load(mainBal.toPath(), buildOptions);
-        } catch (IOException e) {
-            addDiagnostic(Diagnostic.error("File writing failed: " + e.getMessage()));
-            throw new InvokerException(e);
-        }
-    }
-
-    /**
-     * Executes a compiled project.
-     * It is expected that the project had no compiler errors.
-     * The process is run and the stdout is collected and printed.
-     * Due to ballerina calling system.exit(), we need to disable these calls and
-     * remove system error logs as well.
-     *
-     * @param project           Project to run.
-     * @param jBallerinaBackend Backed to use.
-     * @return Whether process execution was successful.
-     * @throws InvokerException If execution failed.
-     */
-    protected boolean executeProject(Project project, JBallerinaBackend jBallerinaBackend) throws InvokerException {
-        try {
-            Module executableModule = project.currentPackage().getDefaultModule();
-            JarResolver jarResolver = jBallerinaBackend.jarResolver();
-            ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
-
-            String initClassName = JarResolver.getQualifiedClassName(
-                    executableModule.packageInstance().packageOrg().toString(),
-                    executableModule.packageInstance().packageName().toString(),
-                    executableModule.packageInstance().packageVersion().toString(),
-                    MODULE_INIT_CLASS_NAME);
-            Class<?> clazz = classLoader.loadClass(initClassName);
-
-            Method method = clazz.getDeclaredMethod(MODULE_MAIN_METHOD_NAME, String[].class);
-            int exitCode = invokeMethod(method);
-            addDiagnostic(Diagnostic.debug("Exit code was " + exitCode));
-            return exitCode == 0;
-        } catch (ClassNotFoundException e) {
-            addDiagnostic(Diagnostic.error("Main class not found: " + e.getMessage()));
-            throw new InvokerException(e);
-        } catch (NoSuchMethodException e) {
-            addDiagnostic(Diagnostic.error("Main method not found: " + e.getMessage()));
-            throw new InvokerException(e);
-        } catch (IllegalAccessException e) {
-            addDiagnostic(Diagnostic.error("Access for the method failed: " + e.getMessage()));
-            throw new InvokerException(e);
-        }
-    }
-
-    /**
-     * Tries to import using the given statement.
-     *
-     * @param importStatement Import statement to use.
-     * @return Whether import is valid.
-     * @throws InvokerException If import file writing failed.
-     */
-    private boolean isImportStatementValid(String importStatement) throws InvokerException {
-        ClassLoadContext importCheckingContext = createImportInferContext(importStatement);
-        SingleFileProject project = getProject(importCheckingContext, IMPORT_TEMPLATE_FILE);
-        PackageCompilation compilation = project.currentPackage().getCompilation();
-
-        // Detect if import is valid.
-        for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
-            if (diagnostic.diagnosticInfo().code().equals(MODULE_NOT_FOUND_CODE)) {
-                addDiagnostic(Diagnostic.error("Import resolution failed. Module not found."));
-                return false;
-            }
-        }
-        return true;
-    }
 
     /**
      * Gets the symbols that are visible to main method but are unknown (previously not seen).
@@ -641,6 +527,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
         return compilation.getSemanticModel(moduleId)
                 .visibleSymbols(document, cursorPos).stream()
+                .filter((s) -> s.getName().isPresent())
                 .filter((s) -> !knownSymbols.contains(new HashedSymbol(s)))
                 .collect(Collectors.toList());
     }
@@ -660,37 +547,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         return importStrings;
     }
 
-    /**
-     * Runs a method given. Returns the exit code from the execution.
-     * Method should be a static method which returns an int.
-     * Its signature should be, {@code static int name(String[] args)}.
-     *
-     * @param method Method to run (should be a static method).
-     * @return Exit code of the method.
-     * @throws IllegalAccessException If interrupted.
-     */
-    protected int invokeMethod(Method method) throws IllegalAccessException {
-        String[] args = new String[0];
-
-        // STDERR is completely ignored because Security Exceptions are thrown
-        // So real errors will not be visible via STDERR.
-        // Security manager is set to stop VM exits.
-
-        PrintStream stdErr = System.err;
-        NoExitVmSecManager secManager = new NoExitVmSecManager(System.getSecurityManager());
-        try {
-            System.setErr(new PrintStream(new ByteArrayOutputStream(), true, Charset.defaultCharset()));
-            System.setSecurityManager(secManager);
-            return (int) method.invoke(null, new Object[]{args});
-        } catch (InvocationTargetException e) {
-            return secManager.getExitCode();
-        } finally {
-            System.setSecurityManager(null);
-            System.setErr(stdErr);
-        }
-    }
-
-    // Available statements
+    /* Available statements */
 
     @Override
     public List<String> availableImports() {
@@ -708,7 +565,8 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         List<String> varStrings = new ArrayList<>();
         for (GlobalVariable entry : globalVars) {
             Object obj = InvokerMemory.recall(contextId, entry.getVariableName());
-            String value = StringUtils.shortenedString(obj);
+            String objStr = StringUtils.getExpressionStringValue(obj);
+            String value = StringUtils.shortenedString(objStr);
             String varString = String.format("(%s) %s %s = %s",
                     entry.getVariableName(), entry.getType(), entry.getVariableName(), value);
             varStrings.add(varString);
