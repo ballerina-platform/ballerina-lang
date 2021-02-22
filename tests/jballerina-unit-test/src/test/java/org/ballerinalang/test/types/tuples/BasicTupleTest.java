@@ -175,7 +175,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 33);
+        Assert.assertEquals(resultNegative.getErrorCount(), 34);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++, "tuple and expression size does not match", 18, 32);
@@ -258,8 +258,10 @@ public class BasicTupleTest {
                 " with member type count", 172, 9);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[other,other,other]', found " +
                 "'int[2]'", 173, 22);
-        BAssertUtil.validateError(resultNegative, i, "invalid tuple binding pattern: attempted to infer a tuple " +
+        BAssertUtil.validateError(resultNegative, i++, "invalid tuple binding pattern: attempted to infer a tuple " +
                 "type, but found 'other'", 173, 22);
+        BAssertUtil.validateError(resultNegative, i, "invalid tuple binding pattern; member variable count mismatch" +
+                " with member type count", 174, 9);
     }
 
     @AfterClass

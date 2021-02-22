@@ -267,10 +267,6 @@ function testTupleDeclaredWithVar1() {
     assertEquality(2, a3[1]);
     assertEquality("hello", a3[2]);
     assertEquality("world", a3[3]);
-
-    var [a4, b4] = getData();
-    assertEquality(1, a4);
-    assertEquality(2, b4);
 }
 
 function getData() returns [int, int, string...] {

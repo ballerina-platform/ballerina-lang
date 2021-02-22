@@ -2022,7 +2022,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        if (varNode.memberVariables.size() > tupleTypeNode.tupleTypes.size()) {
+        if ((varNode.isDeclaredWithVar && ((varNode.restVariable != null &&
+                 varNode.memberVariables.size() > tupleTypeNode.tupleTypes.size()) ||
+                (varNode.restVariable == null && (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()
+                        || tupleTypeNode.restType != null)))) ||
+                (!varNode.isDeclaredWithVar && (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size() ||
+                        tupleTypeNode.restType == null && varNode.restVariable != null ||
+                        tupleTypeNode.restType != null && varNode.restVariable == null))) {
             dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN);
             return false;
         }
