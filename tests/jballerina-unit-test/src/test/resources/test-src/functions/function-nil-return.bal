@@ -1,36 +1,36 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 import ballerina/lang.'int as ints;
 
 function testPrint1() {
-    io:println("Hello");
-    io:println(sampleFunction1());
-    io:println("Ballerina");
+    println("Hello");
+    println(sampleFunction1());
+    println("Ballerina");
 }
 
 function testPrint2() {
-    io:println("Hello");
-    io:println(sampleFunction2());
-    io:println("Ballerina");
+    println("Hello");
+    println(sampleFunction2());
+    println("Ballerina");
 }
 
 function testPrint3() {
-    io:println("Hello");
-    io:println(sampleFunction3());
-    io:println("Ballerina");
+    println("Hello");
+    println(sampleFunction3());
+    println("Ballerina");
 }
 
 function testPrint4() {
-    io:println("Hello");
-    io:println(sampleFunction4());
-    io:println("Ballerina");
+    println("Hello");
+    println(sampleFunction4());
+    println("Ballerina");
 }
 
 function testPrintInMatchBlock() {
     match (sampleFunction1()){
         () => {
-            io:println("Hello");
-            io:println(sampleFunction2());
-            io:println("Ballerina");
+            println("Hello");
+            println(sampleFunction2());
+            println("Ballerina");
         }
     }
 }
@@ -44,19 +44,19 @@ function testPrintInWorkers() {
     worker w2 {
         string hello = "";
         hello = <- w1;
-        io:println(hello);
-        io:println(sampleFunction1());
-        io:println("Ballerina");
+        println(hello);
+        println(sampleFunction1());
+        println("Ballerina");
     }
     wait w2;
 }
 
 function testNoReturnFuncInvocnInNilReturnFuncRetStmt() {
-    io:println(nilReturnFuncInvokingNoRetFuncInRetStmt());
+    println(nilReturnFuncInvokingNoRetFuncInRetStmt());
 }
 
 function testNilReturnFuncInvocnInNilReturnFuncRetStmt() {
-    io:println(nilReturnFuncInvokingNilRetFuncInRetStmt());
+    println(nilReturnFuncInvokingNilRetFuncInRetStmt());
 }
 
 function sampleFunction1() {
@@ -76,21 +76,21 @@ function sampleFunction4() returns () {
 }
 
 function nilReturnFuncInvokingNoRetFuncInRetStmt() returns () {
-    io:println("nil returns here");
+    println("nil returns here");
     return noReturnFunc();
 }
 
 function nilReturnFuncInvokingNilRetFuncInRetStmt() returns () {
-    io:println("nil returns here");
+    println("nil returns here");
     return nilReturnFunc();
 }
 
 function noReturnFunc() {
-    io:println("no returns here");
+    println("no returns here");
 }
 
 function nilReturnFunc() returns () {
-    io:println("explicit nil returns here");
+    println("explicit nil returns here");
     return;
 }
 
@@ -245,3 +245,6 @@ function testNilableTypedesc() returns typedesc<any>? {
 function testNilableTypedescArray() returns typedesc<any>[]? {
 }
 
+public function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;
