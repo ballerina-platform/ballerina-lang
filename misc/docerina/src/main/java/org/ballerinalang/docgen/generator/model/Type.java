@@ -284,8 +284,13 @@ public class Type {
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.ERROR)) {
                 return "errors";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.UNION)) {
-                if (((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream().allMatch(typeSymbol ->
-                        typeSymbol.typeKind().equals(TypeDescKind.ERROR))) {
+                if (((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream().allMatch(typeSymbol -> {
+                    if (typeSymbol.typeKind().equals((TypeDescKind.TYPE_REFERENCE))) {
+                        return getTypeCategory(typeSymbol).equals("errors");
+                    } else {
+                        return typeSymbol.typeKind().equals(TypeDescKind.ERROR);
+                    }
+                })) {
                     return "errors";
                 } else {
                     return "types";
