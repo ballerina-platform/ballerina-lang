@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -54,18 +55,19 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return actions;
         }
-        if (context.positionDetails().matchedExprType() == null) {
+        if (positionDetails.matchedExprType() == null) {
             return actions;
         }
 
         String uri = context.fileUri();
         Range range = CommonUtil.toRange(diagnostic.location().lineRange());
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, context);
         List<String> types = createVarTextEdits.types;
         for (int i = 0; i < types.size(); i++) {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
@@ -85,11 +87,12 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
     }
 
     CreateVariableOut getCreateVariableTextEdits(Range range,
+                                                 DiagBasedPositionDetails positionDetails,
                                                  CodeActionContext context) {
-        Symbol matchedSymbol = context.positionDetails().matchedSymbol();
-        TypeSymbol typeDescriptor = context.positionDetails().matchedExprType();
+        Symbol matchedSymbol = positionDetails.matchedSymbol();
+        TypeSymbol typeDescriptor = positionDetails.matchedExprType();
 
-        Position position = CommonUtil.toPosition(context.positionDetails().matchedNode().lineRange().startLine());
+        Position position = CommonUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
         Set<String> allNameEntries = context.visibleSymbols(position).stream()
                 .filter(s -> s.getName().isPresent())
                 .map(s -> s.getName().get())

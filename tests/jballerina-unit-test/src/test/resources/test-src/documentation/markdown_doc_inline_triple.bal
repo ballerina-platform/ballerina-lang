@@ -7,9 +7,11 @@ final string testConst = "TestConstantDocumentation";
 class DummyObject {
 
     # This is a test function
-    # ``` Purpose of adding
+    # ```bal
+    # Purpose of adding
     # this documentation is
-    # to check backtic documentations ```
+    # to check backtic documentations
+    # ```
     public function func1() {
     }
 

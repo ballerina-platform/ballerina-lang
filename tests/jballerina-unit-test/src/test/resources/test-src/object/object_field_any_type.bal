@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.package internal;
-import ballerina/io;
+import ballerina/jballerina.java;
 
 public class TypeA {
     public any attribA = "";
@@ -25,7 +25,11 @@ public class TypeA {
 
 function testObjectWithAnyTypeField() returns string {
     TypeA a = new TypeA("grainier");
-    io:println(a);
+    println(a);
 
     return <string> a.attribA;
 }
+
+public function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

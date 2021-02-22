@@ -25,17 +25,17 @@ Extensible metadata enables easy integration of Ballerina programs with cloud pl
 
 You can use one of the following options to try out Ballerina.
 
-* [Quick Tour](https://ballerina.io/v1-2/learn/quick-tour/)
+* [Quick Tour](https://ballerina.io/learn/quick-tour/)
 * [Ballerina by Example](https://ballerina.io/learn/by-example/) 
 * [Playground](https://play.ballerina.io/)
 
 ## Downloading and installing
 
-For instructions on downloading and installing, see [Installing Ballerina](https://ballerina.io/v1-2/learn/installing-ballerina/).
+For instructions on downloading and installing, see [Installing Ballerina](https://ballerina.io/learn/installing-ballerina/).
 
 ## Building from source
 
-For prerequisites and instructions on building from source, see [Installing from source](https://ballerina.io/v1-2/learn/installing-ballerina/#installing-from-source).
+For prerequisites and instructions on building from source, see [Installing from source](https://ballerina.io/learn/getting-started/installing-ballerina/#building-from-source).
 
 ## Reporting issues and security flaws
 

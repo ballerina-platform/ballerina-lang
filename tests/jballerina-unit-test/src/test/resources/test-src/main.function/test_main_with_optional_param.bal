@@ -13,12 +13,16 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
+import ballerina/jballerina.java;
 
 public function main(string? s) {
     if (s is string) {
-        io:print("string value: " + s);
+        print("string value: " + s);
     } else {
-        io:print("nil value");
+        print("nil value");
     }
 }
+
+public function print(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;
