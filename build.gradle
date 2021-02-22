@@ -87,7 +87,7 @@ task copyExecFilesAndJavaClassFiles {
                 exclude '**/test/*'
                 exclude '**/module-info.class'
                 include '**/*.class'
-            }.each{file->classFilesArray .push(file)}
+            }.each{file->classFilesArray.push(file)}
         }
     }
 }
@@ -111,8 +111,7 @@ task copyBallerinaClassFiles {
                         exclude '**/$value$_Frame.class'
                         include '**/*.class'
                     }
-                    .each { file->
-                    classFilesArray .push(file) }
+                    .each {file-> classFilesArray.push(file)}
                 }
             }
         }
@@ -121,7 +120,7 @@ task copyBallerinaClassFiles {
 
 task createCodeCoverageReport(type: JacocoReport) {
     executionData files(execFilesArray)
-    additionalClassDirs files(classFilesArray )
+    additionalClassDirs files(classFilesArray)
     reports {
         xml.enabled = true
         html.enabled = true
