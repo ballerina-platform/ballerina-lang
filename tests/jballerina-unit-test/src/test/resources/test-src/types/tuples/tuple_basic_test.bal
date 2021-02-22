@@ -321,12 +321,11 @@ function testTupleDeclaredWithVar3() {
     assertEquality(12, b2[0][2][2][0]);
     assertEquality(false, b2[0][2][2][1]);
     assertEquality("John", b2[1][0]);
-    if (b2[1][1] is int[]) {
-        int[] arr = <int[]> b2[1][1];
-        assertEquality(1, arr[0]);
-        assertEquality(23, arr[1]);
-        assertEquality(421, arr[2]);
-    }
+    assertEquality(true, b2[1][1] is int[]);
+    int[] arr = <int[]> b2[1][1];
+    assertEquality(1, arr[0]);
+    assertEquality(23, arr[1]);
+    assertEquality(421, arr[2]);
 }
 
 function getData2() returns [string , byte, boolean, int, (float|string)...] =>
@@ -339,17 +338,19 @@ function testTupleDeclaredWithVar4() {
     var [[intVar], {a: intVar2}, ...restBp] = getComplexTuple1();
     assertEquality(5, intVar);
     assertEquality(6, intVar2);
-    int|error err = restBp[0];
-    if (err is error) {
-        assertEquality("error msg", err.message());
-    }
+    assertEquality(true, restBp[0] is error);
+    assertEquality("error msg", (<error>restBp[0]).message());
     int|error val1 = restBp[1];
     if (val1 is int) {
         assertEquality(12, val1);
+    } else {
+        panic getError("12", val1.toString());
     }
     int|error val2 = restBp[2];
     if (val2 is int) {
         assertEquality(13, val2);
+    } else {
+        panic getError("13", val2.toString());
     }
 
     var [a1, [b1, [c1, d1]], ...e1] = getComplexTuple2();
@@ -368,11 +369,10 @@ function testTupleDeclaredWithVar4() {
     var [a2, ...b2] = getComplexTuple2();
     assertEquality("Test", a2);
     assertEquality(foo, b2[0][0]);
-    if (b2[0][1] is [BarObj,FooObj]) {
-        [BarObj,FooObj] objects = <[BarObj,FooObj]> b2[0][1];
-        assertEquality(barObj, objects[0]);
-        assertEquality(fooObj, objects[1]);
-    }
+    assertEquality(true, b2[0][1] is [BarObj,FooObj]);
+    [BarObj,FooObj] objects = <[BarObj,FooObj]> b2[0][1];
+    assertEquality(barObj, objects[0]);
+    assertEquality(fooObj, objects[1]);
     assertEquality(bar, b2[1][0]);
     assertEquality(56, b2[1][1]);
 }
@@ -407,8 +407,8 @@ class BarObj {
     }
 }
 
-Foo foo = {name:"Test", age:23};
-Bar bar = {id:34, flag:true};
+Foo foo = {name: "Test", age: 23};
+Bar bar = {id: 34, flag: true};
 FooObj fooObj = new ("Fooo", 3.7, 23);
 BarObj barObj = new (true, 56);
 
@@ -416,6 +416,10 @@ function getComplexTuple1() returns [[int], map<int>, error, int...] => [[5], {a
 
 function getComplexTuple2() returns [string, [Foo, [BarObj, FooObj]], [Bar, int]] =>
                                        [foo.name, [foo, [barObj, fooObj]], [bar, barObj.i]];
+
+function getError(string expectedVal, string actualVal) returns error {
+    return error("expected " + expectedVal + " found " + actualVal);
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

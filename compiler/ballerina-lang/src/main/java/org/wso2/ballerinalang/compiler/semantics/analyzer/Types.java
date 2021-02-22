@@ -1222,11 +1222,6 @@ public class Types {
         BTupleType lhsTupleType = (BTupleType) target;
         BTupleType rhsTupleType = (BTupleType) source;
 
-        if ((!lhsTupleType.tupleTypes.isEmpty() && checkAllTupleTypeMembersBelongNoType(lhsTupleType)) ||
-                (lhsTupleType.restType != null && lhsTupleType.restType.tag == TypeTags.NONE)) {
-            return true;
-        }
-
         if (lhsTupleType.restType == null && rhsTupleType.restType != null) {
             return false;
         }
@@ -1299,16 +1294,6 @@ public class Types {
                 // [int, int] = int[1], [int, int] = int[3]
                 return false;
             }
-
-            if (checkAllTupleTypeMembersBelongNoType(target)) {
-                // if declared with var
-                return true;
-            }
-        }
-
-        if (target.restType != null && target.restType.tag == TypeTags.NONE) {
-            // if declared with var
-            return true;
         }
 
         List<BType> targetTypes = new ArrayList<>(target.tupleTypes);
@@ -2640,6 +2625,11 @@ public class Types {
         }
 
         public Boolean visit(BTupleType t, BType s) {
+            if ((!t.tupleTypes.isEmpty() && checkAllTupleTypeMembersBelongNoType(t)) ||
+                    (t.restType != null && t.restType.tag == TypeTags.NONE)) {
+                return true;
+            }
+
             if (s.tag != TypeTags.TUPLE || !hasSameReadonlyFlag(s, t)) {
                 return false;
             }

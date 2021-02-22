@@ -2022,13 +2022,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        if ((varNode.isDeclaredWithVar && ((varNode.restVariable != null &&
-                 varNode.memberVariables.size() > tupleTypeNode.tupleTypes.size()) ||
-                (varNode.restVariable == null && (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()
-                        || tupleTypeNode.restType != null)))) ||
-                (!varNode.isDeclaredWithVar && (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size() ||
-                        tupleTypeNode.restType == null && varNode.restVariable != null ||
-                        tupleTypeNode.restType != null && varNode.restVariable == null))) {
+        if (!checkMemVarCountMatchWithMemTypeCount(varNode, tupleTypeNode)) {
             dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN);
             return false;
         }
@@ -2038,33 +2032,26 @@ public class SymbolEnter extends BLangNodeVisitor {
         int tupleNodeMemCount = tupleTypeNode.tupleTypes.size();
         int varNodeMemCount = varNode.memberVariables.size();
         BType restType = tupleTypeNode.restType;
-        if (varNode.restVariable != null) {
-            memberVariables.add(varNode.restVariable);
-            if (varNodeMemCount < tupleNodeMemCount) {
-                LinkedHashSet<BType> varTypes = new LinkedHashSet<>();
-                for (int i = varNodeMemCount; i < tupleNodeMemCount; i++) {
-                    varTypes.add(tupleTypeNode.tupleTypes.get(i));
-                }
-                if (restType != null) {
-                    varTypes.add(restType);
-                }
+        if (varNode.restVariable != null && varNodeMemCount < tupleNodeMemCount) {
+            LinkedHashSet<BType> varTypes = new LinkedHashSet<>();
+            for (int i = varNodeMemCount; i < tupleNodeMemCount; i++) {
+                varTypes.add(tupleTypeNode.tupleTypes.get(i));
+            }
+            if (restType != null) {
+                varTypes.add(restType);
+            }
+            if (varTypes.size() > 1) {
                 restType = BUnionType.create(null, varTypes);
+            } else {
+                restType = varTypes.iterator().next();
             }
         }
         int memVarCount = memberVariables.size();
+        BLangVariable var;
+        BType type;
         for (int i = 0; i < memVarCount; i++) {
-            BLangVariable var = memberVariables.get(i);
-            BType type;
-            if (varNode.restVariable != null && i == memVarCount - 1) {
-                if (restType != null) {
-                    type = new BArrayType(restType);
-                } else {
-                    LinkedHashSet<BType> varTypes = new LinkedHashSet<>(tupleTypeNode.tupleTypes);
-                    type = new BArrayType(BUnionType.create(null, varTypes));
-                }
-            } else {
-                type = tupleTypeNode.tupleTypes.get(i);
-            }
+            var = memberVariables.get(i);
+            type = tupleTypeNode.tupleTypes.get(i);
             if (var.getKind() == NodeKind.VARIABLE) {
                 // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
                 BLangSimpleVariable simpleVar = (BLangSimpleVariable) var;
@@ -2080,12 +2067,36 @@ public class SymbolEnter extends BLangNodeVisitor {
             defineMemberNode(var, env, type);
         }
 
+        if (varNode.restVariable != null) {
+            var = varNode.restVariable;
+            if (restType != null) {
+                type = new BArrayType(restType);
+            } else {
+                LinkedHashSet<BType> varTypes = new LinkedHashSet<>(tupleTypeNode.tupleTypes);
+                type = new BArrayType(BUnionType.create(null, varTypes));
+            }
+            defineMemberNode(var, env, type);
+        }
+
         if (!varNode.memberVariables.isEmpty() && ignoredCount == varNode.memberVariables.size()
                 && varNode.restVariable == null) {
             dlog.error(varNode.pos, DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
             return false;
         }
         return true;
+    }
+
+    private boolean checkMemVarCountMatchWithMemTypeCount(BLangTupleVariable varNode, BTupleType tupleTypeNode) {
+        if (varNode.isDeclaredWithVar) {
+            return (varNode.restVariable == null ||
+                    varNode.memberVariables.size() <= tupleTypeNode.tupleTypes.size()) &&
+                    (varNode.restVariable != null || (tupleTypeNode.tupleTypes.size() == varNode.memberVariables.size()
+                            && tupleTypeNode.restType == null));
+        } else {
+            return tupleTypeNode.tupleTypes.size() == varNode.memberVariables.size() &&
+                    (tupleTypeNode.restType != null || varNode.restVariable == null) &&
+                    (tupleTypeNode.restType == null || varNode.restVariable != null);
+        }
     }
 
     @Override

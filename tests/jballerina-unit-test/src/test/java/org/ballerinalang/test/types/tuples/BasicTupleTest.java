@@ -27,6 +27,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -175,7 +176,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 34);
+        Assert.assertEquals(resultNegative.getErrorCount(), 33);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++, "tuple and expression size does not match", 18, 32);
@@ -243,12 +244,19 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, i, "list index out of range: index: '-1'", 165, 19);
     }
 
-    @Test(description = "Test tuple declared with var")
-    public void testTupleDeclaredWithVar() {
-        BRunUtil.invoke(result, "testTupleDeclaredWithVar1");
-        BRunUtil.invoke(result, "testTupleDeclaredWithVar2");
-        BRunUtil.invoke(result, "testTupleDeclaredWithVar3");
-        BRunUtil.invoke(result, "testTupleDeclaredWithVar4");
+    @Test(dataProvider = "dataToTestTupleDeclaredWithVar", description = "Test tuple declared with var")
+    public void testModuleLevelTupleVarDecl(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestTupleDeclaredWithVar() {
+        return new Object[]{
+                "testTupleDeclaredWithVar1",
+                "testTupleDeclaredWithVar2",
+                "testTupleDeclaredWithVar3",
+                "testTupleDeclaredWithVar4"
+        };
     }
 
     @Test(description = "Test invalid var declaration with tuples")
@@ -256,10 +264,8 @@ public class BasicTupleTest {
         int i = 30;
         BAssertUtil.validateError(resultNegative, i++, "invalid tuple binding pattern; member variable count mismatch" +
                 " with member type count", 172, 9);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[other,other,other]', found " +
-                "'int[2]'", 173, 22);
-        BAssertUtil.validateError(resultNegative, i++, "invalid tuple binding pattern: attempted to infer a tuple " +
-                "type, but found 'other'", 173, 22);
+        BAssertUtil.validateError(resultNegative, i++, "invalid tuple binding pattern; member variable count mismatch" +
+                " with member type count", 173, 9);
         BAssertUtil.validateError(resultNegative, i, "invalid tuple binding pattern; member variable count mismatch" +
                 " with member type count", 174, 9);
     }
