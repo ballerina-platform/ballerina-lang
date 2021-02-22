@@ -284,7 +284,7 @@ public class JvmConstants {
     public static final String LISTENER_REGISTRY_VARIABLE = "$listenerRegistry";
     public static final String CONFIGURE_INIT = "$configureInit";
     public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
-    public static final String POPULATE_CONFIG_DATA_METHOD = "$populateConfigurationData";
+    public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";

@@ -10,4 +10,4 @@ Creating bala
 	target\bala\foo-winery-any-0.1.0.bala
 
 Generating executable
-	target\bin\winery.jar
+	target\bin\winery-0.1.0.jar

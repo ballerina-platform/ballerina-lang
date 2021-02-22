@@ -68,8 +68,8 @@ import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Annotation;
-import org.ballerinalang.docgen.generator.model.BAbstractObject;
 import org.ballerinalang.docgen.generator.model.BClass;
+import org.ballerinalang.docgen.generator.model.BObjectType;
 import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.Constant;
@@ -125,13 +125,12 @@ public class Generator {
                             module.records.add(getRecordTypeModel(typeDefinition, semanticModel));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
                             hasPublicConstructs = true;
-                            module.abstractObjects.add(getAbstractObjectModel(typeDefinition, semanticModel));
+                            module.objectTypes.add(getObjectTypeModel(typeDefinition, semanticModel));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
                             hasPublicConstructs = true;
-                            Type firstType = Type.fromNode(((UnionTypeDescriptorNode) (typeDefinition.typeDescriptor()))
-                                    .leftTypeDesc(), semanticModel);
-                            if (firstType.category.equals("errors") ||
-                                    (firstType.category.equals("builtin") && firstType.name.equals("error"))) {
+                            Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
+                            if (unionType.memberTypes.stream().allMatch(type -> type.category.equals("errors") ||
+                                    (type.category.equals("builtin") && type.name.equals("error")))) {
                                 module.errors.add(new Error(typeDefinition.typeName().text(),
                                         getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
                                         .metadata()), Type.fromNode(typeDefinition.typeDescriptor(), semanticModel)));
@@ -388,8 +387,8 @@ public class Generator {
         }
     }
 
-    private static BAbstractObject getAbstractObjectModel(TypeDefinitionNode typeDefinition,
-                                                          SemanticModel semanticModel) {
+    private static BObjectType getObjectTypeModel(TypeDefinitionNode typeDefinition,
+                                                  SemanticModel semanticModel) {
         List<Function> functions = new ArrayList<>();
         String name = typeDefinition.typeName().text();
         String description = getDocFromMetadata(typeDefinition.metadata());
@@ -402,7 +401,8 @@ public class Generator {
         for (Node member : typeDescriptorNode.members()) {
             if (member instanceof MethodDeclarationNode) {
                 MethodDeclarationNode methodNode = (MethodDeclarationNode) member;
-                if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
+                if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD) ||
+                        containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD)) {
                     String methodName = methodNode.methodName().text();
 
                     List<Variable> returnParams = new ArrayList<>();
@@ -442,7 +442,7 @@ public class Generator {
                 functions.addAll(getInclusionFunctions(typeSymbol, originType, typeDescriptorNode.members()));
             }
         }
-        return new BAbstractObject(name, description, isDeprecated, fields, functions);
+        return new BObjectType(name, description, isDeprecated, fields, functions);
     }
 
     // TODO: Revisit this. This probably can be written in a much simpler way.
@@ -452,7 +452,7 @@ public class Generator {
         if (typeSymbol instanceof ObjectTypeSymbol) {
             ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) typeSymbol;
             objectTypeSymbol.methods().values().forEach(methodSymbol -> {
-                String methodName = methodSymbol.name();
+                String methodName = methodSymbol.getName().get();
                 // Check if the inclusion function is overridden
                 if (members.stream().anyMatch(node -> {
                     if (node instanceof MethodDeclarationNode && ((MethodDeclarationNode) node).methodName()
@@ -473,24 +473,24 @@ public class Generator {
 
                 methodSymbol.typeDescriptor().parameters().forEach(parameterSymbol -> {
                     boolean parameterDeprecated = parameterSymbol.annotations().stream()
-                            .anyMatch(annotationSymbol -> annotationSymbol.name().equals("deprecated"));
+                            .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
                     Type type = new Type(parameterSymbol.typeDescriptor().signature());
                     Type.resolveSymbol(type, parameterSymbol.typeDescriptor());
-                    parameters.add(new DefaultableVariable(parameterSymbol.name().isPresent() ?
-                            parameterSymbol.name().get() : "", "", parameterDeprecated, type, ""));
+                    parameters.add(new DefaultableVariable(parameterSymbol.getName().isPresent() ?
+                            parameterSymbol.getName().get() : "", "", parameterDeprecated, type, ""));
                 });
 
                 if (methodSymbol.typeDescriptor().restParam().isPresent()) {
                     ParameterSymbol restParam = methodSymbol.typeDescriptor().restParam().get();
                     boolean parameterDeprecated = restParam.annotations().stream()
-                            .anyMatch(annotationSymbol -> annotationSymbol.name().equals("deprecated"));
-                    Type type = new Type(restParam.name().isPresent() ? restParam.name().get() : "");
+                            .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
+                    Type type = new Type(restParam.getName().isPresent() ? restParam.getName().get() : "");
                     type.isRestParam = true;
                     Type elemType = new Type(restParam.typeDescriptor().signature());
                     Type.resolveSymbol(elemType, restParam.typeDescriptor());
                     type.elementType = elemType;
-                    parameters.add(new DefaultableVariable(restParam.name().isPresent() ?
-                            restParam.name().get() : "", "", parameterDeprecated, type, ""));
+                    parameters.add(new DefaultableVariable(restParam.getName().isPresent() ?
+                            restParam.getName().get() : "", "", parameterDeprecated, type, ""));
                 }
 
                 if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
@@ -605,7 +605,7 @@ public class Generator {
                         Type elemType;
                         String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            typeName = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().getName().get();
                         } else {
                             typeName = field.typeDescriptor().signature();
                         }
@@ -621,7 +621,7 @@ public class Generator {
                         Type elemType;
                         String typeName;
                         if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            typeName = field.typeDescriptor().name();
+                            typeName = field.typeDescriptor().getName().get();
                         } else {
                             typeName = field.typeDescriptor().signature();
                         }

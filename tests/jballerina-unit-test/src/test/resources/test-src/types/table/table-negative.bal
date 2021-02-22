@@ -153,3 +153,10 @@ function testMemberAccessWithInvalidStaticType3() {
     table<Customer> key(id) tab = <table<Customer> key(id)> infoTab;
     Customer customer = tab[18];
 }
+
+type Employee record {
+    string name;
+    readonly int age;
+};
+
+type EmployeeTable table<Employee> key(name);

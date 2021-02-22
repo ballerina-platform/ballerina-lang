@@ -109,7 +109,7 @@ public class ProjectPaths {
         String fileName = Optional.of(filepath.getFileName()).get().toString();
         switch (fileName) {
             case ProjectConstants.BALLERINA_TOML:
-            case ProjectConstants.KUBERNETES_TOML:
+            case ProjectConstants.CLOUD_TOML:
             case ProjectConstants.CONFIGURATION_TOML:
             case ProjectConstants.DEPENDENCIES_TOML:
                 return true;

@@ -1592,6 +1592,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.lhsExpr = clone(source.lhsExpr);
         clone.rhsExpr = clone(source.rhsExpr);
+        clone.equalsKeywordPos = source.equalsKeywordPos;
     }
 
     @Override
@@ -1784,6 +1785,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.tableKeySpecifier = clone(source.tableKeySpecifier);
         clone.tableKeyTypeConstraint = clone(source.tableKeyTypeConstraint);
         clone.constraint = clone(source.constraint);
+        clone.isTypeInlineDefined = source.isTypeInlineDefined;
         cloneBLangType(source, clone);
     }
 

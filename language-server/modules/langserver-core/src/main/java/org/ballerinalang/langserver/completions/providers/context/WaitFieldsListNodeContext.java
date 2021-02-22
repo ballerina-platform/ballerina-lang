@@ -16,17 +16,17 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.WaitFieldsListNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -45,11 +45,10 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WaitFieldsListNode node)
             throws LSCompletionException {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        List<Symbol> filteredSymbols = visibleSymbols.stream().filter(symbol -> {
-            Optional<TypeDescKind> typeDescKind = SymbolUtil.getTypeKind(symbol);
-            return typeDescKind.isPresent() && typeDescKind.get() == TypeDescKind.FUTURE;
-        }).collect(Collectors.toList());
-
+        List<Symbol> filteredSymbols = visibleSymbols.stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE
+                        && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE)
+                .collect(Collectors.toList());
         List<LSCompletionItem> completionItems = this.getCompletionItemList(filteredSymbols, context);
         this.sort(context, node, completionItems);
 

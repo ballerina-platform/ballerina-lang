@@ -4,7 +4,7 @@ module io.ballerina.shell {
     requires io.ballerina.tools.api;
     requires io.ballerina.lang;
     requires io.ballerina.runtime;
-    requires freemarker;
+    requires compiler;
 
     exports io.ballerina.shell.exceptions;
     exports io.ballerina.shell.invoker;

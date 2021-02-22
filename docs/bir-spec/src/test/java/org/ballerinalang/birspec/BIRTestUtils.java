@@ -425,7 +425,7 @@ class BIRTestUtils {
 
             // assert name
             assertConstantPoolEntry(constantPoolEntries.get(actualTypeDefinition.nameCpIndex()),
-                    expectedTypeDefinition.name.value);
+                    expectedTypeDefinition.internalName.value);
 
             // assert flags
             assertFlags(actualTypeDefinition.flags(), expectedTypeDefinition.flags);

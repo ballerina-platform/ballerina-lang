@@ -17,12 +17,12 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -51,13 +51,13 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
-    public String name() {
-        return this.functionSymbol.name();
+    public Optional<String> getName() {
+        return this.functionSymbol.getName();
     }
 
     @Override
-    public ModuleID moduleID() {
-        return this.functionSymbol.moduleID();
+    public Optional<ModuleSymbol> getModule() {
+        return this.functionSymbol.getModule();
     }
 
     @Override
@@ -96,6 +96,11 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
+    public Optional<Location> getLocation() {
+        return this.functionSymbol.getLocation();
+    }
+
+    @Override
     public String signature() {
         StringJoiner qualifierJoiner = new StringJoiner(" ");
         this.functionSymbol.qualifiers().stream().map(Qualifier::getValue).forEach(qualifierJoiner::add);
@@ -103,7 +108,7 @@ public class BallerinaMethodSymbol implements MethodSymbol {
 
         StringBuilder signature = new StringBuilder(qualifierJoiner.toString());
         StringJoiner joiner = new StringJoiner(", ");
-        signature.append(this.functionSymbol.name()).append("(");
+        signature.append(this.functionSymbol.getName().get()).append("(");
         for (ParameterSymbol requiredParam : this.typeDescriptor().parameters()) {
             String ballerinaParameterSignature = requiredParam.signature();
             joiner.add(ballerinaParameterSignature);

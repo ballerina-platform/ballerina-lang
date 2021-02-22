@@ -1,0 +1,34 @@
+{
+    "arguments": {
+        "node.position": {
+            "line": 23,
+            "character": 4
+        }
+    },
+    "expected": {
+        "result": {
+            "edit": {
+                "documentChanges": [
+                    {
+                        "edits": [
+                            {
+                                "range": {
+                                    "start": {
+                                        "line": 34,
+                                        "character": 0
+                                    },
+                                    "end": {
+                                        "line": 34,
+                                        "character": 0
+                                    }
+                                },
+                                "newText": "\n\nfunction printThis(boolean a) {\n    \n}\n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "jsonrpc": "2.0"
+    }
+}

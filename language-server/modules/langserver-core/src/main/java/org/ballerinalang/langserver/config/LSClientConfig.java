@@ -25,6 +25,7 @@ public class LSClientConfig {
     private final CodeLensConfig codeLens;
     private final boolean traceLog;
     private final GoToDefinitionConfig goToDefinition;
+    private final boolean enableFileWatcher;
 
     protected LSClientConfig() {
         this.home = "";
@@ -34,6 +35,7 @@ public class LSClientConfig {
         String balTraceLog = System.getenv("BAL_TRACE_LOG");
         String balExperimental = System.getenv("BAL_EXPERIMENTAL");
         String balDefStdLibs = System.getenv("BAL_DEF_STD_LIBS");
+        String balFileWatcher = System.getenv("BAL_FILE_WATCHER");
 
         this.allowExperimental = Boolean.parseBoolean(balExperimental);
         this.debugLog = Boolean.parseBoolean(balDebugLog);
@@ -41,6 +43,7 @@ public class LSClientConfig {
         this.codeLens = new CodeLensConfig();
         this.goToDefinition = (balDefStdLibs != null) ? new GoToDefinitionConfig(Boolean.parseBoolean(balDefStdLibs)) :
                 new GoToDefinitionConfig(true);
+        this.enableFileWatcher = balFileWatcher == null || Boolean.parseBoolean(balFileWatcher);
     }
 
     /**
@@ -104,5 +107,14 @@ public class LSClientConfig {
      */
     public GoToDefinitionConfig getGoToDefinition() {
         return goToDefinition;
+    }
+
+    /**
+     * Returns True if file watcher enabled, False otherwise.
+     *
+     * @return True if enabled, False otherwise
+     */
+    public boolean isEnableFileWatcher() {
+        return enableFileWatcher;
     }
 }

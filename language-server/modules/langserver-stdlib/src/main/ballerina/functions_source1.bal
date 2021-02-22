@@ -25,7 +25,7 @@ public function function3(int param1, int param2, float... param3) returns int {
     return total;
 }
 
-# This is function3 with input parameters
+# This is function4 with input parameters
 #
 # + param1 - param1 Parameter Description 
 # + param2 - param2 Parameter Description
@@ -37,7 +37,7 @@ public function function4(int param1, int param2, string param3 = "test", float.
     int total = var1 + var2;
 }
 
-# This is function3 with input parameters
+# This is function5 with input parameters
 #
 # + param1 - param1 Parameter Description 
 # + param2 - param2 Parameter Description

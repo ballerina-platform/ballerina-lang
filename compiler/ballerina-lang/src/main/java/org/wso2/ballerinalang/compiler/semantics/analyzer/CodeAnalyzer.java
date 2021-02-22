@@ -781,7 +781,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 commitRollbackAllowed = true;
         }
         boolean prevTxMode = this.withinTransactionScope;
-        if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
+        if ((ifStmt.expr.getKind() == NodeKind.GROUP_EXPR ?
+                ((BLangGroupExpr) ifStmt.expr).expression.getKind() :
+                ifStmt.expr.getKind()) == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = true;
         }
         analyzeNode(ifStmt.body, env);

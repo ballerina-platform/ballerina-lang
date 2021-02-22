@@ -35,7 +35,7 @@ import java.util.Optional;
 public class BallerinaXMLTextTypeSymbol extends AbstractTypeSymbol implements XMLTextTypeSymbol {
 
     public BallerinaXMLTextTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLSubType textType) {
-        super(context, TypeDescKind.XML_TEXT, moduleID, textType);
+        super(context, TypeDescKind.XML_TEXT, textType);
     }
 
     @Override
@@ -44,8 +44,8 @@ public class BallerinaXMLTextTypeSymbol extends AbstractTypeSymbol implements XM
     }
 
     @Override
-    public String name() {
-        return Names.STRING_XML_TEXT;
+    public Optional<String> getName() {
+        return Optional.of(Names.STRING_XML_TEXT);
     }
 
     @Override
