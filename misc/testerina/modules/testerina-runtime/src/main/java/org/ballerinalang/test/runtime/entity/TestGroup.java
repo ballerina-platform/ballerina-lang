@@ -18,11 +18,11 @@
 package org.ballerinalang.test.runtime.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Represents a test group in the test suite.
- *
  */
 public class TestGroup {
     private int testCount;
@@ -102,9 +102,17 @@ public class TestGroup {
      * Returns whether the last test of the group is executed.
      * This is used for executing the @AfterGroups functions.
      *
-     * @return  if the last test is executed
+     * @return if the last test is executed
      */
     public boolean isLastTestExecuted() {
         return testCount == executedCount;
+    }
+
+    /**
+     * Sort all the lists in Test group in alphabetical order.
+     */
+    public void sort() {
+        Collections.sort(beforeGroupsFunctions);
+        Collections.sort(afterGroupsFunctions);
     }
 }

@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.common;
 
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -27,9 +27,9 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
  * This class provides imports acceptor and its functionalities.
@@ -60,11 +60,9 @@ public class ImportsAcceptor {
         return (orgName, alias) -> {
             boolean notFound = currentModuleImports.stream().noneMatch(
                     pkg -> {
-                        Optional<ImportPrefixNode> prefix = pkg.prefix();
-                        if (prefix.isEmpty()) {
-                            return false;
-                        }
-                        String importAlias = prefix.get().prefix().text();
+                        String importAlias = pkg.moduleName().stream()
+                                .map(Token::text)
+                                .collect(Collectors.joining("."));
                         String escapedName = importAlias.replace(".", ".'");
                         boolean aliasMatched = importAlias.equals(alias) || escapedName.equals(alias);
                         return pkg.orgName().isPresent() && pkg.orgName().get().orgName().text().equals(orgName)

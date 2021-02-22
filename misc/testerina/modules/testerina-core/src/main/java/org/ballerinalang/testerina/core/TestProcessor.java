@@ -134,6 +134,7 @@ public class TestProcessor {
         testSuite.setSourceRootPath(module.project().sourceRoot().toString());
         addUtilityFunctions(module, testSuite);
         processAnnotations(module, testSuite);
+        testSuite.sort();
         return testSuite;
     }
 

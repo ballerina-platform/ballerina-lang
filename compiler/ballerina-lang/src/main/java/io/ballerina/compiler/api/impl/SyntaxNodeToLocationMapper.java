@@ -60,6 +60,7 @@ import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
@@ -454,6 +455,11 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
     @Override
     public Optional<Location> transform(BracedExpressionNode bracedExpressionNode) {
         return bracedExpressionNode.expression().apply(this);
+    }
+
+    @Override
+    public Optional<Location> transform(PositionalArgumentNode positionalArgumentNode) {
+        return Optional.of(positionalArgumentNode.location());
     }
 
     @Override

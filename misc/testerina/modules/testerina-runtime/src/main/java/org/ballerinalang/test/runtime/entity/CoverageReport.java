@@ -31,7 +31,11 @@ import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.tools.ExecFileLoader;
+import org.jacoco.report.IReportVisitor;
+import org.jacoco.report.xml.XMLFormatter;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -43,6 +47,7 @@ import java.util.List;
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_XML_FILE;
 import static org.jacoco.core.analysis.ICounter.FULLY_COVERED;
 import static org.jacoco.core.analysis.ICounter.NOT_COVERED;
 import static org.jacoco.core.analysis.ICounter.PARTLY_COVERED;
@@ -59,7 +64,6 @@ public class CoverageReport {
     private Path executionDataFile;
     private Path classesDirectory;
     private ExecFileLoader execFileLoader;
-
     private Module module;
     private Target target;
 
@@ -113,13 +117,14 @@ public class CoverageReport {
 
             ModuleCoverage moduleCoverage = new ModuleCoverage();
             createReport(bundleCoverage, moduleCoverage);
+
+            createXMLReport(bundleCoverage);
             CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
             return moduleCoverage;
         } else {
             String msg = "Unable to generate code coverage for the module " + packageName + ". Jar files dont exist.";
             throw new NoSuchFileException(msg);
         }
-
     }
 
     private IBundleCoverage analyzeStructure() throws IOException {
@@ -127,6 +132,23 @@ public class CoverageReport {
         final Analyzer analyzer = new Analyzer(execFileLoader.getExecutionDataStore(), coverageBuilder);
         analyzer.analyzeAll(classesDirectory.toFile());
         return coverageBuilder.getBundle(title);
+    }
+
+    private void createXMLReport(IBundleCoverage bundleCoverage) throws IOException {
+            XMLFormatter xmlFormatter = new XMLFormatter();
+            File reportFile = new File(target.getReportPath().resolve(
+                    this.module.moduleName().toString()).resolve(REPORT_XML_FILE).toString());
+            reportFile.getParentFile().mkdirs();
+
+            try (FileOutputStream fileOutputStream = new FileOutputStream(reportFile)) {
+                IReportVisitor visitor = xmlFormatter.createVisitor(fileOutputStream);
+                visitor.visitInfo(execFileLoader.getSessionInfoStore().getInfos(),
+                        execFileLoader.getExecutionDataStore().getContents());
+
+                visitor.visitBundle(bundleCoverage, null);
+
+                visitor.visitEnd();
+            }
     }
 
     private void createReport(final IBundleCoverage bundleCoverage, ModuleCoverage moduleCoverage) {
@@ -186,5 +208,4 @@ public class CoverageReport {
 
         return filteredPathList;
     }
-
 }
