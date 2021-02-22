@@ -78,7 +78,7 @@ dependencies {
 def classFilesArray = []
 def execFilesArray = []
 
-task copyJavaClassFiles {
+task copyExecFilesAndJavaClassFiles {
     subprojects.forEach { subproject -> 
         def execFile = new File("${subproject.buildDir}/jacoco/jacoco.exec")
         if(execFile.exists()){
@@ -133,5 +133,6 @@ task createCodeCoverageReport(type: JacocoReport) {
     }
 }
 
-copyBallerinaClassFiles.dependsOn copyJavaClassFiles 
+copyBallerinaClassFiles.dependsOn copyExecFilesAndJavaClassFiles 
 createCodeCoverageReport.dependsOn copyBallerinaClassFiles 
+
