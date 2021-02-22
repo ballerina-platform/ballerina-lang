@@ -67,6 +67,7 @@ public class BLogManager extends LogManager {
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
     public static final String OUTPUT_FORMAT_LOGFMT = "logfmt";
     public static final String OUTPUT_FORMAT_JSON = "json";
+    public static final String GLOBAL_PACKAGE_PATH = ".";
     private static String outputFormat = OUTPUT_FORMAT_LOGFMT;
 
     private Map<String, BLogLevel> loggerLevels = new HashMap<>();
@@ -265,7 +266,7 @@ public class BLogManager extends LogManager {
      */
     public void setGlobalLogLevel(BLogLevel logLevel) {
         ballerinaUserLogLevel = logLevel;
-        loggerLevels.put(".", logLevel);
+        loggerLevels.put(GLOBAL_PACKAGE_PATH, logLevel);
     }
 
     /**
@@ -276,6 +277,15 @@ public class BLogManager extends LogManager {
      */
     public void setModuleLogLevel(BLogLevel logLevel, String moduleName) {
         loggerLevels.put(moduleName, logLevel);
+    }
+
+    /**
+     * Checks if module log level has been enabled.
+     *
+     * @return true if module log level has been enabled, false if not.
+     */
+    public boolean isModuleLogLevelEnabled() {
+        return loggerLevels.size() > 1;
     }
 
     /**
