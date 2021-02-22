@@ -17,13 +17,18 @@
  */
 package org.ballerinalang.langserver.command;
 
+import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Command Execution Test Cases for create function.
@@ -72,6 +77,12 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"projectCreateUndefinedFunctionWithModAlias2.json", "testproject/modAlias.bal"},
                 {"projectCreateUndefinedFunctionWithLangLib.json", "testproject/langlib.bal"},
         };
+    }
+
+    @Override
+    protected List<Object> getArgs(JsonObject argsObject) {
+        return Collections.singletonList(CommandArgument.from(CommandConstants.ARG_KEY_NODE_POS,
+                argsObject.getAsJsonObject("node.position")));
     }
 
     @Override

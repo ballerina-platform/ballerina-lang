@@ -1026,18 +1026,44 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.CARRIAGE_RETURN:
             case LexerTerminals.SPACE:
             case LexerTerminals.TAB:
+
+                // Separators
             case LexerTerminals.SEMICOLON:
+            case LexerTerminals.COLON:
+            case LexerTerminals.DOT:
+            case LexerTerminals.COMMA:
+            case LexerTerminals.OPEN_PARANTHESIS:
+            case LexerTerminals.CLOSE_PARANTHESIS:
             case LexerTerminals.OPEN_BRACE:
             case LexerTerminals.CLOSE_BRACE:
             case LexerTerminals.OPEN_BRACKET:
             case LexerTerminals.CLOSE_BRACKET:
-            case LexerTerminals.OPEN_PARANTHESIS:
-            case LexerTerminals.CLOSE_PARANTHESIS:
-                // TODO: add all separators (braces, parentheses, etc)
-                // TODO: add all operators (arithmetic, binary, etc)
+            case LexerTerminals.PIPE:
+            case LexerTerminals.QUESTION_MARK:
+            case LexerTerminals.DOUBLE_QUOTE:
+            case LexerTerminals.SINGLE_QUOTE:
+            case LexerTerminals.HASH:
+            case LexerTerminals.AT:
+            case LexerTerminals.BACKTICK:
+            case LexerTerminals.DOLLAR:
+
+                // Arithmetic operators
+            case LexerTerminals.EQUAL:
+            case LexerTerminals.PLUS:
+            case LexerTerminals.MINUS:
+            case LexerTerminals.ASTERISK:
+            case LexerTerminals.SLASH:
+            case LexerTerminals.PERCENT:
+            case LexerTerminals.GT:
+            case LexerTerminals.LT:
+            case LexerTerminals.BACKSLASH:
+            case LexerTerminals.EXCLAMATION_MARK:
+            case LexerTerminals.BITWISE_AND:
+            case LexerTerminals.BITWISE_XOR:
+            case LexerTerminals.NEGATION:
                 return true;
             default:
-                return false;
+                return isIdentifierFollowingChar(currentChar);
         }
     }
 

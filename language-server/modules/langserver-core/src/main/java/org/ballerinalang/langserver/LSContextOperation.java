@@ -41,6 +41,7 @@ public enum LSContextOperation implements LSOperation {
     TXT_FOLDING_RANGE("text/foldingRange"),
     WS_SYMBOL("workspace/symbol"),
     WS_EXEC_CMD("workspace/executeCommand"),
+    WS_WF_CHANGED("workspace/didChangeWatchedFiles"),
     DOC_SERVICE_AST("ballerinaDocument/ast"),
     DOC_DIAGNOSTICS("ballerinaDocument/diagnostics"),
     LS_INIT("langserver/init"),

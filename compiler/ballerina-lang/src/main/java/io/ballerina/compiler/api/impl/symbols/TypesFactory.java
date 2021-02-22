@@ -232,7 +232,8 @@ public class TypesFactory {
 
                 return new BallerinaUnionTypeSymbol(this.context, moduleID, finiteType);
             case FUNCTION:
-                return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) bType.tsymbol);
+                return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) bType.tsymbol,
+                        bType);
             case NEVER:
                 return new BallerinaNeverTypeSymbol(this.context, moduleID, (BNeverType) bType);
             case INTERSECTION:

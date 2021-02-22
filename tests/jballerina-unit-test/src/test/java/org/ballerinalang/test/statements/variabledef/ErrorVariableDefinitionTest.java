@@ -242,6 +242,12 @@ public class ErrorVariableDefinitionTest {
         CompileResult resultNegative = BCompileUtil.
                 compile("test-src/statements/variabledef/error_variable_definition_stmt_negative.bal");
         int i = -1;
+        BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
+                "'detail' when error detail type 'record {| string message?; error cause?; string...; |}' " +
+                "contains individual field descriptors", 21, 60);
+        BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
+                "'fatal' when error detail type 'record {| string message?; error cause?; anydata...; |}' " +
+                "contains individual field descriptors", 22, 60);
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'SMS', found 'SMA'", 28, 85);
@@ -249,6 +255,12 @@ public class ErrorVariableDefinitionTest {
                 "incompatible types: expected 'boolean', found 'string'", 30, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 31, 28);
+        BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
+                "'detail' when error detail type 'record {| string message?; error cause?; string...; |}' " +
+                "contains individual field descriptors", 35, 60);
+        BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
+                "'fatal' when error detail type 'record {| string message?; error cause?; anydata...; |}' " +
+                "contains individual field descriptors", 36, 60);
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 41, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 44, 26);

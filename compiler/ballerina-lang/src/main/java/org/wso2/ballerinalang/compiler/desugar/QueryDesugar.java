@@ -1502,6 +1502,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
+        xmlAttribute.name.accept(this);
+        xmlAttribute.value.accept(this);
     }
 
     @Override

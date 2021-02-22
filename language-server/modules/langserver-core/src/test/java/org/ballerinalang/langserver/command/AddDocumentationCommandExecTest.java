@@ -17,14 +17,19 @@
  */
 package org.ballerinalang.langserver.command;
 
+import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Add Documentation command execution tests.
@@ -65,6 +70,13 @@ public class AddDocumentationCommandExecTest extends AbstractCommandExecutionTes
                 {"addAllDocumentation.json", "commonDocumentation.bal"},
                 {"addAllDocumentationWithAnnotations.json", "addAllDocumentationWithAnnotations.bal"}
         };
+    }
+
+    @Override
+    protected List<Object> getArgs(JsonObject argsObject) {
+        List<Object> args = new ArrayList<>();
+        args.add(CommandArgument.from(CommandConstants.ARG_KEY_NODE_POS, argsObject.getAsJsonObject("node.position")));
+        return args;
     }
 
     @Override

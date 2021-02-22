@@ -105,14 +105,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map",
-      "kind": "TypeParameter",
-      "detail": "type ",
-      "sortText": "Q",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -134,14 +126,6 @@
       "detail": "Snippet",
       "sortText": "O",
       "insertText": "record {|${1}|}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
