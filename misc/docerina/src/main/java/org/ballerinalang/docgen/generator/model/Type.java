@@ -280,7 +280,7 @@ public class Type {
             if (typeDescriptor.typeKind().equals(TypeDescKind.RECORD)) {
                 return "records";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.OBJECT)) {
-                return "abstractObjects";
+                return "objectTypes";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.ERROR)) {
                 return "errors";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.UNION)) {

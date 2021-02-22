@@ -68,8 +68,8 @@ import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Annotation;
-import org.ballerinalang.docgen.generator.model.BAbstractObject;
 import org.ballerinalang.docgen.generator.model.BClass;
+import org.ballerinalang.docgen.generator.model.BObjectType;
 import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.Constant;
@@ -125,7 +125,7 @@ public class Generator {
                             module.records.add(getRecordTypeModel(typeDefinition, semanticModel));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
                             hasPublicConstructs = true;
-                            module.abstractObjects.add(getAbstractObjectModel(typeDefinition, semanticModel));
+                            module.objectTypes.add(getObjectTypeModel(typeDefinition, semanticModel));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
                             hasPublicConstructs = true;
                             Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
@@ -387,8 +387,8 @@ public class Generator {
         }
     }
 
-    private static BAbstractObject getAbstractObjectModel(TypeDefinitionNode typeDefinition,
-                                                          SemanticModel semanticModel) {
+    private static BObjectType getObjectTypeModel(TypeDefinitionNode typeDefinition,
+                                                  SemanticModel semanticModel) {
         List<Function> functions = new ArrayList<>();
         String name = typeDefinition.typeName().text();
         String description = getDocFromMetadata(typeDefinition.metadata());
@@ -401,7 +401,8 @@ public class Generator {
         for (Node member : typeDescriptorNode.members()) {
             if (member instanceof MethodDeclarationNode) {
                 MethodDeclarationNode methodNode = (MethodDeclarationNode) member;
-                if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
+                if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD) ||
+                        containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD)) {
                     String methodName = methodNode.methodName().text();
 
                     List<Variable> returnParams = new ArrayList<>();
@@ -441,7 +442,7 @@ public class Generator {
                 functions.addAll(getInclusionFunctions(typeSymbol, originType, typeDescriptorNode.members()));
             }
         }
-        return new BAbstractObject(name, description, isDeprecated, fields, functions);
+        return new BObjectType(name, description, isDeprecated, fields, functions);
     }
 
     // TODO: Revisit this. This probably can be written in a much simpler way.

@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.TableKeySpecifierNode;
 import org.ballerinalang.model.tree.TableKeyTypeConstraintNode;
 import org.ballerinalang.model.tree.types.TableTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
@@ -37,6 +38,8 @@ public class BLangTableTypeNode extends BLangType implements TableTypeNode {
     public BLangType constraint;
     public BLangTableKeySpecifier tableKeySpecifier;
     public BLangTableKeyTypeConstraint tableKeyTypeConstraint;
+    public boolean isTypeInlineDefined;
+    public BTableType tableType;
 
     @Override
     public TypeNode getConstraint() {

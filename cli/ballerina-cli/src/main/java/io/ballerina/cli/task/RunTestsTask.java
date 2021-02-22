@@ -121,7 +121,9 @@ public class RunTestsTask implements Task {
             this.disableGroupList = disableGroupList;
         } else if (groupList != null) {
             this.groupList = groupList;
-        } else if (testList != null) {
+        }
+
+        if (testList != null) {
             isSingleTestExecution = true;
             singleExecTests = testList;
         }
