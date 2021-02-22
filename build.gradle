@@ -9,12 +9,7 @@ plugins {
     id 'jacoco'
 }
 
-repositories {
-    mavenLocal()
-    maven {
-        url = 'https://maven.wso2.org/nexus/content/groups/wso2-public/'
-    }
-}
+apply from: "$rootDir/gradle/repositories.gradle"
 
 allprojects {
     group = project.group
