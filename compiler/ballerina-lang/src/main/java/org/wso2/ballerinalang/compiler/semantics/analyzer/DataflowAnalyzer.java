@@ -346,25 +346,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkForUninitializedGlobalVars(List<BLangVariable> globalVars) {
-        // TODO: remove unwanted cases after disallowing uninitialized tuple variables from parser
         for (BLangVariable globalVar : globalVars) {
-            switch (globalVar.getKind()) {
-                case VARIABLE:
-                    if (this.uninitializedVars.containsKey(globalVar.symbol)) {
-                        this.dlog.error(globalVar.pos, DiagnosticErrorCode.UNINITIALIZED_VARIABLE, globalVar.symbol);
-                    }
-                    break;
-                case TUPLE_VARIABLE:
-                    checkForUninitializedGlobalVars(((BLangTupleVariable) globalVar).memberVariables);
-                    break;
-                case RECORD_VARIABLE:
-                    BLangRecordVariable recordVariable = (BLangRecordVariable) globalVar;
-                    List<BLangVariable> memberVariables = new ArrayList<>();
-                    for (BLangRecordVariable.BLangRecordVariableKeyValue memberKeyValue : recordVariable.variableList) {
-                        memberVariables.add(memberKeyValue.valueBindingPattern);
-                    }
-                    checkForUninitializedGlobalVars(memberVariables);
-                    break;
+            if (globalVar.getKind() == NodeKind.VARIABLE && this.uninitializedVars.containsKey(globalVar.symbol)) {
+                this.dlog.error(globalVar.pos, DiagnosticErrorCode.UNINITIALIZED_VARIABLE, globalVar.symbol);
             }
         }
     }
