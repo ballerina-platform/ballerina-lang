@@ -93,9 +93,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (syntaxDiagnostics != null) {
             nodeJson.add("syntaxDiagnostics", DiagnosticUtil.getDiagnostics(syntaxDiagnostics));
         }
-        JsonArray responseMinutiae = evaluateLeadingMinutiae(node.leadingMinutiae());
-        nodeJson.add("leadingMinutiae", responseMinutiae.get(1));
-        nodeJson.add("trailingMinutiae", assignMinutiae(node.trailingMinutiae()));
+        nodeJson.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()).get(1));
+        nodeJson.add("trailingMinutiae", evaluateMinutiae(node.leadingMinutiae()).get(1));
 
         if (node.lineRange() != null) {
             LineRange lineRange = node.lineRange();
@@ -324,10 +323,10 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeInfo.add(memberEntry.getKey(), memberEntry.getValue());
             });
         }
-        JsonArray responseMinutiae = evaluateLeadingMinutiae(node.leadingMinutiae());
+        JsonArray responseMinutiae = evaluateMinutiae(node.leadingMinutiae());
         nodeInfo.add("invalidNodes", responseMinutiae.get(0));
         nodeInfo.add("leadingMinutiae", responseMinutiae.get(1));
-        nodeInfo.add("trailingMinutiae", assignMinutiae(node.trailingMinutiae()));
+        nodeInfo.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()).get(1));
         return nodeInfo;
     }
 
@@ -338,9 +337,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 .collect(Collectors.joining());
     }
 
-    private JsonArray evaluateLeadingMinutiae(MinutiaeList minutiaeList) {
+    private JsonArray evaluateMinutiae(MinutiaeList minutiaeList) {
         JsonArray invalidNodes = new JsonArray();
-        JsonArray leadingMinutiae = new JsonArray();
+        JsonArray nodeMinutiae = new JsonArray();
         JsonArray response = new JsonArray();
 
         for (Minutiae minutiae : minutiaeList) {
@@ -351,22 +350,11 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 invalidNodes.add(minutiaeJson);
             } else {
                 minutiaeJson.addProperty("minutiae", minutiae.text());
-                leadingMinutiae.add(minutiaeJson);
+                nodeMinutiae.add(minutiaeJson);
             }
         }
         response.add(invalidNodes);
-        response.add(leadingMinutiae);
-        return response;
-    }
-
-    private JsonArray assignMinutiae(MinutiaeList minutiaeList) {
-        JsonArray response = new JsonArray();
-        for (Minutiae minutiae : minutiaeList) {
-            JsonObject minutiaeJson = new JsonObject();
-            minutiaeJson.addProperty("kind", minutiae.kind().toString());
-            minutiaeJson.addProperty("minutiae", minutiae.text());
-            response.add(minutiaeJson);
-        }
+        response.add(nodeMinutiae);
         return response;
     }
 }
