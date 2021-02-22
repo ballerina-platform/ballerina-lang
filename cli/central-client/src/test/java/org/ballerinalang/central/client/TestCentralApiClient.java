@@ -159,7 +159,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(connection.getInputStream()).thenReturn(new FileInputStream(packageJson));
 
-        Package aPackage = this.getPackage("foo", WINERY, "1.3.5", "any");
+        Package aPackage = this.getPackage("foo", WINERY, "1.3.5", "any", TEST_BAL_VERSION);
         Assert.assertNotNull(aPackage);
         Assert.assertEquals(aPackage.getOrganization(), "foo");
         Assert.assertEquals(aPackage.getName(), WINERY);
@@ -174,7 +174,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
         when(connection.getErrorStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
 
-        this.getPackage("bar", WINERY, "2.0.0", "any");
+        this.getPackage("bar", WINERY, "2.0.0", "any", TEST_BAL_VERSION);
     }
 
     @Test(description = "Test get package with bad request", expectedExceptions = CentralClientException.class,
@@ -185,7 +185,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
         when(connection.getInputStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
 
-        this.getPackage("bar", WINERY, "v2", "any");
+        this.getPackage("bar", WINERY, "v2", "any", TEST_BAL_VERSION);
     }
 
     @Test(description = "Test push package", enabled = false)

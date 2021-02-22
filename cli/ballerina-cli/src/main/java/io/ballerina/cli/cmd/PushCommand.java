@@ -258,7 +258,7 @@ public class PushCommand implements BLauncherCmd {
         for (String supportedPlatform : supportedPlatforms) {
             try {
                 client.getPackage(pkg.org().toString(), pkg.name().toString(), pkg.version().toString(),
-                                  supportedPlatform);
+                                  supportedPlatform, RepoUtils.getBallerinaVersion());
                 return true;
             } catch (NoPackageException e) {
                 return false;

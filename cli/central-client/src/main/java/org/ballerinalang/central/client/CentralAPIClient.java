@@ -85,13 +85,15 @@ public class CentralAPIClient {
     /**
      * Get package with version.
      *
-     * @param orgNamePath     The organization name of the package. (required)
-     * @param packageNamePath The name of the package. (required)
-     * @param version         The version or version range of the module. (required)
+     * @param orgNamePath       The organization name of the package. (required)
+     * @param packageNamePath   The name of the package. (required)
+     * @param version           The version or version range of the module. (required)
+     * @param supportedPlatform The ballerina platform. (required)
+     * @param ballerinaVersion  The ballerina version. (required)
      * @return PackageJsonSchema
      */
-    public Package getPackage(String orgNamePath, String packageNamePath, String version, String supportedPlatform)
-            throws CentralClientException {
+    public Package getPackage(String orgNamePath, String packageNamePath, String version, String supportedPlatform,
+            String ballerinaVersion) throws CentralClientException {
         initializeSsl();
         String url = PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
         // append version to url if available
@@ -106,6 +108,7 @@ public class CentralAPIClient {
 
         // set implementation version
         conn.setRequestProperty(BALLERINA_PLATFORM, supportedPlatform);
+        conn.setRequestProperty(USER_AGENT, ballerinaVersion);
 
         // status code and meaning
         //// 302 - module found
@@ -160,12 +163,14 @@ public class CentralAPIClient {
     /**
      * Get the package versions.
      *
-     * @param orgNamePath     The organization name of the package. (required)
-     * @param packageNamePath The name of the package. (required)
+     * @param orgNamePath       The organization name of the package. (required)
+     * @param packageNamePath   The name of the package. (required)
+     * @param supportedPlatform The ballerina platform. (required)
+     * @param ballerinaVersion  The ballerina version. (required)
      * @return PackageJsonSchema
      */
-    public List<String> getPackageVersions(String orgNamePath, String packageNamePath, String supportedPlatform)
-            throws CentralClientException {
+    public List<String> getPackageVersions(String orgNamePath, String packageNamePath, String supportedPlatform,
+            String ballerinaVersion) throws CentralClientException {
         initializeSsl();
         String url = PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
 
@@ -175,6 +180,7 @@ public class CentralAPIClient {
 
         // Set headers
         conn.setRequestProperty(BALLERINA_PLATFORM, supportedPlatform);
+        conn.setRequestProperty(USER_AGENT, ballerinaVersion);
 
         // status code and meaning
         //// 200 - list of versions
