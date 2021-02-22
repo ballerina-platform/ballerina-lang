@@ -32,7 +32,7 @@ public final class BallerinaUserHome {
     private BallerinaUserHome(Environment environment, Path ballerinaUserHomeDirPath) {
         this.ballerinaUserHomeDirPath = ballerinaUserHomeDirPath;
         Path remotePackageRepositoryPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
-                .resolve(ProjectConstants.CENTRAL_REPOSITORY_NAME);
+                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
         try {
             Files.createDirectories(remotePackageRepositoryPath);
         } catch (IOException exception) {

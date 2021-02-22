@@ -90,11 +90,6 @@ public class EnvironmentBuilder {
             customRepositories = ballerinaUserHome.customRepositories();
         }
 
-//        if (customRepositories == null) {
-////            createLocalRepository(environment);
-//            customRepositories = ;
-//        }
-
         PackageResolver packageResolver = new DefaultPackageResolver(distributionRepository,
                 ballerinaCentralRepo, packageCache, customRepositories);
         environment.addService(PackageResolver.class, packageResolver);

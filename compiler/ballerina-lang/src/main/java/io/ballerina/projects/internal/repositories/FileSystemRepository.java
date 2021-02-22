@@ -121,20 +121,6 @@ public class FileSystemRepository implements PackageRepository {
             throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
         }
 
-
-//        // Here we dont rely on directories we check for available balas
-//        String globFilePart = orgName + "-" + packageName + "-*.bala";
-//        String glob = "glob:**/" + orgName + "/" + packageName + "/*/" + globFilePart;
-//        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(glob);
-//        List<Path> versions = new ArrayList<>();
-//        try {
-//            Files.walkFileTree(bala.resolve(orgName).resolve(packageName)
-//                    , new SearchModules(pathMatcher, versions));
-//        } catch (IOException e) {
-//            // in any error we should report to the top
-//            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
-//        }
-
         return pathToVersions(versions);
     }
 
@@ -193,31 +179,5 @@ public class FileSystemRepository implements PackageRepository {
                     return PackageVersion.from(version);
                 })
                 .collect(Collectors.toList());
-    }
-
-    private static class SearchModules extends SimpleFileVisitor<Path> {
-
-        private final PathMatcher pathMatcher;
-        private final List<Path> versions;
-
-        public SearchModules(PathMatcher pathMatcher, List<Path> versions) {
-            this.pathMatcher = pathMatcher;
-            this.versions = versions;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path path,
-                                         BasicFileAttributes attrs) throws IOException {
-            if (pathMatcher.matches(path)) {
-                versions.add(path);
-            }
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc)
-                throws IOException {
-            return FileVisitResult.CONTINUE;
-        }
     }
 }
