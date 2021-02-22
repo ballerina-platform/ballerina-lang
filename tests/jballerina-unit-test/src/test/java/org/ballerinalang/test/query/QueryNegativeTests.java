@@ -35,15 +35,15 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 23);
+        Assert.assertEquals(compileResult.getErrorCount(), 25);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
-                                  64, 18);
+                64, 18);
         validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                              "non-required field 'lastName'", 67, 30);
+                "non-required field 'lastName'", 67, 30);
         validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                              "non-required field 'age'", 68, 25);
+                "non-required field 'age'", 68, 25);
         validateError(compileResult, index++, "unknown type 'XYZ'", 83, 18);
         validateError(compileResult, index++, "undefined field 'lastName' in record 'Teacher'", 103, 20);
         validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection", 116, 32);
@@ -66,9 +66,12 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "ambiguous type '[string, string]'", 327, 24);
         validateError(compileResult, index++, "redeclared symbol 'fname'", 351, 36);
         validateError(compileResult, index++, "redeclared symbol 'age'", 364, 21);
-        validateError(compileResult, index, "redeclared symbol 'age'", 381, 44);
+        validateError(compileResult, index++, "redeclared symbol 'age'", 381, 44);
+        validateError(compileResult, index++, "invalid constraint type. expected subtype of 'map<any|error>' " +
+                "but found 'int'", 401, 22);
+        validateError(compileResult, index, "invalid constraint type. expected subtype of 'map<any|error>' " +
+                "but found 'int'", 411, 22);
     }
-
 
     @Test
     public void testFromClauseWithInvalidAssignmentToFinalVar() {
