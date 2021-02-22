@@ -2028,30 +2028,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         int ignoredCount = 0;
-        List<BLangVariable> memberVariables = new ArrayList<>(varNode.memberVariables);
-        int tupleNodeMemCount = tupleTypeNode.tupleTypes.size();
-        int varNodeMemCount = varNode.memberVariables.size();
-        BType restType = tupleTypeNode.restType;
-        if (varNode.restVariable != null && varNodeMemCount < tupleNodeMemCount) {
-            LinkedHashSet<BType> varTypes = new LinkedHashSet<>();
-            for (int i = varNodeMemCount; i < tupleNodeMemCount; i++) {
-                varTypes.add(tupleTypeNode.tupleTypes.get(i));
-            }
-            if (restType != null) {
-                varTypes.add(restType);
-            }
-            if (varTypes.size() > 1) {
-                restType = BUnionType.create(null, varTypes);
-            } else {
-                restType = varTypes.iterator().next();
-            }
-        }
-        int memVarCount = memberVariables.size();
-        BLangVariable var;
+        int i = 0;
         BType type;
-        for (int i = 0; i < memVarCount; i++) {
-            var = memberVariables.get(i);
+        for (BLangVariable var : varNode.memberVariables) {
             type = tupleTypeNode.tupleTypes.get(i);
+            i++;
             if (var.getKind() == NodeKind.VARIABLE) {
                 // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
                 BLangSimpleVariable simpleVar = (BLangSimpleVariable) var;
@@ -2068,14 +2049,30 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (varNode.restVariable != null) {
-            var = varNode.restVariable;
+            int tupleNodeMemCount = tupleTypeNode.tupleTypes.size();
+            int varNodeMemCount = varNode.memberVariables.size();
+            BType restType = tupleTypeNode.restType;
+            if (varNodeMemCount < tupleNodeMemCount) {
+                LinkedHashSet<BType> varTypes = new LinkedHashSet<>();
+                for (int j = varNodeMemCount; j < tupleNodeMemCount; j++) {
+                    varTypes.add(tupleTypeNode.tupleTypes.get(j));
+                }
+                if (restType != null) {
+                    varTypes.add(restType);
+                }
+                if (varTypes.size() > 1) {
+                    restType = BUnionType.create(null, varTypes);
+                } else {
+                    restType = varTypes.iterator().next();
+                }
+            }
             if (restType != null) {
                 type = new BArrayType(restType);
             } else {
                 LinkedHashSet<BType> varTypes = new LinkedHashSet<>(tupleTypeNode.tupleTypes);
                 type = new BArrayType(BUnionType.create(null, varTypes));
             }
-            defineMemberNode(var, env, type);
+            defineMemberNode(varNode.restVariable, env, type);
         }
 
         if (!varNode.memberVariables.isEmpty() && ignoredCount == varNode.memberVariables.size()

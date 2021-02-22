@@ -2471,8 +2471,9 @@ public class Types {
         }
 
         public Boolean visit(BTupleType t, BType s) {
-            if ((!t.tupleTypes.isEmpty() && checkAllTupleTypeMembersBelongNoType(t)) ||
-                    (t.restType != null && t.restType.tag == TypeTags.NONE)) {
+            if (((!t.tupleTypes.isEmpty() && checkAllTupleTypeMembersBelongNoType(t)) ||
+                    (t.restType != null && t.restType.tag == TypeTags.NONE)) &&
+                            !(s.tag == TypeTags.ARRAY && ((BArrayType)s).state == BArrayState.OPEN)) {
                 return true;
             }
 
