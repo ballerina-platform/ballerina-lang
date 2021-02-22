@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 
 public function main() {
     worker w1 returns boolean|error{
@@ -8,14 +8,17 @@ public function main() {
            return err;
       }
       i -> w2;
-      io:println("w1");
+      println("w1");
       return false;
     }
 
     worker w2 {
       int j = 25;
       j = <- w1;
-      io:println(j);
+      println(j);
     }
 }
 
+public function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

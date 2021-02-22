@@ -18,6 +18,7 @@ package org.ballerinalang.langserver;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
@@ -31,10 +32,13 @@ import org.ballerinalang.langserver.exception.UserErrorException;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
+import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 
+import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -85,7 +89,23 @@ public class BallerinaWorkspaceService implements WorkspaceService {
 
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
-        // Operation not supported
+        // Looping through a set to avoid duplicated file events
+        for (FileEvent fileEvent : new HashSet<>(params.getChanges())) {
+            String uri = fileEvent.getUri();
+            Optional<Path> optFilePath = CommonUtil.getPathFromURI(uri);
+            if (optFilePath.isEmpty()) {
+                continue;
+            }
+            Path filePath = optFilePath.get();
+            try {
+                workspaceManager.didChangeWatched(filePath, fileEvent);
+            } catch (UserErrorException e) {
+                this.clientLogger.notifyUser("File Change Failed to Handle", e);
+            } catch (Throwable e) {
+                String msg = "Operation 'workspace/didChangeWatchedFiles' failed!";
+                this.clientLogger.logError(msg, e, null, (Position) null);
+            }
+        }
     }
 
     @Override

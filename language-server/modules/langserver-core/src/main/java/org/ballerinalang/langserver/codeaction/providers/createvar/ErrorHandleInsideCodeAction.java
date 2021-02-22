@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -52,13 +53,14 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
 
-        Symbol matchedSymbol = context.positionDetails().matchedSymbol();
-        TypeSymbol typeDescriptor = context.positionDetails().matchedExprType();
+        Symbol matchedSymbol = positionDetails.matchedSymbol();
+        TypeSymbol typeDescriptor = positionDetails.matchedExprType();
         String uri = context.fileUri();
         if (typeDescriptor == null || typeDescriptor.typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
@@ -71,11 +73,10 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         }
 
         Range range = CommonUtil.toRange(diagnostic.location().lineRange());
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, context);
 
         // Add type guard code action
-        String commandTitle = String.format(CommandConstants.CREATE_VAR_TYPE_GUARD_TITLE,
-                                            matchedSymbol.getName().get());
+        String commandTitle = CommandConstants.CREATE_VAR_TYPE_GUARD_TITLE;
         List<TextEdit> edits = CodeActionUtil.getTypeGuardCodeActionEdits(createVarTextEdits.name, range, unionType,
                                                                           context);
         if (edits.isEmpty()) {
