@@ -17,7 +17,7 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
-import io.ballerina.compiler.syntax.tree.DocumentationReferenceNode;
+import io.ballerina.compiler.syntax.tree.MarkdownCodeBlockNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -30,76 +30,96 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STDocumentationReferenceNode extends STDocumentationNode {
-    public final STNode referenceType;
+public class STMarkdownCodeBlockNode extends STDocumentationNode {
+    public final STNode startLineHashToken;
     public final STNode startBacktick;
-    public final STNode backtickContent;
+    public final STNode langAttribute;
+    public final STNode codeLines;
+    public final STNode endLineHashToken;
     public final STNode endBacktick;
 
-    STDocumentationReferenceNode(
-            STNode referenceType,
+    STMarkdownCodeBlockNode(
+            STNode startLineHashToken,
             STNode startBacktick,
-            STNode backtickContent,
+            STNode langAttribute,
+            STNode codeLines,
+            STNode endLineHashToken,
             STNode endBacktick) {
         this(
-                referenceType,
+                startLineHashToken,
                 startBacktick,
-                backtickContent,
+                langAttribute,
+                codeLines,
+                endLineHashToken,
                 endBacktick,
                 Collections.emptyList());
     }
 
-    STDocumentationReferenceNode(
-            STNode referenceType,
+    STMarkdownCodeBlockNode(
+            STNode startLineHashToken,
             STNode startBacktick,
-            STNode backtickContent,
+            STNode langAttribute,
+            STNode codeLines,
+            STNode endLineHashToken,
             STNode endBacktick,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.DOCUMENTATION_REFERENCE, diagnostics);
-        this.referenceType = referenceType;
+        super(SyntaxKind.MARKDOWN_CODE_BLOCK, diagnostics);
+        this.startLineHashToken = startLineHashToken;
         this.startBacktick = startBacktick;
-        this.backtickContent = backtickContent;
+        this.langAttribute = langAttribute;
+        this.codeLines = codeLines;
+        this.endLineHashToken = endLineHashToken;
         this.endBacktick = endBacktick;
 
         addChildren(
-                referenceType,
+                startLineHashToken,
                 startBacktick,
-                backtickContent,
+                langAttribute,
+                codeLines,
+                endLineHashToken,
                 endBacktick);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STDocumentationReferenceNode(
-                this.referenceType,
+        return new STMarkdownCodeBlockNode(
+                this.startLineHashToken,
                 this.startBacktick,
-                this.backtickContent,
+                this.langAttribute,
+                this.codeLines,
+                this.endLineHashToken,
                 this.endBacktick,
                 diagnostics);
     }
 
-    public STDocumentationReferenceNode modify(
-            STNode referenceType,
+    public STMarkdownCodeBlockNode modify(
+            STNode startLineHashToken,
             STNode startBacktick,
-            STNode backtickContent,
+            STNode langAttribute,
+            STNode codeLines,
+            STNode endLineHashToken,
             STNode endBacktick) {
         if (checkForReferenceEquality(
-                referenceType,
+                startLineHashToken,
                 startBacktick,
-                backtickContent,
+                langAttribute,
+                codeLines,
+                endLineHashToken,
                 endBacktick)) {
             return this;
         }
 
-        return new STDocumentationReferenceNode(
-                referenceType,
+        return new STMarkdownCodeBlockNode(
+                startLineHashToken,
                 startBacktick,
-                backtickContent,
+                langAttribute,
+                codeLines,
+                endLineHashToken,
                 endBacktick,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new DocumentationReferenceNode(this, position, parent);
+        return new MarkdownCodeBlockNode(this, position, parent);
     }
 
     @Override

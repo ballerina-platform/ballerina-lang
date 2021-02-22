@@ -4422,11 +4422,23 @@ public class TypeChecker extends BLangNodeVisitor {
         clauses.forEach(clause -> clause.accept(this));
         BType actualType = resolveQueryType(queryEnvs.peek(),
                 selectClauses.peek().expression, collectionNode.type, expType, queryExpr);
-        resultType = (actualType == symTable.semanticError) ? actualType :
+        actualType = (actualType == symTable.semanticError) ? actualType :
                 types.checkType(queryExpr.pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         selectClauses.pop();
         queryEnvs.pop();
         prevEnvs.pop();
+
+        if (actualType.tag == TypeTags.TABLE) {
+            BTableType tableType = (BTableType) actualType;
+            tableType.constraintPos = queryExpr.pos;
+            tableType.isTypeInlineDefined = true;
+            if (!validateTableType(tableType, null)) {
+                resultType = symTable.semanticError;
+                return;
+            }
+        }
+
+        resultType = actualType;
     }
 
     private BType resolveQueryType(SymbolEnv env, BLangExpression selectExp, BType collectionType,

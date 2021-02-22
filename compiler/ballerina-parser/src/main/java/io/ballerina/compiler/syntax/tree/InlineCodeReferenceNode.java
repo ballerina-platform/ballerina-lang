@@ -20,33 +20,28 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
  * @since 2.0.0
  */
-public class DocumentationReferenceNode extends DocumentationNode {
+public class InlineCodeReferenceNode extends DocumentationNode {
 
-    public DocumentationReferenceNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public InlineCodeReferenceNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Optional<Token> referenceType() {
-        return optionalChildInBucket(0);
+    public Token startBacktick() {
+        return childInBucket(0);
     }
 
-    public Token startBacktick() {
+    public Token codeReference() {
         return childInBucket(1);
     }
 
-    public Node backtickContent() {
-        return childInBucket(2);
-    }
-
     public Token endBacktick() {
-        return childInBucket(3);
+        return childInBucket(2);
     }
 
     @Override
@@ -62,34 +57,30 @@ public class DocumentationReferenceNode extends DocumentationNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "referenceType",
                 "startBacktick",
-                "backtickContent",
+                "codeReference",
                 "endBacktick"};
     }
 
-    public DocumentationReferenceNode modify(
-            Token referenceType,
+    public InlineCodeReferenceNode modify(
             Token startBacktick,
-            Node backtickContent,
+            Token codeReference,
             Token endBacktick) {
         if (checkForReferenceEquality(
-                referenceType,
                 startBacktick,
-                backtickContent,
+                codeReference,
                 endBacktick)) {
             return this;
         }
 
-        return NodeFactory.createDocumentationReferenceNode(
-                referenceType,
+        return NodeFactory.createInlineCodeReferenceNode(
                 startBacktick,
-                backtickContent,
+                codeReference,
                 endBacktick);
     }
 
-    public DocumentationReferenceNodeModifier modify() {
-        return new DocumentationReferenceNodeModifier(this);
+    public InlineCodeReferenceNodeModifier modify() {
+        return new InlineCodeReferenceNodeModifier(this);
     }
 
     /**
@@ -97,53 +88,44 @@ public class DocumentationReferenceNode extends DocumentationNode {
      *
      * @since 2.0.0
      */
-    public static class DocumentationReferenceNodeModifier {
-        private final DocumentationReferenceNode oldNode;
-        private Token referenceType;
+    public static class InlineCodeReferenceNodeModifier {
+        private final InlineCodeReferenceNode oldNode;
         private Token startBacktick;
-        private Node backtickContent;
+        private Token codeReference;
         private Token endBacktick;
 
-        public DocumentationReferenceNodeModifier(DocumentationReferenceNode oldNode) {
+        public InlineCodeReferenceNodeModifier(InlineCodeReferenceNode oldNode) {
             this.oldNode = oldNode;
-            this.referenceType = oldNode.referenceType().orElse(null);
             this.startBacktick = oldNode.startBacktick();
-            this.backtickContent = oldNode.backtickContent();
+            this.codeReference = oldNode.codeReference();
             this.endBacktick = oldNode.endBacktick();
         }
 
-        public DocumentationReferenceNodeModifier withReferenceType(
-                Token referenceType) {
-            this.referenceType = referenceType;
-            return this;
-        }
-
-        public DocumentationReferenceNodeModifier withStartBacktick(
+        public InlineCodeReferenceNodeModifier withStartBacktick(
                 Token startBacktick) {
             Objects.requireNonNull(startBacktick, "startBacktick must not be null");
             this.startBacktick = startBacktick;
             return this;
         }
 
-        public DocumentationReferenceNodeModifier withBacktickContent(
-                Node backtickContent) {
-            Objects.requireNonNull(backtickContent, "backtickContent must not be null");
-            this.backtickContent = backtickContent;
+        public InlineCodeReferenceNodeModifier withCodeReference(
+                Token codeReference) {
+            Objects.requireNonNull(codeReference, "codeReference must not be null");
+            this.codeReference = codeReference;
             return this;
         }
 
-        public DocumentationReferenceNodeModifier withEndBacktick(
+        public InlineCodeReferenceNodeModifier withEndBacktick(
                 Token endBacktick) {
             Objects.requireNonNull(endBacktick, "endBacktick must not be null");
             this.endBacktick = endBacktick;
             return this;
         }
 
-        public DocumentationReferenceNode apply() {
+        public InlineCodeReferenceNode apply() {
             return oldNode.modify(
-                    referenceType,
                     startBacktick,
-                    backtickContent,
+                    codeReference,
                     endBacktick);
         }
     }
