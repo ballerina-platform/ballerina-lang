@@ -110,8 +110,7 @@ task copyBallerinaClassFiles {
                         exclude '**/$value$$anonType$_*.class'
                         exclude '**/$value$_Frame.class'
                         include '**/*.class'
-                    }
-                    .each { file -> classFilesArray.push(file) }
+                    }.each { file -> classFilesArray.push(file) }
                 }
             }
         }
