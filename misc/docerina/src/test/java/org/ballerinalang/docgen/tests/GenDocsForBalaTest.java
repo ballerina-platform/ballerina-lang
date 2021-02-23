@@ -54,7 +54,7 @@ public class GenDocsForBalaTest {
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
         BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
     
-        BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString());
+        BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
     
         String apiDocsJsonAsString = Files.readString(
                 this.docsPath.resolve("foo").resolve("sf").resolve("1.3.5")

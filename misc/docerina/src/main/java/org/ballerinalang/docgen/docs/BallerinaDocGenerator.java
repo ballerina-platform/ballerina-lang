@@ -147,7 +147,7 @@ public class BallerinaDocGenerator {
             }
         }
         packageLib.packages.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-        writeAPIDocs(packageLib, apiDocsRoot, true);
+        writeAPIDocs(packageLib, apiDocsRoot, true, false);
 
         // Create the central json
         String json = gson.toJson(centralLib);
@@ -165,8 +165,9 @@ public class BallerinaDocGenerator {
      * API to generate API docs using a Project to a given folder.
      *  @param project Ballerina project
      *  @param output Output path as a string
+     *  @param excludeUi Exclude UI elements being copied/generated
      */
-    public static void generateAPIDocs(Project project, String output)
+    public static void generateAPIDocs(Project project, String output, boolean excludeUi)
             throws IOException {
         Map<String, ModuleDoc> moduleDocMap = generateModuleDocMap(project);
         DocPackage docPackage = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
@@ -187,11 +188,11 @@ public class BallerinaDocGenerator {
         if (!docPackage.modules.isEmpty()) {
             PackageLibrary packageLib = new PackageLibrary();
             packageLib.packages.add(docPackage);
-            writeAPIDocs(packageLib, output, false);
+            writeAPIDocs(packageLib, output, false, excludeUi);
         }
     }
 
-    private static void writeAPIDocs(PackageLibrary packageLib, String output, boolean isMerge) {
+    private static void writeAPIDocs(PackageLibrary packageLib, String output, boolean isMerge, boolean excludeUi) {
         if (packageLib.packages.size() == 0) {
             return;
         }
@@ -206,7 +207,7 @@ public class BallerinaDocGenerator {
         try {
             Files.createDirectories(Paths.get(output));
             Files.createDirectories(Paths.get(output));
-            genApiDocsJson(packageLib, output);
+            genApiDocsJson(packageLib, output, excludeUi);
         } catch (IOException e) {
             out.printf("docerina: API documentation generation failed%n", e.getMessage());
             log.error("API documentation generation failed:", e);
@@ -237,28 +238,30 @@ public class BallerinaDocGenerator {
             }
         }
         // Copy docerina ui
-        File source = new File(System.getProperty("ballerina.home") + File.separator + "lib" + File.separator +
-                "tools" + File.separator + "doc-ui");
-        File dest;
-        if (source.exists()) {
-            dest = new File(output);
-            try {
-                FileUtils.copyDirectory(source, dest);
-            } catch (IOException e) {
-                out.println(String.format("docerina: failed to copy doc ui. Cause: %s", e.getMessage
-                        ()));
-                log.error("Failed to copy the doc ui.", e);
-            }
-        } else {
-            dest = new File(output, "index.html");
-            try {
-                FileUtils.copyInputStreamToFile(BallerinaDocGenerator.class
-                        .getResourceAsStream("/doc-ui/index.html"), dest);
-                //BallerinaDocUtils.unzipResources(, dest);
-            } catch (IOException e) {
-                out.println(String.format("docerina: failed to copy doc ui. Cause: %s", e.getMessage
-                        ()));
-                log.error("Failed to copy the doc ui.", e);
+        if (!excludeUi) {
+            File source = new File(System.getProperty("ballerina.home") + File.separator + "lib" +
+                    File.separator + "tools" + File.separator + "doc-ui");
+            File dest;
+            if (source.exists()) {
+                dest = new File(output);
+                try {
+                    FileUtils.copyDirectory(source, dest);
+                } catch (IOException e) {
+                    out.println(String.format("docerina: failed to copy doc ui. Cause: %s", e.getMessage
+                            ()));
+                    log.error("Failed to copy the doc ui.", e);
+                }
+            } else {
+                dest = new File(output, "index.html");
+                try {
+                    FileUtils.copyInputStreamToFile(BallerinaDocGenerator.class
+                            .getResourceAsStream("/doc-ui/index.html"), dest);
+                    //BallerinaDocUtils.unzipResources(, dest);
+                } catch (IOException e) {
+                    out.println(String.format("docerina: failed to copy doc ui. Cause: %s", e.getMessage
+                            ()));
+                    log.error("Failed to copy the doc ui.", e);
+                }
             }
         }
 
@@ -280,7 +283,7 @@ public class BallerinaDocGenerator {
         }
     }
 
-    private static void genApiDocsJson(PackageLibrary packageLib, String dataDir) {
+    private static void genApiDocsJson(PackageLibrary packageLib, String dataDir, boolean excludeUi) {
 
         ApiDocsJson apiDocsJson = new ApiDocsJson();
         apiDocsJson.docsData = packageLib;
@@ -302,13 +305,15 @@ public class BallerinaDocGenerator {
             }
         }
         String json = gson.toJson(apiDocsJson);
-        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsFile),
-                StandardCharsets.UTF_8)) {
-            String js = "var apiDocsJson = " + json + ";";
-            writer.write(new String(js.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            out.printf("docerina: failed to create the %s. Cause: %s%n", API_DOCS_JS, e.getMessage());
-            log.error("Failed to create {} file.", API_DOCS_JS, e);
+        if (!excludeUi) {
+            try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsFile),
+                    StandardCharsets.UTF_8)) {
+                String js = "var apiDocsJson = " + json + ";";
+                writer.write(new String(js.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                out.printf("docerina: failed to create the %s. Cause: %s%n", API_DOCS_JS, e.getMessage());
+                log.error("Failed to create {} file.", API_DOCS_JS, e);
+            }
         }
 
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),
