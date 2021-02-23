@@ -33,13 +33,16 @@ public class PackageLauncher extends Launcher {
 
     public Process start() throws Exception {
         ProcessBuilder processBuilder = new ProcessBuilder();
-        // Adds ballerina run/test command with debug flag.
-        processBuilder.command(getLauncherCommand(null));
+        processBuilder.command(getBallerinaCommand(null));
+        processBuilder.directory(Paths.get(projectRoot).toFile());
 
         Map<String, String> env = processBuilder.environment();
-        // set environment ballerina home
         env.put("BALLERINA_HOME", configHolder.getBallerinaHome());
-        processBuilder.directory(Paths.get(projectRoot).toFile());
+        // Adds environment variables defined by the user.
+        if (configHolder.getEnv().isPresent()) {
+            configHolder.getEnv().get().forEach(env::put);
+        }
+
         return processBuilder.start();
     }
 }

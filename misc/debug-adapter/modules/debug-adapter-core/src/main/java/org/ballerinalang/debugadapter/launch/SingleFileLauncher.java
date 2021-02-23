@@ -36,15 +36,20 @@ public class SingleFileLauncher extends Launcher {
     public Process start() throws Exception {
         ProcessBuilder processBuilder = new ProcessBuilder();
         String balFilePath = configHolder.getSourcePath();
-        processBuilder.command(getLauncherCommand(balFilePath));
+        processBuilder.command(getBallerinaCommand(balFilePath));
 
-        // set environment ballerina home
-        Map<String, String> env = processBuilder.environment();
-        env.put("BALLERINA_HOME", configHolder.getBallerinaHome());
         Path singleFileRoot = Paths.get(projectRoot).getParent();
         if (singleFileRoot != null) {
             processBuilder.directory(singleFileRoot.toFile());
         }
+
+        Map<String, String> env = processBuilder.environment();
+        env.put("BALLERINA_HOME", configHolder.getBallerinaHome());
+        // Adds environment variables defined by the user.
+        if (configHolder.getEnv().isPresent()) {
+            configHolder.getEnv().get().forEach(env::put);
+        }
+
         return processBuilder.start();
     }
 }

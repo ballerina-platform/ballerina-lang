@@ -54,7 +54,7 @@ public abstract class Launcher {
         this.projectRoot = projectRoot;
     }
 
-    ArrayList<String> getLauncherCommand(String balFile) throws ClientConfigurationException {
+    ArrayList<String> getBallerinaCommand(String balFile) throws ClientConfigurationException {
 
         List<String> ballerinaExec = new ArrayList<>();
         if (OSUtils.isWindows()) {
@@ -71,12 +71,14 @@ public abstract class Launcher {
             ballerinaExec = Collections.singletonList(configHolder.getBallerinaCommand().get());
         }
 
-        boolean isTestDebugMode = configHolder.isTestDebug();
-
         ArrayList<String> command = new ArrayList<>(ballerinaExec);
+        boolean isTestDebugMode = configHolder.isTestDebug();
         command.add(isTestDebugMode ? BAL_TEST_CMD_NAME : BAL_RUN_CMD_NAME);
         command.add("--debug");
         command.add(Integer.toString(configHolder.getDebuggePort()));
+
+        // Adds command options
+        command.addAll(configHolder.getCommandOptions());
 
         // Adds file name, only if single file debugging.
         if (balFile != null) {
@@ -90,9 +92,7 @@ public abstract class Launcher {
             command.add("--b7a.http.tracelog.host=localhost");
             command.add("--b7a.http.tracelog.port=" + configHolder.getNetworkLogsPort());
         }
-
-        command.addAll(configHolder.getCommandOptions());
-
+        // Adds program arguments.
         command.addAll(configHolder.getProgramArguments());
         return command;
     }
