@@ -110,7 +110,7 @@ public class CodeCoverageUtils {
 
         //Next we walk through extractedJarPath and copy only the class files
         List<Path> pathList;
-        try (Stream<Path> walk = Files.walk(extractedJarPath, 5)) {
+        try (Stream<Path> walk = Files.walk(extractedJarPath)) {
             pathList =
                     walk.map(path -> path).filter(f -> f.toString().endsWith(".class")).collect(Collectors.toList());
         } catch (IOException e) {
@@ -146,12 +146,16 @@ public class CodeCoverageUtils {
         // For .java files, the parent directory of the class file is returned
         version = version.replace(".", "_");
         Path resolvedPath = classPath;
-        String pathVersion;
-        do {
-            resolvedPath = resolvedPath.getParent();
-            pathVersion = resolvedPath.getFileName().toString();
-        } while (!pathVersion.equals(version));
-        return resolvedPath.getParent().getFileName().toString();
+        if (!resolvedPath.toString().contains(version)) {
+            return resolvedPath.getParent().getFileName().toString();
+        } else {
+            String pathVersion;
+            do {
+                resolvedPath = resolvedPath.getParent();
+                pathVersion = resolvedPath.getFileName().toString();
+            } while (!pathVersion.equals(version));
+            return resolvedPath.getParent().getFileName().toString();
+        }
     }
 
     private static boolean isRequiredFile(String path, String orgName, String moduleName, String version) {
