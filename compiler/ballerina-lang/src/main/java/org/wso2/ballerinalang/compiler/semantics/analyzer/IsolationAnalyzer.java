@@ -314,7 +314,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(function, env);
         }
 
-        for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
+        for (BLangVariable globalVar : pkgNode.globalVars) {
             analyzeNode(globalVar, env);
         }
 

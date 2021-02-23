@@ -505,7 +505,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     LSContextOperation.TXT_DID_OPEN, this.serverContext);
             this.workspaceManager.didOpen(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
-                    "' {fileUri: '" + fileUri + "'} opened}");
+                    "' {fileUri: '" + fileUri + "'} opened");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
             diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
         } catch (Throwable e) {
@@ -531,7 +531,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
             workspaceManager.didChange(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
-                    "' {fileUri: '" + fileUri + "'} updated}");
+                    "' {fileUri: '" + fileUri + "'} updated");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
             diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
         } catch (Throwable e) {
@@ -550,7 +550,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     this.serverContext);
             workspaceManager.didClose(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
-                    "' {fileUri: '" + fileUri + "'} closed}");
+                    "' {fileUri: '" + fileUri + "'} closed");
         } catch (Throwable e) {
             String msg = "Operation 'text/didClose' failed!";
             this.clientLogger.logError(msg, e, params.getTextDocument(), (Position) null);

@@ -348,6 +348,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "is",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "is",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",

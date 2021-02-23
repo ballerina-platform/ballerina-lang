@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -52,14 +53,15 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         if (diagnostic.message().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
-            getAIDataMapperCommand(diagnostic, context).map(actions::add);
+            getAIDataMapperCommand(diagnostic, positionDetails, context).map(actions::add);
         }
         return actions;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -72,20 +74,23 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     /**
      * Return data mapping code action.
      *
-     * @param diagnostic {@link Diagnostic}
-     * @param context    {@link CodeActionContext}
+     * @param diagnostic      {@link Diagnostic}
+     * @param positionDetails {@link DiagBasedPositionDetails}
+     * @param context         {@link CodeActionContext}
      * @return data mapper code action
      */
-    private static Optional<CodeAction> getAIDataMapperCommand(Diagnostic diagnostic, CodeActionContext context) {
+    private static Optional<CodeAction> getAIDataMapperCommand(Diagnostic diagnostic,
+                                                               DiagBasedPositionDetails positionDetails,
+                                                               CodeActionContext context) {
         try {
-            TypeDescKind typeDescriptor = CommonUtil.getRawType(context.positionDetails().matchedExprType()).typeKind();
+            TypeDescKind typeDescriptor = CommonUtil.getRawType(positionDetails.matchedExprType()).typeKind();
 
             if (typeDescriptor == TypeDescKind.RECORD || typeDescriptor == TypeDescKind.COMPILATION_ERROR) {
                 CodeAction action = new CodeAction("Generate mapping function");
                 action.setKind(CodeActionKind.QuickFix);
 
                 String uri = context.fileUri();
-                List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(context, diagnostic);
+                List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(positionDetails, context, diagnostic);
                 if (fEdits.isEmpty()) {
                     return Optional.empty();
                 }

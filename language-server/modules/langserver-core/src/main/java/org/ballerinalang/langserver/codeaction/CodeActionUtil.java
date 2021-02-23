@@ -60,7 +60,7 @@ import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -286,8 +286,9 @@ public class CodeActionUtil {
         } else if (typeDescriptor.typeKind() == TypeDescKind.ARRAY) {
             // Handle ambiguous array element types eg. record[], json[], map[]
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
+            boolean isUnion = arrayTypeSymbol.memberTypeDescriptor().typeKind() == TypeDescKind.UNION;
             return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), edits, context)
-                    .stream().map(m -> m + "[]")
+                    .stream().map(m -> isUnion ? "(" + m + ")[]" : m + "[]")
                     .collect(Collectors.toList());
         } else {
             types.add(FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context));
@@ -305,10 +306,10 @@ public class CodeActionUtil {
      * @param range      cursor {@link Range}
      * @param syntaxTree {@link SyntaxTree}
      * @param context    {@link CodeActionContext}
-     * @return {@link PositionDetails}
+     * @return {@link DiagBasedPositionDetails}
      */
-    public static PositionDetails computePositionDetails(Range range, SyntaxTree syntaxTree,
-                                                         CodeActionContext context) {
+    public static DiagBasedPositionDetails computePositionDetails(Range range, SyntaxTree syntaxTree,
+                                                                  CodeActionContext context) {
         // Find Cursor node
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
         Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
@@ -327,7 +328,7 @@ public class CodeActionUtil {
             matchedSymbol = null;
         }
         matchedExprTypeSymbol = semanticModel.type(largestExpressionNode(cursorNode, range).lineRange());
-        return CodeActionPositionDetails.from(matchedNode, matchedSymbol, matchedExprTypeSymbol.orElse(null));
+        return DiagBasedPositionDetailsImpl.from(matchedNode, matchedSymbol, matchedExprTypeSymbol.orElse(null));
     }
 
     public static List<TextEdit> getTypeGuardCodeActionEdits(String varName, Range range, UnionTypeSymbol unionType,
@@ -390,8 +391,9 @@ public class CodeActionUtil {
         return edits;
     }
 
-    public static List<TextEdit> getAddCheckTextEdits(Position pos, CodeActionContext context) {
-        Optional<FunctionDefinitionNode> enclosedFunc = getEnclosedFunction(context.positionDetails().matchedNode());
+    public static List<TextEdit> getAddCheckTextEdits(Position pos, NonTerminalNode matchedNode,
+                                                      CodeActionContext context) {
+        Optional<FunctionDefinitionNode> enclosedFunc = getEnclosedFunction(matchedNode);
         if (enclosedFunc.isEmpty()) {
             return Collections.emptyList();
         }

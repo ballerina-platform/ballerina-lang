@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecuto
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
@@ -52,7 +53,8 @@ public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                                    NodeBasedPositionDetails posDetails) {
         String docUri = context.fileUri();
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
         List<Object> args = new ArrayList<>(Collections.singletonList(docUriArg));
