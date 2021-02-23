@@ -275,7 +275,7 @@ public class Type {
         }
     }
 
-    public static String getTypeCategory(TypeSymbol typeDescriptor) {
+    private static String getTypeCategory(TypeSymbol typeDescriptor) {
         if (typeDescriptor.kind().equals(SymbolKind.TYPE)) {
             if (typeDescriptor.typeKind().equals(TypeDescKind.RECORD)) {
                 return "records";
