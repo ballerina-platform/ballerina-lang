@@ -1165,8 +1165,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     variable.type = symTable.semanticError;
                     return;
                 }
-                if (TypeTags.TUPLE != rhsType.tag) {
-                    dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN_INFERENCE, rhsType);
+                if (TypeTags.TUPLE != rhsType.tag && TypeTags.ARRAY != rhsType.tag) {
+                    dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_INFERENCE, rhsType);
                     variable.type = symTable.semanticError;
                     return;
                 }
@@ -1266,7 +1266,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case TUPLE_VARIABLE:
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
                 if (TypeTags.TUPLE != rhsType.tag && TypeTags.UNION != rhsType.tag) {
-                    dlog.error(variable.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN_INFERENCE, rhsType);
+                    dlog.error(variable.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_INFERENCE, rhsType);
                     recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
                 }

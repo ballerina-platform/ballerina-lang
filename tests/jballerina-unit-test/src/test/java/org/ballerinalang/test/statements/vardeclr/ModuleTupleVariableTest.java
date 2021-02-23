@@ -53,6 +53,7 @@ public class ModuleTupleVariableTest {
                 "testTupleBindingPatternWithRestBindingPattern",
                 "testDeclaredWithVar",
                 "testDeclaredWithVar2",
+                "testDeclaredWithVar3",
                 "testTupleVarWithAnnotations",
                 "testVariableForwardReferencing",
                 "testVariableDeclaredInTupleAsAnnotationValue"
@@ -73,10 +74,10 @@ public class ModuleTupleVariableTest {
         validateError(compileResultNegative, index++, "incompatible types: expected 'int', found 'other'", 38, 25);
         validateError(compileResultNegative, index++, "redeclared symbol 'n'", 40, 9);
         validateError(compileResultNegative, index++,
-                "incompatible types: expected '[[other],other,other,other...]', found '[int,map<int>,float,int...]'",
-                47, 59);
+                "invalid tuple binding pattern: expected a tuple type, but found 'int'",
+                47, 6);
         validateError(compileResultNegative, index++,
-                "invalid tuple binding pattern: attempted to infer a tuple type, but found 'other'", 47, 59);
+                "invalid error binding pattern with type 'float'", 47, 30);
         assertEquals(compileResultNegative.getErrorCount(), index);
     }
 

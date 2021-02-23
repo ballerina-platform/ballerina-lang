@@ -1478,8 +1478,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef arrayVarRef = ASTBuilderUtil.createVariableRef(pos, arrayVar.symbol);
 
             BLangLiteral startIndexLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-            startIndexLiteral.value = (long) (isTupleType ? ((BTupleType) parentTupleVariable.type).tupleTypes.size()
-                    : parentTupleVariable.memberVariables.size());
+            startIndexLiteral.value = (long) parentTupleVariable.memberVariables.size();
             startIndexLiteral.type = symTable.intType;
             BLangInvocation lengthInvocation = createLengthInvocation(pos, tupleExpr);
             BLangInvocation intRangeInvocation = replaceWithIntRange(pos, startIndexLiteral,
@@ -1503,7 +1502,7 @@ public class Desugar extends BLangNodeVisitor {
             // t[t.length()] = <T> tupleLiteral[$foreach$i];
             BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(arrayVarRef,
                     createLengthInvocation(pos, arrayVarRef));
-            indexAccessExpr.type = (isTupleType ? ((BTupleType) parentTupleVariable.type).restType : symTable.anyType);
+            indexAccessExpr.type = ((BArrayType) parentTupleVariable.restVariable.type).eType;
             createAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
             foreach.body = foreachBody;
             blockStmt.addStatement(foreach);
