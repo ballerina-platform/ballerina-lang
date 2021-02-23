@@ -9,7 +9,7 @@
       "label": "city",
       "kind": "Field",
       "detail": "string",
-      "sortText": "G",
+      "sortText": "A",
       "insertText": "city",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "state",
       "kind": "Field",
       "detail": "string",
-      "sortText": "G",
+      "sortText": "A",
       "insertText": "state",
       "insertTextFormat": "Snippet"
     },

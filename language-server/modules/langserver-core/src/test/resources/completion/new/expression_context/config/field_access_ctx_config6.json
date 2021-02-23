@@ -9,7 +9,7 @@
       "label": "testClassField",
       "kind": "Field",
       "detail": "int",
-      "sortText": "F",
+      "sortText": "A",
       "insertText": "testClassField",
       "insertTextFormat": "Snippet"
     },

@@ -9,7 +9,7 @@
       "label": "rec1Field1",
       "kind": "Field",
       "detail": "int",
-      "sortText": "G",
+      "sortText": "A",
       "insertText": "rec1Field1",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "rec1Field2",
       "kind": "Field",
       "detail": "string",
-      "sortText": "G",
+      "sortText": "A",
       "insertText": "rec1Field2",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +25,7 @@
       "label": "optionalInt",
       "kind": "Field",
       "detail": "int",
-      "sortText": "G",
+      "sortText": "A",
       "insertText": "optionalInt",
       "insertTextFormat": "Snippet"
     },

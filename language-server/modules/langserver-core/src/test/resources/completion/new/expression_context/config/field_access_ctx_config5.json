@@ -9,7 +9,7 @@
       "label": "testField",
       "kind": "Field",
       "detail": "module1:TestRecord1",
-      "sortText": "G",
+      "sortText": "A",
       "insertText": "testField",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "testOptional",
       "kind": "Field",
       "detail": "int",
-      "sortText": "G",
+      "sortText": "A",
       "insertText": "testOptional",
       "insertTextFormat": "Snippet"
     },

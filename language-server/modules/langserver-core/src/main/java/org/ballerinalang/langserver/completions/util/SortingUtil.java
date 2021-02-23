@@ -322,10 +322,15 @@ public class SortingUtil {
                         }
                         break;
                     case OBJECT_FIELD:
-                        rank = 6;
-                        break;
                     case RECORD_FIELD:
-                        rank = 7;
+                        switch (completionItemKind) {
+                            case Interface:
+                            case Struct:
+                                rank = 1;
+                                break;
+                            default:
+                                rank = 7;
+                        }
                         break;
                     default:
                         rank = 17;
