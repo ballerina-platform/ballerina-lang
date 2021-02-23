@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BInitialValueEntry;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
@@ -229,7 +230,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    public ArrayValueImpl(ArrayType type, long size, ListInitialValueEntry[] initialValues) {
+    public ArrayValueImpl(ArrayType type, long size, BInitialValueEntry[] initialValues) {
         this.arrayType = type;
         this.elementType = type.getElementType();
         initArrayValues(this.elementType);

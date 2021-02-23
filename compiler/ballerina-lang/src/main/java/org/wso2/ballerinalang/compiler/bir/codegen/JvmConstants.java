@@ -77,7 +77,6 @@ public class JvmConstants {
             "io/ballerina/runtime/internal/values/MappingInitialValueEntry$KeyValueEntry";
     public static final String MAPPING_INITIAL_SPREAD_FIELD_ENTRY =
             "io/ballerina/runtime/internal/values/MappingInitialValueEntry$SpreadFieldEntry";
-    public static final String LIST_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/internal/values/ListInitialValueEntry";
     public static final String LIST_INITIAL_EXPRESSION_ENTRY =
             "io/ballerina/runtime/internal/values/ListInitialValueEntry$ExpressionEntry";
 

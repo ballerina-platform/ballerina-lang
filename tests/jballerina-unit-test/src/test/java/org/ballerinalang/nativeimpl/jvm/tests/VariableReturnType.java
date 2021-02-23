@@ -18,28 +18,24 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.types.BMapType;
-import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.types.BTupleType;
-import io.ballerina.runtime.internal.values.ArrayValue;
-import io.ballerina.runtime.internal.values.ArrayValueImpl;
-import io.ballerina.runtime.internal.values.BmpStringValue;
-import io.ballerina.runtime.internal.values.DecimalValue;
-import io.ballerina.runtime.internal.values.MapValue;
-import io.ballerina.runtime.internal.values.MapValueImpl;
-import io.ballerina.runtime.internal.values.ObjectValue;
-import io.ballerina.runtime.internal.values.TableValue;
-import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,13 +55,13 @@ import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
  */
 public class VariableReturnType {
 
-    private static final BString NAME = new BmpStringValue("name");
-    private static final BString AGE = new BmpStringValue("age");
-    private static final BString DESIGNATION = new BmpStringValue("designation");
-    private static final BString CITY = new BmpStringValue("city");
-    private static final BString JOHN_DOE = new BmpStringValue("John Doe");
-    private static final BString JANE_DOE = new BmpStringValue("Jane Doe");
-    private static final BString SOFTWARE_ENGINEER = new BmpStringValue("Software Engineer");
+    private static final BString NAME = StringUtils.fromString("name");
+    private static final BString AGE = StringUtils.fromString("age");
+    private static final BString DESIGNATION = StringUtils.fromString("designation");
+    private static final BString CITY = StringUtils.fromString("city");
+    private static final BString JOHN_DOE = StringUtils.fromString("John Doe");
+    private static final BString JANE_DOE = StringUtils.fromString("Jane Doe");
+    private static final BString SOFTWARE_ENGINEER = StringUtils.fromString("Software Engineer");
 
     public static Object echo(BTypedesc td, BValue value) {
         return value;
@@ -79,7 +75,7 @@ public class VariableReturnType {
         return value;
     }
 
-    public static TableValue getTable(BTypedesc td, TableValue value) {
+    public static BTable getTable(BTypedesc td, BTable value) {
         return value;
     }
 
@@ -103,44 +99,45 @@ public class VariableReturnType {
         return getValue(td.getDescribingType());
     }
 
-    public static Object getObjectValue(ObjectValue objectValue, BTypedesc td) {
+    public static Object getObjectValue(BObject objectValue, BTypedesc td) {
         Type describingType = td.getDescribingType();
         if (describingType.getTag() == STRING_TAG) {
-            BString newFname = objectValue.getStringValue(new BmpStringValue("fname"))
-                    .concat(new BmpStringValue(" ")).concat(objectValue.getStringValue(new BmpStringValue("lname")));
-            objectValue.set(new BmpStringValue("fname"), newFname);
+            BString newFname = objectValue.getStringValue(StringUtils.fromString("fname"))
+                    .concat(StringUtils.fromString(" "))
+                    .concat(objectValue.getStringValue(StringUtils.fromString("lname")));
+            objectValue.set(StringUtils.fromString("fname"), newFname);
             return newFname;
         }
         return getValue(td.getDescribingType());
     }
 
-    public static MapValue query(BString query, BTypedesc typedesc) {
+    public static BMap query(BString query, BTypedesc typedesc) {
         Type type = typedesc.getDescribingType();
-        MapValue map;
+        BMap map;
 
         if (type.getTag() == INT_TAG) {
-            map = new MapValueImpl(new BMapType(type));
-            map.put(new BmpStringValue("one"), 10);
-            map.put(new BmpStringValue("two"), 20);
+            map = ValueCreator.createMapValue(TypeCreator.createMapType(type));
+            map.put(StringUtils.fromString("one"), 10);
+            map.put(StringUtils.fromString("two"), 20);
         } else if (type.getTag() == STRING_TAG) {
-            map = new MapValueImpl(new BMapType(type));
-            map.put(NAME, new BmpStringValue("Pubudu"));
-            map.put(CITY, new BmpStringValue("Panadura"));
+            map = ValueCreator.createMapValue(TypeCreator.createMapType(type));
+            map.put(NAME, StringUtils.fromString("Pubudu"));
+            map.put(CITY, StringUtils.fromString("Panadura"));
         } else {
-            map = new MapValueImpl(new BMapType(PredefinedTypes.TYPE_ANY));
+            map = ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANY));
         }
 
         return map;
     }
 
-    public static ArrayValue getTuple(BTypedesc td1, BTypedesc td2, BTypedesc td3) {
+    public static BArray getTuple(BTypedesc td1, BTypedesc td2, BTypedesc td3) {
         List<Type> memTypes = new ArrayList<>();
         memTypes.add(td1.getDescribingType());
         memTypes.add(td2.getDescribingType());
         memTypes.add(td3.getDescribingType());
-        BTupleType tupleType = new BTupleType(memTypes);
+        TupleType tupleType = TypeCreator.createTupleType(memTypes);
 
-        ArrayValue arr = new TupleValueImpl(tupleType);
+        BArray arr = ValueCreator.createTupleValue(tupleType);
         arr.add(0, getValue(memTypes.get(0)));
         arr.add(1, getValue(memTypes.get(1)));
         arr.add(2, getValue(memTypes.get(2)));
@@ -148,9 +145,9 @@ public class VariableReturnType {
         return arr;
     }
 
-    public static MapValue getRecord(BTypedesc td) {
-        BRecordType recType = (BRecordType) td.getDescribingType();
-        MapValueImpl person = new MapValueImpl(recType);
+    public static BMap getRecord(BTypedesc td) {
+        RecordType recType = (RecordType) td.getDescribingType();
+        BMap person = ValueCreator.createMapValue(recType);
 
         if (recType.getName().equals("Person")) {
             person.put(NAME, JOHN_DOE);
@@ -175,23 +172,23 @@ public class VariableReturnType {
                 case INT_TAG:
                     return 100L;
                 case STRING_TAG:
-                    return new BmpStringValue("Foo");
+                    return StringUtils.fromString("Foo");
             }
         }
 
-        MapValueImpl rec = new MapValueImpl(type2);
+        BMap rec = ValueCreator.createMapValue(type2);
         if (type2.getName().equals("Person")) {
             rec.put(NAME, JOHN_DOE);
             rec.put(AGE, 20);
         } else {
-            rec.put(new BmpStringValue("type"), new BmpStringValue("Unknown"));
+            rec.put(StringUtils.fromString("type"), StringUtils.fromString("Unknown"));
         }
 
         return rec;
     }
 
-    public static ArrayValue getArray(BTypedesc td) {
-        return new ArrayValueImpl(new long[]{10, 20, 30}, false);
+    public static BArray getArray(BTypedesc td) {
+        return ValueCreator.createArrayValue(new long[]{10, 20, 30});
     }
 
     public static Object getInvalidValue(BTypedesc td1, BTypedesc td2) {
@@ -211,16 +208,16 @@ public class VariableReturnType {
             case FLOAT_TAG:
                 return 12.34D;
             case DECIMAL_TAG:
-                return new DecimalValue("23.45");
+                return ValueCreator.createDecimalValue("23.45");
             case BOOLEAN_TAG:
                 return true;
             case STRING_TAG:
-                return new BmpStringValue("Hello World!");
+                return StringUtils.fromString("Hello World!");
             case BYTE_TAG:
                 return 32;
             case RECORD_TYPE_TAG:
-                BRecordType recType = (BRecordType) type;
-                MapValueImpl person = new MapValueImpl(recType);
+                RecordType recType = (RecordType) type;
+                BMap person = ValueCreator.createMapValue(recType);
 
                 if (recType.getName().equals("Person")) {
                     person.put(NAME, JOHN_DOE);
@@ -238,7 +235,7 @@ public class VariableReturnType {
         return null;
     }
 
-    public static Object get(ObjectValue objectValue, BTypedesc td) {
+    public static Object get(BObject objectValue, BTypedesc td) {
         Type describingType = td.getDescribingType();
 
         switch (describingType.getTag()) {
@@ -250,7 +247,7 @@ public class VariableReturnType {
         return objectValue.get(StringUtils.fromString("c"));
     }
 
-    public static Object getIntFieldOrDefault(ObjectValue objectValue, BTypedesc td) {
+    public static Object getIntFieldOrDefault(BObject objectValue, BTypedesc td) {
         Type describingType = td.getDescribingType();
 
         if (describingType.getTag() == INT_TAG) {
@@ -260,7 +257,7 @@ public class VariableReturnType {
         return getValue(describingType);
     }
 
-    public static Object getValueForParamOne(ObjectValue objectValue, BTypedesc td1, BTypedesc td2) {
+    public static Object getValueForParamOne(BObject objectValue, BTypedesc td1, BTypedesc td2) {
         return getIntFieldOrDefault(objectValue, td1);
     }
 }

@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.api.values.BObject;
 
 /**
  * This class is used for Java interoperability tests.
@@ -35,14 +35,14 @@ import io.ballerina.runtime.internal.values.ObjectValue;
  */
 public class Accumulator {
 
-    public static void accumulate(Environment env, ObjectValue intFunction, long from, long to) {
+    public static void accumulate(Environment env, BObject intFunction, long from, long to) {
         Runtime runtime = env.getRuntime();
         Future future = env.markAsync();
         assert from <= to;
         accumulateI(intFunction, from, to, runtime, future, new long[1]);
     }
 
-    private static void accumulateI(ObjectValue intFunction, long i, long to, Runtime runtime, Future future,
+    private static void accumulateI(BObject intFunction, long i, long to, Runtime runtime, Future future,
                                     long[] relay) {
 
         runtime.invokeMethodAsync(intFunction, "invoke", null, null, new Callback() {

@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BHandle;
+import io.ballerina.runtime.api.values.BInitialValueEntry;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
@@ -49,6 +50,7 @@ import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.HandleValue;
+import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 import io.ballerina.runtime.internal.values.StreamValue;
@@ -209,13 +211,48 @@ public class ValueCreator {
     }
 
     /**
+     * Create a ref value array with given maximum length and initial values.
+     *
+     * @param type   {@code ArrayType} of the array.
+     * @param length maximum length
+     * @param initialValues initial values
+     * @return fixed length ref value array
+     */
+    public static BArray createArrayValue(ArrayType type, long length, BInitialValueEntry[] initialValues) {
+        return new ArrayValueImpl(type, length, initialValues);
+    }
+
+    /**
      * Creates a new tuple with given tuple type.
      *
      * @param type the {@code TupleType} object representing the type
-     * @return the new array
+     * @return the new tuple
      */
     public static BArray createTupleValue(TupleType type) {
         return new TupleValueImpl(type);
+    }
+
+    /**
+     * Creates a new tuple with given values and tuple type.
+     *
+     * @param values tuple values
+     * @param type the {@code TupleType} object representing the type
+     * @return the new tuple
+     */
+    public static BArray createTupleValue(Object[] values , TupleType type) {
+        return new TupleValueImpl(values, type);
+    }
+
+    /**
+     * Creates a new tuple with given tuple type , length and initial values.
+     *
+     * @param type          the {@code TupleType} object representing the type
+     * @param length        maximum length
+     * @param initialValues initial values
+     * @return the new tuple
+     */
+    public static BArray createTupleValue(TupleType type, long length, BInitialValueEntry[] initialValues) {
+        return new TupleValueImpl(type, length, initialValues);
     }
 
     /**
@@ -660,6 +697,16 @@ public class ValueCreator {
      */
     public static BMap<BString, Object> createMapValue(Type mapType, BMapInitialValueEntry[] keyValues) {
         return new MapValueImpl<>(mapType, keyValues);
+    }
+
+    /**
+     * Create a list initial entry for array.
+     *
+     * @param value value.
+     * @return initial value entry
+     */
+    public static BInitialValueEntry createListInitialValueEntry(Object value) {
+        return new ListInitialValueEntry.ExpressionEntry(value);
     }
 
     /**

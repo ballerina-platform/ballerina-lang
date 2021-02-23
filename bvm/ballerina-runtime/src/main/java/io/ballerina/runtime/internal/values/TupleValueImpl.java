@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BInitialValueEntry;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.CycleUtils;
@@ -131,7 +132,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
     }
 
-    public TupleValueImpl(TupleType type, long size, ListInitialValueEntry[] initialValues) {
+    public TupleValueImpl(TupleType type, long size, BInitialValueEntry[] initialValues) {
         this.tupleType = type;
 
         List<Type> memTypes = this.tupleType.getTupleTypes();

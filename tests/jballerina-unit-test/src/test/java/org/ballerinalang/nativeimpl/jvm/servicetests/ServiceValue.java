@@ -33,11 +33,6 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
-import io.ballerina.runtime.internal.types.BServiceType;
-import io.ballerina.runtime.internal.values.ArrayValue;
-import io.ballerina.runtime.internal.values.ArrayValueImpl;
-import io.ballerina.runtime.internal.values.MapValue;
-import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -53,8 +48,8 @@ public class ServiceValue {
     private static BObject service;
     private static BObject listener;
     private static boolean started;
-    private static String[] names;
-    private static MapValue annotationMap; // captured at attach method
+    private static BString[] names;
+    private static BMap annotationMap; // captured at attach method
 
     public static BFuture callMethod(Environment env, BObject l, BString name) {
 
@@ -62,7 +57,7 @@ public class ServiceValue {
                                                   PredefinedTypes.TYPE_ANY);
     }
 
-    public static BFuture callMethodWithParams(Environment env, BObject l, BString name, ArrayValue arrayValue) {
+    public static BFuture callMethodWithParams(Environment env, BObject l, BString name, BArray arrayValue) {
         Object[] args = new Object[arrayValue.size() * 2 ];
         for (int i = 0, j = 0; i < arrayValue.size(); i += 1, j += 2) {
             args[j] = arrayValue.get(i);
@@ -100,23 +95,23 @@ public class ServiceValue {
         if (name == null) {
             names = null;
         } else if (name instanceof BString) {
-            names = new String[1];
-            names[0] = ((BString) name).getValue();
+            names = new BString[1];
+            names[0] = (BString) name;
         } else {
             BArray array = (BArray) name;
-            names = new String[array.size()];
+            names = new BString[array.size()];
             for (int i = 0; i < array.size(); i++) {
-                names[i] = array.getBString(i).getValue();
+                names[i] = array.getBString(i);
             }
         }
 
         // Verify annotation availability
-        BServiceType serviceType = (BServiceType) servObj.getType();
+        ServiceType serviceType = (ServiceType) servObj.getType();
         try {
             Field annotations = BAnnotatableType.class.getDeclaredField("annotations");
             annotations.setAccessible(true);
             Object annotationMap = annotations.get(serviceType);
-            ServiceValue.annotationMap = (MapValue) annotationMap;
+            ServiceValue.annotationMap = (BMap) annotationMap;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new AssertionError();
         }
@@ -138,8 +133,8 @@ public class ServiceValue {
         ServiceValue.service = null;
         ServiceValue.listener = null;
         ServiceValue.started = false;
-        ServiceValue.names = new String[0];
-        ServiceValue.annotationMap = new MapValueImpl();
+        ServiceValue.names = new BString[0];
+        ServiceValue.annotationMap = ValueCreator.createMapValue();
     }
 
     public static BObject getListener() {
@@ -150,7 +145,7 @@ public class ServiceValue {
         return ServiceValue.service;
     }
 
-    public static BValue getResourceAnnotation(BString methodName, ArrayValue path, BString annotName) {
+    public static BValue getResourceAnnotation(BString methodName, BArray path, BString annotName) {
         String funcName = generateMethodName(methodName, path);
 
         for (var methodType : ((ServiceType) ServiceValue.service.getType()).getResourceMethods()) {
@@ -161,7 +156,7 @@ public class ServiceValue {
         return null;
     }
 
-    private static String generateMethodName(BString methodName, ArrayValue path) {
+    private static String generateMethodName(BString methodName, BArray path) {
         StringBuilder funcName = new StringBuilder();
         funcName.append("$").append(methodName.getValue());
         for (int i = 0; i < path.size(); i++) {
@@ -171,14 +166,14 @@ public class ServiceValue {
     }
 
     public static BArray getServicePath() {
-        return new ArrayValueImpl(names, false);
+        return ValueCreator.createArrayValue(names);
     }
 
     public static BMap getAnnotationsAtServiceAttach() {
         return ServiceValue.annotationMap;
     }
 
-    public static BValue getResourceMethodAnnotations(BObject service, BString method, ArrayValue resourcePath,
+    public static BValue getResourceMethodAnnotations(BObject service, BString method, BArray resourcePath,
                                                       BString annotName) {
         String methodName = generateMethodName(method, resourcePath);
 

@@ -19,11 +19,10 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.values.BmpStringValue;
-import io.ballerina.runtime.internal.values.HandleValue;
-import io.ballerina.runtime.internal.values.ObjectValue;
 
 /**
  * This class contains a set of utility instance methods required for interoperability testing.
@@ -106,7 +105,7 @@ public class InstanceMethods {
         if (false) {
             throw new InterruptedException();
         }
-        return new HandleValue(70);
+        return ValueCreator.createHandleValue(70);
     }
 
     public Object handleOrErrorWithObjectReturnThrows() throws InterruptedException {
@@ -165,12 +164,12 @@ public class InstanceMethods {
         return 10;
     }
 
-    public int getObjectValueField(ObjectValue objectValue) {
-        return ((Long) objectValue.get(new BmpStringValue("age"))).intValue();
+    public int getObjectValueField(BObject objectValue) {
+        return ((Long) objectValue.get(StringUtils.fromString("age"))).intValue();
     }
 
-    public int getInt(ObjectValue objectValue, int x) {
-        return ((Long) objectValue.get(new BmpStringValue("age"))).intValue();
+    public int getInt(BObject objectValue, int x) {
+        return ((Long) objectValue.get(StringUtils.fromString("age"))).intValue();
     }
 
     public int getRandomInt() {
