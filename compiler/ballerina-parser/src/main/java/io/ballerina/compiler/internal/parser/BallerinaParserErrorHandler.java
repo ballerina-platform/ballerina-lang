@@ -749,6 +749,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.QUALIFIED_IDENTIFIER_PREDECLARED_PREFIX };
 
     private static final ParserRuleContext[] MODULE_VAR_DECL_START =
+            { ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.PUBLIC_QUAL, ParserRuleContext.MODULE_VAR_FIRST_QUAL };
+
+    private static final ParserRuleContext[] MODULE_VAR_DECL_PUBLIC_QUAL_RHS =
             { ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.MODULE_VAR_FIRST_QUAL };
 
     private static final ParserRuleContext[] MODULE_VAR_WITHOUT_FIRST_QUAL =
@@ -1228,6 +1231,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.ISOLATED_KEYWORD ||
                             nextToken.kind == SyntaxKind.TRANSACTIONAL_KEYWORD;
                     break;
+                case PUBLIC_QUAL:
+                    hasMatch = nextToken.kind == SyntaxKind.PUBLIC_KEYWORD;
+                    break;
                 case MODULE_VAR_FIRST_QUAL:
                 case MODULE_VAR_SECOND_QUAL:
                 case MODULE_VAR_THIRD_QUAL:
@@ -1604,6 +1610,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER:
             case FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL:
             case MODULE_VAR_DECL_START:
+            case MODULE_VAR_DECL_PUBLIC_QUAL_RHS:
             case MODULE_VAR_WITHOUT_FIRST_QUAL:
             case MODULE_VAR_WITHOUT_SECOND_QUAL:
                 return true;
@@ -1914,6 +1921,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case MODULE_VAR_DECL_START:
                 alternativeRules = MODULE_VAR_DECL_START;
+                break;
+            case MODULE_VAR_DECL_PUBLIC_QUAL_RHS:
+                alternativeRules = MODULE_VAR_DECL_PUBLIC_QUAL_RHS;
                 break;
             case MODULE_VAR_WITHOUT_FIRST_QUAL:
                 alternativeRules = MODULE_VAR_WITHOUT_FIRST_QUAL;
@@ -3271,6 +3281,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.FUNCTION_KEYWORD;
             case MODULE_VAR_DECL:
                 return ParserRuleContext.MODULE_VAR_DECL_START;
+            case PUBLIC_QUAL:
+                return ParserRuleContext.MODULE_VAR_DECL_PUBLIC_QUAL_RHS;
             case MODULE_VAR_FIRST_QUAL:
                 return ParserRuleContext.MODULE_VAR_WITHOUT_FIRST_QUAL;
             case MODULE_VAR_SECOND_QUAL:

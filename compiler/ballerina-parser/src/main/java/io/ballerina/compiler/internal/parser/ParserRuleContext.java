@@ -336,6 +336,7 @@ public enum ParserRuleContext {
     MODULE_VAR_SECOND_QUAL("module-var-second-qual"),
     MODULE_VAR_THIRD_QUAL("module-var-third-qual"),
     MODULE_VAR_DECL_START("module-var-decl-start"),
+    MODULE_VAR_DECL_PUBLIC_QUAL_RHS("module-var-decl-public-qual-rhs"),
     MODULE_VAR_WITHOUT_FIRST_QUAL("module-var-without-first-qual"),
     MODULE_VAR_WITHOUT_SECOND_QUAL("module-var-without-second-qual"),
 
@@ -538,6 +539,7 @@ public enum ParserRuleContext {
     ORDER_DIRECTION("order-direction"),
     VAR_REF_COLON("var-ref-colon"),
     TYPE_REF_COLON("type-ref-colon"),
+    PUBLIC_QUAL("public-qualifier"),
 
     // Expressions
     EXPRESSION("expression"),

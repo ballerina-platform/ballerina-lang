@@ -1,6 +1,5 @@
 {
   "kind": "MODULE_PART",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -8,7 +7,6 @@
     },
     {
       "kind": "LIST",
-      "hasDiagnostics": true,
       "children": [
         {
           "kind": "LISTENER_DECLARATION",
@@ -70,104 +68,6 @@
                 {
                   "kind": "STRING_LITERAL_TOKEN",
                   "value": "http://hello1.com"
-                }
-              ]
-            },
-            {
-              "kind": "SEMICOLON_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "MODULE_VAR_DECL",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "LIST",
-              "children": []
-            },
-            {
-              "kind": "TYPED_BINDING_PATTERN",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "STRING_TYPE_DESC",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "STRING_KEYWORD",
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_QUALIFIER"
-                      ],
-                      "leadingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "PUBLIC_KEYWORD"
-                              }
-                            ]
-                          }
-                        },
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "CAPTURE_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "s2",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "EQUAL_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "STRING_LITERAL",
-              "children": [
-                {
-                  "kind": "STRING_LITERAL_TOKEN",
-                  "value": "http://hello2.com"
                 }
               ]
             },
@@ -248,80 +148,6 @@
                 {
                   "kind": "STRING_LITERAL_TOKEN",
                   "value": "http://hello3.com"
-                }
-              ]
-            },
-            {
-              "kind": "SEMICOLON_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "MODULE_VAR_DECL",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "LIST",
-              "children": []
-            },
-            {
-              "kind": "TYPED_BINDING_PATTERN",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "STRING_TYPE_DESC",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "STRING_KEYWORD",
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_QUALIFIER"
-                      ],
-                      "leadingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "PUBLIC_KEYWORD"
-                              }
-                            ]
-                          }
-                        },
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "CAPTURE_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "s2"
-                    }
-                  ]
                 }
               ]
             },
