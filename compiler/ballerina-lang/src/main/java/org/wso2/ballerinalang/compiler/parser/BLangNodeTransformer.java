@@ -603,6 +603,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BindingPatternNode bindingPatternNode = typedBindingPattern.bindingPattern();
         BLangVariable variable = getBLangVariableNode(bindingPatternNode);
 
+        if (modVarDeclrNode.visibilityQualifier().isPresent()) {
+            variable.flagSet.add(Flag.PUBLIC);
+        }
+
         initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
                 modVarDeclrNode.qualifiers());
 
