@@ -42,6 +42,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
@@ -70,8 +71,9 @@ public class AddResourceToK8sCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
-        NonTerminalNode matchedNode = context.positionDetails().matchedNode();
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                                    NodeBasedPositionDetails positionDetails) {
+        NonTerminalNode matchedNode = positionDetails.matchedTopLevelNode();
         if (matchedNode.kind() != SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
             return Collections.emptyList();
         }
@@ -103,7 +105,7 @@ public class AddResourceToK8sCodeAction extends AbstractCodeActionProvider {
             List<TextEdit> edits = Collections.singletonList(
                     new TextEdit(new Range(position, position), importText));
             CodeAction action = createQuickFixCodeAction("Add as " + probe.tableName + " probe", edits,
-                    k8sPath.toUri().toString());
+                                                         k8sPath.toUri().toString());
             codeActionList.add(action);
         }
         return codeActionList;

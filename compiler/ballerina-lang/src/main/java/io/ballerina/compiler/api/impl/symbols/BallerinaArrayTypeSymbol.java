@@ -49,6 +49,9 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
 
     @Override
     public String signature() {
+        if (memberTypeDescriptor().typeKind() == TypeDescKind.UNION) {
+            return "(" + memberTypeDescriptor().signature() + ")[]";
+        }
         return memberTypeDescriptor().signature() + "[]";
     }
 

@@ -83,7 +83,7 @@
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
-                          "kind": "DEFAULT_KEYWORD"
+                          "kind": "FUNCTION_KEYWORD"
                         }
                       ]
                     }
@@ -443,7 +443,7 @@
                               "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
-                                  "kind": "DEFAULT_KEYWORD"
+                                  "kind": "FUNCTION_KEYWORD"
                                 }
                               ]
                             },
@@ -470,7 +470,7 @@
                                   "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "DEFAULT_KEYWORD"
+                                      "kind": "FUNCTION_KEYWORD"
                                     }
                                   ]
                                 }

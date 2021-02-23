@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
@@ -33,10 +35,10 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public interface DocumentServiceContext {
-    
+
     /**
-     * Get the symbols visible at a given cursor position. Visible symbols will be set on demand to the context once
-     * and saved in a given context.
+     * Get the symbols visible at a given cursor position. Visible symbols will be set on demand to the context once and
+     * saved in a given context.
      *
      * @param position cursor position
      * @return {@link List}
@@ -80,14 +82,28 @@ public interface DocumentServiceContext {
 
     /**
      * Get the current module where the given file URI resides.
-     * 
+     *
      * @return {@link Module}
      */
     Optional<Module> currentModule();
 
     /**
+     * Get the current semantic model where the given file URI resides.
+     *
+     * @return {@link SemanticModel}
+     */
+    Optional<SemanticModel> currentSemanticModel();
+
+    /**
+     * Get the current syntax tree where the given file URI resides.
+     *
+     * @return {@link SyntaxTree}
+     */
+    Optional<SyntaxTree> currentSyntaxTree();
+
+    /**
      * Get the language server context.
-     * 
+     *
      * @return {@link LanguageServerContext}
      */
     LanguageServerContext languageServercontext();

@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -259,5 +260,20 @@ public class VariableReturnType {
 
     public static Object getValueForParamOne(BObject objectValue, BTypedesc td1, BTypedesc td2) {
         return getIntFieldOrDefault(objectValue, td1);
+    }
+
+    public static Object getWithDefaultableParams(Object x, Object y, BTypedesc z) {
+        Type xType = TypeUtils.getType(x);
+        Type yType = TypeUtils.getType(y);
+
+        if (z.getDescribingType().getTag() == INT_TAG) {
+            long xAsInt = xType.getTag() == INT_TAG ? (long) x : Long.valueOf(((BString) x).getValue());
+            long yAsInt = yType.getTag() == INT_TAG ? (long) y : Long.valueOf(((BString) y).getValue());
+            return xAsInt + yAsInt;
+        }
+
+        BString xAsString = xType.getTag() == INT_TAG ? StringUtils.fromString(Long.toString((long) x)) : (BString) x;
+        BString yAsString = yType.getTag() == INT_TAG ? StringUtils.fromString(Long.toString((long) y)) : (BString) y;
+        return xAsString.concat(yAsString);
     }
 }

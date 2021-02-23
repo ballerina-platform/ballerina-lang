@@ -1,0 +1,34 @@
+{
+    "arguments": {
+        "node.position": {
+            "line": 10,
+            "character": 32
+        }
+    },
+    "expected": {
+        "result": {
+            "edit": {
+                "documentChanges": [
+                    {
+                        "edits": [
+                            {
+                                "range": {
+                                    "start": {
+                                        "line": 17,
+                                        "character": 0
+                                    },
+                                    "end": {
+                                        "line": 17,
+                                        "character": 0
+                                    }
+                                },
+                                "newText": "\n\nfunction convertStudent(module1:Student a) returns module1:Student {\n    \n    return {};\n}\n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "jsonrpc": "2.0"
+    }
+}

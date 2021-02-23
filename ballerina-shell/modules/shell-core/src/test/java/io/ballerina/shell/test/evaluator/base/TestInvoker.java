@@ -18,11 +18,11 @@
 
 package io.ballerina.shell.test.evaluator.base;
 
+import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.invoker.classload.ClassLoadInvoker;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
 /**
@@ -34,12 +34,13 @@ public class TestInvoker extends ClassLoadInvoker {
     private String output = "";
 
     @Override
-    protected int invokeMethod(Method method) throws IllegalAccessException {
+    protected Object invokeScheduledMethod(ClassLoader classLoader, String className, String methodName)
+            throws InvokerException {
         PrintStream stdOut = System.out;
         ByteArrayOutputStream stdOutBaOs = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(stdOutBaOs, true, Charset.defaultCharset()));
-            return super.invokeMethod(method);
+            return super.invokeScheduledMethod(classLoader, className, methodName);
         } finally {
             this.output = stdOutBaOs.toString(Charset.defaultCharset());
             this.output = this.output.replace("\r\n", "\n");

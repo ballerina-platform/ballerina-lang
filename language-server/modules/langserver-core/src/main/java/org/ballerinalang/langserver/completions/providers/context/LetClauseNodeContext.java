@@ -58,6 +58,7 @@ public class LetClauseNodeContext extends AbstractCompletionProvider<LetClauseNo
             completionItems.addAll(this.getCompletionItemList(typesInModule, context));
         } else {
             completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         }
         this.sort(context, node, completionItems);

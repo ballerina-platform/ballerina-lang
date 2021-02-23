@@ -124,7 +124,7 @@ public function testConvertToUnionWithActualType() {
 }
 
 function assert(anydata|error actual, anydata|error expected) {
-    if (expected != actual) {
+    if (!isEqual(actual, expected)) {
         typedesc<anydata|error> expT = typeof expected;
         typedesc<anydata|error> actT = typeof actual;
 
@@ -134,5 +134,13 @@ function assert(anydata|error actual, anydata|error expected) {
                             + "], but found [" + actualValAsString + "] of type [" + actT.toString() + "]";
 
         panic error(reason);
+    }
+}
+
+isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
+    if (actual is anydata && expected is anydata) {
+        return (actual == expected);
+    } else {
+        return (actual === expected);
     }
 }

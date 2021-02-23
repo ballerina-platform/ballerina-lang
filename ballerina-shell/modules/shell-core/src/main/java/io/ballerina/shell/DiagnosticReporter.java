@@ -51,6 +51,20 @@ public abstract class DiagnosticReporter {
     }
 
     /**
+     * Adds an error diagnostic.
+     */
+    protected void addErrorDiagnostic(String message) {
+        addDiagnostic(Diagnostic.error(message));
+    }
+
+    /**
+     * Adds an error diagnostic.
+     */
+    protected void addDebugDiagnostic(String message) {
+        addDiagnostic(Diagnostic.debug(message));
+    }
+
+    /**
      * Adds a list of diagnostics to the object.
      * Helpful to combine diagnostics from several objects.
      *

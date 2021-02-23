@@ -136,8 +136,7 @@ function testMapFromBalString() {
     map<int> mapVal3 = {};
 
     string s1 = "{\"name\":\"ABC\",\"school\":\"City College\"}";
-    string s2 = "{\"1\":12,\"2\":\"James\",\"3\":{\"x\":\"AA\",\"y\":float:Infinity},\"4\":()," +
-                         "\"5\":error error (\"Failed to get account balance\",details=true)}";
+    string s2 = "{\"1\":12,\"2\":\"James\",\"3\":{\"x\":\"AA\",\"y\":float:Infinity},\"4\":()}";
     string s3 = "{}";
 
     anydata|error result1 = s1.fromBalString();
@@ -154,13 +153,12 @@ function testMapFromBalString() {
         assert(str, "ABCCity College");
     }
 
-    if (result2 is map<anydata|error>) {
-        assert(result2.keys(), ["1","2","3","4","5"]);
+    if (result2 is map<anydata>) {
+        assert(result2.keys(), ["1","2","3","4"]);
         assert(result2.get("1"), mapVal2.get("1"));
         assert(result2.get("2"), mapVal2.get("2"));
         assert(result2.get("3"), mapVal2.get("3"));
         assert(result2.get("4"), mapVal2.get("4"));
-        assert(result2.get("5") is error, true);
     }
 
     assert(result3, mapVal3);
@@ -199,8 +197,8 @@ function testArrayFromBalString() {
     byte[] arr4 = [12, 10, 9, 8];
     string[] arr5 = ["ABC", "XYZ", "LMN"];
     decimal[] arr6 = [12.65, 1, 2, 90.0];
-    (anydata|error)[] arr7 = ["str", 23, 23.4, true, {"x":"AA","y":(1.0/0.0),"z":1.23}, x1, ["X", (0.0/0.0),
-    x1], underGradTable, err, xmlVal];
+    anydata[] arr7 = ["str", 23, 23.4, true, {"x":"AA","y":(1.0/0.0),"z":1.23}, x1, ["X", (0.0/0.0),
+    x1], underGradTable, xmlVal];
     string[] arr8 = [];
 
     string s1 = "[1,2,3,4,5]";
@@ -210,8 +208,7 @@ function testArrayFromBalString() {
     string s5 = "[\"ABC\",\"XYZ\",\"LMN\"]";
     string s6 = "[12.65d,1d,2d,90.0d]";
     string s7 = "[\"str\",23,23.4,true,{\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23},345.2425341d," +
-      "[\"X\",float:NaN,345.2425341d],error error (\"Failed to get account balance\",details=true," +
-      "val1=float:NaN,val2=\"This Error\",val3={\"x\":\"AA\",\"y\":float:Infinity}),xml`<CATALOG><CD>" +
+      "[\"X\",float:NaN,345.2425341d],xml`<CATALOG><CD>" +
       "<TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD></CATALOG>`]";
     string s8 = "[]";
 
@@ -223,7 +220,7 @@ function testArrayFromBalString() {
     assert(s6.fromBalString(), arr6);
 
     anydata|error result = s7.fromBalString();
-    if (result is (anydata|error)[]) {
+    if (result is anydata[]) {
         assert(result[0], arr7[0]);
         assert(result[1], arr7[1]);
         assert(result[2], arr7[2]);
@@ -231,8 +228,7 @@ function testArrayFromBalString() {
         assert(result[4], arr7[4]);
         assert(result[5], arr7[5]);
         assert(result[6], arr7[6]);
-        assert(result[7] is error && result[7] != arr7[8], true);
-        assert(result[8], arr7[9]);
+        assert(result[7], arr7[8]);
     }
 
     assert(s8.fromBalString(), arr8);
@@ -330,7 +326,7 @@ function testFromBalStringNegative() {
 }
 
 function assert(anydata|error actual, anydata|error expected) {
-    if (expected != actual) {
+    if (!isEqual(actual, expected)) {
         string expectedValAsString = expected is error ? expected.toString() : expected.toString();
         string actualValAsString = actual is error ? actual.toString() : actual.toString();
 
@@ -340,5 +336,17 @@ function assert(anydata|error actual, anydata|error expected) {
                             + "], but found [" + actualValAsString + "] of type [" + actT.toString() + "]";
         error e = error(reason);
         panic e;
+    }
+}
+
+isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
+    if (actual is anydata && expected is anydata) {
+        return (actual == expected);
+    } else if (actual is error && expected is error) {
+        return actual.message() == expected.message() &&
+            isEqual(actual.cause(), expected.cause()) &&
+            isEqual(actual.detail(), expected.detail());
+    } else {
+        return (actual === expected);
     }
 }

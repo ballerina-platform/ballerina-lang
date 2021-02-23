@@ -51,7 +51,7 @@ public class RepoUtils {
     private static final String DEFAULT_TERMINAL_SIZE = "80";
     private static final String BALLERINA_CLI_WIDTH = "BALLERINA_CLI_WIDTH";
     private static final String PRODUCTION_URL = "https://api.central.ballerina.io/2.0/registry";
-    private static final String STAGING_URL = "https://api.staging-central.ballerina.io/1.0";
+    private static final String STAGING_URL = "https://api.staging-central.ballerina.io/2.0/registry";
     private static final String DEV_URL = "https://api.dev-central.ballerina.io/2.0/registry";
 
     private static final String BALLERINA_ORG = "ballerina";
