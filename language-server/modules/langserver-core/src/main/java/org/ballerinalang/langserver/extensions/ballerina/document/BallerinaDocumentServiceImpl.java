@@ -108,8 +108,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             // Get the semantic model.
             Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
 
+            //Find the ST Nodes of the selected range
             SyntaxTree syntaxTree = srcFile.get().syntaxTree();
             NonTerminalNode node = CommonUtil.findNode(request.getLineRange(), syntaxTree);
+            
+            // Get the generated syntax tree JSON with type info.
             JsonElement subSyntaxTree = DiagramUtil.getSyntaxTreeJSONByRange(node, semanticModel.get());
 
             // Preparing the response.

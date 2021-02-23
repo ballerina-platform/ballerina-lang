@@ -17,12 +17,15 @@
  */
 package org.ballerinalang.diagramutil;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Document;
@@ -58,7 +61,18 @@ public class DiagramUtil {
         JsonElement syntaxTreeJson;
         try {
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
-            syntaxTreeJson = mapGenerator.transformSyntaxNode(node);
+
+            if (node.kind() == SyntaxKind.LIST) {
+                JsonArray syntaxTreeNodes = new JsonArray();
+
+                for (Node childNode: node.children()) {
+                    JsonElement syntaxNodeJson = mapGenerator.transformSyntaxNode(childNode);
+                    syntaxTreeNodes.add(syntaxNodeJson);
+                }
+                syntaxTreeJson = syntaxTreeNodes;
+            } else {
+                syntaxTreeJson = mapGenerator.transformSyntaxNode(node);
+            }
         } catch (NullPointerException e) {
             syntaxTreeJson = new JsonObject();
         }
