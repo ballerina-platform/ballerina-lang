@@ -286,8 +286,9 @@ public class CodeActionUtil {
         } else if (typeDescriptor.typeKind() == TypeDescKind.ARRAY) {
             // Handle ambiguous array element types eg. record[], json[], map[]
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
+            boolean isUnion = arrayTypeSymbol.memberTypeDescriptor().typeKind() == TypeDescKind.UNION;
             return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), edits, context)
-                    .stream().map(m -> m + "[]")
+                    .stream().map(m -> isUnion ? "(" + m + ")[]" : m + "[]")
                     .collect(Collectors.toList());
         } else {
             types.add(FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context));
