@@ -265,10 +265,10 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         PackageCompilation offlineCompilation = getProject(importStatement, true)
                 .currentPackage().getCompilation();
 
-        if (containModuleNotFoundError(offlineCompilation)) {
+        if (containsModuleNotFoundError(offlineCompilation)) {
             PackageCompilation onlineCompilation = getProject(importStatement, false)
                     .currentPackage().getCompilation();
-            if (containModuleNotFoundError(onlineCompilation)) {
+            if (containsModuleNotFoundError(onlineCompilation)) {
                 addErrorDiagnostic("Import resolution failed. Module not found.");
                 throw new InvokerException();
             }
@@ -278,7 +278,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     /**
      * @return Whether the compilation contains MODULE_NOT_FOUND error.
      */
-    private boolean containModuleNotFoundError(PackageCompilation compilation) {
+    private boolean containsModuleNotFoundError(PackageCompilation compilation) {
         for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
             if (diagnostic.diagnosticInfo().code().equals(MODULE_NOT_FOUND_CODE)) {
                 return true;
