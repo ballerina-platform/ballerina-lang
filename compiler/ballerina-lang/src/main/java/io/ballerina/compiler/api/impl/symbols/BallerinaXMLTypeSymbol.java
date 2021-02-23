@@ -35,6 +35,7 @@ import java.util.Optional;
 public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTypeSymbol {
 
     private TypeSymbol typeParameter;
+    private String typeName;
     private String signature;
 
     public BallerinaXMLTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLType xmlType) {
@@ -53,7 +54,18 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
 
     @Override
     public Optional<String> getName() {
-        return Optional.of("xml");
+        if (this.typeName == null) {
+            BXMLType xmlType = (BXMLType) this.getBType();
+            SymbolTable symbolTable = SymbolTable.getInstance(this.context);
+
+            if (xmlType == symbolTable.xmlType || this.typeParameter().isEmpty()) {
+                this.typeName = "xml";
+            } else {
+                this.typeName = "xml<" + this.typeParameter().get().getName().orElse("") + ">";
+            }
+        }
+
+        return Optional.of(this.typeName);
     }
 
     @Override
@@ -65,7 +77,6 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
             if (xmlType == symbolTable.xmlType || this.typeParameter().isEmpty()) {
                 this.signature = "xml";
             } else {
-                // if type param name is missing, it should default to xml<never>
                 this.signature = "xml<" + this.typeParameter().get().signature() + ">";
             }
         }
