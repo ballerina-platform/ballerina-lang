@@ -2114,6 +2114,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
         for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
+            if (fieldMatchPattern.matchPattern == null) {
+                return;
+            }
             analyzeNode(fieldMatchPattern, env);
             String fieldName = fieldMatchPattern.fieldName.value;
             BVarSymbol fieldSymbol = new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
@@ -2245,8 +2248,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldMatchPattern fieldMatchPattern) {
         BLangMatchPattern matchPattern = fieldMatchPattern.matchPattern;
-        matchPattern.accept(this);
-        fieldMatchPattern.declaredVars.putAll(matchPattern.declaredVars);
+        if (matchPattern != null) {
+            matchPattern.accept(this);
+            fieldMatchPattern.declaredVars.putAll(matchPattern.declaredVars);
+        }
     }
 
 

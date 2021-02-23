@@ -923,7 +923,7 @@ function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
 
         Details m1 = e5.detail();
         Details m2 = e6.detail();
-        isSpecificError = e5.message() == ERR_REASON && e6.message() == ERR_REASON_TWO && m1 == d && m2 == d;
+        isSpecificError = e5.message() == ERR_REASON && e6.message() == ERR_REASON_TWO && m1.message == m2.message;
     }
 
     boolean isGenericError = a1 is error && a2 is error;
