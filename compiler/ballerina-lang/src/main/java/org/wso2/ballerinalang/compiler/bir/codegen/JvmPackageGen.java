@@ -67,7 +67,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -131,14 +130,14 @@ public class JvmPackageGen {
     private final Map<String, BIRFunctionWrapper> birFunctionMap;
     private final Map<String, String> externClassMap;
     private final Map<String, String> globalVarClassMap;
-    private final Map<String, PackageID> dependentModules;
+    private final Set<PackageID> dependentModules;
     private final BLangDiagnosticLog dlog;
 
     JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog) {
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
         externClassMap = new HashMap<>();
-        dependentModules = new LinkedHashMap<>();
+        dependentModules = new LinkedHashSet<>();
         this.symbolTable = symbolTable;
         this.packageCache = packageCache;
         this.dlog = dlog;
@@ -382,69 +381,6 @@ public class JvmPackageGen {
         return userMainFunc;
     }
 
-    CompiledJarFile generate(BIRNode.BIRPackage module, boolean isEntry) {
-
-
-        Set<PackageID> moduleImports = new LinkedHashSet<>();
-        addBuiltinImports(module.packageID, moduleImports);
-        boolean serviceEPAvailable = module.isListenerAvailable;
-        for (BIRNode.BIRImportModule importModule : module.importModules) {
-
-            BPackageSymbol pkgSymbol = packageCache.getSymbol(
-                    getBvmAlias(importModule.packageID.orgName.value, importModule.packageID.name.value));
-            generateDependencyList(pkgSymbol);
-            if (dlog.errorCount() > 0) {
-                return new CompiledJarFile(Collections.emptyMap());
-            }
-            serviceEPAvailable |= listenerDeclarationFound(pkgSymbol);
-        }
-        String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME);
-        Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, isEntry);
-
-        if (!isEntry || dlog.errorCount() > 0) {
-            return new CompiledJarFile(Collections.emptyMap());
-        }
-
-        // using a concurrent hash map to store class byte values, which are generated in parallel
-        final Map<String, byte[]> jarEntries = new ConcurrentHashMap<>();
-
-        // desugar parameter initialization
-        injectDefaultParamInits(module, initMethodGen, this);
-        injectDefaultParamInitsToAttachedFuncs(module, initMethodGen, this);
-
-        // create imported modules flat list
-        List<PackageID> flattenedModuleImports = flattenModuleImports(moduleImports);
-
-        // enrich current package with package initializers
-        initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
-        JvmBStringConstantsGen stringConstantsGen = new JvmBStringConstantsGen(module);
-        configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, stringConstantsGen,
-                jarEntries);
-
-        // generate the shutdown listener class.
-        new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries);
-
-        // desugar the record init function
-        rewriteRecordInits(module.typeDefs);
-
-        // generate object/record value classes
-        JvmValueGen valueGen = new JvmValueGen(module, this, methodGen);
-        valueGen.generateValueClasses(jarEntries, stringConstantsGen);
-
-        // generate frame classes
-        frameClassGen.generateFrameClasses(module, jarEntries);
-
-        // generate module classes
-        generateModuleClasses(module, jarEntries, moduleInitClass, stringConstantsGen, jvmClassMapping,
-                              flattenedModuleImports, serviceEPAvailable);
-        stringConstantsGen.generateConstantInit(jarEntries);
-
-        // clear class name mappings
-        clearPackageGenInfo();
-
-        return new CompiledJarFile(getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."), jarEntries);
-    }
-
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries,
                                        String moduleInitClass, JvmBStringConstantsGen stringConstantsGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
@@ -519,12 +455,7 @@ public class JvmPackageGen {
     }
 
     private List<PackageID> flattenModuleImports(Set<PackageID> dependentModuleArray) {
-
-        for (Map.Entry<String, PackageID> entry : dependentModules.entrySet()) {
-            PackageID id = entry.getValue();
-            dependentModuleArray.add(id);
-        }
-
+        dependentModuleArray.addAll(dependentModules);
         return new ArrayList<>(dependentModuleArray);
     }
 
@@ -732,7 +663,6 @@ public class JvmPackageGen {
     }
 
     private void clearPackageGenInfo() {
-
         birFunctionMap.clear();
         globalVarClassMap.clear();
         externClassMap.clear();
@@ -779,7 +709,6 @@ public class JvmPackageGen {
     }
 
     private void generateDependencyList(BPackageSymbol packageSymbol) {
-
         if (packageSymbol.bir != null) {
             generate(packageSymbol.bir, false);
         } else {
@@ -790,15 +719,69 @@ public class JvmPackageGen {
                 generateDependencyList(importPkgSymbol);
             }
         }
-
-        PackageID moduleId = packageSymbol.pkgID;
-
-        String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
-        if (!dependentModules.containsKey(pkgName)) {
-            dependentModules.put(pkgName, moduleId);
-        }
+        dependentModules.add(packageSymbol.pkgID);
     }
 
+    CompiledJarFile generate(BIRNode.BIRPackage module, boolean isEntry) {
+        Set<PackageID> moduleImports = new LinkedHashSet<>();
+        addBuiltinImports(module.packageID, moduleImports);
+        boolean serviceEPAvailable = module.isListenerAvailable;
+        for (BIRNode.BIRImportModule importModule : module.importModules) {
+
+            BPackageSymbol pkgSymbol = packageCache.getSymbol(
+                    getBvmAlias(importModule.packageID.orgName.value, importModule.packageID.name.value));
+            generateDependencyList(pkgSymbol);
+            if (dlog.errorCount() > 0) {
+                return new CompiledJarFile(Collections.emptyMap());
+            }
+            serviceEPAvailable |= listenerDeclarationFound(pkgSymbol);
+        }
+        String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME);
+        Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, isEntry);
+
+        if (!isEntry || dlog.errorCount() > 0) {
+            return new CompiledJarFile(Collections.emptyMap());
+        }
+
+        // using a concurrent hash map to store class byte values, which are generated in parallel
+        final Map<String, byte[]> jarEntries = new ConcurrentHashMap<>();
+
+        // desugar parameter initialization
+        injectDefaultParamInits(module, initMethodGen, this);
+        injectDefaultParamInitsToAttachedFuncs(module, initMethodGen, this);
+
+        // create imported modules flat list
+        List<PackageID> flattenedModuleImports = flattenModuleImports(moduleImports);
+
+        // enrich current package with package initializers
+        initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
+        JvmBStringConstantsGen stringConstantsGen = new JvmBStringConstantsGen(module);
+        configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, stringConstantsGen,
+                                             jarEntries);
+
+        // generate the shutdown listener class.
+        new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries);
+
+        // desugar the record init function
+        rewriteRecordInits(module.typeDefs);
+
+        // generate object/record value classes
+        JvmValueGen valueGen = new JvmValueGen(module, this, methodGen);
+        valueGen.generateValueClasses(jarEntries, stringConstantsGen);
+
+        // generate frame classes
+        frameClassGen.generateFrameClasses(module, jarEntries);
+
+        // generate module classes
+        generateModuleClasses(module, jarEntries, moduleInitClass, stringConstantsGen, jvmClassMapping,
+                              flattenedModuleImports, serviceEPAvailable);
+        stringConstantsGen.generateConstantInit(jarEntries);
+
+        // clear class name mappings
+        clearPackageGenInfo();
+
+        return new CompiledJarFile(getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."), jarEntries);
+    }
     private boolean listenerDeclarationFound(BPackageSymbol packageSymbol) {
         if (packageSymbol.bir != null && packageSymbol.bir.isListenerAvailable) {
             return true;
