@@ -287,7 +287,6 @@ public class PackageResolutionTests {
     private Path getBalaPath(String org, String pkgName, String version) {
         String ballerinaHome = System.getProperty("ballerina.home");
         Path balaRepoPath = Paths.get(ballerinaHome).resolve("repo").resolve("bala");
-        String balaName = org + "-" + pkgName + "-any-" + version + ".bala";
-        return balaRepoPath.resolve(org).resolve(pkgName).resolve(version).resolve(balaName);
+        return balaRepoPath.resolve(org).resolve(pkgName).resolve(version).resolve("any");
     }
 }

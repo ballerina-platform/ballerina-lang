@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.USER_HOME;
@@ -27,7 +26,7 @@ public final class BallerinaUserHome {
 
     private final Path ballerinaUserHomeDirPath;
     private final RemotePackageRepository remotePackageRepository;
-    private final Map<String, PackageRepository> customRepositories = new HashMap<>();
+    private final Map<String, PackageRepository> customRepositories;
 
     private BallerinaUserHome(Environment environment, Path ballerinaUserHomeDirPath) {
         this.ballerinaUserHomeDirPath = ballerinaUserHomeDirPath;
@@ -41,7 +40,7 @@ public final class BallerinaUserHome {
 
         this.remotePackageRepository = RemotePackageRepository
                 .from(environment, remotePackageRepositoryPath, readSettings());
-        customRepositories.put(ProjectConstants.LOCAL_REPOSITORY_NAME, createLocalRepository(environment));
+        this.customRepositories = Map.of(ProjectConstants.LOCAL_REPOSITORY_NAME, createLocalRepository(environment));
     }
 
     public static BallerinaUserHome from(Environment environment, Path ballerinaUserHomeDirPath) {

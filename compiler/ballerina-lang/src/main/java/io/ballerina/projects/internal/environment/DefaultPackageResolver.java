@@ -45,7 +45,7 @@ public class DefaultPackageResolver implements PackageResolver {
     private final PackageRepository ballerinaDistRepo;
     private final PackageRepository ballerinaCentralRepo;
     private final WritablePackageCache packageCache;
-    private Map<String, PackageRepository> customRepositories;
+    private final Map<String, PackageRepository> customRepositories;
 
     public DefaultPackageResolver(PackageRepository ballerinaDistRepo,
                                   PackageRepository ballerinaCentralRepo,
@@ -134,13 +134,11 @@ public class DefaultPackageResolver implements PackageResolver {
         if (requestedPkgDesc.version() != null) {
             if (resolutionRequest.repositoryName() != null) {
                 if (!customRepositories.containsKey(resolutionRequest.repositoryName())) {
-                    // TODO: add to diagnostic
                     return null;
                 }
                 resolvedPackage = customRepositories.get(resolutionRequest.repositoryName())
                         .getPackage(resolutionRequest);
                 if (resolvedPackage.isEmpty()) {
-                    // TODO: add to diagnostic
                     return null;
                 }
             } else {

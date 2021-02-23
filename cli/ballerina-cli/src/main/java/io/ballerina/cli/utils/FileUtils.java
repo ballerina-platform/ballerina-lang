@@ -18,10 +18,6 @@
 
 package io.ballerina.cli.utils;
 
-import io.ballerina.projects.util.ProjectUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 

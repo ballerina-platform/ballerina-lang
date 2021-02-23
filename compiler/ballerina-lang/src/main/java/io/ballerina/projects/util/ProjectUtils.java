@@ -58,6 +58,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -522,7 +523,7 @@ public class ProjectUtils {
         Files.createDirectories(balaFileDestPath);
         URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-            Path packageRoot = zipFileSystem.getPath("/");
+            Path packageRoot = Optional.of(zipFileSystem.getPath("/")).get();
             List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
             for (Path path : paths) {
                 Path destPath = balaFileDestPath.resolve(packageRoot.relativize(path).toString());

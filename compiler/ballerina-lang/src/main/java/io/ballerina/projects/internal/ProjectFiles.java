@@ -25,6 +25,7 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
@@ -33,7 +34,6 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -253,7 +253,11 @@ public class ProjectFiles {
             return false;
         }
         Path modulesRoot = balaPath.resolve(ProjectConstants.MODULES_ROOT);
-        return Files.isDirectory(modulesRoot) && Objects.requireNonNull(modulesRoot.toFile().listFiles()).length >= 1;
+        File[] files = modulesRoot.toFile().listFiles();
+        if (files == null) {
+            return false;
+        }
+        return Files.isDirectory(modulesRoot) && files.length >= 1;
     }
 
     private static boolean isValidBalaFile(Path balaPath) {

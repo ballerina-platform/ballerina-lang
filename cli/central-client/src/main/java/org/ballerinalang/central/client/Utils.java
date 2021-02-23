@@ -102,9 +102,10 @@ public class Utils {
      * @param outStream          Output print stream
      * @param logFormatter       log formatter
      */
-    public static void createBalaInHomeRepo(HttpURLConnection conn, Path pkgPathInBalaCache, String pkgOrg, String pkgName,
-            boolean isNightlyBuild, String newUrl, String contentDisposition, PrintStream outStream,
-            LogFormatter logFormatter) throws CentralClientException {
+    public static void createBalaInHomeRepo(HttpURLConnection conn, Path pkgPathInBalaCache, String pkgOrg,
+                                            String pkgName, boolean isNightlyBuild, String newUrl,
+                                            String contentDisposition, PrintStream outStream, LogFormatter logFormatter)
+            throws CentralClientException {
         long responseContentLength = conn.getContentLengthLong();
         if (responseContentLength <= 0) {
             throw new CentralClientException(
@@ -126,7 +127,8 @@ public class Utils {
         try {
             if (Files.isDirectory(balaCacheWithPkgPath) && Files.list(balaCacheWithPkgPath).findAny().isPresent()) {
                 throw new PackageAlreadyExistsException(
-                        logFormatter.formatLog("package already exists in the home repository: " + balaCacheWithPkgPath.toString()));
+                        logFormatter.formatLog("package already exists in the home repository: " +
+                                balaCacheWithPkgPath.toString()));
             }
         } catch (IOException e) {
             throw new PackageAlreadyExistsException(
@@ -134,8 +136,8 @@ public class Utils {
         }
 
         createBalaFileDirectory(balaCacheWithPkgPath, logFormatter);
-        writeBalaFile(conn, balaCacheWithPkgPath.resolve(balaFile), pkgOrg + "/" + pkgName + ":" + validPkgVersion, responseContentLength, outStream,
-                      logFormatter);
+        writeBalaFile(conn, balaCacheWithPkgPath.resolve(balaFile), pkgOrg + "/" + pkgName + ":"
+                        + validPkgVersion, responseContentLength, outStream, logFormatter);
         handleNightlyBuild(isNightlyBuild, balaCacheWithPkgPath, logFormatter);
     }
 

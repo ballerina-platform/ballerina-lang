@@ -42,7 +42,7 @@ public class EnvironmentBuilder {
     private PackageRepository ballerinaCentralRepo;
     private Path ballerinaHome;
     private Path userHome;
-    Map<String, PackageRepository> customRepositories;
+    private Map<String, PackageRepository> customRepositories;
 
     public static EnvironmentBuilder getBuilder() {
         return new EnvironmentBuilder();
