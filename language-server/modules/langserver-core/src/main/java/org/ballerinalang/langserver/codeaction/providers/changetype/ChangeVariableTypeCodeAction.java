@@ -126,7 +126,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 if (optVariableSymbol.isEmpty()) {
                     return Optional.empty();
                 }
-                SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
+                SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
                 NonTerminalNode node = CommonUtil.findNode(optVariableSymbol.get(), syntaxTree);
                 if (node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
                     return Optional.of(((TypedBindingPatternNode) node).typeDescriptor());

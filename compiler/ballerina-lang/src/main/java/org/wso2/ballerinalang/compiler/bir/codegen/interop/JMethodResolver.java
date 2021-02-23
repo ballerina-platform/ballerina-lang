@@ -286,7 +286,7 @@ class JMethodResolver {
                 jParamType = jParamTypes[0];
             }
             BType bParamType = jMethod.getReceiverType();
-            if (!isValidParamBType(jParamTypes[0], bParamType, false, jMethodRequest.restParamExist)) {
+            if (!isValidParamBType(jParamType, bParamType, false, jMethodRequest.restParamExist)) {
                 throwNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
                                            jMethodRequest.declaringClass);
             }
@@ -681,6 +681,9 @@ class JMethodResolver {
             executable = tryResolveExactWithBalEnv(paramTypes, clazz, name);
         }
         if (executable != null) {
+            if (kind == JMethodKind.CONSTRUCTOR) {
+                return JMethod.build(kind, executable, null);
+            }
             return JMethod.build(kind, executable, receiverType);
         } else {
             return JMethod.NO_SUCH_METHOD;
