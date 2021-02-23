@@ -21,6 +21,7 @@ import io.ballerina.projects.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Coverage analysis of a specific module used to generate the Json object.
@@ -121,13 +122,13 @@ public class ModuleCoverage {
      * @param sourceFileName String
      * @return list of missed lines
      */
-    public List<Integer> getMissedLinesList(String sourceFileName) {
+    public Optional<List<Integer>> getMissedLinesList(String sourceFileName) {
         for (SourceFile sourceFile : this.sourceFiles) {
             if (sourceFile.getName().equals(sourceFileName)) {
-                return sourceFile.missedLines;
+                return Optional.of(sourceFile.missedLines);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -136,13 +137,13 @@ public class ModuleCoverage {
      * @param sourceFileName String
      * @return list of covered lines
      */
-    public List<Integer> getCoveredLinesList(String sourceFileName) {
+    public Optional<List<Integer>> getCoveredLinesList(String sourceFileName) {
         for (SourceFile sourceFile : this.sourceFiles) {
             if (sourceFile.getName().equals(sourceFileName)) {
-                return sourceFile.coveredLines;
+                return Optional.of(sourceFile.coveredLines);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
 

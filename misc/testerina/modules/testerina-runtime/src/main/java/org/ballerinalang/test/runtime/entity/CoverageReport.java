@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
@@ -180,13 +181,15 @@ public class CoverageReport {
                             && !sourceFileCoverage.getName().contains("tests/")) {
                         if (moduleCoverage.containsSourceFile(sourceFileCoverage.getName())) {
                             // Update coverage for missed lines if covered
-                            List<Integer> missedLines = moduleCoverage.getMissedLinesList(
+                            Optional<List<Integer>> missedLinesList = moduleCoverage.getMissedLinesList(
                                     sourceFileCoverage.getName());
-                            List<Integer> coveredLines =
+                            Optional<List<Integer>> coveredLinesList =
                                     moduleCoverage.getCoveredLinesList(
                                             sourceFileCoverage.getName());
-                            List<Integer> existingMissedLines = new ArrayList<>(missedLines);
-                            if (coveredLines != null && missedLines != null) {
+                            if (!missedLinesList.isEmpty() && !missedLinesList.isEmpty()) {
+                                List<Integer> missedLines = missedLinesList.get();
+                                List<Integer> coveredLines = coveredLinesList.get();
+                                List<Integer> existingMissedLines = new ArrayList<>(missedLines);
                                 boolean isCoverageUpdated = false;
                                 for (int missedLine : existingMissedLines) {
                                     // Traverse through the missed lines of a source file and update
@@ -280,6 +283,7 @@ public class CoverageReport {
             }
         }
         return document;
+    }
 
     private Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {
         Collection<ISourceFileCoverage> modifiedSourceFiles = new ArrayList<>();
