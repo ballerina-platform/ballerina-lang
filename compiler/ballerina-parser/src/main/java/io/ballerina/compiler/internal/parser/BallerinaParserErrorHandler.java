@@ -249,7 +249,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] IMPORT_VERSION =
             { ParserRuleContext.VERSION_KEYWORD, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] IMPORT_DECL_RHS =
+    private static final ParserRuleContext[] IMPORT_DECL_ORG_OR_MODULE_NAME_RHS =
             { ParserRuleContext.SLASH, ParserRuleContext.AFTER_IMPORT_MODULE_NAME };
 
     private static final ParserRuleContext[] AFTER_IMPORT_MODULE_NAME = {
@@ -794,7 +794,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FIRST_OBJECT_CONS_QUALIFIER:
             case FIRST_CLASS_TYPE_QUALIFIER:
             case ELSE_BODY:
-            case IMPORT_DECL_RHS:
+            case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
             case IMPORT_SUB_VERSION:
             case VERSION_NUMBER:
             case IMPORT_VERSION_DECL:
@@ -1432,7 +1432,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CALL_STMT_START:
             case IMPORT_PREFIX_DECL:
             case IMPORT_VERSION_DECL:
-            case IMPORT_DECL_RHS:
+            case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
             case AFTER_IMPORT_MODULE_NAME:
             case MAJOR_MINOR_VERSION_END:
             case RETURN_STMT_RHS:
@@ -1745,8 +1745,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case IMPORT_VERSION_DECL:
                 alternativeRules = IMPORT_VERSION;
                 break;
-            case IMPORT_DECL_RHS:
-                alternativeRules = IMPORT_DECL_RHS;
+            case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
+                alternativeRules = IMPORT_DECL_ORG_OR_MODULE_NAME_RHS;
                 break;
             case AFTER_IMPORT_MODULE_NAME:
                 alternativeRules = AFTER_IMPORT_MODULE_NAME;
@@ -2736,7 +2736,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
                 return ParserRuleContext.IMPORT_MODULE_NAME;
             case IMPORT_ORG_OR_MODULE_NAME:
-                return ParserRuleContext.IMPORT_DECL_RHS;
+                return ParserRuleContext.IMPORT_DECL_ORG_OR_MODULE_NAME_RHS;
             case IMPORT_MODULE_NAME:
                 return ParserRuleContext.AFTER_IMPORT_MODULE_NAME;
             case MAJOR_VERSION:
@@ -5057,7 +5057,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MINOR_VERSION:
             case PATCH_VERSION:
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
-            case IMPORT_DECL_RHS:
+            case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
             case IMPORT_SUB_VERSION:
                 return SyntaxKind.SEMICOLON_TOKEN;
             case STRING_LITERAL_TOKEN:
