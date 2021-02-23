@@ -29,22 +29,18 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class QuotedImport {
-    private final QuotedIdentifier orgName;
+    private final String orgName;
     private final List<QuotedIdentifier> moduleNames;
 
-    private QuotedImport(QuotedIdentifier orgName, List<String> moduleNames) {
+    public QuotedImport(String orgName, List<String> moduleNames) {
         this.orgName = orgName;
         this.moduleNames = moduleNames.stream()
                 .map(QuotedIdentifier::new)
                 .collect(Collectors.toList());
     }
 
-    public QuotedImport(String orgName, List<String> moduleNames) {
-        this(new QuotedIdentifier(orgName), moduleNames);
-    }
-
     public QuotedImport(List<String> moduleNames) {
-        this((QuotedIdentifier) null, moduleNames);
+        this(null, moduleNames);
     }
 
     public QuotedIdentifier getDefaultPrefix() {
