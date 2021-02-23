@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Document;
@@ -46,6 +47,18 @@ public class DiagramUtil {
             SyntaxTree syntaxTree = srcFile.syntaxTree();
             ModulePartNode modulePartNode = syntaxTree.rootNode();
             syntaxTreeJson = mapGenerator.transform(modulePartNode);
+        } catch (NullPointerException e) {
+            syntaxTreeJson = new JsonObject();
+        }
+
+        return syntaxTreeJson;
+    }
+
+    public static JsonElement getSyntaxTreeJSONByRange(NonTerminalNode node, SemanticModel semanticModel) {
+        JsonElement syntaxTreeJson;
+        try {
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
+            syntaxTreeJson = mapGenerator.transformSyntaxNode(node);
         } catch (NullPointerException e) {
             syntaxTreeJson = new JsonObject();
         }

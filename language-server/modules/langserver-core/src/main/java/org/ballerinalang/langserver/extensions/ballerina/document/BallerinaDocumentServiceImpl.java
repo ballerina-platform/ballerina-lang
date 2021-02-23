@@ -17,6 +17,8 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -83,6 +85,40 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/syntaxTree' failed!";
+            this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+        }
+        return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    @Override
+    public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeByRange(BallerinaSyntaxTreeByRangeRequest request) {
+        BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
+        String fileUri = request.getDocumentIdentifier().getUri();
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        if (filePath.isEmpty()) {
+            return CompletableFuture.supplyAsync(() -> reply);
+        }
+
+        try {
+            Optional<Document> srcFile = this.workspaceManager.document(filePath.get());
+            if (srcFile.isEmpty()) {
+                return CompletableFuture.supplyAsync(() -> reply);
+            }
+
+            // Get the semantic model.
+            Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
+
+            SyntaxTree syntaxTree = srcFile.get().syntaxTree();
+            NonTerminalNode node = CommonUtil.findNode(request.getLineRange(), syntaxTree);
+            JsonElement subSyntaxTree = DiagramUtil.getSyntaxTreeJSONByRange(node, semanticModel.get());
+
+            // Preparing the response.
+            reply.setSource(node.toSourceCode());
+            reply.setSyntaxTree(subSyntaxTree);
+            reply.setParseSuccess(reply.getSyntaxTree() != null);
+        } catch (Throwable e) {
+            reply.setParseSuccess(false);
+            String msg = "Operation 'ballerinaDocument/syntaxTreeByRange' failed!";
             this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
