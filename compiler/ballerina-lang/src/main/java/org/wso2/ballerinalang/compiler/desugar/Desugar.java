@@ -1823,8 +1823,7 @@ public class Desugar extends BLangNodeVisitor {
         //      restVar = (<map<T>mapVarRef)
         //                       .entries()
         //                       .filter([key, val] => isKeyTakenLambdaInvoke())
-        //                       .map([key, val] => val)
-        //                       .constructFrom(errorDetail);
+        //                       .map([key, val] => val);
 
         BLangExpression typeCastExpr = addConversionExprIfRequired(mapVarRef, targetType);
 
@@ -1849,16 +1848,16 @@ public class Desugar extends BLangNodeVisitor {
                 filteredEntriesName);
 
         String filteredVarName = "$detail$filtered" + restNum;
-        BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(pos);
+        BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(pos, ((BMapType) targetType).constraint);
         BLangInvocation mapInvocation = generateMapMapInvocation(pos, filteredVar, backToMapLambda);
         BLangSimpleVariable filtered = defVariable(pos, targetType, parentBlockStmt,
                 mapInvocation,
                 filteredVarName);
 
         String filteredRestVarName = "$restVar$" + UNDERSCORE + restNum;
-        BLangInvocation constructed = generateCloneWithTypeInvocation(pos, targetType, filtered.symbol);
+
         return defVariable(pos, targetType, parentBlockStmt,
-                addConversionExprIfRequired(constructed, targetType),
+                addConversionExprIfRequired(createVariableRef(pos, filtered.symbol), targetType),
                 filteredRestVarName);
     }
 
@@ -1885,7 +1884,7 @@ public class Desugar extends BLangNodeVisitor {
         return invocationNode;
     }
 
-    private BLangLambdaFunction generateEntriesToMapLambda(Location pos) {
+    private BLangLambdaFunction generateEntriesToMapLambda(Location pos, BType constraint) {
         // var.map([key, val] => val)
 
         String anonfuncName = "$anonGetValFunc$" + UNDERSCORE + lambdaFunctionCount++;
@@ -1898,16 +1897,15 @@ public class Desugar extends BLangNodeVisitor {
                                                                            null, keyValSymbol);
         function.requiredParams.add(inputParameter);
 
-        BLangValueType anyType = new BLangValueType();
-        anyType.typeKind = TypeKind.ANY;
-        anyType.type = symTable.anyType;
-        function.returnTypeNode = anyType;
+        BLangUserDefinedType constraintTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        constraintTypeNode.type = constraint;
+        function.returnTypeNode = constraintTypeNode;
 
         BLangBlockFunctionBody functionBlock = ASTBuilderUtil.createBlockFunctionBody(pos, new ArrayList<>());
         function.body = functionBlock;
 
         BLangIndexBasedAccess indexBasesAccessExpr =
-                ASTBuilderUtil.createIndexBasesAccessExpr(pos, symTable.anyType, keyValSymbol,
+                ASTBuilderUtil.createIndexBasesAccessExpr(pos, constraint, keyValSymbol,
                                                           ASTBuilderUtil
                                                                   .createLiteral(pos, symTable.intType, (long) 1));
         BLangSimpleVariableDef tupSecondElem = createVarDef("$val", indexBasesAccessExpr.type,
@@ -1929,8 +1927,7 @@ public class Desugar extends BLangNodeVisitor {
                 .map(param -> param.symbol)
                 .collect(Collectors.toList());
         functionSymbol.scope = env.scope;
-        functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()),
-                symTable.anyType, null);
+        functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()), constraint, null);
         function.symbol = functionSymbol;
         rewrite(function, env);
         env.enclPkg.addFunction(function);
@@ -3742,7 +3739,8 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
                     restPatternPos);
             tempBlockStmt.addStatement(filtersVarDef);
-            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
+                    ((BMapType) mappingBindingPattern.restBindingPattern.type).constraint);
             BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                     backToMapLambda);
             BLangSimpleVarRef restMatchPatternVarRef =
@@ -3874,7 +3872,8 @@ public class Desugar extends BLangNodeVisitor {
                 BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
                         restPatternPos);
                 restPatternBlock.addStatement(filtersVarDef);
-                BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+                BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
+                        ((BMapType) errorBindingPattern.errorFieldBindingPatterns.restBindingPattern.type).constraint);
                 BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                         backToMapLambda);
                 BLangSimpleVarRef restMatchPatternVarRef =
@@ -4017,7 +4016,8 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
                     restPatternPos);
             tempBlockStmt.addStatement(filtersVarDef);
-            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
+                    ((BMapType) restMatchPattern.type).constraint);
             BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                     backToMapLambda);
             BLangSimpleVarRef restMatchPatternVarRef = declaredVarDef.get(restMatchPattern.getIdentifier().getValue());
@@ -4199,7 +4199,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
                 restPatternPos);
         blockStmt.addStatement(filtersVarDef);
-        BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+        BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
+                ((BMapType) restBindingPattern.type).constraint);
         BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                 backToMapLambda);
         BLangSimpleVarRef restMatchPatternVarRef =
@@ -4305,7 +4306,8 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
                     restPatternPos);
             tempBlockStmt.addStatement(filtersVarDef);
-            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
+                    ((BMapType) restMatchPattern.type).constraint);
             BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                     backToMapLambda);
             BLangSimpleVarRef restMatchPatternVarRef =
@@ -4470,7 +4472,8 @@ public class Desugar extends BLangNodeVisitor {
                 BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
                         restPatternPos);
                 restPatternBlock.addStatement(filtersVarDef);
-                BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+                BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
+                        ((BMapType) errorMatchPattern.errorFieldMatchPatterns.restMatchPattern.type).constraint);
                 BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                         backToMapLambda);
                 BLangSimpleVarRef restMatchPatternVarRef =
