@@ -142,8 +142,9 @@ public class CodeCoverageUtils {
     }
 
     private static String resolveClassDir(Path classPath, String version) {
-        // Typical class path is .jar/<moduleName>/<version>/class
-        // This function extracts the <moduleName> to create a unique directory
+        // Typical class path is .jar/<moduleName>/<version>/class for .bal files
+        // This function extracts the <moduleName> to create a unique directory for .bal files
+        // For .java files, the parent directory of the class file is returned
         version = version.replace(".", "_");
         Path resolvedPath = classPath;
         String pathVersion;
