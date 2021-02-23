@@ -23,6 +23,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
+import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
@@ -41,7 +42,7 @@ import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.ballerinalang.debugadapter.launch.Launcher;
+import org.ballerinalang.debugadapter.launch.ProgramLauncher;
 import org.ballerinalang.debugadapter.launch.PackageLauncher;
 import org.ballerinalang.debugadapter.launch.SingleFileLauncher;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
@@ -217,14 +218,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> launch(Map<String, Object> args) {
         try {
             clearState();
+            clientConfigHolder = new ClientLaunchConfigHolder(args);
             loadProjectInfo(clientConfigHolder.getSourcePath());
-            context.setClientConfigHolder(new ClientLaunchConfigHolder(args));
-            Launcher launcher = project instanceof SingleFileProject ?
+            ProgramLauncher programLauncher = project instanceof SingleFileProject ?
                     new SingleFileLauncher((ClientLaunchConfigHolder) clientConfigHolder, projectRoot) :
                     new PackageLauncher((ClientLaunchConfigHolder) clientConfigHolder, projectRoot);
 
-            context.setLaunchedProcess(launcher.start());
-            startListeningToProgramOutput(launcher);
+            context.setLaunchedProcess(programLauncher.start());
+            startListeningToProgramOutput();
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
             sendOutput("Failed to launch the ballerina program due to: " + e.toString(), STDERR);
@@ -236,17 +237,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> attach(Map<String, Object> args) {
         try {
             clearState();
-            loadProjectInfo(clientConfigHolder.getSourcePath());
             clientConfigHolder = new ClientAttachConfigHolder(args);
+            loadProjectInfo(clientConfigHolder.getSourcePath());
             ClientAttachConfigHolder configHolder = (ClientAttachConfigHolder) clientConfigHolder;
+
             String hostName = configHolder.getHostName().orElse("");
             int portName = configHolder.getDebuggePort();
-            executionManager = new DebugExecutionManager(this);
-            context.setDebuggee(new VirtualMachineProxyImpl(executionManager.attach(hostName, portName)));
-            EventRequestManager erm = context.getEventManager();
-            ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
-            classPrepareRequest.enable();
-            eventProcessor.startListening();
+            attachToRemoteVM(hostName, portName);
         } catch (IOException | IllegalConnectorArgumentsException | ClientConfigurationException e) {
             String host = ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST);
             String portName;
@@ -882,7 +879,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * Asynchronously listens to remote debuggee stdout + error streams and redirects the output to the client debug
      * console.
      */
-    private void startListeningToProgramOutput(Launcher launcher) {
+    private void startListeningToProgramOutput() {
         CompletableFuture.runAsync(() -> {
             if (context.getLaunchedProcess().isEmpty()) {
                 return;
@@ -911,14 +908,40 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 sendOutput("Waiting for debug process to start...", STDOUT);
                 while ((line = inputStream.readLine()) != null) {
                     if (line.contains("Listening for transport dt_socket")) {
-                        launcher.attachToLaunchedProcess(this);
-                        eventProcessor.startListening();
+                        attachToRemoteVM("", clientConfigHolder.getDebuggePort());
                     }
                     sendOutput(line, STDOUT);
                 }
-            } catch (IOException ignored) {
+            } catch (IOException | ClientConfigurationException | IllegalConnectorArgumentsException e) {
+                String host = ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST);
+                String portName;
+                try {
+                    portName = Integer.toString(clientConfigHolder.getDebuggePort());
+                } catch (ClientConfigurationException clientConfigurationException) {
+                    portName = "unknown";
+                }
+                LOGGER.error(e.getMessage());
+                sendOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.", host, portName),
+                        STDERR);
             }
         });
+    }
+
+    /**
+     * Attach to the remote VM using host address and port.
+     *
+     * @param hostName host address
+     * @param portName host port
+     */
+    private void attachToRemoteVM(String hostName, int portName) throws IOException,
+            IllegalConnectorArgumentsException {
+        executionManager = new DebugExecutionManager(this);
+        VirtualMachine attachedVm = executionManager.attach(hostName, portName);
+        context.setDebuggee(new VirtualMachineProxyImpl(attachedVm));
+        EventRequestManager erm = context.getEventManager();
+        ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
+        classPrepareRequest.enable();
+        eventProcessor.startListening();
     }
 
     /**

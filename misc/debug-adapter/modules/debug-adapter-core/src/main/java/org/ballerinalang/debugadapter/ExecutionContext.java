@@ -18,7 +18,6 @@ package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.request.EventRequestManager;
 import io.ballerina.projects.Project;
-import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
@@ -38,7 +37,6 @@ public class ExecutionContext {
     private Project sourceProject;
     private Process launchedProcess;
     private DebugInstruction lastInstruction;
-    private ClientConfigHolder clientConfigHolder;
 
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
@@ -101,13 +99,5 @@ public class ExecutionContext {
 
     public void setLastInstruction(DebugInstruction lastInstruction) {
         this.lastInstruction = lastInstruction;
-    }
-
-    public ClientConfigHolder getClientConfigHolder() {
-        return clientConfigHolder;
-    }
-
-    public void setClientConfigHolder(ClientConfigHolder clientConfigHolder) {
-        this.clientConfigHolder = clientConfigHolder;
     }
 }

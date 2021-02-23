@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Ballerina single file runner.
  */
-public class SingleFileLauncher extends Launcher {
+public class SingleFileLauncher extends ProgramLauncher {
 
     public SingleFileLauncher(ClientLaunchConfigHolder configHolder, String projectRoot) {
         super(configHolder, projectRoot);

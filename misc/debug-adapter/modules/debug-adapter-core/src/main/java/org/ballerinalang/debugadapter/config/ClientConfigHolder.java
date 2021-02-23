@@ -54,7 +54,7 @@ public class ClientConfigHolder {
     public int getDebuggePort() throws ClientConfigurationException {
         if (debuggePort == null) {
             failIfMissing(ARG_DEBUGGEE_PORT);
-            debuggePort = Integer.getInteger(clientRequestArgs.get(ARG_DEBUGGEE_PORT).toString());
+            debuggePort = Integer.parseInt(clientRequestArgs.get(ARG_DEBUGGEE_PORT).toString());
         }
         return debuggePort;
     }

@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Ballerina package runner.
  */
-public class PackageLauncher extends Launcher {
+public class PackageLauncher extends ProgramLauncher {
 
     public PackageLauncher(ClientLaunchConfigHolder configHolder, String projectRoot) {
         super(configHolder, projectRoot);

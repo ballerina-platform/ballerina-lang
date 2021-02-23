@@ -16,21 +16,11 @@
 
 package org.ballerinalang.debugadapter.launch;
 
-import com.sun.jdi.VirtualMachine;
-import com.sun.jdi.connect.IllegalConnectorArgumentsException;
-import com.sun.jdi.request.ClassPrepareRequest;
-import com.sun.jdi.request.EventRequestManager;
-import org.ballerinalang.debugadapter.DebugExecutionManager;
-import org.ballerinalang.debugadapter.JBallerinaDebugServer;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
-import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.ballerinalang.debugadapter.utils.OSUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,23 +28,27 @@ import java.util.List;
 /**
  * Abstract implementation of Ballerina program launcher.
  */
-public abstract class Launcher {
+public abstract class ProgramLauncher {
 
     protected final String projectRoot;
     protected final ClientLaunchConfigHolder configHolder;
 
     private static final String BAL_RUN_CMD_NAME = "run";
     private static final String BAL_TEST_CMD_NAME = "test";
-    private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
 
-    public abstract Process start() throws Exception;
-
-    Launcher(ClientLaunchConfigHolder configHolder, String projectRoot) throws IllegalArgumentException {
+    protected ProgramLauncher(ClientLaunchConfigHolder configHolder, String projectRoot) {
         this.configHolder = configHolder;
         this.projectRoot = projectRoot;
     }
 
-    ArrayList<String> getBallerinaCommand(String balFile) throws ClientConfigurationException {
+    /**
+     * Responsible for executing the target ballerina program in a new process.
+     *
+     * @return started process
+     */
+    public abstract Process start() throws Exception;
+
+    protected ArrayList<String> getBallerinaCommand(String balFile) throws ClientConfigurationException {
 
         List<String> ballerinaExec = new ArrayList<>();
         if (OSUtils.isWindows()) {
@@ -95,19 +89,5 @@ public abstract class Launcher {
         // Adds program arguments.
         command.addAll(configHolder.getProgramArguments());
         return command;
-    }
-
-    public void attachToLaunchedProcess(JBallerinaDebugServer server) {
-        try {
-            DebugExecutionManager execManager = new DebugExecutionManager(server);
-            VirtualMachine attachedVm = execManager.attach(configHolder.getDebuggePort());
-            EventRequestManager erm = attachedVm.eventRequestManager();
-            ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
-            classPrepareRequest.enable();
-            server.getContext().setDebuggee(new VirtualMachineProxyImpl(attachedVm));
-            server.setExecutionManager(execManager);
-        } catch (IOException | IllegalConnectorArgumentsException | ClientConfigurationException e) {
-            LOGGER.error("Debugger failed to attach");
-        }
     }
 }
