@@ -101,6 +101,7 @@ public class Main {
         } finally {
             if (testSuite.isReportRequired()) {
                 writeStatusToJsonFile(ModuleStatus.getInstance(), jsonTmpSummaryPath);
+                ModuleStatus.clearInstance(); // Check if this resets
             }
             return exitStatus;
             //Runtime.getRuntime().exit(exitStatus); Stops the runtime execution
