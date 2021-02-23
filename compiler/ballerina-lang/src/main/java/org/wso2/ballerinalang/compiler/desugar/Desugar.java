@@ -385,6 +385,7 @@ public class Desugar extends BLangNodeVisitor {
     private List<BLangSimpleVariableDef> enclosingOnFailCallFunc = new ArrayList<>();
     private Map<BLangOnFailClause, BLangSimpleVarRef> enclosingShouldPanic = new HashMap<>();
     private List<BLangSimpleVarRef> enclosingShouldContinue = new ArrayList<>();
+    private BLangSimpleVarRef retryManagerRef;
 
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
@@ -1822,8 +1823,7 @@ public class Desugar extends BLangNodeVisitor {
         //      restVar = (<map<T>mapVarRef)
         //                       .entries()
         //                       .filter([key, val] => isKeyTakenLambdaInvoke())
-        //                       .map([key, val] => val)
-        //                       .constructFrom(errorDetail);
+        //                       .map([key, val] => val);
 
         BLangExpression typeCastExpr = addConversionExprIfRequired(mapVarRef, targetType);
 
@@ -1848,16 +1848,16 @@ public class Desugar extends BLangNodeVisitor {
                 filteredEntriesName);
 
         String filteredVarName = "$detail$filtered" + restNum;
-        BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(pos);
+        BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(pos, ((BMapType) targetType).constraint);
         BLangInvocation mapInvocation = generateMapMapInvocation(pos, filteredVar, backToMapLambda);
         BLangSimpleVariable filtered = defVariable(pos, targetType, parentBlockStmt,
                 mapInvocation,
                 filteredVarName);
 
         String filteredRestVarName = "$restVar$" + UNDERSCORE + restNum;
-        BLangInvocation constructed = generateCloneWithTypeInvocation(pos, targetType, filtered.symbol);
+
         return defVariable(pos, targetType, parentBlockStmt,
-                addConversionExprIfRequired(constructed, targetType),
+                addConversionExprIfRequired(createVariableRef(pos, filtered.symbol), targetType),
                 filteredRestVarName);
     }
 
@@ -1884,7 +1884,7 @@ public class Desugar extends BLangNodeVisitor {
         return invocationNode;
     }
 
-    private BLangLambdaFunction generateEntriesToMapLambda(Location pos) {
+    private BLangLambdaFunction generateEntriesToMapLambda(Location pos, BType constraint) {
         // var.map([key, val] => val)
 
         String anonfuncName = "$anonGetValFunc$" + UNDERSCORE + lambdaFunctionCount++;
@@ -1897,16 +1897,15 @@ public class Desugar extends BLangNodeVisitor {
                                                                            null, keyValSymbol);
         function.requiredParams.add(inputParameter);
 
-        BLangValueType anyType = new BLangValueType();
-        anyType.typeKind = TypeKind.ANY;
-        anyType.type = symTable.anyType;
-        function.returnTypeNode = anyType;
+        BLangUserDefinedType constraintTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        constraintTypeNode.type = constraint;
+        function.returnTypeNode = constraintTypeNode;
 
         BLangBlockFunctionBody functionBlock = ASTBuilderUtil.createBlockFunctionBody(pos, new ArrayList<>());
         function.body = functionBlock;
 
         BLangIndexBasedAccess indexBasesAccessExpr =
-                ASTBuilderUtil.createIndexBasesAccessExpr(pos, symTable.anyType, keyValSymbol,
+                ASTBuilderUtil.createIndexBasesAccessExpr(pos, constraint, keyValSymbol,
                                                           ASTBuilderUtil
                                                                   .createLiteral(pos, symTable.intType, (long) 1));
         BLangSimpleVariableDef tupSecondElem = createVarDef("$val", indexBasesAccessExpr.type,
@@ -1928,8 +1927,7 @@ public class Desugar extends BLangNodeVisitor {
                 .map(param -> param.symbol)
                 .collect(Collectors.toList());
         functionSymbol.scope = env.scope;
-        functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()),
-                symTable.anyType, null);
+        functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()), constraint, null);
         function.symbol = functionSymbol;
         rewrite(function, env);
         env.enclPkg.addFunction(function);
@@ -2750,6 +2748,7 @@ public class Desugar extends BLangNodeVisitor {
             result = rewrite(doStmt, env);
         } else {
             Location pos = retryNode.retryBody.pos;
+            BLangSimpleVarRef prevRetryManagerRef = this.retryManagerRef;
             BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
             retryBlockStmt.parent = env.enclInvokable;
             retryBlockStmt.scope = new Scope(env.scope.owner);
@@ -2772,7 +2771,7 @@ public class Desugar extends BLangNodeVisitor {
                     retryManagerVarDef.var.symbol.type, retryManagerVarRef, retryMangerRefVarSymbol);
             retryBlockStmt.scope.define(retryMangerRefVarSymbol.name, retryMangerRefVarSymbol);
             BLangSimpleVariableDef retryMangerRefDef = ASTBuilderUtil.createVariableDef(pos, retryMangerRefVar);
-            BLangSimpleVarRef retryManagerRef = ASTBuilderUtil.createVariableRef(pos, retryMangerRefVarSymbol);
+            this.retryManagerRef = ASTBuilderUtil.createVariableRef(pos, retryMangerRefVarSymbol);
             retryBlockStmt.stmts.add(retryMangerRefDef);
 
             // error? $retryResult$ = ();
@@ -2801,7 +2800,7 @@ public class Desugar extends BLangNodeVisitor {
 
             //while ((retryRes == ()) || (retryRes is error && shouldRetryRes)) {
             // }
-            BLangWhile whileLoop = createRetryWhileLoop(pos, retryNode.retryBody, retryManagerRef, retryResultRef,
+            BLangWhile whileLoop = createRetryWhileLoop(pos, retryNode.retryBody, this.retryManagerRef, retryResultRef,
                     shouldRetryRef, false);
             retryBlockStmt.stmts.add(whileLoop);
 
@@ -2860,6 +2859,7 @@ public class Desugar extends BLangNodeVisitor {
             // }
             result = rewrite(retryBlockStmt, env);
             enclosingShouldContinue.remove(enclosingShouldContinue.size() - 1);
+            this.retryManagerRef = prevRetryManagerRef;
         }
     }
 
@@ -3032,7 +3032,7 @@ public class Desugar extends BLangNodeVisitor {
 
     BLangInvocation createRetryManagerShouldRetryInvocation(Location location,
                                                             BLangSimpleVarRef managerVarRef,
-                                                            BLangSimpleVarRef trapResultRef) {
+                                                            BLangExpression trapResultRef) {
         BInvokableSymbol shouldRetryFuncSymbol = getShouldRetryFunc((BVarSymbol) managerVarRef.symbol).symbol;
         BLangInvocation shouldRetryInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         shouldRetryInvocation.pos = location;
@@ -3739,7 +3739,8 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
                     restPatternPos);
             tempBlockStmt.addStatement(filtersVarDef);
-            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
+                    ((BMapType) mappingBindingPattern.restBindingPattern.type).constraint);
             BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                     backToMapLambda);
             BLangSimpleVarRef restMatchPatternVarRef =
@@ -3871,7 +3872,8 @@ public class Desugar extends BLangNodeVisitor {
                 BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
                         restPatternPos);
                 restPatternBlock.addStatement(filtersVarDef);
-                BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+                BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
+                        ((BMapType) errorBindingPattern.errorFieldBindingPatterns.restBindingPattern.type).constraint);
                 BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                         backToMapLambda);
                 BLangSimpleVarRef restMatchPatternVarRef =
@@ -4014,7 +4016,8 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
                     restPatternPos);
             tempBlockStmt.addStatement(filtersVarDef);
-            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
+                    ((BMapType) restMatchPattern.type).constraint);
             BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                     backToMapLambda);
             BLangSimpleVarRef restMatchPatternVarRef = declaredVarDef.get(restMatchPattern.getIdentifier().getValue());
@@ -4196,7 +4199,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
                 restPatternPos);
         blockStmt.addStatement(filtersVarDef);
-        BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+        BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
+                ((BMapType) restBindingPattern.type).constraint);
         BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                 backToMapLambda);
         BLangSimpleVarRef restMatchPatternVarRef =
@@ -4302,7 +4306,8 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
                     restPatternPos);
             tempBlockStmt.addStatement(filtersVarDef);
-            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+            BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
+                    ((BMapType) restMatchPattern.type).constraint);
             BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                     backToMapLambda);
             BLangSimpleVarRef restMatchPatternVarRef =
@@ -4467,7 +4472,8 @@ public class Desugar extends BLangNodeVisitor {
                 BLangSimpleVariableDef filtersVarDef = createVarDef("$filteredVarDef$", entriesType, filterInvocation,
                         restPatternPos);
                 restPatternBlock.addStatement(filtersVarDef);
-                BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
+                BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos,
+                        ((BMapType) errorMatchPattern.errorFieldMatchPatterns.restMatchPattern.type).constraint);
                 BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                         backToMapLambda);
                 BLangSimpleVarRef restMatchPatternVarRef =
@@ -5106,7 +5112,8 @@ public class Desugar extends BLangNodeVisitor {
         //     $shouldCleanUp$ = true;
         //     check panic rollback $trxError$;
         // }
-        transactionDesugar.createRollbackIfFailed(pos, trxOnFailClause.body, trxOnFailErrorSym, trxBlockId);
+        transactionDesugar.createRollbackIfFailed(pos, trxOnFailClause.body, trxOnFailErrorSym,
+                trxBlockId, this.retryManagerRef);
 
         BLangGroupExpr shouldNotPanic = new BLangGroupExpr();
         shouldNotPanic.type = symTable.booleanType;
@@ -5253,7 +5260,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRollback rollbackNode) {
-        BLangBlockStmt rollbackStmtExpr = transactionDesugar.desugar(rollbackNode, trxBlockId);
+        BLangBlockStmt rollbackStmtExpr = transactionDesugar.desugar(rollbackNode, trxBlockId, this.retryManagerRef);
         result = rewrite(rollbackStmtExpr, env);
     }
 
@@ -5288,15 +5295,16 @@ public class Desugar extends BLangNodeVisitor {
         internalOnFail.body.stmts.add(continueLoopTrue);
 
         if (shouldRollback) {
-            transactionDesugar.createRollbackIfFailed(pos, internalOnFail.body, caughtErrorSym, trxBlockId);
+            transactionDesugar.createRollbackIfFailed(pos, internalOnFail.body, caughtErrorSym,
+                    trxBlockId, this.retryManagerRef);
+        } else {
+            // $shouldRetry$ = $retryManager$.shouldRetry();
+            BLangInvocation shouldRetryInvocation = createRetryManagerShouldRetryInvocation(pos,
+                    retryManagerRef, caughtErrorRef);
+            BLangAssignment shouldRetryAssignment = ASTBuilderUtil.createAssignmentStmt(pos, shouldRetryRef,
+                    shouldRetryInvocation);
+            internalOnFail.body.stmts.add(shouldRetryAssignment);
         }
-
-        // $shouldRetry$ = $retryManager$.shouldRetry();
-        BLangInvocation shouldRetryInvocation = createRetryManagerShouldRetryInvocation(pos,
-                retryManagerRef, caughtErrorRef);
-        BLangAssignment shouldRetryAssignment = ASTBuilderUtil.createAssignmentStmt(pos, shouldRetryRef,
-        shouldRetryInvocation);
-        internalOnFail.body.stmts.add(shouldRetryAssignment);
 
         BLangGroupExpr shouldNotRetryCheck = new BLangGroupExpr();
         shouldNotRetryCheck.type = symTable.booleanType;

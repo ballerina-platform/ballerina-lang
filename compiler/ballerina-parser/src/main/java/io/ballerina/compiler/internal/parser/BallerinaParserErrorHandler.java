@@ -1159,7 +1159,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.SYNC_SEND_TOKEN;
                     break;
                 case PEER_WORKER_NAME:
-                    hasMatch = nextToken.kind == SyntaxKind.DEFAULT_KEYWORD ||
+                    hasMatch = nextToken.kind == SyntaxKind.FUNCTION_KEYWORD ||
                             nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case LEFT_ARROW_TOKEN:
@@ -1314,7 +1314,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BY_KEYWORD:
             case START_KEYWORD:
             case FLUSH_KEYWORD:
-            case DEFAULT_KEYWORD:
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
             case WAIT_KEYWORD:
             case CHECKING_KEYWORD:
@@ -3469,7 +3468,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FLUSH_KEYWORD:
                 return ParserRuleContext.OPTIONAL_PEER_WORKER;
             case PEER_WORKER_NAME:
-            case DEFAULT_KEYWORD:
                 if (getParentContext() == ParserRuleContext.MULTI_RECEIVE_WORKERS) {
                     return ParserRuleContext.RECEIVE_FIELD_END;
                 }
@@ -5334,10 +5332,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.START_KEYWORD;
             case FLUSH_KEYWORD:
                 return SyntaxKind.FLUSH_KEYWORD;
-            case DEFAULT_KEYWORD:
             case OPTIONAL_PEER_WORKER:
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
-                return SyntaxKind.DEFAULT_KEYWORD;
+                return SyntaxKind.FUNCTION_KEYWORD;
             case WAIT_KEYWORD:
                 return SyntaxKind.WAIT_KEYWORD;
             case TRANSACTION_KEYWORD:
