@@ -156,7 +156,7 @@ public class BallerinaXmlSerializer extends OutputStream {
         int length = chars.length;
         CharArrayWriter writer = new CharArrayWriter(length);
         int i;
-        for(i = 0; i < length; i++) {
+        for (i = 0; i < length; i++) {
             char c = chars[i];
             switch (c) {
                 case '<':
