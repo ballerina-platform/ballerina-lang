@@ -1,2 +1,3 @@
 [main]
-foo = 22
+stringVar = "required"
+foo = 22 #this is a submodule

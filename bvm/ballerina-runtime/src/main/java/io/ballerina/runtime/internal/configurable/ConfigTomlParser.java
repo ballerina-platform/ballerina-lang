@@ -52,15 +52,19 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.ballerina.runtime.internal.configurable.ConfigUtils.getEffectiveTomlType;
 import static io.ballerina.runtime.internal.configurable.ConfigUtils.getTomlTypeString;
 import static io.ballerina.runtime.internal.configurable.ConfigUtils.isPrimitiveType;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIG_FILE_NOT_FOUND;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONSTRAINT_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.DEFAULT_MODULE;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.EMPTY_CONFIG_FILE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.FIELD_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_ADDITIONAL_FIELD_IN_RECORD;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_BYTE_RANGE;
@@ -69,6 +73,7 @@ import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.I
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.REQUIRED_FIELD_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.SUBMODULE_DELIMITER;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.TABLE_KEY_NOT_PROVIDED;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.VALUE_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 
 /**
@@ -81,46 +86,87 @@ public class ConfigTomlParser {
     private ConfigTomlParser() {
     }
 
-    private static TomlTableNode getConfigurationData(Path configFilePath) {
+    private static TomlTableNode getConfigurationData(Path configFilePath, Set<String> requiredModules) {
+        boolean hasRequired = !requiredModules.isEmpty();
+        TomlTableNode tomlNode = null;
         if (!Files.exists(configFilePath)) {
-            return null;
+            if (hasRequired) {
+                throw new TomlException(String.format(CONFIG_FILE_NOT_FOUND, configFilePath));
+            } else {
+                return tomlNode;
+            }
         }
         ConfigToml configToml = new ConfigToml(configFilePath);
-        return configToml.tomlAstNode();
+        tomlNode = configToml.tomlAstNode();
+        if (tomlNode.entries().isEmpty() && hasRequired) {
+            throw new TomlException(String.format(EMPTY_CONFIG_FILE, configFilePath));
+        }
+        return tomlNode;
     }
 
     public static void populateConfigMap(Path filePath, Map<Module, VariableKey[]> configurationData) {
         if (configurationData.isEmpty()) {
             return;
         }
-        TomlTableNode tomlNode = getConfigurationData(filePath);
-        if (tomlNode == null || tomlNode.entries().isEmpty()) {
-            //No values provided at toml file
+        Set<String> requiredModules = getRequiredDetails(configurationData);
+        TomlTableNode tomlNode = getConfigurationData(filePath, requiredModules);
+        if (tomlNode == null) {
+            // modules contain only defaultable configurables
             return;
         }
         for (Map.Entry<Module, VariableKey[]> moduleEntry : configurationData.entrySet()) {
-            TomlTableNode moduleNode = retrieveModuleNode(tomlNode, moduleEntry.getKey());
+            Module module = moduleEntry.getKey();
+            String moduleName = module.getName();
+            boolean hasRequired = requiredModules.contains(moduleName);
+            TomlTableNode moduleNode = retrieveModuleNode(tomlNode, module, hasRequired);
             if (moduleNode == null) {
-                //Module could contain optional configurable variable
+                //Module contains optional configurable variable
                 continue;
             }
-            for (VariableKey key : moduleEntry.getValue()) {
-                if (!moduleNode.entries().containsKey(key.variable)) {
-                    //It is an optional configurable variable
-                    continue;
-                }
-                ConfigurableMap.put(key, validateNodeAndExtractValue(key, moduleNode.entries()));
-            }
+            checkAndPopulateVariables(moduleEntry.getValue(), moduleName, moduleNode);
         }
     }
 
-    private static TomlTableNode retrieveModuleNode(TomlTableNode tomlNode, Module module) {
+    private static void checkAndPopulateVariables(VariableKey[] variableKeys, String moduleName,
+                                                  TomlTableNode moduleNode) {
+        for (VariableKey key : variableKeys) {
+            String configVarName = key.variable;
+            if (!moduleNode.entries().containsKey(configVarName)) {
+                if (key.isRequired) {
+                    configVarName =
+                            (moduleName.equals(DEFAULT_MODULE)) ? configVarName : moduleName + ":" + configVarName;
+                    throw new TomlException(String.format(VALUE_NOT_PROVIDED, configVarName));
+                } else {
+                    //It is an optional configurable variable
+                    continue;
+                }
+            }
+            ConfigurableMap.put(key, validateNodeAndExtractValue(key, moduleNode.entries()));
+        }
+    }
+
+    private static Set<String> getRequiredDetails(Map<Module, VariableKey[]> configurationData) {
+        Set<String> modules = new HashSet<>();
+        for (Map.Entry<Module, VariableKey[]> moduleEntry : configurationData.entrySet()) {
+            for (VariableKey key : moduleEntry.getValue()) {
+                if (key.isRequired) {
+                    modules.add(key.module.getName());
+                }
+            }
+        }
+        return modules;
+    }
+
+    private static TomlTableNode retrieveModuleNode(TomlTableNode tomlNode, Module module, boolean hasRequired) {
         String orgName = module.getOrg();
         String moduleName = module.getName();
+        if (moduleName.equals(DEFAULT_MODULE)) {
+            return tomlNode;
+        }
         if (tomlNode.entries().containsKey(orgName)) {
             tomlNode = validateAndGetModuleStructure(tomlNode, orgName, orgName + SUBMODULE_DELIMITER + moduleName);
         }
-        return moduleName.equals(DEFAULT_MODULE) ? tomlNode : extractModuleNode(tomlNode, moduleName, moduleName);
+        return extractModuleNode(tomlNode, moduleName, moduleName, hasRequired);
     }
 
     private static TomlTableNode validateAndGetModuleStructure(TomlTableNode tomlNode, String key, String moduleName) {
@@ -131,7 +177,8 @@ public class ConfigTomlParser {
         return (TomlTableNode) retrievedNode;
     }
 
-    private static TomlTableNode extractModuleNode(TomlTableNode orgNode, String moduleName, String fullModuleName) {
+    private static TomlTableNode extractModuleNode(TomlTableNode orgNode, String moduleName, String fullModuleName,
+                                                   boolean hasRequired) {
         if (orgNode == null) {
             return orgNode;
         }
@@ -139,11 +186,14 @@ public class ConfigTomlParser {
         int subModuleIndex = moduleName.indexOf(SUBMODULE_DELIMITER);
         if (subModuleIndex == -1) {
             moduleNode = validateAndGetModuleStructure(orgNode, moduleName, fullModuleName);
+            if (moduleNode == null && hasRequired) {
+                throw new TomlException(String.format(INVALID_MODULE_STRUCTURE, fullModuleName, fullModuleName));
+            }
         } else if (subModuleIndex != moduleName.length()) {
             String parent = moduleName.substring(0, subModuleIndex);
             String submodule = moduleName.substring(subModuleIndex + 1);
             moduleNode = extractModuleNode(validateAndGetModuleStructure(moduleNode, parent, fullModuleName), submodule,
-                    fullModuleName);
+                    fullModuleName, hasRequired);
         }
         return moduleNode;
     }
