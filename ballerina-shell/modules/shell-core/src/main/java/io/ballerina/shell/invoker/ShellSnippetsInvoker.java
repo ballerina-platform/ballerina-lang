@@ -189,7 +189,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         Mustache template = getTemplate(templateFile);
         try (StringWriter stringWriter = new StringWriter()) {
             template.execute(stringWriter, context);
-            return getProject(stringWriter.toString());
+            return getProject(stringWriter.toString(), true);
         } catch (IOException e) {
             addErrorDiagnostic("File generation failed: " + e.getMessage());
             throw new InvokerException(e);
@@ -199,14 +199,15 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     /**
      * Get the project with the context data.
      *
-     * @param source Source to use for generating project.
+     * @param source    Source to use for generating project.
+     * @param isOffline Whether to use offline flag for build options.
      * @return Created ballerina project.
      * @throws InvokerException If file writing failed.
      */
-    protected Project getProject(String source) throws InvokerException {
+    protected Project getProject(String source, boolean isOffline) throws InvokerException {
         try {
             File mainBal = writeToFile(source);
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+            BuildOptions buildOptions = new BuildOptionsBuilder().offline(isOffline).build();
             return SingleFileProject.load(mainBal.toPath(), buildOptions);
         } catch (IOException e) {
             addErrorDiagnostic("File writing failed: " + e.getMessage());
@@ -259,7 +260,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @throws InvokerException If import cannot be resolved.
      */
     protected void compileImportStatement(String importStatement) throws InvokerException {
-        Project project = getProject(importStatement);
+        Project project = getProject(importStatement, false);
         PackageCompilation compilation = project.currentPackage().getCompilation();
 
         // Detect if import is valid.
