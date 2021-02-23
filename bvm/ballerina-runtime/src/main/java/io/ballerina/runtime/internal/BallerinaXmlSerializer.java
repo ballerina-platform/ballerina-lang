@@ -58,7 +58,7 @@ public class BallerinaXmlSerializer extends OutputStream {
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
-    private boolean withInElement;
+    private boolean withinElement;
 
     static {
         xmlOutputFactory = XMLOutputFactory.newInstance();
@@ -138,7 +138,7 @@ public class BallerinaXmlSerializer extends OutputStream {
 
     private void writeXMLText(XmlText xmlValue) throws XMLStreamException {
         // No need to escape xml text when they are within xml element, it's handle from xml stream writer.
-        if (this.withInElement) {
+        if (this.withinElement) {
             String textValue = xmlValue.getTextValue();
             if (!textValue.isEmpty()) {
                 xmlStreamWriter.writeCharacters(textValue);
@@ -196,10 +196,10 @@ public class BallerinaXmlSerializer extends OutputStream {
         writeAttributes(currentNSLevel, attributeMap);
 
         // Track and override xml text escape when xml text is within an element.
-        boolean prevWithInElementFlag = withInElement;
-        withInElement = true;
+        boolean prevWithinElementFlag = withinElement;
+        withinElement = true;
         xmlValue.getChildrenSeq().serialize(this);
-        withInElement = prevWithInElementFlag;
+        withinElement = prevWithinElementFlag;
 
         xmlStreamWriter.writeEndElement();
         // Reset namespace decl hierarchy for this node.
