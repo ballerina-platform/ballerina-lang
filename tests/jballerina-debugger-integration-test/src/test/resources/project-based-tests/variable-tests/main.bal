@@ -94,6 +94,12 @@ const map<string> nameMap = {"name":"John"};
 const nilWithoutType = ();
 const () nilWithType = ();
 
+// enums
+enum Color {
+    RED,
+    BLUE = "Blue"
+}
+
 // global variables
 var stringValue = "Ballerina";
 var decimalValue = 100.0d;
@@ -101,6 +107,9 @@ var byteValue = <byte>2;
 var floatValue = 2.0;
 json jsonVar = {name:"John", age:20};
 var '\ \/\:\@\[\`\{\~\u{2324}_IL = "IL with global var";
+
+// configurable variables
+configurable int port = ?;
 
 public function main() {
     //------------------------ basic, simple type variables ------------------------//
@@ -180,6 +189,51 @@ public function main() {
     string '\ \/\:\@\[\`\{\~\u{2324}_var = "IL with special characters in var";
     string 'üňĩćőđę_var = "IL with unicode characters in var";
     json 'ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{2324}_json = {};
+    
+    // variable visibility in 'if' statement
+    if (true) {
+        intVar = 1;
+    }
+
+    // variable visibility in 'else' statement
+    if (false) {
+        intVar = 2;
+    } else {
+        intVar = 3;
+    }
+
+    // variable visibility in 'else-if' statement
+    if (false) {
+        intVar = 4;
+    } else if (true) {
+        intVar = 5;
+    } else {
+        intVar = 6;
+    }
+
+    // variable visibility in 'while' loop
+    while (true) {
+        if (intVar >= 1) {
+            intVar = 7;
+            break;
+        }
+    }
+
+    // variable visibility in 'foreach' loop
+    foreach string str in nameMap {
+        intVar = intVar + 1;
+    }
+
+    // variable visibility in 'match' statement
+    foreach var str in nameMap {
+        match str {
+            "John" => {
+                intVar = 8;
+            }
+        }
+    }
+    
+    intVar = addition(2, 3);
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {
@@ -199,4 +253,8 @@ function printDetails(string name, int age = 18, string... modules) returns stri
         moduleString = "Module(s): " + modules[0];
     }
     return  string `[${name}, ${age}, ${moduleString}]`;
+}
+
+function addition(int a, int b) returns int {
+    return a + b;
 }

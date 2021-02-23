@@ -30,6 +30,7 @@ import org.jacoco.core.analysis.IBundleCoverage;
 import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
+import org.jacoco.core.internal.analysis.BundleCoverageImpl;
 import org.jacoco.core.tools.ExecFileLoader;
 import org.jacoco.report.IReportVisitor;
 import org.jacoco.report.xml.XMLFormatter;
@@ -115,11 +116,9 @@ public class CoverageReport {
             }
 
             execFileLoader.load(executionDataFile.toFile());
-            final IBundleCoverage bundleCoverage = analyzeStructure();
-
-            createReport(bundleCoverage, moduleCoverageMap);
-
-            createXMLReport(bundleCoverage);
+            final CoverageBuilder coverageBuilder = analyzeStructure();
+            createReport(coverageBuilder.getBundle(title), moduleCoverageMap);
+            createXMLReport(getPartialCoverageModifiedBundle(coverageBuilder));
             CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
         } else {
             String msg = "Unable to generate code coverage for the module " + packageName + ". Jar files dont exist.";
@@ -127,11 +126,16 @@ public class CoverageReport {
         }
     }
 
-    private IBundleCoverage analyzeStructure() throws IOException {
+    private CoverageBuilder analyzeStructure() throws IOException {
         final CoverageBuilder coverageBuilder = new CoverageBuilder();
         final Analyzer analyzer = new Analyzer(execFileLoader.getExecutionDataStore(), coverageBuilder);
         analyzer.analyzeAll(classesDirectory.toFile());
-        return coverageBuilder.getBundle(title);
+        return coverageBuilder;
+    }
+
+    private IBundleCoverage getPartialCoverageModifiedBundle(CoverageBuilder coverageBuilder) {
+        return new BundleCoverageImpl(title, coverageBuilder.getClasses(),
+                modifySourceFiles(coverageBuilder.getSourceFiles()));
     }
 
     private void createXMLReport(IBundleCoverage bundleCoverage) throws IOException {
@@ -227,7 +231,6 @@ public class CoverageReport {
                     }
                 }
             }
-
         }
     }
 
@@ -277,5 +280,29 @@ public class CoverageReport {
             }
         }
         return document;
+
+    private Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {
+        Collection<ISourceFileCoverage> modifiedSourceFiles = new ArrayList<>();
+        for (ISourceFileCoverage sourcefile : sourcefiles) {
+            if (sourcefile.getName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                List<ILine> modifiedLines = modifyLines(sourcefile);
+                ISourceFileCoverage modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
+                        modifiedLines);
+                modifiedSourceFiles.add(modifiedSourceFile);
+            } else {
+                modifiedSourceFiles.add(sourcefile);
+            }
+        }
+        return modifiedSourceFiles;
+    }
+
+    private List<ILine> modifyLines(ISourceFileCoverage sourcefile) {
+        List<ILine> modifiedLines = new ArrayList<>();
+        for (int i = sourcefile.getFirstLine(); i <= sourcefile.getLastLine(); i++) {
+            ILine line = sourcefile.getLine(i);
+            ILine modifiedLine = new PartialCoverageModifiedLine(line.getInstructionCounter(), line.getBranchCounter());
+            modifiedLines.add(modifiedLine);
+        }
+        return modifiedLines;
     }
 }
