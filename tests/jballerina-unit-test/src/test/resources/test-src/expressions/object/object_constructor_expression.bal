@@ -352,7 +352,7 @@ function assertFalse(any|error actual) {
 }
 
 function assertValueEquality(anydata|error expected, anydata|error actual) {
-    if isEqual(expected, actual) {
+    if isEqual(actual, expected) {
         return;
     }
 

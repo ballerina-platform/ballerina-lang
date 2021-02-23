@@ -398,7 +398,7 @@ public function testCloneMapWithError() returns boolean {
     };
     map<error> errMapFromValue = <map<error>> checkpanic ma["errMap"];
 
-    map<value:Cloneable> clonedMap = <map<value:Cloneable>> ma.clone();
+    map<value:Cloneable> clonedMap = ma.clone();
 
     boolean cloneSuccessful = ma !== clonedMap && <int> checkpanic ma["one"] == <int> checkpanic clonedMap["one"] &&
                                 <string> checkpanic ma["two"] == <string> checkpanic clonedMap["two"];
