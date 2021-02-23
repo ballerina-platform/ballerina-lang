@@ -805,19 +805,16 @@ public class BallerinaParser extends AbstractParser {
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
                 if (isModuleVarDeclStart(1)) {
-                    reportInvalidQualifier(publicQualifier);
-                    return parseModuleVarDecl(metadata, qualifiers);
+                    return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
                 }
                 // fall through
             default:
-                if (isPossibleServiceDecl(qualifiers)) {
-                    reportInvalidQualifier(publicQualifier);
+                if (publicQualifier == null && isPossibleServiceDecl(qualifiers)) {
                     return parseServiceDeclOrVarDecl(metadata, qualifiers);
                 }
 
                 if (isTypeStartingToken(nextToken.kind) && nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
-                    reportInvalidQualifier(publicQualifier);
-                    return parseModuleVarDecl(metadata, qualifiers);
+                    return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
                 }
 
                 STToken token = peek();
@@ -828,8 +825,7 @@ public class BallerinaParser extends AbstractParser {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
                     // at the correct place, but some token after that is not. There only one such
                     // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
-                    reportInvalidQualifier(publicQualifier);
-                    return parseModuleVarDecl(metadata, qualifiers);
+                    return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
                 }
 
                 return parseTopLevelNode(metadata, publicQualifier, qualifiers);
@@ -838,7 +834,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseModuleVarDecl(STNode metadata) {
         List<STNode> emptyList = new ArrayList<>();
-        return parseVariableDecl(metadata, emptyList, emptyList, true);
+        return parseVariableDecl(metadata, null, emptyList, emptyList, true);
     }
 
     /**
@@ -849,20 +845,22 @@ public class BallerinaParser extends AbstractParser {
      * <code>
      * module-var-decl := module-init-var-decl | module-no-init-var-decl
      * <br/><br/>
-     * module-init-var-decl := metadata isolated-final-quals typed-binding-pattern = expression ;
+     * module-init-var-decl := metadata [public] module-init-var-quals typed-binding-pattern = module-var-init ;
      * <br/><br/>
-     * module-no-init-var-decl := metadata [final] type-descriptor variable-name ;
+     * module-no-init-var-decl := metadata [public] [final] type-descriptor variable-name ;
      * <br/><br/>
-     * isolated-final-quals := (final | isolated-qual)*
+     * module-init-var-quals := (final | isolated-qual | configurable)*
+     * <br/><br/>
+     * module-var-init := expression | ?
      * </code>
      *
      * @param metadata           Preceding metadata
      * @param topLevelQualifiers Preceding top level qualifiers
      * @return Parsed node
      */
-    private STNode parseModuleVarDecl(STNode metadata, List<STNode> topLevelQualifiers) {
+    private STNode parseModuleVarDecl(STNode metadata, STNode publicQualifier, List<STNode> topLevelQualifiers) {
         List<STNode> varDeclQuals = extractVarDeclQualifiers(topLevelQualifiers);
-        return parseVariableDecl(metadata, varDeclQuals, topLevelQualifiers, true);
+        return parseVariableDecl(metadata, publicQualifier, varDeclQuals, topLevelQualifiers, true);
     }
 
     private List<STNode> extractVarDeclQualifiers(List<STNode> qualifiers) {
@@ -4074,7 +4072,7 @@ public class BallerinaParser extends AbstractParser {
                     // If the statement starts with a type, then its a var declaration.
                     // This is an optimization since if we know the next token is a type, then
                     // we can parse the var-def faster.
-                    return parseVariableDecl(getAnnotations(annots), new ArrayList<>(), qualifiers, false);
+                    return parseVariableDecl(getAnnotations(annots), null, new ArrayList<>(), qualifiers, false);
                 }
 
                 STToken token = peek();
@@ -4093,7 +4091,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * <p>
-     * Parse variable declaration. Variable declaration can be a local or module level.
+     * Parse local variable declaration.
      * </p>
      *
      * <code>
@@ -4114,16 +4112,15 @@ public class BallerinaParser extends AbstractParser {
         if (finalKeyword != null) {
             varDecQualifiers.add(finalKeyword);
         }
-        return parseVariableDecl(annots, varDecQualifiers, typeDescQualifiers, false);
+        return parseVariableDecl(annots, null, varDecQualifiers, typeDescQualifiers, false);
     }
 
-    private STNode parseVariableDecl(STNode annots, List<STNode> varDeclQuals,
-                                     List<STNode> typeDescQualifiers,
-                                     boolean isModuleVar) {
+    private STNode parseVariableDecl(STNode annots, STNode publicQualifier, List<STNode> varDeclQuals,
+                                     List<STNode> typeDescQualifiers, boolean isModuleVar) {
         startContext(ParserRuleContext.VAR_DECL_STMT);
         STNode typeBindingPattern = parseTypedBindingPattern(typeDescQualifiers,
                 ParserRuleContext.VAR_DECL_STMT);
-        return parseVarDeclRhs(annots, varDeclQuals, typeBindingPattern, isModuleVar);
+        return parseVarDeclRhs(annots, publicQualifier, varDeclQuals, typeBindingPattern, isModuleVar);
     }
 
     private STNode parseVarDeclTypeDescRhs(STNode typeDesc, STNode metadata, List<STNode> qualifiers,
@@ -4151,8 +4148,13 @@ public class BallerinaParser extends AbstractParser {
      * @param typedBindingPattern     Typed binding pattern
      * @return Parsed node
      */
-    private STNode parseVarDeclRhs(STNode metadata, List<STNode> varDeclQuals, STNode typedBindingPattern,
-                                   boolean isModuleVar) {
+    private STNode parseVarDeclRhs(STNode metadata, List<STNode> varDeclQuals,
+                                   STNode typedBindingPattern, boolean isModuleVar) {
+        return parseVarDeclRhs(metadata, null, varDeclQuals, typedBindingPattern, isModuleVar);
+    }
+
+    private STNode parseVarDeclRhs(STNode metadata, STNode publicQualifier, List<STNode> varDeclQuals,
+                                   STNode typedBindingPattern, boolean isModuleVar) {
         STNode assign;
         STNode expr;
         STNode semicolon;
@@ -4187,13 +4189,13 @@ public class BallerinaParser extends AbstractParser {
             default:
                 recover(nextToken, ParserRuleContext.VAR_DECL_STMT_RHS, metadata, varDeclQuals,
                         typedBindingPattern, isModuleVar);
-                return parseVarDeclRhs(metadata, varDeclQuals, typedBindingPattern, isModuleVar);
+                return parseVarDeclRhs(metadata, publicQualifier, varDeclQuals, typedBindingPattern, isModuleVar);
         }
 
         endContext();
         if (isModuleVar) {
-            return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr,
-                    semicolon, isConfigurable, hasVarInit);
+            return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign,
+                    expr, semicolon, isConfigurable, hasVarInit);
         }
 
         STNode finalKeyword;
@@ -4225,11 +4227,12 @@ public class BallerinaParser extends AbstractParser {
         return expr;
     }
 
-    private STNode createModuleVarDeclaration(STNode metadata, List<STNode> varDeclQuals,
+    private STNode createModuleVarDeclaration(STNode metadata, STNode publicQualifier, List<STNode> varDeclQuals,
                                               STNode typedBindingPattern, STNode assign, STNode expr, STNode semicolon,
                                               boolean isConfigurable, boolean hasVarInit) {
         if (hasVarInit || varDeclQuals.isEmpty()) {
-            return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
+            return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign,
+                    expr, semicolon);
         }
 
         if (isConfigurable) {
@@ -4239,7 +4242,8 @@ public class BallerinaParser extends AbstractParser {
                     DiagnosticErrorCode.ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED);
             STToken questionMarkToken = SyntaxErrors.createMissingToken(SyntaxKind.QUESTION_MARK_TOKEN);
             expr = STNodeFactory.createRequiredExpressionNode(questionMarkToken);
-            return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
+            return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign,
+                    expr, semicolon);
         }
 
         // If following 3 conditions are satisfied, we should let isolated qualifier to be a part of the type.
@@ -4253,15 +4257,24 @@ public class BallerinaParser extends AbstractParser {
                     modifyTypedBindingPatternWithIsolatedQualifier(typedBindingPattern, lastQualifier);
         }
 
-        return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
+        // If `isolated` keyword is still in varDeclQuals then it belongs to var declaration qualifiers.
+        // Hence, invalidate public qualifier since isolated var cannot be declared as public.
+        if (isSyntaxKindInList(varDeclQuals, SyntaxKind.ISOLATED_KEYWORD)) {
+            updateFirstNodeInListWithLeadingInvalidNode(varDeclQuals, publicQualifier,
+                    DiagnosticErrorCode.ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC);
+            publicQualifier = STNodeFactory.createEmptyNode();
+        }
+
+        return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign, expr,
+                semicolon);
     }
 
     // Do not use this method directly.
-    private STNode createModuleVarDeclaration(STNode metadata, List<STNode> varDeclQuals,
+    private STNode createModuleVarDeclaration(STNode metadata, STNode publicQualifier, List<STNode> varDeclQuals,
                                               STNode typedBindingPattern, STNode assign,
                                               STNode expr, STNode semicolon) {
         STNode varDeclQualifiersNode = STNodeFactory.createNodeList(varDeclQuals);
-        return STNodeFactory.createModuleVariableDeclarationNode(metadata, varDeclQualifiersNode,
+        return STNodeFactory.createModuleVariableDeclarationNode(metadata, publicQualifier, varDeclQualifiersNode,
                 typedBindingPattern, assign, expr, semicolon);
     }
 
@@ -17071,7 +17084,7 @@ public class BallerinaParser extends AbstractParser {
         STNode qualifiedNameRef = STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
         STNode typeDesc = mergeQualifiedNameWithTypeDesc(qualifiedNameRef,
                 ((STTypedBindingPatternNode) typedBPOrExpr).typeDescriptor);
-        return parseVarDeclRhs(annots, varDeclQualifiers, typeDesc, false);
+        return parseVarDeclRhs(annots, null, varDeclQualifiers, typeDesc, false);
     }
 
     /**
