@@ -52,6 +52,7 @@ import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
 import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -175,7 +176,7 @@ public class PushCommand implements BLauncherCmd {
 
     private void pushPackage(BuildProject project) {
         Path balaFilePath = validateBalaFile(project);
-        pushBalaToCustom(balaFilePath);
+        pushBalaToCustomRepo(balaFilePath);
         errStream.println("Successfully pushed " + userDir.relativize(balaFilePath)
                 + " to '" + repositoryName + "' repository.");
     }
@@ -232,27 +233,30 @@ public class PushCommand implements BLauncherCmd {
         return packageBalaFile;
     }
 
-    private void pushBalaToCustom(Path balaFilePath) {
+    private void pushBalaToCustomRepo(Path balaFilePath) {
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
         BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaFilePath);
+
         Path repoPath = RepoUtils.createAndGetHomeReposPath()
                 .resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(ProjectConstants.LOCAL_REPOSITORY_NAME);
-        String balaName = Optional.of(balaFilePath.getFileName()).get().toString();
         String org = balaProject.currentPackage().packageOrg().value();
         String packageName = balaProject.currentPackage().packageName().value();
         String version = balaProject.currentPackage().packageVersion().toString();
-        String platform = ProjectUtils.getPlatformFromBala(balaName, packageName, version);
-        Path balaFileDestPath = repoPath.resolve(ProjectConstants.BALA_DIR_NAME)
+        String platform = balaProject.platform();
+
+        Path balaDestPath = repoPath.resolve(ProjectConstants.BALA_DIR_NAME)
                 .resolve(org).resolve(packageName).resolve(version).resolve(platform);
+        Path balaCachesPath = repoPath.resolve(CACHES_DIR_NAME).resolve(org).resolve(packageName).resolve(version);
         try {
-            Path balaCachePath = repoPath.resolve(ProjectConstants.CACHES_DIR_NAME)
-                    .resolve(org).resolve(packageName).resolve(version);
-            if (Files.exists(balaCachePath)) {
-                ProjectUtils.deleteDirectory(balaCachePath);
+            if (Files.exists(balaDestPath)) {
+                ProjectUtils.deleteDirectory(balaDestPath);
             }
-            ProjectUtils.extractBala(balaFilePath, balaFileDestPath);
+            if (Files.exists(balaCachesPath)) {
+                ProjectUtils.deleteDirectory(balaCachesPath);
+            }
+            ProjectUtils.extractBala(balaFilePath, balaDestPath);
         } catch (IOException e) {
             throw new ProjectException("error while pushing bala file '" + balaFilePath + "' to '"
                     + ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository. " + e.getMessage());

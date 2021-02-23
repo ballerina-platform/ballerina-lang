@@ -133,7 +133,7 @@ public class DefaultPackageResolver implements PackageResolver {
         //       2) central --> if the version is not in local, then make a remote call
         if (requestedPkgDesc.version() != null) {
             if (resolutionRequest.repositoryName() != null) {
-                if(!customRepositories.containsKey(resolutionRequest.repositoryName())) {
+                if (!customRepositories.containsKey(resolutionRequest.repositoryName())) {
                     // TODO: add to diagnostic
                     return null;
                 }
@@ -158,7 +158,8 @@ public class DefaultPackageResolver implements PackageResolver {
         // Resolve from custom local repository if specified
         if (resolutionRequest.repositoryName() != null) {
             pkgRepoThatContainsLatestVersion = customRepositories.get(resolutionRequest.repositoryName());
-            List<PackageVersion> versionsInCustomRepo = pkgRepoThatContainsLatestVersion.getPackageVersions(resolutionRequest);
+            List<PackageVersion> versionsInCustomRepo = pkgRepoThatContainsLatestVersion
+                    .getPackageVersions(resolutionRequest);
             if (versionsInCustomRepo.isEmpty()) {
                 return null;
             }

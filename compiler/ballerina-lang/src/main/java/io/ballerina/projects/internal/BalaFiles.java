@@ -40,7 +40,6 @@ import io.ballerina.projects.util.ProjectUtils;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -190,44 +189,36 @@ public class BalaFiles {
     }
 
     static DependencyGraphResult createPackageDependencyGraph(Path balaPath) {
+        DependencyGraphResult dependencyGraphResult;
         if (balaPath.toFile().isDirectory()) {
-            return createPackageDependencyGraphFromBalaDir(balaPath);
-        } else {
-            return createPackageDependencyGraphFromBalaFile(balaPath);
-        }
-    }
-
-    private static DependencyGraphResult createPackageDependencyGraphFromBalaFile(Path balaPath) {
-        URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri().toString());
-        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-            Path dependencyGraphJsonPath = zipFileSystem.getPath(DEPENDENCY_GRAPH_JSON);
+            Path dependencyGraphJsonPath = balaPath.resolve(DEPENDENCY_GRAPH_JSON);
             if (Files.notExists(dependencyGraphJsonPath)) {
                 throw new ProjectException(DEPENDENCY_GRAPH_JSON + " does not exists in '" + balaPath + "'");
             }
-
-            // Load `dependency-graph.json`
-            DependencyGraphJson dependencyGraphJson = readDependencyGraphJson(balaPath, dependencyGraphJsonPath);
-
-            DependencyGraph<PackageDescriptor> packageDependencyGraph = createPackageDependencyGraph(
-                    dependencyGraphJson.getPackageDependencyGraph());
-            Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDescriptorListMap = createModuleDescDependencies(
-                    dependencyGraphJson.getModuleDependencies());
-
-            return new DependencyGraphResult(packageDependencyGraph, moduleDescriptorListMap);
-
-        } catch (IOException e) {
-            throw new ProjectException("Failed to read bala file:" + balaPath);
+            dependencyGraphResult = createPackageDependencyGraph(balaPath, dependencyGraphJsonPath);
+        } else {
+            URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri().toString());
+            try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+                Path dependencyGraphJsonPath = zipFileSystem.getPath(DEPENDENCY_GRAPH_JSON);
+                if (Files.notExists(dependencyGraphJsonPath)) {
+                    throw new ProjectException(DEPENDENCY_GRAPH_JSON + " does not exists in '" + balaPath + "'");
+                }
+                dependencyGraphResult = createPackageDependencyGraph(balaPath, dependencyGraphJsonPath);
+            } catch (IOException e) {
+                throw new ProjectException("Failed to read balr file:" + balaPath);
+            }
         }
+        return dependencyGraphResult;
     }
 
-    private static DependencyGraphResult createPackageDependencyGraphFromBalaDir(Path balaPath) {
-        Path dependencyGraphJsonPath = balaPath.resolve(DEPENDENCY_GRAPH_JSON);
+    private static DependencyGraphResult createPackageDependencyGraph(Path balaPath, Path dependencyGraphJsonPath) {
         if (Files.notExists(dependencyGraphJsonPath)) {
             throw new ProjectException(DEPENDENCY_GRAPH_JSON + " does not exists in '" + balaPath + "'");
         }
 
         // Load `dependency-graph.json`
         DependencyGraphJson dependencyGraphJson = readDependencyGraphJson(balaPath, dependencyGraphJsonPath);
+
         DependencyGraph<PackageDescriptor> packageDependencyGraph = createPackageDependencyGraph(
                 dependencyGraphJson.getPackageDependencyGraph());
         Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDescriptorListMap = createModuleDescDependencies(
@@ -413,5 +404,28 @@ public class BalaFiles {
         public Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDependencies() {
             return moduleDependencies;
         }
+    }
+
+    public static PackageJson readPackageJson(Path balaPath) {
+        PackageJson packageJson;
+        if (balaPath.toFile().isDirectory()) {
+            Path packageJsonPath = balaPath.resolve(PACKAGE_JSON);
+            if (Files.notExists(packageJsonPath)) {
+                throw new ProjectException("package.json does not exists in '" + balaPath + "'");
+            }
+            packageJson = readPackageJson(balaPath, packageJsonPath);
+        } else {
+            URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri().toString());
+            try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+                Path packageJsonPath = zipFileSystem.getPath(PACKAGE_JSON);
+                if (Files.notExists(packageJsonPath)) {
+                    throw new ProjectException("package.json does not exists in '" + balaPath + "'");
+                }
+                packageJson = readPackageJson(balaPath, packageJsonPath);
+            } catch (IOException e) {
+                throw new ProjectException("Failed to read balr file:" + balaPath);
+            }
+        }
+        return packageJson;
     }
 }

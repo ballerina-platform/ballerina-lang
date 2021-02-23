@@ -429,10 +429,12 @@ public class PackageResolution {
                     // Check whether this package is already defined in the package manifest, if so get the version
                     PackageVersion packageVersion = PackageResolution.this.getVersionFromPackageManifest(
                             packageOrg, possiblePkgName);
-                    String repository = PackageResolution.this.getRepositoryFromPackageManifest(packageOrg, possiblePkgName);
+                    String repository = PackageResolution.this.
+                            getRepositoryFromPackageManifest(packageOrg, possiblePkgName);
 
                     // Try to resolve the package via repositories
-                    PackageDescriptor pkgDesc = PackageDescriptor.from(packageOrg, possiblePkgName, packageVersion, repository);
+                    PackageDescriptor pkgDesc = PackageDescriptor.from(
+                            packageOrg, possiblePkgName, packageVersion, repository);
                     ResolutionResponse resolutionResponse = resolvePackage(pkgDesc, scope);
                     if (resolutionResponse.resolutionStatus() == ResolutionStatus.UNRESOLVED) {
                         // There is no such package exists

@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -538,9 +537,5 @@ public class ProjectUtils {
 
     public static void deleteDirectory(Path dirPath) throws IOException {
         org.apache.commons.io.FileUtils.deleteDirectory(dirPath.toFile());
-    }
-
-    public static String getPlatformFromBala(String balaName, String packageName, String version) {
-        return balaName.split(packageName + "-")[1].split("-" + version)[0];
     }
 }

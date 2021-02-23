@@ -23,6 +23,7 @@ import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
 
 import java.nio.file.Path;
@@ -33,6 +34,7 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class BalaProject extends Project {
+    private final String platform;
 
     /**
      * Loads a BalaProject from the provided bala path.
@@ -49,6 +51,7 @@ public class BalaProject extends Project {
 
     private BalaProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath) {
         super(ProjectKind.BALA_PROJECT, balaPath, environmentBuilder);
+        this.platform = BalaFiles.readPackageJson(balaPath).getPlatform();
     }
 
     @Override
@@ -58,5 +61,9 @@ public class BalaProject extends Project {
 
     @Override
     public void save() {
+    }
+
+    public String platform() {
+        return platform;
     }
 }
