@@ -1096,16 +1096,21 @@ public class Types {
         return true;
     }
 
-    private boolean checkTupleMemberIsNoType(BType memberType) {
-        switch (memberType.tag) {
-            case TypeTags.NONE:
-                return true;
-            case TypeTags.TUPLE:
-                BTupleType tupleType = (BTupleType) memberType;
-                return tupleType.tupleTypes.stream().allMatch(this::checkTupleMemberIsNoType);
-            default:
-                return false;
+    private boolean checkAllTupleMembersBelongNoType(List<BType> tupleTypes) {
+        boolean isNoType = false;
+        for (BType memberType : tupleTypes) {
+            switch (memberType.tag) {
+                case TypeTags.NONE:
+                    isNoType = true;
+                    break;
+                case TypeTags.TUPLE:
+                    isNoType = checkAllTupleMembersBelongNoType(((BTupleType) memberType).tupleTypes);
+                    break;
+                default:
+                    isNoType = false;
+            }
         }
+        return isNoType;
     }
 
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
@@ -2471,8 +2476,7 @@ public class Types {
         }
 
         public Boolean visit(BTupleType t, BType s) {
-            if (((!t.tupleTypes.isEmpty() && t.tupleTypes.stream()
-                    .allMatch(mem -> checkTupleMemberIsNoType(mem))) ||
+            if (((!t.tupleTypes.isEmpty() && checkAllTupleMembersBelongNoType(t.tupleTypes)) ||
                     (t.restType != null && t.restType.tag == TypeTags.NONE)) &&
                             !(s.tag == TypeTags.ARRAY && ((BArrayType) s).state == BArrayState.OPEN)) {
                 return true;

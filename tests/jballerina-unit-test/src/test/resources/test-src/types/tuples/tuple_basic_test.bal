@@ -369,8 +369,8 @@ function testTupleDeclaredWithVar4() {
     var [a2, ...b2] = getComplexTuple2();
     assertEquality("Test", a2);
     assertEquality(foo, b2[0][0]);
-    assertEquality(true, b2[0][1] is [BarObj,FooObj]);
-    [BarObj,FooObj] objects = <[BarObj,FooObj]> b2[0][1];
+    assertEquality(true, b2[0][1] is [BarObj, FooObj]);
+    [BarObj, FooObj] objects = <[BarObj, FooObj]> b2[0][1];
     assertEquality(barObj, objects[0]);
     assertEquality(fooObj, objects[1]);
     assertEquality(bar, b2[1][0]);

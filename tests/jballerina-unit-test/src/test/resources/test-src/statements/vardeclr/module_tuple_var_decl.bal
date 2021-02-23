@@ -85,16 +85,20 @@ function testDeclaredWithVar3() {
     assertEquality(5, intVal);
     assertEquality(6, intVal2);
     int|error err = otherValues[0];
-    if (err is error) {
-        assertEquality("error msg", err.message());
-    }
+    assertEquality(true, err is error);
+    error err0 = <error> err;
+    assertEquality("error msg", err0.message());
     int|error val1 = otherValues[1];
     if (val1 is int) {
         assertEquality(12, val1);
+    } else {
+        panic getError("12", val1.toString());
     }
     int|error val2 = otherValues[2];
     if (val2 is int) {
         assertEquality(13, val2);
+    } else {
+        panic getError("13", val2.toString());
     }
 }
 
@@ -163,6 +167,10 @@ class BarObj {
         self.b = b;
         self.i = i;
     }
+}
+
+function getError(string expectedVal, string actualVal) returns error {
+    return error("expected " + expectedVal + " found " + actualVal);
 }
 
 function assertTrue(any|error actual) {
