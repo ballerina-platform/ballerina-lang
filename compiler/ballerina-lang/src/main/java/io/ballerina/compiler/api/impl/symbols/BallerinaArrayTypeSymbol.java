@@ -53,16 +53,12 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
 
     @Override
     public String signature() {
-<<<<<<< HEAD
         // If the array is of fixed size, the signature should reflect that.
-        String sizeStr = size().map(Objects::toString).orElse("");
-        return memberTypeDescriptor().signature() + "[" + sizeStr + "]";
-=======
+        String sizeStr = "[" + size().map(Objects::toString).orElse("") + "]";
         if (memberTypeDescriptor().typeKind() == TypeDescKind.UNION) {
-            return "(" + memberTypeDescriptor().signature() + ")[]";
+            return "(" + memberTypeDescriptor().signature() + ")" + sizeStr;
         }
-        return memberTypeDescriptor().signature() + "[]";
->>>>>>> master
+        return memberTypeDescriptor().signature() + sizeStr;
     }
 
     @Override
