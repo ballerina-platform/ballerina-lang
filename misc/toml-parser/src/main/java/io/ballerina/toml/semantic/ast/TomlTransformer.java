@@ -77,10 +77,11 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     }
 
     private TomlTableNode createRootTable(DocumentNode modulePartNode) {
-        TomlKeyEntryNode root = new TomlKeyEntryNode(new TomlUnquotedKeyNode("__root", getPosition(modulePartNode)));
+        TomlNodeLocation location = getPosition(modulePartNode);
+        TomlKeyEntryNode root = new TomlKeyEntryNode(new TomlUnquotedKeyNode("__root", location));
         List<TomlKeyEntryNode> tomlKeyEntryNodes = Collections.singletonList(root);
-        TomlKeyNode tomlKeyNode = new TomlKeyNode(tomlKeyEntryNodes, getLocationOfKeyEntryList(tomlKeyEntryNodes));
-        return new TomlTableNode(tomlKeyNode, getPosition(modulePartNode));
+        TomlKeyNode tomlKeyNode = new TomlKeyNode(tomlKeyEntryNodes, location);
+        return new TomlTableNode(tomlKeyNode, location);
     }
 
     private void addChildNodeToParent(TomlTableNode rootTable, TomlNode transformedChild) {
@@ -125,8 +126,9 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         }
         if (isDottedKey(keys)) {
             List<TomlKeyEntryNode> list = new ArrayList<>();
-            list.add(keys.get(keys.size() - 1));
-            TomlKeyNode newKey = new TomlKeyNode(list, getLocationOfKeyEntryList(list));
+            TomlKeyEntryNode childKeyEntry = keys.get(keys.size() - 1);
+            list.add(childKeyEntry);
+            TomlKeyNode newKey = new TomlKeyNode(list, childKeyEntry.location());
             transformedKeyValuePair = new TomlKeyValueNode(newKey, transformedKeyValuePair.value(),
                     transformedKeyValuePair.location());
         }
@@ -148,7 +150,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
                                                      TomlNodeLocation location) {
         List<TomlKeyEntryNode> list = new ArrayList<>();
         list.add(dottedKey);
-        TomlKeyNode newTableKey = new TomlKeyNode(list, getLocationOfKeyEntryList(list));
+        TomlKeyNode newTableKey = new TomlKeyNode(list, dottedKey.location());
         TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, location);
         addChildToTableAST(parentTable, newTomlTableNode);
         return newTomlTableNode;
@@ -162,7 +164,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         list.add(tomlKeyEntryNode);
 
         TomlTableArrayNode newTomlTableArray = new TomlTableArrayNode(new TomlKeyNode(list,
-                getLocationOfKeyEntryList(list)), tableArrayChild.location(), tableArrayChild.children());
+                tomlKeyEntryNode.location()), tableArrayChild.location(), tableArrayChild.children());
         TopLevelNode topLevelNode = parentTable.entries().get(newTomlTableArray.key().name());
         if (topLevelNode == null) {
             addChildToTableAST(parentTable, newTomlTableArray);
@@ -215,7 +217,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         TomlKeyEntryNode lastKeyEntry = getLastKeyEntry(tableChild);
         List<TomlKeyEntryNode> entries = new ArrayList<>();
         entries.add(lastKeyEntry);
-        TomlTableNode newTableNode = new TomlTableNode(new TomlKeyNode(entries, getLocationOfKeyEntryList(entries)),
+        TomlTableNode newTableNode = new TomlTableNode(new TomlKeyNode(entries, lastKeyEntry.location()),
                 tableChild.generated(), tableChild.location(), tableChild.entries());
         if (topLevelNode == null) {
             addChildToTableAST(parentTable, newTableNode);
@@ -239,11 +241,11 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         }
     }
 
-    private TomlTableNode generateTable(TomlTableNode parentTable, TomlKeyEntryNode parentString, boolean isGenerated
-            , TomlNodeLocation location) {
+    private TomlTableNode generateTable(TomlTableNode parentTable, TomlKeyEntryNode parentString, boolean isGenerated,
+                                        TomlNodeLocation location) {
         List<TomlKeyEntryNode> list = new ArrayList<>();
         list.add(parentString);
-        TomlKeyNode newTableKey = new TomlKeyNode(list, getLocationOfKeyEntryList(list));
+        TomlKeyNode newTableKey = new TomlKeyNode(list, parentString.location());
         TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, isGenerated, location);
         addChildToTableAST(parentTable, newTomlTableNode);
         return newTomlTableNode;
@@ -329,8 +331,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             TomlBasicValueNode transformedNode = (TomlBasicValueNode) node.apply(this);
             nodeList.add(new TomlKeyEntryNode(transformedNode));
         }
-
-        return new TomlKeyNode(nodeList, getLocationOfKeyEntryList(nodeList));
+        return new TomlKeyNode(nodeList, getTomlNodeListLocation(nodeList));
     }
 
     private TomlValueNode transformValue(ValueNode valueToken) {
@@ -490,19 +491,31 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return new TomlUnquotedKeyNode(identifierLiteralNode.value().text(), getPosition(identifierLiteralNode));
     }
 
-    private TomlNodeLocation getLocationOfKeyEntryList(List<TomlKeyEntryNode> keys) {
-        if (keys.size() == 0) {
+    /**
+     * Gives Location of list of TomlNodes
+     * Should only call this method when the execution order is ensured.
+     *
+     * @param tomlNodes AST TomlNode key list
+     * @return TomlNodeLocation
+     */
+    private TomlNodeLocation getTomlNodeListLocation(List<? extends TomlNode> tomlNodes) {
+        if (tomlNodes.size() == 0) {
             return null;
         }
-        int startOffset = keys.get(0).location().textRange().startOffset();
+        TomlNode firstNode = tomlNodes.get(0);
+        if (tomlNodes.size() == 1) {
+            return firstNode.location();
+        }
+        TomlNodeLocation firstKeyLocation = firstNode.location();
         int length = 0;
-        for (TomlKeyEntryNode entryNode : keys) {
+        for (TomlNode entryNode : tomlNodes) {
             length += entryNode.location().textRange().length() + 1;
         }
-        TextRange textRange = TextRange.from(startOffset, length - 1);
-        LineRange lineRange = LineRange
-                .from(keys.get(0).location().lineRange().filePath(), keys.get(0).location().lineRange().startLine(),
-                        keys.get(keys.size() - 1).location().lineRange().endLine());
+        TextRange textRange = TextRange.from(firstKeyLocation.textRange().startOffset(), length - 1);
+        LineRange lineRange = LineRange.from(
+                firstKeyLocation.lineRange().filePath(),
+                firstKeyLocation.lineRange().startLine(),
+                tomlNodes.get(tomlNodes.size() - 1).location().lineRange().endLine());
         return new TomlNodeLocation(lineRange, textRange);
     }
 }

@@ -56,9 +56,7 @@ public class TomlKeyNode extends TomlNode {
 
     @Override
     public String toString() {
-        return "TomlKeyNode{" +
-                "keys=" + name() +
-                '}';
+        return "TomlKeyNode{" + "keys=" + name() + '}';
     }
 
     @Override
