@@ -153,7 +153,6 @@ public final class FunctionCompletionItemBuilder {
     private static Either<String, MarkupContent> getDocumentation(FunctionSymbol functionSymbol,
                                                                   boolean skipFirstParam,
                                                                   BallerinaCompletionContext ctx) {
-        String pkgID = functionSymbol.getModule().get().id().toString();
         FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
 
         Optional<Documentation> docAttachment = functionSymbol.documentation();
@@ -168,8 +167,16 @@ public final class FunctionCompletionItemBuilder {
 
         MarkupContent docMarkupContent = new MarkupContent();
         docMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
-        String documentation = "**Package:** " + "_" + pkgID + "_" + CommonUtil.MD_LINE_SEPARATOR
-                + CommonUtil.MD_LINE_SEPARATOR + description + CommonUtil.MD_LINE_SEPARATOR;
+        StringBuilder documentation = new StringBuilder();
+        if (functionSymbol.getModule().isPresent()) {
+            String moduleId = functionSymbol.getModule().get().id().toString();
+            documentation.append("**Package:** _")
+                    .append(moduleId).append("_")
+                    .append(CommonUtil.MD_LINE_SEPARATOR)
+                    .append(CommonUtil.MD_LINE_SEPARATOR);
+        }
+        documentation.append(description).append(CommonUtil.MD_LINE_SEPARATOR);
+
         StringJoiner joiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
         List<ParameterSymbol> functionParameters = new ArrayList<>(functionTypeDesc.parameters());
         if (functionTypeDesc.restParam().isPresent()) {
@@ -183,12 +190,16 @@ public final class FunctionCompletionItemBuilder {
             }
 
             Optional<ParameterSymbol> defaultVal = defaultParams.stream()
-                    .filter(parameter -> parameter.getName().get().equals(param.getName().get()))
+                    .filter(parameter -> parameter.getName().isPresent() && param.getName().isPresent()
+                            && parameter.getName().get().equals(param.getName().get()))
                     .findFirst();
-            String paramDescription = "- " + "`" + paramType + "` " + param.getName().get();
-            if (param.getName().isPresent() && docParamsMap.containsKey(param.getName().get())) {
-                paramDescription += ": " + docParamsMap.get(param.getName().get());
-            }
+            StringBuilder paramDescription = new StringBuilder("- " + "`" + paramType + "`");
+            param.getName().ifPresent(name -> {
+                paramDescription.append(" ").append(name);
+                if (docParamsMap.containsKey(name)) {
+                    paramDescription.append(": ").append(docParamsMap.get(name));
+                }
+            });
             if (defaultVal.isPresent()) {
                 joiner.add(paramDescription + "(Defaultable)");
             } else {
@@ -197,20 +208,24 @@ public final class FunctionCompletionItemBuilder {
         }
         String paramsStr = joiner.toString();
         if (!paramsStr.isEmpty()) {
-            documentation += "**Params**" + CommonUtil.MD_LINE_SEPARATOR + paramsStr;
+            documentation.append("**Params**").append(CommonUtil.MD_LINE_SEPARATOR).append(paramsStr);
         }
-        if (functionTypeDesc.typeKind() != TypeDescKind.NIL) {
+        if (functionTypeDesc.returnTypeDescriptor().isPresent()
+                && functionTypeDesc.returnTypeDescriptor().get().typeKind() != TypeDescKind.NIL) {
+            // Sets the return type description only if the return type descriptor is not NIL type
             String desc = "";
             if (docAttachment.isPresent() && docAttachment.get().returnDescription().isPresent()
                     && !docAttachment.get().returnDescription().get().isEmpty()) {
                 desc = "- " + CommonUtil.MD_NEW_LINE_PATTERN.matcher(docAttachment.get().returnDescription().get())
                         .replaceAll(CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
             }
-            documentation += CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "**Returns**"
-                    + " `" + CommonUtil.getModifiedTypeName(ctx, functionTypeDesc.returnTypeDescriptor().get()) + "` " +
-                    CommonUtil.MD_LINE_SEPARATOR + desc + CommonUtil.MD_LINE_SEPARATOR;
+            documentation.append(CommonUtil.MD_LINE_SEPARATOR).append(CommonUtil.MD_LINE_SEPARATOR)
+                    .append("**Returns**").append(" `")
+                    .append(CommonUtil.getModifiedTypeName(ctx, functionTypeDesc.returnTypeDescriptor().get()))
+                    .append("` ").append(CommonUtil.MD_LINE_SEPARATOR).append(desc)
+                    .append(CommonUtil.MD_LINE_SEPARATOR);
         }
-        docMarkupContent.setValue(documentation);
+        docMarkupContent.setValue(documentation.toString());
 
         return Either.forRight(docMarkupContent);
     }
