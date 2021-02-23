@@ -24,14 +24,20 @@
                           "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " Write an array of lines to a file.",
+                                  "value": "Write an array of lines to a file.",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -47,23 +53,29 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " During the writing operation, a newline character "
+                                  "value": "During the writing operation, a newline character "
                                 },
                                 {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "INLINE_CODE_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "CODE_CONTENT",
                                       "value": "\\n"
                                     },
                                     {

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.bindgen.model;
 
-import org.ballerinalang.bindgen.command.BindingsGenerator;
+import org.ballerinalang.bindgen.utils.BindgenEnv;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -49,6 +49,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
  */
 public class JMethod {
 
+    private BindgenEnv env;
     private boolean isStatic;
     private boolean hasParams = true;
     private boolean hasReturn = false;
@@ -79,7 +80,8 @@ public class JMethod {
     private StringBuilder paramTypes = new StringBuilder();
     private Set<String> importedPackages = new HashSet<>();
 
-    JMethod(Method m, Class parentClass) {
+    JMethod(Method m, Class parentClass, BindgenEnv env) {
+        this.env = env;
         method = m;
         javaMethodName = m.getName();
         methodName = m.getName();
@@ -102,7 +104,7 @@ public class JMethod {
                     importedPackages.add(exceptionType.getPackageName());
                     exceptionName = jError.getShortExceptionName();
                     exceptionConstName = jError.getExceptionConstName();
-                    if (BindingsGenerator.getModulesFlag()) {
+                    if (env.getModulesFlag()) {
                         exceptionName = getPackageAlias(exceptionName, exceptionType);
                         exceptionConstName = getPackageAlias(exceptionConstName, exceptionType);
                     }
@@ -166,7 +168,7 @@ public class JMethod {
                 returnComponentType = getAlias(returnTypeClass.getComponentType());
                 returnComponentType = getExceptionName(returnTypeClass.getComponentType(), returnComponentType);
                 returnType = returnComponentType + ARRAY_BRACKETS;
-                if (BindingsGenerator.getModulesFlag()) {
+                if (env.getModulesFlag()) {
                     returnType = getPackageAlias(returnType, returnTypeClass.getComponentType());
                     returnComponentType = getPackageAlias(returnComponentType, returnTypeClass.getComponentType());
                 }
@@ -177,7 +179,7 @@ public class JMethod {
         } else if (getAlias(returnTypeClass).equals(JAVA_STRING)) {
             isStringReturn = true;
         } else {
-            if (BindingsGenerator.getModulesFlag()) {
+            if (env.getModulesFlag()) {
                 returnType = getPackageAlias(returnType, returnTypeClass);
             }
             objectReturn = true;
@@ -208,7 +210,7 @@ public class JMethod {
         for (Parameter param : paramArr) {
             importedPackages.add(param.getType().getPackageName());
             paramTypes.append(getAlias(param.getType()).toLowerCase(Locale.ENGLISH));
-            JParameter parameter = new JParameter(param, parentClass);
+            JParameter parameter = new JParameter(param, parentClass, env);
             parameters.add(parameter);
             if (parameter.getIsPrimitiveArray()) {
                 javaArraysModule = true;

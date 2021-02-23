@@ -4422,11 +4422,23 @@ public class TypeChecker extends BLangNodeVisitor {
         clauses.forEach(clause -> clause.accept(this));
         BType actualType = resolveQueryType(queryEnvs.peek(),
                 selectClauses.peek().expression, collectionNode.type, expType, queryExpr);
-        resultType = (actualType == symTable.semanticError) ? actualType :
+        actualType = (actualType == symTable.semanticError) ? actualType :
                 types.checkType(queryExpr.pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         selectClauses.pop();
         queryEnvs.pop();
         prevEnvs.pop();
+
+        if (actualType.tag == TypeTags.TABLE) {
+            BTableType tableType = (BTableType) actualType;
+            tableType.constraintPos = queryExpr.pos;
+            tableType.isTypeInlineDefined = true;
+            if (!validateTableType(tableType, null)) {
+                resultType = symTable.semanticError;
+                return;
+            }
+        }
+
+        resultType = actualType;
     }
 
     private BType resolveQueryType(SymbolEnv env, BLangExpression selectExp, BType collectionType,
@@ -5165,25 +5177,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void setErrorDetailArgsToNamedArgsList(BLangInvocation iExpr) {
-        List<BLangExpression> namedArgPositions = new ArrayList<>(iExpr.argExprs.size());
-        for (int i = 0; i < iExpr.argExprs.size(); i++) {
-            BLangExpression argExpr = iExpr.argExprs.get(i);
-            if (argExpr.getKind() == NodeKind.NAMED_ARGS_EXPR) {
-                iExpr.requiredArgs.add(argExpr);
-                namedArgPositions.add(argExpr);
-            } else {
-                dlog.error(argExpr.pos, DiagnosticErrorCode.ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG);
-                resultType = symTable.semanticError;
-            }
-        }
-
-        for (BLangExpression expr : namedArgPositions) {
-            // This check is to filter out additional field assignments when Error detail type is a open record.
-            iExpr.argExprs.remove(expr);
-        }
-    }
-
     /**
      * Create a error detail record using all metadata from {@code targetErrorDetailsType} and put actual error details
      * from {@code iExpr} expression.
@@ -5196,10 +5189,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private BRecordType createErrorDetailRecordType(BLangErrorConstructorExpr errorConstructorExpr,
                                                     BRecordType targetErrorDetailsType) {
         List<BLangNamedArgsExpression> namedArgs = getProvidedErrorDetails(errorConstructorExpr);
-        if (namedArgs == null) {
-            // error in provided error details
-            return null;
-        }
 
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(
                 SymTag.RECORD, targetErrorDetailsType.tsymbol.flags, Names.EMPTY, targetErrorDetailsType.tsymbol.pkgID,
@@ -5217,13 +5206,29 @@ public class TypeChecker extends BLangNodeVisitor {
             availableErrorDetailFields.add(fieldName);
         }
 
+        Set<Name> fieldsInTargetType = new HashSet<>();
         for (BField field : targetErrorDetailsType.fields.values()) {
+            fieldsInTargetType.add(field.name);
             boolean notRequired = (field.symbol.flags & Flags.REQUIRED) != Flags.REQUIRED;
             if (notRequired && !availableErrorDetailFields.contains(field.name)) {
                 BField defaultableField = new BField(field.name, errorConstructorExpr.pos,
                                                      new BVarSymbol(field.symbol.flags, field.name, null, field.type,
                                                                     null, errorConstructorExpr.pos, VIRTUAL));
                 recordType.fields.put(defaultableField.name.value, defaultableField);
+            }
+        }
+
+        HashSet<Name> restFields = new HashSet<>(availableErrorDetailFields);
+        restFields.removeAll(fieldsInTargetType);
+        // If there are individual field descriptors specified in the error detail record,
+        // we should not allow rest fields via error constructors detail args.
+        // https://github.com/ballerina-platform/ballerina-spec/issues/740
+        if (!targetErrorDetailsType.sealed && !targetErrorDetailsType.fields.isEmpty() && !restFields.isEmpty()) {
+            for (BLangNamedArgsExpression namedArg : namedArgs) {
+                if (restFields.contains(names.fromIdNode(namedArg.name))) {
+                    dlog.error(namedArg.pos, DiagnosticErrorCode.INVALID_REST_DETAIL_ARG, namedArg.name.value,
+                            targetErrorDetailsType);
+                }
             }
         }
 

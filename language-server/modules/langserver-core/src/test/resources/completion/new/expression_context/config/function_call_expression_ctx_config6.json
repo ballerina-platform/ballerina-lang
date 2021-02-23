@@ -67,6 +67,27 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
+      "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "insertText": "ErrorTwo",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ResponseMessage",
       "kind": "Enum",
       "detail": "Union",
@@ -87,10 +108,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "AnnotationType",
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -98,13 +119,6 @@
       "kind": "Interface",
       "detail": "Class",
       "insertText": "Listener",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestClass1",
-      "kind": "Interface",
-      "detail": "Class",
-      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {

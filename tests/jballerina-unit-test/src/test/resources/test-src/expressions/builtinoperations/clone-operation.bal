@@ -354,7 +354,7 @@ public function cloneNilAnydata() returns [any, any] {
     return [x, y];
 }
 
-type MyError error<record {| string message?; error cause?; string...; |}>;
+type MyError error<record {| string message?; error cause?; string one?; string two?; |}>;
 
 string reason1 = "err reason 1";
 string reason2 = "err reason 2";
