@@ -1105,9 +1105,12 @@ public class Types {
                     break;
                 case TypeTags.TUPLE:
                     isNoType = checkAllTupleMembersBelongNoType(((BTupleType) memberType).tupleTypes);
+                    if (!isNoType) {
+                        return false;
+                    }
                     break;
                 default:
-                    isNoType = false;
+                    return false;
             }
         }
         return isNoType;
