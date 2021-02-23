@@ -1096,6 +1096,26 @@ public class Types {
         return true;
     }
 
+    private boolean checkAllTupleMembersBelongNoType(List<BType> tupleTypes) {
+        boolean isNoType = false;
+        for (BType memberType : tupleTypes) {
+            switch (memberType.tag) {
+                case TypeTags.NONE:
+                    isNoType = true;
+                    break;
+                case TypeTags.TUPLE:
+                    isNoType = checkAllTupleMembersBelongNoType(((BTupleType) memberType).tupleTypes);
+                    if (!isNoType) {
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+            }
+        }
+        return isNoType;
+    }
+
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
                                                      Set<TypePair> unresolvedTypes) {
         if (target.state != BArrayState.OPEN
@@ -1128,7 +1148,6 @@ public class Types {
                 // [int, int] = int[1], [int, int] = int[3]
                 return false;
             }
-
         }
 
         List<BType> targetTypes = new ArrayList<>(target.tupleTypes);
@@ -2460,6 +2479,12 @@ public class Types {
         }
 
         public Boolean visit(BTupleType t, BType s) {
+            if (((!t.tupleTypes.isEmpty() && checkAllTupleMembersBelongNoType(t.tupleTypes)) ||
+                    (t.restType != null && t.restType.tag == TypeTags.NONE)) &&
+                            !(s.tag == TypeTags.ARRAY && ((BArrayType) s).state == BArrayState.OPEN)) {
+                return true;
+            }
+
             if (s.tag != TypeTags.TUPLE || !hasSameReadonlyFlag(s, t)) {
                 return false;
             }

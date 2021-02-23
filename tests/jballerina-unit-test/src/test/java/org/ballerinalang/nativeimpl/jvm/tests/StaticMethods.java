@@ -509,6 +509,14 @@ public class StaticMethods {
                                               a.get(StringUtils.fromString("age")) + "#" + b);
     }
 
+    public static long getDefaultValueWithBEnv(Environment env, long b) {
+        return b;
+    }
+
+    public static long getDefaultValueWithBEnvForObject(Environment env, ObjectValue a, long b) {
+        return b;
+    }
+
     private static void sleep() {
         try {
             Thread.sleep(100);

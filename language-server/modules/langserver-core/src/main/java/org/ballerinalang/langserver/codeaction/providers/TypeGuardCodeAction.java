@@ -145,7 +145,7 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
                     return Optional.empty();
                 }
                 varTypeSymbol = optVariableSymbol.get().typeDescriptor();
-                SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
+                SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
                 NonTerminalNode node = CommonUtil.findNode(optVariableSymbol.get(), syntaxTree);
                 if (node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
                     varTypeNode = ((TypedBindingPatternNode) node).typeDescriptor();
@@ -164,7 +164,7 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
 
     private Optional<VariableSymbol> getVariableSymbol(CodeActionContext context, Node matchedNode) {
         AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
+        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
         Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
         Optional<Symbol> symbol = semanticModel.symbol(srcFile,
                                                        assignmentStmtNode.varRef().lineRange().startLine());

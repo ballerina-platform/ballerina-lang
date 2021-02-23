@@ -52,17 +52,20 @@ public class ErrorsTest {
 
     @Test(description = "Test error type")
     public void testErrorAsAType() {
-        Assert.assertEquals(testModule.errors.size(), 5, "Six errors expected");
+        Assert.assertEquals(testModule.errors.size(), 6, "Six errors expected");
         Assert.assertEquals(testModule.errors.get(0).name, "CacheError", "The error should be " +
                 "CacheError. But Found:" + testModule.errors.get(0).name);
         Assert.assertEquals(testModule.errors.get(1).name, "CancelledError", "The error should be " +
                 "CancelledError. But Found:" + testModule.errors.get(1).name);
-        Assert.assertEquals(testModule.errors.get(4).name, "UnKnownError", "The error should be " +
-                "UnKnownError. But Found:" + testModule.errors.get(4).name);
         Assert.assertEquals(testModule.errors.get(2).name, "Error", "The error should be " +
                 "Error. But Found:" + testModule.errors.get(2).name);
         Assert.assertEquals(testModule.errors.get(3).name, "GrpcError", "The error should be " +
                 "GrpcError. But Found:" + testModule.errors.get(3).name);
+        Assert.assertEquals(testModule.errors.get(4).name, "LinkToGrpcError", "The error should be " +
+                "LinkToGrpcError. But Found:" + testModule.errors.get(4).name);
+        Assert.assertEquals(testModule.errors.get(5).name, "UnKnownError", "The error should be " +
+                "UnKnownError. But Found:" + testModule.errors.get(4).name);
+
 
 
         Assert.assertEquals(testModule.errors.get(2).detailType.name, "CacheError",
@@ -71,6 +74,13 @@ public class ErrorsTest {
         Assert.assertEquals(testModule.errors.get(2).detailType.category, "errors",
                 "The detailtype category of Error should be errors. But Found:" + testModule.errors.get(2)
                         .detailType.category);
+
+        Assert.assertEquals(testModule.errors.get(4).detailType.name, "GrpcError",
+                "The error detailtype of LinkToGrpcError should be GrpcError. But Found:" +
+                        testModule.errors.get(4).detailType.name);
+        Assert.assertEquals(testModule.errors.get(4).detailType.category, "errors",
+                "The detailtype category of LinkToGrpcError should be errors. But Found:"
+                        + testModule.errors.get(4).detailType.category);
 
         Assert.assertEquals(testModule.errors.get(3).detailType.memberTypes.get(0).name, "CancelledError",
                 "The name of first membertype, of error detailtype, in GrpcError should be CancelledError. " +
