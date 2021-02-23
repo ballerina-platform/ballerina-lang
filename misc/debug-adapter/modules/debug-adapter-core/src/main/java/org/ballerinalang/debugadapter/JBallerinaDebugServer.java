@@ -42,8 +42,8 @@ import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.ballerinalang.debugadapter.launch.ProgramLauncher;
 import org.ballerinalang.debugadapter.launch.PackageLauncher;
+import org.ballerinalang.debugadapter.launch.ProgramLauncher;
 import org.ballerinalang.debugadapter.launch.SingleFileLauncher;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
@@ -912,7 +912,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     }
                     sendOutput(line, STDOUT);
                 }
-            } catch (IOException | ClientConfigurationException | IllegalConnectorArgumentsException e) {
+            } catch (IOException ignored) {
+                // no-op
+            } catch (ClientConfigurationException | IllegalConnectorArgumentsException e) {
                 String host = ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST);
                 String portName;
                 try {
@@ -935,7 +937,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      */
     private void attachToRemoteVM(String hostName, int portName) throws IOException,
             IllegalConnectorArgumentsException {
-        executionManager = new DebugExecutionManager(this);
+        executionManager = new DebugExecutionManager();
         VirtualMachine attachedVm = executionManager.attach(hostName, portName);
         context.setDebuggee(new VirtualMachineProxyImpl(attachedVm));
         EventRequestManager erm = context.getEventManager();

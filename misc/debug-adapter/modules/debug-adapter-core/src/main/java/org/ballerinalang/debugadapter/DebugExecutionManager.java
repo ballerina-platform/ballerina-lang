@@ -34,22 +34,14 @@ import java.util.Optional;
 public class DebugExecutionManager {
 
     private VirtualMachine attachedVm;
-    private final JBallerinaDebugServer server;
     private String host;
-    private int port;
+    private Integer port;
 
     public static final String LOCAL_HOST = "localhost";
     private static final String SOCKET_CONNECTOR_NAME = "com.sun.jdi.SocketAttach";
     private static final String CONNECTOR_ARGS_HOST = "hostname";
     private static final String CONNECTOR_ARGS_PORT = "port";
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugExecutionManager.class);
-
-    public DebugExecutionManager(JBallerinaDebugServer server) {
-        this.server = server;
-        this.attachedVm = null;
-        this.host = null;
-        this.port = -1;
-    }
 
     public boolean isActive() {
         return attachedVm != null;
@@ -60,14 +52,7 @@ public class DebugExecutionManager {
     }
 
     public Optional<Integer> getPort() {
-        return port > 0 ? Optional.of(port) : Optional.empty();
-    }
-
-    /**
-     * Attaches to an existing JVM using an SocketAttachingConnector and returns the attached VM instance.
-     */
-    public VirtualMachine attach(int port) throws IOException, IllegalConnectorArgumentsException {
-        return attach("", port);
+        return Optional.ofNullable(port);
     }
 
     /**

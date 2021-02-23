@@ -27,7 +27,7 @@ import java.util.Optional;
 public class ClientAttachConfigHolder extends ClientConfigHolder {
 
     // The host name or IP address of remote debuggee.
-    private static String hostName;
+    private String hostName;
 
     public ClientAttachConfigHolder(Map<String, Object> args) {
         super(args, ClientConfigKind.ATTACH_CONFIG);

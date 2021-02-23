@@ -17,7 +17,7 @@
 package org.ballerinalang.debugadapter.config;
 
 /**
- * Defines the possible types of client(user) configurations
+ * Defines the possible types of client(user) configurations.
  *
  * @since 2.0.0
  */

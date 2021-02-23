@@ -68,13 +68,14 @@ public abstract class ProgramLauncher {
         ArrayList<String> command = new ArrayList<>(ballerinaExec);
         boolean isTestDebugMode = configHolder.isTestDebug();
         command.add(isTestDebugMode ? BAL_TEST_CMD_NAME : BAL_RUN_CMD_NAME);
+
+        // Adds debug args.
         command.add("--debug");
         command.add(Integer.toString(configHolder.getDebuggePort()));
-
-        // Adds command options
+        // Adds command options.
         command.addAll(configHolder.getCommandOptions());
 
-        // Adds file name, only if single file debugging.
+        // Adds file name, only if the debug source is a single bal file.
         if (balFile != null) {
             command.add(balFile);
         } else if (!isTestDebugMode) {

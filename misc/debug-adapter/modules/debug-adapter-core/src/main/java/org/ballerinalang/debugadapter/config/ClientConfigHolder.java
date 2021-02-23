@@ -27,8 +27,8 @@ public class ClientConfigHolder {
 
     protected Map<String, Object> clientRequestArgs;
     private final ClientConfigKind kind;
-    private static String sourcePath;
-    private static Integer debuggePort;
+    private String sourcePath;
+    private Integer debuggePort;
 
     protected static final String ARG_FILE_PATH = "script";
     protected static final String ARG_DEBUGGEE_HOST = "debuggeeHost";

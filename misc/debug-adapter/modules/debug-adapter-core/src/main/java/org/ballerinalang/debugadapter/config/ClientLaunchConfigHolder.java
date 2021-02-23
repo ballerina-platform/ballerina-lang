@@ -60,7 +60,7 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
         return ballerinaHome;
     }
 
-    public Optional<String> getBallerinaCommand() throws ClientConfigurationException {
+    public Optional<String> getBallerinaCommand() {
         if (ballerinaCommand == null) {
             if (!clientRequestArgs.containsKey(ARG_BALLERINA_COMMAND)) {
                 return Optional.empty();
@@ -74,7 +74,7 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
         if (noDebug == null) {
             Object noDebugObject = clientRequestArgs.get(ARG_NO_DEBUG);
             if (noDebugObject instanceof Boolean) {
-                noDebug = (boolean) noDebugObject;
+                noDebug = (Boolean) noDebugObject;
             } else if (noDebugObject instanceof String) {
                 noDebug = Boolean.parseBoolean((String) noDebugObject);
             } else {
@@ -88,7 +88,7 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
         if (testDebug == null) {
             Object testDebugObj = clientRequestArgs.get(ARG_TEST_DEBUG);
             if (testDebugObj instanceof Boolean) {
-                testDebug = (boolean) testDebugObj;
+                testDebug = (Boolean) testDebugObj;
             } else if (testDebugObj instanceof String) {
                 testDebug = Boolean.parseBoolean((String) testDebugObj);
             } else {
@@ -102,7 +102,7 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
         if (networkLogsEnabled == null) {
             Object networkLogs = clientRequestArgs.get(ARG_NETWORK_LOGS);
             if (networkLogs instanceof Boolean) {
-                networkLogsEnabled = (boolean) networkLogs;
+                networkLogsEnabled = (Boolean) networkLogs;
             } else if (networkLogs instanceof String) {
                 networkLogsEnabled = Boolean.parseBoolean((String) networkLogs);
             } else {
