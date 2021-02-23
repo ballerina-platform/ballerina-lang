@@ -112,8 +112,7 @@ public class CodeCoverageUtils {
         List<Path> pathList;
         try (Stream<Path> walk = Files.walk(extractedJarPath, 5)) {
             pathList =
-                    walk.map(path -> path).filter(f -> (f.toString().endsWith(".class") && !f.toString().endsWith(
-                            "module-info.class"))).collect(Collectors.toList());
+                    walk.map(path -> path).filter(f -> f.toString().endsWith(".class")).collect(Collectors.toList());
         } catch (IOException e) {
             return;
         }
@@ -164,6 +163,8 @@ public class CodeCoverageUtils {
             return false;
         } else if (path.contains(
                 orgName + "/" + moduleName + "/" + version.replace(".", "_") + "/" + moduleName + ".class")) {
+            return false;
+        } else if (path.contains("module-info.class")) {
             return false;
         }
         return true;
