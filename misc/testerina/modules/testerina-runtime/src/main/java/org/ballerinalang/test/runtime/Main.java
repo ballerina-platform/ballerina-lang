@@ -20,6 +20,7 @@ package org.ballerinalang.test.runtime;
 import com.google.gson.Gson;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
+import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
@@ -30,51 +31,74 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Main class to init the test suit.
  */
 public class Main {
+    static TestReport testReport;
+
+
     public static void main(String[] args) throws IOException {
-        Path jsonCachePath = Paths.get(args[0]).resolve(TesterinaConstants.TESTERINA_TEST_SUITE);
-        Path jsonTmpSummaryPath = Paths.get(args[0], TesterinaConstants.STATUS_FILE);
-        String[] configArgs = Arrays.copyOfRange(args, 1, args.length);
-        LaunchUtils.initConfigurations(configArgs);
+        String[] moduleNameList = args[0].split("#");
+        Path testCache = Paths.get(args[1]);
+        String target = args[2];
+        boolean report = Boolean.valueOf(args[3]);
+        boolean coverage = Boolean.valueOf(args[4]);
 
-        try (BufferedReader br = Files.newBufferedReader(jsonCachePath, StandardCharsets.UTF_8)) {
-            //convert the json string back to object
-            Gson gson = new Gson();
-            TestSuite response = gson.fromJson(br, TestSuite.class);
-            response.setModuleName(filterModuleName(args[args.length - 1]));
-            startTestSuit(Paths.get(response.getSourceRootPath()), response, jsonTmpSummaryPath);
+        if (report || coverage) {
+            testReport = new TestReport();
         }
+
+        int exitStatus = 1;
+
+        for (String moduleName : moduleNameList) {
+            Path moduleCachePath = testCache.resolve(moduleName).resolve(TesterinaConstants.TESTERINA_TEST_SUITE);
+            Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
+
+            try (BufferedReader br = Files.newBufferedReader(moduleCachePath, StandardCharsets.UTF_8)) {
+                Gson gson = new Gson();
+                TestSuite testSuite = gson.fromJson(br, TestSuite.class);
+                String[] configArgs =
+                        new String[]{target, testSuite.getOrgName(), testSuite.getPackageName(), moduleName};
+                LaunchUtils.initConfigurations(configArgs);
+                testSuite.setModuleName(moduleName);
+                List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
+                ClassLoader classLoader = createClassLoader(testExecutionDependencies);
+                exitStatus = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
+                        classLoader);
+            } catch (Exception e) {
+                exitStatus = 1;
+            }
+        }
+
+        Runtime.getRuntime().exit(exitStatus);
     }
 
-    private static String filterModuleName(String argument) {
-        //The module argument is always wrapped with a `\"` at start and end
-        if (argument.startsWith("\"") && argument.endsWith("\"") && argument.length() >= 2) {
-            return argument.substring(1, argument.length() - 1);
-        }
-        return argument;
-    }
-
-    private static void startTestSuit(Path sourceRootPath, TestSuite testSuite, Path jsonTmpSummaryPath)
-            throws IOException {
+    private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, Path jsonTmpSummaryPath,
+                                     ClassLoader classLoader) throws IOException {
         int exitStatus = 0;
         try {
-            TesterinaUtils.executeTests(sourceRootPath, testSuite);
+            TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader);
         } catch (RuntimeException e) {
             exitStatus = 1;
         } finally {
             if (testSuite.isReportRequired()) {
                 writeStatusToJsonFile(ModuleStatus.getInstance(), jsonTmpSummaryPath);
             }
-            Runtime.getRuntime().exit(exitStatus);
+            return exitStatus;
+            //Runtime.getRuntime().exit(exitStatus); Stops the runtime execution
         }
     }
 
@@ -88,5 +112,23 @@ public class Main {
             String json = gson.toJson(moduleStatus);
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         }
+    }
+
+    public static URLClassLoader createClassLoader(List<String> jarFilePaths) {
+
+        List<URL> urlList = new ArrayList<>();
+
+        for (String jarFilePath : jarFilePaths) {
+            try {
+                urlList.add(Paths.get(jarFilePath).toUri().toURL());
+            } catch (MalformedURLException e) {
+                // This path cannot get executed
+                throw new RuntimeException("Failed to create classloader with all jar files", e);
+            }
+        }
+
+        return AccessController.doPrivileged(
+                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urlList.toArray(new URL[0]),
+                        ClassLoader.getSystemClassLoader()));
     }
 }
