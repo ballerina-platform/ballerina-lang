@@ -34,6 +34,8 @@ dependencies {
     implementation project(':ballerina-lang:jballerina.java')
     implementation 'org.testng:testng'
     implementation 'com.google.guava:guava:23.0'
+    implementation 'com.google.code.gson:gson'
+    implementation 'com.google.code.gson:gson:2.7'
 
     interopImports 'io.github.java-diff-utils:java-diff-utils:4.5'
 

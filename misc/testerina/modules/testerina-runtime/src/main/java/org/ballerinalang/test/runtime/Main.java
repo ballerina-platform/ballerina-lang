@@ -49,6 +49,11 @@ import java.util.List;
 public class Main {
     static TestReport testReport;
 
+    static List<String> testExecutionDependencies;
+
+    public static List<String> getTestExecutionDependencies() {
+        return testExecutionDependencies;
+    }
 
     public static void main(String[] args) throws IOException {
         String[] moduleNameList = args[0].split("#");
@@ -74,7 +79,7 @@ public class Main {
                         new String[]{target, testSuite.getOrgName(), testSuite.getPackageName(), moduleName};
                 LaunchUtils.initConfigurations(configArgs);
                 testSuite.setModuleName(moduleName);
-                List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
+                testExecutionDependencies = testSuite.getTestExecutionDependencies();
                 ClassLoader classLoader = createClassLoader(testExecutionDependencies);
                 exitStatus = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
                         classLoader);
@@ -127,8 +132,10 @@ public class Main {
             }
         }
 
-        return AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urlList.toArray(new URL[0]),
-                        ClassLoader.getSystemClassLoader()));
+        URLClassLoader test = AccessController.doPrivileged(
+                (PrivilegedAction<URLClassLoader>)
+                        () -> new URLClassLoader(urlList.toArray(new URL[0]), ClassLoader.getSystemClassLoader()));
+
+        return test;
     }
 }

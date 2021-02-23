@@ -11,6 +11,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.testerina.natives.Executor;
+import org.ballerinalang.testerina.natives.mock.util.FunctionMockUtil;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -78,12 +79,13 @@ public class FunctionMock {
     private static Object callOriginalFunction(String originalFunction, String originalClassName, Object... args) {
 
         Strand strand = Scheduler.getStrand();
-        ClassLoader classLoader = FunctionMock.class.getClassLoader();
         String[] packageValues = originalClassName.split("\\.");
 
         String orgName = packageValues[0];
         String packageName = packageValues[1];
         String version = packageValues[2];
+
+        ClassLoader classLoader = FunctionMockUtil.resolveClassLoader(packageName);
 
         List<Object> argsList = Arrays.asList(args);
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, originalFunction);
@@ -102,14 +104,15 @@ public class FunctionMock {
         String packageName;
         String version;
 
+        String[] projectInfo = Thread.currentThread().getStackTrace()[4].getClassName().split(Pattern.quote("."));
+        ClassLoader classLoader = FunctionMockUtil.resolveClassLoader(projectInfo[1]);
         // Set project info
         try {
-            String[] projectInfo = Thread.currentThread().getStackTrace()[4].getClassName().split(Pattern.quote("."));
             orgName = projectInfo[0];
             packageName = projectInfo[1];
             version = projectInfo[2];
             className = "tests." + getMockClassName(orgName, packageName, version, originalFunction,
-                    originalClassName, mockFunctionName, mockFunctionClasses);
+                    originalClassName, mockFunctionName, mockFunctionClasses, classLoader);
             className = getQualifiedClassName(orgName, packageName, version, className);
         } catch (ClassNotFoundException e) {
             return ErrorCreator.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
@@ -117,7 +120,8 @@ public class FunctionMock {
         }
 
         List<Object> argsList = Arrays.asList(args);
-        ClassLoader classLoader = FunctionMock.class.getClassLoader();
+
+
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, mockFunctionName);
 
         return Executor.executeFunction(
@@ -127,10 +131,11 @@ public class FunctionMock {
 
     private static String getMockClassName(String orgName, String packageName, String version,
                                        String originalMethodName, String originalPackageName, String mockMethodName,
-                                       String[] mockFunctionClasses) throws ClassNotFoundException {
-
-        Method mockMethod = getMockMethod(orgName, packageName, version, mockMethodName, mockFunctionClasses);
-        Method originalMethod = getClassDeclaredMethod(originalPackageName, originalMethodName);
+                                       String[] mockFunctionClasses, ClassLoader classLoader)
+            throws ClassNotFoundException {
+        Method mockMethod = getMockMethod(orgName, packageName, version, mockMethodName, mockFunctionClasses,
+                classLoader);
+        Method originalMethod = getClassDeclaredMethod(originalPackageName, originalMethodName, classLoader);
 
         validateFunctionSignature(mockMethod, originalMethod, mockMethodName);
         return  mockMethod.getDeclaringClass().getSimpleName();
@@ -138,13 +143,14 @@ public class FunctionMock {
 
 
     private static Method getMockMethod(String orgName, String packageName, String version, String mockMethodName,
-                                        String[] mockFunctionClasses) throws ClassNotFoundException {
+                                        String[] mockFunctionClasses, ClassLoader classLoader)
+            throws ClassNotFoundException {
         Method mockMethod = null;
         String resolvedMockClass = resolveMockClass(mockMethodName, mockFunctionClasses,
-                orgName, packageName, version);
+                orgName, packageName, version, classLoader);
 
         if (resolvedMockClass != null) {
-            Method classDeclaredMethod = getClassDeclaredMethod(resolvedMockClass, mockMethodName);
+            Method classDeclaredMethod = getClassDeclaredMethod(resolvedMockClass, mockMethodName, classLoader);
             if (classDeclaredMethod != null) {
                 mockMethod = classDeclaredMethod;
             }
@@ -154,11 +160,12 @@ public class FunctionMock {
     }
 
     private static String resolveMockClass(String mockMethodName, String[] mockFunctionClasses, String orgName,
-                                           String packageName, String version) throws ClassNotFoundException {
+                                           String packageName, String version, ClassLoader classLoader)
+            throws ClassNotFoundException {
         String mockClass = null;
         for (String clazz : mockFunctionClasses) {
             clazz = orgName + "." + packageName + "." + version + "." + clazz;
-            Class<?> resolvedClass = Class.forName(clazz);
+            Class<?> resolvedClass = classLoader.loadClass(clazz);
             for (Method method : resolvedClass.getDeclaredMethods()) {
                 if (mockMethodName.equals(method.getName())) {
                     mockClass = clazz;
@@ -215,8 +222,9 @@ public class FunctionMock {
         }
     }
 
-    private static Method getClassDeclaredMethod(String className, String methodName) throws ClassNotFoundException {
-        Class<?> clazz = Class.forName(className);
+    private static Method getClassDeclaredMethod(String className, String methodName, ClassLoader classLoader)
+            throws ClassNotFoundException {
+        Class<?> clazz = classLoader.loadClass(className);
 
         for (Method method : clazz.getDeclaredMethods()) {
             if (methodName.equals(method.getName())) {
