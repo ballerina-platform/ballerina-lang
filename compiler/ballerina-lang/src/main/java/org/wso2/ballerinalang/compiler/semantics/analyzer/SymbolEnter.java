@@ -2084,16 +2084,18 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean checkMemVarCountMatchWithMemTypeCount(BLangTupleVariable varNode, BTupleType tupleTypeNode) {
+        int memberVarsSize = varNode.memberVariables.size();
+        BLangVariable restVariable = varNode.restVariable;
+        int tupleTypesSize = tupleTypeNode.tupleTypes.size();
         if (varNode.isDeclaredWithVar) {
-            return (varNode.restVariable == null ||
-                    varNode.memberVariables.size() <= tupleTypeNode.tupleTypes.size()) &&
-                    (varNode.restVariable != null || (tupleTypeNode.tupleTypes.size() == varNode.memberVariables.size()
-                            && tupleTypeNode.restType == null));
-        } else {
-            return tupleTypeNode.tupleTypes.size() == varNode.memberVariables.size() &&
-                    (tupleTypeNode.restType != null || varNode.restVariable == null) &&
-                    (tupleTypeNode.restType == null || varNode.restVariable != null);
+            if (memberVarsSize > tupleTypesSize) {
+                return false;
+            }
+            return restVariable != null ||
+                    (tupleTypesSize == memberVarsSize && tupleTypeNode.restType == null);
         }
+        return tupleTypesSize == memberVarsSize && (tupleTypeNode.restType != null || restVariable == null) &&
+                (tupleTypeNode.restType == null || restVariable != null);
     }
 
     @Override
