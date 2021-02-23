@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -202,6 +203,15 @@ public class ProjectUtils {
         return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
+    /**
+     * Returns the relative path of extracted bala beginning from the package org.
+     *
+     * @param org package org
+     * @param pkgName package name
+     * @param version package version
+     * @param platform version, null converts to `any`
+     * @return relative bala path
+     */
     public static Path getRelativeBalaPath(String org, String pkgName, String version, String platform) {
         // <orgname>-<packagename>-<platform>-<version>.bala
         if (platform == null || "".equals(platform)) {
@@ -519,6 +529,13 @@ public class ProjectUtils {
         return String.valueOf(content);
     }
 
+    /**
+     * Extracts a .bala file into the provided destination directory.
+     *
+     * @param balaFilePath .bala file path
+     * @param balaFileDestPath directory into which the .bala should be extracted
+     * @throws IOException if extraction fails
+     */
     public static void extractBala(Path balaFilePath, Path balaFileDestPath) throws IOException {
         Files.createDirectories(balaFileDestPath);
         URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
@@ -529,14 +546,31 @@ public class ProjectUtils {
                 Path destPath = balaFileDestPath.resolve(packageRoot.relativize(path).toString());
                 // Handle overwriting existing bala
                 if (destPath.toFile().isDirectory()) {
-                    org.apache.commons.io.FileUtils.deleteDirectory(destPath.toFile());
+                    deleteDirectory(destPath);
                 }
                 Files.copy(path, destPath, StandardCopyOption.REPLACE_EXISTING);
             }
         }
     }
 
-    public static void deleteDirectory(Path dirPath) throws IOException {
-        org.apache.commons.io.FileUtils.deleteDirectory(dirPath.toFile());
+    /**
+     * Delete the given directory along with all files and sub directories.
+     *
+     * @param directoryPath Directory to delete.
+     */
+    public static boolean deleteDirectory(Path directoryPath) {
+        File directory = new File(String.valueOf(directoryPath));
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    boolean success = deleteDirectory(f.toPath());
+                    if (!success) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return directory.delete();
     }
 }

@@ -22,6 +22,7 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -40,7 +41,7 @@ import java.nio.file.Path;
  *
  * @since 2.0.0
  */
-public abstract class BaseCommandTest {
+public abstract class BaseCommandTest extends PowerMockTestCase {
     protected Path tmpDir;
     private ByteArrayOutputStream console;
     protected PrintStream printStream;

@@ -406,6 +406,12 @@ public class BalaFiles {
         }
     }
 
+    /**
+     * Returns a PacakgeJson instance from the provided bala.
+     *
+     * @param balaPath path to .bala file or extracted directory
+     * @return a PackageJson instance
+     */
     public static PackageJson readPackageJson(Path balaPath) {
         PackageJson packageJson;
         if (balaPath.toFile().isDirectory()) {
