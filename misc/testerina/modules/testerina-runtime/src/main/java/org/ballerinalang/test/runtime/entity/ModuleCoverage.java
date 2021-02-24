@@ -84,7 +84,7 @@ public class ModuleCoverage {
                 // Remove outdated source file and add updated sourceFile
                 sourceFiles.remove(sourceFile);
                 SourceFile newSourceFile = new SourceFile(document, coveredLines, missedLines);
-                this.sourceFiles.add(sourceFile);
+                this.sourceFiles.add(newSourceFile);
                 // Update coverage counts
                 this.coveredLines += updatedMissedLineCount;
                 this.missedLines -= updatedMissedLineCount;
