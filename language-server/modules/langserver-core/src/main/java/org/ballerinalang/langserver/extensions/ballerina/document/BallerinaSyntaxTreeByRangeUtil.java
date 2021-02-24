@@ -35,7 +35,7 @@ import java.util.Optional;
  */
 
 public class BallerinaSyntaxTreeByRangeUtil {
-    public static NonTerminalNode getNode(Range range, SyntaxTree syntaxTree) {
+    public static Node getNode(Range range, SyntaxTree syntaxTree) {
         TextDocument textDocument = syntaxTree.textDocument();
         Position rangeStart = range.getStart();
         Position rangeEnd = range.getEnd();
@@ -44,17 +44,21 @@ public class BallerinaSyntaxTreeByRangeUtil {
         return findNode(syntaxTree.rootNode(), TextRange.from(start, end - start));
     }
 
-    private static NonTerminalNode findNode(ModulePartNode node, TextRange textRange) {
+    private static Node findNode(ModulePartNode node, TextRange textRange) {
         TextRange textRangeWithMinutiae = node.textRangeWithMinutiae();
         if (textRangeWithMinutiae.startOffset() > textRange.startOffset() ||
                 textRangeWithMinutiae.endOffset() < textRange.endOffset()) {
             throw new IllegalStateException("Invalid Text Range for: " + textRange.toString());
         }
 
-        NonTerminalNode foundNode = null;
+        Node foundNode = null;
         Optional<Node> temp = Optional.of(node);
-        while (temp.isPresent() && !(temp.get() instanceof Token)) {
-            foundNode = (NonTerminalNode) temp.get();
+        while (temp.isPresent()) {
+            foundNode = temp.get();
+
+            if (temp.get() instanceof Token) {
+                break;
+            }
             temp = findChildNode((NonTerminalNode) temp.get(), textRange);
         }
 
@@ -81,4 +85,5 @@ public class BallerinaSyntaxTreeByRangeUtil {
 
         return Optional.empty();
     }
+
 }

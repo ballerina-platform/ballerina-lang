@@ -22,11 +22,14 @@ import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Document;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 
 /**
  * This is the DiagramUtil class for Diagram related Utils which include the JSON conversion of the Syntax Tree.
@@ -55,12 +58,38 @@ public class DiagramUtil {
         return syntaxTreeJson;
     }
 
-    public static JsonElement getSyntaxTreeJSONByRange(NonTerminalNode node, SemanticModel semanticModel) {
+    public static JsonElement getSyntaxTreeJSONByRange(Node node, SemanticModel semanticModel) {
         JsonElement syntaxTreeJson;
         try {
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
+
             if (node.kind() == SyntaxKind.LIST) {
                 syntaxTreeJson = mapGenerator.transformSyntaxNode(node.parent());
+            } else if (node instanceof Token) {
+                JsonObject nodeJson = new JsonObject();
+                JsonObject nodeInfo = new JsonObject();
+
+                String nodeKind = mapGenerator.prettifyKind(node.kind().toString());
+                nodeInfo.addProperty("kind", nodeKind);
+                nodeInfo.addProperty("isToken", true);
+                nodeInfo.addProperty("value", ((Token) node).text());
+                if (node.lineRange() != null) {
+                    LineRange lineRange = node.lineRange();
+                    LinePosition startLine = lineRange.startLine();
+                    LinePosition endLine = lineRange.endLine();
+                    JsonObject position = new JsonObject();
+                    position.addProperty("startLine", startLine.line());
+                    position.addProperty("startColumn", startLine.offset());
+                    position.addProperty("endLine", endLine.line());
+                    position.addProperty("endColumn", endLine.offset());
+                    nodeInfo.add("position", position);
+                }
+                nodeInfo.add("leadingMinutiae", mapGenerator.evaluateMinutiae(node.leadingMinutiae()));
+                nodeInfo.add("trailingMinutiae", mapGenerator.evaluateMinutiae(node.trailingMinutiae()));
+
+                nodeJson.add("members", nodeInfo);
+                nodeJson.addProperty("kind", nodeKind);
+                syntaxTreeJson = nodeJson;
             } else {
                 syntaxTreeJson = mapGenerator.transformSyntaxNode(node);
             }
@@ -96,5 +125,4 @@ public class DiagramUtil {
 
         return syntaxTreeJson;
     }
-
 }

@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -110,7 +110,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
             //Find the ST Nodes of the selected range
             SyntaxTree syntaxTree = srcFile.get().syntaxTree();
-            NonTerminalNode node = BallerinaSyntaxTreeByRangeUtil.getNode(request.getLineRange(), syntaxTree);
+            Node node = BallerinaSyntaxTreeByRangeUtil.getNode(request.getLineRange(), syntaxTree);
             
             // Get the generated syntax tree JSON with type info.
             JsonElement subSyntaxTree = DiagramUtil.getSyntaxTreeJSONByRange(node, semanticModel.get());

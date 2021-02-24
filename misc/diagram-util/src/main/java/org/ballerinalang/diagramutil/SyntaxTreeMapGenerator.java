@@ -328,14 +328,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         return nodeInfo;
     }
 
-    private String prettifyKind(String kind) {
+    public String prettifyKind(String kind) {
         return Arrays.stream(kind.split("_"))
                 .map(String::toLowerCase)
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining());
     }
 
-    private JsonArray evaluateMinutiae(MinutiaeList minutiaeList) {
+    public JsonArray evaluateMinutiae(MinutiaeList minutiaeList) {
         JsonArray nodeMinutiae = new JsonArray();
         for (Minutiae minutiae : minutiaeList) {
             JsonObject minutiaeJson = new JsonObject();
