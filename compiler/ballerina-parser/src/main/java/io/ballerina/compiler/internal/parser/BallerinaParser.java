@@ -4229,18 +4229,22 @@ public class BallerinaParser extends AbstractParser {
                                               STNode typedBindingPattern, STNode assign, STNode expr, STNode semicolon,
                                               boolean isConfigurable, boolean hasVarInit) {
         SyntaxKind bindingPatternKind = ((STTypedBindingPatternNode) typedBindingPattern).bindingPattern.kind;
-        boolean containsSimpleBP = bindingPatternKind == SyntaxKind.CAPTURE_BINDING_PATTERN ||
-                bindingPatternKind == SyntaxKind.WILDCARD_BINDING_PATTERN;
+        boolean hasComplexBP = bindingPatternKind != SyntaxKind.CAPTURE_BINDING_PATTERN &&
+                bindingPatternKind != SyntaxKind.WILDCARD_BINDING_PATTERN;
 
-        if (hasVarInit || varDeclQuals.isEmpty() && containsSimpleBP) {
+        if (hasVarInit) {
             return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
         }
 
-        if (!containsSimpleBP) {
+        if (hasComplexBP) {
             assign = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.EQUAL_TOKEN,
                     DiagnosticErrorCode.ERROR_MODULE_LEVEL_COMPLEX_VARIABLE_MUST_BE_INITIALIZED);
             STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
             expr = STNodeFactory.createSimpleNameReferenceNode(identifier);
+            return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
+        }
+
+        if (varDeclQuals.isEmpty()) {
             return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
         }
 
