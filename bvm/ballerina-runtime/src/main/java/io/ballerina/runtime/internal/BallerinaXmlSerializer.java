@@ -196,10 +196,10 @@ public class BallerinaXmlSerializer extends OutputStream {
         writeAttributes(currentNSLevel, attributeMap);
 
         // Track and override xml text escape when xml text is within an element.
-        boolean prevWithinElementFlag = withinElement;
-        withinElement = true;
+        boolean prevWithinElementFlag = this.withinElement;
+        this.withinElement = true;
         xmlValue.getChildrenSeq().serialize(this);
-        withinElement = prevWithinElementFlag;
+        this.withinElement = prevWithinElementFlag;
 
         xmlStreamWriter.writeEndElement();
         // Reset namespace decl hierarchy for this node.
