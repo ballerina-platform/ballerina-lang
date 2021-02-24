@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Uniquely describes a Ballerina package in terms of its name, organization,
@@ -67,8 +68,8 @@ public class PackageDescriptor {
         return packageVersion;
     }
 
-    public String repository() {
-        return repository;
+    public Optional<String> repository() {
+        return Optional.ofNullable(repository);
     }
 
     public boolean isLangLibPackage() {

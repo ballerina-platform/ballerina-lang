@@ -65,7 +65,7 @@ public final class ResolutionRequest {
         return scope;
     }
 
-    public String repositoryName() {
+    public Optional<String> repositoryName() {
         return packageDesc.repository();
     }
 

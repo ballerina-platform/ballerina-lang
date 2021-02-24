@@ -133,11 +133,11 @@ public class DefaultPackageResolver implements PackageResolver {
         //       1) dist
         //       2) central --> if the version is not in local, then make a remote call
         if (requestedPkgDesc.version() != null) {
-            if (resolutionRequest.repositoryName() != null) {
-                if (!customRepositories.containsKey(resolutionRequest.repositoryName())) {
+            if (resolutionRequest.repositoryName().isPresent()) {
+                if (!customRepositories.containsKey(resolutionRequest.repositoryName().get())) {
                     return null;
                 }
-                resolvedPackage = customRepositories.get(resolutionRequest.repositoryName())
+                resolvedPackage = customRepositories.get(resolutionRequest.repositoryName().get())
                         .getPackage(resolutionRequest);
                 if (resolvedPackage.isEmpty()) {
                     return null;
@@ -156,8 +156,8 @@ public class DefaultPackageResolver implements PackageResolver {
 
         // Resolve from custom local repository if specified, and return null
         // We don't look up the dist and central repos if package is not found
-        if (resolutionRequest.repositoryName() != null) {
-            pkgRepoThatContainsLatestVersion = customRepositories.get(resolutionRequest.repositoryName());
+        if (resolutionRequest.repositoryName().isPresent()) {
+            pkgRepoThatContainsLatestVersion = customRepositories.get(resolutionRequest.repositoryName().get());
             List<PackageVersion> versionsInCustomRepo = pkgRepoThatContainsLatestVersion
                     .getPackageVersions(resolutionRequest);
             if (versionsInCustomRepo.isEmpty()) {

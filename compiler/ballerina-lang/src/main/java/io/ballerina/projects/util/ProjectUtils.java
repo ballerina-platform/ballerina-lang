@@ -37,21 +37,18 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -65,7 +62,8 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.ASM_COMMONS_JAR;
@@ -537,18 +535,45 @@ public class ProjectUtils {
      * @throws IOException if extraction fails
      */
     public static void extractBala(Path balaFilePath, Path balaFileDestPath) throws IOException {
-        Files.createDirectories(balaFileDestPath);
-        URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
-        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-            Path packageRoot = Optional.of(zipFileSystem.getPath("/")).get();
-            List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
-            for (Path path : paths) {
-                Path destPath = balaFileDestPath.resolve(packageRoot.relativize(path).toString());
-                // Handle overwriting existing bala
-                if (destPath.toFile().isDirectory()) {
-                    deleteDirectory(destPath);
+        if (Files.exists(balaFileDestPath) && Files.isDirectory(balaFilePath)) {
+            deleteDirectory(balaFileDestPath);
+        } else {
+            Files.createDirectories(balaFileDestPath);
+        }
+
+        byte[] buffer = new byte[1024 * 4];
+        try (FileInputStream fileInputStream = new FileInputStream(balaFilePath.toString())) {
+            // Get the zip file content.
+            try (ZipInputStream zipInputStream = new ZipInputStream(fileInputStream)) {
+                // Get the zipped file entry.
+                ZipEntry zipEntry = zipInputStream.getNextEntry();
+                while (zipEntry != null) {
+                    // Get the name.
+                    String fileName = zipEntry.getName();
+                    // Construct the output file.
+                    Path outputPath = balaFileDestPath.resolve(fileName);
+                    // If the zip entry is for a directory, we create the directory and continue with the next entry.
+                    if (zipEntry.isDirectory()) {
+                        Files.createDirectories(outputPath);
+                        zipEntry = zipInputStream.getNextEntry();
+                        continue;
+                    }
+
+                    // Create all non-existing directories.
+                    Files.createDirectories(Optional.of(outputPath.getParent()).get());
+                    // Create a new file output stream.
+                    try (FileOutputStream fileOutputStream = new FileOutputStream(outputPath.toFile())) {
+                        // Write the content from zip input stream to the file output stream.
+                        int len;
+                        while ((len = zipInputStream.read(buffer)) > 0) {
+                            fileOutputStream.write(buffer, 0, len);
+                        }
+                    }
+                    // Continue with the next entry.
+                    zipEntry = zipInputStream.getNextEntry();
                 }
-                Files.copy(path, destPath, StandardCopyOption.REPLACE_EXISTING);
+                // Close zip input stream.
+                zipInputStream.closeEntry();
             }
         }
     }

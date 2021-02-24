@@ -210,11 +210,16 @@ public class Utils {
                 FileOutputStream outputStream = new FileOutputStream(balaPath.toString())) {
             writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName, outStream,
                                    logFormatter);
+        } catch (IOException e) {
+            throw new CentralClientException(
+                    logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
+        }
+        try {
             extractBala(balaPath, Optional.of(balaPath.getParent()).get());
             Files.delete(balaPath);
         } catch (IOException e) {
             throw new CentralClientException(
-                    logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
+                    logFormatter.formatLog("error occurred extracting the bala file: " + e.getMessage()));
         }
     }
 

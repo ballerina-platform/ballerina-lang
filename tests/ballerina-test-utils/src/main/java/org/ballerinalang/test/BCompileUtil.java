@@ -31,8 +31,6 @@ import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
@@ -41,7 +39,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
@@ -51,8 +48,6 @@ import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
  * @since 2.0.0
  */
 public class BCompileUtil {
-
-    private static Logger log = LoggerFactory.getLogger(BCompileUtil.class);
 
     private static final Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath().normalize();
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath().normalize();
@@ -146,15 +141,9 @@ public class BCompileUtil {
                 ProjectUtils.deleteDirectory(balaCachePath.resolve(platform));
             }
             ProjectUtils.extractBala(balaFilePath, balaCachePath.resolve(platform));
-            try {
-                Files.delete(balaFilePath);
-            } catch (IOException e) {
-                // This is to avoid failing in windows CI workflow due to intermittent issue in delete
-                // operation. We can continue the test execution and hence we continue by printing the stacktrace.
-                log.error(Arrays.toString(e.getStackTrace()));
-            }
+            Files.delete(balaFilePath);
         } catch (IOException e) {
-            throw new RuntimeException("bala extraction failed " + project.sourceRoot() + ". " + e);
+            throw new RuntimeException("bala extraction failed " + project.sourceRoot() + ". ", e);
         }
 
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);

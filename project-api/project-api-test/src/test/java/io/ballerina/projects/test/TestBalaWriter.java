@@ -34,7 +34,7 @@ import io.ballerina.projects.internal.model.Target;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -63,7 +63,7 @@ public class TestBalaWriter {
     private static final Path BALA_PATH = RESOURCE_DIRECTORY.resolve("tmpBalaDir");
 
 
-    @BeforeMethod
+    @BeforeTest
     public void setUp() throws IOException {
         Files.createDirectory(Paths.get(String.valueOf(BALA_PATH)));
 
