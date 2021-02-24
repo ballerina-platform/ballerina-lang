@@ -22,7 +22,6 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -77,19 +76,10 @@ public class TestReport {
         this.moduleCoverage = moduleCoverage;
     }
 
-    /**
-     * Add coverage information to test report.
-     *
-     * @param moduleCoverageMap Map<String, ModuleCoverage>
-     */
-    public void addCoverage(Map<String, ModuleCoverage> moduleCoverageMap) {
-        if (moduleCoverageMap != null) {
-            for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
-                String moduleName = (String) mapElement.getKey();
-                ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
-                moduleCoverage.setName(moduleName);
-                this.moduleCoverage.add(moduleCoverage);
-            }
+    public void addCoverage(String moduleName, ModuleCoverage coverage) {
+        if (coverage != null) {
+            coverage.setName(moduleName);
+            this.moduleCoverage.add(coverage);
         }
     }
 

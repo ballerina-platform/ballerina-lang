@@ -276,7 +276,6 @@ public class RunTestsTask implements Task {
             ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
             testReport.addCoverage(moduleName, moduleCoverage);
         }
-        testReport.addCoverage(moduleCoverageMap);
     }
 
     private void filterTestGroups() {
