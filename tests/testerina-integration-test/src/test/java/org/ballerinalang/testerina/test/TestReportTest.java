@@ -146,6 +146,9 @@ public class TestReportTest extends BaseTestCase {
                 (float) (mathDivideCovered.length) / (mathDivideCovered.length + mathDivideMissed.length) * 100;
         float mathDividePercentage =
                 (float) (Math.round(mathDividePercentageVal * 100.0) / 100.0);
+        System.out.println("####################");
+        System.out.println("mathDividePercentage");
+        System.out.println(mathDividePercentage);
 
         int mathCovered = mathAddCovered.length + mathDivideCovered.length,
                 mathMissed = mathAddMissed.length + mathDivideMissed.length;
