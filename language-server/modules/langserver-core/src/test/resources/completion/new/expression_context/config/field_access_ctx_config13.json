@@ -7,8 +7,9 @@
   "items": [
     {
       "label": "foo",
+      "kind": "Field",
       "detail": "int",
-      "sortText": "Q",
+      "sortText": "G",
       "insertText": "foo",
       "insertTextFormat": "Snippet"
     },
@@ -55,7 +56,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function to each member of a map.\nThe parameter `func` is applied to each member of `m`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function to each member of a map.\nThe parameter `func` is applied to each member of `m`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
         }
       },
       "sortText": "C",
@@ -183,7 +184,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves all members of a map.\nThis panics if any member cannot be removed.\n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves all members of a map.\nThis panics if any member cannot be removed.\n  \n"
         }
       },
       "sortText": "C",

@@ -21,11 +21,12 @@ import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 
 /**
  * Completion item builder for the object fields and for record fields.
  *
- * @since 2.0.o
+ * @since 2.0.0
  */
 public class FieldCompletionItemBuilder {
     private FieldCompletionItemBuilder() {
@@ -43,6 +44,7 @@ public class FieldCompletionItemBuilder {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(recordFieldName);
         completionItem.setInsertText(recordFieldName);
+        completionItem.setKind(CompletionItemKind.Field);
         return completionItem;
     }
 

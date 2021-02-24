@@ -7,8 +7,9 @@
   "items": [
     {
       "label": "testClassField",
+      "kind": "Field",
       "detail": "int",
-      "sortText": "Q",
+      "sortText": "F",
       "insertText": "testClassField",
       "insertTextFormat": "Snippet"
     },

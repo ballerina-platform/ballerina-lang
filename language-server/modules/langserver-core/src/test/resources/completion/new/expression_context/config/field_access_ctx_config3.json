@@ -7,22 +7,25 @@
   "items": [
     {
       "label": "rec1Field1",
+      "kind": "Field",
       "detail": "int",
-      "sortText": "Q",
+      "sortText": "G",
       "insertText": "rec1Field1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "rec1Field2",
+      "kind": "Field",
       "detail": "string",
-      "sortText": "Q",
+      "sortText": "G",
       "insertText": "rec1Field2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "optionalInt",
+      "kind": "Field",
       "detail": "int",
-      "sortText": "Q",
+      "sortText": "G",
       "insertText": "optionalInt",
       "insertTextFormat": "Snippet"
     },
@@ -69,7 +72,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function to each member of a map.\nThe parameter `func` is applied to each member of `m`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function to each member of a map.\nThe parameter `func` is applied to each member of `m`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
         }
       },
       "sortText": "C",
@@ -197,7 +200,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves all members of a map.\nThis panics if any member cannot be removed.\n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nRemoves all members of a map.\nThis panics if any member cannot be removed.\n  \n"
         }
       },
       "sortText": "C",
