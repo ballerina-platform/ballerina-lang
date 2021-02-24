@@ -33,6 +33,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Code Action for ignore variable assignment.
@@ -53,14 +54,15 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        TypeSymbol typeDescriptor = positionDetails.matchedExprType();
-        if (typeDescriptor == null) {
+        Optional<TypeSymbol> typeDescriptor = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+        if (typeDescriptor.isEmpty()) {
             return Collections.emptyList();
         }
         String uri = context.fileUri();
         Position pos = CommonUtil.toRange(diagnostic.location().lineRange()).getStart();
         // Add ignore return value code action
-        if (!hasErrorType(typeDescriptor)) {
+        if (!hasErrorType(typeDescriptor.get())) {
             String commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
             return Collections.singletonList(
                     createQuickFixCodeAction(commandTitle, getIgnoreCodeActionEdits(pos), uri)
