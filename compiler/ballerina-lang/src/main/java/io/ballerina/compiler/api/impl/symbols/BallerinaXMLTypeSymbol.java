@@ -36,6 +36,7 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
 
     private TypeSymbol typeParameter;
     private String typeName;
+    private String signature;
 
     public BallerinaXMLTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLType xmlType) {
         super(context, TypeDescKind.XML, xmlType);
@@ -60,9 +61,7 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
             if (xmlType == symbolTable.xmlType || this.typeParameter().isEmpty()) {
                 this.typeName = "xml";
             } else {
-                // if type param name is missing, it should default to xml<never>
-                String typeParamString = this.typeParameter().get().getName().orElse("never");
-                this.typeName = "xml<" + typeParamString + ">";
+                this.typeName = "xml<" + this.typeParameter().get().getName().orElse("") + ">";
             }
         }
 
@@ -71,6 +70,17 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
 
     @Override
     public String signature() {
-        return getName().get();
+        if (this.signature == null) {
+            BXMLType xmlType = (BXMLType) this.getBType();
+            SymbolTable symbolTable = SymbolTable.getInstance(this.context);
+
+            if (xmlType == symbolTable.xmlType || this.typeParameter().isEmpty()) {
+                this.signature = "xml";
+            } else {
+                this.signature = "xml<" + this.typeParameter().get().signature() + ">";
+            }
+        }
+
+        return this.signature;
     }
 }

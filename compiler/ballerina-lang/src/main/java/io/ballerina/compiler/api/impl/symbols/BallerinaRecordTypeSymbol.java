@@ -103,8 +103,22 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
 
     @Override
     public String signature() {
+        // if isInclusive and has a rest type desc, then the rest type desc must be ANY_DATA.
+        // otherwise it is actually exclusive.
+        //
+        // This is a counter for following being identified as inclusive.
+        // type Person record {|
+        //    string name;
+        //    int age;
+        //    string...;
+        //|};
+        boolean isRestAnyData = restTypeDescriptor()
+                .map(t -> TypeDescKind.ANYDATA.equals(t.typeKind()))
+                .orElse(true);
+        boolean isExclusive = !(this.isInclusive && isRestAnyData);
+
         StringJoiner joiner;
-        if (this.isInclusive) {
+        if (!isExclusive) {
             joiner = new StringJoiner(" ", "{ ", " }");
         } else {
             joiner = new StringJoiner(" ", "{| ", " |}");
@@ -115,7 +129,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
         }
 
         // No rest descriptor if the record in inclusive
-        if (!this.isInclusive) {
+        if (isExclusive) {
             restTypeDescriptor().ifPresent(typeDescriptor -> {
                 joiner.add(typeDescriptor.signature() + "...;");
             });
