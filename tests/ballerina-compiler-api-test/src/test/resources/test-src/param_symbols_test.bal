@@ -18,7 +18,7 @@ function funcWithParams(string x, int y, float f = 12.34, string... rest) {
     int sum = x + y;
 }
 
-type Person object {
+type PersonObj object {
     string name;
     int age;
     anydata[] misc;
