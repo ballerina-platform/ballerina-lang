@@ -91,8 +91,10 @@ public class GlobalVariableRefAnalyzer {
     /**
      * Populate the InvokableSymbols with the dependent global variables.
      * @param globalNodeDependsOn symbol dependency relationship.
+     * @param globalVars
      */
-    public void populateFunctionDependencies(Map<BSymbol, Set<BSymbol>> globalNodeDependsOn) {
+    public void populateFunctionDependencies(Map<BSymbol, Set<BSymbol>> globalNodeDependsOn,
+                                             List<BLangVariable> globalVars) {
         resetAnalyzer();
         this.globalNodeDependsOn = globalNodeDependsOn;
 
@@ -102,7 +104,7 @@ public class GlobalVariableRefAnalyzer {
                 continue;
             }
 
-            analyzeDependenciesRecursively(dependent);
+            analyzeDependenciesRecursively(dependent, globalVars);
         }
     }
 
@@ -114,22 +116,22 @@ public class GlobalVariableRefAnalyzer {
         return this.globalVariablesDependsOn;
     }
 
-    private void analyzeDependenciesRecursively(BSymbol dependent) {
+    private void analyzeDependenciesRecursively(BSymbol dependent, List<BLangVariable> globalVars) {
         // Only analyze unvisited nodes.
         // Do DFS into dependency providers to detect cycles.
         if (!dependencyNodes.containsKey(dependent)) {
             NodeInfo node = new NodeInfo(curNodeId++, dependent);
             dependencyNodes.put(dependent, node);
-            analyzeDependenciesRecursively(node);
+            analyzeDependenciesRecursively(node, globalVars);
         }
     }
 
-    private Set<BVarSymbol> analyzeDependenciesRecursively(NodeInfo node) {
+    private Set<BVarSymbol> analyzeDependenciesRecursively(NodeInfo node, List<BLangVariable> globalVars) {
         if (node.onStack) {
-            return getGlobalVarFromCurrentNode(node);
+            return getGlobalVarFromCurrentNode(node, globalVars);
         }
         if (node.visited) {
-            return getDependentsFromSymbol(node.symbol);
+            return getDependentsFromSymbol(node.symbol, globalVars);
         }
 
         node.visited = true;
@@ -148,10 +150,10 @@ public class GlobalVariableRefAnalyzer {
         for (BSymbol providerSym : providers) {
             NodeInfo providerNode =
                     this.dependencyNodes.computeIfAbsent(providerSym, s -> new NodeInfo(curNodeId++, providerSym));
-            if (isGlobalVarSymbol(providerSym)) {
+            if (isGlobalVarSymbol(providerSym, globalVars)) {
                 currentDependencies.add((BVarSymbol) providerSym);
             }
-            currentDependencies.addAll(analyzeDependenciesRecursively(providerNode));
+            currentDependencies.addAll(analyzeDependenciesRecursively(providerNode, globalVars));
         }
 
         node.onStack = false;
@@ -167,23 +169,23 @@ public class GlobalVariableRefAnalyzer {
         return dependentGlobalVars;
     }
 
-    private Set<BVarSymbol> getGlobalVarFromCurrentNode(NodeInfo node) {
-        Set<BVarSymbol> globalVars = new HashSet<>();
+    private Set<BVarSymbol> getGlobalVarFromCurrentNode(NodeInfo node, List<BLangVariable> globalVars) {
+        Set<BVarSymbol> globalVarsForCurrentNode = new HashSet<>();
         Set<BSymbol> providers = this.globalNodeDependsOn.getOrDefault(node.symbol, new LinkedHashSet<>());
 
         for (BSymbol provider : providers) {
-            if (isGlobalVarSymbol(provider)) {
-                globalVars.add((BVarSymbol) provider);
+            if (isGlobalVarSymbol(provider, globalVars)) {
+                globalVarsForCurrentNode.add((BVarSymbol) provider);
             }
         }
 
-        return globalVars;
+        return globalVarsForCurrentNode;
     }
 
-    private Set<BVarSymbol> getDependentsFromSymbol(BSymbol symbol) {
+    private Set<BVarSymbol> getDependentsFromSymbol(BSymbol symbol, List<BLangVariable> globalVars) {
         if (isFunction(symbol)) {
             return ((BInvokableSymbol) symbol).dependentGlobalVars;
-        } else if (isGlobalVarSymbol(symbol)) {
+        } else if (isGlobalVarSymbol(symbol, globalVars)) {
             return this.globalVariablesDependsOn.getOrDefault(symbol, new HashSet<>());
         }
 
@@ -194,7 +196,7 @@ public class GlobalVariableRefAnalyzer {
         return (symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION;
     }
 
-    private boolean isGlobalVarSymbol(BSymbol symbol) {
+    private boolean isGlobalVarSymbol(BSymbol symbol, List<BLangVariable> globalVars) {
         if (symbol == null) {
             return false;
         }
@@ -208,7 +210,7 @@ public class GlobalVariableRefAnalyzer {
             return false;
         }
 
-        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE);
+        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) && globalVars.stream().anyMatch(v -> v.symbol == symbol);
     }
 
     /**

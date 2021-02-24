@@ -781,8 +781,6 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         desugarClassDefinitions(pkgNode.topLevelNodes);
 
-        pkgNode.functions = rewrite(pkgNode.functions, env);
-
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env, pkgNode.startFunction, pkgNode.stopFunction);
         ASTBuilderUtil.appendStatements(serviceAttachments, (BLangBlockFunctionBody) pkgNode.initFunction.body);
 
@@ -793,6 +791,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
+        pkgNode.functions = rewrite(pkgNode.functions, env);
 
         // Invoke closure desugar.
         closureDesugar.visit(pkgNode);
