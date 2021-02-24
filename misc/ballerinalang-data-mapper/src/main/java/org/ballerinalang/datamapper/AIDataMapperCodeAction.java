@@ -22,6 +22,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -88,9 +89,10 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             if (typeSymbol.isEmpty()) {
                 return Optional.empty();
             }
-            TypeDescKind typeDescriptor = typeSymbol.get().typeKind();
+            TypeDescKind typeDescriptor = CommonUtil.getRawType(typeSymbol.get()).typeKind();
 
-            if (typeDescriptor == TypeDescKind.RECORD || typeDescriptor == TypeDescKind.COMPILATION_ERROR) {
+            if (typeDescriptor == TypeDescKind.UNION || typeDescriptor == TypeDescKind.RECORD ||
+                    typeDescriptor == TypeDescKind.COMPILATION_ERROR) {
                 CodeAction action = new CodeAction("Generate mapping function");
                 action.setKind(CodeActionKind.QuickFix);
 
