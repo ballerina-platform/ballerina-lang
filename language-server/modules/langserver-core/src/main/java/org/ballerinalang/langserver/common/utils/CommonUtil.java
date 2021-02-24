@@ -699,7 +699,7 @@ public class CommonUtil {
      * @param identifier Identifier to be checked for validity
      * @return True, if the identifier is valid as per the ballerina specification
      */
-    public static boolean isIdentifierValid(String identifier) {
+    public static boolean isValidIdentifier(String identifier) {
         if (identifier == null || identifier.isEmpty()) {
             return false;
         }

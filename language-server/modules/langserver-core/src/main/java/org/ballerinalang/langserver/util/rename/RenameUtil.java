@@ -47,7 +47,7 @@ public class RenameUtil {
      * @return Text edits for that rename operation
      */
     public static Map<String, List<TextEdit>> rename(ReferencesContext context, String newName) {
-        if (!CommonUtil.isIdentifierValid(newName)) {
+        if (!CommonUtil.isValidIdentifier(newName)) {
             throw new UserErrorException("Invalid identifier provided");
         }
 

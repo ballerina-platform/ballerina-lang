@@ -25,11 +25,11 @@ import org.testng.annotations.Test;
 public class CommonUtilTest {
 
     /**
-     * Tests the correctness of {@link CommonUtil#isIdentifierValid(String)} method.
+     * Tests the correctness of {@link CommonUtil#isValidIdentifier(String)} method.
      */
     @Test(dataProvider = "data-provider")
     public void testIsIdentifierValid(String identifier, boolean valid) {
-        Assert.assertEquals(CommonUtil.isIdentifierValid(identifier), valid);
+        Assert.assertEquals(CommonUtil.isValidIdentifier(identifier), valid);
     }
 
     @DataProvider(name = "data-provider")
