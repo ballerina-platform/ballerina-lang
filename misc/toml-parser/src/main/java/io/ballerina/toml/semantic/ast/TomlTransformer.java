@@ -201,11 +201,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
                 parentTable = (TomlTableNode) rootTableNode;
             } else {
                 TomlKeyEntryNode tomlKeyEntryNode = childNode.key().keys().get(i);
-                if (childNode instanceof TomlTableArrayNode) {
-                    parentTable = generateTable(parentTable, tomlKeyEntryNode, false, childNode.location());
-                } else {
-                    parentTable = generateTable(parentTable, tomlKeyEntryNode, true, childNode.location());
-                }
+                parentTable = generateTable(parentTable, tomlKeyEntryNode, childNode.location());
             }
         }
         return parentTable;
@@ -224,7 +220,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         } else {
             if (topLevelNode instanceof TomlTableNode) {
                 TomlTableNode targetTable = (TomlTableNode) topLevelNode;
-                if ((targetTable).generated()) {
+                if (targetTable.generated()) {
                     parentTable.replaceGeneratedTable(newTableNode);
                 } else {
                     TomlDiagnostic nodeExists = dlog.error(tableChild.location(),
@@ -241,12 +237,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         }
     }
 
-    private TomlTableNode generateTable(TomlTableNode parentTable, TomlKeyEntryNode parentString, boolean isGenerated,
+    private TomlTableNode generateTable(TomlTableNode parentTable, TomlKeyEntryNode parentString,
                                         TomlNodeLocation location) {
         List<TomlKeyEntryNode> list = new ArrayList<>();
         list.add(parentString);
         TomlKeyNode newTableKey = new TomlKeyNode(list, parentString.location());
-        TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, isGenerated, location);
+        TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, true, location);
         addChildToTableAST(parentTable, newTomlTableNode);
         return newTomlTableNode;
     }
