@@ -266,12 +266,13 @@ public class RunTestsTask implements Task {
         if (!coverage) {
             return;
         }
-        Map<String, ModuleCoverage> moduleCoverageMap = new HashMap<>();
+        Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             CoverageReport coverageReport = new CoverageReport(module);
             coverageReport.generateReport(jarResolver, moduleCoverageMap, jBallerinaBackend);
         }
+        // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
             String moduleName = (String) mapElement.getKey();
             ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
@@ -463,5 +464,20 @@ public class RunTestsTask implements Task {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             FileUtils.deleteDirectory(cachesRoot);
         }
+    }
+
+    /**
+     * Initialize coverage map used for aggregating module wise coverage.
+     *
+     * @param project Project
+     * @return Map<String, ModuleCoverage>
+     */
+    private Map<String, ModuleCoverage> initializeCoverageMap(Project project) {
+        Map<String, ModuleCoverage> moduleCoverageMap = new HashMap<>();
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            moduleCoverageMap.put(module.moduleName().toString(), new ModuleCoverage());
+        }
+        return moduleCoverageMap;
     }
 }

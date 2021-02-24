@@ -167,15 +167,18 @@ public class CoverageReport {
         boolean containsSourceFiles = true;
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
+
             if (TesterinaConstants.DOT.equals(this.module.moduleName())) {
                 containsSourceFiles = packageCoverage.getName().isEmpty();
             }
-
             if (containsSourceFiles) {
                 for (ISourceFileCoverage sourceFileCoverage : packageCoverage.getSourceFiles()) {
                     // Extract the Module name individually for each source file
                     // This is done since some source files come from other modules
                     // sourceFileCoverage : "<orgname>/<moduleName>:<version>
+                    if (sourceFileCoverage.getPackageName().split("/").length <= 1) {
+                        continue;
+                    }
                     String sourceFileModule = decodeIdentifier(sourceFileCoverage.getPackageName().split("/")[1]);
                     ModuleCoverage moduleCoverage;
                     if (moduleCoverageMap.containsKey(sourceFileModule)) {
@@ -184,8 +187,8 @@ public class CoverageReport {
                         moduleCoverage = new ModuleCoverage();
                     }
                     // If file is a source bal file
-                    if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX)
-                            && !sourceFileCoverage.getName().contains("tests/")) {
+                    if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX) &&
+                            !sourceFileCoverage.getName().contains("tests/")) {
                         if (moduleCoverage.containsSourceFile(sourceFileCoverage.getName())) {
                             // Update coverage for missed lines if covered
                             Optional<List<Integer>> missedLinesList = moduleCoverage.getMissedLinesList(
@@ -230,7 +233,8 @@ public class CoverageReport {
                                 ILine line = sourceFileCoverage.getLine(i);
                                 if (line.getStatus() == NOT_COVERED) {
                                     missedLines.add(i);
-                                } else if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
+                                } else if (line.getStatus() == PARTLY_COVERED ||
+                                        line.getStatus() == FULLY_COVERED) {
                                     coveredLines.add(i);
                                 }
                             }
@@ -242,6 +246,7 @@ public class CoverageReport {
                             moduleCoverageMap.put(sourceFileModule, moduleCoverage);
 
                         }
+
                     }
                 }
             }
