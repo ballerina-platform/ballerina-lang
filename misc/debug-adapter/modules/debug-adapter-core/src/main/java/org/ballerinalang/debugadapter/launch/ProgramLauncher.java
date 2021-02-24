@@ -33,8 +33,8 @@ public abstract class ProgramLauncher {
     protected final String projectRoot;
     protected final ClientLaunchConfigHolder configHolder;
 
-    private static final String BAL_RUN_CMD_NAME = "run";
-    private static final String BAL_TEST_CMD_NAME = "test";
+    private static final String BAL_RUN_CMD = "run";
+    private static final String BAL_TEST_CMD = "test";
 
     protected ProgramLauncher(ClientLaunchConfigHolder configHolder, String projectRoot) {
         this.configHolder = configHolder;
@@ -67,7 +67,7 @@ public abstract class ProgramLauncher {
 
         ArrayList<String> command = new ArrayList<>(ballerinaExec);
         boolean isTestDebugMode = configHolder.isTestDebug();
-        command.add(isTestDebugMode ? BAL_TEST_CMD_NAME : BAL_RUN_CMD_NAME);
+        command.add(isTestDebugMode ? BAL_TEST_CMD : BAL_RUN_CMD);
 
         // Adds debug args.
         command.add("--debug");
@@ -82,7 +82,7 @@ public abstract class ProgramLauncher {
             command.add(".");
         }
 
-        boolean networkLogs = configHolder.networkLogsEnabled();
+        boolean networkLogs = configHolder.isNetworkLogsEnabled();
         if (networkLogs && !isTestDebugMode && configHolder.getNetworkLogsPort().isPresent()) {
             command.add("--b7a.http.tracelog.host=localhost");
             command.add("--b7a.http.tracelog.port=" + configHolder.getNetworkLogsPort());

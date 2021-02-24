@@ -98,7 +98,7 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
         return testDebug;
     }
 
-    public boolean networkLogsEnabled() {
+    public boolean isNetworkLogsEnabled() {
         if (networkLogsEnabled == null) {
             Object networkLogs = clientRequestArgs.get(ARG_NETWORK_LOGS);
             if (networkLogs instanceof Boolean) {
