@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
@@ -213,7 +214,7 @@ public class RunTestsTask implements Task {
                 suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
             }
             suite.setReportRequired(report || coverage);
-            Collection<Path> dependencies = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
+            Collection<JarLibrary> dependencies = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                 out.println("\t" + module.document(module.documentIds().iterator().next()).name());
             } else {
@@ -351,7 +352,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int runTestSuit(Path moduleTestCache, Target target, Collection<Path> testDependencies,
+    private int runTestSuit(Path moduleTestCache, Target target, Collection<JarLibrary> testDependencies,
                             Module module) throws IOException, InterruptedException {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
@@ -397,9 +398,9 @@ public class RunTestsTask implements Task {
 
     }
 
-    private String getClassPath(Collection<Path> dependencies) {
+    private String getClassPath(Collection<JarLibrary> dependencies) {
         StringJoiner cp = new StringJoiner(File.pathSeparator);
-        dependencies.stream().map(Path::toString).forEach(cp::add);
+        dependencies.stream().map(JarLibrary::path).map(Path::toString).forEach(cp::add);
         return cp.toString();
     }
 

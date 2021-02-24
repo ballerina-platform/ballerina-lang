@@ -156,6 +156,10 @@ public class BuildCommand implements BLauncherCmd {
             description = "hidden option for code coverage to include all classes")
     private String includes;
 
+    @CommandLine.Option(names = "--list-conflicted-classes",
+            description = "list conflicted classes when generating executable")
+    private Boolean listConflictedClasses;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -272,6 +276,7 @@ public class BuildCommand implements BLauncherCmd {
                 .taintCheck(taintCheck)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
+                .listConflictedClasses(listConflictedClasses)
                 .build();
     }
 
