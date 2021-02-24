@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.test.runtime.Main.getClassLoader;
-
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND_NAME;
 

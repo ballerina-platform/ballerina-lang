@@ -405,13 +405,13 @@ public class RunTestsTask implements Task {
         for (String moduleName : moduleNames) {
             moduleNameList += moduleName + "#";
         }
-        cmdArgs.add(moduleNameList);
+        cmdArgs.add(moduleNameList);                // 0
 
-        cmdArgs.add(testCachePath.toString());
-        cmdArgs.addAll(args);
-        cmdArgs.add(target.path().toString());
-        cmdArgs.add(Boolean.toString(report));
-        cmdArgs.add(Boolean.toString(coverage));
+        cmdArgs.add(testCachePath.toString());      // 1
+        cmdArgs.add(target.path().toString());      // 2
+        cmdArgs.add(Boolean.toString(report));      // 3
+        cmdArgs.add(Boolean.toString(coverage));    // 4
+        cmdArgs.addAll(args);                       // 5
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
