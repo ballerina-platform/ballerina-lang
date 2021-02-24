@@ -54,7 +54,7 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
 
     public String getBallerinaHome() throws ClientConfigurationException {
         if (ballerinaHome == null) {
-            failIfMissing(ARG_BALLERINA_HOME);
+            failIfConfigMissing(ARG_BALLERINA_HOME);
             ballerinaHome = clientRequestArgs.get(ARG_BALLERINA_HOME).toString();
         }
         return ballerinaHome;

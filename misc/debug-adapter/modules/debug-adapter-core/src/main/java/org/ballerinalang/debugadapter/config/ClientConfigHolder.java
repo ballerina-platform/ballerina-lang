@@ -45,7 +45,7 @@ public class ClientConfigHolder {
 
     public String getSourcePath() throws ClientConfigurationException {
         if (sourcePath == null) {
-            failIfMissing(ARG_FILE_PATH);
+            failIfConfigMissing(ARG_FILE_PATH);
             sourcePath = clientRequestArgs.get(ARG_FILE_PATH).toString();
         }
         return sourcePath;
@@ -53,15 +53,23 @@ public class ClientConfigHolder {
 
     public int getDebuggePort() throws ClientConfigurationException {
         if (debuggePort == null) {
-            failIfMissing(ARG_DEBUGGEE_PORT);
+            failIfConfigMissing(ARG_DEBUGGEE_PORT);
             debuggePort = Integer.parseInt(clientRequestArgs.get(ARG_DEBUGGEE_PORT).toString());
         }
         return debuggePort;
     }
 
-    protected void failIfMissing(String configName) throws ClientConfigurationException {
+    protected void failIfConfigMissing(String configName) throws ClientConfigurationException {
         if (clientRequestArgs.get(configName) == null) {
             throw new ClientConfigurationException("Required client configuration missing: '" + configName + "'");
         }
+    }
+
+    /**
+     * Defines the possible types of client(user) configurations.
+     */
+    public enum ClientConfigKind {
+        ATTACH_CONFIG,
+        LAUNCH_CONFIG
     }
 }

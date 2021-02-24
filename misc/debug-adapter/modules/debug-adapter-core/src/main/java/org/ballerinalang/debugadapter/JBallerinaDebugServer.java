@@ -154,6 +154,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String WORKER_LAMBDA_REGEX = "(\\$lambda\\$)\\b(.*)\\b(\\$lambda)(.*)";
     private static final String SCOPE_NAME_LOCAL = "Local";
     private static final String SCOPE_NAME_GLOBAL = "Global";
+    private static final String VALUE_UNKNOWN = "unknown";
 
     public JBallerinaDebugServer() {
         context = new ExecutionContext(this);
@@ -250,7 +251,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             try {
                 portName = Integer.toString(clientConfigHolder.getDebuggePort());
             } catch (ClientConfigurationException clientConfigurationException) {
-                portName = "unknown";
+                portName = VALUE_UNKNOWN;
             }
             LOGGER.error(e.getMessage());
             sendOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.", host, portName), STDERR);
@@ -528,7 +529,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
         // Notifies user.
         String address = (executionManager.getHost().isPresent() && executionManager.getPort().isPresent()) ?
-                executionManager.getHost().get() + ":" + executionManager.getPort().get() : "unknown";
+                executionManager.getHost().get() + ":" + executionManager.getPort().get() : VALUE_UNKNOWN;
         sendOutput(String.format("Disconnected from the target VM, address: '%s'", address), STDOUT);
 
         // Exits from the debug server VM.
@@ -920,7 +921,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 try {
                     portName = Integer.toString(clientConfigHolder.getDebuggePort());
                 } catch (ClientConfigurationException clientConfigurationException) {
-                    portName = "unknown";
+                    portName = VALUE_UNKNOWN;
                 }
                 LOGGER.error(e.getMessage());
                 sendOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.", host, portName),
