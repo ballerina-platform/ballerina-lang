@@ -49,7 +49,12 @@ import java.util.regex.Pattern;
 public class ImportsManager {
     private static final QuotedIdentifier ANON_SOURCE = new QuotedIdentifier("$");
     private static final AtomicInteger IMPORT_INDEX = new AtomicInteger(0);
+    // Regex patterns
+    private static final Pattern CLONEABLE_SIGNATURE =
+            Pattern.compile("readonly\\|xml<[^>]*>\\|\\(Cloneable\\)\\[]\\|map<Cloneable>\\|table<map<Cloneable>>");
     private static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)/([\\w.]+):([\\d.]+):");
+    // Special imports
+    private static final String CLONEABLE_DEF = "ballerina/lang.value:0:Cloneable";
     private static final String JAVA_IMPORT_SOURCE = "import ballerina/jballerina.java;";
     private static final ImportDeclarationSnippet JAVA_IMPORT;
 
@@ -222,8 +227,13 @@ public class ImportsManager {
      */
     protected String extractImportsFromType(TypeSymbol typeSymbol, Set<QuotedIdentifier> imports) {
         String text = typeSymbol.signature();
+
+        // Replace all Cloneable with a qualified signature
+        String cloneableReplacedText = CLONEABLE_SIGNATURE.matcher(text)
+                .replaceAll(CLONEABLE_DEF);
+
         StringBuilder newText = new StringBuilder();
-        Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(text);
+        Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(cloneableReplacedText);
         int nextStart = 0;
         // Matching Fully-Qualified-Module-IDs (eg.`abc/mod1:1.0.0`)
         // Purpose is to transform `int|abc/mod1:1.0.0:Person` into `int|mod1:Person` or `int|Person`

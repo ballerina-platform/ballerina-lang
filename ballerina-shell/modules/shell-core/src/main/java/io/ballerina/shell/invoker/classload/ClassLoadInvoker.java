@@ -68,7 +68,7 @@ import java.util.stream.Collectors;
 public class ClassLoadInvoker extends ShellSnippetsInvoker {
     // Context related information
     public static final String CONTEXT_EXPR_VAR_NAME = "__last__";
-    // Punctuations
+    // Templates
     private static final String DECLARATION_TEMPLATE_FILE = "template.declaration.mustache";
     private static final String EXECUTION_TEMPLATE_FILE = "template.execution.mustache";
 
