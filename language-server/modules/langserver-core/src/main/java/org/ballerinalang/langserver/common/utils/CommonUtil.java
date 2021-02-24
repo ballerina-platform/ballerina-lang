@@ -479,9 +479,13 @@ public class CommonUtil {
             insertText.append("{").append(LINE_SEPARATOR);
             List<String> requiredFieldInsertTexts = new ArrayList<>();
             for (RecordFieldSymbol field : requiredFields) {
-                String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
-                        getRecordFieldCompletionInsertText(field, tabOffset + 1);
-                requiredFieldInsertTexts.add(fieldText);
+                // If the field refers to the same type as bField, it results in a stack overflow error.
+                // Avoiding that using the following check
+                if (!bField.equals(field)) {
+                    String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
+                            getRecordFieldCompletionInsertText(field, tabOffset + 1);
+                    requiredFieldInsertTexts.add(fieldText);
+                }
             }
             insertText.append(String.join("," + CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
             insertText.append(LINE_SEPARATOR)
