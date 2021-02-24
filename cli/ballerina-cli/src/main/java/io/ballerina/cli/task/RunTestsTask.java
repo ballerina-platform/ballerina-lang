@@ -243,7 +243,7 @@ public class RunTestsTask implements Task {
 
         try {
             if (hasTests) {
-                generateCoverage(project, jarResolver, target);
+                generateCoverage(project, jarResolver, jBallerinaBackend, target);
                 generateHtmlReport(project, this.out, testReport, target);
             }
         } catch (IOException e) {
@@ -260,7 +260,8 @@ public class RunTestsTask implements Task {
         cleanTempCache(project, cachesRoot);
     }
 
-    private void generateCoverage(Project project, JarResolver jarResolver, Target target) throws IOException {
+    private void generateCoverage(Project project, JarResolver jarResolver, JBallerinaBackend jBallerinaBackend,
+                                  Target target) throws IOException {
         // Generate code coverage
         if (!coverage) {
             return;
@@ -269,7 +270,7 @@ public class RunTestsTask implements Task {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             CoverageReport coverageReport = new CoverageReport(module);
-            coverageReport.generateReport(jarResolver, moduleCoverageMap);
+            coverageReport.generateReport(jarResolver, moduleCoverageMap, jBallerinaBackend);
         }
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
             String moduleName = (String) mapElement.getKey();

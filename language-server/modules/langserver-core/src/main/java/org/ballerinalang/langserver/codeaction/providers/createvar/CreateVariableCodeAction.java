@@ -32,6 +32,7 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -61,13 +62,17 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return actions;
         }
-        if (positionDetails.matchedExprType() == null) {
+
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+        if (typeSymbol.isEmpty()) {
             return actions;
         }
 
         String uri = context.fileUri();
         Range range = CommonUtil.toRange(diagnostic.location().lineRange());
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeSymbol.get(),
+                                                                          context);
         List<String> types = createVarTextEdits.types;
         for (int i = 0; i < types.size(); i++) {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
@@ -86,11 +91,9 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    CreateVariableOut getCreateVariableTextEdits(Range range,
-                                                 DiagBasedPositionDetails positionDetails,
-                                                 CodeActionContext context) {
+    CreateVariableOut getCreateVariableTextEdits(Range range, DiagBasedPositionDetails positionDetails,
+                                                 TypeSymbol typeDescriptor, CodeActionContext context) {
         Symbol matchedSymbol = positionDetails.matchedSymbol();
-        TypeSymbol typeDescriptor = positionDetails.matchedExprType();
 
         Position position = CommonUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
         Set<String> allNameEntries = context.visibleSymbols(position).stream()
