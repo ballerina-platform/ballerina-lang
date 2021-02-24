@@ -1,24 +1,16 @@
 {
   "position": {
-    "line": 13,
-    "character": 25
+    "line": 16,
+    "character": 30
   },
-  "source": "expression_context/source/field_access_ctx_source11.bal",
+  "source": "expression_context/source/field_access_ctx_source13.bal",
   "items": [
     {
-      "label": "city",
+      "label": "foo",
       "kind": "Field",
-      "detail": "string",
+      "detail": "int",
       "sortText": "G",
-      "insertText": "city",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "state",
-      "kind": "Field",
-      "detail": "string",
-      "sortText": "G",
-      "insertText": "state",
+      "insertText": "foo",
       "insertTextFormat": "Snippet"
     },
     {
