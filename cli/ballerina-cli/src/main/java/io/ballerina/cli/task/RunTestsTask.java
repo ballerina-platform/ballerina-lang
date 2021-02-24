@@ -35,6 +35,7 @@ import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.runtime.entity.CoverageReport;
+import org.ballerinalang.test.runtime.entity.ModuleCoverage;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -60,7 +61,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -262,10 +265,17 @@ public class RunTestsTask implements Task {
         if (!coverage) {
             return;
         }
+        Map<String, ModuleCoverage> moduleCoverageMap = new HashMap<>();
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             CoverageReport coverageReport = new CoverageReport(module);
-            testReport.addCoverage(module.moduleName().toString(), coverageReport.generateReport(jarResolver));
+            ModuleCoverage moduleCoverage = coverageReport.generateReport(jarResolver);
+            moduleCoverageMap.put(module.moduleName().toString(), moduleCoverage);
+        }
+        for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
+            String moduleName = (String) mapElement.getKey();
+            ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
+            testReport.addCoverage(moduleName, moduleCoverage);
         }
     }
 
