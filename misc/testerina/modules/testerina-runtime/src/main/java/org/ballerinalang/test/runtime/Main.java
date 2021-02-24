@@ -48,12 +48,7 @@ import java.util.List;
  */
 public class Main {
     static TestReport testReport;
-
-    static List<String> testExecutionDependencies;
-
-    public static List<String> getTestExecutionDependencies() {
-        return testExecutionDependencies;
-    }
+    static ClassLoader classLoader;
 
     public static void main(String[] args) throws IOException {
         String[] moduleNameList = args[0].split("#");
@@ -79,8 +74,8 @@ public class Main {
                         new String[]{target, testSuite.getOrgName(), testSuite.getPackageName(), moduleName};
                 LaunchUtils.initConfigurations(configArgs);
                 testSuite.setModuleName(moduleName);
-                testExecutionDependencies = testSuite.getTestExecutionDependencies();
-                ClassLoader classLoader = createClassLoader(testExecutionDependencies);
+                List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
+                classLoader = createClassLoader(testExecutionDependencies);
                 exitStatus = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
                         classLoader);
             } catch (Exception e) {
@@ -101,10 +96,9 @@ public class Main {
         } finally {
             if (testSuite.isReportRequired()) {
                 writeStatusToJsonFile(ModuleStatus.getInstance(), jsonTmpSummaryPath);
-                ModuleStatus.clearInstance(); // Check if this resets
+                ModuleStatus.clearInstance();
             }
             return exitStatus;
-            //Runtime.getRuntime().exit(exitStatus); Stops the runtime execution
         }
     }
 
@@ -140,26 +134,7 @@ public class Main {
         return test;
     }
 
-    public static URLClassLoader resolveClassLoader(String moduleName) {
-        List<String> testExecutionDependencies = getTestExecutionDependencies();
-
-        // Add them to a URL list
-        List<URL> urlList = new ArrayList<>();
-
-        for (String jarFilePath : testExecutionDependencies) {
-            try {
-                urlList.add(Paths.get(jarFilePath).toUri().toURL());
-            } catch (MalformedURLException e) {
-                // This path cannot get executed
-                throw new RuntimeException("Failed to create classloader with all jar files", e);
-            }
-        }
-
-        // Pass the list to the URL ClassLoader
-        URLClassLoader classLoader = AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>)
-                        () -> new URLClassLoader(urlList.toArray(new URL[0]), ClassLoader.getSystemClassLoader()));
-
+    public static ClassLoader getClassLoader() {
         return classLoader;
     }
 

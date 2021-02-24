@@ -19,7 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.test.runtime.Main.resolveClassLoader;
+import static org.ballerinalang.test.runtime.Main.getClassLoader;
+
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND_NAME;
 
@@ -85,11 +86,9 @@ public class FunctionMock {
         String packageName = packageValues[1];
         String version = packageValues[2];
 
-        ClassLoader classLoader = resolveClassLoader(packageName);
-
         List<Object> argsList = Arrays.asList(args);
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, originalFunction);
-        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader,
+        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, getClassLoader(),
                 originalClassName, originalFunction, argsList.toArray());
     }
 
@@ -105,14 +104,13 @@ public class FunctionMock {
         String version;
 
         String[] projectInfo = Thread.currentThread().getStackTrace()[4].getClassName().split(Pattern.quote("."));
-        ClassLoader classLoader = resolveClassLoader(projectInfo[1]);
         // Set project info
         try {
             orgName = projectInfo[0];
             packageName = projectInfo[1];
             version = projectInfo[2];
             className = "tests." + getMockClassName(orgName, packageName, version, originalFunction,
-                    originalClassName, mockFunctionName, mockFunctionClasses, classLoader);
+                    originalClassName, mockFunctionName, mockFunctionClasses, getClassLoader());
             className = getQualifiedClassName(orgName, packageName, version, className);
         } catch (ClassNotFoundException e) {
             return ErrorCreator.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
@@ -125,7 +123,7 @@ public class FunctionMock {
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, mockFunctionName);
 
         return Executor.executeFunction(
-                strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, className, mockFunctionName,
+                strand.scheduler, MOCK_STRAND_NAME, metadata, getClassLoader(), className, mockFunctionName,
                 argsList.toArray());
     }
 
