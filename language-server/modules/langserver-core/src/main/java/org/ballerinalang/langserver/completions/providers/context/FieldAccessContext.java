@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.FieldAccessCompletionResolver;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.List;
 
@@ -51,5 +52,17 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         List<Symbol> symbolList = resolver.getVisibleEntries(expr);
 
         return this.getCompletionItemList(symbolList, ctx);
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
+        // First we do the default sorting
+        super.sort(context, node, completionItems);
+
+        // Then we rank object/record fields at top
+        completionItems.stream()
+                .filter(item -> item.getType() == LSCompletionItem.CompletionItemType.OBJECT_FIELD ||
+                        item.getType() == LSCompletionItem.CompletionItemType.RECORD_FIELD)
+                .forEach(item -> item.getCompletionItem().setSortText(SortingUtil.genSortText(1)));
     }
 }

@@ -9,7 +9,7 @@
       "label": "foo",
       "kind": "Field",
       "detail": "int",
-      "sortText": "G",
+      "sortText": "A",
       "insertText": "foo",
       "insertTextFormat": "Snippet"
     },
