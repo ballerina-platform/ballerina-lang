@@ -186,11 +186,12 @@ public class CoverageReport {
                             Optional<List<Integer>> coveredLinesList =
                                     moduleCoverage.getCoveredLinesList(
                                             sourceFileCoverage.getName());
-                            if (!missedLinesList.isEmpty() && !missedLinesList.isEmpty()) {
+                            if (!missedLinesList.isEmpty() && !coveredLinesList.isEmpty()) {
                                 List<Integer> missedLines = missedLinesList.get();
                                 List<Integer> coveredLines = coveredLinesList.get();
                                 List<Integer> existingMissedLines = new ArrayList<>(missedLines);
                                 boolean isCoverageUpdated = false;
+                                int updateMissedLineCount = 0;
                                 for (int missedLine : existingMissedLines) {
                                     // Traverse through the missed lines of a source file and update
                                     // coverage status if it is covered in the current module.
@@ -200,6 +201,7 @@ public class CoverageReport {
                                         isCoverageUpdated = true;
                                         missedLines.remove(Integer.valueOf(missedLine));
                                         coveredLines.add(Integer.valueOf(missedLine));
+                                        updateMissedLineCount++;
                                     }
                                 }
                                 if (isCoverageUpdated) {
@@ -207,12 +209,13 @@ public class CoverageReport {
                                     // a coverage change
                                     Document document = getDocument(sourceFileCoverage.getName());
                                     if (document != null) {
-                                        moduleCoverage.updateCoverage(document, coveredLines, missedLines);
+                                        moduleCoverage.updateCoverage(document, coveredLines, missedLines,
+                                                updateMissedLineCount);
                                     }
                                 }
                             }
                         } else {
-                            // Calculate coverage for new source file
+                            // Calculate coverage for new source file only if belongs to current module
                             List<Integer> coveredLines = new ArrayList<>();
                             List<Integer> missedLines = new ArrayList<>();
                             for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine();
@@ -230,6 +233,7 @@ public class CoverageReport {
                                         missedLines);
                             }
                             moduleCoverageMap.put(sourceFileModule, moduleCoverage);
+
                         }
                     }
                 }
@@ -309,4 +313,5 @@ public class CoverageReport {
         }
         return modifiedLines;
     }
+
 }

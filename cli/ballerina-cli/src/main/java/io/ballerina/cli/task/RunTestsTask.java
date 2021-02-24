@@ -271,6 +271,11 @@ public class RunTestsTask implements Task {
             CoverageReport coverageReport = new CoverageReport(module);
             coverageReport.generateReport(jarResolver, moduleCoverageMap);
         }
+        for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
+            String moduleName = (String) mapElement.getKey();
+            ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
+            testReport.addCoverage(moduleName, moduleCoverage);
+        }
         testReport.addCoverage(moduleCoverageMap);
     }
 
