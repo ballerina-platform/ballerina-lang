@@ -24,6 +24,18 @@ public function testPublicVisibility() {
     assertEquality("Ballerina", module1:name);
 }
 
+public function testPublicVisibilityInComplexVar() {
+    assertEquality(32, module1:byteValue);
+    assertEquality(2.5, module1:floatValue);
+    assertEquality(1001, module1:Id);
+    assertEquality("John", module1:studentName);
+    assertEquality(24, module1:studentDetail["Age"]);
+    assertEquality("Paker", module1:studentDetail["surName"]);
+    assertEquality("AssignmentFailed", module1:errorMsg);
+    assertEquality("ArrayIndexOutOfBound", module1:errorCause);
+    assertEquality(1, module1:riskLevel);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

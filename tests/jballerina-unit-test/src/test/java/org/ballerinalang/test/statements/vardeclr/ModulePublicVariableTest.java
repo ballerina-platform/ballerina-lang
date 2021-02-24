@@ -48,6 +48,7 @@ public class ModulePublicVariableTest {
         return new Object[]{
                 "testDefaultVisibility",
                 "testPublicVisibility",
+                "testPublicVisibilityInComplexVar",
         };
     }
 }
