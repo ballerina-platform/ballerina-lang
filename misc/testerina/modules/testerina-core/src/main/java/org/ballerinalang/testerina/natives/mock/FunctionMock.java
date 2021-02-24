@@ -11,7 +11,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.testerina.natives.Executor;
-import org.ballerinalang.testerina.natives.mock.util.FunctionMockUtil;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -20,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.test.runtime.Main.resolveClassLoader;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND_NAME;
 
@@ -85,7 +85,7 @@ public class FunctionMock {
         String packageName = packageValues[1];
         String version = packageValues[2];
 
-        ClassLoader classLoader = FunctionMockUtil.resolveClassLoader(packageName);
+        ClassLoader classLoader = resolveClassLoader(packageName);
 
         List<Object> argsList = Arrays.asList(args);
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, originalFunction);
@@ -105,7 +105,7 @@ public class FunctionMock {
         String version;
 
         String[] projectInfo = Thread.currentThread().getStackTrace()[4].getClassName().split(Pattern.quote("."));
-        ClassLoader classLoader = FunctionMockUtil.resolveClassLoader(projectInfo[1]);
+        ClassLoader classLoader = resolveClassLoader(projectInfo[1]);
         // Set project info
         try {
             orgName = projectInfo[0];

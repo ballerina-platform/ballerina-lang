@@ -139,4 +139,28 @@ public class Main {
 
         return test;
     }
+
+    public static URLClassLoader resolveClassLoader(String moduleName) {
+        List<String> testExecutionDependencies = getTestExecutionDependencies();
+
+        // Add them to a URL list
+        List<URL> urlList = new ArrayList<>();
+
+        for (String jarFilePath : testExecutionDependencies) {
+            try {
+                urlList.add(Paths.get(jarFilePath).toUri().toURL());
+            } catch (MalformedURLException e) {
+                // This path cannot get executed
+                throw new RuntimeException("Failed to create classloader with all jar files", e);
+            }
+        }
+
+        // Pass the list to the URL ClassLoader
+        URLClassLoader classLoader = AccessController.doPrivileged(
+                (PrivilegedAction<URLClassLoader>)
+                        () -> new URLClassLoader(urlList.toArray(new URL[0]), ClassLoader.getSystemClassLoader()));
+
+        return classLoader;
+    }
+
 }
