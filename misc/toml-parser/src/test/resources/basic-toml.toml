@@ -14,14 +14,5 @@
 # specific language governing permissions and limitations
 # under the License.
 
-[[foo.bar]]
-name = "Alice"
-
-[foo]
-name = "Bob"
-
-#[foo]
-#name = "Bob"
-#
-#[[foo.bar]]
-#name = "Alice"
+key = "lul"
+key = "hello"

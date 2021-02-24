@@ -85,17 +85,23 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     }
 
     private void addChildNodeToParent(TomlTableNode rootTable, TomlNode transformedChild) {
-        if (transformedChild.kind() == TomlType.TABLE) {
-            TomlTableNode tableChild = (TomlTableNode) transformedChild;
-            addChildTableToParent(rootTable, tableChild);
-        } else if (transformedChild.kind() == TomlType.TABLE_ARRAY) {
-            TomlTableArrayNode transformedArray = (TomlTableArrayNode) transformedChild;
-            addChildParentArrayToParent(rootTable, transformedArray);
-        } else if (transformedChild.kind() == TomlType.KEY_VALUE) {
-            TomlKeyValueNode transformedKeyValuePair = (TomlKeyValueNode) transformedChild;
-            addChildKeyValueToParent(rootTable, transformedKeyValuePair);
-        } else {
-            throw new UnsupportedOperationException();
+        switch (transformedChild.kind()) {
+            case TABLE:
+                TomlTableNode tableChild = (TomlTableNode) transformedChild;
+                addChildTableToParent(rootTable, tableChild);
+                break;
+            case TABLE_ARRAY:
+                TomlTableArrayNode transformedArray = (TomlTableArrayNode) transformedChild;
+                addChildParentArrayToParent(rootTable, transformedArray);
+                break;
+            case KEY_VALUE:
+                TomlKeyValueNode transformedKeyValuePair = (TomlKeyValueNode) transformedChild;
+                addChildKeyValueToParent(rootTable, transformedKeyValuePair);
+                break;
+            default:
+                TomlDiagnostic unexpectedNode =
+                        dlog.error(transformedChild.location(), DiagnosticErrorCode.ERROR_UNEXPECTED_TOP_LEVEL_NODE);
+                rootTable.addDiagnostic(unexpectedNode);
         }
     }
 
@@ -169,16 +175,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         if (topLevelNode == null) {
             addChildToTableAST(parentTable, newTomlTableArray);
         } else {
-            //generated false?
-            if (topLevelNode instanceof TomlTableArrayNode) {
+            if (topLevelNode.kind() == TomlType.TABLE_ARRAY) {
                 ((TomlTableArrayNode) topLevelNode).addChild(newTomlTableArray.children().get(0));
-            } else if (topLevelNode instanceof TomlKeyValueNode) {
+            } else {
                 TomlDiagnostic nodeExists = dlog.error(newTomlTableArray.location(),
                         DiagnosticErrorCode.ERROR_EXISTING_NODE, newTomlTableArray.key().name());
                 parentTable.addDiagnostic(nodeExists);
-
-            } else {
-                throw new UnsupportedOperationException();
             }
         }
     }
@@ -218,7 +220,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         if (topLevelNode == null) {
             addChildToTableAST(parentTable, newTableNode);
         } else {
-            if (topLevelNode instanceof TomlTableNode) {
+            if (topLevelNode.kind() == TomlType.TABLE) {
                 TomlTableNode targetTable = (TomlTableNode) topLevelNode;
                 if (targetTable.generated()) {
                     parentTable.replaceGeneratedTable(newTableNode);
@@ -227,12 +229,10 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
                             DiagnosticErrorCode.ERROR_EXISTING_NODE, newTableNode.key().name());
                     parentTable.addDiagnostic(nodeExists);
                 }
-            } else if (topLevelNode instanceof TomlKeyValueNode) {
+            } else {
                 TomlDiagnostic nodeExist = dlog.error(newTableNode.location(),
                         DiagnosticErrorCode.ERROR_EXISTING_NODE, tableChild.key().name());
                 parentTable.addDiagnostic(nodeExist);
-            } else {
-                throw new UnsupportedOperationException();
             }
         }
     }
@@ -260,12 +260,10 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         NodeList<KeyValueNode> children = stTableNode.fields();
         for (KeyValueNode child : children) {
             TomlNode transformedChild = child.apply(this);
-            if (transformedChild instanceof TomlKeyValueNode) {
+            if (transformedChild.kind() == TomlType.KEY_VALUE) {
                 TopLevelNode topLevelChild = (TopLevelNode) transformedChild;
                 checkExistingNodes(astTomlTableNode, topLevelChild);
                 addChildKeyValueToParent(astTomlTableNode, (TomlKeyValueNode) transformedChild);
-            } else {
-                throw new UnsupportedOperationException();
             }
         }
     }
@@ -301,10 +299,8 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         TomlTableNode anonTable = new TomlTableNode(anonKey, position);
         for (KeyValueNode child : children) {
             TomlNode transformedChild = child.apply(this);
-            if (transformedChild instanceof TomlKeyValueNode) {
+            if (transformedChild.kind() == TomlType.KEY_VALUE) {
                 addChildKeyValueToParent(anonTable, (TomlKeyValueNode) transformedChild);
-            } else {
-                throw new UnsupportedOperationException();
             }
         }
         return anonTable;
