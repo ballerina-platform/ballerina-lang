@@ -545,7 +545,7 @@ public class JBallerinaBackend extends CompilerBackend {
     /**
      * Inner class to represent jar conflict.
      */
-    private class JarConflict {
+    private static class JarConflict {
         JarLibrary firstJarLibrary;
         JarLibrary secondJarLibrary;
         List<String> classes;
@@ -574,8 +574,9 @@ public class JBallerinaBackend extends CompilerBackend {
                 conflictedJarPkg2 = " dependency of '" + secondJarLibrary.packageName().get() + "'";
             }
 
-            StringBuilder warning = new StringBuilder("\t\t'" + firstJarLibrary.path().getFileName() + "'" + conflictedJarPkg1
-                    + " conflict with '" + secondJarLibrary.path().getFileName() + "'" + conflictedJarPkg2);
+            StringBuilder warning = new StringBuilder(
+                    "\t\t'" + firstJarLibrary.path().getFileName() + "'" + conflictedJarPkg1 + " conflict with '"
+                            + secondJarLibrary.path().getFileName() + "'" + conflictedJarPkg2);
 
             if (listClasses) {
                 for (String conflictedClass : classes) {
