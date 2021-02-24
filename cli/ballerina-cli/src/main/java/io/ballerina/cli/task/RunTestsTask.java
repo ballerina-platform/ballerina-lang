@@ -232,36 +232,39 @@ public class RunTestsTask implements Task {
 
         int testResult;
 
-        try {
-            testResult = runTestSuit(moduleNamesList, testsCachePath, target,
-                    project.currentPackage().packageName().toString(),
-                    project.currentPackage().packageOrg().toString());
+        if (hasTests) {
+            try {
+                testResult = runTestSuit(moduleNamesList, testsCachePath, target,
+                        project.currentPackage().packageName().toString(),
+                        project.currentPackage().packageOrg().toString());
 
-            for (String moduleName : moduleNamesList) {
                 if (report || coverage) {
-                    ModuleStatus moduleStatus = loadModuleStatusFromFile(
-                                    testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
-                    testReport.addModuleStatus(moduleName, moduleStatus);
+                    for (String moduleName : moduleNamesList) {
+                        ModuleStatus moduleStatus = loadModuleStatusFromFile(
+                                testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+                        testReport.addModuleStatus(moduleName, moduleStatus);
+                    }
+
+                    try {
+                        generateCoverage(project, jarResolver, jBallerinaBackend, target);
+                        generateHtmlReport(project, this.out, testReport, target);
+                    } catch (IOException e) {
+                        cleanTempCache(project, cachesRoot);
+                        throw createLauncherException("error occurred while generating test report :", e);
+                    }
+
                 }
-            }
-        } catch (IOException | InterruptedException e) {
-            cleanTempCache(project, cachesRoot);
-            throw createLauncherException("error occurred while running tests", e);
-        }
 
-        try {
-            if (hasTests) {
-                generateCoverage(project, jarResolver, jBallerinaBackend, target);
-                generateHtmlReport(project, this.out, testReport, target);
+            } catch (IOException | InterruptedException e) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("error occurred while running tests", e);
             }
-        } catch (IOException e) {
-            cleanTempCache(project, cachesRoot);
-            throw createLauncherException("error while generating test report :", e);
-        }
 
-        if (testResult != 0) {
-            cleanTempCache(project, cachesRoot);
-            throw createLauncherException("there are test failures");
+            if (testResult != 0) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("there are test failures");
+            }
+
         }
 
         // Cleanup temp cache for SingleFileProject
