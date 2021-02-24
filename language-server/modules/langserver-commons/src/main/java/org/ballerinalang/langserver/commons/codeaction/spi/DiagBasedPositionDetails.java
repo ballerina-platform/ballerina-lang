@@ -19,12 +19,18 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 
+import java.util.Optional;
+
 /**
  * This class holds position details for the diagnostics based code actions.
  *
  * @since 2.0.0
  */
 public interface DiagBasedPositionDetails {
+    int DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX = 0;
+    int DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX = 1;
+    int DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX = 0;
+
     /**
      * Returns matched scoped node for the current position.
      *
@@ -40,9 +46,10 @@ public interface DiagBasedPositionDetails {
     Symbol matchedSymbol();
 
     /**
-     * Returns type-descriptor of the matchhed scoped symbol for the current position.
+     * Returns optional symbol of the diagnostic property.
      *
+     * @param propertyIndex property index
      * @return {@link TypeSymbol}
      */
-    TypeSymbol matchedExprType();
+    Optional<TypeSymbol> diagnosticProperty(int propertyIndex);
 }

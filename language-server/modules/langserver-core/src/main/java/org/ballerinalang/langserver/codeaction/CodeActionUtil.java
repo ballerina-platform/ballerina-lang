@@ -303,14 +303,15 @@ public class CodeActionUtil {
     /**
      * Returns position details for this cursor position.
      *
-     * @param range      cursor {@link Range}
      * @param syntaxTree {@link SyntaxTree}
+     * @param diagnostic {@link Diagnostic}
      * @param context    {@link CodeActionContext}
      * @return {@link DiagBasedPositionDetails}
      */
-    public static DiagBasedPositionDetails computePositionDetails(Range range, SyntaxTree syntaxTree,
+    public static DiagBasedPositionDetails computePositionDetails(SyntaxTree syntaxTree, Diagnostic diagnostic,
                                                                   CodeActionContext context) {
         // Find Cursor node
+        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
         Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
         SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
@@ -319,7 +320,6 @@ public class CodeActionUtil {
                                                                                         semanticModel, srcFile);
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
-        Optional<TypeSymbol> matchedExprTypeSymbol;
         if (nodeAndSymbol.isPresent()) {
             matchedNode = nodeAndSymbol.get().getLeft();
             matchedSymbol = nodeAndSymbol.get().getRight();
@@ -327,8 +327,7 @@ public class CodeActionUtil {
             matchedNode = cursorNode;
             matchedSymbol = null;
         }
-        matchedExprTypeSymbol = semanticModel.type(largestExpressionNode(cursorNode, range).lineRange());
-        return DiagBasedPositionDetailsImpl.from(matchedNode, matchedSymbol, matchedExprTypeSymbol.orElse(null));
+        return DiagBasedPositionDetailsImpl.from(matchedNode, matchedSymbol, diagnostic);
     }
 
     public static List<TextEdit> getTypeGuardCodeActionEdits(String varName, Range range, UnionTypeSymbol unionType,

@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -69,6 +70,12 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
+        if (typeSymbol.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         // Skip, variable declarations with non-initializers
         VariableDeclarationNode localVarNode = (VariableDeclarationNode) positionDetails.matchedNode();
         Optional<ExpressionNode> initializer = localVarNode.initializer();
@@ -105,7 +112,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         // Derive possible types
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes(positionDetails.matchedExprType(), importEdits, context);
+        List<String> types = CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context);
         for (String type : types) {
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(paramTypeRange.get(), type));

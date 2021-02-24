@@ -16,12 +16,12 @@
 package org.ballerinalang.datamapper;
 
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -83,7 +83,12 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                                                                DiagBasedPositionDetails positionDetails,
                                                                CodeActionContext context) {
         try {
-            TypeDescKind typeDescriptor = CommonUtil.getRawType(positionDetails.matchedExprType()).typeKind();
+            Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
+                    DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+            if (typeSymbol.isEmpty()) {
+                return Optional.empty();
+            }
+            TypeDescKind typeDescriptor = typeSymbol.get().typeKind();
 
             if (typeDescriptor == TypeDescKind.RECORD || typeDescriptor == TypeDescKind.COMPILATION_ERROR) {
                 CodeAction action = new CodeAction("Generate mapping function");
