@@ -61,13 +61,10 @@ public class DiagramUtil {
         JsonElement syntaxTreeJson;
         try {
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
-
             if (node.kind() == SyntaxKind.LIST) {
                 JsonArray syntaxTreeNodes = new JsonArray();
-
                 for (Node childNode: node.children()) {
-                    JsonElement syntaxNodeJson = mapGenerator.transformSyntaxNode(childNode);
-                    syntaxTreeNodes.add(syntaxNodeJson);
+                    syntaxTreeNodes.add(mapGenerator.transformSyntaxNode(childNode));
                 }
                 syntaxTreeJson = syntaxTreeNodes;
             } else {
