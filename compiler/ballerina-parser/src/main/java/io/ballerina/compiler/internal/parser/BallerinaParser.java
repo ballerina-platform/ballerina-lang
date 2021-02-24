@@ -859,6 +859,14 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseModuleVarDecl(STNode metadata, STNode publicQualifier, List<STNode> topLevelQualifiers) {
+
+        // Invalidate public qualifier with isolated qualifier
+        if (isSyntaxKindInList(topLevelQualifiers, SyntaxKind.ISOLATED_KEYWORD) && publicQualifier != null) {
+            updateFirstNodeInListWithLeadingInvalidNode(topLevelQualifiers, publicQualifier,
+                    DiagnosticErrorCode.ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC);
+            publicQualifier = STNodeFactory.createEmptyNode();
+        }
+
         List<STNode> varDeclQuals = extractVarDeclQualifiers(topLevelQualifiers);
         return parseVariableDecl(metadata, publicQualifier, varDeclQuals, topLevelQualifiers, true);
     }
@@ -4255,14 +4263,6 @@ public class BallerinaParser extends AbstractParser {
             lastQualifier = varDeclQuals.remove(varDeclQuals.size() - 1);
             typedBindingPattern =
                     modifyTypedBindingPatternWithIsolatedQualifier(typedBindingPattern, lastQualifier);
-        }
-
-        // If `isolated` keyword is still in varDeclQuals then it belongs to var declaration qualifiers.
-        // Hence, invalidate public qualifier since isolated var cannot be declared as public.
-        if (isSyntaxKindInList(varDeclQuals, SyntaxKind.ISOLATED_KEYWORD)) {
-            updateFirstNodeInListWithLeadingInvalidNode(varDeclQuals, publicQualifier,
-                    DiagnosticErrorCode.ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC);
-            publicQualifier = STNodeFactory.createEmptyNode();
         }
 
         return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign, expr,

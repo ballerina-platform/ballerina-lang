@@ -1,3 +1,9 @@
 public listener string s1 = "http://hello1.com";
 
-public const string s2 = "http://hello3.com";
+public isolated string s2 = "http://hello2.com";
+
+public const string s3 = "http://hello3.com";
+
+public isolated string s4;
+
+% public int i = 5;
