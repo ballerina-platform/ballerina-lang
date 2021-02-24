@@ -14,24 +14,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-int number = 54;
+public isolated string name = "Ballerina";
 
-public function getNumber() returns int {
-    return number;
-}
-
-public string name = "Ballerina";
-
-public [byte, float] [byteValue, floatValue] = [32, 2.5];
-
-type studentRecord record {
-    int Id;
-    string studentName;
-};
-
-public studentRecord {Id, studentName, ...studentDetail} = {Id: 1001, studentName: "John", "Age": 24, "surName": "Paker"};
-
-type myError error<record{ int riskLevel; }>;
-
-public myError error(errorMsg, error(errorCause), riskLevel = riskLevel) =
-                                        error myError("AssignmentFailed", error("ArrayIndexOutOfBound"), riskLevel = 1);

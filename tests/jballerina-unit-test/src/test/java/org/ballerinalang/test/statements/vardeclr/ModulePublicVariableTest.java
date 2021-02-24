@@ -23,6 +23,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.testng.Assert.assertEquals;
+
 
 /**
  * Class to module level public variable declaration.
@@ -31,15 +34,16 @@ import org.testng.annotations.Test;
  */
 public class ModulePublicVariableTest {
 
-    private CompileResult compileResult;
+    private CompileResult compileResult, compileResultNegetive;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/statements/vardeclr/AccessProject");
+        compileResultNegetive = BCompileUtil.compile("test-src/statements/vardeclr/AccessProjectNegative");
     }
     
     @Test(dataProvider = "modulePublicVariableAccessData")
-    public void testModuleLevelTupleVarDecl(String functionName) {
+    public void testModulePublicVariableAccess(String functionName) {
         BRunUtil.invoke(compileResult, functionName);
     }
 
@@ -50,5 +54,14 @@ public class ModulePublicVariableTest {
                 "testPublicVisibility",
                 "testPublicVisibilityInComplexVar",
         };
+    }
+
+    @Test
+    public void testModulePublicVariableAccessNegative() {
+        int index = 0;
+        validateError(compileResultNegetive, index++, "isolated variable cannot be declared as public", 17, 8);
+        validateError(compileResultNegetive, index++, "attempt to refer to non-accessible symbol 'name'", 20, 21);
+        validateError(compileResultNegetive, index++, "undefined symbol 'name'", 20, 21);
+        assertEquals(compileResultNegetive.getErrorCount(), index);
     }
 }
