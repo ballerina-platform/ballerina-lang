@@ -2858,7 +2858,6 @@ public class Desugar extends BLangNodeVisitor {
             // }
             result = rewrite(retryBlockStmt, env);
             enclosingShouldContinue.remove(enclosingShouldContinue.size() - 1);
-//            this.retryManagerRef = prevRetryManagerRef;
             this.shouldRetryRef = prevShouldRetryRef;
         }
     }
