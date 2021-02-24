@@ -71,7 +71,8 @@ public class BallerinaDocGenerator {
 
     public static final String API_DOCS_JSON = "api-docs.json";
     private static final String API_DOCS_JS = "api-docs.js";
-    private static final String CENTRAL_DOC_DATA_JSON = "central_doc_data.json";
+    private static final String CENTRAL_STDLIB_INDEX_JSON = "stdlib-index.json";
+    private static final String CENTRAL_STDLIB_SEARCH_JSON = "stdlib-search.json";
 
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
             .excludeFieldsWithoutExposeAnnotation().create();
@@ -149,15 +150,26 @@ public class BallerinaDocGenerator {
         packageLib.packages.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
         writeAPIDocs(packageLib, apiDocsRoot, true, false);
 
-        // Create the central json
-        String json = gson.toJson(centralLib);
-        File jsonFile = new File(apiDocsRoot + File.separator + CENTRAL_DOC_DATA_JSON);
-        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),
+        // Create the central standard library index json
+        String stdIndexJson = gson.toJson(centralLib);
+        File stdIndexJsonFile = new File(apiDocsRoot + File.separator + CENTRAL_STDLIB_INDEX_JSON);
+        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(stdIndexJsonFile),
                 StandardCharsets.UTF_8)) {
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            writer.write(new String(stdIndexJson.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            out.printf("docerina: failed to create the %s. Cause: %s%n", CENTRAL_DOC_DATA_JSON, e.getMessage());
-            log.error("Failed to create {} file.", CENTRAL_DOC_DATA_JSON, e);
+            out.printf("docerina: failed to create the %s. Cause: %s%n", CENTRAL_STDLIB_INDEX_JSON, e.getMessage());
+            log.error("Failed to create {} file.", CENTRAL_STDLIB_INDEX_JSON, e);
+        }
+
+        // Create the central standard library search json
+        String stdSearchJson = gson.toJson(genSearchJson(packageLib));
+        File stdSearchJsonFile = new File(apiDocsRoot + File.separator + CENTRAL_STDLIB_SEARCH_JSON);
+        try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(stdSearchJsonFile),
+                StandardCharsets.UTF_8)) {
+            writer.write(new String(stdSearchJson.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            out.printf("docerina: failed to create the %s. Cause: %s%n", CENTRAL_STDLIB_SEARCH_JSON, e.getMessage());
+            log.error("Failed to create {} file.", CENTRAL_STDLIB_SEARCH_JSON, e);
         }
     }
 
