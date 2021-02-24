@@ -205,28 +205,34 @@ public class InteropMethodGen {
 
         // Load receiver which is the 0th parameter in the birFunc
         if (!jField.isStatic()) {
-            BIRNode.BIRVariableDcl var = birFuncParams.get(0);
-            int receiverLocalVarIndex = indexMap.addIfNotExists(var.name.value, var.type);
-            mv.visitVarInsn(ALOAD, receiverLocalVarIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, "()Ljava/lang/Object;", false);
-            mv.visitTypeInsn(CHECKCAST, jField.getDeclaringClassName());
+            if (birFuncParams.get(0).type.tag == TypeTags.HANDLE) {
+                BIRNode.BIRVariableDcl var = birFuncParams.get(0);
+                int receiverLocalVarIndex = indexMap.addIfNotExists(var.name.value, var.type);
+                mv.visitVarInsn(ALOAD, receiverLocalVarIndex);
+                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, "()Ljava/lang/Object;", false);
+                mv.visitTypeInsn(CHECKCAST, jField.getDeclaringClassName());
 
-            Label ifNonNullLabel = labelGen.getLabel("receiver_null_check");
-            mv.visitLabel(ifNonNullLabel);
-            mv.visitInsn(DUP);
+                Label ifNonNullLabel = labelGen.getLabel("receiver_null_check");
+                mv.visitLabel(ifNonNullLabel);
+                mv.visitInsn(DUP);
 
-            Label elseBlockLabel = labelGen.getLabel("receiver_null_check_else");
-            mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
-            Label thenBlockLabel = labelGen.getLabel("receiver_null_check_then");
-            mv.visitLabel(thenBlockLabel);
-            mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
-            mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
-            mv.visitInsn(ICONST_0);
-            mv.visitTypeInsn(ANEWARRAY, OBJECT);
-            mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
-                    "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
-            mv.visitInsn(ATHROW);
-            mv.visitLabel(elseBlockLabel);
+                Label elseBlockLabel = labelGen.getLabel("receiver_null_check_else");
+                mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
+                Label thenBlockLabel = labelGen.getLabel("receiver_null_check_then");
+                mv.visitLabel(thenBlockLabel);
+                mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
+                mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
+                mv.visitInsn(ICONST_0);
+                mv.visitTypeInsn(ANEWARRAY, OBJECT);
+                mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
+                        "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" +
+                                ERROR_VALUE + ";", false);
+                mv.visitInsn(ATHROW);
+                mv.visitLabel(elseBlockLabel);
+            } else {
+                throw new BLangCompilerException(String.format("No such static field %s found in class %s",
+                        jField.getName(), jField.getDeclaringClassName()));
+            }
         }
 
         // Load java method parameters
@@ -248,7 +254,14 @@ public class InteropMethodGen {
             if (jField.method == JFieldMethod.ACCESS) {
                 mv.visitFieldInsn(GETFIELD, jField.getDeclaringClassName(), jField.getName(), jField.getSignature());
             } else {
-                mv.visitFieldInsn(PUTFIELD, jField.getDeclaringClassName(), jField.getName(), jField.getSignature());
+                if (birFuncParams.size() > 2) {
+                    mv.visitFieldInsn(PUTFIELD, jField.getDeclaringClassName(), jField.getName(),
+                            jField.getSignature());
+                } else {
+                    throw new BLangCompilerException(String.format("No parameter found to set the value to the " +
+                            "instance field '%s' in the class '%s'.",
+                            jField.getName(), jField.getDeclaringClassName()));
+                }
             }
         }
 
