@@ -21,7 +21,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
-import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PlatformLibrary;
@@ -91,7 +90,8 @@ public class CoverageReport {
      *
      * @throws IOException when file operations are failed
      */
-    public ModuleCoverage generateReport(JarResolver jarResolver) throws IOException {
+    public ModuleCoverage generateReport(JarResolver jarResolver, JBallerinaBackend jBallerinaBackend)
+            throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
         String version = this.module.packageInstance().packageVersion().toString();
@@ -100,9 +100,10 @@ public class CoverageReport {
 
         if (!module.testDocumentIds().isEmpty()) {
             filteredPathList =
-                    filterPaths(jarResolver.getJarFilePathsRequiredForTestExecution(this.module.moduleName()));
+                    filterPaths(jarResolver.getJarFilePathsRequiredForTestExecution(this.module.moduleName()),
+                            jBallerinaBackend);
         } else {
-            filteredPathList = filterPaths(jarResolver.getJarFilePathsRequiredForExecution());
+            filteredPathList = filterPaths(jarResolver.getJarFilePathsRequiredForExecution(), jBallerinaBackend);
         }
 
         if (!filteredPathList.isEmpty()) {
@@ -205,40 +206,38 @@ public class CoverageReport {
         }
     }
 
-    private List<Path> filterPaths(Collection<Path> pathCollection) {
+    private List<Path> filterPaths(Collection<Path> pathCollection, JBallerinaBackend jBallerinaBackend) {
         List<Path> filteredPathList = new ArrayList<>();
-        List<Path> depsList = getDependencyJarPathsList();
+        List<Path> exclusionPathList = getExclusionJarList(jBallerinaBackend);
         for (Path path : pathCollection) {
-            if (!depsList.contains(path)) {
+            if (!exclusionPathList.contains(path)) {
                 filteredPathList.add(path);
             }
         }
         return filteredPathList;
     }
 
-    private List<Path> getDependencyJarPathsList() {
-        List<Path> depPaths = new ArrayList<>();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(module.packageInstance().getCompilation(),
-                JvmTarget.JAVA_11);
+    private List<Path> getExclusionJarList(JBallerinaBackend jBallerinaBackend) {
+        List<Path> exclusionPathList = new ArrayList<>();
         module.packageInstance().getResolution().allDependencies()
                 .stream()
                 .map(ResolvedPackageDependency::packageInstance)
                 .forEach(pkg -> {
-                    for (ModuleId moduleId1 : pkg.moduleIds()) {
-                        Module module1 = pkg.module(moduleId1);
+                    for (ModuleId dependencyModuleId : pkg.moduleIds()) {
+                        Module dependencyModule = pkg.module(dependencyModuleId);
                         PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
-                                pkg.packageId(), module1.moduleName());
-                        depPaths.add(generatedJarLibrary.path());
+                                pkg.packageId(), dependencyModule.moduleName());
+                        exclusionPathList.add(generatedJarLibrary.path());
                     }
                     Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
                             pkg.packageId(), PlatformLibraryScope.DEFAULT);
                     for (PlatformLibrary otherJarDependency : otherJarDependencies) {
-                        depPaths.add(otherJarDependency.path());
+                        exclusionPathList.add(otherJarDependency.path());
                     }
                 });
-        depPaths.add(jBallerinaBackend.runtimeLibrary().path());
-        depPaths.addAll(ProjectUtils.testDependencies());
-        return depPaths;
+        exclusionPathList.add(jBallerinaBackend.runtimeLibrary().path());
+        exclusionPathList.addAll(ProjectUtils.testDependencies());
+        return exclusionPathList;
     }
 
     private Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {

@@ -111,8 +111,7 @@ public class CodeCoverageUtils {
         //Next we walk through extractedJarPath and copy only the class files
         List<Path> pathList;
         try (Stream<Path> walk = Files.walk(extractedJarPath)) {
-            pathList =
-                    walk.map(path -> path).filter(f -> f.toString().endsWith(".class")).collect(Collectors.toList());
+            pathList = walk.map(path -> path).filter(f -> f.toString().endsWith(".class")).collect(Collectors.toList());
         } catch (IOException e) {
             return;
         }
