@@ -28,8 +28,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Document;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 
 /**
  * This is the DiagramUtil class for Diagram related Utils which include the JSON conversion of the Syntax Tree.
@@ -67,27 +65,9 @@ public class DiagramUtil {
                 syntaxTreeJson = mapGenerator.transformSyntaxNode(node.parent());
             } else if (node instanceof Token) {
                 JsonObject nodeJson = new JsonObject();
-                JsonObject nodeInfo = new JsonObject();
-
-                String nodeKind = mapGenerator.prettifyKind(node.kind().toString());
-                nodeInfo.addProperty("kind", nodeKind);
-                nodeInfo.addProperty("isToken", true);
-                nodeInfo.addProperty("value", ((Token) node).text());
-                if (node.lineRange() != null) {
-                    LineRange lineRange = node.lineRange();
-                    LinePosition startLine = lineRange.startLine();
-                    LinePosition endLine = lineRange.endLine();
-                    JsonObject position = new JsonObject();
-                    position.addProperty("startLine", startLine.line());
-                    position.addProperty("startColumn", startLine.offset());
-                    position.addProperty("endLine", endLine.line());
-                    position.addProperty("endColumn", endLine.offset());
-                    nodeInfo.add("position", position);
-                }
-                nodeInfo.add("leadingMinutiae", mapGenerator.evaluateMinutiae(node.leadingMinutiae()));
-                nodeInfo.add("trailingMinutiae", mapGenerator.evaluateMinutiae(node.trailingMinutiae()));
-
-                nodeJson.add("members", nodeInfo);
+                JsonElement nodeInfo = mapGenerator.apply(node);
+                String nodeKind  = mapGenerator.prettifyKind(node.kind().toString());
+                nodeJson.add(nodeKind, nodeInfo);
                 nodeJson.addProperty("kind", nodeKind);
                 syntaxTreeJson = nodeJson;
             } else {

@@ -299,7 +299,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         return nodeJson;
     }
 
-    private JsonElement apply(Node node) {
+    protected JsonElement apply(Node node) {
         JsonObject nodeInfo = new JsonObject();
         nodeInfo.addProperty("kind", prettifyKind(node.kind().toString()));
         if (node instanceof Token) {
@@ -328,14 +328,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         return nodeInfo;
     }
 
-    public String prettifyKind(String kind) {
+    protected String prettifyKind(String kind) {
         return Arrays.stream(kind.split("_"))
                 .map(String::toLowerCase)
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining());
     }
 
-    public JsonArray evaluateMinutiae(MinutiaeList minutiaeList) {
+    private JsonArray evaluateMinutiae(MinutiaeList minutiaeList) {
         JsonArray nodeMinutiae = new JsonArray();
         for (Minutiae minutiae : minutiaeList) {
             JsonObject minutiaeJson = new JsonObject();
