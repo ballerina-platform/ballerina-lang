@@ -56,13 +56,19 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
 
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
-        // First we do the default sorting
-        super.sort(context, node, completionItems);
+        // We assign higher priority to record/object fields while assigning other completion items default priorities
+        completionItems.forEach(completionItem -> {
+            int rank;
+            switch (completionItem.getType()) {
+                case OBJECT_FIELD:
+                case RECORD_FIELD:
+                    rank = 1;
+                    break;
+                default:
+                    rank = SortingUtil.toRank(completionItem, 1);
+            }
 
-        // Then we rank object/record fields at top
-        completionItems.stream()
-                .filter(item -> item.getType() == LSCompletionItem.CompletionItemType.OBJECT_FIELD ||
-                        item.getType() == LSCompletionItem.CompletionItemType.RECORD_FIELD)
-                .forEach(item -> item.getCompletionItem().setSortText(SortingUtil.genSortText(1)));
+            completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+        });
     }
 }
