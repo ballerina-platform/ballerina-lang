@@ -19,8 +19,6 @@ package org.ballerinalang.test.types.xml;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
-import org.ballerinalang.test.CompileResult;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -28,18 +26,11 @@ import org.testng.annotations.Test;
  *
  * @since 1.3.0
  */
-@Test(groups = { "brokenOnNewParser" })
 public class XMLTextToStringConversionTest {
-
-    private CompileResult result;
-
-    @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compile("test-src/types/xml/xml_text_to_string_conversion.bal");
-    }
 
     @Test
     public void testAssignment() {
+        var result = BCompileUtil.compile("test-src/types/xml/xml_text_to_string_conversion.bal");
         BRunUtil.invoke(result, "testXMLTestToStringConversion");
     }
 }
