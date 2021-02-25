@@ -18,6 +18,10 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -121,26 +125,8 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPatt
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessibleExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
@@ -149,69 +135,20 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTableAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
@@ -6748,6 +6685,54 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         result = xmlElementLiteral;
+    }
+
+    @Override
+    public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral) {
+        if (xmlSequenceLiteral.type.tag == TypeTags.XML_TEXT) {
+            xmlSequenceLiteral.concatExpr.put(0, rewriteExpr(constructStringTemplateConcatExpression
+                    (xmlSequenceLiteral.xmlItems)));
+            result = xmlSequenceLiteral;
+            return;
+        }
+
+        BLangExpression lastExpression = null;
+        List<BLangExpression> adjacentXMLTextLiterals = new ArrayList<>();
+        Integer adjacentXMLTextIndex = 0;
+        boolean isFirstAdjacentXMLText = true;
+        int xmlItemSize = xmlSequenceLiteral.xmlItems.size();
+
+        for (int i = 0; i < xmlItemSize; i++) {
+            BLangExpression childItem = xmlSequenceLiteral.xmlItems.get(i);
+            if (childItem.type.tag == TypeTags.XML_TEXT) {
+                if (isFirstAdjacentXMLText) {
+                    isFirstAdjacentXMLText = false;
+                    adjacentXMLTextIndex = i;
+                }
+                adjacentXMLTextLiterals.add(childItem);
+                lastExpression = childItem;
+                if (i != xmlItemSize - 1) {
+                    continue;
+                }
+            }
+            if (lastExpression != null && lastExpression.type.tag == TypeTags.XML_TEXT) {
+                if (adjacentXMLTextLiterals.size() > 1) {
+                    //adjacent XML Text Literals (contains interpolated items and xml:Text items) should be concatenated together before rewriting
+                    xmlSequenceLiteral.concatExpr.put(adjacentXMLTextIndex,
+                            rewriteExpr(constructStringTemplateConcatExpression(adjacentXMLTextLiterals)));
+                } else {
+                    rewriteExpr(lastExpression);
+                }
+                if (i == xmlItemSize - 1) {
+                    continue;
+                }
+                adjacentXMLTextLiterals.clear();
+                isFirstAdjacentXMLText = true;
+            }
+            rewriteExpr(childItem);
+            lastExpression = childItem;
+        }
+        result = xmlSequenceLiteral;
     }
 
     @Override

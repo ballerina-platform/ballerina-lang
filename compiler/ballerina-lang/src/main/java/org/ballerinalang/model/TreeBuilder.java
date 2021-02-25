@@ -64,60 +64,8 @@ import org.ballerinalang.model.tree.bindingpattern.NamedArgBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.RestBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.SimpleBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.WildCardBindingPatternNode;
-import org.ballerinalang.model.tree.expressions.AnnotAccessNode;
-import org.ballerinalang.model.tree.expressions.ArrowFunctionNode;
-import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
-import org.ballerinalang.model.tree.expressions.CheckPanickedExpressionNode;
-import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
-import org.ballerinalang.model.tree.expressions.ElvisExpressionNode;
-import org.ballerinalang.model.tree.expressions.ErrorConstructorExpressionNode;
-import org.ballerinalang.model.tree.expressions.ErrorVariableReferenceNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
-import org.ballerinalang.model.tree.expressions.GroupExpressionNode;
-import org.ballerinalang.model.tree.expressions.IgnoreNode;
-import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
-import org.ballerinalang.model.tree.expressions.IntRangeExpression;
-import org.ballerinalang.model.tree.expressions.InvocationNode;
-import org.ballerinalang.model.tree.expressions.IsLikeExpressionNode;
-import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
-import org.ballerinalang.model.tree.expressions.LetExpressionNode;
-import org.ballerinalang.model.tree.expressions.ListConstructorExprNode;
-import org.ballerinalang.model.tree.expressions.LiteralNode;
-import org.ballerinalang.model.tree.expressions.MarkDownDocumentationDeprecatedParametersAttributeNode;
-import org.ballerinalang.model.tree.expressions.MarkDownDocumentationDeprecationAttributeNode;
-import org.ballerinalang.model.tree.expressions.MarkdownDocumentationParameterAttributeNode;
-import org.ballerinalang.model.tree.expressions.MarkdownDocumentationReturnParameterAttributeNode;
-import org.ballerinalang.model.tree.expressions.MarkdownDocumentationTextAttributeNode;
-import org.ballerinalang.model.tree.expressions.MatchExpressionNode;
+import org.ballerinalang.model.tree.expressions.*;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode.MatchExpressionPatternNode;
-import org.ballerinalang.model.tree.expressions.NamedArgNode;
-import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
-import org.ballerinalang.model.tree.expressions.RawTemplateLiteralNode;
-import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.model.tree.expressions.RecordVariableReferenceNode;
-import org.ballerinalang.model.tree.expressions.RestArgsNode;
-import org.ballerinalang.model.tree.expressions.ServiceConstructorNode;
-import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
-import org.ballerinalang.model.tree.expressions.StatementExpressionNode;
-import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
-import org.ballerinalang.model.tree.expressions.TableConstructorExprNode;
-import org.ballerinalang.model.tree.expressions.TableMultiKeyExpressionNode;
-import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
-import org.ballerinalang.model.tree.expressions.TrapExpressionNode;
-import org.ballerinalang.model.tree.expressions.TupleVariableReferenceNode;
-import org.ballerinalang.model.tree.expressions.TypeConversionNode;
-import org.ballerinalang.model.tree.expressions.TypeInitNode;
-import org.ballerinalang.model.tree.expressions.TypeTestExpressionNode;
-import org.ballerinalang.model.tree.expressions.TypedescExpressionNode;
-import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
-import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
-import org.ballerinalang.model.tree.expressions.XMLCommentLiteralNode;
-import org.ballerinalang.model.tree.expressions.XMLElementLiteralNode;
-import org.ballerinalang.model.tree.expressions.XMLProcessingInstructionLiteralNode;
-import org.ballerinalang.model.tree.expressions.XMLQNameNode;
-import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
-import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
 import org.ballerinalang.model.tree.matchpatterns.ConstPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.ErrorCauseMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.ErrorFieldMatchPatternsNode;
@@ -298,6 +246,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
@@ -1030,6 +979,10 @@ public class TreeBuilder {
 
     public static XMLTextLiteralNode createXMLTextLiteralNode() {
         return new BLangXMLTextLiteral();
+    }
+
+    public static XMLLiteralNode createXMLSequenceLiteralNode() {
+        return new BLangXMLSequenceLiteral();
     }
 
     public static XMLCommentLiteralNode createXMLCommentLiteralNode() {

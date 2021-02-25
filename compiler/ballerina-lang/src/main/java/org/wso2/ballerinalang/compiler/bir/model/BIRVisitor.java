@@ -217,6 +217,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNonTerminator.NewXMLSequence newXMLSequence) {
+        throw new AssertionError();
+    }
+
     public void visit(BIRNonTerminator.NewXMLQName newXMLQName) {
         throw new AssertionError();
     }

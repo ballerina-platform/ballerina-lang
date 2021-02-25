@@ -19,10 +19,10 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -31,11 +31,11 @@ import java.util.List;
 public class BLangXMLSequenceLiteral extends BLangExpression implements XMLLiteralNode {
 
     public List<BLangExpression> xmlItems;
+    public HashMap<Integer, BLangExpression> concatExpr;
 
-    public BLangXMLSequenceLiteral(BType type) {
+    public BLangXMLSequenceLiteral() {
         this.xmlItems = new ArrayList<>();
-        this.type = type;
-        this.desugared = true;
+        this.concatExpr = new HashMap<>();
     }
 
     @Override

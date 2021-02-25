@@ -469,6 +469,12 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     @Override
+    public void visit(BIRNonTerminator.NewXMLSequence newXMLSequence) {
+        newXMLSequence.lhsOp.accept(this);
+        newXMLSequence.sequenceOp.accept(this);
+    }
+
+    @Override
     public void visit(NewXMLText newXMLText) {
         newXMLText.lhsOp.accept(this);
         newXMLText.textOp.accept(this);

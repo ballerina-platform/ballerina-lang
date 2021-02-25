@@ -507,6 +507,12 @@ public class BIROptimizer {
         }
 
         @Override
+        public void visit(BIRNonTerminator.NewXMLSequence newXMLSequence) {
+            this.optimizeNode(newXMLSequence.lhsOp, this.env);
+            this.optimizeNode(newXMLSequence.sequenceOp, this.env);
+        }
+
+        @Override
         public void visit(BIRNonTerminator.NewXMLText newXMLText) {
             this.optimizeNode(newXMLText.lhsOp, this.env);
             this.optimizeNode(newXMLText.textOp, this.env);

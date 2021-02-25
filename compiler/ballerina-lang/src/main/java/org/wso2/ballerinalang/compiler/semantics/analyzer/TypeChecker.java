@@ -171,6 +171,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
@@ -4148,6 +4149,25 @@ public class TypeChecker extends BLangNodeVisitor {
         return (attrName.prefix.value.isEmpty()
                     && attrName.localname.value.equals(XMLConstants.XMLNS_ATTRIBUTE))
                 || attrName.prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE);
+    }
+
+    public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
+        List<BLangExpression> childXMLTypes = bLangXMLSequenceLiteral.xmlItems;
+        boolean isSameType = true;
+        BType tempExprType = null;
+        for (int i = 0; i< childXMLTypes.size(); i++) {
+            checkExpr(childXMLTypes.get(i), env, expType);
+            if (i == 0) {
+                tempExprType = childXMLTypes.get(i).type;
+            } else if ( tempExprType != childXMLTypes.get(i).type) {
+                isSameType = false;
+            }
+        }
+        if (isSameType) {
+            resultType = types.checkType(bLangXMLSequenceLiteral, tempExprType, expType);
+            return;
+        }
+        resultType = types.checkType(bLangXMLSequenceLiteral, symTable.xmlType, expType);
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {

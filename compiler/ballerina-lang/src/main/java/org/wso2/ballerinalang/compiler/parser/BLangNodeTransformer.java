@@ -306,75 +306,12 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr.BLangWaitKeyValue;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
@@ -3268,17 +3205,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return createExpression(xmlTextNode.content());
     }
 
-    private BLangNode createXMLLiteral(TemplateExpressionNode expressionNode) {
+    private BLangNode createXMLEmptyLiteral(TemplateExpressionNode expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-        if (expressionNode.content().isEmpty()) {
-            xmlTextLiteral.pos = getPosition(expressionNode);
-            xmlTextLiteral.textFragments.add(createEmptyStringLiteral(xmlTextLiteral.pos));
-            return xmlTextLiteral;
-        }
-        xmlTextLiteral.pos = getPosition(expressionNode.content().get(0));
-        for (Node node : expressionNode.content()) {
-            xmlTextLiteral.textFragments.add(createExpression(node));
-        }
+        xmlTextLiteral.pos = getPosition(expressionNode);
+        xmlTextLiteral.textFragments.add(createEmptyStringLiteral(xmlTextLiteral.pos));
+        return xmlTextLiteral;
+    }
+
+    private BLangNode createXMLTextLiteral(Node expressionNode) {
+        BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
+        xmlTextLiteral.pos = getPosition(expressionNode);
+        xmlTextLiteral.textFragments.add(createExpression(expressionNode));
         return xmlTextLiteral;
     }
 
@@ -4031,20 +3968,33 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     public BLangNode createXmlTemplateLiteral(TemplateExpressionNode expressionNode) {
         SyntaxKind contentKind;
-        if (expressionNode.content().isEmpty()) {
-            contentKind = SyntaxKind.XML_TEXT;
-        } else {
-            contentKind = expressionNode.content().get(0).kind();
+        BLangExpression xmlItem;
+        BLangXMLSequenceLiteral xmlSequenceLiteral = (BLangXMLSequenceLiteral) TreeBuilder.createXMLSequenceLiteralNode();
+        xmlSequenceLiteral.pos = getPosition(expressionNode);
+        int numberOfChildNodes = expressionNode.content().size();
+        for (int index=0; index<numberOfChildNodes; index++) {
+            Node xmlTypeNode = expressionNode.content().get(index);
+            if (expressionNode.content().isEmpty()) {
+                return createXMLEmptyLiteral(expressionNode);
+            } else {
+                contentKind = xmlTypeNode.kind();
+            }
+            switch (contentKind) {
+                case XML_COMMENT:
+                case XML_PI:
+                case XML_ELEMENT:
+                case XML_EMPTY_ELEMENT:
+                    xmlItem = createExpression(xmlTypeNode);
+                    break;
+                default:
+                    xmlItem = (BLangExpression)createXMLTextLiteral(xmlTypeNode);
+            }
+            if (numberOfChildNodes == 1) {
+                return xmlItem;
+            }
+            xmlSequenceLiteral.xmlItems.add(xmlItem);
         }
-        switch (contentKind) {
-            case XML_COMMENT:
-            case XML_PI:
-            case XML_ELEMENT:
-            case XML_EMPTY_ELEMENT:
-                return createExpression(expressionNode.content().get(0));
-            default:
-                return createXMLLiteral(expressionNode);
-        }
+        return xmlSequenceLiteral;
     }
 
     private BLangMatchPattern transformMatchPattern(Node matchPattern) {

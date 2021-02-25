@@ -58,6 +58,7 @@ public enum InstructionKind {
     PANIC((byte) 35),
     FP_LOAD((byte) 36),
     STRING_LOAD((byte) 37),
+    NEW_XML_SEQUENCE((byte) 89),
     NEW_XML_ELEMENT((byte) 38),
     NEW_XML_TEXT((byte) 39),
     NEW_XML_COMMENT((byte) 40),

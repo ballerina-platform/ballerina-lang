@@ -220,9 +220,12 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+
 
 /**
  * Node Visitor for cloning AST nodes.
@@ -258,6 +261,18 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.pos = source.pos;
         clone.addWS(source.getWS());
         return clone;
+    }
+
+    private <T extends Node> HashMap<Integer, T> cloneHashMap(HashMap<Integer, T> nodes) {
+        if (nodes == null) {
+            return null;
+        }
+        HashMap<Integer, T> cloneHashMap = new HashMap<>();
+        for (Map.Entry<Integer, T> entry : nodes.entrySet()) {
+            T clone = (T) clone(entry.getValue());
+            cloneHashMap.put(entry.getKey(), clone);
+        }
+        return cloneHashMap;
     }
 
     private <T extends Node> List<T> cloneList(List<T> nodes) {
@@ -1956,8 +1971,11 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        // Ignore
+    public void visit(BLangXMLSequenceLiteral source) {
+        BLangXMLSequenceLiteral clone = new BLangXMLSequenceLiteral();
+        source.cloneRef = clone;
+        clone.xmlItems = cloneList(source.xmlItems);
+        clone.concatExpr = cloneHashMap(source.concatExpr);
     }
 
     @Override
