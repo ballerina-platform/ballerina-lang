@@ -48,15 +48,21 @@ import java.util.regex.Pattern;
  */
 public class ImportsManager {
     private static final QuotedIdentifier ANON_SOURCE = new QuotedIdentifier("$");
-    private static final AtomicInteger IMPORT_INDEX = new AtomicInteger(0);
     // Regex patterns
-    private static final Pattern CLONEABLE_SIGNATURE =
+    private static final Pattern CLONEABLE_SIGNATURE_PATTERN =
             Pattern.compile("readonly\\|xml<[^>]*>\\|\\(Cloneable\\)\\[]\\|map<Cloneable>\\|table<map<Cloneable>>");
     private static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)/([\\w.]+):([\\d.]+):");
     // Special imports
-    private static final String CLONEABLE_DEF = "ballerina/lang.value:0:Cloneable";
+    private static final String CLONEABLE_TYPE_DEF = "ballerina/lang.value:0:Cloneable";
     private static final String JAVA_IMPORT_SOURCE = "import ballerina/jballerina.java;";
     private static final ImportDeclarationSnippet JAVA_IMPORT;
+
+    /**
+     * A import prefix index to import implicit imports.
+     * The newly done imports (if their default prefixes are not available)
+     * will be imported as _0, _1, _2,.. format.
+     */
+    private static final AtomicInteger implicitImportPrefixIndex = new AtomicInteger(0);
 
     static {
         // Set the java import snippet
@@ -229,8 +235,8 @@ public class ImportsManager {
         String text = typeSymbol.signature();
 
         // Replace all Cloneable with a qualified signature
-        String cloneableReplacedText = CLONEABLE_SIGNATURE.matcher(text)
-                .replaceAll(CLONEABLE_DEF);
+        String cloneableReplacedText = CLONEABLE_SIGNATURE_PATTERN.matcher(text)
+                .replaceAll(CLONEABLE_TYPE_DEF);
 
         StringBuilder newText = new StringBuilder();
         Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(cloneableReplacedText);
@@ -278,7 +284,7 @@ public class ImportsManager {
         // Try to find an available prefix (starting from default prefix and iterate over _I imports)
         QuotedIdentifier quotedPrefix = moduleName.getDefaultPrefix();
         while (containsPrefix(quotedPrefix)) {
-            quotedPrefix = new QuotedIdentifier("_" + IMPORT_INDEX.incrementAndGet());
+            quotedPrefix = new QuotedIdentifier("_" + implicitImportPrefixIndex.incrementAndGet());
         }
 
         storeImport(quotedPrefix, moduleName);
