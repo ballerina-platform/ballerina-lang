@@ -166,14 +166,3 @@ function testGlobalQuery3() returns boolean {
     testPassed = testPassed && dp.fname == "Dermot" && dp.lname == "Crowley" && dp.dept == "Engineering";
     return testPassed;
 }
-
-//int[] intList = [1, 2, 3];
-//int count = 0;
-//var globalQuery4 = from var value in intList
-//    do {
-//        count += value;
-//    };
-//
-//function testGlobalQuery4() returns boolean {
-//    return count == 6;
-//}

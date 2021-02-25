@@ -17,15 +17,12 @@
 int[] intList = [1, 2, 3];
 int count = 0;
 
-function incrementCount() returns int {
-    count += 1;
-    return count;
-}
-
-int x = incrementCount();
-
+// module level query actions are not allowed (ref. spec sec 7.1).
 var y = from var value in intList
     do {
         count += value;
     };
 
+public function main() {
+
+}

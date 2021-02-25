@@ -19,6 +19,7 @@ package org.ballerinalang.test.query;
 
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -63,10 +64,7 @@ public class GlobalQueryTest {
     @Test(description = "Test negative scenarios for module level queries")
     public void testNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 1);
-        int i = 0;
-//        validateError(negativeResult, i++, "undefined symbol 'deptName'", 71, 29);
-//        validateError(negativeResult, i++, "undefined symbol 'deptName'", 71, 29);
-//        validateError(negativeResult, i++, "undefined symbol 'deptName'", 71, 29);
+        BAssertUtil.validateError(negativeResult, 0, "action invocation as an expression not allowed here", 21, 9);
     }
 
     @AfterClass
