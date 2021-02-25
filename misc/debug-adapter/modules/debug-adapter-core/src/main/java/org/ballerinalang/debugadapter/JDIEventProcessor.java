@@ -31,6 +31,8 @@ import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
+import org.ballerinalang.debugadapter.config.ClientConfigHolder;
+import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.eclipse.lsp4j.debug.Breakpoint;
@@ -194,6 +196,13 @@ public class JDIEventProcessor {
 
     private void configureUserBreakPoints(ReferenceType referenceType) {
         try {
+            // Avoids setting break points if the server is running in 'no-debug' mode.
+            ClientConfigHolder configHolder = context.getAdapter().getClientConfigHolder();
+            if (configHolder instanceof ClientLaunchConfigHolder
+                    && ((ClientLaunchConfigHolder) configHolder).isNoDebugMode()) {
+                return;
+            }
+
             String qualifiedClassName = getQualifiedClassName(context, referenceType);
             if (!breakpointsList.containsKey(qualifiedClassName)) {
                 return;

@@ -164,12 +164,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return context;
     }
 
-    private IDebugProtocolClient getClient() {
-        return client;
-    }
-
-    public void setExecutionManager(DebugExecutionManager executionManager) {
-        this.executionManager = executionManager;
+    ClientConfigHolder getClientConfigHolder() {
+        return clientConfigHolder;
     }
 
     @Override
@@ -193,7 +189,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         context.setClient(client);
         eventProcessor = new JDIEventProcessor(context);
-        getClient().initialized();
+        client.initialized();
         return CompletableFuture.completedFuture(capabilities);
     }
 
@@ -426,7 +422,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         OutputEventArguments outputEventArguments = new OutputEventArguments();
         outputEventArguments.setOutput(output + System.lineSeparator());
         outputEventArguments.setCategory(category);
-        getClient().output(outputEventArguments);
+        client.output(outputEventArguments);
     }
 
     @Override
