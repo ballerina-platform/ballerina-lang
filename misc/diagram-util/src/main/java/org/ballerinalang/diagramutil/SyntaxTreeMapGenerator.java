@@ -118,6 +118,12 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         }
                     }
                     symbolJson.add("typeSymbol", generateTypeJson(typeSymbol.get()));
+
+                    if (typeSymbol.get().getModule().isPresent()) { // todo: check if this is the correct way to access
+                        JsonObject typeDataJson = (JsonObject) generateTypeJson(typeSymbol.get().getModule().get());
+                        ((JsonObject) symbolJson.get("typeSymbol"))
+                                .add("moduleID", typeDataJson.get("id"));
+                    }
                 }
             } catch (Exception | AssertionError e) {
                 // TODO: Remove the AssertionError catcher when fix the symbolVisitor to be extended from BaseVisitor.

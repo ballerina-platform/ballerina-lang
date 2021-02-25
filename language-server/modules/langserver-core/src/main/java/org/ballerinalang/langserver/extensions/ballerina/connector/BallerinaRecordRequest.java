@@ -30,13 +30,16 @@ public class BallerinaRecordRequest {
     private String version = "";
     private String name;
     private Boolean beta;
+    private String javaVersion;
 
-    public BallerinaRecordRequest(String org, String module, String version, String name, Boolean beta) {
+    public BallerinaRecordRequest(String org, String module, String version, String name, Boolean beta,
+                                  String javaVersion) {
         this.org = org;
         this.module = module;
         this.version = version;
         this.name = name;
         this.beta = beta;
+        this.javaVersion = javaVersion;
     }
 
     public String getOrg() {
@@ -59,6 +62,10 @@ public class BallerinaRecordRequest {
         return beta;
     }
 
+    public String getJavaVersion() {
+        return javaVersion;
+    }
+
     @Override
     public String toString() {
         return "BallerinaConnectorRequest{" +
@@ -67,6 +74,7 @@ public class BallerinaRecordRequest {
                 ", version='" + version + '\'' +
                 ", name='" + name + '\'' +
                 ", beta=" + beta +
+                ", javaVersion=" + javaVersion +
                 '}';
     }
 }
