@@ -1265,7 +1265,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case TUPLE_VARIABLE:
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
-                if (TypeTags.TUPLE != rhsType.tag && TypeTags.UNION != rhsType.tag) {
+                if (TypeTags.TUPLE != rhsType.tag && TypeTags.ARRAY != rhsType.tag && TypeTags.UNION != rhsType.tag) {
                     dlog.error(variable.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_INFERENCE, rhsType);
                     recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
@@ -1279,10 +1279,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
 
-                if (rhsType.tag == TypeTags.UNION && !(this.symbolEnter.checkTypeAndVarCountConsistency(tupleVariable,
-                        null, blockEnv))) {
-                    recursivelyDefineVariables(tupleVariable, blockEnv);
-                    return;
+                if (rhsType.tag == TypeTags.UNION || rhsType.tag == TypeTags.ARRAY) {
+                    BTupleType tupleVariableType = null;
+                    if (tupleVariable.typeNode != null) {
+                        tupleVariableType = (BTupleType) tupleVariable.typeNode.type;
+                    }
+                    if (!(this.symbolEnter.checkTypeAndVarCountConsistency(tupleVariable,
+                            tupleVariableType, blockEnv))) {
+                        recursivelyDefineVariables(tupleVariable, blockEnv);
+                        return;
+                    }
                 }
                 recursivelySetFinalFlag(tupleVariable);
                 break;

@@ -129,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
@@ -1949,15 +1950,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                     List<BType> possibleTypes = new ArrayList<>();
                     for (BType type :unionType) {
                         if (!(TypeTags.TUPLE == type.tag &&
-                                (varNode.memberVariables.size() == ((BTupleType) type).tupleTypes.size())) &&
-                                TypeTags.ANY != type.tag &&
-                                TypeTags.ANYDATA != type.tag) {
+                                checkMemVarCountMatchWithMemTypeCount(varNode, (BTupleType) type)) &&
+                                TypeTags.ANY != type.tag && TypeTags.ANYDATA != type.tag &&
+                                (TypeTags.ARRAY != type.tag || ((BArrayType) type).state == BArrayState.OPEN)) {
                             continue;
                         }
                         possibleTypes.add(type);
                     }
                     if (possibleTypes.isEmpty()) {
-                        dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
+                        dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_DECL, varNode.type);
                         return false;
                     }
 
@@ -1968,6 +1969,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                             for (BType possibleType : possibleTypes) {
                                 if (possibleType.tag == TypeTags.TUPLE) {
                                     memberTypes.add(((BTupleType) possibleType).tupleTypes.get(i));
+                                } else if (possibleType.tag == TypeTags.ARRAY) {
+                                    memberTypes.add(((BArrayType) possibleType).eType);
                                 } else {
                                     memberTupleTypes.add(varNode.type);
                                 }
@@ -2017,13 +2020,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                     tupleTypeNode = new BTupleType(tupleTypes);
                     break;
                 default:
-                    dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
+                    dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_DECL, varNode.type);
                     return false;
             }
         }
 
         if (!checkMemVarCountMatchWithMemTypeCount(varNode, tupleTypeNode)) {
-            dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN);
+            dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN);
             return false;
         }
 
@@ -2087,15 +2090,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         int memberVarsSize = varNode.memberVariables.size();
         BLangVariable restVariable = varNode.restVariable;
         int tupleTypesSize = tupleTypeNode.tupleTypes.size();
-        if (varNode.isDeclaredWithVar) {
-            if (memberVarsSize > tupleTypesSize) {
-                return false;
-            }
-            return restVariable != null ||
-                    (tupleTypesSize == memberVarsSize && tupleTypeNode.restType == null);
+        if (memberVarsSize > tupleTypesSize) {
+            return false;
         }
-        return tupleTypesSize == memberVarsSize && (tupleTypeNode.restType != null || restVariable == null) &&
-                (tupleTypeNode.restType == null || restVariable != null);
+        return restVariable != null ||
+                (tupleTypesSize == memberVarsSize && tupleTypeNode.restType == null);
     }
 
     @Override

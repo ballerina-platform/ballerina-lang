@@ -602,7 +602,9 @@ public class Types {
         if (TypeTags.isXMLTypeTag(baseTypeTag)) {
             return true;
         }
-        return ((BUnionType) type).getMemberTypes().stream().allMatch(memType -> memType.tag == baseTypeTag);
+        return ((BUnionType) type).getMemberTypes().stream().allMatch(memType -> memType.tag == baseTypeTag ||
+                (baseTypeTag == TypeTags.TUPLE && memType.tag == TypeTags.ARRAY) ||
+                (baseTypeTag == TypeTags.ARRAY && memType.tag == TypeTags.TUPLE));
     }
 
     /**
