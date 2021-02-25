@@ -655,7 +655,13 @@
                                   "children": []
                                 },
                                 {
-                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                  "kind": "CLOSE_BRACKET_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -851,7 +857,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                  "kind": "CLOSE_BRACKET_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -963,7 +975,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                  "kind": "CLOSE_BRACKET_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -1119,7 +1137,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                  "kind": "CLOSE_BRACKET_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
