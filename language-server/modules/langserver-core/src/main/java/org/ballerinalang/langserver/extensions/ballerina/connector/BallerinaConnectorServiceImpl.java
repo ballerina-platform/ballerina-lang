@@ -107,11 +107,11 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         return CompletableFuture.supplyAsync(BallerinaConnectorsResponse::new);
     }
 
-    private Path getBalaPath(String org, String module, String version) throws LSConnectorException {
+    private Path getBalaPath(String org, String module, String version, String javaVersion) throws LSConnectorException {
         Path balaPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module).
                 resolve(version.isEmpty() ?
                         ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version).
-                resolve(String.format("%s-%s-any-%s%s", org, module, version,
+                resolve(String.format("%s-%s-%s-%s%s", org, module, javaVersion, version,
                         ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT));
         if (!Files.exists(balaPath.toAbsolutePath())) {
             //check external modules
@@ -140,7 +140,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         String error = "";
         if (st == null) {
             try {
-                Path balaPath = getBalaPath(request.getOrg(), request.getModule(), request.getVersion());
+                Path balaPath = getBalaPath(request.getOrg(), request.getModule(), request.getVersion(),
+                        request.getJavaVersion());
 
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
@@ -308,7 +309,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         String error = "";
         if (ast == null) {
             try {
-                Path balaPath = getBalaPath(request.getOrg(), request.getModule(), request.getVersion());
+                Path balaPath = getBalaPath(request.getOrg(), request.getModule(), request.getVersion(),
+                        request.getJavaVersion());
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
                 BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
