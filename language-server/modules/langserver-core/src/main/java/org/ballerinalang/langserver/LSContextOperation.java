@@ -38,10 +38,12 @@ public enum LSContextOperation implements LSOperation {
     TXT_CODE_LENS("text/codeLens"),
     TXT_RENAME("text/rename"),
     TXT_IMPL("text/implementation"),
+    TXT_FOLDING_RANGE("text/foldingRange"),
     WS_SYMBOL("workspace/symbol"),
     WS_EXEC_CMD("workspace/executeCommand"),
-    PROJ_MODULES("ballerinaProject/modules"),
+    WS_WF_CHANGED("workspace/didChangeWatchedFiles"),
     DOC_SERVICE_AST("ballerinaDocument/ast"),
+    DOC_DIAGNOSTICS("ballerinaDocument/diagnostics"),
     LS_INIT("langserver/init"),
     SOURCE_PRUNER("sourcePruner"),
     TEST_GEN("testGeneration");

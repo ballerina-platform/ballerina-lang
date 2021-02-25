@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -378,5 +379,18 @@ public class WorkerTest {
         BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 25, 20);
         BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 27, 28);
         BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 42, 20);
+    }
+
+    @Test
+    public void testMultipleReceiveAction() {
+        // Multiple receive action is not yet supported. This is to test the error message.
+        CompileResult result = BCompileUtil.compile("test-src/workers/multiple-receive-action.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "multiple receive action not yet supported", 23, 25);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

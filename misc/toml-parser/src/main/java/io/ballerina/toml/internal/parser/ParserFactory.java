@@ -21,7 +21,6 @@ import io.ballerina.tools.text.CharReader;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
-
 /**
  * A factory for creating {@code TomlParser} instances.
  * <p>

@@ -9,6 +9,7 @@
       "label": "equals",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "equals ",
       "insertTextFormat": "Snippet"
     }

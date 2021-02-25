@@ -21,10 +21,13 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -37,6 +40,8 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -48,55 +53,57 @@ import static org.testng.Assert.assertTrue;
 public class ClassSymbolTest {
 
     private SemanticModel model;
-    private final String fileName = "class_symbols_test.bal";
+    private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/class_symbols_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/class_symbols_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
 
     @Test
     public void testSymbolAtCursor() {
         final List<String> fieldNames = List.of("fname", "lname");
-        ClassSymbol symbol = (ClassSymbol) model.symbol(fileName, LinePosition.from(16, 6)).get();
+        ClassSymbol symbol = (ClassSymbol) model.symbol(srcFile, LinePosition.from(16, 6)).get();
 
         assertList(symbol.fieldDescriptors(), fieldNames);
         assertList(symbol.methods(), List.of("getFullName"));
 
         MethodSymbol initMethod = symbol.initMethod().get();
-        assertEquals(initMethod.name(), "init");
-        assertEquals(
-                initMethod.typeDescriptor().parameters().stream().map(p -> p.name().get()).collect(Collectors.toList()),
-                fieldNames);
+        assertEquals(initMethod.getName().get(), "init");
+        assertEquals(initMethod.typeDescriptor().parameters().stream()
+                             .map(p -> p.getName().get())
+                             .collect(Collectors.toList()), fieldNames);
     }
 
     @Test
     public void testTypeReference() {
-        Symbol symbol = model.symbol(fileName, LinePosition.from(40, 6)).get();
-        assertEquals(symbol.name(), "Person1");
+        Symbol symbol = model.symbol(srcFile, LinePosition.from(40, 6)).get();
+        assertEquals(symbol.getName().get(), "Person1");
         assertEquals(symbol.kind(), TYPE);
 
         TypeReferenceTypeSymbol tSymbol = (TypeReferenceTypeSymbol) symbol;
         assertEquals(tSymbol.typeKind(), TYPE_REFERENCE);
 
         ClassSymbol clazz = (ClassSymbol) tSymbol.typeDescriptor();
-        assertEquals(clazz.name(), "Person1");
+        assertEquals(clazz.getName().get(), "Person1");
         assertEquals(clazz.kind(), CLASS);
         assertEquals(clazz.typeKind(), OBJECT);
-        assertEquals(clazz.initMethod().get().name(), "init");
+        assertEquals(clazz.initMethod().get().getName().get(), "init");
     }
 
     @Test
     public void testClassWithoutInit() {
-        Symbol symbol = model.symbol(fileName, LinePosition.from(41, 4)).get();
-        assertEquals(symbol.name(), "Person2");
+        Symbol symbol = model.symbol(srcFile, LinePosition.from(41, 4)).get();
+        assertEquals(symbol.getName().get(), "Person2");
         assertEquals(symbol.kind(), TYPE);
 
         TypeReferenceTypeSymbol tSymbol = (TypeReferenceTypeSymbol) symbol;
         assertEquals(tSymbol.typeKind(), TYPE_REFERENCE);
 
         ClassSymbol clazz = (ClassSymbol) tSymbol.typeDescriptor();
-        assertEquals(clazz.name(), "Person2");
+        assertEquals(clazz.getName().get(), "Person2");
         assertEquals(clazz.kind(), CLASS);
         assertEquals(clazz.typeKind(), OBJECT);
         assertTrue(clazz.initMethod().isEmpty());
@@ -104,9 +111,9 @@ public class ClassSymbolTest {
 
     @Test(dataProvider = "TypeInitPosProvider")
     public void testTypeInit(int line, int col, String name) {
-        Symbol symbol = model.symbol(fileName, LinePosition.from(line, col)).get();
+        Symbol symbol = model.symbol(srcFile, LinePosition.from(line, col)).get();
         ClassSymbol clazz = (ClassSymbol) ((TypeReferenceTypeSymbol) symbol).typeDescriptor();
-        assertEquals(clazz.name(), name);
+        assertEquals(clazz.getName().get(), name);
     }
 
     @DataProvider(name = "TypeInitPosProvider")
@@ -120,5 +127,14 @@ public class ClassSymbolTest {
                 {42, 13, "Person2"},
                 {42, 21, "Person2"},
         };
+    }
+
+    @Test
+    public void testDistinctClasses() {
+        Symbol symbol = model.symbol(srcFile, LinePosition.from(45, 15)).get();
+        ClassSymbol clazz = (ClassSymbol) symbol;
+        assertEquals(clazz.typeKind(), OBJECT);
+        assertEquals(clazz.kind(), CLASS);
+        assertTrue(clazz.qualifiers().contains(Qualifier.DISTINCT));
     }
 }

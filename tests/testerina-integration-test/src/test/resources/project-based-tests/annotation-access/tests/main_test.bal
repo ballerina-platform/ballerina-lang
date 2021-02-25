@@ -56,3 +56,30 @@ function testTestConstructTestAnnotAccess() {
 function testTestSrcConstructSrcAnnotAccess() {
     test:assertEquals(getFooAnnotId(), 100);
 }
+
+type MyAnnotation record {
+    string foo;
+};
+
+annotation MyAnnotation serviceAnnotation on service, class;
+
+service object {} ser =
+@serviceAnnotation{
+    foo: "serviceAnnotation"
+}
+service object {
+    int i = 1234;
+
+    remote function xyz() {
+
+    }
+};
+
+@test:Config {}
+public function testServiceAnnotReordering() {
+    typedesc<any> td = typeof ser;
+
+    MyAnnotation? x = td.@serviceAnnotation;
+    test:assertTrue(x is MyAnnotation);
+    test:assertEquals(x, <MyAnnotation> {foo: "serviceAnnotation"});
+}

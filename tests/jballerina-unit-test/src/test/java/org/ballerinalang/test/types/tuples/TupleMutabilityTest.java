@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -131,5 +132,11 @@ public class TupleMutabilityTest {
         Assert.assertTrue(((BBoolean) returnValues[2]).booleanValue());
         Assert.assertEquals(returnValues[3].stringValue(), "json");
         Assert.assertEquals(((BFloat) returnValues[4]).floatValue(), 12.0);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        resultNegative = null;
     }
 }

@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.AnydataType;
-import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.values.RefValue;
 
@@ -32,10 +31,7 @@ import io.ballerina.runtime.internal.values.RefValue;
  *
  * @since 0.995.0
  */
-public class BAnydataType extends BType implements AnydataType {
-
-    private final boolean readonly;
-    private IntersectionType immutableType;
+public class BAnydataType extends BUnionType implements AnydataType {
 
     /**
      * Create a {@code BAnydataType} which represents the anydata type.
@@ -43,15 +39,23 @@ public class BAnydataType extends BType implements AnydataType {
      * @param typeName string name of the type
      */
     public BAnydataType(String typeName, Module pkg, boolean readonly) {
-        super(typeName, pkg, RefValue.class);
-        this.readonly = readonly;
-
+        super(typeName, pkg, readonly, RefValue.class);
         if (!readonly) {
             BAnydataType immutableAnydataType = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME, pkg, true);
             this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
-                                                       immutableAnydataType,
-                                                       TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
-                                                                        TypeFlags.PURETYPE), true);
+                                                       immutableAnydataType, TypeFlags.asMask(TypeFlags.NILABLE,
+                                                        TypeFlags.ANYDATA, TypeFlags.PURETYPE), true);
+        }
+        this.mergeUnionType((BUnionType) PredefinedTypes.TYPE_ANYDATA);
+    }
+
+    public BAnydataType(BUnionType unionType, String typeName, boolean readonly) {
+        super(unionType, typeName);
+        if (!readonly) {
+            BAnydataType immutableAnydataType = new BAnydataType(unionType, TypeConstants.READONLY_ANYDATA_TNAME, true);
+            this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
+                    immutableAnydataType, TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA, TypeFlags.PURETYPE),
+                    true);
         }
     }
 
@@ -75,17 +79,10 @@ public class BAnydataType extends BType implements AnydataType {
     }
 
     @Override
-    public boolean isReadOnly() {
-        return this.readonly;
-    }
-
-    @Override
-    public Type getImmutableType() {
-        return this.immutableType;
-    }
-
-    @Override
-    public void setImmutableType(IntersectionType immutableType) {
-        this.immutableType = immutableType;
+    public String toString() {
+        if (this.typeName != null) {
+            return this.typeName;
+        }
+        return super.toString();
     }
 }

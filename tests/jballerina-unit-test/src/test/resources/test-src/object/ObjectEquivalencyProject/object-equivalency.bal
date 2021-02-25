@@ -156,7 +156,7 @@ function testObjectEquivalenceWhenFieldsHavePublicVisibility() returns string {
 }
 
 
-function testEqOfPublicObjectsInBalo() returns string {
+function testEqOfPublicObjectsInBala() returns string {
     eq:employee e = new (14, "rat");
     e.setSSN("234-56-7890");
 
@@ -748,8 +748,10 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
 
 public function main() {

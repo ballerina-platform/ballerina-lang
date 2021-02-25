@@ -3,7 +3,7 @@
     "character": 4,
     "expected": [
         {
-            "title": "Implement \u0027pushText1\u0027 Method",
+            "title": "Implement method \u0027pushText1\u0027",
             "edits": [
                 {
                     "range": {

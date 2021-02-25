@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type CustomErrorData record {
+type CustomErrorData record {|
     string message?;
     error cause?;
     int accountID?;
-};
+|};
 
 type CustomError distinct error<CustomErrorData>;
 type CustomError1 distinct error<CustomErrorData>;
@@ -46,7 +46,7 @@ class IteratorWithCustomError {
     public isolated function next() returns record {| int value; |}|CustomError? {
         self.i += 1;
         if (self.i == 2) {
-            CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 1);
+            CustomError e = error CustomError("CustomError", message = "custom error occured", accountID = 1);
             return e;
         } else {
             return { value: self.i };
@@ -321,6 +321,24 @@ class IteratorWithIsolatedNextAndNonIsolatedClose {
     }
 }
 
+class InvalidNumberGenerator {
+    int i = 0;
+    public isolated function next() returns record {| int value; |} {
+        self.i += 1;
+        return {value: self.i};
+    }
+}
+
+class InvalidNumberStreamGenerator {
+    int i = 0;
+    public isolated function next() returns record {| stream<int> value;|} {
+        self.i += 1;
+        InvalidNumberGenerator numGen = new();
+        stream<int> numberStream = new(numGen);
+        return {value: numberStream};
+    }
+}
+
 public function main() returns @tainted error? {
     IteratorWithIsolatedNext itr1 = new;
     IteratorWithIsolatedNextAndIsolatedClose itr2 = new;
@@ -332,4 +350,29 @@ public function main() returns @tainted error? {
     var intStr3 = new stream<int, error>(itr3);
     var intStr4 = new stream<int, error>(itr4);
     var intStr5 = new stream<int, error>(itr5);
+
+    InvalidNumberStreamGenerator n = new ();
+    stream<stream<int>> numberStream = new (n);
+    var x = numberStream.next();
+}
+
+function testAssignabilityOfStreams() {
+    // test the negative assignability of stream<int> and stream<int, never>
+    stream<int> emptyStream1 = new;
+    stream<int> emptyStream2 = new stream<int>();
+    stream<int, never> emptyStream3 = new;
+    stream<int, error> emptyStream4 = new;
+    stream<int, never> emptyStream5 = new stream<int, never>();
+    stream<int, error> emptyStream6 = new stream<int, error>();
+    var emptyStream7 = new stream<int>();
+    var emptyStream8 = new stream<int, never>();
+    var emptyStream9 = new stream<int, error>();
+
+    emptyStream1 = emptyStream6;
+    emptyStream2 = emptyStream9;
+    emptyStream3 = emptyStream6;
+    emptyStream4 = emptyStream1;
+    emptyStream5 = emptyStream6;
+    emptyStream7 = emptyStream9;
+    emptyStream8 = emptyStream9;
 }

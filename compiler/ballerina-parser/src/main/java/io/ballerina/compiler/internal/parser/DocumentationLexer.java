@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import io.ballerina.compiler.internal.diagnostics.DiagnosticWarningCode;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
@@ -36,21 +35,24 @@ import java.util.List;
  */
 public class DocumentationLexer extends AbstractLexer {
 
-    private enum BacktickReferenceMode {
-        NO_KEYWORD, SPECIAL_KEYWORD, FUNCTION_KEYWORD
-    }
-
-    private BacktickReferenceMode referenceMode = BacktickReferenceMode.NO_KEYWORD;
+    /**
+     * Character array of "Deprecated" keyword.
+     */
     private static final char[] deprecatedChars = { 'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd' };
 
-    // Used only for backtick content validation
-    private int lookAheadNumber = 0;
-    private boolean hasMatch = true;
+    /**
+     * Backtick mode to fall back.
+     * <p>
+     * For code references, we switch to {@link ParserMode#DOC_CODE_LINE_START_HASH},
+     * to capture the initial hash of the code line.
+     * Once it is captured, we need to fall back to the previous mode.
+     */
+    private ParserMode previousBacktickMode = null;
 
     public DocumentationLexer(CharReader charReader,
                               List<STNode> leadingTriviaList,
                               Collection<STNodeDiagnostic> diagnostics) {
-        super(charReader, ParserMode.DOCUMENTATION_INIT, leadingTriviaList, diagnostics);
+        super(charReader, ParserMode.DOC_LINE_START_HASH, leadingTriviaList, diagnostics);
     }
 
     /**
@@ -62,29 +64,40 @@ public class DocumentationLexer extends AbstractLexer {
     public STToken nextToken() {
         STToken token;
         switch (this.mode) {
-            case DOCUMENTATION_INIT:
+            case DOC_LINE_START_HASH:
                 processLeadingTrivia();
-                token = readDocumentationInitToken();
+                token = readDocLineStartHashToken();
                 break;
-            case DOCUMENTATION:
-                token = readDocumentationToken();
-                break;
-            case DOCUMENTATION_INTERNAL:
-                token = readDocumentationInternalToken();
-                break;
-            case DOCUMENTATION_PARAMETER:
+            case DOC_LINE_DIFFERENTIATOR:
                 processLeadingTrivia();
-                token = readDocumentationParameterToken();
+                token = readDocLineDifferentiatorToken();
                 break;
-            case DOCUMENTATION_REFERENCE_TYPE:
+            case DOC_INTERNAL:
+                token = readDocInternalToken();
+                break;
+            case DOC_PARAMETER:
                 processLeadingTrivia();
-                token = readDocumentationReferenceTypeToken();
+                token = readDocParameterToken();
                 break;
-            case DOCUMENTATION_BACKTICK_CONTENT:
-                token = readDocumentationBacktickContentToken();
+            case DOC_REFERENCE_TYPE:
+                processLeadingTrivia();
+                token = readDocReferenceTypeToken();
                 break;
-            case DOCUMENTATION_BACKTICK_EXPR:
-                token = readDocumentationBacktickExprToken();
+            case DOC_SINGLE_BACKTICK_CONTENT:
+                token = readSingleBacktickContentToken();
+                break;
+            case DOC_DOUBLE_BACKTICK_CONTENT:
+                token = readCodeContent(2);
+                break;
+            case DOC_TRIPLE_BACKTICK_CONTENT:
+                token = readCodeContent(3);
+                break;
+            case DOC_CODE_REF_END:
+                token = readCodeReferenceEndToken();
+                break;
+            case DOC_CODE_LINE_START_HASH:
+                processLeadingTrivia();
+                token = readCodeLineStartHashToken();
                 break;
             default:
                 token = null;
@@ -117,56 +130,98 @@ public class DocumentationLexer extends AbstractLexer {
     }
 
     /**
-     * <p>
-     * Check whether a given char is an identifier start char.
-     * </p>
-     * <code>IdentifierInitialChar := A .. Z | a .. z | _ | UnicodeIdentifierChar</code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character is an identifier start char. <code>false</code> otherwise.
+     * Check whether a given char is a possible identifier start.
      */
-    private boolean isIdentifierInitialChar(int c) {
-        // TODO: pre-mark all possible characters, using a mask. And use that mask here to check
-        if ('A' <= c && c <= 'Z') {
-            return true;
+    private boolean isPossibleIdentifierStart(int startChar) {
+        switch (startChar) {
+            case LexerTerminals.SINGLE_QUOTE:
+            case LexerTerminals.BACKSLASH:
+                return true;
+            default:
+                return isIdentifierInitialChar(startChar);
         }
-
-        if ('a' <= c && c <= 'z') {
-            return true;
-        }
-
-        if (c == '_') {
-            return true;
-        }
-
-        // TODO: if (UnicodeIdentifierChar) return false;
-        return false;
     }
 
     /**
+     * Process identifier end.
      * <p>
-     * Check whether a given char is an identifier following char.
-     * </p>
-     * <code>IdentifierFollowingChar := IdentifierInitialChar | Digit</code>
+     * <code>
+     * IdentifierEnd := IdentifierChar*
+     * <br/>
+     * IdentifierChar := IdentifierFollowingChar | IdentifierEscape
+     * <br/>
+     * IdentifierEscape := IdentifierSingleEscape | NumericEscape
+     * </code>
      *
-     * @param c character to check
-     * @return <code>true</code>, if the character is an identifier following char. <code>false</code> otherwise.
+     * @param initialEscape Denotes whether <code>\</code> is at the beginning of the identifier
      */
-    private boolean isIdentifierFollowingChar(int c) {
-        return isIdentifierInitialChar(c) || isDigit(c);
+    private void processIdentifierEnd(boolean initialEscape) {
+        while (!reader.isEOF()) {
+            int k = 1;
+            int nextChar = reader.peek();
+            if (isIdentifierFollowingChar(nextChar)) {
+                reader.advance();
+                initialEscape = false;
+                continue;
+            }
+
+            if (nextChar != LexerTerminals.BACKSLASH && !initialEscape) {
+                break;
+            }
+            if (initialEscape) {
+                k = 0;
+                initialEscape = false;
+            }
+
+            // IdentifierSingleEscape | NumericEscape
+
+            nextChar = reader.peek(k);
+            switch (nextChar) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.TAB:
+                    break;
+                case 'u':
+                    // NumericEscape
+                    if (reader.peek(k + 1) == LexerTerminals.OPEN_BRACE) {
+                        processNumericEscape();
+                    } else {
+                        reader.advance(k + 1);
+                    }
+                    continue;
+                default:
+                    reader.advance(k + 1);
+                    continue;
+            }
+            break;
+        }
     }
 
     /**
+     * Process numeric escape.
      * <p>
-     * Check whether a given char is a digit.
-     * </p>
-     * <code>Digit := 0..9</code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character represents a digit. <code>false</code> otherwise.
+     * <code>NumericEscape := \ u { CodePoint }</code>
      */
-    static boolean isDigit(int c) {
-        return ('0' <= c && c <= '9');
+    private void processNumericEscape() {
+        // Process '\ u {'
+        this.reader.advance(3);
+
+        // Process code-point
+        if (!isHexDigit(peek())) {
+            return;
+        }
+
+        reader.advance();
+        while (isHexDigit(peek())) {
+            reader.advance();
+        }
+
+        // Process close brace
+        if (peek() != LexerTerminals.CLOSE_BRACE) {
+            return;
+        }
+
+        this.reader.advance();
     }
 
     /**
@@ -237,7 +292,6 @@ public class DocumentationLexer extends AbstractLexer {
                     continue;
                 case LexerTerminals.CARRIAGE_RETURN:
                 case LexerTerminals.NEWLINE:
-                    break;
                 default:
                     break;
             }
@@ -271,64 +325,42 @@ public class DocumentationLexer extends AbstractLexer {
         }
     }
 
-    /**
-     * Set reference mode for backtick content.
-     *
-     * @param mode Reference mode
-     */
-    private void setReferenceMode(BacktickReferenceMode mode) {
-        referenceMode = mode;
+    private STToken getLiteral(SyntaxKind tokenKind) {
+        STNode leadingTrivia = getLeadingTrivia();
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingTrivia();
+        return STNodeFactory.createLiteralValueToken(tokenKind, lexeme, leadingTrivia,
+                trailingTrivia);
     }
 
-    /**
-     * Reset reference mode for backtick content.
-     */
-    private void resetReferenceMode() {
-        referenceMode = BacktickReferenceMode.NO_KEYWORD;
-    }
-
-    /**
-     * Reset search properties.
-     * This method is only used in DOCUMENTATION_BACKTICK_CONTENT Mode
-     */
-    private void resetSearchProperties() {
-        lookAheadNumber = 0;
-        hasMatch = true;
-    }
-
-    /**
-     * Get current char in the search.
-     * This method is only used in DOCUMENTATION_BACKTICK_CONTENT Mode
-     */
-    private int getLookAheadChar() {
-        return reader.peek(lookAheadNumber);
-    }
-
-    /**
-     * Mark current char as a validated one.
-     * This method is only used in DOCUMENTATION_BACKTICK_CONTENT Mode
-     */
-    private void consumeChar() {
-        lookAheadNumber++;
-    }
-
-    private STToken getDocumentationSyntaxToken(SyntaxKind kind) {
+    private STToken getDocSyntaxToken(SyntaxKind kind) {
         STNode leadingTrivia = getLeadingTrivia();
         STNode trailingTrivia = processTrailingTrivia();
-        // check for end of line minutiae and terminate current documentation mode.
-        int bucketCount = trailingTrivia.bucketCount();
-        if (bucketCount > 0 && trailingTrivia.childInBucket(bucketCount - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
-            endMode();
-        }
+        checkAndTerminateCurrentMode(trailingTrivia);
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind kind) {
+    private STToken getDocLiteralToken(SyntaxKind kind) {
+        STNode leadingTrivia = getLeadingTrivia();
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingTrivia();
+        checkAndTerminateCurrentMode(trailingTrivia);
+        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    private STToken getDocIdentifierToken() {
+        STNode leadingTrivia = getLeadingTrivia();
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingTrivia();
+        checkAndTerminateCurrentMode(trailingTrivia);
+        return STNodeFactory.createIdentifierToken(lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    private STToken getDocSyntaxTokenWithoutTrivia(SyntaxKind kind) {
         STNode leadingTrivia = getLeadingTrivia();
 
-        // We reach here only for the hash token, minus token and backtick token in the documentation mode.
-        // Trivia for those tokens can only be an end of line.
-        // Rest of the trivia after that belongs to the documentation description or the backtick content.
+        // We reach here for backtick tokens. Trailing trivia for those tokens can only be a newline.
+        // i.e. if there's whitespace trivia they should be a part of the next token.
         STNode trailingTrivia;
         List<STNode> triviaList = new ArrayList<>(1);
 
@@ -336,7 +368,7 @@ public class DocumentationLexer extends AbstractLexer {
         if (nextChar == LexerTerminals.NEWLINE || nextChar == LexerTerminals.CARRIAGE_RETURN) {
             reader.mark();
             triviaList.add(processEndOfLine());
-            // end of line reached, hence end documentation mode
+            // Newline reached, hence end the current mode
             endMode();
         }
 
@@ -344,95 +376,146 @@ public class DocumentationLexer extends AbstractLexer {
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getDocumentationLiteral(SyntaxKind kind) {
+    private STToken getDocLiteralWithoutTrivia(SyntaxKind kind) {
+        STNode leadingTrivia = getLeadingTrivia();
+        String lexeme = getLexeme();
+
+        // We reach here for deprecation literal. We will not capture whitespace trivia for that token.
+        // This done to give better formatting if someone uses more text after the deprecated literal.
+        // Allowing more text inline in deprecation line is still in discussion.
+        // Refer: https://github.com/ballerina-platform/ballerina-spec/issues/461
+        STNode trailingTrivia;
+        List<STNode> triviaList = new ArrayList<>(1);
+
+        int nextChar = peek();
+        if (nextChar == LexerTerminals.NEWLINE || nextChar == LexerTerminals.CARRIAGE_RETURN) {
+            reader.mark();
+            triviaList.add(processEndOfLine());
+            // Newline reached, hence end the current mode
+            endMode();
+        }
+
+        trailingTrivia = STNodeFactory.createNodeList(triviaList);
+        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    private STToken getCodeStartBacktickToken(SyntaxKind kind) {
         STNode leadingTrivia = getLeadingTrivia();
 
-        String lexeme = getLexeme();
+        // We reach here for double and triple backtick tokens. Trailing trivia for those tokens can only be a newline.
+        // i.e. if there's whitespace trivia they should be a part of the next token.
+        STNode trailingTrivia;
+        List<STNode> triviaList = new ArrayList<>(1);
+
+        int nextChar = peek();
+        if (nextChar == LexerTerminals.NEWLINE || nextChar == LexerTerminals.CARRIAGE_RETURN) {
+            reader.mark();
+            triviaList.add(processEndOfLine());
+            previousBacktickMode = this.mode; // store the the current mode to fall back later
+            switchMode(ParserMode.DOC_CODE_LINE_START_HASH);
+        }
+
+        trailingTrivia = STNodeFactory.createNodeList(triviaList);
+        return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
+    }
+
+    private STToken getCodeLineStartHashToken() {
+        STNode leadingTrivia = getLeadingTrivia();
         STNode trailingTrivia = processTrailingTrivia();
 
-        // Check for end of line minutiae and terminate the current documentation mode.
+        // If there's no newline minutiae, switch the mode to capture the code description
+        int bucketCount = trailingTrivia.bucketCount();
+        if (bucketCount == 0 || trailingTrivia.childInBucket(bucketCount - 1).kind != SyntaxKind.END_OF_LINE_MINUTIAE) {
+            switchMode(previousBacktickMode); // fall back to previous mode
+        }
+
+        return STNodeFactory.createToken(SyntaxKind.HASH_TOKEN, leadingTrivia, trailingTrivia);
+    }
+
+    /**
+     * When there is a newline present in the trailing minutiae, the current mode is terminated.
+     * Therefore, lines below the erroneous line will be unaffected.
+     *
+     * @param trailingTrivia Trailing trivia node
+     */
+    private void checkAndTerminateCurrentMode(STNode trailingTrivia) {
+        // Check for newline minutiae and terminate the current mode.
         int bucketCount = trailingTrivia.bucketCount();
         if (bucketCount > 0 && trailingTrivia.childInBucket(bucketCount - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
             endMode();
         }
-        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
-    }
-
-    private STToken getDocumentationDescriptionToken() {
-        STNode leadingTrivia = getLeadingTrivia();
-        String lexeme = getLexeme();
-        STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createLiteralValueToken(SyntaxKind.DOCUMENTATION_DESCRIPTION, lexeme, leadingTrivia,
-                trailingTrivia);
-    }
-
-    private STToken getIdentifierToken() {
-        STNode leadingTrivia = getLeadingTrivia();
-        String lexeme = getLexeme();
-        STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createIdentifierToken(lexeme, leadingTrivia, trailingTrivia);
     }
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * DOCUMENTATION_INIT Mode
+     * DOC_LINE_START_HASH Mode
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readDocumentationInitToken() {
+    private STToken readDocLineStartHashToken() {
         reader.mark();
         if (reader.isEOF()) {
-            return getDocumentationSyntaxToken(SyntaxKind.EOF_TOKEN);
+            return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
 
         int nextChar = peek();
         if (nextChar == LexerTerminals.HASH) {
             reader.advance();
-            startMode(ParserMode.DOCUMENTATION);
-            return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.HASH_TOKEN);
-        } else {
-            throw new IllegalStateException("documentation line should always start with a hash");
+            startMode(ParserMode.DOC_LINE_DIFFERENTIATOR);
+            return getDocSyntaxToken(SyntaxKind.HASH_TOKEN);
         }
+
+        assert false : "Documentation line should always start with a hash";
+        return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
     }
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * DOCUMENTATION Mode
+     * DOC_LINE_DIFFERENTIATOR Mode
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readDocumentationToken() {
-        // Look ahead and see if next non-trivial char is a plus char or a hash char.
-        // If it is a plus char, process trivial chars as leading trivia of the plus token.
-        // If it is a hash char, look ahead and see if it is followed by a deprecation literal.
-        // Else, let trivial chars be a part of the documentation description.
-        int lookAheadCount = 0;
-        int lookAheadChar = reader.peek(lookAheadCount);
-        while (lookAheadChar == LexerTerminals.SPACE || lookAheadChar == LexerTerminals.TAB) {
-            lookAheadCount++;
-            lookAheadChar = reader.peek(lookAheadCount);
-        }
-
-        if (lookAheadChar == LexerTerminals.PLUS) {
-            return processPlusToken();
-        } else if (lookAheadChar == LexerTerminals.HASH) {
-            return processDeprecationLiteralToken(lookAheadCount);
-        } else {
-            return readDocumentationInternalToken();
+    private STToken readDocLineDifferentiatorToken() {
+        int c = peek();
+        switch (c) {
+            case LexerTerminals.PLUS:
+                return processPlusToken();
+            case LexerTerminals.HASH:
+                switchMode(ParserMode.DOC_INTERNAL);
+                return processDeprecationLiteralToken();
+            case LexerTerminals.BACKTICK:
+                if (reader.peek(1) == LexerTerminals.BACKTICK) {
+                    return processDoubleOrTripleBacktickToken();
+                }
+                // Else fall through
+            default:
+                switchMode(ParserMode.DOC_INTERNAL);
+                return readDocInternalToken();
         }
     }
 
     private STToken processPlusToken() {
-        processLeadingTrivia();
-        reader.advance();
-        switchMode(ParserMode.DOCUMENTATION_PARAMETER);
-        return getDocumentationSyntaxToken(SyntaxKind.PLUS_TOKEN);
+        reader.advance(); // Advance for +
+        switchMode(ParserMode.DOC_PARAMETER);
+        return getDocSyntaxToken(SyntaxKind.PLUS_TOKEN);
     }
 
-    private STToken processDeprecationLiteralToken(int lookAheadCount) {
+    private STToken processDoubleOrTripleBacktickToken() {
+        reader.advance(2); // Advance for two backticks
+        if (peek() == LexerTerminals.BACKTICK) {
+            reader.advance();
+            switchMode(ParserMode.DOC_TRIPLE_BACKTICK_CONTENT);
+            return getCodeStartBacktickToken(SyntaxKind.TRIPLE_BACKTICK_TOKEN);
+        } else {
+            switchMode(ParserMode.DOC_DOUBLE_BACKTICK_CONTENT);
+            return getCodeStartBacktickToken(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
+        }
+    }
+
+    private STToken processDeprecationLiteralToken() {
         // Look ahead and see if next non-trivial char belongs to a deprecation literal.
         // There could be spaces and tabs in between.
-        lookAheadCount++;
+        int lookAheadCount = 1;
         int lookAheadChar = reader.peek(lookAheadCount);
 
         int whitespaceCount = 0;
@@ -446,7 +529,7 @@ public class DocumentationLexer extends AbstractLexer {
         for (int i = 0; i < 10; i++) {
             if ((char) lookAheadChar != deprecatedChars[i]) {
                 // No match. Hence return a documentation internal token.
-                return readDocumentationInternalToken();
+                return readDocInternalToken();
             }
             lookAheadCount++;
             lookAheadChar = reader.peek(lookAheadCount);
@@ -458,22 +541,39 @@ public class DocumentationLexer extends AbstractLexer {
         reader.advance(); // Advance reader for #
         reader.advance(whitespaceCount); // Advance reader for WS
         reader.advance(10); // Advance reader for "Deprecated" word
-        return getDocumentationLiteral(SyntaxKind.DEPRECATION_LITERAL);
+        return getDocLiteralWithoutTrivia(SyntaxKind.DEPRECATION_LITERAL);
     }
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * DOCUMENTATION_INTERNAL Mode
+     * DOC_INTERNAL Mode
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readDocumentationInternalToken() {
+    private STToken readDocInternalToken() {
         reader.mark();
         int nextChar = peek();
-        if (nextChar == LexerTerminals.BACKTICK && reader.peek(1) != LexerTerminals.BACKTICK) {
+        if (nextChar == LexerTerminals.BACKTICK) {
             reader.advance();
-            switchMode(ParserMode.DOCUMENTATION_BACKTICK_CONTENT);
-            return getDocumentationSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+            nextChar = peek();
+            if (nextChar != LexerTerminals.BACKTICK) {
+                // single backtick
+                switchMode(ParserMode.DOC_SINGLE_BACKTICK_CONTENT);
+                return getDocSyntaxTokenWithoutTrivia(SyntaxKind.BACKTICK_TOKEN);
+            }
+
+            reader.advance();
+            nextChar = peek();
+            if (nextChar != LexerTerminals.BACKTICK) {
+                // double backtick
+                switchMode(ParserMode.DOC_DOUBLE_BACKTICK_CONTENT);
+                return getCodeStartBacktickToken(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
+            }
+
+            reader.advance();
+            // triple backtick
+            switchMode(ParserMode.DOC_TRIPLE_BACKTICK_CONTENT);
+            return getCodeStartBacktickToken(SyntaxKind.TRIPLE_BACKTICK_TOKEN);
         }
 
         while (!reader.isEOF()) {
@@ -483,24 +583,12 @@ public class DocumentationLexer extends AbstractLexer {
                     endMode();
                     break;
                 case LexerTerminals.BACKTICK:
-                    if (reader.peek(1) != LexerTerminals.BACKTICK) {
-                        break;
-                    } else if (reader.peek(2) != LexerTerminals.BACKTICK) {
-                        // Double backtick detected
-                        reader.advance(2);
-                        processDocumentationCodeContent(false);
-                    } else {
-                        // Triple backtick detected
-                        reader.advance(3);
-                        processDocumentationCodeContent(true);
-                    }
-                    nextChar = peek();
-                    continue;
+                    break;
                 default:
                     if (isIdentifierInitialChar(nextChar)) {
                         boolean hasDocumentationReference = processDocumentationReference(nextChar);
                         if (hasDocumentationReference) {
-                            switchMode(ParserMode.DOCUMENTATION_REFERENCE_TYPE);
+                            switchMode(ParserMode.DOC_REFERENCE_TYPE);
                             break;
                         }
                     } else {
@@ -514,61 +602,10 @@ public class DocumentationLexer extends AbstractLexer {
 
         if (getLexeme().isEmpty()) {
             // Reaching here means, first immediate character itself belong to a documentation reference
-            return readDocumentationReferenceTypeToken();
+            return readDocReferenceTypeToken();
         }
-        return getDocumentationDescriptionToken();
-    }
 
-    private void processDocumentationCodeContent(boolean isTripleBacktick) {
-        int nextChar = peek();
-        while (!reader.isEOF()) {
-            switch (nextChar) {
-                case LexerTerminals.BACKTICK:
-                    // Look for a double backtick or a triple backtick
-                    // depend on the `isTripleBacktick` boolean value.
-                    if (isTripleBacktick) {
-                        reader.advance();
-                        if (peek() != LexerTerminals.BACKTICK) {
-                            nextChar = peek();
-                            continue;
-                        }
-                    }
-                    reader.advance();
-                    if (peek() != LexerTerminals.BACKTICK) {
-                        nextChar = peek();
-                        continue;
-                    }
-                    reader.advance();
-                    if (peek() != LexerTerminals.BACKTICK) {
-                        return;
-                    }
-                    nextChar = peek();
-                    continue;
-                case LexerTerminals.CARRIAGE_RETURN:
-                case LexerTerminals.NEWLINE:
-                    // Reaching here means ending backticks were not found within the same line.
-                    // Therefore, look ahead and see if next line is a documentation line and if so,
-                    // look for a ending in that line. Otherwise terminate backtick content at the new line.
-                    int lookAheadCount = 1;
-                    if (peek() == LexerTerminals.CARRIAGE_RETURN && reader.peek(1) == LexerTerminals.NEWLINE) {
-                        lookAheadCount++;
-                    }
-                    int lookAheadChar = reader.peek(lookAheadCount);
-                    while (lookAheadChar == LexerTerminals.SPACE || lookAheadChar == LexerTerminals.TAB) {
-                        lookAheadCount++;
-                        lookAheadChar = reader.peek(lookAheadCount);
-                    }
-                    if (lookAheadChar != LexerTerminals.HASH) {
-                        return;
-                    }
-                    reader.advance(lookAheadCount);
-                    nextChar = peek();
-                    continue;
-                default:
-                    reader.advance();
-                    nextChar = peek();
-            }
-        }
+        return getLiteral(SyntaxKind.DOCUMENTATION_DESCRIPTION);
     }
 
     private boolean processDocumentationReference(int nextChar) {
@@ -627,58 +664,57 @@ public class DocumentationLexer extends AbstractLexer {
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * DOCUMENTATION_PARAMETER Mode
+     * DOC_PARAMETER Mode
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readDocumentationParameterToken() {
+    private STToken readDocParameterToken() {
         reader.mark();
         int nextChar = peek();
-        if (isIdentifierInitialChar(nextChar)) {
-            STToken token;
+        if (isPossibleIdentifierStart(nextChar)) {
             reader.advance();
-            while (isIdentifierFollowingChar(peek())) {
-                reader.advance();
-            }
+            processIdentifierEnd(nextChar == LexerTerminals.BACKSLASH);
+            STToken token;
             if (LexerTerminals.RETURN.equals(getLexeme())) {
-                token = getDocumentationSyntaxToken(SyntaxKind.RETURN_KEYWORD);
+                token = getDocSyntaxToken(SyntaxKind.RETURN_KEYWORD);
             } else {
-                token = getDocumentationLiteral(SyntaxKind.PARAMETER_NAME);
+                token = getDocLiteralToken(SyntaxKind.PARAMETER_NAME);
             }
-            // If the parameter name is not followed by a minus token, switch the mode.
-            if (peek() != LexerTerminals.MINUS) {
-                switchMode(ParserMode.DOCUMENTATION_INTERNAL);
+            // If the parameter name is not followed by a minus token switch the mode.
+            // However, if the parameter name ends with a newline DOC_PARAMETER mode is already ended.
+            // Therefore, DOC_LINE_START_HASH is the active mode. In that case do not switch mode.
+            if (peek() != LexerTerminals.MINUS && this.mode != ParserMode.DOC_LINE_START_HASH) {
+                switchMode(ParserMode.DOC_INTERNAL);
             }
             return token;
         } else if (nextChar == LexerTerminals.MINUS) {
             reader.advance();
-            switchMode(ParserMode.DOCUMENTATION_INTERNAL);
-            return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.MINUS_TOKEN);
+            switchMode(ParserMode.DOC_INTERNAL);
+            return getDocSyntaxToken(SyntaxKind.MINUS_TOKEN);
         } else {
-            switchMode(ParserMode.DOCUMENTATION_INTERNAL);
-            return readDocumentationInternalToken();
+            switchMode(ParserMode.DOC_INTERNAL);
+            return readDocInternalToken();
         }
     }
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * DOCUMENTATION_REFERENCE_TYPE Mode
+     * DOC_REFERENCE_TYPE Mode
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readDocumentationReferenceTypeToken() {
+    private STToken readDocReferenceTypeToken() {
         int nextChar = peek();
         if (nextChar == LexerTerminals.BACKTICK) {
             reader.advance();
-            switchMode(ParserMode.DOCUMENTATION_BACKTICK_CONTENT);
-            return getDocumentationSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+            switchMode(ParserMode.DOC_SINGLE_BACKTICK_CONTENT);
+            return getDocSyntaxTokenWithoutTrivia(SyntaxKind.BACKTICK_TOKEN);
         }
 
         while (isIdentifierInitialChar(peek())) {
             reader.advance();
         }
 
-        setReferenceMode(BacktickReferenceMode.SPECIAL_KEYWORD);
         return processReferenceType();
     }
 
@@ -686,60 +722,59 @@ public class DocumentationLexer extends AbstractLexer {
         String tokenText = getLexeme();
         switch (tokenText) {
             case LexerTerminals.TYPE:
-                return getDocumentationSyntaxToken(SyntaxKind.TYPE_DOC_REFERENCE_TOKEN);
+                return getDocSyntaxToken(SyntaxKind.TYPE_DOC_REFERENCE_TOKEN);
             case LexerTerminals.SERVICE:
-                return getDocumentationSyntaxToken(SyntaxKind.SERVICE_DOC_REFERENCE_TOKEN);
+                return getDocSyntaxToken(SyntaxKind.SERVICE_DOC_REFERENCE_TOKEN);
             case LexerTerminals.VARIABLE:
-                return getDocumentationSyntaxToken(SyntaxKind.VARIABLE_DOC_REFERENCE_TOKEN);
+                return getDocSyntaxToken(SyntaxKind.VARIABLE_DOC_REFERENCE_TOKEN);
             case LexerTerminals.VAR:
-                return getDocumentationSyntaxToken(SyntaxKind.VAR_DOC_REFERENCE_TOKEN);
+                return getDocSyntaxToken(SyntaxKind.VAR_DOC_REFERENCE_TOKEN);
             case LexerTerminals.ANNOTATION:
-                return getDocumentationSyntaxToken(SyntaxKind.ANNOTATION_DOC_REFERENCE_TOKEN);
+                return getDocSyntaxToken(SyntaxKind.ANNOTATION_DOC_REFERENCE_TOKEN);
             case LexerTerminals.MODULE:
-                return getDocumentationSyntaxToken(SyntaxKind.MODULE_DOC_REFERENCE_TOKEN);
+                return getDocSyntaxToken(SyntaxKind.MODULE_DOC_REFERENCE_TOKEN);
             case LexerTerminals.FUNCTION:
-                setReferenceMode(BacktickReferenceMode.FUNCTION_KEYWORD);
-                return getDocumentationSyntaxToken(SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN);
+                return getDocSyntaxToken(SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN);
             case LexerTerminals.PARAMETER:
-                return getDocumentationSyntaxToken(SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN);
+                return getDocSyntaxToken(SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN);
             case LexerTerminals.CONST:
-                return getDocumentationSyntaxToken(SyntaxKind.CONST_DOC_REFERENCE_TOKEN);
+                return getDocSyntaxToken(SyntaxKind.CONST_DOC_REFERENCE_TOKEN);
             default:
-                throw new IllegalStateException();
+                assert false : "Invalid reference type";
+                return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
     }
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * DOCUMENTATION_BACKTICK_CONTENT Mode
+     * DOC_SINGLE_BACKTICK_CONTENT Mode
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readDocumentationBacktickContentToken() {
+    private STToken readSingleBacktickContentToken() {
         reader.mark();
         int nextChar = peek();
-        if (nextChar == LexerTerminals.BACKTICK) {
-            reader.advance();
-            switchMode(ParserMode.DOCUMENTATION_INTERNAL);
-            resetReferenceMode();
-            return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.BACKTICK_TOKEN);
-        }
+        reader.advance();
+        switch (nextChar) {
+            case LexerTerminals.BACKTICK:
+                switchMode(ParserMode.DOC_INTERNAL);
+                return getDocSyntaxTokenWithoutTrivia(SyntaxKind.BACKTICK_TOKEN);
+            case LexerTerminals.DOT:
+                return getDocSyntaxToken(SyntaxKind.DOT_TOKEN);
+            case LexerTerminals.COLON:
+                return getDocSyntaxToken(SyntaxKind.COLON_TOKEN);
+            case LexerTerminals.OPEN_PARANTHESIS:
+                return getDocSyntaxToken(SyntaxKind.OPEN_PAREN_TOKEN);
+            case LexerTerminals.CLOSE_PARANTHESIS:
+                return getDocSyntaxToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+            default:
+                if (isPossibleIdentifierStart(nextChar)) {
+                    processIdentifierEnd(nextChar == LexerTerminals.BACKSLASH);
+                    return getDocIdentifierToken();
+                }
 
-        processBacktickContent();
-        if (hasMatch && getLookAheadChar() == LexerTerminals.BACKTICK) {
-            switchMode(ParserMode.DOCUMENTATION_BACKTICK_EXPR);
-            resetReferenceMode();
-            return readDocumentationBacktickExprToken();
-        } else {
-            reader.advance(lookAheadNumber);
-            processInvalidChars();
-            if (referenceMode != BacktickReferenceMode.NO_KEYWORD) {
-                // No warning is logged for invalid backtick content which is not preceded by a special keyword
-                String invalidIdentifier = getLexeme();
-                reportLexerError(DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_IDENTIFIER, invalidIdentifier);
-            }
-            resetReferenceMode();
-            return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
+                processInvalidChars();
+                return getDocLiteralToken(SyntaxKind.CODE_CONTENT);
         }
     }
 
@@ -760,111 +795,104 @@ public class DocumentationLexer extends AbstractLexer {
         }
     }
 
-    private void processBacktickContent() {
-        resetSearchProperties();
-        switch (referenceMode) {
-            case SPECIAL_KEYWORD:
-                // Look for a x, m:x match
-                processQualifiedIdentifier();
-                break;
-            case FUNCTION_KEYWORD:
-                // Look for a x, m:x, x(), m:x(), T.y(), m:T.y() match
-                processBacktickExpr(false);
-                break;
-            case NO_KEYWORD:
-                // Look for a x(), m:x(), T.y(), m:T.y() match
-                processBacktickExpr(true);
-                break;
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * DOC_DOUBLE_BACKTICK_CONTENT / DOC_TRIPLE_BACKTICK_CONTENT Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
+
+    private STToken readCodeContent(int backtickCount) {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
-    }
 
-    private void processBacktickExpr(boolean isNotFunctionKeyword) {
-        processQualifiedIdentifier();
-        int nextChar = getLookAheadChar();
-        if (nextChar == LexerTerminals.OPEN_PARANTHESIS) {
-            processFuncSignature();
-        } else if (nextChar == LexerTerminals.DOT) {
-            consumeChar();
-            processIdentifier();
-            processFuncSignature();
-        } else if (isNotFunctionKeyword) {
-            hasMatch = false;
-        }
-    }
-
-    private void processFuncSignature() {
-        processOpenParenthesis();
-        processCloseParenthesis();
-    }
-
-    private void processOpenParenthesis() {
-        int nextChar = getLookAheadChar();
-        if (nextChar == LexerTerminals.OPEN_PARANTHESIS) {
-            consumeChar();
-        } else {
-            hasMatch = false;
-        }
-    }
-
-    private void processCloseParenthesis() {
-        int nextChar = getLookAheadChar();
-        if (nextChar == LexerTerminals.CLOSE_PARANTHESIS) {
-            consumeChar();
-        } else {
-            hasMatch = false;
-        }
-    }
-
-    private void processQualifiedIdentifier() {
-        processIdentifier();
-        int nextChar = getLookAheadChar();
-        if (nextChar == LexerTerminals.COLON) {
-            consumeChar();
-            processIdentifier();
-        }
-    }
-
-    private void processIdentifier() {
-        int nextChar = getLookAheadChar();
-        if (isIdentifierInitialChar(nextChar)) {
-            consumeChar();
-            nextChar = getLookAheadChar();
-            while (isIdentifierFollowingChar(nextChar)) {
-                consumeChar();
-                nextChar = getLookAheadChar();
+        int nextChar = peek();
+        while (!reader.isEOF()) {
+            switch (nextChar) {
+                case LexerTerminals.BACKTICK:
+                    int count = getBackticksCount();
+                    if (count == backtickCount) {
+                        switchMode(ParserMode.DOC_CODE_REF_END);
+                        break;
+                    }
+                    reader.advance(count);
+                    nextChar = peek();
+                    continue;
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
+                    previousBacktickMode = this.mode;
+                    switchMode(ParserMode.DOC_CODE_LINE_START_HASH);
+                    break;
+                default:
+                    reader.advance();
+                    nextChar = peek();
+                    continue;
             }
-        } else {
-            hasMatch = false;
+            break;
         }
+
+        if (getLexeme().isEmpty()) {
+            // We only reach here for ``<empty_code>`` and ```<empty_code>```
+            return readCodeReferenceEndToken();
+        }
+
+        return getLiteral(SyntaxKind.CODE_CONTENT);
+    }
+
+    private int getBackticksCount() {
+        int count = 1;
+        while (reader.peek(count) == LexerTerminals.BACKTICK) {
+            count += 1;
+        }
+        return count;
     }
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * DOCUMENTATION_BACKTICK_EXPR Mode
+     * DOC_CODE_REF_END Mode
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readDocumentationBacktickExprToken() {
-        reader.mark();
-        int nextChar = peek();
-        reader.advance();
-        switch (nextChar) {
-            case LexerTerminals.BACKTICK:
-                switchMode(ParserMode.DOCUMENTATION_INTERNAL);
-                return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.BACKTICK_TOKEN);
-            case LexerTerminals.DOT:
-                return getDocumentationSyntaxToken(SyntaxKind.DOT_TOKEN);
-            case LexerTerminals.COLON:
-                return getDocumentationSyntaxToken(SyntaxKind.COLON_TOKEN);
-            case LexerTerminals.OPEN_PARANTHESIS:
-                return getDocumentationSyntaxToken(SyntaxKind.OPEN_PAREN_TOKEN);
-            case LexerTerminals.CLOSE_PARANTHESIS:
-                return getDocumentationSyntaxToken(SyntaxKind.CLOSE_PAREN_TOKEN);
-            default:
-                while (isIdentifierFollowingChar(peek())) {
+    private STToken readCodeReferenceEndToken() {
+        switchMode(ParserMode.DOC_INTERNAL);
+        if (peek() == LexerTerminals.BACKTICK) {
+            reader.advance();
+            if (peek() == LexerTerminals.BACKTICK) {
+                reader.advance();
+                if (peek() == LexerTerminals.BACKTICK) {
                     reader.advance();
+                    // triple backtick
+                    return getDocSyntaxTokenWithoutTrivia(SyntaxKind.TRIPLE_BACKTICK_TOKEN);
+                } else {
+                    // double backtick
+                    return getDocSyntaxTokenWithoutTrivia(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
                 }
-                return getIdentifierToken();
+            }
         }
+
+        assert false : "Invalid character: Expected a backtick";
+        return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
+    }
+
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * DOC_CODE_LINE_START_HASH Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
+
+    private STToken readCodeLineStartHashToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+        int nextChar = peek();
+        if (nextChar == LexerTerminals.HASH) {
+            reader.advance();
+            return getCodeLineStartHashToken();
+        }
+
+        assert false : "Invalid character: Expected a hash";
+        return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
     }
 }

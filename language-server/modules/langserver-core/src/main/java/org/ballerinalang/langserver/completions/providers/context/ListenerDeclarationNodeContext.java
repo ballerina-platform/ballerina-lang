@@ -31,7 +31,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -43,6 +43,7 @@ import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,7 +58,7 @@ import static org.ballerinalang.langserver.completions.util.SortingUtil.getAssig
 /**
  * Completion provider for {@link ListenerDeclarationNode} context.
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<ListenerDeclarationNode> {
 
     public ListenerDeclarationNodeContext() {
@@ -65,7 +66,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ListenerDeclarationNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ListenerDeclarationNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -80,22 +81,23 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             completionItems.addAll(this.initializerItems(context, listenerNode.get()));
             this.sort(context, node, completionItems, ContextScope.INITIALIZER);
         }
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
 
     @Override
-    public void sort(CompletionContext context, ListenerDeclarationNode node, List<LSCompletionItem> completionItems,
+    public void sort(BallerinaCompletionContext context, ListenerDeclarationNode node, List<LSCompletionItem> cmpItems,
                      Object... metaData) {
-        super.sort(context, node, completionItems, metaData);
+        super.sort(context, node, cmpItems, metaData);
         if (metaData.length < 1 || !(metaData[0] instanceof ContextScope)) {
-            super.sort(context, node, completionItems);
+            super.sort(context, node, cmpItems);
         }
 
         ContextScope scope = (ContextScope) metaData[0];
 
         if (scope == ContextScope.TYPE_DESC) {
-            for (LSCompletionItem lsItem : completionItems) {
+            for (LSCompletionItem lsItem : cmpItems) {
                 CompletionItem cItem = lsItem.getCompletionItem();
                 String sortText;
                 if (SortingUtil.isTypeCompletionItem(lsItem)) {
@@ -111,11 +113,11 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         }
 
         if (scope == ContextScope.INITIALIZER) {
-            for (LSCompletionItem lsItem : completionItems) {
+            for (LSCompletionItem lsItem : cmpItems) {
                 CompletionItem cItem = lsItem.getCompletionItem();
                 Optional<TypeSymbol> assignableType = getAssignableType(context, node);
                 if (assignableType.isEmpty()) {
-                    super.sort(context, node, completionItems);
+                    super.sort(context, node, cmpItems);
                     continue;
                 }
                 String sortText = genSortTextForInitContextItem(context, lsItem, assignableType.get().typeKind());
@@ -124,7 +126,16 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         }
     }
 
-    private List<LSCompletionItem> typeDescriptorContextItems(CompletionContext context) {
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ListenerDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token listenerKeyword = node.listenerKeyword();
+        
+        // Added +1 since the completion is valid after listener <cursor>
+        return !listenerKeyword.isMissing() && listenerKeyword.textRange().endOffset() + 1 <= cursor;
+    }
+
+    private List<LSCompletionItem> typeDescriptorContextItems(BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         /*
         Type descriptor is null in the following use-case
@@ -141,7 +152,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         return completionItems;
     }
 
-    private List<LSCompletionItem> listenersAndPackagesItems(CompletionContext context) {
+    private List<LSCompletionItem> listenersAndPackagesItems(BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> listeners = visibleSymbols.stream()
@@ -152,11 +163,11 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         return completionItems;
     }
 
-    private List<LSCompletionItem> listenersInModule(CompletionContext context, String modulePrefix) {
+    private List<LSCompletionItem> listenersInModule(BallerinaCompletionContext context, String modulePrefix) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<ModuleSymbol> moduleSymbol = visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == MODULE && symbol.name().equals(modulePrefix))
+                .filter(symbol -> symbol.kind() == MODULE && symbol.getName().get().equals(modulePrefix))
                 .map(symbol -> (ModuleSymbol) symbol)
                 .findAny();
 
@@ -174,7 +185,8 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         return completionItems;
     }
 
-    private List<LSCompletionItem> initializerItems(CompletionContext context, ListenerDeclarationNode listenerNode) {
+    private List<LSCompletionItem> initializerItems(BallerinaCompletionContext context,
+                                                    ListenerDeclarationNode listenerNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         
@@ -195,7 +207,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         return completionItems;
     }
 
-    private Optional<ListenerDeclarationNode> listenerNode(CompletionContext context) {
+    private Optional<ListenerDeclarationNode> listenerNode(BallerinaCompletionContext context) {
         NonTerminalNode node = context.getNodeAtCursor();
         while (node.kind() != SyntaxKind.LISTENER_DECLARATION && node.kind() != SyntaxKind.MODULE_PART) {
             node = node.parent();
@@ -208,7 +220,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         return Optional.empty();
     }
 
-    private boolean withinTypeDescContext(CompletionContext context, ListenerDeclarationNode node) {
+    private boolean withinTypeDescContext(BallerinaCompletionContext context, ListenerDeclarationNode node) {
         Position position = context.getCursorPosition();
         Token varName = node.variableName();
         Token listenerKW = node.listenerKeyword();
@@ -228,7 +240,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                 && node.typeDescriptor() == null));
     }
 
-    private boolean withinInitializerContext(CompletionContext context, ListenerDeclarationNode node) {
+    private boolean withinInitializerContext(BallerinaCompletionContext context, ListenerDeclarationNode node) {
         Node equalsToken = node.equalsToken();
         if (equalsToken.isMissing()) {
             return false;
@@ -240,8 +252,9 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                 || (cursorPos.getLine() > lineRange.startLine().line());
     }
 
-    private Optional<ClassSymbol> getListenerTypeDesc(CompletionContext context, ListenerDeclarationNode node) {
-        Node typeDescriptor = node.typeDescriptor();
+    private Optional<ClassSymbol> getListenerTypeDesc(BallerinaCompletionContext context,
+                                                      ListenerDeclarationNode node) {
+        Node typeDescriptor = node.typeDescriptor().orElse(null);
         Optional<ClassSymbol> typeSymbol = Optional.empty();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         if (typeDescriptor == null) {
@@ -259,7 +272,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             Stream<Symbol> objsAndClasses = Stream.concat(module.classes().stream(), module.typeDefinitions().stream());
             typeSymbol = objsAndClasses
                     .filter(type -> SymbolUtil.isListener(type)
-                            && type.name().equals(nameReferenceNode.identifier().text()))
+                            && Objects.equals(type.getName().orElse(null), nameReferenceNode.identifier().text()))
                     .map(symbol -> (ClassSymbol) symbol)
                     .findAny();
 
@@ -267,7 +280,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) typeDescriptor;
             typeSymbol = visibleSymbols.stream()
                     .filter(visibleSymbol -> SymbolUtil.isListener(visibleSymbol)
-                            && visibleSymbol.name().equals(nameReferenceNode.name().text()))
+                            && Objects.equals(visibleSymbol.getName().orElse(null), nameReferenceNode.name().text()))
                     .map(symbol -> (ClassSymbol) symbol)
                     .findAny();
         }

@@ -16,8 +16,7 @@
 
 import ballerina/test;
 
-@test:Config {
-}
+@test:Config {}
 function testInteropWithRestArgs() {
     string formattedString = formatFruits();
     test:assertEquals(formattedString, "mango and banana");

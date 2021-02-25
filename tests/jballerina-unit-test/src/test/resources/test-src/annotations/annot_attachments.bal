@@ -83,6 +83,23 @@ const annotation map<string> v14 on source annotation;
     val: 11
 }
 int i = 12;
+@v11 {
+    val: 2
+}
+[int, string] [intVar, stringVar] = [1, "myString"];
+
+type myRecord record {int a;};
+@v11 {
+    val: 3
+}
+myRecord {a:myA} = {a:5};
+
+type myError error<myRecord>;
+
+@v11 {
+    val: 4
+}
+myError error(message, a = errorNo) = error myError("error message", a = 5);
 
 @v12 {
     str: "v12 value"

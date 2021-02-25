@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 //Extern methods to verify no errors while testing
 function system_out() returns handle = @java:FieldGet {

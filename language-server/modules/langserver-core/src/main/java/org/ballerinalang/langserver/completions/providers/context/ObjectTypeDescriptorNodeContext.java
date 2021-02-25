@@ -19,7 +19,7 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -34,7 +34,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ObjectTypeDescriptorNodeContext
         extends AbstractCompletionProvider<ObjectTypeDescriptorNode> {
 
@@ -43,21 +43,23 @@ public class ObjectTypeDescriptorNodeContext
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ObjectTypeDescriptorNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectTypeDescriptorNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         if (this.onSuggestionsAfterQualifier(context, node)) {
-            return Arrays.asList(
+            completionItems.addAll(Arrays.asList(
                     new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()),
                     new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get())
-            );
+            ));
+        } else if (this.onSuggestionsWithinObjectBody(context, node)) {
+            completionItems.addAll(this.getObjectBodyCompletions(context));
         }
-        if (this.onSuggestionsWithinObjectBody(context, node)) {
-            return this.getObjectBodyCompletions(context);
-        }
-        
-        return new ArrayList<>();
+        this.sort(context, node, completionItems);
+
+        return completionItems;
     }
 
-    private boolean onSuggestionsAfterQualifier(CompletionContext context, ObjectTypeDescriptorNode node) {
+    private boolean onSuggestionsAfterQualifier(BallerinaCompletionContext context, ObjectTypeDescriptorNode node) {
         int cursor = context.getCursorPositionInTree();
         NodeList<Token> qualifiers = node.objectTypeQualifiers();
 
@@ -72,29 +74,30 @@ public class ObjectTypeDescriptorNodeContext
                 && (objectKeyword.isMissing() || cursor < objectKeyword.textRange().startOffset());
     }
 
-    private boolean onSuggestionsWithinObjectBody(CompletionContext context, ObjectTypeDescriptorNode node) {
+    private boolean onSuggestionsWithinObjectBody(BallerinaCompletionContext context, ObjectTypeDescriptorNode node) {
         int cursor = context.getCursorPositionInTree();
         Token openBrace = node.openBrace();
         Token closeBrace = node.closeBrace();
-        
+
         if (openBrace.isMissing() || closeBrace.isMissing()) {
             return false;
         }
-        
+
         return cursor > openBrace.textRange().startOffset() && cursor < closeBrace.textRange().endOffset();
     }
 
-    private List<LSCompletionItem> getObjectBodyCompletions(CompletionContext context) {
+    private List<LSCompletionItem> getObjectBodyCompletions(BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_METHOD_DECL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
 

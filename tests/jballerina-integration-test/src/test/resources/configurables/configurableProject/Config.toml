@@ -1,0 +1,54 @@
+[main]
+intVar = 42
+byteVar = 22
+floatVar = 3.5
+stringVar = "abc"
+booleanVar = true
+decimalVar = 24.87
+
+intArr = [1,2,3]
+byteArr = [11,22,33,44,55,66,77,88,99]
+floatArr = [9.0, 5.6]
+stringArr = ["red", "yellow", "green"]
+booleanArr = [true, false, false, true]
+decimalArr = [8.9, 4.5, 6.2]
+
+[main.admin]
+username = "jack"
+password = "password"
+scopes = ["write","read","execute"]
+isAdmin = true
+
+[[main.users]]
+username = "alice"
+id = 11
+password="password1"
+scopes=["write"]
+
+[[main.users]]
+username = "bob"
+id = 22
+password="password2"
+scopes=["write", "read"]
+
+[[main.users]]
+username = "john"
+id = 33
+password="password3"
+
+[[main.nonKeyUsers]]
+username = "alice"
+id = 11
+password="password1"
+scopes=["write"]
+
+[[main.nonKeyUsers]]
+username = "bob"
+id = 22
+password="password2"
+scopes=["write", "read"]
+
+[[main.nonKeyUsers]]
+username = "john"
+id = 33
+password="password3"

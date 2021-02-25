@@ -56,6 +56,6 @@ function returnBallerinaPanicedError() returns int|error {
 public type MyError error<record { int code; string message?; error cause?;}>;
 
 function getCustomError() returns int|MyError {
-    MyError e = MyError("My Error", code = 12);
+    MyError e = error MyError("My Error", code = 12);
     return e;
 }

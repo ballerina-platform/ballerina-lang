@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -62,5 +63,10 @@ public class OnFailClauseTest {
         //TODO Fix required https://github.com/ballerina-platform/ballerina-lang/issues/26201
         Assert.assertEquals(negativeResult.getErrorCount(), 2);
         BAssertUtil.validateError(negativeResult, 0, "unreachable code", 21, 9);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -50,7 +50,7 @@ public class WorkspaceSymbolLookupTest {
 
         BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
 
-        List<Symbol> symbols = model.moduleLevelSymbols();
+        List<Symbol> symbols = model.moduleSymbols();
 
         List<String> allSymbols = getSymbolNames(pkg.symbol, 0, SOURCE);
         assertList(symbols, allSymbols);

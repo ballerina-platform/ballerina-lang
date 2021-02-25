@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -36,8 +37,8 @@ import java.util.Map;
  */
 public class ConstantAssignmentTest {
 
-    private static CompileResult positiveCompileResult;
-    private static CompileResult negativeCompileResult;
+    private CompileResult positiveCompileResult;
+    private CompileResult negativeCompileResult;
 
     @BeforeClass
     public void setup() {
@@ -109,5 +110,11 @@ public class ConstantAssignmentTest {
                 31);
         BAssertUtil.validateError(negativeCompileResult, 2, "incompatible types: expected 'int', found 'string'", 5,
                 27);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        positiveCompileResult = null;
+        negativeCompileResult = null;
     }
 }

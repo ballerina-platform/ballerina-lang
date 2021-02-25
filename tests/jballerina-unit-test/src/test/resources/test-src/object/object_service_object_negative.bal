@@ -61,19 +61,3 @@ function testAssignabilityWithRemoteMethods() {
     ObjWithSingleMethod q = k;
     ServiceWithRemoteMethodTwo p = k;
 }
-
-public type DualAccessorService service object {
-    resource function get resMethod() returns string;
-    resource function post resMethod() returns string;
-};
-
-public type SingleAccessorService service object {
-    resource function get resMethod() returns string;
-};
-
-function testAssessorAssignability(SingleAccessorService s0, DualAccessorService s1) {
-    SingleAccessorService s0_0 = s0;
-    SingleAccessorService s0_1 = s1;
-    DualAccessorService s1_0 = s0;
-    DualAccessorService s1_1 = s1;
-}

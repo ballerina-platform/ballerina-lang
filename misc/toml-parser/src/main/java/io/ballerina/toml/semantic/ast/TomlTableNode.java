@@ -72,6 +72,14 @@ public class TomlTableNode extends TopLevelNode {
         return tomlDiagnostics;
     }
 
+    @Override
+    public void clearDiagnostics() {
+        super.diagnostics.clear();
+        for (Map.Entry<String, TopLevelNode> child : entries.entrySet()) {
+            child.getValue().clearDiagnostics();
+        }
+    }
+
     public void replaceGeneratedTable(TomlTableNode tomlTableNode) {
         TopLevelNode childNode = entries.get(tomlTableNode.key().name());
         if (childNode instanceof TomlTableNode) {

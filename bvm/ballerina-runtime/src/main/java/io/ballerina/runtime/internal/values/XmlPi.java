@@ -24,6 +24,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 /**
@@ -47,6 +48,28 @@ public class XmlPi extends XmlNonElementItem {
         this.target = target;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_PROCESSING_INSTRUCTION :
                 PredefinedTypes.TYPE_PROCESSING_INSTRUCTION;
+    }
+
+    @Override
+    public IteratorValue getIterator() {
+        XmlPi that = this;
+        return new IteratorValue() {
+            boolean read = false;
+            @Override
+            public boolean hasNext() {
+                return !read;
+            }
+
+            @Override
+            public Object next() {
+                if (!read) {
+                    this.read = true;
+                    return that;
+                } else {
+                    throw new NoSuchElementException();
+                }
+            }
+        };
     }
 
     @Override

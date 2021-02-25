@@ -17,6 +17,7 @@
  */
 package io.ballerina.toml.internal.diagnostics;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 /**
@@ -41,6 +42,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_NEW_LINE("BCE00013", "error.missing.new.line"),
 
     ERROR_MISSING_DOUBLE_QUOTE_TOKEN("BCE00023", "error.missing.double.quote.token"),
+    ERROR_MISSING_TRIPLE_DOUBLE_QUOTE_TOKEN("BCE00024", "error.missing.triple.double.quote.token"),
+    ERROR_MISSING_SINGLE_QUOTE_TOKEN("BCE00025", "error.missing.single.quote.token"),
+    ERROR_MISSING_TRIPLE_SINGLE_QUOTE_TOKEN("BCE00026", "error.missing.triple.single.quote.token"),
     ERROR_MISSING_DOT_TOKEN("BCE00029", "error.missing.dot.token"),
 
     // Keywords
@@ -49,7 +53,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     //Separators
     ERROR_MISSING_HASH_TOKEN("BCE02202", "error.missing.hash.token"),
-    ERROR_MISSING_SINGLE_QUOTE_TOKEN("BCE02203", "error.missing.single.quote.token"),
 
     // Operators
     ERROR_MISSING_MINUS_TOKEN("BCE02303", "error.missing.minus.token"),

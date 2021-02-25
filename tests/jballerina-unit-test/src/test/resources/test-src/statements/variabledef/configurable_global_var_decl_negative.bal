@@ -28,6 +28,6 @@ function foo() {
     configurable int e = 6;
 }
 // TODO: remove this after runtime supports all configurable types
-configurable decimal f = ?;
+configurable xml & readonly x2 = xml `Hello, world!`;
 
 // TODO: validate configurable var decl for tuple, record and error var once they are supported.

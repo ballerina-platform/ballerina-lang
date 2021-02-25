@@ -48,7 +48,7 @@ public enum CompilerOptionName {
 
     TARGET_BINARY_PATH("targetBinaryPath"),
 
-    BALO_GENERATION("genBalo"),
+    BALA_GENERATION("genBala"),
 
     SKIP_MODULE_DEPENDENCIES("skipModuleDependencies"),
 
@@ -56,9 +56,13 @@ public enum CompilerOptionName {
 
     DUMP_BIR_FILE("dumpBIRFile"),
 
+    CLOUD("cloud"),
+
     LOCK_ENABLED("lockEnabled"),
 
     EXPERIMENTAL_FEATURES_ENABLED("experimentalFeaturesEnabled"),
+
+    TAINT_CHECK("taintCheck"),
 
     /**
      * We've introduced this temporary option to support old-project structure and the new package structure.

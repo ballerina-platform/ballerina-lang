@@ -51,7 +51,7 @@ isolated function add(int x, int y) returns int => x + y;
 
 type Person record {|
     readonly string name;
-    int age;
+    int age?;
 |};
 
 client class TestEP {
@@ -74,3 +74,6 @@ service /echo on listen {
 }
 
 const PI = 3.14;
+
+configurable float floatVar = 12.34;
+configurable string stringVar = ?;

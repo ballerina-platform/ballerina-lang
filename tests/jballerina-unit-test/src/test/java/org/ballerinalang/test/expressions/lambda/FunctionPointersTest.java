@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -323,5 +324,14 @@ public class FunctionPointersTest {
     @Test(description = "Test function pointers defaultable params")
     public void testDefaultParams() {
         BRunUtil.invoke(fpProgram, "testDefaultParams");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        fpProgram = null;
+        closureFPProgram = null;
+        privateFPProgram = null;
+        globalProgram = null;
+        structProgram = null;
     }
 }

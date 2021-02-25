@@ -52,18 +52,30 @@ import org.ballerinalang.model.tree.TableKeySpecifierNode;
 import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPattern;
-import org.ballerinalang.model.tree.bindingpattern.ListBindingPattern;
+import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.ErrorBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.ErrorCauseBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.ErrorFieldBindingPatternsNode;
+import org.ballerinalang.model.tree.bindingpattern.ErrorMessageBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.FieldBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.ListBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.MappingBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.NamedArgBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.RestBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.SimpleBindingPatternNode;
+import org.ballerinalang.model.tree.bindingpattern.WildCardBindingPatternNode;
 import org.ballerinalang.model.tree.expressions.AnnotAccessNode;
 import org.ballerinalang.model.tree.expressions.ArrowFunctionNode;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.CheckPanickedExpressionNode;
 import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
 import org.ballerinalang.model.tree.expressions.ElvisExpressionNode;
+import org.ballerinalang.model.tree.expressions.ErrorConstructorExpressionNode;
 import org.ballerinalang.model.tree.expressions.ErrorVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.GroupExpressionNode;
+import org.ballerinalang.model.tree.expressions.IgnoreNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IntRangeExpression;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
@@ -107,8 +119,16 @@ import org.ballerinalang.model.tree.expressions.XMLQNameNode;
 import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
 import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
 import org.ballerinalang.model.tree.matchpatterns.ConstPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.ErrorCauseMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.ErrorFieldMatchPatternsNode;
+import org.ballerinalang.model.tree.matchpatterns.ErrorMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.ErrorMessageMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.FieldMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.ListMatchPatternNode;
-import org.ballerinalang.model.tree.matchpatterns.RestMatchPattern;
+import org.ballerinalang.model.tree.matchpatterns.MappingMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.NamedArgMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.RestMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.SimpleMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.VarBindingPatternMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.WildCardMatchPatternNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
@@ -187,7 +207,17 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorFieldBindingPatterns;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorMessageBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -210,9 +240,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -267,8 +299,16 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMessageMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangNamedArgMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -425,6 +465,10 @@ public class TreeBuilder {
 
     public static ErrorDestructureNode createErrorDestructureStatementNode() {
         return new BLangErrorDestructure();
+    }
+
+    public static ErrorConstructorExpressionNode createErrorConstructorExpressionNode() {
+        return new BLangErrorConstructorExpr();
     }
 
     public static ExpressionStatementNode createExpressionStatementNode() {
@@ -772,8 +816,16 @@ public class TreeBuilder {
         return new BLangListMatchPattern();
     }
 
-    public static RestMatchPattern createRestMatchPattern() {
+    public static MappingMatchPatternNode createMappingMatchPattern() {
+        return new BLangMappingMatchPattern();
+    }
+
+    public static RestMatchPatternNode createRestMatchPattern() {
         return new BLangRestMatchPattern();
+    }
+
+    public static FieldMatchPatternNode createFieldMatchPattern() {
+        return new BLangFieldMatchPattern();
     }
 
     public static MatchClauseNode createMatchClause() {
@@ -784,12 +836,76 @@ public class TreeBuilder {
         return new BLangMatchGuard();
     }
 
-    public static CaptureBindingPattern createCaptureBindingPattern() {
+    public static WildCardBindingPatternNode createWildCardBindingPattern() {
+        return new BLangWildCardBindingPattern();
+    }
+
+    public static CaptureBindingPatternNode createCaptureBindingPattern() {
         return new BLangCaptureBindingPattern();
     }
 
-    public static ListBindingPattern createListBindingPattern() {
+    public static RestBindingPatternNode createRestBindingPattern() {
+        return new BLangRestBindingPattern();
+    }
+
+    public static ListBindingPatternNode createListBindingPattern() {
         return new BLangListBindingPattern();
+    }
+
+    public static MappingBindingPatternNode createMappingBindingPattern() {
+        return new BLangMappingBindingPattern();
+    }
+
+    public static FieldBindingPatternNode createFieldBindingPattern() {
+        return new BLangFieldBindingPattern();
+    }
+
+    public static ErrorBindingPatternNode createErrorBindingPattern() {
+        return new BLangErrorBindingPattern();
+    }
+
+    public static ErrorMessageBindingPatternNode createErrorMessageBindingPattern() {
+        return new BLangErrorMessageBindingPattern();
+    }
+
+    public static ErrorCauseBindingPatternNode createErrorCauseBindingPattern() {
+        return new BLangErrorCauseBindingPattern();
+    }
+
+    public static ErrorFieldBindingPatternsNode createErrorFieldBindingPattern() {
+        return new BLangErrorFieldBindingPatterns();
+    }
+
+    public static SimpleBindingPatternNode createSimpleBindingPattern() {
+        return new BLangSimpleBindingPattern();
+    }
+
+    public static NamedArgBindingPatternNode createNamedArgBindingPattern() {
+        return new BLangNamedArgBindingPattern();
+    }
+
+    public static ErrorMatchPatternNode createErrorMatchPattern() {
+        return new BLangErrorMatchPattern();
+    }
+
+    public static ErrorMessageMatchPatternNode createErrorMessageMatchPattern() {
+        return new BLangErrorMessageMatchPattern();
+    }
+
+    public static ErrorCauseMatchPatternNode createErrorCauseMatchPattern() {
+        return new BLangErrorCauseMatchPattern();
+    }
+
+    public static ErrorFieldMatchPatternsNode createErrorFieldMatchPattern() {
+        return new BLangErrorFieldMatchPatterns();
+    }
+
+    public static SimpleMatchPatternNode createSimpleMatchPattern() {
+        return new BLangSimpleMatchPattern();
+    }
+
+    public static NamedArgMatchPatternNode createNamedArgMatchPattern() {
+        return new BLangNamedArgMatchPattern();
     }
 
     public static MatchTypedBindingPatternNode createMatchStatementSimpleBindingPattern() {
@@ -1010,5 +1126,9 @@ public class TreeBuilder {
 
     public static FunctionNode createResourceFunctionNode() {
         return new BLangResourceFunction();
+    }
+
+    public static IgnoreNode createIgnoreExprNode() {
+        return new BLangIgnoreExpr();
     }
 }

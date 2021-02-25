@@ -29,6 +29,7 @@ import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -158,5 +159,10 @@ public class AnydataTernaryConvTest {
         assertEquals(rets.getRefValue(5).stringValue(), "<book>The Lost World</book>");
         assertEquals(rets.getRefValue(6).stringValue(), "{a:15}");
         assertEquals(rets.getRefValue(7).stringValue(), "{ca:15}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

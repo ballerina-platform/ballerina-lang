@@ -18,9 +18,9 @@ import ballerina/testobserve;
 
 MockClient testClient = new();
 
-service testServiceOne on new testobserve:Listener(10091) {
+service /testServiceOne on new testobserve:Listener(10091) {
     # Resource function for testing resource function and remote calls
-    resource function resourceOne(testobserve:Caller caller, string body) {
+    resource function post resourceOne(testobserve:Caller caller, string body) {
         var ret = trap testClient->callWithPanic();
         if (!(ret is error)) {
             error e = error("Unexpected Error");
@@ -31,7 +31,7 @@ service testServiceOne on new testobserve:Listener(10091) {
     }
 
     # Resource function for testing worker interactions
-    resource function resourceTwo(testobserve:Caller caller) {
+    resource function post resourceTwo(testobserve:Caller caller) {
         testWorkerInteractions(11);
         checkpanic caller->respond("Invocation Successful");
     }

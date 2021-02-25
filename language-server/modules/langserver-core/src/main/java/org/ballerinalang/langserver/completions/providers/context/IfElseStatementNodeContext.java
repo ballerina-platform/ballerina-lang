@@ -16,46 +16,50 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Completion Provider for {@link IfElseStatementNode} context.
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class IfElseStatementNodeContext extends AbstractCompletionProvider<IfElseStatementNode> {
     public IfElseStatementNodeContext() {
         super(IfElseStatementNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, IfElseStatementNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, IfElseStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.FUNCTION)
-                .collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        completionItems.addAll(this.getModuleCompletionItems(context));
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            List<Symbol> expressionContextEntries =
+                    QNameReferenceUtil.getExpressionContextEntries(context, (QualifiedNameReferenceNode) nodeAtCursor);
+            completionItems.addAll(this.getCompletionItemList(expressionContextEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
+        }
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, IfElseStatementNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, IfElseStatementNode node) {
         BlockStatementNode ifBody = node.ifBody();
         if (ifBody.openBraceToken().isMissing()) {
             return true;

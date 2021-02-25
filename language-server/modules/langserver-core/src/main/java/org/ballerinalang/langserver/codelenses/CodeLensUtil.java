@@ -41,7 +41,8 @@ public class CodeLensUtil {
      */
     public static List<CodeLens> getCodeLenses(DocumentServiceContext codeLensContext) {
         List<CodeLens> lenses = new ArrayList<>();
-        List<LSCodeLensesProvider> providers = LSCodeLensesProviderHolder.getInstance().getProviders();
+        List<LSCodeLensesProvider> providers = LSCodeLensesProviderHolder
+                .getInstance(codeLensContext.languageServercontext()).getProviders();
         for (LSCodeLensesProvider provider : providers) {
             try {
                 lenses.addAll(provider.getLenses(codeLensContext));

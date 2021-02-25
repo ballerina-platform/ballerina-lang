@@ -18,6 +18,9 @@
 
 package org.ballerinalang.central.client;
 
+import com.github.zafarkhaja.semver.ParseException;
+import com.github.zafarkhaja.semver.UnexpectedCharacterException;
+import com.github.zafarkhaja.semver.Version;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import me.tongfei.progressbar.ProgressBar;
@@ -48,7 +51,6 @@ import javax.net.ssl.X509TrustManager;
 
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.central.client.CentralClientConstants.SSL;
-import static org.ballerinalang.central.client.CentralClientConstants.VERSION_REGEX;
 
 /**
  * Utils class for this package.
@@ -80,10 +82,10 @@ public class Utils {
     } };
 
     /**
-     * Create the balo in home repo.
+     * Create the bala in home repo.
      *
      * @param conn               http connection
-     * @param pkgPathInBaloCache package path in balo cache, <user.home>.ballerina/balo_cache/<org-name>/<pkg-name>
+     * @param pkgPathInBalaCache package path in bala cache, <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>
      * @param pkgNameWithOrg     package name with org, <org-name>/<pkg-name>
      * @param isNightlyBuild     is nightly build
      * @param newUrl             new redirect url
@@ -91,7 +93,7 @@ public class Utils {
      * @param outStream          Output print stream
      * @param logFormatter       log formatter
      */
-    public static void createBaloInHomeRepo(HttpURLConnection conn, Path pkgPathInBaloCache, String pkgNameWithOrg,
+    public static void createBalaInHomeRepo(HttpURLConnection conn, Path pkgPathInBalaCache, String pkgNameWithOrg,
             boolean isNightlyBuild, String newUrl, String contentDisposition, PrintStream outStream,
             LogFormatter logFormatter) throws CentralClientException {
         long responseContentLength = conn.getContentLengthLong();
@@ -106,21 +108,21 @@ public class Utils {
         String[] uriParts = resolvedURI.split("/");
         String pkgVersion = uriParts[uriParts.length - 2];
 
-        validatePackageVersion(pkgVersion, logFormatter);
-        String baloFile = getBaloFileName(contentDisposition, uriParts[uriParts.length - 1]);
-        Path baloCacheWithPkgPath = pkgPathInBaloCache.resolve(pkgVersion);
-        //<user.home>.ballerina/balo_cache/<org-name>/<pkg-name>/<pkg-version>
+        String validPkgVersion = validatePackageVersion(pkgVersion, logFormatter);
+        String balaFile = getBalaFileName(contentDisposition, uriParts[uriParts.length - 1]);
+        Path balaCacheWithPkgPath = pkgPathInBalaCache.resolve(validPkgVersion);
+        //<user.home>.ballerina/bala_cache/<org-name>/<pkg-name>/<pkg-version>
 
-        Path baloPath = Paths.get(baloCacheWithPkgPath.toString(), baloFile);
-        if (baloPath.toFile().exists()) {
+        Path balaPath = Paths.get(balaCacheWithPkgPath.toString(), balaFile);
+        if (balaPath.toFile().exists()) {
             throw new PackageAlreadyExistsException(
-                    logFormatter.formatLog("package already exists in the home repository: " + baloPath.toString()));
+                    logFormatter.formatLog("package already exists in the home repository: " + balaPath.toString()));
         }
 
-        createBaloFileDirectory(baloCacheWithPkgPath, logFormatter);
-        writeBaloFile(conn, baloPath, pkgNameWithOrg + ":" + pkgVersion, responseContentLength, outStream,
+        createBalaFileDirectory(balaCacheWithPkgPath, logFormatter);
+        writeBalaFile(conn, balaPath, pkgNameWithOrg + ":" + validPkgVersion, responseContentLength, outStream,
                       logFormatter);
-        handleNightlyBuild(isNightlyBuild, baloCacheWithPkgPath, logFormatter);
+        handleNightlyBuild(isNightlyBuild, balaCacheWithPkgPath, logFormatter);
     }
 
     /**
@@ -128,63 +130,73 @@ public class Utils {
      *
      * @param pkgVersion   package version
      * @param logFormatter log formatter
+     * @return valid package version
      */
-    static void validatePackageVersion(String pkgVersion, LogFormatter logFormatter) throws CentralClientException {
-        if (!pkgVersion.matches(VERSION_REGEX)) {
-            throw new CentralClientException(logFormatter.formatLog("package version could not be detected"));
+    static String validatePackageVersion(String pkgVersion, LogFormatter logFormatter) throws CentralClientException {
+        try {
+            Version version = Version.valueOf(pkgVersion);
+            return version.toString();
+        } catch (IllegalArgumentException e) {
+            throw new CentralClientException(logFormatter.formatLog("Version cannot be empty"));
+        } catch (UnexpectedCharacterException e) {
+            throw new CentralClientException(
+                    logFormatter.formatLog("Invalid version: '" + pkgVersion + "'. " + e.toString()));
+        } catch (ParseException e) {
+            throw new CentralClientException(
+                    logFormatter.formatLog("Invalid version: '" + pkgVersion + "'. " + e.toString()));
         }
     }
 
     /**
-     * Get balo file name from content disposition header if available.
+     * Get bala file name from content disposition header if available.
      *
      * @param contentDisposition content disposition header value
-     * @param baloFile           balo file name taken from RESOLVED_REQUESTED_URI
-     * @return balo file name
+     * @param balaFile           bala file name taken from RESOLVED_REQUESTED_URI
+     * @return bala file name
      */
-    private static String getBaloFileName(String contentDisposition, String baloFile) {
+    private static String getBalaFileName(String contentDisposition, String balaFile) {
         if (contentDisposition != null && !contentDisposition.equals("")) {
             return contentDisposition.substring("attachment; filename=".length());
         } else {
-            return baloFile;
+            return balaFile;
         }
     }
 
     /**
-     * Create balo file directory.
+     * Create bala file directory.
      *
-     * @param fullPathToStoreBalo full path to store the balo file
-     *                            <user.home>.ballerina/balo_cache/<org-name>/<pkg-name>/<pkg-version>
+     * @param fullPathToStoreBala full path to store the bala file
+     *                            <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>/<pkg-version>
      * @param logFormatter        log formatter
      */
-    private static void createBaloFileDirectory(Path fullPathToStoreBalo, LogFormatter logFormatter)
+    private static void createBalaFileDirectory(Path fullPathToStoreBala, LogFormatter logFormatter)
             throws CentralClientException {
         try {
-            Files.createDirectories(fullPathToStoreBalo);
+            Files.createDirectories(fullPathToStoreBala);
         } catch (IOException e) {
-            throw new CentralClientException(logFormatter.formatLog("error creating directory for balo file"));
+            throw new CentralClientException(logFormatter.formatLog("error creating directory for bala file"));
         }
     }
 
     /**
-     * Write balo file to the home repo.
+     * Write bala file to the home repo.
      *
      * @param conn             http connection
-     * @param baloPath         path of the balo file
+     * @param balaPath         path of the bala file
      * @param fullPkgName      full package name, <org-name>/<pkg-name>:<pkg-version>
      * @param resContentLength response content length
      * @param outStream        Output print stream
      * @param logFormatter     log formatter
      */
-    static void writeBaloFile(HttpURLConnection conn, Path baloPath, String fullPkgName, long resContentLength,
+    static void writeBalaFile(HttpURLConnection conn, Path balaPath, String fullPkgName, long resContentLength,
             PrintStream outStream, LogFormatter logFormatter) throws CentralClientException {
         try (InputStream inputStream = conn.getInputStream();
-                FileOutputStream outputStream = new FileOutputStream(baloPath.toString())) {
+                FileOutputStream outputStream = new FileOutputStream(balaPath.toString())) {
             writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName, outStream,
                                    logFormatter);
         } catch (IOException e) {
             throw new CentralClientException(
-                    logFormatter.formatLog("error occurred copying the balo file: " + e.getMessage()));
+                    logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
         }
     }
 
@@ -192,14 +204,14 @@ public class Utils {
      * Handle nightly build.
      *
      * @param isNightlyBuild       is nightly build
-     * @param baloCacheWithPkgPath balo cache with package path
+     * @param balaCacheWithPkgPath bala cache with package path
      * @param logFormatter         log formatter
      */
-    private static void handleNightlyBuild(boolean isNightlyBuild, Path baloCacheWithPkgPath,
+    private static void handleNightlyBuild(boolean isNightlyBuild, Path balaCacheWithPkgPath,
             LogFormatter logFormatter) throws CentralClientException {
         if (isNightlyBuild) {
             // If its a nightly build tag the file as a module from nightly
-            Path nightlyBuildMetaFile = Paths.get(baloCacheWithPkgPath.toString(), "nightly.build");
+            Path nightlyBuildMetaFile = Paths.get(balaCacheWithPkgPath.toString(), "nightly.build");
             if (!nightlyBuildMetaFile.toFile().exists()) {
                 createNightlyBuildMetaFile(nightlyBuildMetaFile, logFormatter);
             }
@@ -207,10 +219,10 @@ public class Utils {
     }
 
     /**
-     * Show progress of the writing the balo file.
+     * Show progress of the writing the bala file.
      *
      * @param inputStream   response input stream
-     * @param outputStream  home repo balo file output stream
+     * @param outputStream  home repo bala file output stream
      * @param totalSizeInKB response input stream size in kb
      * @param fullPkgName   full package name, <org-name>/<pkg-name>:<pkg-version>
      * @param outStream     Output print stream
@@ -313,12 +325,12 @@ public class Utils {
      * @return size of the file in kb
      */
     static long getTotalFileSizeInKB(Path filePath) throws CentralClientException {
-        byte[] baloContent;
+        byte[] balaContent;
         try {
-            baloContent = Files.readAllBytes(filePath);
-            return baloContent.length / 1024;
+            balaContent = Files.readAllBytes(filePath);
+            return balaContent.length / 1024;
         } catch (IOException e) {
-            throw new CentralClientException("cannot read the balo content");
+            throw new CentralClientException("cannot read the bala content");
         }
     }
 

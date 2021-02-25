@@ -18,10 +18,11 @@ package io.ballerina.runtime.api.utils;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.types.MemberFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -72,10 +73,9 @@ public class StringUtils {
      * @return Converted string
      */
     public static BString getStringFromInputStream(InputStream in) {
-        BufferedInputStream bis = new BufferedInputStream(in);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         String result;
-        try {
+        try (BufferedInputStream bis = new BufferedInputStream(in);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             int data;
             while ((data = bis.read()) != -1) {
                 bos.write(data);
@@ -83,11 +83,6 @@ public class StringUtils {
             result = bos.toString();
         } catch (IOException ioe) {
             throw new BallerinaException("Error occurred when reading input stream", ioe);
-        } finally {
-            try {
-                bos.close();
-            } catch (IOException ignored) {
-            }
         }
         return StringUtils.fromString(result);
     }
@@ -148,7 +143,7 @@ public class StringUtils {
         for (int i = 0; i < s.length; i++) {
             bStringArray[i] = StringUtils.fromString(s[i]);
         }
-        return new ArrayValueImpl(bStringArray);
+        return new ArrayValueImpl(bStringArray, false);
     }
 
     public static BArray fromStringSet(Set<String> set) {
@@ -158,7 +153,7 @@ public class StringUtils {
             bStringArray[i] = StringUtils.fromString(s);
             i++;
         }
-        return new ArrayValueImpl(bStringArray);
+        return new ArrayValueImpl(bStringArray, false);
     }
 
     /**
@@ -175,8 +170,7 @@ public class StringUtils {
 
         Type type = TypeChecker.getType(value);
 
-        //TODO: bstring - change to type tag check
-        if (value instanceof BString) {
+        if (type.getTag() == TypeTags.STRING_TAG) {
             return ((BString) value).getValue();
         }
 
@@ -207,7 +201,7 @@ public class StringUtils {
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             BObject objectValue = (BObject) value;
             ObjectType objectType = objectValue.getType();
-            for (MemberFunctionType func : objectType.getAttachedFunctions()) {
+            for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameterTypes().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
                     return objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
@@ -233,8 +227,7 @@ public class StringUtils {
 
         Type type = TypeChecker.getType(value);
 
-        //TODO: bstring - change to type tag check
-        if (value instanceof BString) {
+        if (type.getTag() == TypeTags.STRING_TAG) {
             return "\"" + ((BString) value).getValue() + "\"";
         }
 
@@ -279,7 +272,7 @@ public class StringUtils {
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
             ObjectType objectType = objectValue.getType();
-            for (MemberFunctionType func : objectType.getAttachedFunctions()) {
+            for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameterTypes().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
                     return "object " + objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
@@ -301,8 +294,9 @@ public class StringUtils {
      *
      * @param value The value on which the function is invoked
      * @return Ballerina value represented by Ballerina expression syntax
+     * @throws BError for any parsing error
      */
-    public static Object parseExpressionStringValue(String value, BLink parent) {
+    public static Object parseExpressionStringValue(String value, BLink parent) throws BallerinaException {
         String exprValue = value.trim();
         int endIndex = exprValue.length() - 1;
         if (exprValue.equals("()")) {
@@ -343,11 +337,10 @@ public class StringUtils {
         if (exprValue.startsWith("...")) {
             return BalStringUtils.parseCycleDetectedExpressionStringValue(exprValue, parent);
         }
-        if (!exprValue.startsWith("error") && !exprValue.startsWith("object")) {
+        if (exprValue.indexOf(' ') != -1) {
             return BalStringUtils.parseTupleExpressionStringValue(exprValue, parent);
         }
-        return ErrorCreator.createError(fromString("{ballerina/lang.value}FromBalStringError"),
-                fromString("fromBalString supported only for Ballerina expression syntax of anydata value"));
+        throw new BallerinaException("invalid expression style string value");
     }
 
     /**
@@ -381,4 +374,6 @@ public class StringUtils {
         return refValue.stringValue(null);
     }
 
+    private StringUtils() {
+    }
 }

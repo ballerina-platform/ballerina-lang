@@ -18,14 +18,12 @@
 
 package io.ballerina.cli.task;
 
-import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.testsuite.Test;
-import io.ballerina.projects.testsuite.TestSuite;
+import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.ballerinalang.testerina.core.TestProcessor;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -42,17 +40,22 @@ import java.util.stream.Collectors;
 public class ListTestGroupsTask implements Task {
 
     private final PrintStream out;
+    private boolean displayWarning;
 
-    public ListTestGroupsTask(PrintStream out) {
+    public ListTestGroupsTask(PrintStream out, boolean displayWarning) {
         this.out = out;
+        this.displayWarning = displayWarning;
     }
+
     @Override
     public void execute(Project project) {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
-            PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-            Optional<TestSuite> suite = jBallerinaBackend.testSuite(module);
+            TestProcessor testProcessor = new TestProcessor();
+            Optional<TestSuite> suite = testProcessor.testSuite(module);
+            if (displayWarning) {
+                out.println("\nWarning: Other flags are skipped when list-groups flag is provided.\n");
+            }
             if (!project.currentPackage().packageOrg().anonymous()) {
                 out.println();
                 out.println("\t" + module.moduleName().toString());

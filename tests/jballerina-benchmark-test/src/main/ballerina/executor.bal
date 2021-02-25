@@ -21,8 +21,8 @@ public function main(string... args) {
         println("ERROR: Please specify the number of warm-up iterations and benchmark iterations.");
         return;
     }
-    int warmupCount = <int>'int:fromString(args[0]);
-    int benchmarkCount = <int>'int:fromString(args[1]);
+    int warmupCount = <int> checkpanic 'int:fromString(args[0]);
+    int benchmarkCount = <int> checkpanic 'int:fromString(args[1]);
     string functionName = args[2];
     loadFunctions();
     (function(int warmup, int benchmark) returns int)|function()|() func = getFunction(functionName);

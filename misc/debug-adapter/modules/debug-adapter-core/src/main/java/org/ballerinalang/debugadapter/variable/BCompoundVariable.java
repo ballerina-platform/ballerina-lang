@@ -20,9 +20,7 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.Map;
-
-import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 
 /**
  * Base implementation for ballerina variable types with child variables.
@@ -30,11 +28,10 @@ import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
 public abstract class BCompoundVariable implements BVariable {
 
     protected final SuspendedContext context;
-    private final String name;
-    private final BVariableType type;
+    protected final String name;
+    protected final BVariableType type;
     protected Value jvmValue;
-    private Variable dapVariable;
-    private Map<String, Value> childVariables;
+    protected Variable dapVariable;
 
     public BCompoundVariable(SuspendedContext context, String varName, BVariableType bVariableType, Value jvmValue) {
         this.context = context;
@@ -43,14 +40,14 @@ public abstract class BCompoundVariable implements BVariable {
         this.type = bVariableType;
         this.jvmValue = jvmValue;
         this.dapVariable = null;
-        this.childVariables = null;
     }
 
     /**
-     * Returns a map of JDI value representations of all the child variables against their indexes. Each
-     * compound variable type must have their own implementation to compute/fetch values.
+     * Returns child variable count, to be used for child variable paging.
+     *
+     * @return child variable count of the variable
      */
-    protected abstract Map<String, Value> computeChildVariables();
+    public abstract int getChildrenCount();
 
     @Override
     public SuspendedContext getContext() {
@@ -72,31 +69,18 @@ public abstract class BCompoundVariable implements BVariable {
         return jvmValue;
     }
 
-    @Override
-    public Variable getDapVariable() {
-        if (dapVariable == null) {
-            dapVariable = new Variable();
-            dapVariable.setName(this.name);
-            dapVariable.setType(this.type.getString());
-            dapVariable.setValue(computeValue());
-        }
-        return dapVariable;
-    }
-
-    public Map<String, Value> getChildVariables() {
-        if (childVariables == null) {
-            childVariables = computeChildVariables();
-        }
-        return childVariables;
-    }
-
-    public Value getChildByName(String name) throws DebugVariableException {
-        if (childVariables == null) {
-            childVariables = computeChildVariables();
-        }
-        if (!childVariables.containsKey(name)) {
-            throw new DebugVariableException("No child variables found with name: '" + name + "'");
-        }
-        return childVariables.get(name);
+    /**
+     * Child variable types.
+     * <p>
+     * <ul>
+     * <li> Indexed child variables - Variable types which can contain a large number of child variable entries and
+     * hence should be lazy loaded (i.e. array elements, table entries, map entries, json elements, etc.)
+     * <li> Named child variables - Variable types with a known/limited number of child elements. (i.e. error variable
+     * fields, object fields, etc.)
+     * </ul>
+     */
+    public enum ChildVariableKind {
+        NAMED,
+        INDEXED
     }
 }

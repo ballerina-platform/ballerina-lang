@@ -69,6 +69,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXMLIteratorInvocation() {
+        BRunUtil.invoke(compileResult, "testXMLIteratorInvocation");
+    }
+
+    @Test
     public void testFromXml() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFromString");
         assertEquals(returns[0].stringValue(),
@@ -90,6 +95,11 @@ public class LangLibXMLTest {
         assertEquals(returns[0].stringValue(),
                 "<hello>xml content</hello><TITLE>Empire Burlesque</TITLE><TITLE>Hide your heart</TITLE>" +
                         "<TITLE>Greatest Hits</TITLE>hello from String");
+    }
+
+    @Test
+    public void testConcatWithXMLSequence() {
+        BRunUtil.invoke(compileResult, "testConcatWithXMLSequence");
     }
 
     @Test
@@ -192,8 +202,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testForEach() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
-        assertEquals((returns[0]).size(), 3);
+        BRunUtil.invoke(compileResult, "testForEach");
     }
 
     @Test

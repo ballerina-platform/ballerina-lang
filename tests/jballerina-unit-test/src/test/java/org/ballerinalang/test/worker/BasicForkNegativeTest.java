@@ -21,6 +21,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -54,5 +55,10 @@ public class BasicForkNegativeTest {
         BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 52, 5);
         BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 53, 16);
         Assert.assertEquals(result.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

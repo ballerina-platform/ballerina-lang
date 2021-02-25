@@ -29,12 +29,22 @@ class CompilationOptions {
     private Boolean offlineBuild;
     private Boolean experimental;
     private Boolean observabilityIncluded;
+    private Boolean dumpBir;
+    private String dumpBirFile;
+    private String cloud;
+    private Boolean taintCheck;
 
-    CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental, Boolean observabilityIncluded) {
+    public CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental,
+                              Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
+                              String cloud, Boolean taintCheck) {
         this.skipTests = skipTests;
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
+        this.dumpBir = dumpBir;
+        this.dumpBirFile = dumpBirFile;
+        this.cloud = cloud;
+        this.taintCheck = taintCheck;
     }
 
     boolean skipTests() {
@@ -53,6 +63,22 @@ class CompilationOptions {
         return toBooleanDefaultIfNull(observabilityIncluded);
     }
 
+    public Boolean dumpBir() {
+        return toBooleanDefaultIfNull(dumpBir);
+    }
+
+    public String getBirDumpFile() {
+        return dumpBirFile;
+    }
+
+    public String getCloud() {
+        return cloud;
+    }
+
+    public boolean getTaintCheck() {
+        return toBooleanDefaultIfNull(taintCheck);
+    }
+
     /**
      * Merge the given compilation options by favoring theirs if there are conflicts.
      *
@@ -69,7 +95,11 @@ class CompilationOptions {
                 theirOptions.experimental, () -> toBooleanDefaultIfNull(this.experimental));
         this.observabilityIncluded = Objects.requireNonNullElseGet(
                 theirOptions.observabilityIncluded, () -> toBooleanDefaultIfNull(this.observabilityIncluded));
-
+        this.dumpBir = Objects.requireNonNullElseGet(theirOptions.dumpBir, () -> toBooleanDefaultIfNull(this.dumpBir));
+        this.cloud = Objects.requireNonNullElse(theirOptions.cloud, toStringDefaultIfNull(this.cloud));
+        this.dumpBirFile = theirOptions.dumpBirFile;
+        this.taintCheck = Objects.requireNonNullElseGet(theirOptions.taintCheck,
+                () -> toBooleanDefaultIfNull(this.taintCheck));
         return this;
     }
 
@@ -78,5 +108,12 @@ class CompilationOptions {
             return false;
         }
         return bool;
+    }
+
+    private String toStringDefaultIfNull(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value;
     }
 }

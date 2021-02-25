@@ -15,27 +15,25 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.context.util.ClassDefinitionNodeContextUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Completion provider for {@link AnnotationNode} context.
+ * Completion provider for {@link ClassDefinitionNode} context.
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ClassDefinitionNodeContext extends AbstractCompletionProvider<ClassDefinitionNode> {
 
     public ClassDefinitionNodeContext() {
@@ -43,51 +41,26 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ClassDefinitionNode node) {
-        if (this.withinBody(context, node)) {
-            return this.getClassBodyCompletions(context);
-        }
-
-        if (this.onTypeReferenceContext(context)) {
-            return new ArrayList<>();
-        }
-
-        return this.getClassTypeCompletions(context, node);
-    }
-
-    @Override
-    public boolean onPreValidation(CompletionContext context, ClassDefinitionNode node) {
-        return !node.classKeyword().isMissing();
-    }
-
-    private List<LSCompletionItem> getClassTypeCompletions(CompletionContext context, ClassDefinitionNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ClassDefinitionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        SnippetCompletionItem kwDistinct = new SnippetCompletionItem(context, Snippet.KW_DISTINCT.get());
-        SnippetCompletionItem kwClient = new SnippetCompletionItem(context, Snippet.KW_CLIENT.get());
-        SnippetCompletionItem kwReadonly = new SnippetCompletionItem(context, Snippet.KW_READONLY.get());
-        completionItems.add(kwDistinct);
-        completionItems.add(kwClient);
-        completionItems.add(kwReadonly);
-        node.classTypeQualifiers().forEach(token -> {
-            switch (token.kind()) {
-                case DISTINCT_KEYWORD:
-                    completionItems.remove(kwDistinct);
-                    break;
-                case CLIENT_KEYWORD:
-                    completionItems.remove(kwClient);
-                    break;
-                case READONLY_KEYWORD:
-                    completionItems.remove(kwReadonly);
-                    break;
-                default:
-                    break;
-            }
-        });
+        if (this.withinBody(context, node)) {
+            completionItems.addAll(this.getClassBodyCompletions(context, node));
+        }
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
 
-    private boolean withinBody(CompletionContext context, ClassDefinitionNode node) {
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ClassDefinitionNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token classKeyword = node.classKeyword();
+
+        // class <cursor>. added +1 in order to keep at least one space after the class keyword
+        return !classKeyword.isMissing() && cursor >= classKeyword.textRange().endOffset() + 1;
+    }
+
+    private boolean withinBody(BallerinaCompletionContext context, ClassDefinitionNode node) {
         int cursor = context.getCursorPositionInTree();
         Token openBrace = node.openBrace();
         Token closeBrace = node.closeBrace();
@@ -99,7 +72,8 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         return cursor >= openBrace.textRange().endOffset() && cursor <= closeBrace.textRange().startOffset();
     }
 
-    private List<LSCompletionItem> getClassBodyCompletions(CompletionContext context) {
+    private List<LSCompletionItem> getClassBodyCompletions(BallerinaCompletionContext context,
+                                                           ClassDefinitionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
@@ -110,22 +84,13 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
+        if (ClassDefinitionNodeContextUtil.onSuggestResourceSnippet(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
+        }
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
 
         return completionItems;
-    }
-
-    private boolean onTypeReferenceContext(CompletionContext context) {
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-
-        while (nodeAtCursor.kind() != SyntaxKind.CLASS_DEFINITION) {
-            if (nodeAtCursor.kind() == SyntaxKind.TYPE_REFERENCE) {
-                return true;
-            }
-            nodeAtCursor = nodeAtCursor.parent();
-        }
-
-        return false;
     }
 }

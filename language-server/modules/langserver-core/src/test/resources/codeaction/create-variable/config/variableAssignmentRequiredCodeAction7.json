@@ -3,7 +3,7 @@
     "character": 33,
     "expected": [
         {
-            "title": "Create Variable",
+            "title": "Create variable",
             "edits": [
                 {
                     "range": {

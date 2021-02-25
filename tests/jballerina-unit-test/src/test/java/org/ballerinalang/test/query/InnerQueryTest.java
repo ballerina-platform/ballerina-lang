@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -89,4 +90,9 @@ public class InnerQueryTest {
         validateError(negativeResult, i, "undefined symbol 'emp'", 88, 30);
     }
 
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
+    }
 }

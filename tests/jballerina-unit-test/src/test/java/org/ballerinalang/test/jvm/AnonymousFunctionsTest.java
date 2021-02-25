@@ -22,6 +22,7 @@
  import org.ballerinalang.test.BRunUtil;
  import org.ballerinalang.test.CompileResult;
  import org.testng.Assert;
+ import org.testng.annotations.AfterClass;
  import org.testng.annotations.BeforeClass;
  import org.testng.annotations.Test;
 
@@ -68,5 +69,10 @@
      public void testWorkerBasic() {
          BValue[] result = BRunUtil.invoke(compileResult, "basicWorkerTest");
          Assert.assertEquals(result[0].stringValue(), "120");
+     }
+
+     @AfterClass
+     public void tearDown() {
+         compileResult = null;
      }
  }

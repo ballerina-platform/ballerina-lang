@@ -358,7 +358,6 @@ public class ParserTestUtils {
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
             case PARAMETER_NAME:
-            case BACKTICK_CONTENT:
             case DEPRECATION_LITERAL:
             case INVALID_TOKEN:
                 return token.text();
@@ -367,6 +366,7 @@ public class ParserTestUtils {
             case TEMPLATE_STRING:
             case DOCUMENTATION_DESCRIPTION:
             case DOCUMENTATION_STRING:
+            case CODE_CONTENT:
                 return cleanupText(token.text());
             default:
                 return token.kind.toString();
@@ -608,8 +608,6 @@ public class ParserTestUtils {
                 return SyntaxKind.START_KEYWORD;
             case "FLUSH_KEYWORD":
                 return SyntaxKind.FLUSH_KEYWORD;
-            case "DEFAULT_KEYWORD":
-                return SyntaxKind.DEFAULT_KEYWORD;
             case "WAIT_KEYWORD":
                 return SyntaxKind.WAIT_KEYWORD;
             case "DO_KEYWORD":
@@ -772,6 +770,10 @@ public class ParserTestUtils {
                 return SyntaxKind.RIGHT_ARROW_TOKEN;
             case "BACKTICK_TOKEN":
                 return SyntaxKind.BACKTICK_TOKEN;
+            case "DOUBLE_BACKTICK_TOKEN":
+                return SyntaxKind.DOUBLE_BACKTICK_TOKEN;
+            case "TRIPLE_BACKTICK_TOKEN":
+                return SyntaxKind.TRIPLE_BACKTICK_TOKEN;
             case "DOUBLE_QUOTE_TOKEN":
                 return SyntaxKind.DOUBLE_QUOTE_TOKEN;
             case "SINGLE_QUOTE_TOKEN":
@@ -1046,6 +1048,8 @@ public class ParserTestUtils {
                 return SyntaxKind.EXTERNAL_FUNCTION_BODY;
             case "REQUIRED_PARAM":
                 return SyntaxKind.REQUIRED_PARAM;
+            case "INCLUDED_RECORD_PARAM":
+                return SyntaxKind.INCLUDED_RECORD_PARAM;
             case "DEFAULTABLE_PARAM":
                 return SyntaxKind.DEFAULTABLE_PARAM;
             case "REST_PARAM":
@@ -1250,18 +1254,24 @@ public class ParserTestUtils {
                 return SyntaxKind.MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE;
             case "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE":
                 return SyntaxKind.MARKDOWN_DEPRECATION_DOCUMENTATION_LINE;
+            case "MARKDOWN_CODE_LINE":
+                return SyntaxKind.MARKDOWN_CODE_LINE;
             case "DOCUMENTATION_DESCRIPTION":
                 return SyntaxKind.DOCUMENTATION_DESCRIPTION;
-            case "DOCUMENTATION_REFERENCE":
-                return SyntaxKind.DOCUMENTATION_REFERENCE;
+            case "BALLERINA_NAME_REFERENCE":
+                return SyntaxKind.BALLERINA_NAME_REFERENCE;
             case "PARAMETER_NAME":
                 return SyntaxKind.PARAMETER_NAME;
-            case "BACKTICK_CONTENT":
-                return SyntaxKind.BACKTICK_CONTENT;
             case "DEPRECATION_LITERAL":
                 return SyntaxKind.DEPRECATION_LITERAL;
             case "DOCUMENTATION_STRING":
                 return SyntaxKind.DOCUMENTATION_STRING;
+            case "CODE_CONTENT":
+                return SyntaxKind.CODE_CONTENT;
+            case "INLINE_CODE_REFERENCE":
+                return SyntaxKind.INLINE_CODE_REFERENCE;
+            case "MARKDOWN_CODE_BLOCK":
+                return SyntaxKind.MARKDOWN_CODE_BLOCK;
 
             // Trivia
             case "EOF_TOKEN":

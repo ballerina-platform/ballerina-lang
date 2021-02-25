@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -66,5 +67,11 @@ public class StringFunctionInvocationExprTest {
         Assert.assertEquals(compileResultNegative.getErrorCount(), 1);
         BAssertUtil.validateError(compileResultNegative, 0, "undefined function 'randomFunction' in type 'string'", 2
                 , 27);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        compileResultNegative = null;
     }
 }

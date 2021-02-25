@@ -13,7 +13,7 @@ By default BIR is represented as an internal object model, via set of sub classe
 `org.wso2.ballerinalang.compiler.bir.model.BIRNode` class and `org.wso2.ballerinalang.compiler.bir.model.BIRInstruction`
 class.
 
-You may view this in text format by passing `--dump-bir` flag to the `ballerina build` command or save it to a binary
+You may view this in text format by passing `--dump-bir` flag to the `bal build` command or save it to a binary
 file by passing `--dump-bir-file /location/to/save.bir`
 
 ## Goals of BIR

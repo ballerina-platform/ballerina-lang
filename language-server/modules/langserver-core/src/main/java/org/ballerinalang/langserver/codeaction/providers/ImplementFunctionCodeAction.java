@@ -21,15 +21,19 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -37,7 +41,6 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -55,36 +58,33 @@ public class ImplementFunctionCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.getMessage().startsWith(CommandConstants.NO_IMPL_FOUND_FOR_METHOD))) {
+        if (!(diagnostic.message().startsWith(CommandConstants.NO_IMPL_FOUND_FOR_METHOD))) {
             return Collections.emptyList();
         }
 
         String methodName;
-        Matcher matcher = CommandConstants.NO_IMPL_FOUND_FOR_FUNCTION_PATTERN.matcher(diagnostic.getMessage());
+        Matcher matcher = CommandConstants.NO_IMPL_FOUND_FOR_FUNCTION_PATTERN.matcher(diagnostic.message());
         if (matcher.find() && matcher.groupCount() > 1) {
             methodName = matcher.group(1);
         } else {
             return Collections.emptyList();
         }
 
-        NonTerminalNode matchedNode = context.positionDetails().matchedNode();
-        Symbol matchedSymbol = context.positionDetails().matchedSymbol();
-        List<TextEdit> edits = new ArrayList<>();
+        Node matchedNode = positionDetails.matchedNode();
+        Symbol matchedSymbol = positionDetails.matchedSymbol();
         if (!(matchedNode.kind() == SyntaxKind.CLASS_DEFINITION && matchedSymbol.kind() == SymbolKind.CLASS)) {
             return Collections.emptyList();
         }
         ClassDefinitionNode classDefNode = (ClassDefinitionNode) matchedNode;
         ClassSymbol classSymbol = (ClassSymbol) matchedSymbol;
 
-        Optional<MethodSymbol> unimplMethod = classSymbol.methods().stream()
-                .filter(m -> m.name().equals(methodName))
-                .findFirst();
-
-        if (unimplMethod.isEmpty()) {
+        if (!classSymbol.methods().containsKey(methodName)) {
             return Collections.emptyList();
         }
 
+        MethodSymbol unimplMethod = classSymbol.methods().get(methodName);
         List<FunctionDefinitionNode> concreteMethods = classDefNode.members().stream()
                 .filter(member -> member.kind() == SyntaxKind.FUNCTION_DEFINITION)
                 .map(member -> (FunctionDefinitionNode) member)
@@ -100,13 +100,15 @@ public class ImplementFunctionCodeAction extends AbstractCodeActionProvider {
             offsetStr = StringUtils.repeat(' ', classDefNode.location().lineRange().startLine().offset() + 4);
         }
 
-        String editText =
-                offsetStr + unimplMethod.get().signature() + " {" + LINE_SEPARATOR + offsetStr + "}" + LINE_SEPARATOR;
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        String typeName = FunctionGenerator.processModuleIDsInText(importsAcceptor, unimplMethod.signature(), context);
+        List<TextEdit> edits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
+        String editText = offsetStr + typeName + " {" + LINE_SEPARATOR + offsetStr + "}" + LINE_SEPARATOR;
         Position editPos = CommonUtil.toPosition(classDefNode.closeBrace().lineRange().startLine());
         edits.add(new TextEdit(new Range(editPos, editPos), editText));
-        String commandTitle = String.format(CommandConstants.IMPLEMENT_FUNCS_TITLE, unimplMethod.get().name());
+        String commandTitle = String.format(CommandConstants.IMPLEMENT_FUNCS_TITLE, unimplMethod.getName().get());
         CodeAction quickFixCodeAction = createQuickFixCodeAction(commandTitle, edits, context.fileUri());
-        quickFixCodeAction.setDiagnostics(Collections.singletonList(diagnostic));
+        quickFixCodeAction.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
         return Collections.singletonList(quickFixCodeAction);
     }
 }

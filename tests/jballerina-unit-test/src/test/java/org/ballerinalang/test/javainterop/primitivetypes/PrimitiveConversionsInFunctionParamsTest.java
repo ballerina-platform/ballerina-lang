@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -134,5 +135,10 @@ public class PrimitiveConversionsInFunctionParamsTest {
         returns = BRunUtil.invoke(result, "testCreateJFloatFromBFloat", args);
         Float floatValue = (Float) ((BHandleValue) returns[0]).getValue();
         Assert.assertEquals(floatValue.doubleValue(), value);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

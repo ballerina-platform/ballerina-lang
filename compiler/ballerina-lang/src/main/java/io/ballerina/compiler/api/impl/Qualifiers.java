@@ -45,6 +45,9 @@ public class Qualifiers {
         if (isFlagOn(flags, Flags.ISOLATED)) {
             qualifiers.add(Qualifier.ISOLATED);
         }
+        if (isFlagOn(flags, Flags.TRANSACTIONAL)) {
+            qualifiers.add(Qualifier.TRANSACTIONAL);
+        }
         if (isFlagOn(flags, Flags.REMOTE)) {
             qualifiers.add(Qualifier.REMOTE);
         }

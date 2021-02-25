@@ -24,6 +24,7 @@ package org.ballerinalang.langserver.commons;
  */
 public enum LanguageFeatureKind {
     COMPLETION,
+    CODEACTION,
     DIAGNOSTIC,
     FORMAT
 }

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.query;
 
+import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
@@ -25,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -125,5 +127,17 @@ public class QueryActionTest {
 
         Assert.assertEquals(employee.get("firstName").stringValue(), "Alex");
         Assert.assertEquals(employee.get("deptAccess").stringValue(), "Human Resource");
+    }
+
+    @Test(description = "Test query expression iterating over xml<xml:Element> in from clause in query action")
+    public void testQueryExpressionIteratingOverXMLInFromInQueryAction() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLInFromInQueryAction");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(((BFloat) returnValues[0]).floatValue(), 149.93);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

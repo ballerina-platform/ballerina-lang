@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -275,4 +276,11 @@ public class ArrowExprTest {
         BRunUtil.invoke(basic, "testTypeNarrowingInArrowExpression");
     }
 
+    @AfterClass
+    public void tearDown() {
+        basic = null;
+        resultNegative = null;
+        resultTypeNarrowNegative = null;
+        resultSemanticsNegative = null;
+    }
 }

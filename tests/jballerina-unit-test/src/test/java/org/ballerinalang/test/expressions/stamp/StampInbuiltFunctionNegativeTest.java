@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -421,5 +422,18 @@ public class StampInbuiltFunctionNegativeTest {
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "'int' value cannot be converted to 'float|decimal|[string,int]': ambiguous target type");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        recordNegativeTestCompileResult = null;
+        jsonNegativeTestCompileResult = null;
+        xmlNegativeTestCompileResult = null;
+        mapNegativeTestCompileResult = null;
+        objectNegativeTestCompileResult = null;
+        arrayNegativeTestCompileResult = null;
+        tupleNegativeTestCompileResult = null;
+        unionNegativeTestCompileResult = null;
     }
 }

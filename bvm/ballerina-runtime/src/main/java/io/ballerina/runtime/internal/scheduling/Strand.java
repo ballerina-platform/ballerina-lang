@@ -108,6 +108,26 @@ public class Strand {
         }
     }
 
+    public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
+                  Map<String, Object> properties, TransactionLocalContext currentTrxContext) {
+        this(name, metadata, scheduler, parent, properties);
+        if (currentTrxContext != null) {
+            this.trxContexts = parent.trxContexts;
+            this.trxContexts.push(currentTrxContext);
+            this.currentTrxContext = createTrxContextBranch(currentTrxContext, name);
+        }
+    }
+    private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
+                                                           String strandName) {
+        TransactionLocalContext trxCtx = TransactionLocalContext
+                .createTransactionParticipantLocalCtx(currentTrxContext.getGlobalTransactionId(),
+                        currentTrxContext.getURL(), currentTrxContext.getProtocol(),
+                        currentTrxContext.getInfoRecord());
+        String currentTrxBlockId = currentTrxContext.getCurrentTransactionBlockId();
+        trxCtx.addCurrentTransactionBlockId(currentTrxBlockId + "_" + strandName);
+        return trxCtx;
+    }
+
     public void handleChannelError(ChannelDetails[] channels, ErrorValue error) {
         for (int i = 0; i < channels.length; i++) {
             ChannelDetails channelDetails = channels[i];

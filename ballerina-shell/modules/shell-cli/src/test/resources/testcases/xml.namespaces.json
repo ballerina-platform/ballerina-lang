@@ -1,0 +1,15 @@
+[
+  {
+    "description": "Define namespaces.",
+    "code": "xmlns \"http://ballerina.com/aa\" as ns0; xmlns \"http://ballerina.com/bb\" as ns1; xmlns \"http://ballerina.com/default\";"
+  },
+  {
+    "description": "Access namespace.",
+    "code": "ns0:foo",
+    "expr": "\"{http://ballerina.com/aa}foo\""
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

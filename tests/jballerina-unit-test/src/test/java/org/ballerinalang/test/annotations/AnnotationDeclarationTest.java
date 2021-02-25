@@ -60,19 +60,18 @@ public class AnnotationDeclarationTest {
     public void testInvalidAnnotType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_type.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 2);
-        BAssertUtil.validateError(compileResult, 0, "annotation declaration requires a subtype of 'true', " +
-                "'map<anydata|readonly>' or 'map<anydata|readonly>[]', but found 'int'", 17, 12);
+        BAssertUtil.validateError(compileResult, 0, "annotation declaration requires " +
+                "a subtype of 'true', 'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'int'", 17, 12);
         BAssertUtil.validateError(compileResult, 1,
-                                  "annotation declaration requires a subtype of 'true', 'map<anydata|readonly>' or " +
-                                          "'map<anydata|readonly>[]', but found 'true[]'", 22, 12);
+                                  "annotation declaration requires a subtype of 'true', " +
+                                          "'map<value:Cloneable>' or 'map<value:Cloneable>[]', " +
+                                          "but found 'true[]'", 22, 12);
     }
 
     @Test
     public void testAnnotWithInvalidConsts() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_consts.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 2);
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
         BAssertUtil.validateError(compileResult, 0, "expression is not a constant expression", 35, 14);
-        BAssertUtil.validateError(compileResult, 1, "invalid type 'Baz' for 'const' annotation declaration, expected " +
-                "'anydata'", 52, 25);
     }
 }

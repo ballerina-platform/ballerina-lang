@@ -59,11 +59,6 @@ public class AnnotationRefsTest extends FindAllReferencesTest {
     }
 
     @Override
-    public String getFileName() {
-        return "find_ref_annotation_context.bal";
-    }
-
-    @Override
     public String getTestSourcePath() {
         return "test-src/find-all-ref/find_ref_annotation_context.bal";
     }

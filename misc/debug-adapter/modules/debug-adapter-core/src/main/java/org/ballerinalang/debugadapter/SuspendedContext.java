@@ -23,9 +23,8 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.ProjectLoader;
-import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.ProjectKind;
+import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
@@ -35,10 +34,13 @@ import org.ballerinalang.debugadapter.utils.PackageUtils;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
+import static org.ballerinalang.debugadapter.DebugSourceType.SINGLE_FILE;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
 /**
- * Suspended debug context related information.
+ * Context holder for debug suspended state related information.
  */
 public class SuspendedContext {
 
@@ -54,16 +56,16 @@ public class SuspendedContext {
     private int lineNumber;
     private Document document;
     private ClassLoaderReference classLoader;
+    private DebugExpressionCompiler debugCompiler;
 
-    SuspendedContext(Project project, String projectRoot, VirtualMachineProxyImpl vm,
-                     ThreadReferenceProxyImpl threadRef, StackFrameProxyImpl frame) {
+    SuspendedContext(Project project, VirtualMachineProxyImpl vm, ThreadReferenceProxyImpl threadRef,
+                     StackFrameProxyImpl frame) {
         this.attachedVm = vm;
         this.owningThread = threadRef;
         this.frame = frame;
         this.project = project;
-        this.projectRoot = projectRoot;
-        this.sourceType = (project instanceof SingleFileProject) ? DebugSourceType.SINGLE_FILE :
-                DebugSourceType.PACKAGE;
+        this.projectRoot = project.sourceRoot().toAbsolutePath().toString();
+        this.sourceType = (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) ? SINGLE_FILE : PACKAGE;
         this.lineNumber = -1;
         this.fileName = null;
         this.breakPointSourcePath = null;
@@ -135,6 +137,13 @@ public class SuspendedContext {
         }
     }
 
+    public DebugExpressionCompiler getDebugCompiler() {
+        if (debugCompiler == null) {
+            debugCompiler = new DebugExpressionCompiler(this);
+        }
+        return debugCompiler;
+    }
+
     public Optional<String> getFileName() {
         if (fileName == null) {
             Optional<Path> breakPointPath = getBreakPointSourcePath();
@@ -144,6 +153,10 @@ public class SuspendedContext {
             fileName = getFileNameFrom(breakPointPath.get());
         }
         return Optional.ofNullable(fileName);
+    }
+
+    public Optional<String> getFileNameWithExt() {
+        return getFileName().isEmpty() ? getFileName() : Optional.of(getFileName().get() + BAL_FILE_EXT);
     }
 
     public int getLineNumber() {
@@ -165,19 +178,12 @@ public class SuspendedContext {
     }
 
     private void loadDocument() {
-        if (project instanceof BuildProject) {
-            BuildProject prj = (BuildProject) project;
-            Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
-            if (breakPointSourcePath.isEmpty()) {
-                return;
-            }
-            Optional<DocumentId> docId = ProjectLoader.getDocumentId(breakPointSourcePath.get(), prj);
-            Module module = prj.currentPackage().module(docId.get().moduleId());
-            document = module.document(docId.get());
-        } else {
-            SingleFileProject prj = (SingleFileProject) project;
-            DocumentId docId = prj.currentPackage().getDefaultModule().documentIds().iterator().next();
-            document = prj.currentPackage().getDefaultModule().document(docId);
+        Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
+        if (breakPointSourcePath.isEmpty()) {
+            return;
         }
+        DocumentId documentId = project.documentId(breakPointSourcePath.get());
+        Module module = project.currentPackage().module(documentId.moduleId());
+        document = module.document(documentId);
     }
 }

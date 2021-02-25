@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -67,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess;
@@ -219,6 +221,10 @@ public class ReferenceFinder extends BaseVisitor {
         find(pkgNode.functions.stream()
                      .filter(f -> !f.flagSet.contains(Flag.LAMBDA))
                      .collect(Collectors.toList()));
+
+        if (!(pkgNode instanceof BLangTestablePackage)) {
+            find(pkgNode.getTestablePkg());
+        }
     }
 
     @Override
@@ -430,7 +436,6 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangConstPattern constMatchPattern) {
         find(constMatchPattern.expr);
-        find(constMatchPattern.matchExpr);
     }
 
     @Override
@@ -551,7 +556,6 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
-        find(matchClause.expr);
         find(matchClause.matchGuard);
         find(matchClause.blockStmt);
         find(matchClause.matchPatterns);
@@ -697,7 +701,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(invocationExpr.annAttachments);
         find(invocationExpr.restArgs);
 
-        if (!invocationExpr.pkgAlias.value.isEmpty()) {
+        if (!invocationExpr.pkgAlias.value.isEmpty() && invocationExpr.symbol != null) {
             addIfSameSymbol(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos);
         }
         addIfSameSymbol(invocationExpr.symbol, invocationExpr.name.pos);
@@ -962,6 +966,9 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
+        if (userDefinedType.type == null || userDefinedType.type.tsymbol == null) {
+            return;
+        }
         if (!userDefinedType.pkgAlias.value.isEmpty()) {
             addIfSameSymbol(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
         }
@@ -1011,6 +1018,13 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangErrorType errorType) {
         find(errorType.detailType);
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        find(errorConstructorExpr.errorTypeRef);
+        find(errorConstructorExpr.positionalArgs);
+        find(errorConstructorExpr.namedArgs);
     }
 
     @Override

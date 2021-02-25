@@ -112,11 +112,11 @@ function testTypeWithReadOnlyInUnionCET() {
         b: {}
     };
 
-    assertEquality(true, <any> mr is map<map<json>>);
+    assertEquality(true, <any> checkpanic mr is map<map<json>>);
     assertEquality(false, mr is map<map<json>> & readonly);
 
     // Updates should be allowed.
-    map<map<json>> mj = <map<map<json>>> mr;
+    map<map<json>> mj = <map<map<json>>> checkpanic mr;
     mj["a"]["z"] = "z";
     assertEquality(true, mj["b"] is map<json>);
     mj["b"]["a"] = 1;
@@ -132,11 +132,7 @@ function testTypeWithReadOnlyInUnionCET() {
 }
 
 function assertEquality(any|error expected, any|error actual) {
-    if expected is anydata|error && actual is anydata|error  {
-        if (expected == actual) {
-            return;
-        }
-    } else if expected === actual {
+    if isEqual(expected, actual) {
         return;
     }
 
@@ -144,6 +140,16 @@ function assertEquality(any|error expected, any|error actual) {
 }
 
 function getFailureError(any|error expected, any|error actual) returns error {
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     return  error(ASSERTION_ERROR_REASON,
-                    message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                    message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+isolated function isEqual(any|error val1, any|error val2) returns boolean {
+    if (val1 is anydata && val2 is anydata) {
+        return (val1 == val2);
+    } else {
+        return (val1 === val2);
+    }
 }

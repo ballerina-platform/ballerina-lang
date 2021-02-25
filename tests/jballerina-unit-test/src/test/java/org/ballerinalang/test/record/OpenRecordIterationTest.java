@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -54,7 +55,7 @@ public class OpenRecordIterationTest {
 
         // Test invalid no. of args with foreach loop
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "invalid tuple binding pattern: attempted to infer a tuple type, " +
+                                  "invalid list binding pattern: attempted to infer a list type, " +
                                   "but found 'anydata'",
                                   34, 17);
 
@@ -368,5 +369,11 @@ public class OpenRecordIterationTest {
         Assert.assertEquals(((BInteger) grades.get("physics")).intValue(), 75);
         Assert.assertEquals(((BInteger) grades.get("chemistry")).intValue(), 65);
         Assert.assertEquals(((BInteger) grades.get("english")).intValue(), 78);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        openRecNegatives = null;
     }
 }

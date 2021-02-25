@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -107,5 +108,10 @@ public class GlobalVarFunctionWithPkgTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
 
         Assert.assertEquals(((BString) returns[0]).stringValue(), "sample value");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

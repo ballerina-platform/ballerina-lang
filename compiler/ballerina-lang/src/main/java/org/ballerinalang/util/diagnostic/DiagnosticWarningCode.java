@@ -52,15 +52,7 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     // Parser diagnostic codes
     SYNTAX_WARNING("BCE20200", "syntax.warning"),
 
-    WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT("BCE20300", "warning.invalid.mutable.access.as.record.default"),
-
-    WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT(
-            "BCE20301", "warning.invalid.non.isolated.invocation.as.record.default"),
-
-    WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT(
-            "BCE20302", "warning.invalid.non.isolated.init.expression.as.record.default"),
-
-    FUNCTION_CAN_BE_MARKED_ISOLATED("BCE20303", "function.can.be.marked.isolated"),
+    FUNCTION_CAN_BE_MARKED_ISOLATED("BCE20300", "function.can.be.marked.isolated"),
 
     COMPILER_PLUGIN_ERROR("BCE20400", "compiler.plugin.crashed"),
     ;

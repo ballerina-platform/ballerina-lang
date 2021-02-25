@@ -22,7 +22,7 @@ import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -34,7 +34,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ParameterizedTypeDescriptorNodeContext
         extends AbstractCompletionProvider<ParameterizedTypeDescriptorNode> {
 
@@ -43,17 +43,19 @@ public class ParameterizedTypeDescriptorNodeContext
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ParameterizedTypeDescriptorNode node) {
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context,
-                    (QualifiedNameReferenceNode) nodeAtCursor);
-            return this.getCompletionItemList(typesInModule, context);
-        }
-
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ParameterizedTypeDescriptorNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(this.getTypeItems(context));
+        NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
+
+        if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(ctx,
+                    (QualifiedNameReferenceNode) nodeAtCursor);
+            completionItems.addAll(this.getCompletionItemList(typesInModule, ctx));
+        } else {
+            completionItems.addAll(this.getModuleCompletionItems(ctx));
+            completionItems.addAll(this.getTypeItems(ctx));
+        }
+        this.sort(ctx, node, completionItems);
 
         return completionItems;
     }

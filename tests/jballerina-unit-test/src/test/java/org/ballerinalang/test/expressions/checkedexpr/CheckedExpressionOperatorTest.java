@@ -248,6 +248,11 @@ public class CheckedExpressionOperatorTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test
+    public void testCheckedErrorsWithReadOnlyInUnion() {
+        BRunUtil.invoke(result, "testCheckedErrorsWithReadOnlyInUnion");
+    }
+
     @Test(description = "Test service resource that returns an error containing check expression",
             groups = "brokenOnErrorChange")
     public void testSemanticErrorsWithResources() {

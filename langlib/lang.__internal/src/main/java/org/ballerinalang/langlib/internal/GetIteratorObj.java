@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.internal;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 
 /**
@@ -27,7 +28,7 @@ import io.ballerina.runtime.api.values.BStream;
  */
 public class GetIteratorObj {
 
-    public static Object getIteratorObj(BStream strm) {
+    public static BObject getIteratorObj(BStream strm) {
         return strm.getIteratorObj();
     }
 }

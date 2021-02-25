@@ -34,7 +34,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'test;",
+      "insertText": "lang.test;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -42,7 +42,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'array;",
+      "insertText": "lang.array;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -54,19 +54,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "jballerina.java",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "lang.string",
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
       "insertText": "lang.'string;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "A",
-      "insertText": "java",
       "insertTextFormat": "Snippet"
     },
     {
@@ -82,7 +82,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'value;",
+      "insertText": "lang.value;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -154,7 +154,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'query;",
+      "insertText": "lang.query;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -170,7 +170,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'runtime;",
+      "insertText": "lang.runtime;",
       "insertTextFormat": "Snippet"
     }
   ]

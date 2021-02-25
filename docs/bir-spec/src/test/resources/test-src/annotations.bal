@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object as lang;
-
 type Annot record {
     string val;
 };
@@ -24,7 +22,7 @@ public annotation Annot v1 on type, class;
 annotation Annot v2 on class, type;
 public annotation Annot v3 on function;
 annotation map<int> v4 on function;
-public annotation Annot v5 on resource function;
+public annotation Annot v5 on object function;
 annotation Annot v6 on parameter;
 public annotation v7 on return;
 annotation Annot v8 on service;
@@ -97,7 +95,7 @@ listener Listener lis = new;
 @v8 {
     val: "v8"
 }
-service ser on lis {
+service /ser on lis {
 
     @v3 {
         val: "v34"
@@ -105,33 +103,32 @@ service ser on lis {
     @v5 {
         val: "54"
     }
-    resource function res(@v6 { val: "v64" } int intVal) returns @v7 error? {
+    resource function get res(@v6 { val: "v64" } int intVal) returns @v7 error? {
         return;
     }
 }
 
-service serTwo = @v8 {
+service object {} serTwo = @v8 {
                  val: "v82"
-              } service {
+              } service object {
 
     @v5 {
         val: "542"
     }
-    resource function res(@v6 { val: "v642" } int intVal) returns @v7 () {
+    resource function get res(@v6 { val: "v642" } int intVal) returns @v7 () {
         return;
     }
 };
 
 class Listener {
-    *lang:Listener;
 
     public function init() {
     }
 
-    public function attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string|string[]? name = ()) returns error? {
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 
     public function 'start() returns error? {

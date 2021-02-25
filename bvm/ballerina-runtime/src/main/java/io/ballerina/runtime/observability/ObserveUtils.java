@@ -21,13 +21,13 @@ package io.ballerina.runtime.observability;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.configurable.ConfigurableMap;
+import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.tracer.BSpan;
-import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.config.ConfigRegistry;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,28 +36,24 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.DEFAULT_SERVICE_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
-import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ACTION;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_CONNECTOR_NAME;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_FUNCTION;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_INVOCATION_POSITION;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_MAIN_ENTRY_POINT;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_REMOTE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_RESOURCE_ENTRY_POINT;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_WORKER;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_MODULE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_OBJECT_NAME;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_RESOURCE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SERVICE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_MODULE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_POSITION;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_CLIENT_REMOTE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_MAIN_FUNCTION;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_SERVICE_REMOTE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_SERVICE_RESOURCE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_WORKER;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_FUNCTION_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_MODULE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_OBJECT_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_POSITION;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_RESOURCE_ACCESSOR;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_RESOURCE_PATH;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_TRUE_VALUE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_SERVICE;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
 
 /**
  * Util class used for observability.
@@ -68,13 +64,64 @@ public class ObserveUtils {
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
     private static final boolean enabled;
     private static final boolean metricsEnabled;
+    private static final BString metricsProvider;
+    private static final BString metricsReporter;
     private static final boolean tracingEnabled;
+    private static final BString tracingProvider;
 
     static {
-        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        tracingEnabled = configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED);
-        metricsEnabled = configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED);
+        // TODO: Move config initialization to ballerina level once checking config key is possible at ballerina level
+        Module observeModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0.9.0");
+        VariableKey enabledKey = new VariableKey(observeModule, "enabled");
+        VariableKey providerKey = new VariableKey(observeModule, "provider");
+        VariableKey metricsEnabledKey = new VariableKey(observeModule, "metricsEnabled");
+        VariableKey metricsProviderKey = new VariableKey(observeModule, "metricsProvider");
+        VariableKey metricsReporterKey = new VariableKey(observeModule, "metricsReporter");
+        VariableKey tracingEnabledKey = new VariableKey(observeModule, "tracingEnabled");
+        VariableKey tracingProviderKey = new VariableKey(observeModule, "tracingProvider");
+
+        metricsEnabled = readConfig(metricsEnabledKey, enabledKey, false);
+        metricsProvider = readConfig(metricsProviderKey, null, StringUtils.fromString("default"));
+        metricsReporter = readConfig(metricsReporterKey, providerKey, StringUtils.fromString("prometheus"));
+        tracingEnabled = readConfig(tracingEnabledKey, enabledKey, false);
+        tracingProvider = readConfig(tracingProviderKey, providerKey, StringUtils.fromString("jaeger"));
         enabled = metricsEnabled || tracingEnabled;
+    }
+
+    private static <T> T readConfig(VariableKey specificKey, VariableKey inheritedKey, T defaultValue) {
+        T value;
+        if (ConfigurableMap.containsKey(specificKey)) {
+            value = (T) ConfigurableMap.get(specificKey);
+        } else if (inheritedKey != null && ConfigurableMap.containsKey(inheritedKey)) {
+            value = (T) ConfigurableMap.get(inheritedKey);
+        } else {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    public static boolean isObservabilityEnabled() {
+        return enabled;
+    }
+
+    public static boolean isMetricsEnabled() {
+        return metricsEnabled;
+    }
+
+    public static BString getMetricsProvider() {
+        return metricsProvider;
+    }
+
+    public static BString getMetricsReporter() {
+        return metricsReporter;
+    }
+
+    public static boolean isTracingEnabled() {
+        return tracingEnabled;
+    }
+
+    public static BString getTracingProvider() {
+        return tracingProvider;
     }
 
     /**
@@ -86,46 +133,117 @@ public class ObserveUtils {
         observers.add(observer);
     }
 
-
     /**
      * Start observation of a resource invocation.
      *
-     * @param serviceName name of the service to which the observer context belongs
-     * @param resourceName name of the resource being invoked
-     * @param pkg The package the resource belongs to
-     * @param position The source code position the resource in defined in
+     * @param env                    Ballerina environment
+     * @param module                 The module the resource belongs to
+     * @param position               The source code position the resource in defined in
+     * @param serviceName            Name of the service to which the observer context belongs
+     * @param resourcePathOrFunction Full path of the resource
+     * @param resourceAccessor       Accessor of the resource
+     * @param isResource             True if this was a resource function invocation
+     * @param isRemote               True if this was a remote function invocation
      */
-    public static void startResourceObservation(Environment env, BString serviceName, BString resourceName, BString pkg,
-                                                BString position) {
+    public static void startResourceObservation(Environment env, BString module, BString position,
+                                                BString serviceName, BString resourcePathOrFunction,
+                                                BString resourceAccessor, boolean isResource, boolean isRemote) {
         if (!enabled) {
             return;
         }
 
         ObserverContext observerContext = getObserverContextOfCurrentFrame(env);
-        if (observerContext == null) {
+        if (observerContext == null) {  // No context created by listener
             observerContext = new ObserverContext();
             setObserverContextToCurrentFrame(env, observerContext);
         }
-        String service = serviceName.getValue() == null ? UNKNOWN_SERVICE : serviceName.getValue();
-        observerContext.setServiceName(service);
-        observerContext.setResourceName(resourceName.getValue());
+
+        if (observerContext.isStarted()) { // If a remote or resource was called by user code itself
+            ObserverContext newObserverContext = new ObserverContext();
+            setObserverContextToCurrentFrame(env, newObserverContext);
+
+            newObserverContext.setEntrypointFunctionModule(observerContext.getEntrypointFunctionModule());
+            newObserverContext.setEntrypointFunctionPosition(observerContext.getEntrypointFunctionPosition());
+            newObserverContext.setParent(observerContext);
+            observerContext = newObserverContext;
+        } else {    // If created now or the listener created to add more tags
+            observerContext.setEntrypointFunctionModule(module.getValue());
+            observerContext.setEntrypointFunctionPosition(position.getValue());
+        }
+        observerContext.setServiceName(serviceName.getValue());
+
+        if (isResource) {
+            observerContext.setOperationName(resourceAccessor.getValue() + " " + resourcePathOrFunction.getValue());
+
+            observerContext.addTag(TAG_KEY_IS_SRC_SERVICE_RESOURCE, TAG_TRUE_VALUE);
+            observerContext.addTag(TAG_KEY_SRC_RESOURCE_ACCESSOR, resourceAccessor.getValue());
+            observerContext.addTag(TAG_KEY_SRC_RESOURCE_PATH, resourcePathOrFunction.getValue());
+        } else if (isRemote) {
+            observerContext.setOperationName(serviceName.getValue() + ":" + resourcePathOrFunction.getValue());
+
+            observerContext.addTag(TAG_KEY_IS_SRC_SERVICE_REMOTE, TAG_TRUE_VALUE);
+            observerContext.addTag(TAG_KEY_SRC_FUNCTION_NAME, resourcePathOrFunction.getValue());
+        } else {
+            observerContext.setOperationName(serviceName.getValue() + ":" + resourcePathOrFunction.getValue());
+
+            observerContext.addTag(TAG_KEY_SRC_FUNCTION_NAME, resourcePathOrFunction.getValue());
+        }
+        observerContext.addTag(TAG_KEY_SRC_OBJECT_NAME, serviceName.getValue());
+
+        observerContext.addTag(TAG_KEY_SRC_MODULE, module.getValue());
+        observerContext.addTag(TAG_KEY_SRC_POSITION, position.getValue());
+
+        if (observerContext.getEntrypointFunctionModule() != null) {
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE,
+                    observerContext.getEntrypointFunctionModule());
+        }
+        if (observerContext.getEntrypointFunctionPosition() != null) {
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION,
+                    observerContext.getEntrypointFunctionPosition());
+        }
+
         observerContext.setServer();
-
-        observerContext.addTag(TAG_KEY_MODULE, pkg.getValue());
-        observerContext.addTag(TAG_KEY_INVOCATION_POSITION, position.getValue());
-        observerContext.addTag(TAG_KEY_IS_RESOURCE_ENTRY_POINT, TAG_TRUE_VALUE);
-        observerContext.addTag(TAG_KEY_SERVICE, observerContext.getServiceName());
-        observerContext.addTag(TAG_KEY_RESOURCE, observerContext.getResourceName());
-        observerContext.addTag(TAG_KEY_CONNECTOR_NAME, observerContext.getObjectName());
-
         observerContext.setStarted();
-        ObserverContext copyOfObserverContext = observerContext;
-        observers.forEach(observer -> observer.startServerObservation(copyOfObserverContext));
-        env.setStrandLocal(ObservabilityConstants.SERVICE_NAME, service);
+        for (BallerinaObserver observer : observers) {
+            observer.startServerObservation(observerContext);
+        }
+    }
+
+    /**
+     * Add record checkpoint data to active Trace Span.
+     *
+     * @param env The Ballerina Environment
+     * @param pkg The package the instrumented code belongs to
+     * @param position The source code position the instrumented code defined in
+     */
+    public static void recordCheckpoint(Environment env, BString pkg, BString position) {
+        if (!tracingEnabled) {
+            return;
+        }
+
+        ObserverContext observerContext = (ObserverContext) env.getStrandLocal(KEY_OBSERVER_CONTEXT);
+        if (observerContext == null) {
+            return;
+        }
+        BSpan span = observerContext.getSpan();
+        if (span == null) {
+            return;
+        }
+
+        // Adding Position and Module ID to the Jaeger Span
+        Map<String, String> eventAttributes = new HashMap<>(2);
+        eventAttributes.put(TAG_KEY_SRC_MODULE, pkg.getValue());
+        eventAttributes.put(TAG_KEY_SRC_POSITION, position.getValue());
+
+        HashMap<String, Object> event = new HashMap<>(1);
+        event.put(CHECKPOINT_EVENT_NAME, eventAttributes);
+        span.addEvent(event);
     }
 
     /**
      * Stop observation of an observer context.
+     *
+     * @param env Ballerina environment
      */
     public static void stopObservation(Environment env) {
         if (!enabled) {
@@ -134,11 +252,6 @@ public class ObserveUtils {
         ObserverContext observerContext = getObserverContextOfCurrentFrame(env);
         if (observerContext == null) {
             return;
-        }
-
-        Integer statusCode = (Integer) observerContext.getProperty(PROPERTY_KEY_HTTP_STATUS_CODE);
-        if (statusCode != null && statusCode >= 100) {
-            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, (statusCode / 100) + STATUS_CODE_GROUP_SUFFIX);
         }
 
         if (observerContext.isServer()) {
@@ -153,6 +266,7 @@ public class ObserveUtils {
     /**
      * Report an error to an observer context.
      *
+     * @param env        Ballerina environment
      * @param errorValue the error value to be attached to the observer context
      */
     public static void reportError(Environment env, ErrorValue errorValue) {
@@ -163,72 +277,78 @@ public class ObserveUtils {
         if (observerContext == null) {
             return;
         }
-        observers.forEach(observer -> {
-            observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, TAG_TRUE_VALUE);
-            observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, errorValue);
-        });
+        observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, TAG_TRUE_VALUE);
+        observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR_VALUE, errorValue);
     }
 
     /**
      * Start observability for the synchronous function/action invocations.
      *
-     * @param isRemote True if this was a remove function invocation
+     * @param env              Ballerina environment
+     * @param module           The module the resource belongs to
+     * @param position         The source code position the resource in defined in
+     * @param typeDef          The type definition the function was attached to
+     * @param functionName     name of the function being invoked
      * @param isMainEntryPoint True if this was a main entry point invocation
-     * @param isWorker True if this was a worker start
-     * @param typeDef The type definition the function was attached to
-     * @param functionName name of the function being invoked
-     * @param pkg The package the resource belongs to
-     * @param position The source code position the resource in defined in
+     * @param isRemote         True if this was a remote function invocation
+     * @param isWorker         True if this was a worker start
      */
-    public static void startCallableObservation(Environment env, boolean isRemote, boolean isMainEntryPoint,
-                                                boolean isWorker, BObject typeDef, BString functionName, BString pkg,
-                                                BString position) {
+    public static void startCallableObservation(Environment env, BString module, BString position,
+                                                BObject typeDef, BString functionName, boolean isMainEntryPoint,
+                                                boolean isRemote, boolean isWorker) {
         if (!enabled) {
             return;
         }
-        ObserverContext observerCtx = getObserverContextOfCurrentFrame(env);
 
+        ObserverContext prevObserverCtx = getObserverContextOfCurrentFrame(env);
         ObserverContext newObContext = new ObserverContext();
-        newObContext.setParent(observerCtx);
-        newObContext.setServiceName(observerCtx == null ? UNKNOWN_SERVICE : observerCtx.getServiceName());
-        newObContext.setResourceName(observerCtx == null ? UNKNOWN_RESOURCE : observerCtx.getResourceName());
-        if (typeDef == null) {
-            newObContext.setObjectName(StringUtils.EMPTY);
-        } else {
-            ObjectType type = typeDef.getType();
-            Module module = type.getPackage();
-            newObContext.setObjectName(module.getOrg() + "/" + module.getName() + "/" + type.getName());
-        }
-        newObContext.setFunctionName(functionName.getValue());
+        setObserverContextToCurrentFrame(env, newObContext);
 
-        newObContext.addTag(TAG_KEY_MODULE, pkg.getValue());
-        newObContext.addTag(TAG_KEY_INVOCATION_POSITION, position.getValue());
-        if (isRemote) {
-            newObContext.addTag(TAG_KEY_IS_REMOTE, TAG_TRUE_VALUE);
-            newObContext.addTag(TAG_KEY_ACTION, newObContext.getFunctionName());
-            newObContext.addTag(TAG_KEY_CONNECTOR_NAME, newObContext.getObjectName());
+        if (prevObserverCtx != null) {
+            newObContext.setServiceName(prevObserverCtx.getServiceName());
+            newObContext.setEntrypointFunctionModule(prevObserverCtx.getEntrypointFunctionModule());
+            newObContext.setEntrypointFunctionPosition(prevObserverCtx.getEntrypointFunctionPosition());
+            newObContext.setParent(prevObserverCtx);
+        } else {
+            newObContext.setServiceName(DEFAULT_SERVICE_NAME);
+            newObContext.setEntrypointFunctionModule(module.getValue());
+            newObContext.setEntrypointFunctionPosition(position.getValue());
         }
+
         if (isMainEntryPoint) {
-            newObContext.addTag(TAG_KEY_IS_MAIN_ENTRY_POINT, TAG_TRUE_VALUE);
+            newObContext.addTag(TAG_KEY_IS_SRC_MAIN_FUNCTION, TAG_TRUE_VALUE);
+        } else if (isRemote) {
+            newObContext.addTag(TAG_KEY_IS_SRC_CLIENT_REMOTE, TAG_TRUE_VALUE);
+        } else if (isWorker) {
+            newObContext.addTag(TAG_KEY_IS_SRC_WORKER, TAG_TRUE_VALUE);
+        }   // Else normal function
+
+        if (typeDef != null) {
+            ObjectType type = typeDef.getType();
+            Module typeModule = type.getPackage();
+            String objectName = typeModule.getOrg() + "/" + typeModule.getName() + "/" + type.getName();
+
+            newObContext.setOperationName(objectName + ":" + functionName.getValue());
+            newObContext.addTag(TAG_KEY_SRC_OBJECT_NAME, objectName);
+        } else {
+            newObContext.setOperationName(functionName.getValue());
         }
-        if (isWorker) {
-            newObContext.addTag(TAG_KEY_IS_WORKER, TAG_TRUE_VALUE);
+
+        newObContext.addTag(TAG_KEY_SRC_FUNCTION_NAME, functionName.getValue());
+        newObContext.addTag(TAG_KEY_SRC_MODULE, module.getValue());
+        newObContext.addTag(TAG_KEY_SRC_POSITION, position.getValue());
+
+        if (newObContext.getEntrypointFunctionModule() != null) {
+            newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, newObContext.getEntrypointFunctionModule());
         }
-        if (!isRemote && !isWorker) {
-            newObContext.addTag(TAG_KEY_FUNCTION, newObContext.getFunctionName());
-            if (!StringUtils.isEmpty(newObContext.getObjectName())) {
-                newObContext.addTag(TAG_KEY_OBJECT_NAME, newObContext.getObjectName());
-            }
-        }
-        if (!UNKNOWN_SERVICE.equals(newObContext.getServiceName())) {
-            // If service is present, resource should be too
-            newObContext.addTag(TAG_KEY_SERVICE, newObContext.getServiceName());
-            newObContext.addTag(TAG_KEY_RESOURCE, newObContext.getResourceName());
+        if (newObContext.getEntrypointFunctionPosition() != null) {
+            newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION, newObContext.getEntrypointFunctionPosition());
         }
 
         newObContext.setStarted();
-        setObserverContextToCurrentFrame(env, newObContext);
-        observers.forEach(observer -> observer.startClientObservation(newObContext));
+        for (BallerinaObserver observer : observers) {
+            observer.startClientObservation(newObContext);
+        }
     }
 
     /**
@@ -238,9 +358,9 @@ public class ObserveUtils {
      * @return property map
      */
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {
-        BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
+        BSpan bSpan = observerContext.getSpan();
         if (bSpan != null) {
-            return bSpan.getTraceContext();
+            return bSpan.extractContextAsHttpHeaders();
         }
         return Collections.emptyMap();
     }
@@ -252,54 +372,10 @@ public class ObserveUtils {
      * @param logMessage message to be logged
      * @param isError    if its an error or not
      */
+    @Deprecated     // Discussion: https://groups.google.com/g/ballerina-dev/c/VMEk3t8boH0
     public static void logMessageToActiveSpan(String logLevel, Supplier<String> logMessage,
                                               boolean isError) {
-        if (!tracingEnabled) {
-            return;
-        }
-        Environment balEnv = new Environment(Scheduler.getStrand());
-        ObserverContext observerContext = (ObserverContext) balEnv.getStrandLocal(KEY_OBSERVER_CONTEXT);
-        if (observerContext == null) {
-            return;
-        }
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
-        if (span == null) {
-            return;
-        }
-        HashMap<String, Object> logs = new HashMap<>(1);
-        logs.put(logLevel, logMessage.get());
-        if (!isError) {
-            span.log(logs);
-        } else {
-            span.logError(logs);
-        }
-    }
-
-    /**
-     * Check if observability is enabled or not.
-     *
-     * @return true if observability is enabled else false
-     */
-    public static boolean isObservabilityEnabled() {
-        return enabled;
-    }
-
-    /**
-     * Check if metrics is enabled or not.
-     *
-     * @return true if metrics is enabled else false
-     */
-    public static boolean isMetricsEnabled() {
-        return metricsEnabled;
-    }
-
-    /**
-     * Check if tracing is enabled or not.
-     *
-     * @return true if tracing is enabled else false
-     */
-    public static boolean isTracingEnabled() {
-        return tracingEnabled;
+        // Do Nothing
     }
 
     /**
@@ -319,7 +395,7 @@ public class ObserveUtils {
     /**
      * Set the observer context to the current frame.
      *
-     * @param env current env
+     * @param env             current env
      * @param observerContext observer context to be set
      */
     public static void setObserverContextToCurrentFrame(Environment env, ObserverContext observerContext) {

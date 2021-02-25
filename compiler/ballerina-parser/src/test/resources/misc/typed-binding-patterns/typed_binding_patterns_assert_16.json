@@ -86,7 +86,13 @@
                                       ]
                                     },
                                     {
-                                      "kind": "COLON_TOKEN"
+                                      "kind": "COLON_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "MAPPING_BINDING_PATTERN",
@@ -133,7 +139,13 @@
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "COLON_TOKEN"
+                                                  "kind": "COLON_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "CAPTURE_BINDING_PATTERN",
@@ -166,13 +178,7 @@
                                                   "children": [
                                                     {
                                                       "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "s",
-                                                      "trailingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
-                                                        }
-                                                      ]
+                                                      "value": "s"
                                                     }
                                                   ]
                                                 }
@@ -207,13 +213,7 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "d",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "value": "d"
                                         }
                                       ]
                                     }
@@ -361,7 +361,13 @@
                                       "value": "b"
                                     },
                                     {
-                                      "kind": "COLON_TOKEN"
+                                      "kind": "COLON_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "LIST_BINDING_PATTERN",
@@ -460,13 +466,7 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "d",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "value": "d"
                                         }
                                       ]
                                     }
@@ -691,7 +691,13 @@
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "COLON_TOKEN"
+                                                  "kind": "COLON_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "MAPPING_BINDING_PATTERN",
@@ -738,7 +744,13 @@
                                                               ]
                                                             },
                                                             {
-                                                              "kind": "COLON_TOKEN"
+                                                              "kind": "COLON_TOKEN",
+                                                              "trailingMinutiae": [
+                                                                {
+                                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                                  "value": " "
+                                                                }
+                                                              ]
                                                             },
                                                             {
                                                               "kind": "CAPTURE_BINDING_PATTERN",
@@ -771,13 +783,7 @@
                                                               "children": [
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "s",
-                                                                  "trailingMinutiae": [
-                                                                    {
-                                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                                      "value": " "
-                                                                    }
-                                                                  ]
+                                                                  "value": "s"
                                                                 }
                                                               ]
                                                             }
@@ -812,13 +818,7 @@
                                                   "children": [
                                                     {
                                                       "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "d",
-                                                      "trailingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
-                                                        }
-                                                      ]
+                                                      "value": "d"
                                                     }
                                                   ]
                                                 }
@@ -972,7 +972,13 @@
                                                   "value": "b"
                                                 },
                                                 {
-                                                  "kind": "COLON_TOKEN"
+                                                  "kind": "COLON_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "LIST_BINDING_PATTERN",
@@ -1071,13 +1077,7 @@
                                                   "children": [
                                                     {
                                                       "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "d",
-                                                      "trailingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
-                                                        }
-                                                      ]
+                                                      "value": "d"
                                                     }
                                                   ]
                                                 }

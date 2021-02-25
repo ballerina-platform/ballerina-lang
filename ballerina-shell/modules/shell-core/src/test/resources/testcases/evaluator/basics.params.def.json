@@ -1,0 +1,41 @@
+[
+  {
+    "description": "Define function.",
+    "code": "function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) { println(\"Base Salary: \", baseSalary, \" | Annual Increment: \", annualIncrement, \" | Bonus Rate: \", bonusRate); }"
+  },
+  {
+    "description": "Use function with one param.",
+    "code": "printSalaryDetails(2500);",
+    "stdout": "Base Salary: 2500 | Annual Increment: 20 | Bonus Rate: 0.02\n"
+  },
+  {
+    "description": "Use function with one param and named param.",
+    "code": "printSalaryDetails(2500, annualIncrement = 100);",
+    "stdout": "Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.02\n"
+  },
+  {
+    "description": "Use function with two params.",
+    "code": "printSalaryDetails(2500, 100);",
+    "stdout": "Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.02\n"
+  },
+  {
+    "description": "Use function with one param and another named param.",
+    "code": "printSalaryDetails(2500, bonusRate = 0.1);",
+    "stdout": "Base Salary: 2500 | Annual Increment: 20 | Bonus Rate: 0.1\n"
+  },
+  {
+    "description": "Use function with three params.",
+    "code": "printSalaryDetails(2500, 20, 0.1);",
+    "stdout": "Base Salary: 2500 | Annual Increment: 20 | Bonus Rate: 0.1\n"
+  },
+  {
+    "description": "Use with named args with one param and two named param.",
+    "code": "printSalaryDetails(2500, annualIncrement = 100, bonusRate = 0.1);",
+    "stdout": "Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.1\n"
+  },
+  {
+    "description": "Use with named args with three named param.",
+    "code": "printSalaryDetails(annualIncrement = 100, baseSalary = 2500, bonusRate = 0.1);",
+    "stdout": "Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.1\n"
+  }
+]

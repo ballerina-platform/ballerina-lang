@@ -29,8 +29,8 @@ function beforeFunc() {
 
 # Test function
 @test:Config {
-    before: "beforeFunc",
-    after: "afterFunc"
+    before: beforeFunc,
+    after: afterFunc
 }
 function testMain() {
     main();
@@ -38,7 +38,7 @@ function testMain() {
 }
 
 @test:Config {
-    dependsOn: ["testMain"]
+    dependsOn: [testMain]
 }
 function testFunction() {
     test:when(intAddMockFn).call("mockAdd");

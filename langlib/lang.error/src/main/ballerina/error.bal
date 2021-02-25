@@ -14,11 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
+import ballerina/lang.'value as value;
+
+# The type of value to which `clone` and `cloneReadOnly` can be applied.
+type __Cloneable1 readonly|xml|__Cloneable1[]|map<__Cloneable1>|table<map<__Cloneable1>>;
 
 # The type to which error detail records must belong.
 public type Detail record {|
-   (anydata|readonly)...;
+   __Cloneable1...;
 |};
 
 # A type parameter that is a subtype of error `Detail` record type.
@@ -83,3 +87,27 @@ public type CallStackElement record {|
 public class CallStack {
     public CallStackElement[] callStack = [];
 }
+
+# Converts an error to a string.
+#
+# + e - the error to be converted to a string
+# + return - a string resulting from the conversion
+#
+# The details of the conversion are specified by the ToString abstract operation
+# defined in the Ballerina Language Specification, using the direct style.
+public isolated function toString(error e) returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.error.ToString",
+    name: "toString",
+    paramTypes: ["io.ballerina.runtime.api.values.BError"]
+} external;
+
+# Converts an error to a string that describes the value in Ballerina syntax.
+# + e - the error to be converted to a string
+# + return - a string resulting from the conversion
+#
+# The details of the conversion are specified by the ToString abstract operation
+# defined in the Ballerina Language Specification, using the expression style.
+public isolated function toBalString(error e) returns string = @java:Method {
+  'class: "org.ballerinalang.langlib.error.ToBalString",
+  name: "toBalString"
+} external;

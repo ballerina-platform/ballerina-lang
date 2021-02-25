@@ -24,6 +24,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMCommentImpl;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 /**
@@ -43,6 +44,28 @@ public class XmlComment extends XmlNonElementItem {
     public XmlComment(String data, boolean readonly) {
         this.data = data;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_COMMENT : PredefinedTypes.TYPE_COMMENT;
+    }
+
+    @Override
+    public IteratorValue getIterator() {
+        XmlComment that = this;
+        return new IteratorValue() {
+            boolean read = false;
+            @Override
+            public boolean hasNext() {
+                return !read;
+            }
+
+            @Override
+            public Object next() {
+                if (!read) {
+                    this.read = true;
+                    return that;
+                } else {
+                    throw new NoSuchElementException();
+                }
+            }
+        };
     }
 
     @Override

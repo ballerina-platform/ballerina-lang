@@ -191,6 +191,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(requiredParameterNode);
     }
 
+    public void visit(IncludedRecordParameterNode includedRecordParameterNode) {
+        visitSyntaxNode(includedRecordParameterNode);
+    }
+
     public void visit(RestParameterNode restParameterNode) {
         visitSyntaxNode(restParameterNode);
     }
@@ -775,8 +779,20 @@ public abstract class NodeVisitor {
         visitSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
-    public void visit(DocumentationReferenceNode documentationReferenceNode) {
-        visitSyntaxNode(documentationReferenceNode);
+    public void visit(BallerinaNameReferenceNode ballerinaNameReferenceNode) {
+        visitSyntaxNode(ballerinaNameReferenceNode);
+    }
+
+    public void visit(InlineCodeReferenceNode inlineCodeReferenceNode) {
+        visitSyntaxNode(inlineCodeReferenceNode);
+    }
+
+    public void visit(MarkdownCodeBlockNode markdownCodeBlockNode) {
+        visitSyntaxNode(markdownCodeBlockNode);
+    }
+
+    public void visit(MarkdownCodeLineNode markdownCodeLineNode) {
+        visitSyntaxNode(markdownCodeLineNode);
     }
 
     public void visit(OrderByClauseNode orderByClauseNode) {

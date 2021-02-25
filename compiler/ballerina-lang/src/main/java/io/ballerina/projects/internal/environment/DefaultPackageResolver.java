@@ -23,7 +23,6 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
-import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
@@ -195,29 +194,8 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     public static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
-        // TODO improve this logic.
-        VersionCompatibilityResult compResult = v1.compareTo(v2);
-        if (compResult == VersionCompatibilityResult.LESS_THAN) {
-            return v2;
-        } else if (compResult == VersionCompatibilityResult.INCOMPATIBLE) {
-            // Just check major version numbers.
-            return getLatestFromIncompatible(v1, v2);
-        } else {
-            return v1;
-        }
-    }
-
-    private static PackageVersion getLatestFromIncompatible(PackageVersion v1, PackageVersion v2) {
-        SemanticVersion semVar1 = v1.value();
-        SemanticVersion semVar2 = v2.value();
-        if (semVar1.major() == semVar2.major()) {
-            if (semVar1.minor() == semVar2.minor()) {
-                return (semVar1.patch() < semVar2.patch()) ? v2 : v1;
-            } else {
-                return (semVar1.minor() < semVar2.minor()) ? v2 : v1;
-            }
-        } else {
-            return (semVar1.major() < semVar2.major()) ? v2 : v1;
-        }
+        SemanticVersion semVer1 = v1.value();
+        SemanticVersion semVer2 = v2.value();
+        return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
     }
 }

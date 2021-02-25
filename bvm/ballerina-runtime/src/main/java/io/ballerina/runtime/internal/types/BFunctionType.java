@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 
 import java.util.Arrays;
 
@@ -106,6 +107,11 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
             return false;
         }
 
+        if (SymbolFlags.isFlagOn(that.flags, SymbolFlags.TRANSACTIONAL) != SymbolFlags
+                .isFlagOn(this.flags, SymbolFlags.TRANSACTIONAL)) {
+            return false;
+        }
+
         if (!Arrays.equals(paramTypes, that.paramTypes)) {
             return false;
         }
@@ -126,14 +132,17 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
                 (retType != null ? " returns (" + retType + ")" : "");
 
         if (SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED)) {
-            return "isolated " + stringRep;
+            stringRep = "isolated ".concat(stringRep);
+        }
+        if (SymbolFlags.isFlagOn(flags, SymbolFlags.TRANSACTIONAL)) {
+            "transactional ".concat(stringRep);
         }
         return stringRep;
     }
 
     @Override
     public String getAnnotationKey() {
-        return this.typeName;
+        return IdentifierUtils.decodeIdentifier(this.typeName);
     }
 
     @Override

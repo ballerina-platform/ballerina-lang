@@ -17,34 +17,32 @@
 package io.ballerina.compiler.api.symbols;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents an object type descriptor.
  *
  * @since 2.0.0
  */
-public interface ObjectTypeSymbol extends TypeSymbol {
-    
-    /**
-     * Get the object type qualifiers.
-     *
-     * @return {@link List} of object type qualifiers
-     */
-    List<TypeQualifier> typeQualifiers();
+public interface ObjectTypeSymbol extends TypeSymbol, Qualifiable {
 
     /**
-     * Get the object fields.
+     * Get the symbols of the fields of the object type. The mapping is a set of field name and field symbol pairs. The
+     * returned map is ordered. The order in which the fields were specified in the source code is preserved when
+     * iterating the entries of the map.
      *
-     * @return {@link List} of object fields
+     * @return An ordered map containing the symbols of the fields
      */
-    List<FieldSymbol> fieldDescriptors();
+    Map<String, ? extends ObjectFieldSymbol> fieldDescriptors();
 
     /**
-     * Get the list of methods.
+     * Get the symbols of the methods of the object type. The mapping is a set of method name and method symbol pairs.
+     * The returned map is ordered. The order in which the fields were specified in the source code is preserved when
+     * iterating the entries of the map.
      *
-     * @return {@link List} of object methods
+     * @return An ordered map containing the symbols of the methods
      */
-    List<MethodSymbol> methods();
+    Map<String, MethodSymbol> methods();
 
     /**
      * Gets a list of included types. An included type is always a subtype of object.
@@ -52,25 +50,4 @@ public interface ObjectTypeSymbol extends TypeSymbol {
      * @return The list of included object types
      */
     List<TypeSymbol> typeInclusions();
-
-    /**
-     * Represents the object type qualifier.
-     *
-     * @since 2.0.0
-     */
-    enum TypeQualifier {
-        ABSTRACT("abstract"),
-        LISTENER("listener"),
-        CLIENT("client");
-
-        private String value;
-
-        TypeQualifier(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
 }

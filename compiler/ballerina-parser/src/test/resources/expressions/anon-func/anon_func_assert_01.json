@@ -46,7 +46,13 @@
                       "children": []
                     },
                     {
-                      "kind": "FUNCTION_KEYWORD"
+                      "kind": "FUNCTION_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "FUNCTION_SIGNATURE",
@@ -180,7 +186,7 @@
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "                                "
+                                      "value": "                                 "
                                     }
                                   ],
                                   "trailingMinutiae": [
@@ -217,7 +223,7 @@
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "                            "
+                              "value": "                             "
                             }
                           ]
                         }
@@ -856,7 +862,13 @@
                                   "children": []
                                 },
                                 {
-                                  "kind": "FUNCTION_KEYWORD"
+                                  "kind": "FUNCTION_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "FUNCTION_SIGNATURE",

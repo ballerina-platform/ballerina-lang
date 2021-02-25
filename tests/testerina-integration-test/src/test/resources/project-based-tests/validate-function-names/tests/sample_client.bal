@@ -19,7 +19,7 @@ public client class SampleClient {
 
     public string url = "http://sampleUrl";
 
-    public remote function validateFunctionName(string functionName) returns string {
+    remote function validateFunctionName(string functionName) returns string {
         return self.url + "/" + functionName + "/validated";
     }
 

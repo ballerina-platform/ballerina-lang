@@ -46,6 +46,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -249,6 +250,16 @@ public class TypeCreator {
     }
 
     /**
+     * Create a {@code UnionType} which represents the union type.
+     *
+     * @param memberTypes of the union type
+     * @return the new union type
+     */
+    public static UnionType createUnionType(Type... memberTypes) {
+        return new BUnionType(Arrays.asList(memberTypes));
+    }
+
+    /**
      * Create a {@code BUnionType} which represents the union type.
      *
      * @param memberTypes of the union type
@@ -266,7 +277,7 @@ public class TypeCreator {
      * @return the new union type
      */
     public static UnionType createUnionType(List<Type> memberTypes, int typeFlags) {
-        return new BUnionType(memberTypes, typeFlags, false);
+        return new BUnionType(memberTypes, typeFlags, false, false);
     }
 
     /**
@@ -289,7 +300,7 @@ public class TypeCreator {
      * @return the new union type
      */
     public static UnionType createUnionType(List<Type> memberTypes, int typeFlags, boolean readonly) {
-        return new BUnionType(memberTypes, typeFlags, readonly);
+        return new BUnionType(memberTypes, typeFlags, readonly, false);
     }
 
     /**

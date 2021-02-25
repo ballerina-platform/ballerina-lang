@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -191,7 +192,7 @@ public class VariableReturnType {
     }
 
     public static ArrayValue getArray(BTypedesc td) {
-        return new ArrayValueImpl(new long[]{10, 20, 30});
+        return new ArrayValueImpl(new long[]{10, 20, 30}, false);
     }
 
     public static Object getInvalidValue(BTypedesc td1, BTypedesc td2) {
@@ -262,5 +263,20 @@ public class VariableReturnType {
 
     public static Object getValueForParamOne(ObjectValue objectValue, BTypedesc td1, BTypedesc td2) {
         return getIntFieldOrDefault(objectValue, td1);
+    }
+
+    public static Object getWithDefaultableParams(Object x, Object y, BTypedesc z) {
+        Type xType = TypeChecker.getType(x);
+        Type yType = TypeChecker.getType(y);
+
+        if (z.getDescribingType().getTag() == INT_TAG) {
+            long xAsInt = xType.getTag() == INT_TAG ? (long) x : Long.valueOf(((BString) x).getValue());
+            long yAsInt = yType.getTag() == INT_TAG ? (long) y : Long.valueOf(((BString) y).getValue());
+            return xAsInt + yAsInt;
+        }
+
+        BString xAsString = xType.getTag() == INT_TAG ? StringUtils.fromString(Long.toString((long) x)) : (BString) x;
+        BString yAsString = yType.getTag() == INT_TAG ? StringUtils.fromString(Long.toString((long) y)) : (BString) y;
+        return xAsString.concat(yAsString);
     }
 }

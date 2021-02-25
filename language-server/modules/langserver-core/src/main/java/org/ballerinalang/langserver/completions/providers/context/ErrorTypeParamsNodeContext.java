@@ -26,12 +26,13 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<ErrorTypeParamsNode> {
 
     public ErrorTypeParamsNodeContext() {
@@ -49,7 +50,8 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ErrorTypeParamsNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ErrorTypeParamsNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         /*
         Covers the following cases
         (1) error< <cursor> >
@@ -71,15 +73,16 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             mappingTypes = QNameReferenceUtil.getModuleContent(context, (QualifiedNameReferenceNode) nodeAtCursor,
                     predicate);
-            return this.getCompletionItemList(mappingTypes, context);
+            completionItems.addAll(this.getCompletionItemList(mappingTypes, context));
+        } else {
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+            mappingTypes = visibleSymbols.stream().filter(predicate).collect(Collectors.toList());
+            completionItems.addAll(this.getCompletionItemList(mappingTypes, context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.add(new TypeCompletionItem(context, null, Snippet.TYPE_MAP.get().build(context)));
         }
-
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        mappingTypes = visibleSymbols.stream().filter(predicate).collect(Collectors.toList());
-        List<LSCompletionItem> completionItems = this.getCompletionItemList(mappingTypes, context);
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.add(new TypeCompletionItem(context, null, Snippet.TYPE_MAP.get().build(context)));
-
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 }

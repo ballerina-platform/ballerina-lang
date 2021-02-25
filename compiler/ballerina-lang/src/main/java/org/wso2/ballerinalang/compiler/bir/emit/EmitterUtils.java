@@ -120,6 +120,8 @@ class EmitterUtils {
             return "private";
         } else if (SymbolFlags.isFlagOn(SymbolFlags.PUBLIC, flag)) {
             return "public";
+        } else if (SymbolFlags.isFlagOn(SymbolFlags.TRANSACTIONAL, flag)) {
+            return "transactional";
         }
         return "";
     }

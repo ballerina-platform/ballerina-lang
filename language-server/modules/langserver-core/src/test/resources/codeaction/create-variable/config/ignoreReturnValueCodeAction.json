@@ -3,7 +3,7 @@
   "character": 3,
   "expected": [
     {
-      "title": "Create Variable",
+      "title": "Ignore return value",
       "edits": [
         {
           "range": {
@@ -16,7 +16,7 @@
               "character": 3
             }
           },
-          "newText": "int twoIntegers = "
+          "newText": "_ = "
         }
       ]
     }

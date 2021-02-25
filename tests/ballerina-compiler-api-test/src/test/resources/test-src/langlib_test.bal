@@ -67,4 +67,6 @@ function test() {
 
     xml xm = xml `<Greeting>Hello</Greeting>`;
     'xml:Element xm2 = xml `<Greeting>Hola</Greeting>`;
+
+    int[] & readonly iarr = [1, 2];
 }

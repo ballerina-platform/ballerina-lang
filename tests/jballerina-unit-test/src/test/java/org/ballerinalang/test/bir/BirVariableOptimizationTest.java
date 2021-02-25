@@ -19,14 +19,12 @@
 package org.ballerinalang.test.bir;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.optimizer.LivenessAnalyzer;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
@@ -41,22 +39,22 @@ import java.util.stream.Stream;
  */
 public class BirVariableOptimizationTest {
     private BIREmitter birEmitter;
-    private CompileResult result;
+    private BCompileUtil.BIRCompileResult result;
 
     @BeforeClass
     public void setup() {
         birEmitter = BIREmitter.getInstance(new CompilerContext());
-        result = BCompileUtil.compile("test-src/bir/biroptimizer.bal");
+        result = BCompileUtil.generateBIR("test-src/bir/biroptimizer.bal");
     }
 
     @Test(description = "Test the liveness analysis on functions")
     public void testFunctions() {
-        ((BLangPackage) result.getAST()).symbol.bir.functions.forEach(this::assertFunctions);
+         result.getExpectedBIR().functions.forEach(this::assertFunctions);
     }
 
     @Test(description = "Test the liveness analysis on attached functions")
     public void testAttachedFunctions() {
-        ((BLangPackage) result.getAST()).symbol.bir.typeDefs.forEach(
+         result.getExpectedBIR().typeDefs.forEach(
                 typeDefinition -> typeDefinition.attachedFuncs.forEach(this::assertFunctions));
     }
 

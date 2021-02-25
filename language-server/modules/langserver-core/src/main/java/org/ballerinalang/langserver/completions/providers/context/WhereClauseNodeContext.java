@@ -22,10 +22,11 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.WhereClauseNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,7 +34,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class WhereClauseNodeContext extends AbstractCompletionProvider<WhereClauseNode> {
 
     public WhereClauseNodeContext() {
@@ -41,7 +42,8 @@ public class WhereClauseNodeContext extends AbstractCompletionProvider<WhereClau
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, WhereClauseNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WhereClauseNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
@@ -50,14 +52,17 @@ public class WhereClauseNodeContext extends AbstractCompletionProvider<WhereClau
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-            return this.getCompletionItemList(exprEntries, context);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
         }
-
-        return this.expressionCompletions(context);
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, WhereClauseNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, WhereClauseNode node) {
         return !node.whereKeyword().isMissing();
     }
 }

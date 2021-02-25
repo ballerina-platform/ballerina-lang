@@ -21,6 +21,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 /**
@@ -61,5 +62,10 @@ public class StringTemplateLiteralNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 38);
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';\n    return s;\n}\n'", 13, 1);
         BAssertUtil.validateError(resultNegative, index++, "invalid token '`'", 13, 1);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        resultNegative = null;
     }
 }

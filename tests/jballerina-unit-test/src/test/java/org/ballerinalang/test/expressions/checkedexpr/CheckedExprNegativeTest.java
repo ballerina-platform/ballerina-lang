@@ -70,4 +70,15 @@ public class CheckedExprNegativeTest {
         BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 24, 13);
         BAssertUtil.validateError(compile, 1, ERROR_MISMATCH_ERR_MSG, 45, 17);
     }
+
+    @Test
+    public void testCheckedErrorsWithReadOnlyInUnionNegative() {
+        CompileResult compile = BCompileUtil.compile(
+                "test-src/expressions/checkedexpr/checked_expression_with_readonly_in_union_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(compile, index++, ERROR_MISMATCH_ERR_MSG, 23, 13);
+        BAssertUtil.validateError(compile, index++, ERROR_MISMATCH_ERR_MSG, 29, 13);
+        BAssertUtil.validateError(compile, index++, ERROR_MISMATCH_ERR_MSG, 37, 13);
+        Assert.assertEquals(compile.getErrorCount(), index);
+    }
 }

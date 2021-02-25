@@ -40,12 +40,14 @@ import org.eclipse.lsp4j.debug.StackTraceResponse;
 import org.eclipse.lsp4j.debug.StepInArguments;
 import org.eclipse.lsp4j.debug.StepOutArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
+import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.eclipse.lsp4j.debug.Variable;
 import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
+import org.testng.asserts.SoftAssert;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,21 +69,24 @@ import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
  */
 public class DebugTestRunner {
 
-    static BalServer balServer;
-    TestDAPClientConnector debugClientConnector;
     public List<BallerinaTestDebugPoint> testBreakpoints = new ArrayList<>();
-    boolean isConnected = false;
-    int port;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
-    protected static final int MAX_RETRY_COUNT = 3;
-    private BMainInstance balClient = null;
-    private Process debuggeeProcess;
-    DebugHitListener listener;
-
-    static Path testProjectBaseDir;
-    static Path testSingleFileBaseDir;
     public String testProjectPath;
     public String testEntryFilePath;
+
+    private static Path testProjectBaseDir;
+    private static Path testSingleFileBaseDir;
+    private static BalServer balServer;
+    private TestDAPClientConnector debugClientConnector;
+    private boolean isConnected = false;
+    private int port;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
+    private static final int MAX_RETRY_COUNT = 3;
+    private BMainInstance balClient = null;
+    private Process debuggeeProcess;
+    private DebugHitListener listener;
+    private DebugTerminationListener terminationListener;
+    private AssertionMode assertionMode;
+    private SoftAssert softAsserter;
 
     public DebugTestRunner(String testProjectName, String testModuleFileName, boolean isProjectBasedTest) {
         if (isProjectBasedTest) {
@@ -91,8 +96,10 @@ public class DebugTestRunner {
             testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
             testEntryFilePath = Paths.get(testSingleFileBaseDir.toString(), testModuleFileName).toString();
         }
-    }
 
+        // Hard assertions will be used by default.
+        assertionMode = AssertionMode.HARD_ASSERT;
+    }
 
     public static void initialize(Path projectResources, Path singleFileResources)
         throws BallerinaTestException, IOException {
@@ -105,6 +112,14 @@ public class DebugTestRunner {
 
         testProjectBaseDir = tempProjectDirectory.resolve("project-based-tests");
         FileUtils.copyFolder(projectResources, testProjectBaseDir);
+    }
+
+    public void setAssertionMode(AssertionMode assertionMode) {
+        this.assertionMode = assertionMode;
+    }
+
+    public boolean isSoftAssertionsEnabled() {
+        return assertionMode == AssertionMode.SOFT_ASSERT;
     }
 
     public void runDebuggeeProgram(String projectPath, int port) throws BallerinaTestException {
@@ -338,6 +353,25 @@ public class DebugTestRunner {
     }
 
     /**
+     * Waits for debug termination within a given time.
+     *
+     * @param timeoutMillis timeout.
+     * @return boolean true if debug termination is found.
+     */
+    public boolean waitForDebugTermination(long timeoutMillis) {
+        terminationListener = new DebugTerminationListener(debugClientConnector);
+        Timer timer = new Timer(true);
+        timer.scheduleAtFixedRate(terminationListener, 0, 1000);
+        try {
+            Thread.sleep(timeoutMillis);
+        } catch (InterruptedException ignored) {
+        }
+        timer.cancel();
+
+        return terminationListener.isTerminationFound();
+    }
+
+    /**
      * Can be used to fetch variable values when a debug hit is occurred.
      *
      * @param args  debug stopped event arguments
@@ -403,6 +437,29 @@ public class DebugTestRunner {
     }
 
     /**
+     * Can be used to fetch threads when a debug hit is occurred.
+     *
+     * @return Thread array with threads information.
+     * @throws BallerinaTestException if an error occurs when fetching threads.
+     */
+    public org.eclipse.lsp4j.debug.Thread[] fetchThreads() throws BallerinaTestException {
+        if (!listener.getConnector().isConnected()) {
+            throw new BallerinaTestException("DAP Client connector is not connected");
+        }
+        org.eclipse.lsp4j.debug.Thread[] threads;
+        ThreadsResponse threadsResponse;
+
+        try {
+            threadsResponse = listener.getConnector().getRequestManager().threads();
+            threads = threadsResponse.getThreads();
+        } catch (Exception e) {
+            LOGGER.warn("Error occurred when fetching threads", e);
+            throw new BallerinaTestException("Error occurred when fetching threads", e);
+        }
+        return threads;
+    }
+
+    /**
      * Can be used to get child variables from parent variable.
      *
      * @param childVariable child variable
@@ -434,9 +491,17 @@ public class DebugTestRunner {
      * @param type      variable type
      */
     public void assertVariable(Map<String, Variable> variables, String name, String value, String type) {
-        Assert.assertTrue(variables.containsKey(name));
-        Assert.assertEquals(variables.get(name).getValue(), value);
-        Assert.assertEquals(variables.get(name).getType(), type);
+        switch (assertionMode) {
+            case HARD_ASSERT:
+                Assert.assertTrue(variables.containsKey(name));
+                Assert.assertEquals(variables.get(name).getValue(), value);
+                Assert.assertEquals(variables.get(name).getType(), type);
+                return;
+            case SOFT_ASSERT:
+                softAsserter.assertTrue(variables.containsKey(name));
+                softAsserter.assertEquals(variables.get(name).getValue(), value);
+                softAsserter.assertEquals(variables.get(name).getType(), type);
+        }
     }
 
     /**
@@ -451,8 +516,15 @@ public class DebugTestRunner {
     public void assertExpression(StoppedEventArguments context, String expression, String resultValue,
                                  String resultType) throws BallerinaTestException {
         Variable result = evaluateExpression(context, expression);
-        Assert.assertEquals(result.getValue(), resultValue);
-        Assert.assertEquals(result.getType(), resultType);
+        switch (assertionMode) {
+            case HARD_ASSERT:
+                Assert.assertEquals(result.getValue(), resultValue);
+                Assert.assertEquals(result.getType(), resultType);
+                return;
+            case SOFT_ASSERT:
+                softAsserter.assertEquals(result.getValue(), resultValue);
+                softAsserter.assertEquals(result.getType(), resultType);
+        }
     }
 
     /**
@@ -464,10 +536,17 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if an error occurs when evaluating the expression.
      */
     public void assertEvaluationError(StoppedEventArguments context, String expression, String errorMessage)
-        throws BallerinaTestException {
+            throws BallerinaTestException {
         Variable result = evaluateExpression(context, expression);
-        Assert.assertEquals(result.getValue(), errorMessage);
-        Assert.assertTrue(result.getType().equals("string") || result.getType().equals("error"));
+        switch (assertionMode) {
+            case HARD_ASSERT:
+                Assert.assertEquals(result.getValue(), errorMessage);
+                Assert.assertTrue(result.getType().equals("string") || result.getType().equals("error"));
+                return;
+            case SOFT_ASSERT:
+                softAsserter.assertEquals(result.getValue(), errorMessage);
+                softAsserter.assertTrue(result.getType().equals("string") || result.getType().equals("error"));
+        }
     }
 
     /**
@@ -479,9 +558,17 @@ public class DebugTestRunner {
      * @param source stack frame source.
      */
     public void assertCallStack(StackFrame frame, String name, int line, String source) {
-        Assert.assertEquals(frame.getName(), name);
-        Assert.assertEquals(frame.getLine().intValue(), line);
-        Assert.assertEquals(frame.getSource().getName(), source);
+        switch (assertionMode) {
+            case HARD_ASSERT:
+                Assert.assertEquals(frame.getName(), name);
+                Assert.assertEquals(frame.getLine().intValue(), line);
+                Assert.assertEquals(frame.getSource().getName(), source);
+                return;
+            case SOFT_ASSERT:
+                softAsserter.assertEquals(frame.getName(), name);
+                softAsserter.assertEquals(frame.getLine().intValue(), line);
+                softAsserter.assertEquals(frame.getSource().getName(), source);
+        }
     }
 
     /**
@@ -547,6 +634,14 @@ public class DebugTestRunner {
         }
     }
 
+    public void beginSoftAssertions() {
+        softAsserter = new SoftAssert();
+    }
+
+    public void endSoftAssertions() {
+        softAsserter.assertAll();
+    }
+
     /**
      * Program resume options.
      */
@@ -571,5 +666,13 @@ public class DebugTestRunner {
 
     public BalServer getBalServer() {
         return balServer;
+    }
+
+    /**
+     * Debugger test framework supports both modes (hard assertions and soft assertions).
+    */
+    public enum AssertionMode {
+        HARD_ASSERT,
+        SOFT_ASSERT,
     }
 }

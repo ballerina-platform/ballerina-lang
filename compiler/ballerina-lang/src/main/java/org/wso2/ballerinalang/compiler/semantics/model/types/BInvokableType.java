@@ -69,11 +69,15 @@ public class BInvokableType extends BType implements InvokableType {
 
     @Override
     public String toString() {
+        String flagStr = "";
         if (Symbols.isFlagOn(flags, Flags.ISOLATED)) {
-            return "isolated function " + getTypeSignature();
+            flagStr = "isolated ";
+        }
+        if (Symbols.isFlagOn(flags, Flags.TRANSACTIONAL)) {
+            flagStr += "transactional ";
         }
 
-        return "function " + getTypeSignature();
+        return flagStr + "function " + getTypeSignature();
     }
 
     @Override

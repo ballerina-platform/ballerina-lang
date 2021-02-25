@@ -60,18 +60,26 @@ public abstract class AbstractTokenReader {
     public abstract STToken head();
 
     /**
-     * Switch the mode of the token reader to the given mode.
+     * Start the given mode in the token reader.
      * 
-     * @param mode Mode to switch on to
+     * @param mode Mode to start
      */
     public abstract void startMode(ParserMode mode);
 
     /**
-     * Switch the mode of the token read to {@link ParserMode#DEFAULT}.
+     * Switch the mode of the token reader to the given mode.
+     *
+     * @param mode Mode to switch on to
+     */
+    public abstract void switchMode(ParserMode mode);
+
+    /**
+     * End the current mode of the token reader.
      */
     public abstract void endMode();
 
     /**
+     * Get the current index of the token reader.
      *
      * @return current token index
      */

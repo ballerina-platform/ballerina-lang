@@ -8,7 +8,7 @@ import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 import java.nio.file.Path;
 
 /**
- * Calculate balo path pattens in project.
+ * Calculate bala path pattens in project.
  */
 public class ObjRepo extends NonSysRepo<Path> {
     public ObjRepo(Converter<Path> converter) {
@@ -31,7 +31,7 @@ public class ObjRepo extends NonSysRepo<Path> {
                                       pkgName,
                                       pkgVersion,
                                       "obj",
-                                      pkgName + ".balo"));
+                                      pkgName + ".bala"));
     }
 
 }

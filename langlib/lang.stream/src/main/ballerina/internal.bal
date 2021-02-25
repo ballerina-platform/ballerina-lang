@@ -15,6 +15,10 @@
 // under the License.
 import ballerina/lang.__internal as internal;
 
+type _Iterator object {
+    public isolated function next() returns record {|Type value;|}|ErrorType?;
+};
+
 class FilterSupport {
     public stream<Type, ErrorType> strm;
     public any func;
@@ -30,12 +34,12 @@ class FilterSupport {
             var nextVal = next(self.strm);
             if (nextVal is ()) {
                 return ();
-            } else if (nextVal is error) {
+            } else if (nextVal is ErrorType) {
                 return nextVal;
             } else {
                 var value = nextVal?.value;
                 function(any|error) returns boolean func = internal:getFilterFunc(self.func);
-                var filtered = internal:invokeAsExternal(func, value);
+                var filtered = checkpanic internal:invokeAsExternal(func, value);
                 if (<boolean>filtered) {
                     return nextVal;
                 }
@@ -60,7 +64,7 @@ class MapSupport {
             return ();
         } else {
             function(any | error) returns any | error mappingFunc = internal:getMapFunc(self.func);
-            if (nextVal is error) {
+            if (nextVal is ErrorType) {
                  return nextVal;
             } else {
                  var value = internal:invokeAsExternal(mappingFunc, nextVal.value);

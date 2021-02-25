@@ -267,7 +267,8 @@ public function benchmarkLoopWithFramesForeach(int warmupCount, int benchmarkCou
         frames.push(_frame);
     }
     foreach _Frame f in frames {
-        Person p = {id: <int>f["id"], fname: <string>f["fname"], lname: <string>f["lname"]};
+        Person p = {id: <int>(checkpanic f["id"]), fname: <string>(checkpanic f["fname"]),
+                                                                            lname: <string>(checkpanic f["lname"])};
         outputList.push(p);
     }
 
@@ -283,7 +284,8 @@ public function benchmarkLoopWithFramesForeach(int warmupCount, int benchmarkCou
         frames.push(_frame);
     }
     foreach _Frame f in frames {
-        Person p = {id: <int>f["id"], fname: <string>f["fname"], lname: <string>f["lname"]};
+        Person p = {id: <int>(checkpanic f["id"]), fname: <string>(checkpanic f["fname"]),
+                                                                            lname: <string>(checkpanic f["lname"])};
         outputList.push(p);
     }
     return (nanoTime() - startTime);

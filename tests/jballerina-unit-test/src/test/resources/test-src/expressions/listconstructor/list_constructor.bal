@@ -91,10 +91,10 @@ function testTypeWithReadOnlyInUnionCET() {
     [int, string] tp = [1, "ballerina"];
     readonly|(int|[int, string])[] val = [1, [1, "foo"], tp, tp];
 
-    assertEquality(true, <any> val is (int|[int, string])[]);
+    assertEquality(true, <any> checkpanic val is (int|[int, string])[]);
     assertEquality(false, val is (int|[int, string])[] & readonly);
 
-    (int|[int, string])[] arr = <(int|[int, string])[]> val;
+    (int|[int, string])[] arr = <(int|[int, string])[]> checkpanic val;
 
     assertEquality(1, arr[0]);
     assertEquality(true, arr[1] is [int, string]);
@@ -126,6 +126,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

@@ -17,6 +17,9 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,31 +33,80 @@ public class PackageManifest {
     private final PackageDescriptor packageDesc;
     private final List<Dependency> dependencies;
     private final Map<String, Platform> platforms;
+    private final DiagnosticResult diagnostics;
+    private final List<String> license;
+    private final List<String> authors;
+    private final List<String> keywords;
+    private final String repository;
+    private final List<String> exported;
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
-    private final Map<String, Object> otherEntries;
+    private final Map<String, TopLevelNode> otherEntries;
 
     private PackageManifest(PackageDescriptor packageDesc,
                             List<Dependency> dependencies,
                             Map<String, Platform> platforms,
-                            Map<String, Object> otherEntries) {
+                            Map<String, TopLevelNode> otherEntries,
+                            DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.platforms = Collections.unmodifiableMap(platforms);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
+        this.diagnostics = diagnostics;
+        this.license = Collections.emptyList();
+        this.authors = Collections.emptyList();
+        this.keywords = Collections.emptyList();
+        this.exported = Collections.emptyList();
+        this.repository = "";
+    }
+
+    private PackageManifest(PackageDescriptor packageDesc,
+                            List<Dependency> dependencies,
+                            Map<String, Platform> platforms,
+                            Map<String, TopLevelNode> otherEntries,
+                            DiagnosticResult diagnostics,
+                            List<String> license,
+                            List<String> authors,
+                            List<String> keywords,
+                            List<String> exported,
+                            String repository) {
+        this.packageDesc = packageDesc;
+        this.dependencies = Collections.unmodifiableList(dependencies);
+        this.platforms = Collections.unmodifiableMap(platforms);
+        this.otherEntries = Collections.unmodifiableMap(otherEntries);
+        this.diagnostics = diagnostics;
+        this.license = license;
+        this.authors = authors;
+        this.keywords = keywords;
+        this.exported = exported;
+        this.repository = repository;
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc) {
         return new PackageManifest(packageDesc, Collections.emptyList(),
-                Collections.emptyMap(), Collections.emptyMap());
+                Collections.emptyMap(), Collections.emptyMap(), new DefaultDiagnosticResult(Collections.EMPTY_LIST));
+    }
+
+    public static PackageManifest from(PackageDescriptor packageDesc,
+                                       List<Dependency> dependencies,
+                                       Map<String, Platform> platforms) {
+        return new PackageManifest(packageDesc, dependencies, platforms, Collections.emptyMap(),
+                new DefaultDiagnosticResult(Collections.EMPTY_LIST));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        List<Dependency> dependencies,
                                        Map<String, Platform> platforms,
-                                       Map<String, Object> otherEntries) {
-        return new PackageManifest(packageDesc, dependencies, platforms, otherEntries);
+                                       Map<String, TopLevelNode> otherEntries,
+                                       DiagnosticResult diagnostics,
+                                       List<String> license,
+                                       List<String> authors,
+                                       List<String> keywords,
+                                       List<String> exported,
+                                       String repository) {
+        return new PackageManifest(packageDesc, dependencies, platforms, otherEntries, diagnostics, license, authors,
+                                   keywords, exported, repository);
     }
 
     public PackageName name() {
@@ -82,8 +134,32 @@ public class PackageManifest {
     }
 
     // TODO Do we need to custom key/value par mapping here
-    public Object getValue(String key) {
+    public TopLevelNode getValue(String key) {
         return otherEntries.get(key);
+    }
+
+    public List<String> license() {
+        return license;
+    }
+
+    public List<String> authors() {
+        return authors;
+    }
+
+    public List<String> keywords() {
+        return keywords;
+    }
+
+    public List<String> exported() {
+        return exported;
+    }
+
+    public String repository() {
+        return repository;
+    }
+
+    public DiagnosticResult diagnostics() {
+        return diagnostics;
     }
 
     /**
@@ -123,13 +199,31 @@ public class PackageManifest {
     public static class Platform {
         // We could eventually add more things to the platform
         private final List<Map<String, Object>> dependencies;
+        private final List<Map<String, Object>> repositories;
 
         public Platform(List<Map<String, Object>> dependencies) {
-            this.dependencies = Collections.unmodifiableList(dependencies);
+            this(dependencies, Collections.emptyList());
+        }
+
+        public Platform(List<Map<String, Object>> dependencies, List<Map<String, Object>> repositories) {
+            if (dependencies != null) {
+                this.dependencies = Collections.unmodifiableList(dependencies);
+            } else {
+                this.dependencies = Collections.emptyList();
+            }
+            if (repositories != null) {
+                this.repositories = Collections.unmodifiableList(repositories);
+            } else {
+                this.repositories = Collections.emptyList();
+            }
         }
 
         public List<Map<String, Object>> dependencies() {
             return dependencies;
+        }
+
+        public List<Map<String, Object>> repositories() {
+            return repositories;
         }
     }
 }

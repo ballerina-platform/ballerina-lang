@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.test.util;
 
-import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
@@ -124,19 +125,18 @@ public class BFileUtil {
     /**
      * Provides Qualified Class Name.
      *
-     * @param orgName     Org name
-     * @param packageName Package name
-     * @param version Package version
-     * @param className   Class name
+     * @param packageID Package id
+     * @param className Class name
      * @return Qualified class name
      */
-    public static String getQualifiedClassName(String orgName, String packageName, String version, String className) {
-        if (!IdentifierUtils.encodeNonFunctionIdentifier(Names.DEFAULT_PACKAGE.value).equals(packageName)) {
-            className = packageName + "." + version.replace('.', '_') + "." + className;
+    public static String getQualifiedClassName(PackageID packageID, String className) {
+        if (!IdentifierUtils.encodeNonFunctionIdentifier(Names.DEFAULT_PACKAGE.value).equals(
+                packageID.name.getValue())) {
+            className = packageID.name + "." + packageID.version.getValue().replace('.', '_') + "." + className;
         }
 
-        if (!Names.ANON_ORG.value.equals(orgName)) {
-            className = orgName + "." +  className;
+        if (!Names.ANON_ORG.value.equals(packageID.orgName.getValue())) {
+            className = packageID.orgName.getValue() + "." + className;
         }
 
         return className;

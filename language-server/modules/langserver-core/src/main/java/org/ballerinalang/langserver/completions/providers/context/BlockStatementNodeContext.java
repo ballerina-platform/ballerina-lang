@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
@@ -28,20 +28,20 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class BlockStatementNodeContext extends BlockNodeContextProvider<BlockStatementNode> {
     public BlockStatementNodeContext() {
         super(BlockStatementNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, BlockStatementNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, BlockStatementNode node)
             throws LSCompletionException {
         return super.getCompletions(context, node);
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, BlockStatementNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, BlockStatementNode node) {
         int cursor = context.getCursorPositionInTree();
         return !node.openBraceToken().isMissing() && !node.closeBraceToken().isMissing()
                 && node.closeBraceToken().textRange().startOffset() >= cursor

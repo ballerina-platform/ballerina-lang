@@ -17,18 +17,21 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a ballerina type definition implementation.
@@ -39,24 +42,23 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
 
     private final List<Qualifier> qualifiers;
     private final TypeSymbol typeDescriptor;
+    private final Documentation docAttachment;
     private final boolean deprecated;
     private final boolean readonly;
 
-    protected BallerinaTypeDefinitionSymbol(String name,
-                                            PackageID moduleID,
-                                            List<Qualifier> qualifiers,
-                                            TypeSymbol typeDescriptor,
-                                            BSymbol bSymbol) {
-        super(name, moduleID, SymbolKind.TYPE_DEFINITION, bSymbol);
+    protected BallerinaTypeDefinitionSymbol(String name, List<Qualifier> qualifiers, TypeSymbol typeDescriptor,
+                                            BSymbol bSymbol, CompilerContext context) {
+        super(name, SymbolKind.TYPE_DEFINITION, bSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
+        this.docAttachment = getDocAttachment(bSymbol);
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
         this.readonly = Symbols.isFlagOn(bSymbol.flags, Flags.READONLY);
     }
 
     @Override
     public String moduleQualifiedName() {
-        return this.moduleID().moduleName() + ":" + this.name();
+        return this.getModule().get().id().modulePrefix() + ":" + this.getName().get();
     }
 
     @Override
@@ -79,6 +81,16 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
         return this.readonly;
     }
 
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Optional<Documentation> documentation() {
+        return Optional.ofNullable(this.docAttachment);
+    }
+
     /**
      * Represents a type definition symbol builder.
      *
@@ -89,8 +101,8 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
-        public TypeDefSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
-            super(name, moduleID, SymbolKind.TYPE_DEFINITION, symbol);
+        public TypeDefSymbolBuilder(String name, BSymbol symbol, CompilerContext context) {
+            super(name, SymbolKind.TYPE_DEFINITION, symbol, context);
         }
 
         public TypeDefSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
@@ -105,8 +117,8 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
 
         @Override
         public BallerinaTypeDefinitionSymbol build() {
-            return new BallerinaTypeDefinitionSymbol(this.name, this.moduleID, this.qualifiers, this.typeDescriptor,
-                                                     this.bSymbol);
+            return new BallerinaTypeDefinitionSymbol(this.name, this.qualifiers, this.typeDescriptor,
+                                                     this.bSymbol, this.context);
         }
     }
 }

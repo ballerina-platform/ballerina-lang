@@ -50,7 +50,7 @@ import java.util.ArrayDeque;
  */
 public class TomlParserErrorHandler extends AbstractParserErrorHandler {
 
-    private static final ParserRuleContext[] TOP_LEVEL_NODE = {ParserRuleContext.EOF,
+    private static final ParserRuleContext[] TOP_LEVEL_NODE = { ParserRuleContext.EOF,
             ParserRuleContext.NEWLINE,
             ParserRuleContext.KEY_VALUE_PAIR,
             ParserRuleContext.TOML_TABLE,
@@ -59,28 +59,45 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] ARRAY_VALUE_END = {
             ParserRuleContext.COMMA,
-            ParserRuleContext.ARRAY_VALUE_LIST_END};
+            ParserRuleContext.ARRAY_VALUE_LIST_END };
 
     private static final ParserRuleContext[] ARRAY_VALUE_START_OR_VALUE_LIST_END =
             { ParserRuleContext.ARRAY_VALUE_LIST_END, ParserRuleContext.ARRAY_VALUE_START };
 
-    private static final ParserRuleContext[] NUMERICAL_LITERAL = {ParserRuleContext.DECIMAL_INTEGER_LITERAL,
-            ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL};
+    private static final ParserRuleContext[] NUMERICAL_LITERAL = { ParserRuleContext.DECIMAL_INTEGER_LITERAL,
+            ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL, ParserRuleContext.HEX_INTEGER_LITERAL,
+            ParserRuleContext.OCTAL_INTEGER_LITERAL, ParserRuleContext.BINARY_INTEGER_LITERAL };
 
-    private static final ParserRuleContext[] VALUE = {ParserRuleContext.STRING_START,
-            ParserRuleContext.SIGN_TOKEN, ParserRuleContext.BOOLEAN_LITERAL, ParserRuleContext.NUMERICAL_LITERAL,
+    private static final ParserRuleContext[] VALUE = { ParserRuleContext.STRING_START,
+            ParserRuleContext.LITERAL_STRING_START, ParserRuleContext.MULTILINE_STRING_START,
+            ParserRuleContext.MULTILINE_LITERAL_STRING_START, ParserRuleContext.SIGN_TOKEN,
+            ParserRuleContext.BOOLEAN_LITERAL, ParserRuleContext.NUMERICAL_LITERAL,
 //            ParserRuleContext.ARRAY_VALUE_LIST
     };
 
     private static final ParserRuleContext[] ARRAY_VALUE_START = VALUE;
 
-    private static final ParserRuleContext[] KEY_START = {ParserRuleContext.IDENTIFIER_LITERAL,
-            ParserRuleContext.NUMERICAL_LITERAL, ParserRuleContext.BOOLEAN_LITERAL, ParserRuleContext.STRING_START};
+    private static final ParserRuleContext[] KEY_START = { ParserRuleContext.IDENTIFIER_LITERAL,
+            ParserRuleContext.NUMERICAL_LITERAL, ParserRuleContext.BOOLEAN_LITERAL, ParserRuleContext.STRING_START,
+            ParserRuleContext.LITERAL_STRING_START };
 
-    private static final ParserRuleContext[] KEY_END = {ParserRuleContext.DOT, ParserRuleContext.KEY_LIST_END};
+    private static final ParserRuleContext[] KEY_END = { ParserRuleContext.DOT, ParserRuleContext.KEY_LIST_END };
 
     private static final ParserRuleContext[] KEY_LIST_END = {
-            ParserRuleContext.ASSIGN_OP, ParserRuleContext.TABLE_END, ParserRuleContext.ARRAY_TABLE_FIRST_END};
+            ParserRuleContext.ASSIGN_OP, ParserRuleContext.TABLE_END, ParserRuleContext.ARRAY_TABLE_FIRST_END };
+
+    private static final ParserRuleContext[] STRING_CONTENT = { ParserRuleContext.STRING_END,
+            ParserRuleContext.STRING_BODY };
+
+    private static final ParserRuleContext[] MULTILINE_STRING_CONTENT = { ParserRuleContext.MULTILINE_STRING_END,
+            ParserRuleContext.MULTILINE_STRING_BODY };
+
+    private static final ParserRuleContext[] LITERAL_STRING_CONTENT = { ParserRuleContext.LITERAL_STRING_END,
+            ParserRuleContext.LITERAL_STRING_BODY };
+
+    private static final ParserRuleContext[] MULTILINE_LITERAL_STRING_CONTENT =
+            { ParserRuleContext.MULTILINE_LITERAL_STRING_END,
+            ParserRuleContext.MULTILINE_LITERAL_STRING_BODY };
 
     public TomlParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -140,6 +157,18 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 case STRING_END:
                     hasMatch = nextToken.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN;
                     break;
+                case MULTILINE_STRING_START:
+                case MULTILINE_STRING_END:
+                    hasMatch = nextToken.kind == SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN;
+                    break;
+                case LITERAL_STRING_START:
+                case LITERAL_STRING_END:
+                    hasMatch = nextToken.kind == SyntaxKind.SINGLE_QUOTE_TOKEN;
+                    break;
+                case MULTILINE_LITERAL_STRING_START:
+                case MULTILINE_LITERAL_STRING_END:
+                    hasMatch = nextToken.kind == SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN;
+                    break;
                 case COMMA:
                     hasMatch = nextToken.kind == SyntaxKind.COMMA_TOKEN;
                     break;
@@ -152,10 +181,22 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 case DECIMAL_FLOATING_POINT_LITERAL:
                     hasMatch = nextToken.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN;
                     break;
+                case HEX_INTEGER_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
+                    break;
+                case OCTAL_INTEGER_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.OCTAL_INTEGER_LITERAL_TOKEN;
+                    break;
+                case BINARY_INTEGER_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.BINARY_INTEGER_LITERAL_TOKEN;
+                    break;
                 case BOOLEAN_LITERAL:
                     hasMatch = nextToken.kind == SyntaxKind.TRUE_KEYWORD || nextToken.kind == SyntaxKind.FALSE_KEYWORD;
                     break;
-                case STRING_CONTENT:
+                case STRING_BODY:
+                case LITERAL_STRING_BODY:
+                case MULTILINE_STRING_BODY:
+                case MULTILINE_LITERAL_STRING_BODY:
                     hasMatch = nextToken.kind == SyntaxKind.STRING_LITERAL_TOKEN ||
                             nextToken.kind == SyntaxKind.ML_STRING_LITERAL ||
                             nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL;
@@ -169,6 +210,22 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 case SIGN_TOKEN:
                     hasMatch = nextToken.kind == SyntaxKind.PLUS_TOKEN || nextToken.kind == SyntaxKind.MINUS_TOKEN;
                     break;
+                case STRING_CONTENT:
+                    alternativeRules = STRING_CONTENT;
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
+                            isEntryPoint);
+                case MULTILINE_STRING_CONTENT:
+                    alternativeRules = MULTILINE_STRING_CONTENT;
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
+                            isEntryPoint);
+                case LITERAL_STRING_CONTENT:
+                    alternativeRules = LITERAL_STRING_CONTENT;
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
+                            isEntryPoint);
+                case MULTILINE_LITERAL_STRING_CONTENT:
+                    alternativeRules = MULTILINE_LITERAL_STRING_CONTENT;
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
+                            isEntryPoint);
                 case NUMERICAL_LITERAL:
                     alternativeRules = NUMERICAL_LITERAL;
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
@@ -297,11 +354,29 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ARRAY_VALUE_START_OR_VALUE_LIST_END;
             case STRING_START:
                 return ParserRuleContext.STRING_CONTENT;
-            case STRING_CONTENT:
+            case MULTILINE_STRING_START:
+                return ParserRuleContext.MULTILINE_STRING_CONTENT;
+            case LITERAL_STRING_START:
+                return ParserRuleContext.LITERAL_STRING_CONTENT;
+            case MULTILINE_LITERAL_STRING_START:
+                return ParserRuleContext.MULTILINE_LITERAL_STRING_CONTENT;
+            case STRING_BODY:
                 return ParserRuleContext.STRING_END;
+            case MULTILINE_STRING_BODY:
+                return ParserRuleContext.MULTILINE_STRING_END;
+            case LITERAL_STRING_BODY:
+                return ParserRuleContext.LITERAL_STRING_END;
+            case MULTILINE_LITERAL_STRING_BODY:
+                return ParserRuleContext.MULTILINE_LITERAL_STRING_END;
             case STRING_END:
+            case MULTILINE_STRING_END:
+            case LITERAL_STRING_END:
+            case MULTILINE_LITERAL_STRING_END:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case OCTAL_INTEGER_LITERAL:
+            case BINARY_INTEGER_LITERAL:
             case BOOLEAN_LITERAL:
                 ParserRuleContext parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.ARRAY_VALUE_LIST) {
@@ -347,7 +422,19 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             case STRING_START:
             case STRING_END:
                 return SyntaxKind.DOUBLE_QUOTE_TOKEN;
-            case STRING_CONTENT:
+            case LITERAL_STRING_START:
+            case LITERAL_STRING_END:
+                return SyntaxKind.SINGLE_QUOTE_TOKEN;
+            case MULTILINE_STRING_START:
+            case MULTILINE_STRING_END:
+                return SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN;
+            case MULTILINE_LITERAL_STRING_START:
+            case MULTILINE_LITERAL_STRING_END:
+                return SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN;
+            case STRING_BODY:
+            case LITERAL_STRING_BODY:
+            case MULTILINE_STRING_BODY:
+            case MULTILINE_LITERAL_STRING_BODY:
                 return SyntaxKind.IDENTIFIER_LITERAL;
             case ARRAY_VALUE_LIST_START:
             case TABLE_START:
@@ -357,6 +444,12 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.CLOSE_BRACKET_TOKEN;
             case DECIMAL_INTEGER_LITERAL:
                 return SyntaxKind.DECIMAL_INT_TOKEN;
+            case HEX_INTEGER_LITERAL:
+                return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
+            case OCTAL_INTEGER_LITERAL:
+                return SyntaxKind.OCTAL_INTEGER_LITERAL_TOKEN;
+            case BINARY_INTEGER_LITERAL:
+                return SyntaxKind.BINARY_INTEGER_LITERAL_TOKEN;
             case DECIMAL_FLOATING_POINT_LITERAL:
                 return SyntaxKind.DECIMAL_FLOAT_TOKEN;
             case BOOLEAN_LITERAL:

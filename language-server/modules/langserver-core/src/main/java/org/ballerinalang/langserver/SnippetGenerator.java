@@ -171,6 +171,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code transactional} keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getTransactionalKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.TRANSACTIONAL, "transactional",
+                ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
+    }
+
+    /**
      * Get Break statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -430,9 +440,33 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getFunctionDefSnippet() {
-        String snippet = "function ${1:name}(${2}) {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+        String snippet = "function ${1:name}(${2})${3} {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.FUNCTION, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get Resource Function Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getResourceFunctionDefSnippet() {
+        String snippet = "function ${1:name} ${2:.} (${3})${4} {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.RESOURCE_FUNC_DEF, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get Resource Function Signature Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getResourceFunctionSignatureSnippet() {
+        String snippet = "resource function ${1:name} ${2:.} (${3})${4} {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
 
@@ -442,7 +476,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getFunctionSignatureSnippet() {
-        String snippet = "function ${1:name}(${2});";
+        String snippet = "function ${1:name}(${2})${3};";
         return new SnippetBlock(ItemResolverConstants.FUNCTION_SIGNATURE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
@@ -453,7 +487,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIfStatementSnippet() {
-        String snippet = "if (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "if ${1:true} {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.IF, snippet, ItemResolverConstants.STATEMENT_TYPE,
                 Kind.STATEMENT);
     }
@@ -464,7 +498,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getElseIfStatementSnippet() {
-        String snippet = "else if (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
+        String snippet = "else if ${1:true} {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.ELSE_IF, snippet, ItemResolverConstants.STATEMENT_TYPE,
                 Kind.STATEMENT);
@@ -532,7 +566,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getObjectTypeDescSnippet() {
-        String snippet = "object {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "object {${1}}";
 
         return new SnippetBlock(ItemResolverConstants.OBJECT_TYPE_DESC, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
@@ -544,8 +578,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getObjectDefinitionSnippet() {
-        String snippet = "type ${1:ObjectName} object {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
-                + CommonUtil.LINE_SEPARATOR + "};";
+        String snippet = "type ${1:ObjectName} object {${2}};";
 
         return new SnippetBlock(ItemResolverConstants.OBJECT_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
@@ -627,8 +660,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getRecordTypeDescSnippet() {
-        String snippet = "record {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
-
+        String snippet = "record {${1}}";
         return new SnippetBlock(ItemResolverConstants.RECORD_TYPE_DESC, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
@@ -671,12 +703,48 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Table Type Descriptor Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getTableTypeDescSnippet() {
+        String snippet = "type ${1:TypeName} table<${2}>;";
+
+        return new SnippetBlock(ItemResolverConstants.TABLE_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get Table Type Descriptor Snippet Block with key.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getTableWithKeyTypeDescSnippet() {
+        String snippet = "type ${1:TypeName} table<${2}> key${3}";
+
+        return new SnippetBlock(ItemResolverConstants.TABLE_WITH_KEY_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get stream definition Snippet Block with key.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStreamDefSnippet() {
+        String snippet = "stream<${1}> ${2:streamName} = new;";
+
+        return new SnippetBlock(ItemResolverConstants.STREAM_DEF, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
      * Get Closed Record Type Descriptor Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getClosedRecordTypeDescSnippet() {
-        String snippet = "record {|" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "|}";
+        String snippet = "record {|${1}|}";
 
         return new SnippetBlock(ItemResolverConstants.CLOSED_RECORD_TYPE_DESC, snippet,
                 ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
@@ -969,10 +1037,10 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getServiceDefSnippet() {
         ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
-        String snippet = "service ${1:serviceName} on new http:Listener(8080) {"
-                + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:newResource}(http:Caller ${3:caller}, "
-                + "http:Request ${5:request}) {" + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR +
-                "\t}" + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "service /${1} on new http:Listener(8080) {"
+                + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:get} ${3:getResource}"
+                + "(http:Caller ${4:caller}, " + "http:Request ${5:req}) {" + CommonUtil.LINE_SEPARATOR
+                + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE_HTTP, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET, httpImport);
     }
@@ -1099,9 +1167,29 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getObjectConstructorSnippet() {
-        String snippet = "object {" + CommonUtil.LINE_SEPARATOR + "\t" + CommonUtil.LINE_SEPARATOR + "};";
+        String snippet = "object {${1}};";
         return new SnippetBlock("object constructor", snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
+    }
+
+    /**
+     * Get Base16 literal Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBase16LiteralSnippet() {
+        String snippet = "base16 `${1}`";
+        return new SnippetBlock("base16", snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Base64 literal Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBase64LiteralSnippet() {
+        String snippet = "base64 `${1}`";
+        return new SnippetBlock("base64", snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
     /**
@@ -1132,6 +1220,16 @@ public class SnippetGenerator {
     public static SnippetBlock getFinalKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.FINAL_KEYWORD, "final ", ItemResolverConstants.KEYWORD_TYPE,
                 Kind.KEYWORD);
+    }
+
+    /**
+     * Get Configurable Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getConfigurableKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.CONFIGURABLE_KEYWORD, "configurable",
+                ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
     }
 
     /**
@@ -1265,7 +1363,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getWhileStatementSnippet() {
-        String snippet = "while (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "while ${1:true} {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.WHILE,
                 snippet,
                 ItemResolverConstants.STATEMENT_TYPE,
@@ -1333,6 +1431,18 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get on conflict clause Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getOnConflictClauseSnippet() {
+        String snippet = "on conflict ";
+
+        return new SnippetBlock(ItemResolverConstants.ON_CONFLICT_CLAUSE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
      * Get Worker Declaration Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1350,8 +1460,19 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getRemoteFunctionSnippet() {
-        String snippet = "public remote function ${1:name}(${2}) {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+        String snippet = "remote function ${1:name}(${2})${3} {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
                 + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.REMOTE_FUNCTION_TYPE, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Remote method declaration Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRemoteMethodDeclSnippet() {
+        String snippet = "remote function ${1:name}(${2})${3};";
         return new SnippetBlock(ItemResolverConstants.REMOTE_FUNCTION_TYPE, snippet,
                 ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
@@ -1515,5 +1636,15 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getMapTypeSnippet() {
         return new SnippetBlock("map", "map", ItemResolverConstants.TYPE, Kind.TYPE);
+    }
+
+    /**
+     * Get Keyword Snippet Block.
+     *
+     * @param keyword keyword to be added
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getKeywordSnippet(String keyword) {
+        return new SnippetBlock(keyword, keyword, ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
     }
 }

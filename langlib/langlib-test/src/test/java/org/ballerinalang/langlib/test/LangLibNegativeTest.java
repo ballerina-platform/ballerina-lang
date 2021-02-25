@@ -46,6 +46,20 @@ public class LangLibNegativeTest {
                 "'(json|error)'", 34, 25);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected '(int|string|float[]|error)', " +
                 "found '(json|error)'", 38, 37);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(json|error)'",
+                50, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(json|error)'",
+                51, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(int|error)'",
+                52, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(json|error)'",
+                54, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(json|error)'",
+                55, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(int|error)'",
+                56, 14);
+        BAssertUtil.validateError(negativeResult, err++, "undefined function 'toXML' in type 'int'",
+                61, 19);
 
         Assert.assertEquals(negativeResult.getErrorCount(), err);
     }

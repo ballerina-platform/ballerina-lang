@@ -16,10 +16,9 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.LangLibrary;
-import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -44,16 +43,12 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     protected List<FunctionSymbol> langLibFunctions;
 
     private final TypeDescKind typeDescKind;
-    private final ModuleID moduleID;
     private final BType bType;
-    private final Documentation docAttachment;
 
-    public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
+    public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, BType bType) {
         this.context = context;
         this.typeDescKind = typeDescKind;
-        this.moduleID = moduleID;
         this.bType = bType;
-        this.docAttachment = getDocAttachment(bType);
     }
 
     @Override
@@ -62,17 +57,17 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     }
 
     @Override
-    public ModuleID moduleID() {
-        return moduleID;
+    public Optional<String> getName() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<ModuleSymbol> getModule() {
+        return Optional.empty();
     }
 
     @Override
     public abstract String signature();
-
-    @Override
-    public String name() {
-        return "";
-    }
 
     @Override
     public SymbolKind kind() {
@@ -80,13 +75,13 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     }
 
     @Override
-    public Optional<Documentation> docAttachment() {
-        return Optional.ofNullable(this.docAttachment);
+    public Location location() {
+        return null;
     }
 
     @Override
-    public Location location() {
-        return null;
+    public Optional<Location> getLocation() {
+        return Optional.empty();
     }
 
     @Override
@@ -104,6 +99,25 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     public boolean assignableTo(TypeSymbol targetType) {
         Types types = Types.getInstance(this.context);
         return types.isAssignable(this.bType, getTargetBType(targetType));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof TypeSymbol)) {
+            return false;
+        }
+
+        Types types = Types.getInstance(this.context);
+        return types.isSameType(this.bType, ((AbstractTypeSymbol) obj).getBType());
+    }
+
+    @Override
+    public int hashCode() {
+        return this.bType.hashCode();
     }
 
     /**
@@ -139,10 +153,5 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         }
 
         return ((BallerinaClassSymbol) typeSymbol).getBType();
-    }
-
-    private Documentation getDocAttachment(BType bType) {
-        return (bType == null || bType.tsymbol == null) ? null
-                : new BallerinaDocumentation(bType.tsymbol.markdownDocumentation);
     }
 }

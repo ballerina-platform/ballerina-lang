@@ -17,38 +17,90 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.internal.DefaultDiagnosticResult;
-import io.ballerina.tools.diagnostics.Diagnostic;
-
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
 
 /**
  * Represents the 'Ballerina.toml' file in a package.
  *
  * @since 2.0.0
  */
-public class BallerinaToml extends TomlDocument {
+public class BallerinaToml {
 
-    private DiagnosticResult diagnostics;
+    private TomlDocumentContext ballerinaTomlContext;
+    private Package packageInstance;
 
-    private BallerinaToml(Path filePath) {
-        super(filePath);
+    private BallerinaToml(Package aPackage, TomlDocumentContext ballerinaTomlContext) {
+        this.packageInstance = aPackage;
+        this.ballerinaTomlContext = ballerinaTomlContext;
     }
 
-    public static BallerinaToml from(Path filePath) {
-        return new BallerinaToml(filePath);
+    public static BallerinaToml from(TomlDocumentContext ballerinaTomlContext, Package pkg) {
+        return new BallerinaToml(pkg, ballerinaTomlContext);
     }
 
-    public DiagnosticResult diagnostics() {
-        if (diagnostics != null) {
-            return diagnostics;
+    TomlDocumentContext ballerinaTomlContext() {
+        return ballerinaTomlContext;
+    }
+
+    public Package packageInstance() {
+        return packageInstance;
+    }
+
+
+    public String name() {
+        return ProjectConstants.BALLERINA_TOML;
+    }
+
+    public TomlTableNode tomlAstNode() {
+        return tomlDocument().toml().rootNode();
+    }
+
+    public TomlDocument tomlDocument() {
+        return this.ballerinaTomlContext.tomlDocument();
+    }
+
+
+    /** Returns an instance of the Document.Modifier.
+     *
+     * @return  module modifier
+     */
+    public BallerinaToml.Modifier modify() {
+        return new BallerinaToml.Modifier(this);
+    }
+
+    /**
+     * Inner class that handles Document modifications.
+     */
+    public static class Modifier {
+        private TomlDocument tomlDocument;
+        private Package oldPackage;
+
+        private Modifier(BallerinaToml oldDocument) {
+            this.tomlDocument = oldDocument.tomlDocument();
+            this.oldPackage = oldDocument.packageInstance();
         }
 
-        List<Diagnostic> diagnosticList = new ArrayList<>();
-        syntaxTree().diagnostics().forEach(diagnosticList::add);
-        diagnostics = new DefaultDiagnosticResult(diagnosticList);
-        return diagnostics;
+        /**
+         * Sets the content to be changed.
+         *
+         * @param content content to change with
+         * @return Document.Modifier that holds the content to be changed
+         */
+        public Modifier withContent(String content) {
+            this.tomlDocument = TomlDocument.from(ProjectConstants.BALLERINA_TOML, content);
+            return this;
+        }
+
+        /**
+         * Returns a new document with updated content.
+         *
+         * @return document with updated content
+         */
+        public BallerinaToml apply() {
+            BallerinaToml ballerinaToml = BallerinaToml.from(TomlDocumentContext.from(this.tomlDocument), oldPackage);
+            Package newPackage = oldPackage.modify().updateBallerinaToml(ballerinaToml).apply();
+            return newPackage.ballerinaToml().get();
+        }
     }
 }

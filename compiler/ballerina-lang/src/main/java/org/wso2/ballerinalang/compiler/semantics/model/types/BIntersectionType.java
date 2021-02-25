@@ -101,16 +101,6 @@ public class BIntersectionType extends BType implements IntersectionType {
         return joiner.toString();
     }
 
-    @Override
-    public boolean isAnydata() {
-        return this.effectiveType.isAnydata();
-    }
-
-    @Override
-    public boolean isPureType() {
-        return this.effectiveType.isPureType();
-    }
-
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         LinkedHashSet<BType> flatSet = new LinkedHashSet<>();
 

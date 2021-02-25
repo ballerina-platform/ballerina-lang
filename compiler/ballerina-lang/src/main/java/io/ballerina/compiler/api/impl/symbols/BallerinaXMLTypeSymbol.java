@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -39,12 +38,7 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
     private String typeName;
 
     public BallerinaXMLTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLType xmlType) {
-        super(context, TypeDescKind.XML, moduleID, xmlType);
-    }
-
-    public BallerinaXMLTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLSubType xmlSubType) {
-        super(context, TypeDescKind.XML, moduleID, xmlSubType);
-        this.typeName = xmlSubType.name.getValue();
+        super(context, TypeDescKind.XML, xmlType);
     }
 
     @Override
@@ -58,7 +52,7 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
     }
 
     @Override
-    public String name() {
+    public Optional<String> getName() {
         if (this.typeName == null) {
             BXMLType xmlType = (BXMLType) this.getBType();
             SymbolTable symbolTable = SymbolTable.getInstance(this.context);
@@ -66,15 +60,15 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
             if (xmlType == symbolTable.xmlType || this.typeParameter().isEmpty()) {
                 this.typeName = "xml";
             } else {
-                this.typeName = "xml<" + this.typeParameter().get().name() + ">";
+                this.typeName = "xml<" + this.typeParameter().get().getName().orElse("") + ">";
             }
         }
 
-        return this.typeName;
+        return Optional.of(this.typeName);
     }
 
     @Override
     public String signature() {
-        return name();
+        return getName().get();
     }
 }

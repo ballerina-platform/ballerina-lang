@@ -19,13 +19,14 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.AnnotationAttachPoint;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -44,15 +45,19 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
     private final List<Qualifier> qualifiers;
     private final TypeSymbol typeDescriptor;
     private final List<AnnotationAttachPoint> attachPoints;
+    private final List<AnnotationSymbol> annots;
+    private final Documentation docAttachment;
     private final boolean deprecated;
 
-    private BallerinaAnnotationSymbol(String name, PackageID moduleID, List<Qualifier> qualifiers,
-                                      TypeSymbol typeDescriptor, List<AnnotationAttachPoint> attachPoints,
-                                      BSymbol bSymbol) {
-        super(name, moduleID, SymbolKind.ANNOTATION, bSymbol);
+    private BallerinaAnnotationSymbol(String name, List<Qualifier> qualifiers, TypeSymbol typeDescriptor,
+                                      List<AnnotationAttachPoint> attachPoints, List<AnnotationSymbol> annots,
+                                      BSymbol bSymbol, CompilerContext context) {
+        super(name, SymbolKind.ANNOTATION, bSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.attachPoints = Collections.unmodifiableList(attachPoints);
+        this.annots = Collections.unmodifiableList(annots);
+        this.docAttachment = getDocAttachment(bSymbol);
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
     }
 
@@ -87,6 +92,16 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
     }
 
     @Override
+    public List<AnnotationSymbol> annotations() {
+        return this.annots;
+    }
+
+    @Override
+    public Optional<Documentation> documentation() {
+        return Optional.ofNullable(this.docAttachment);
+    }
+
+    @Override
     public boolean deprecated() {
         return this.deprecated;
     }
@@ -101,15 +116,16 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
         private final List<Qualifier> qualifiers = new ArrayList<>();
         private TypeSymbol typeDescriptor;
         private List<AnnotationAttachPoint> attachPoints;
+        private List<AnnotationSymbol> annots = new ArrayList<>();
 
-        public AnnotationSymbolBuilder(String name, PackageID moduleID, BAnnotationSymbol annotationSymbol) {
-            super(name, moduleID, SymbolKind.ANNOTATION, annotationSymbol);
-            withAnnotationSymbol(annotationSymbol);
+        public AnnotationSymbolBuilder(String name, BAnnotationSymbol annotationSymbol, CompilerContext context) {
+            super(name, SymbolKind.ANNOTATION, annotationSymbol, context);
+            withAttachPoints(annotationSymbol);
         }
 
         public BallerinaAnnotationSymbol build() {
-            return new BallerinaAnnotationSymbol(this.name, this.moduleID, this.qualifiers, this.typeDescriptor,
-                    this.attachPoints, this.bSymbol);
+            return new BallerinaAnnotationSymbol(this.name, this.qualifiers, this.typeDescriptor, this.attachPoints,
+                                                 this.annots, this.bSymbol, this.context);
         }
 
         /**
@@ -117,7 +133,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
          *
          * @param annotationSymbol annotation symbol to evaluate
          */
-        private void withAnnotationSymbol(BAnnotationSymbol annotationSymbol) {
+        private void withAttachPoints(BAnnotationSymbol annotationSymbol) {
             this.attachPoints = getAttachPoints(annotationSymbol.maskedPoints);
         }
 
@@ -128,6 +144,11 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
 
         public AnnotationSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
             this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
+        public AnnotationSymbolBuilder withAnnotation(AnnotationSymbol annot) {
+            this.annots.add(annot);
             return this;
         }
 

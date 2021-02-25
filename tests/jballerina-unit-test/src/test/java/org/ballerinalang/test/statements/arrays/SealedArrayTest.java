@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -422,5 +423,13 @@ public class SealedArrayTest {
     @Test
     public void createConstLiteralAutoFilledSealedArray() {
         BRunUtil.invoke(compileResult, "createConstLiteralAutoFilledSealedArray");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        resultNegative = null;
+        semanticsNegative = null;
+        listExprNegative = null;
     }
 }

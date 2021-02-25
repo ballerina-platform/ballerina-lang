@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langserver.completions;
 
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -31,8 +31,8 @@ public class StaticCompletionItem extends AbstractLSCompletionItem {
     
     private final Kind kind;
 
-    public StaticCompletionItem(CompletionContext lsContext, CompletionItem completionItem, Kind kind) {
-        super(lsContext, completionItem);
+    public StaticCompletionItem(BallerinaCompletionContext lsContext, CompletionItem completionItem, Kind kind) {
+        super(lsContext, completionItem, CompletionItemType.STATIC);
         this.kind = kind;
     }
 

@@ -110,11 +110,6 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     @Override
-    public final boolean isAnydata() {
-        return this.eType.isPureType();
-    }
-
-    @Override
     public BIntersectionType getImmutableType() {
         return this.immutableType;
     }

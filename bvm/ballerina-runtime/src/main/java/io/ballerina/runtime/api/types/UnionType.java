@@ -27,4 +27,6 @@ import java.util.List;
 public interface UnionType extends Type {
 
     List<Type> getMemberTypes();
+
+    boolean isCyclic();
 }

@@ -18,11 +18,11 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class VariableDeclarationNodeContext extends VariableDeclarationProvider<VariableDeclarationNode> {
 
     public VariableDeclarationNodeContext() {
@@ -38,17 +38,21 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, VariableDeclarationNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, VariableDeclarationNode node)
             throws LSCompletionException {
         if (node.initializer().isEmpty()) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
-        return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
+        List<LSCompletionItem> completionItems
+                = this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, VariableDeclarationNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, VariableDeclarationNode node) {
         if (node.equalsToken().isEmpty()) {
             return false;
         }

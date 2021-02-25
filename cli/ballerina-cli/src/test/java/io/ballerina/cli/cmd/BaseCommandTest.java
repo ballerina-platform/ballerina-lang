@@ -18,9 +18,9 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.BLauncherException;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.tool.BLauncherCmd;
-import org.ballerinalang.tool.BLauncherException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;

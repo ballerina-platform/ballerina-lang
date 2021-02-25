@@ -18,17 +18,17 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<ArrayTypeDescriptorNode> {
 
     public ArrayTypeDescriptorNodeContext() {
@@ -47,22 +47,24 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ArrayTypeDescriptorNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ArrayTypeDescriptorNode node) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<Node> arrayLength = node.arrayLength();
+        List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (arrayLength.isPresent() && this.onQualifiedNameIdentifier(context, arrayLength.get())) {
             QualifiedNameReferenceNode qName = (QualifiedNameReferenceNode) arrayLength.get();
             List<Symbol> moduleConstants = QNameReferenceUtil.getModuleContent(context, qName, constantFilter());
 
-            return this.getCompletionItemList(moduleConstants, context);
+            completionItems.addAll(this.getCompletionItemList(moduleConstants, context));
+        } else {
+            List<Symbol> constants = visibleSymbols.stream()
+                    .filter(constantFilter())
+                    .collect(Collectors.toList());
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.addAll(this.getCompletionItemList(constants, context));
         }
-
-        List<Symbol> constants = visibleSymbols.stream()
-                .filter(constantFilter())
-                .collect(Collectors.toList());
-        List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
-        completionItems.addAll(this.getCompletionItemList(constants, context));
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
@@ -74,7 +76,7 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
             }
 
             TypeSymbol constExprType = ((ConstantSymbol) symbol).broaderTypeDescriptor();
-            return constExprType != null && constExprType.typeKind() == TypeDescKind.INT;
+            return constExprType != null && constExprType.typeKind().isIntegerType();
         };
     }
 }

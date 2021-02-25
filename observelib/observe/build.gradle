@@ -17,15 +17,9 @@
 
 apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
-configurations.testCompileClasspath {
-    resolutionStrategy {
-        preferProjectModules()
-    }
-}
-
 dependencies {
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-lang:java')
+    implementation project(':ballerina-lang:jballerina.java')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
@@ -36,7 +30,7 @@ dependencies {
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils')
-    testCompile project(':ballerina-tool')
+    testCompile project(':ballerina-cli')
     testCompile project(':ballerina-runtime')
     testCompile project(':ballerina-test-common')
     testCompile project(':ballerina-core')

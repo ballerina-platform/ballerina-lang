@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -52,4 +53,8 @@ public class DynamicControlStackTest {
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 50125000);
     }
 
+    @AfterClass
+    public void tearDown() {
+        result = null;
+    }
 }

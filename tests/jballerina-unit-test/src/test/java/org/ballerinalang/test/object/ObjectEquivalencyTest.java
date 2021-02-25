@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -55,8 +56,8 @@ public class ObjectEquivalencyTest {
 
     @Test(description = "Test equivalence of public objects that are in the same package. " +
             "Equivalency test is performed in another package.")
-    public void testEqOfPublicObjectsInBalo() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjectsInBalo");
+    public void testEqOfPublicObjectsInBala() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjectsInBala");
         Assert.assertEquals(returns[0].stringValue(), "234-56-7890:employee");
     }
 
@@ -149,5 +150,10 @@ public class ObjectEquivalencyTest {
     @Test
     public void testSubtypingBetweenNonClientAndClientObject() {
         BRunUtil.invoke(compileResult, "testSubtypingBetweenNonClientAndClientObject");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public class Person {
 
@@ -80,12 +80,17 @@ public class Person {
     } external;
 
     function newInteger(int value) returns handle = @java:Constructor {
-        'class:"java.lang.Integer"
+        'class:"java.lang.Integer",
+        paramTypes: ["int"]
     } external;
 
      public function floor(float a) returns float = @java:Method {
              'class: "java/lang/Math"
      } external;
+
+    function getDefaultValueWithBEnvForObject(int a = 2021) returns int  = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    } external;
 }
 
 function getBIntFromJInt(handle receiver) returns int = @java:Method {
@@ -129,6 +134,9 @@ public function testInteropsInsideObject() {
     // Test get current Module
     string moduleString =  p.getCurrentModuleForObject(4);
     assertEquality(moduleString, "$anon#.#0.0.0#12#4");
+
+    int defaultValue = p.getDefaultValueWithBEnvForObject();
+    assertEquality(defaultValue, 2021);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
@@ -140,6 +148,9 @@ function assertEquality(any|error expected, any|error actual) {
     if expected === actual {
         return;
     }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "found '" + expected.toString() + "', expected '" + actual.toString () + "'");
+                message = "found '" + expectedValAsString + "', expected '" + actualValAsString + "'");
 }

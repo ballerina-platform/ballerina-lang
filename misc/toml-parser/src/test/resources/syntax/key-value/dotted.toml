@@ -1,0 +1,33 @@
+key = "no quote"
+"key" = "quoted key" #Should come to the tree but give error with semantic analyzer
+site."google.com" = true
+
+apple.type = "fruit"
+orange.type = "fruit"
+
+apple.skin = "thin"
+orange.skin = "thick"
+
+apple.color = "red"
+orange.color = "orange"
+foo.bar = "test"
+
+[table]
+hi = "hii"
+"foo bar" = "boo"
+[table.hello]
+child = "new"
+
+[[cloud.config.envs]]
+config_name= "module-foo"
+key= "FOO"
+
+[[cloud.config.envs]]
+name= "bar"
+config_name= "module-bar"
+key= "BAR"
+
+[root]
+first.second = "value"
+first.third = "value1"
+

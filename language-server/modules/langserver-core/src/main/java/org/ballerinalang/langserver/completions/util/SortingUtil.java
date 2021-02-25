@@ -30,11 +30,12 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
@@ -54,6 +55,9 @@ public class SortingUtil {
     private static final int RANK_LOWER_BOUNDARY = 90;
 
     private static final int RANK_RANGE = 25;
+
+    private SortingUtil() {
+    }
 
     /**
      * Check whether the item is an associated module completion item.
@@ -89,7 +93,7 @@ public class SortingUtil {
      * @param item    completion item to evaluate
      * @return {@link String} rank assigned to the completion item
      */
-    public static String genSortTextForModule(CompletionContext context, LSCompletionItem item) {
+    public static String genSortTextForModule(BallerinaCompletionContext context, LSCompletionItem item) {
         /*
         Sorting order is defined as follows,
         (1) Current project's modules
@@ -203,11 +207,11 @@ public class SortingUtil {
      * @param owner   Owner node to extract the assignable type
      * @return {@link Optional} assignable type
      */
-    public static Optional<TypeSymbol> getAssignableType(CompletionContext context, Node owner) {
+    public static Optional<TypeSymbol> getAssignableType(BallerinaCompletionContext context, Node owner) {
         Optional<Node> typeDesc;
         switch (owner.kind()) {
             case LISTENER_DECLARATION:
-                typeDesc = Optional.ofNullable(((ListenerDeclarationNode) owner).typeDescriptor());
+                typeDesc = Optional.ofNullable(((ListenerDeclarationNode) owner).typeDescriptor().orElse(null));
                 break;
             case LOCAL_VAR_DECL:
                 typeDesc = Optional.ofNullable(((VariableDeclarationNode) owner).typedBindingPattern()
@@ -240,7 +244,7 @@ public class SortingUtil {
         if (typeDesc.get().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String nameRef = ((SimpleNameReferenceNode) typeDesc.get()).name().text();
             for (Symbol symbol : visibleSymbols) {
-                if (symbol.kind() == SymbolKind.TYPE_DEFINITION && symbol.name().equals(nameRef)) {
+                if (symbol.kind() == SymbolKind.TYPE_DEFINITION && symbol.getName().get().equals(nameRef)) {
                     TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol;
                     return Optional.of(typeDefinitionSymbol.typeDescriptor());
                 }
@@ -249,5 +253,86 @@ public class SortingUtil {
         }
 
         return Optional.empty();
+    }
+
+    public static void toDefaultSorting(BallerinaCompletionContext context, List<LSCompletionItem> completionItems) {
+        for (LSCompletionItem item : completionItems) {
+            int rank;
+            CompletionItemKind completionItemKind = item.getCompletionItem().getKind();
+            if (completionItemKind == null) {
+                // TODO: Added for failsafe
+                rank = 17;
+            } else {
+                switch (item.getType()) {
+                    case SYMBOL:
+                        switch (completionItemKind) {
+                            case Constant:
+                                rank = 1;
+                                break;
+                            case Variable:
+                                rank = 2;
+                                break;
+                            case Function:
+                                rank = 3;
+                                break;
+                            case Method:
+                                rank = 4;
+                                break;
+                            case Constructor:
+                                rank = 5;
+                                break;
+                            case EnumMember:
+                                rank = 8;
+                                break;
+                            case Enum:
+                                rank = 9;
+                                break;
+                            case Class:
+                                rank = 10;
+                                break;
+                            case Interface:
+                                rank = 11;
+                                break;
+                            case Struct:
+                                rank = 12;
+                                break;
+                            case TypeParameter:
+                                rank = 13;
+                                break;
+                            case Module:
+                                rank = 14;
+                                break;
+                            default:
+                                rank = 17;
+                        }
+                        break;
+                    case SNIPPET:
+                        switch (completionItemKind) {
+                            case TypeParameter:
+                                rank = 13;
+                                break;
+                            case Snippet:
+                                rank = 15;
+                                break;
+                            case Keyword:
+                                rank = 16;
+                                break;
+                            default:
+                                rank = 17;
+                        }
+                        break;
+                    case OBJECT_FIELD:
+                        rank = 6;
+                        break;
+                    case RECORD_FIELD:
+                        rank = 7;
+                        break;
+                    default:
+                        rank = 17;
+                        break;
+                }
+            }
+            item.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+        }
     }
 }

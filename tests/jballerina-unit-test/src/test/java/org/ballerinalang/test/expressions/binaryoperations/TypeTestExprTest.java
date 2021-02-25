@@ -51,7 +51,7 @@ public class TypeTestExprTest {
     public void testTypeTestExprNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/expressions/binaryoperations/type-test-expr-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 37);
+        Assert.assertEquals(negativeResult.getErrorCount(), 42);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 19, 9);
@@ -125,9 +125,24 @@ public class TypeTestExprTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 246, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 9);
-        BAssertUtil.validateError(negativeResult, i,
+        BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(string|int)' will not be matched to '(float|boolean)'",
                 262, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'",
+                271, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'",
+                272, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'",
+                273, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'",
+                274, 9);
+        BAssertUtil.validateError(negativeResult, i,
+                "incompatible types: 'xml' will not be matched to 'string'",
+                275, 9);
     }
 
     @Test
@@ -361,6 +376,16 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+    }
+
+    @Test
+    public void testXMLNeverType() {
+        BRunUtil.invoke(result, "testXMLNeverType");
+    }
+
+    @Test
+    public void testXMLTextType() {
+        BRunUtil.invoke(result, "testXMLTextType");
     }
 
     @Test

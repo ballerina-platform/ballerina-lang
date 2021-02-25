@@ -17,18 +17,21 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a ballerina variable.
@@ -38,17 +41,18 @@ import java.util.List;
 public class BallerinaVariableSymbol extends BallerinaSymbol implements VariableSymbol {
 
     private final List<Qualifier> qualifiers;
+    private final List<AnnotationSymbol> annots;
+    private final Documentation docAttachment;
     private final TypeSymbol typeDescriptorImpl;
     private final boolean deprecated;
 
-    protected BallerinaVariableSymbol(String name,
-                                      PackageID moduleID,
-                                      SymbolKind ballerinaSymbolKind,
-                                      List<Qualifier> qualifiers,
-                                      TypeSymbol typeDescriptorImpl,
-                                      BSymbol bSymbol) {
-        super(name, moduleID, ballerinaSymbolKind, bSymbol);
+    protected BallerinaVariableSymbol(String name, SymbolKind ballerinaSymbolKind, List<Qualifier> qualifiers,
+                                      List<AnnotationSymbol> annots, TypeSymbol typeDescriptorImpl, BSymbol bSymbol,
+                                      CompilerContext context) {
+        super(name, ballerinaSymbolKind, bSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.annots = Collections.unmodifiableList(annots);
+        this.docAttachment = getDocAttachment(bSymbol);
         this.typeDescriptorImpl = typeDescriptorImpl;
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
     }
@@ -78,26 +82,33 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
         return this.deprecated;
     }
 
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return this.annots;
+    }
+
+    @Override
+    public Optional<Documentation> documentation() {
+        return Optional.ofNullable(this.docAttachment);
+    }
+
     /**
-     * Represents Ballerina XML Namespace Symbol Builder.
+     * Represents Ballerina Variable Symbol Builder.
      */
     public static class VariableSymbolBuilder extends SymbolBuilder<VariableSymbolBuilder> {
 
         protected List<Qualifier> qualifiers = new ArrayList<>();
+        protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
-        public VariableSymbolBuilder(String name, PackageID moduleID, BSymbol bSymbol) {
-            super(name, moduleID, SymbolKind.VARIABLE, bSymbol);
+        public VariableSymbolBuilder(String name, BSymbol bSymbol, CompilerContext context) {
+            super(name, SymbolKind.VARIABLE, bSymbol, context);
         }
 
         @Override
         public BallerinaVariableSymbol build() {
-            return new BallerinaVariableSymbol(this.name,
-                    this.moduleID,
-                    this.ballerinaSymbolKind,
-                    this.qualifiers,
-                    this.typeDescriptor,
-                    this.bSymbol);
+            return new BallerinaVariableSymbol(this.name, this.ballerinaSymbolKind, this.qualifiers,
+                                               this.annots, this.typeDescriptor, this.bSymbol, this.context);
         }
 
         public VariableSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
@@ -107,6 +118,11 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
 
         public VariableSymbolBuilder withQualifier(Qualifier qualifier) {
             this.qualifiers.add(qualifier);
+            return this;
+        }
+
+        public VariableSymbolBuilder withAnnotation(AnnotationSymbol annot) {
+            this.annots.add(annot);
             return this;
         }
     }

@@ -212,6 +212,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     public static class BLangActionInvocation extends BLangInvocation implements ActionNode {
 
         public boolean remoteMethodCall = false;
+        public boolean invokedInsideTransaction = false;
 
         public BLangActionInvocation() {
         }

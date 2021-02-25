@@ -103,6 +103,11 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
         testFile("class-def/class_def_source_12.bal", "class-def/class_def_assert_12.json");
     }
 
+    @Test
+    public void testServiceQualifier() {
+        testFile("class-def/class_def_source_15.bal", "class-def/class_def_assert_15.json");
+    }
+
     // Recovery tests
 
     @Test

@@ -32,12 +32,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -66,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -116,7 +119,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -321,6 +327,13 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        rewrite(errorConstructorExpr.positionalArgs);
+        rewrite(errorConstructorExpr.namedArgs);
+        result = errorConstructorExpr;
+    }
+
+    @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInv) {
         actionInv.expr = rewrite(actionInv.expr);
         rewrite(actionInv.requiredArgs);
@@ -503,8 +516,23 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorMatchPattern errorMatchPattern) {
+        result = errorMatchPattern;
+    }
+
+    @Override
     public void visit(BLangListMatchPattern listMatchPattern) {
         result = listMatchPattern;
+    }
+
+    @Override
+    public void visit(BLangMappingMatchPattern mappingMatchPattern) {
+        result = mappingMatchPattern;
+    }
+
+    @Override
+    public void visit(BLangFieldMatchPattern fieldMatchPattern) {
+        result = fieldMatchPattern;
     }
 
     @Override
@@ -763,6 +791,18 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangTupleVariable bLangTupleVariable) {
         bLangTupleVariable.expr = rewrite(bLangTupleVariable.expr);
         result = bLangTupleVariable;
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+        bLangRecordVariable.expr = rewrite(bLangRecordVariable.expr);
+        result = bLangRecordVariable;
+    }
+
+    @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        bLangErrorVariable.expr = rewrite(bLangErrorVariable.expr);
+        result = bLangErrorVariable;
     }
 
     @Override

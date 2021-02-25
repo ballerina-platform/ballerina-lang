@@ -24,9 +24,6 @@ type Person2 object {
 
     int year;
     string month;
-
-    function init () {
-    }
 };
 
 // Non-abstract object with a function that has no implementation

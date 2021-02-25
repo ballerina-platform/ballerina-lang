@@ -49,11 +49,6 @@ public class XMLRefsTest extends FindAllReferencesTest {
     }
 
     @Override
-    public String getFileName() {
-        return "find_ref_xml_context.bal";
-    }
-
-    @Override
     public String getTestSourcePath() {
         return "test-src/find-all-ref/find_ref_xml_context.bal";
     }

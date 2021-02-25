@@ -24,11 +24,6 @@ import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
  * @since 0.983.0
  */
 public interface LSCommandExecutor {
-
-    String ARG_KEY = "argumentK";
-
-    String ARG_VALUE = "argumentV";
-
     /**
      * Execute the Command.
      * @param context           Language Server Context.

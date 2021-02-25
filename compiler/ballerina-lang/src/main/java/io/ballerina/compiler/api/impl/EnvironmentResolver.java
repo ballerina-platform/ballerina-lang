@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -75,7 +76,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -220,7 +223,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.getServiceClass().symbol.scope,
                     this.symbolEnv);
             this.scope = serviceEnv;
-            serviceNode.getResources().forEach(function -> this.acceptNode(function, serviceEnv));
+            serviceNode.getServiceClass().getFunctions().forEach(function -> this.acceptNode(function, serviceEnv));
             return;
         }
         serviceNode.annAttachments.forEach(annotation -> this.acceptNode(annotation, this.symbolEnv));
@@ -381,6 +384,17 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
+            this.acceptNode(positionalArg, this.symbolEnv);
+        }
+
+        for (BLangNamedArgsExpression namedArg : errorConstructorExpr.namedArgs) {
+            this.acceptNode(namedArg, this.symbolEnv);
+        }
+    }
+
+    @Override
     public void visit(BLangIf ifNode) {
         if (PositionUtil.withinBlock(this.linePosition, ifNode.getBody().getPosition())) {
             this.scope = this.symbolEnv;
@@ -397,16 +411,16 @@ public class EnvironmentResolver extends BLangNodeVisitor {
         if (PositionUtil.withinBlock(this.linePosition, whileNode.getPosition())) {
             this.scope = this.symbolEnv;
             this.acceptNode(whileNode.body, this.symbolEnv);
+            this.acceptNode(whileNode.onFailClause, symbolEnv);
         }
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, this.symbolEnv);
-        this.acceptNode(transactionNode.transactionBody, transactionEnv);
-
-        if (transactionNode.transactionBody != null) {
+        if (PositionUtil.withinBlock(this.linePosition, transactionNode.getPosition())) {
+            SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, this.symbolEnv);
             this.acceptNode(transactionNode.transactionBody, transactionEnv);
+            this.acceptNode(transactionNode.onFailClause, symbolEnv);
         }
     }
 
@@ -448,11 +462,13 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangLock lockNode) {
         this.acceptNode(lockNode.body, symbolEnv);
+        this.acceptNode(lockNode.onFailClause, symbolEnv);
     }
 
     @Override
     public void visit(BLangForeach foreach) {
         this.acceptNode(foreach.body, symbolEnv);
+        this.acceptNode(foreach.onFailClause, symbolEnv);
     }
 
     @Override
@@ -460,6 +476,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
         if (PositionUtil.withinBlock(this.linePosition, matchNode.getPosition())) {
             this.scope = this.symbolEnv;
             matchNode.patternClauses.forEach(patternClause -> acceptNode(patternClause, this.symbolEnv));
+            this.acceptNode(matchNode.onFailClause, symbolEnv);
         }
     }
 
@@ -544,12 +561,21 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
+        if (!PositionUtil.withinBlock(this.linePosition, queryAction.getPosition())) {
+            return;
+        }
+        for (BLangNode clause : queryAction.queryClauseList) {
+            this.acceptNode(clause, symbolEnv);
+        }
         this.acceptNode(queryAction.doClause, symbolEnv);
     }
 
     @Override
     public void visit(BLangDoClause doClause) {
-        this.acceptNode(doClause.body, symbolEnv);
+        if (PositionUtil.withinBlock(this.linePosition, doClause.getPosition())) {
+            this.scope = doClause.env;
+            this.acceptNode(doClause.body, doClause.env);
+        }
     }
 
     @Override
@@ -585,22 +611,37 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
-
+        if (PositionUtil.withinBlock(this.linePosition, fromClause.getPosition())) {
+            this.scope = fromClause.env;
+            this.acceptNode((BLangNode) fromClause.variableDefinitionNode, fromClause.env);
+            this.acceptNode(fromClause.collection, fromClause.env);
+        }
     }
 
     @Override
     public void visit(BLangLetClause letClause) {
-
+        if (PositionUtil.withinBlock(this.linePosition, letClause.getPosition())) {
+            this.scope = letClause.env;
+            for (BLangLetVariable letVar : letClause.letVarDeclarations) {
+                this.acceptNode((BLangNode) letVar.definitionNode, letClause.env);
+            }
+        }
     }
 
     @Override
     public void visit(BLangSelectClause selectClause) {
-
+        if (PositionUtil.withinBlock(this.linePosition, selectClause.getPosition())) {
+            this.scope = selectClause.env;
+            this.acceptNode(selectClause.expression, selectClause.env);
+        }
     }
 
     @Override
     public void visit(BLangWhereClause whereClause) {
-
+        if (PositionUtil.withinBlock(this.linePosition, whereClause.getPosition())) {
+            this.scope = whereClause.env;
+            this.acceptNode(whereClause.expression, whereClause.env);
+        }
     }
 
     @Override
@@ -829,7 +870,9 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-
+        for (BLangNode clause : queryExpr.queryClauseList) {
+            this.acceptNode(clause, symbolEnv);
+        }
     }
 
     @Override
@@ -1109,7 +1152,10 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangDo doNode) {
-        this.acceptNode(doNode.body, symbolEnv);
+        if (PositionUtil.withinBlock(this.linePosition, doNode.getPosition())) {
+            this.acceptNode(doNode.body, symbolEnv);
+            this.acceptNode(doNode.onFailClause, symbolEnv);
+        }
     }
 
     @Override
@@ -1127,10 +1173,17 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
+        if (PositionUtil.withinBlock(this.linePosition, retryNode.getPosition())) {
+            this.acceptNode(retryNode.retryBody, symbolEnv);
+            this.acceptNode(retryNode.onFailClause, symbolEnv);
+        }
     }
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
+        if (PositionUtil.withinBlock(this.linePosition, retryTransaction.getPosition())) {
+            this.acceptNode(retryTransaction.transaction, symbolEnv);
+        }
     }
 
     @Override
@@ -1167,10 +1220,29 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJoinClause joinClause) {
+        if (!PositionUtil.withinBlock(this.linePosition, joinClause.getPosition())) {
+            return;
+        }
+        this.scope = joinClause.env;
+        this.acceptNode(joinClause.collection, joinClause.env);
+        this.acceptNode((BLangNode) joinClause.onClause, joinClause.env);
     }
 
     @Override
     public void visit(BLangOnClause onClause) {
+        if (PositionUtil.withinBlock(this.linePosition, onClause.getPosition())) {
+            if (onClause.equalsKeywordPos == null ||
+                    onClause.equalsKeywordPos.lineRange().startLine().offset() > this.linePosition.offset()) {
+                this.scope = onClause.lhsEnv;
+                this.acceptNode(onClause.lhsExpr, onClause.lhsEnv);
+
+            }
+            if (onClause.equalsKeywordPos != null && onClause.equalsKeywordPos
+                    .lineRange().endLine().offset() < this.linePosition.offset()) {
+                this.scope = onClause.rhsEnv;
+                this.acceptNode(onClause.rhsExpr, onClause.rhsEnv);
+            }
+        }
     }
 
     @Override
@@ -1179,10 +1251,17 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOrderByClause orderByClause) {
+        if (PositionUtil.withinBlock(this.linePosition, orderByClause.getPosition())) {
+            this.scope = orderByClause.env;
+            for (OrderKeyNode key: orderByClause.orderByKeyList) {
+                this.acceptNode((BLangNode) key.getOrderKey(), orderByClause.env);
+            }
+        }
     }
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
+        this.acceptNode(onFailClause.body, this.symbolEnv);
     }
 
     @Override

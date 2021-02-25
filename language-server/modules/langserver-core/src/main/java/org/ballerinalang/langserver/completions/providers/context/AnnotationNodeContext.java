@@ -32,7 +32,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.AnnotationUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class AnnotationNodeContext extends AbstractCompletionProvider<AnnotationNode> {
 
     public AnnotationNodeContext() {
@@ -54,7 +54,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, AnnotationNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, AnnotationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         SyntaxKind attachedNode = this.getParentSyntaxKind(node);
 
@@ -70,40 +70,44 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
         if (this.onQualifiedNameIdentifier(context, node.annotReference())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.annotReference();
-            return this.getAnnotationsInModule(context, qNameRef.modulePrefix().text(), attachedNode);
+            completionItems.addAll(this.getAnnotationsInModule(context, qNameRef.modulePrefix().text(), attachedNode));
+        } else {
+            // Fixme Temporarily disabled the caching usage
+//        LSAnnotationCache.getInstance().getAnnotationMapForSyntaxKind(attachedNode, context)
+//                .forEach((key, value) -> value.forEach(annotation -> {
+//                    LSCompletionItem cItem;
+//                    if (this.addAlias(context, node, key)) {
+//                        cItem = AnnotationUtil.getModuleQualifiedAnnotationItem(key, annotation, context);
+//                    } else {
+//                        cItem = AnnotationUtil.getAnnotationItem(annotation, context);
+//                    }
+//                    completionItems.add(cItem);
+//                }));
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.addAll(this.getCurrentModuleAnnotations(context, attachedNode));
         }
-
-        LSAnnotationCache.getInstance().getAnnotationMapForSyntaxKind(attachedNode, context)
-                .forEach((key, value) -> value.forEach(annotation -> {
-                    LSCompletionItem cItem;
-                    if (this.addAlias(context, node, key)) {
-                        cItem = AnnotationUtil.getModuleQualifiedAnnotationItem(key, annotation, context);
-                    } else {
-                        cItem = AnnotationUtil.getAnnotationItem(annotation, context);
-                    }
-                    completionItems.add(cItem);
-                }));
-        completionItems.addAll(this.getCurrentModuleAnnotations(context, attachedNode));
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
 
-    private List<LSCompletionItem> getCurrentModuleAnnotations(CompletionContext ctx, SyntaxKind kind) {
+    private List<LSCompletionItem> getCurrentModuleAnnotations(BallerinaCompletionContext ctx, SyntaxKind kind) {
         List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
         return visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
                         && this.matchingAnnotation((AnnotationSymbol) symbol, kind)
-                        && !CommonUtil.isLangLib(symbol.moduleID()))
+                        && !CommonUtil.isLangLib(symbol.getModule().get().id()))
                 .map(symbol -> AnnotationUtil.getAnnotationItem((AnnotationSymbol) symbol, ctx))
                 .collect(Collectors.toList());
     }
 
-    private List<LSCompletionItem> getAnnotationsInModule(CompletionContext context, String alias, SyntaxKind kind) {
+    private List<LSCompletionItem> getAnnotationsInModule(BallerinaCompletionContext context, String alias,
+                                                          SyntaxKind kind) {
         Optional<ModuleSymbol> moduleEntry = CommonUtil.searchModuleForAlias(context, alias);
         if (moduleEntry.isEmpty()) {
             List<LSCompletionItem> completionItems = new ArrayList<>();
             // Import statement has not been added. Hence try resolving from the annotation cache
-            LSAnnotationCache.getInstance().getAnnotationsInModule(context, alias, kind)
+            LSAnnotationCache.getInstance(context.languageServercontext()).getAnnotationsInModule(context, alias, kind)
                     .forEach((key, value) -> value.forEach(annotation -> {
                         completionItems.add(AnnotationUtil.getAnnotationItem(annotation, context));
                     }));
@@ -183,11 +187,11 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, AnnotationNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, AnnotationNode node) {
         return !node.atToken().isMissing();
     }
 
-    private boolean addAlias(CompletionContext context, AnnotationNode node, ModuleID annotationOwner) {
+    private boolean addAlias(BallerinaCompletionContext context, AnnotationNode node, ModuleID annotationOwner) {
         Optional<Module> currentModule = context.workspace().module(context.filePath());
         if (currentModule.isEmpty()) {
             return false;

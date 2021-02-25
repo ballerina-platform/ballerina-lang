@@ -67,7 +67,7 @@ public class ForeachJSONTests {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'map<json>'.*")
     public void testJSONString() {
-        String result = "{ballerina}ConversionError {\"message\":\"'string' value " 
+        String result = "{ballerina}ConversionError {\"message\":\"'string' value "
                 + "cannot be converted to 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONString");
         Assert.assertEquals(returns.length, 1);
@@ -77,7 +77,7 @@ public class ForeachJSONTests {
     @Test(expectedExceptions =  BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'map<json>'.*")
     public void testJSONNumber() {
-        String result = "{ballerina}ConversionError {\"message\":\"'int' value cannot" 
+        String result = "{ballerina}ConversionError {\"message\":\"'int' value cannot"
                 + " be converted to 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONNumber");
         Assert.assertEquals(returns.length, 1);
@@ -95,12 +95,11 @@ public class ForeachJSONTests {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'map<json>'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"Key 'city'" +
+                    " not found in JSON mapping\"\\}\n" +
+                    "\tat foreach-json:testJSONNull\\(foreach-json.bal:79\\)")
     public void testJSONNull() {
-        String result = "{ballerina}ConversionError {\"message\":\"cannot convert 'null' value to type 'map<json>'\"}";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONNull");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        BRunUtil.invoke(program, "testJSONNull");
     }
 
     @Test(enabled = false)

@@ -9,22 +9,23 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "rec1f1",
       "kind": "Field",
-      "detail": "Field",
-      "sortText": "120",
+      "detail": "RecordName2",
+      "sortText": "G",
       "insertText": "rec1f1: {\n\trec2f1: ${1:0},\n\trec2f2: ${1:0}\n}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "rec1f2",
       "kind": "Field",
-      "detail": "Field",
-      "sortText": "120",
+      "detail": "int",
+      "sortText": "G",
       "insertText": "rec1f2: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -32,7 +33,7 @@
       "label": "Add All Attributes",
       "kind": "Property",
       "detail": "none",
-      "sortText": "110",
+      "sortText": "Q",
       "insertText": "rec1f1: {},\nrec1f2: 0",
       "insertTextFormat": "Snippet"
     }

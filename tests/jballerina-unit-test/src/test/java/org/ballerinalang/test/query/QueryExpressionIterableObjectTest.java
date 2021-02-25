@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -115,5 +116,10 @@ public class QueryExpressionIterableObjectTest {
         Assert.assertEquals(array.getInt(i++), 3);
         Assert.assertEquals(array.getInt(i++), 4);
         Assert.assertEquals(array.getInt(i), 5);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        program = null;
     }
 }

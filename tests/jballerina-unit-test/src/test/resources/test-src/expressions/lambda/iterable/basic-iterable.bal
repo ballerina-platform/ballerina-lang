@@ -1,6 +1,5 @@
 import ballerina/lang.'float as floats;
 import ballerina/lang.'int as ints;
-import ballerina/lang.'xml;
 
 int add = 0;
 int index = 0;
@@ -150,7 +149,7 @@ function xmlTest() returns [int, int, xml] {
                                 if x is 'xml:Element {
                                     return x;
                                 }
-                                return "*ws*";
+                                return xml ``;
                      });
     return [nodeCount, elementCount, m];
 }

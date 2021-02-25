@@ -91,7 +91,7 @@ public function functionWithForEach() {
         }
     }
 
-    json[] colors = <json[]>apple.colors;
+    json[] colors = <json[]> (checkpanic apple.colors);
     int counter = 0;
     foreach var j in colors {
         counter += 1;

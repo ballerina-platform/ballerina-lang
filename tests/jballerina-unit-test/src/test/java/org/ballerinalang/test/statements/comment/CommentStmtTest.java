@@ -19,6 +19,7 @@ package org.ballerinalang.test.statements.comment;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -55,5 +56,11 @@ public class CommentStmtTest {
         statements = ((BLangBlockFunctionBody) compiledPackage.functions.get(1).body).getStatements();
         Assert.assertNotNull(statements, "statements not found");
         Assert.assertEquals(statements.size(), 3, "statement count mismatched");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        compiledPackage = null;
     }
 }

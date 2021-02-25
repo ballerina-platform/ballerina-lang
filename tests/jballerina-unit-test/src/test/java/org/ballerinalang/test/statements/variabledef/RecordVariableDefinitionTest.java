@@ -30,6 +30,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -273,8 +274,8 @@ public class RecordVariableDefinitionTest {
     public void testRecordVariableWithOnlyRestParam() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordVariableWithOnlyRestParam");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\", \"age\":{\"age\":30, \"format\":\"YY\", " +
-                "\"year\":1990}, \"married\":true, \"work\":\"SE\"}");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"name\":\"John\", \"age\":{age:30, format:\"YY\", year:1990}, \"married\":true, \"work\":\"SE\"}");
     }
 
     @Test(description = "Test record variables rest param types", enabled = false)
@@ -321,5 +322,11 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 158, 19);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

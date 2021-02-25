@@ -14,12 +14,22 @@
  * limitations under the License.
  *
  */
+import org.apache.tools.ant.taskdefs.condition.Os
+
 apply plugin: 'base'
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
-description = 'Ballerina - Testerina Test'
-
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    distributionBala
+    distributionBirJar
+    balRt
+    testRt
+    testCore
+}
 
 dependencies {
     testCompile 'org.testng:testng'
@@ -30,14 +40,57 @@ dependencies {
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-lang')
     testRuntime project(':ballerina-runtime')
+
+    testRuntime project(":ballerina-lang-test")
+    balRt project(':ballerina-rt')
+    testRt project(':testerina:testerina-runtime')
+    testCore project(':testerina:testerina-core')
+}
+
+task createTestDistributionCache(type: Copy) {
+    dependsOn configurations.distributionBala
+    from configurations.distributionBala
+    into "$buildDir/repo"
+}
+
+task createTestBre(type: Copy) {
+    from configurations.balRt
+    from configurations.testRt
+    from configurations.testCore
+    from configurations.distributionBirJar
+    into "$buildDir/bre/lib"
 }
 
 test {
     dependsOn ':ballerina-lang:build'
+    dependsOn createTestDistributionCache
+    dependsOn createTestBre
+
+    if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+        finalizedBy jacocoTestReport
+    }
+
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+task jacocoMergeTest(type: JacocoMerge) {
+    dependsOn ':ballerina-lang:build'
+    String langProjectBuildDir = project(":ballerina-lang").buildDir
+    destinationFile = file("$buildDir/jacoco/all-test.exec")
+    executionData = files("$buildDir/jacoco/test.exec", "$langProjectBuildDir/jacoco/test.exec")
+}
+
+jacocoTestReport.doFirst{
+        String langProjectDir = project(":ballerina-lang").projectDir
+        String langProjectBuildDir = project(":ballerina-lang").buildDir
+        classDirectories = files("$langProjectBuildDir/classes/java/main/io/ballerina/projects")
+        sourceDirectories = files("$langProjectDir/src/main/java")
+        executionData = files("$buildDir/jacoco/all-test.exec")
+}
+
+jacocoTestReport.dependsOn(jacocoMergeTest)
 
 ext.moduleName = 'io.ballerina.projects.test'
 

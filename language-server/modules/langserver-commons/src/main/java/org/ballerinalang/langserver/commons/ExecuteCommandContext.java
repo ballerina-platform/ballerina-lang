@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.commons;
 
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 
@@ -35,7 +36,7 @@ public interface ExecuteCommandContext extends WorkspaceServiceContext {
      *
      * @return {@link List} of arguments
      */
-    List<Object> getArguments();
+    List<CommandArgument> getArguments();
 
     /**
      * Get the lang server client capabilities.

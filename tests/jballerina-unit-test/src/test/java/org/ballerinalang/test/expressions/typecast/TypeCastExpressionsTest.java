@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -274,46 +275,54 @@ public class TypeCastExpressionsTest {
 
     @Test
     public void testCastNegatives() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 3);
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be cast to 'Abc'", 19, 15);
         validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to '(int|foo)'",
                 30, 16);
-        validateError(resultNegative, errIndex, "incompatible types: '(int|foo)' cannot be cast to 'xml'", 35, 13);
+        validateError(resultNegative, errIndex++, "incompatible types: '(int|foo)' cannot be cast to 'xml'", 35, 13);
+        validateError(resultNegative, errIndex++, "incompatible types: '(int|error)' cannot be cast to 'int'", 67, 13);
+        validateError(resultNegative, errIndex++, "incompatible types: '(json|error)' cannot be cast to 'string'", 68
+                , 13);
+        validateError(resultNegative, errIndex++, "incompatible types: '(json|error)' cannot be cast to 'string'", 69,
+                13);
+        Assert.assertEquals(resultNegative.getErrorCount(), errIndex);
     }
 
     @DataProvider
-    public Object[][] positiveTests() {
-        return new Object[][]{
-                {"testNilCastPositive"},
-                {"testStringCastPositive"},
-                {"testIntCastPositive"},
-                {"testFloatCastPositive"},
-                {"testDecimalCastPositive"},
-                {"testBooleanCastPositive"},
-                {"testArrayCastPositive"},
-                {"testTupleCastPositive"},
-                {"testJsonCastPositive"},
-                {"testMapCastPositive"},
-                {"testRecordCastPositive"},
-                {"testXmlCastPositive"},
-                {"testErrorCastPositive"},
-                {"testFunctionCastPositive"},
-                {"testFutureCastPositive"},
-                {"testObjectCastPositive"},
-                {"testTypedescCastPositive"},
-                {"testMapElementCastPositive"},
-                {"testListElementCastPositive"},
-                {"testOutOfOrderUnionConstraintCastPositive"},
-                {"testCastToNumericType"},
-                {"testBroaderObjectCast"},
-                {"testCastOnPotentialConversion"},
-                {"testSimpleTypeToUnionCastPositive"},
-                {"testDirectlyUnmatchedUnionToUnionCastPositive"},
-                {"testFiniteTypeToValueTypeCastPositive"},
-                {"testFiniteTypeToRefTypeCastPositive"},
-                {"testValueTypeToFiniteTypeCastPositive"},
-                {"testFiniteTypeToFiniteTypeCastPositive"}
+    public Object[] positiveTests() {
+        return new Object[]{
+                "testNilCastPositive",
+                "testStringCastPositive",
+                "testIntCastPositive",
+                "testFloatCastPositive",
+                "testDecimalCastPositive",
+                "testBooleanCastPositive",
+                "testArrayCastPositive",
+                "testTupleCastPositive",
+                "testJsonCastPositive",
+                "testMapCastPositive",
+                "testRecordCastPositive",
+                "testXmlCastPositive",
+                "testErrorCastPositive",
+                "testFunctionCastPositive",
+                "testFutureCastPositive",
+                "testObjectCastPositive",
+                "testTypedescCastPositive",
+                "testMapElementCastPositive",
+                "testListElementCastPositive",
+                "testOutOfOrderUnionConstraintCastPositive",
+                "testCastToNumericType",
+                "testBroaderObjectCast",
+                "testCastOnPotentialConversion",
+                "testSimpleTypeToUnionCastPositive",
+                "testDirectlyUnmatchedUnionToUnionCastPositive",
+                "testFiniteTypeToValueTypeCastPositive",
+                "testFiniteTypeToRefTypeCastPositive",
+                "testValueTypeToFiniteTypeCastPositive",
+                "testFiniteTypeToFiniteTypeCastPositive",
+                "testRecordCastWithSpecialChars",
+                "testObjectCastWithSpecialChars",
+                "testTableCastWithSpecialChars"
         };
     }
 
@@ -344,4 +353,9 @@ public class TypeCastExpressionsTest {
         Assert.assertEquals(((BMap) returns[0]).get("id").stringValue(), "1100");
     }
 
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
+    }
 }

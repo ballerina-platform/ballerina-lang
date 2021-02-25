@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -131,8 +132,7 @@ public class MappingConstructorExprTest {
                 { "testVarNameAsMapField" },
                 { "testVarNameAsJsonField" },
                 { "testLikeModuleQualifiedVarNameAsJsonField" },
-                // Disabled on https://github.com/ballerina-platform/ballerina-lang/issues/26885
-                //{ "testVarNameFieldInAnnotation" } // final test using `s` since `s` is updated
+                { "testVarNameFieldInAnnotation" } // final test using `s` since `s` is updated
         };
     }
 
@@ -387,5 +387,14 @@ public class MappingConstructorExprTest {
                 "expected a string literal or an expression", 39, 9);
 
         Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        varNameFieldResult = null;
+        inferRecordResult = null;
+        spreadOpFieldResult = null;
+        readOnlyFieldResult = null;
     }
 }

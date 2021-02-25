@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.
@@ -37,10 +38,10 @@ import io.ballerina.runtime.internal.values.ArrayValueImpl;
  */
 @SuppressWarnings("unchecked")
 public class BArrayType extends BType implements ArrayType {
-    private Type elementType;
+    private final Type elementType;
     private int dimensions = 1;
     private int size = -1;
-    private boolean hasFillerValue;
+    private final boolean hasFillerValue;
     private ArrayState state = ArrayState.OPEN;
 
     private final boolean readonly;
@@ -51,13 +52,7 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     public BArrayType(Type elementType, boolean readonly) {
-        super(null, null, ArrayValue.class);
-        this.elementType = elementType;
-        if (elementType instanceof BArrayType) {
-            dimensions = ((BArrayType) elementType).getDimensions() + 1;
-        }
-        hasFillerValue = TypeChecker.hasFillerValue(this.elementType);
-        this.readonly = readonly;
+        this(elementType, -1, readonly);
     }
 
     public BArrayType(Type elemType, int size) {
@@ -66,7 +61,7 @@ public class BArrayType extends BType implements ArrayType {
 
     public BArrayType(Type elemType, int size, boolean readonly) {
         super(null, null, ArrayValue.class);
-        this.elementType = elemType;
+        this.elementType = readonly ? ReadOnlyUtils.getReadOnlyType(elemType) : elemType;
         if (elementType instanceof BArrayType) {
             dimensions = ((BArrayType) elementType).getDimensions() + 1;
         }
@@ -153,9 +148,9 @@ public class BArrayType extends BType implements ArrayType {
             tempElementType = arrayElement.elementType;
         }
         if (tempElementType.getTag() == TypeTags.UNION_TAG) {
-            sb.insert(0, "(" + tempElementType.toString() + ")").toString();
+            sb.insert(0, "(" + tempElementType.toString() + ")");
         } else {
-            sb.insert(0, tempElementType.toString()).toString();
+            sb.insert(0, tempElementType.toString());
         }
         return !readonly ? sb.toString() : sb.append(" & readonly").toString();
     }

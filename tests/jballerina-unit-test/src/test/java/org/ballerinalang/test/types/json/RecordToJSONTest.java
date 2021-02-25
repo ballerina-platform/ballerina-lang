@@ -21,6 +21,7 @@ import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -81,5 +82,10 @@ public class RecordToJSONTest {
     @Test
     public void testRecursiveCheckAgainstJson() {
         BRunUtil.invoke(compileResult, "testRecursiveCheckAgainstJson");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

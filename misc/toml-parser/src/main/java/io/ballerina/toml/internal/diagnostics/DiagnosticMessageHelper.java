@@ -17,6 +17,8 @@
  */
 package io.ballerina.toml.internal.diagnostics;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
+
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;

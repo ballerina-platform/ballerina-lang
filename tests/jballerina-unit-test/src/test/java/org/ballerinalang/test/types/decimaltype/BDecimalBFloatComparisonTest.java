@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -80,5 +81,10 @@ public class BDecimalBFloatComparisonTest {
         BBoolean result2 = (BBoolean) returns[1];
         // Expected: true
         Assert.assertTrue(result2.booleanValue(), "Invalid result returned.");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -19,9 +19,8 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.FileUtils;
-import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
@@ -37,9 +36,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ServiceLoader;
 
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectUtils.checkWritePermission;
 
 /**
  * Task for creating the executable jar file.
@@ -49,6 +50,7 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 public class CreateExecutableTask implements Task {
     private final transient PrintStream out;
     private Path output;
+    private Path currentDir;
 
     public CreateExecutableTask(PrintStream out, String output) {
         this.out = out;
@@ -62,38 +64,28 @@ public class CreateExecutableTask implements Task {
         this.out.println();
         this.out.println("Generating executable");
 
+        this.currentDir = Paths.get(System.getProperty(USER_DIR));
         Target target;
-        Path currentDir = Paths.get(System.getProperty(USER_DIR));
+
         try {
-            target = new Target(project.sourceRoot());
-            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                Path outputPath;
-                DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
-                String documentName = project.currentPackage().getDefaultModule().document(documentId).name();
-                String executableName = FileUtils.geFileNameWithoutExtension(Paths.get(documentName));
-                if (executableName == null) {
-                    throw createLauncherException("unable to determine executable name");
-                }
-                if (output != null) {
-                    if (Files.isDirectory(output)) {
-                        outputPath = output.resolve(executableName + BLANG_COMPILED_JAR_EXT);
-                    } else {
-                        if (!FileUtils.hasExtension(output)) {
-                            outputPath = Paths.get(output.toString() + BLANG_COMPILED_JAR_EXT);
-                        } else {
-                            outputPath = output;
-                        }
-                    }
-                    if (!outputPath.isAbsolute()) {
-                        outputPath = currentDir.resolve(outputPath);
-                    }
-                } else {
-                    outputPath = currentDir.resolve(executableName + BLANG_COMPILED_JAR_EXT);
-                }
-                target.setOutputPath(outputPath);
+            if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                checkWritePermission(currentDir);
+            } else {
+                checkWritePermission(project.sourceRoot());
+            }
+        } catch (ProjectException e) {
+            throw createLauncherException(e.getMessage());
+        }
+
+        try {
+            if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
+                target = new Target(project.sourceRoot());
+            } else {
+                target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
+                target.setOutputPath(getExecutablePath(project));
             }
         } catch (IOException e) {
-            throw createLauncherException("unable to set executable path: " + e.getMessage());
+            throw createLauncherException("unable to resolve target path:" + e.getMessage());
         }
 
         Path executablePath;
@@ -105,7 +97,7 @@ public class CreateExecutableTask implements Task {
 
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
@@ -130,5 +122,31 @@ public class CreateExecutableTask implements Task {
         for (CompilerPlugin plugin : processorServiceLoader) {
             plugin.codeGenerated(project, target);
         }
+    }
+
+    private Path getExecutablePath(Project project) {
+
+        Path fileName = project.sourceRoot().getFileName();
+
+        // If the --output flag is not set, create the executable in the current directory
+        if (this.output == null) {
+            return this.currentDir.resolve(getFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
+        }
+
+        if (!this.output.isAbsolute()) {
+            this.output = currentDir.resolve(this.output);
+        }
+
+        // If the --output is a directory create the executable in the given directory
+        if (Files.isDirectory(this.output)) {
+            return output.resolve(getFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
+        }
+
+        // If the --output does not have an extension, append the .jar extension
+        if (!FileUtils.hasExtension(this.output)) {
+            return Paths.get(this.output.toString() + BLANG_COMPILED_JAR_EXT);
+        }
+
+        return this.output;
     }
 }

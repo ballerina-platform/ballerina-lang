@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -110,6 +111,12 @@ public class BStreamValueTest {
     @Test(description = "Test empty stream constructs")
     public void testEmptyStreamConstructs() {
         BValue[] values = BRunUtil.invoke(result, "testEmptyStreamConstructs", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test passing union of stream to a function which takes a stream as a argument")
+    public void testUnionOfStreamsAsFunctionParams() {
+        BValue[] values = BRunUtil.invoke(result, "testUnionOfStreamsAsFunctionParams", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
@@ -212,15 +219,39 @@ public class BStreamValueTest {
                 , 253, 19);
         BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type"
                 , 254, 19);
+        BAssertUtil.validateError(negativeResult, i++, "invalid next method return type. expected: 'record {| int " +
+                "value; |}?'", 324, 7);
+        BAssertUtil.validateError(negativeResult, i++, "invalid next method return type. expected: 'record {| " +
+                "stream<int> value; |}?'", 332, 7);
         BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
                 "public isolated function next() returns (record {| int value; |}|error)?; }', but found " +
-                "'IteratorWithNonIsolatedNext'", 332, 42);
+                "'IteratorWithNonIsolatedNext'", 350, 42);
         BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
                 "public isolated function next() returns (record {| int value; |}|error)?; public isolated function " +
-                "close() returns error?; }', but found 'IteratorWithNonIsolatedNextAndIsolatedClose'", 333, 42);
-        BAssertUtil.validateError(negativeResult, i, "invalid stream constructor. expected a subtype of 'object { " +
+                "close() returns error?; }', but found 'IteratorWithNonIsolatedNextAndIsolatedClose'", 351, 42);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
                 "public isolated function next() returns (record {| int value; |}|error)?; public isolated function " +
-                "close() returns error?; }', but found 'IteratorWithIsolatedNextAndNonIsolatedClose'", 334, 42);
+                "close() returns error?; }', but found 'IteratorWithIsolatedNextAndNonIsolatedClose'", 352, 42);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 371, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 372, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 373, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', found " +
+                "'stream<int>'", 374, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 375, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 376, 20);
+        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 377, 20);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 
 }

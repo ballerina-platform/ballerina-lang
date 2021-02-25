@@ -34,8 +34,8 @@ function beforeFunc() {
 # Test function
 
 @test:Config {
-    before: "beforeFunc",
-    after: "afterFunc"
+    before: beforeFunc,
+    after: afterFunc
 }
 function testFunction() {
     testString += "test";
@@ -56,7 +56,7 @@ function afterSuiteFunc() {
 
 # Second Test function
 @test:Config {
-    dependsOn : ["testFunction"]
+    dependsOn : [testFunction]
 }
 function testFunction2() {
     test:assertEquals(testString, "beforeSuiteFuncbeforeFunctestafterFunc");

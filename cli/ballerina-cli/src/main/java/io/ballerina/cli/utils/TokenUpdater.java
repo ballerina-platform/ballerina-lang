@@ -33,8 +33,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Collections;
 
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * This class has a service which updates the access token in the `Settings.toml` file.

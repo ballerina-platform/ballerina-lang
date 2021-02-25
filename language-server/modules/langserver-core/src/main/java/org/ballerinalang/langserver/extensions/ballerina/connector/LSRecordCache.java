@@ -19,8 +19,6 @@
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
 import com.google.gson.JsonElement;
-import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.commons.LSContext;
 
 import java.util.HashMap;
 
@@ -29,14 +27,13 @@ import java.util.HashMap;
  */
 public class LSRecordCache {
 
-    private static final LSContext.Key<LSRecordCache> LS_RECORD_CACHE_KEY =
-            new LSContext.Key<>();
+    private static final ConnectorExtContext.Key<LSRecordCache> LS_RECORD_CACHE_KEY = new ConnectorExtContext.Key<>();
 
     private static final Object LOCK = new Object();
 
     HashMap<String, JsonElement> recordASTs;
 
-    public static LSRecordCache getInstance(LSGlobalContext context) {
+    public static LSRecordCache getInstance(ConnectorExtContext context) {
         LSRecordCache recordCache = context.get(LS_RECORD_CACHE_KEY);
         if (recordCache == null) {
             synchronized (LOCK) {
@@ -55,7 +52,7 @@ public class LSRecordCache {
     }
 
     public void addRecordAST(String org, String module, String version, String record,
-                                   JsonElement ast) {
+                             JsonElement ast) {
         this.recordASTs.put(createKey(org, module, version, record), ast);
     }
 

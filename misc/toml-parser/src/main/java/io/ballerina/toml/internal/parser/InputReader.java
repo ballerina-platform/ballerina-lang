@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Reader that read characters from a given input source.
- * 
+ *
  * @since 1.2.0
  */
 public class InputReader {
@@ -52,7 +52,7 @@ public class InputReader {
 
     /**
      * Consumes the input and return the next character.
-     * 
+     *
      * @return Next character in the input
      * @throws IOException If an I/O error occurs
      */
@@ -71,7 +71,7 @@ public class InputReader {
     /**
      * Lookahead in the input and returns the next character. This will not consume the input.
      * That means calling this method multiple times will return the same result.
-     * 
+     *
      * @return Next character in the input
      * @throws IOException If an I/O error occurs
      */
@@ -86,7 +86,7 @@ public class InputReader {
      * Lookahead in the input and returns the character at the k-th position from the current
      * position of the input stream. This will not consume the input. That means calling this
      * method multiple times will return the same result.
-     * 
+     *
      * @param k Position of the character to peek
      * @return Character at the k-position from the current position
      * @throws IOException If an I/O error occurs
@@ -101,7 +101,7 @@ public class InputReader {
 
     /**
      * A ring buffer of characters.
-     * 
+     *
      * @since 1.2.0
      */
     private static class CharacterBuffer {
@@ -119,7 +119,7 @@ public class InputReader {
 
         /**
          * Add a character to the buffer.
-         * 
+         *
          * @param c Character to add
          */
         public void add(int c) {
@@ -144,7 +144,7 @@ public class InputReader {
         /**
          * Consume and return the character at the front of the buffer. This will remove the
          * consumed character from the buffer.
-         * 
+         *
          * @return Character at the front of the buffer.
          */
         public int consume() {
@@ -161,7 +161,7 @@ public class InputReader {
 
         /**
          * Get the character at the front of the buffer, without removing it.
-         * 
+         *
          * @return Character at the front of the buffer.
          */
         public int peek() {
@@ -170,7 +170,7 @@ public class InputReader {
 
         /**
          * Get the character at the k-th position from the front of the buffer, without removing it.
-         * 
+         *
          * @param k position of the character to return.
          * @return Character at the k-th position from the front of the buffer.
          */

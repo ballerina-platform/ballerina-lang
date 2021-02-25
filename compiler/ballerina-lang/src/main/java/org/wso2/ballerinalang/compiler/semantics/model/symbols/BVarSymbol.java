@@ -19,18 +19,24 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.Annotatable;
+import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VARIABLE;
 
 /**
  * @since 0.94
  */
-public class BVarSymbol extends BSymbol implements VariableSymbol {
+public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
 
+    private List<BAnnotationSymbol> annots;
     public boolean defaultableParam = false;
 
     // Only used for type-narrowing. Cache of the original symbol.
@@ -44,6 +50,20 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
     public BVarSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
                       SymbolOrigin origin) {
         super(VARIABLE, flags, name, pkgID, type, owner, pos, origin);
+        this.annots = new ArrayList<>();
+    }
+
+    @Override
+    public void addAnnotation(AnnotationSymbol symbol) {
+        if (symbol == null) {
+            return;
+        }
+        this.annots.add((BAnnotationSymbol) symbol);
+    }
+
+    @Override
+    public List<? extends AnnotationSymbol> getAnnotations() {
+        return this.annots;
     }
 
     @Override

@@ -30,7 +30,7 @@ dependencies {
     testCompile 'org.slf4j:slf4j-api'
     testCompile 'org.slf4j:slf4j-jdk14'
 
-    distributionBalo project(path: ':ballerina-io', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-io', configuration: 'distributionBala')
 }
 
 description = 'Ballerina - Spec Conformance Tests'

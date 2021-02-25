@@ -17,26 +17,26 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.compiler.LSClientLogger;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.ballerinalang.langserver.codeaction.CodeActionUtil.codeActionNodeType;
-import static org.ballerinalang.langserver.codeaction.CodeActionUtil.findCursorDetails;
+import static org.ballerinalang.langserver.codeaction.CodeActionUtil.computePositionDetails;
 
 /**
  * Represents the Code Action router.
@@ -48,59 +48,73 @@ public class CodeActionRouter {
     /**
      * Returns a list of supported code actions.
      *
-     * @param ctx {@link LSContext}
+     * @param ctx {@link CodeActionContext}
      * @return list of code actions
      */
     public static List<CodeAction> getAvailableCodeActions(CodeActionContext ctx) {
-        SyntaxTree syntaxTree = ctx.workspace().syntaxTree(ctx.filePath()).orElseThrow();
-
+        LSClientLogger clientLogger = LSClientLogger.getInstance(ctx.languageServercontext());
         List<CodeAction> codeActions = new ArrayList<>();
-        CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder.getInstance();
+        CodeActionProvidersHolder codeActionProvidersHolder
+                = CodeActionProvidersHolder.getInstance(ctx.languageServercontext());
+
         // Get available node-type based code-actions
-        Optional<Pair<CodeActionNodeType, NonTerminalNode>> nodeTypeAndNode = codeActionNodeType(ctx);
+        SyntaxTree syntaxTree = ctx.workspace().syntaxTree(ctx.filePath()).orElseThrow();
+        Optional<NonTerminalNode> topLevelNode = CodeActionUtil.getTopLevelNode(ctx.cursorPosition(), syntaxTree);
+        CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(topLevelNode.orElse(null));
         SemanticModel semanticModel = ctx.workspace().semanticModel(ctx.filePath()).orElseThrow();
-        Path fileName = ctx.filePath().getFileName();
-        if (fileName == null) {
-            return Collections.emptyList();
-        }
-        String relPath = fileName.toString();
-        if (nodeTypeAndNode.isPresent()) {
-            CodeActionNodeType nodeType = nodeTypeAndNode.get().getLeft();
-            NonTerminalNode matchedNode = nodeTypeAndNode.get().getRight();
-            TypeSymbol matchedTypeSymbol = semanticModel.type(relPath, matchedNode.lineRange()).orElse(null);
-            PositionDetails posDetails = PositionDetailsImpl.from(matchedNode, null, matchedTypeSymbol);
-            ctx.setPositionDetails(posDetails);
-            codeActionProvidersHolder.getActiveNodeBasedProviders(nodeType).forEach(provider -> {
+        if (topLevelNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
+            Range range = CommonUtil.toRange(topLevelNode.get().lineRange());
+            Node expressionNode = CodeActionUtil.largestExpressionNode(topLevelNode.get(), range);
+            TypeSymbol matchedTypeSymbol = semanticModel.type(expressionNode.lineRange()).orElse(null);
+
+            NodeBasedPositionDetails posDetails = NodeBasedPositionDetailsImpl.from(topLevelNode.get(),
+                                                                                    matchedStatementNode(ctx,
+                                                                                                        syntaxTree),
+                                                                                    matchedTypeSymbol);
+            codeActionProvidersHolder.getActiveNodeBasedProviders(matchedNodeType, ctx).forEach(provider -> {
                 try {
-                    List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(ctx);
+                    List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(ctx, posDetails);
                     if (codeActionsOut != null) {
                         codeActions.addAll(codeActionsOut);
                     }
                 } catch (Exception e) {
                     String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
-                    LSClientLogger.logError(msg, e, null, (Position) null);
+                    clientLogger.logError(msg, e, null, (Position) null);
                 }
             });
         }
         // Get available diagnostics based code-actions
-        List<Diagnostic> cursorDiagnostics = ctx.cursorDiagnostics();
-        if (cursorDiagnostics != null && !cursorDiagnostics.isEmpty()) {
-            for (Diagnostic diagnostic : cursorDiagnostics) {
-                PositionDetails posDetails = findCursorDetails(diagnostic.getRange(), syntaxTree, ctx);
-                ctx.setPositionDetails(posDetails);
-                codeActionProvidersHolder.getActiveDiagnosticsBasedProviders().forEach(provider -> {
-                    try {
-                        List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic, ctx);
-                        if (codeActionsOut != null) {
-                            codeActions.addAll(codeActionsOut);
+        ctx.diagnostics(ctx.filePath()).stream().
+                filter(diag -> CommonUtil
+                        .isWithinRange(ctx.cursorPosition(), CommonUtil.toRange(diag.location().lineRange()))
+                )
+                .forEach(diagnostic -> {
+                    DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, ctx);
+                    codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx).forEach(provider -> {
+                        try {
+                            List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic,
+                                                                                               positionDetails, ctx);
+                            if (codeActionsOut != null) {
+                                codeActions.addAll(codeActionsOut);
+                            }
+                        } catch (Exception e) {
+                            String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
+                            clientLogger.logError(msg, e, null, (Position) null);
                         }
-                    } catch (Exception e) {
-                        String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
-                        LSClientLogger.logError(msg, e, null, (Position) null);
-                    }
+                    });
                 });
-            }
-        }
         return codeActions;
+    }
+
+    private static NonTerminalNode matchedStatementNode(CodeActionContext ctx, SyntaxTree syntaxTree) {
+        Position cursorPos = ctx.cursorPosition();
+        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(cursorPos, cursorPos), syntaxTree);
+        while (matchedNode.parent() != null &&
+                matchedNode.parent().kind() != SyntaxKind.MODULE_PART &&
+                matchedNode.parent().kind() != SyntaxKind.FUNCTION_BODY_BLOCK &&
+                !(matchedNode.parent() instanceof BlockStatementNode)) {
+            matchedNode = matchedNode.parent();
+        }
+        return matchedNode;
     }
 }

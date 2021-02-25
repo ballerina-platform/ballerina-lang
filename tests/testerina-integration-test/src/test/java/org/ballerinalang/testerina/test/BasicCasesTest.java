@@ -19,9 +19,11 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
 
 /**
  * Test class to test positive scenarios of testerina using a ballerina project.
@@ -39,119 +41,114 @@ public class BasicCasesTest extends BaseTestCase {
 
     @Test
     public void testAssertions() throws BallerinaTestException {
-        String msg = "33 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"assertions"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"assertions"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "assertion failure");
     }
 
     @Test
     public void testAssertDiffError() throws BallerinaTestException {
-        String msg = "14 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"assertions-diff-error"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"assertions-diff-error"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "assertion diff message failure in test framework");
     }
 
     @Test
     public void testAssertionErrorMessage() throws BallerinaTestException {
-        String msg = "9 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"assertions-error-messages"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"assertions-error-messages"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "assertion diff message failure");
     }
 
     @Test
     public void testAssertBehavioralTypes() throws BallerinaTestException {
-        String msg = "12 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"assertions-behavioral-types"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"assertions-behavioral-types"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "assertion failure for behavioral data types");
     }
 
     @Test
     public void testAssertStructuralTypes() throws BallerinaTestException {
-        String msg = "36 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"assertions-structural-types"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"assertions-structural-types"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "assertion failure for structural data types");
     }
 
     @Test
     public void testAssertSequenceTypes() throws BallerinaTestException {
-        String msg = "8 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"assertions-sequence-types"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"assertions-sequence-types"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "assertion failure for sequence data types");
     }
 
     @Test
     public void testAnnotationAccess() throws BallerinaTestException {
-        String msg = "3 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"annotation-access"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        String[] args = mergeCoverageArgs(new String[]{"annotation-access"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "test annotation access failure");
     }
 
     @Test
     public void testJavaInterops() throws BallerinaTestException {
-        String msg = "1 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"interops"}, null, new String[]{}, new LogLeecher[]{clientLeecher},
-                          projectPath);
-        clientLeecher.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"interops"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "interops failure");
     }
 
     @Test
     public void testBeforeAfter() throws BallerinaTestException {
-        String msg = "2 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"before-after"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        String[] args = mergeCoverageArgs(new String[]{"before-after"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "before-after annotation attribute failure");
     }
 
     @Test
     public void testBeforeEachAfterEach() throws BallerinaTestException {
-        String msg = "3 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"before-each-after-each"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        String[] args = mergeCoverageArgs(new String[]{"before-each-after-each"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "before-each-after-each annotation attribute failure");
     }
 
     @Test(dependsOnMethods = "testBeforeAfter")
     public void testDependsOn() throws BallerinaTestException {
-        String msg = "8 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"depends-on"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        String[] args = mergeCoverageArgs(new String[]{"depends-on"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "depends-on annotation attribute failure");
     }
 
     @Test(dependsOnMethods = "testDependsOn")
     public void testAnnotations() throws BallerinaTestException {
-        String msg = "15 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"annotations"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        String[] args = mergeCoverageArgs(new String[]{"annotations"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "annotations failure");
     }
 
     @Test
     public void testIsolatedFunctions() throws BallerinaTestException {
-        String msg = "3 passing";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"isolated-functions"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(40000);
+        String[] args = mergeCoverageArgs(new String[]{"isolated-functions"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "isolated functions failure");
+    }
+
+    @Test
+    public void testIntersectionTypes() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"intersections-type-test"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "intersection type failure");
     }
 
 }

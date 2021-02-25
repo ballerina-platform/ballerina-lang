@@ -23,12 +23,12 @@ type E2 distinct error;
 public function main() {
     worker w1 returns E1|E2? {
         if (false) {
-            return E1(R1);
+            return error E1(R1);
         }
         100 ->> w2;
 
         if (true) {
-            return E2(R2);
+            return error E2(R2);
         }
         "hello" ->> w2;
     }

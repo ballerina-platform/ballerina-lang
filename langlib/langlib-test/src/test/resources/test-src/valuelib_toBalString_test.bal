@@ -86,6 +86,22 @@ public class Teacher {
     }
 }
 
+distinct class Foo {
+    int i = 0;
+}
+
+distinct class Bar {
+    string name;
+
+    function init(string name) {
+        self.name = name;
+    }
+
+    function toString() returns string {
+        return "Bar name is " + self.name;
+    }
+}
+
 function testIntValueToBalString() {
     int x1 = 12;
     ints:Signed32 x2 = 2147483647;
@@ -157,11 +173,14 @@ function testTableToBalString() {
 function testErrorToBalString() {
     error err1 = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
            val3 = {"x":"AA","y":(1.0/0.0)});
-    FirstError err2 = FirstError(REASON_1, message = "Test passing error union to a function");
+    FirstError err2 = error FirstError(REASON_1, message = "Test passing error union to a function");
+    error err3 = error("first error", detail=(1.0/0.0));
+    error err4 = error("second error", err3);
 
-    assert(err1.toBalString(), "error error (\"Failed to get account balance\",details=true,val1=float:NaN," +
-          "val2=\"This Error\",val3={\"x\":\"AA\",\"y\":float:Infinity})");
+    assert(err1.toBalString(), "error(\"Failed to get account balance\",details=true,val1=float:NaN," +
+    "val2=\"This Error\",val3={\"x\":\"AA\",\"y\":float:Infinity})");
     assert(err2.toBalString(), "error FirstError (\"Reason1\",message=\"Test passing error union to a function\")");
+    assert(err4.toBalString(), "error(\"second error\",error(\"first error\",detail=float:Infinity))");
 }
 
 function testMapToBalString() {
@@ -187,7 +206,7 @@ function testArrayToBalString() {
     int[] arr1 = [1, 2, 3, 4, 5];
     float[] arr2 = [12, 12.34, (0.0/0.0), (1.0/0.0)];
     boolean[] arr3 = [true, false, true, true];
-    byte[] arr4 = [12, 10, 9, 8];
+    byte[] arr4 = [12, 10, 9, 8, 100, 125, 137, 128, 150, 200, 255];
     string[] arr5 = ["ABC", "XYZ", "LMN"];
     decimal[] arr6 = [12.65, 1, 2, 90.0];
     (any|error)[] arr7 = ["str", 23, 23.4, true, {"x":"AA","y":(1.0/0.0),"z":1.23}, x1, ["X", (0.0/0.0),
@@ -197,12 +216,12 @@ function testArrayToBalString() {
     assert(arr2.toBalString(), "[12.0,12.34,float:NaN,float:Infinity]");
     assert(arr2.toBalString(), "[12.0,12.34,float:NaN,float:Infinity]");
     assert(arr3.toBalString(), "[true,false,true,true]");
-    assert(arr4.toBalString(), "[12,10,9,8]");
+    assert(arr4.toBalString(), "[12,10,9,8,100,125,137,128,150,200,255]");
     assert(arr5.toBalString(), "[\"ABC\",\"XYZ\",\"LMN\"]");
     assert(arr6.toBalString(), "[12.65d,1d,2d,90.0d]");
     assert(arr7.toBalString(), "[\"str\",23,23.4,true,{\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23},345.2425341d," +
     "[\"X\",float:NaN,345.2425341d],table key(id,name) [{\"id\":1,\"name\":\"Mary\",\"grade\":12}," +
-    "{\"id\":2,\"name\":\"John\",\"grade\":13}],error error (\"Failed to get account balance\",details=true," +
+    "{\"id\":2,\"name\":\"John\",\"grade\":13}],error(\"Failed to get account balance\",details=true," +
     "val1=float:NaN,val2=\"This Error\",val3={\"x\":\"AA\",\"y\":float:Infinity}),xml`<CATALOG><CD>" +
     "<TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD></CATALOG>`]");
 }
@@ -230,18 +249,20 @@ function testXmlToBalString() {
 
 }
 
-function testObjectToString() {
+function testObjectToBalString() {
     Student obj1 = new("Alaa", "MMV");
     Student obj2 = new("Alaa", "MMV");
     Student obj3 = obj1;
     Teacher obj4 = new("Rola", "MMV");
+    Foo obj5 = new;
+    Bar obj6 = new("Old Haunt");
 
     assert(obj1.toBalString() === obj2.toBalString(), false);
     assert(obj1.toBalString() === obj3.toBalString(), true);
-    assert(strings:startsWith(obj1.toBalString(), "object Student"), true);
-    assert(strings:startsWith(obj2.toBalString(), "object Student"), true);
-    assert(strings:startsWith(obj3.toBalString(), "object Student"), true);
+    assert(strings:startsWith(obj3.toBalString(), "object "), true);
     assert(obj4.toBalString(), "object Rola from MMV");
+    assert(strings:startsWith(obj5.toBalString(), "object Foo"), true);
+    assert(obj6.toBalString(), "object Bar name is Old Haunt");
 }
 
 function testToBalStringOnCycles() {

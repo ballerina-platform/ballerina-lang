@@ -253,3 +253,22 @@ isolated function testInvalidAccessOfFinalNonIsolatedObjectInIsolatedFunction() 
     NonIsolatedClass cl = nonIsolatedObject;
     int[] arr = nonIsolatedObject.getArray();
 }
+
+service class Service {
+    resource function get foo() {
+    }
+}
+
+service readonly class ReadOnlyService {
+    resource function get foo() returns int => 1;
+}
+
+final Service ser1 = new;
+Service ser2 = new;
+ReadOnlyService ser3 = new;
+
+isolated function testInvalidMutableServiceAccess() {
+    any x1 = ser1;
+    any x2 = ser2;
+    any x3 = ser3;
+}

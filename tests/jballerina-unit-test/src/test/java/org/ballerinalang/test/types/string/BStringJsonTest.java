@@ -19,6 +19,7 @@
 package org.ballerinalang.test.types.string;
 
 import org.ballerinalang.test.BCompileUtil;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,5 +41,10 @@ public class BStringJsonTest extends BStringTestCommons {
     @Test
     public void testJsonOptionalAccess() {
         testAndAssert("testJsonOptionalAccess", 9);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -92,6 +92,12 @@
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": "    "
                                     }
+                                  ],
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
                                   ]
                                 },
                                 {

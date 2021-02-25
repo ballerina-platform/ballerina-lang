@@ -23,7 +23,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
@@ -31,34 +31,34 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_ADD_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_BINARY_EXPR_HELPER_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_BITWISE_AND_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_BITWISE_OR_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_BITWISE_XOR_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_DIV_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_GT_EQUALS_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_GT_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_LEFT_SHIFT_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_LOGICAL_AND_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_LOGICAL_OR_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_LT_EQUALS_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_LT_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_MOD_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_MUL_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_SIGNED_RIGHT_SHIFT_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_SUB_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_TYPE_CHECKER_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_UNSIGNED_RIGHT_SHIFT_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_XML_FACTORY_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_XML_VALUE_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.JAVA_OBJECT_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.REF_EQUAL_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.VALUE_EQUAL_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.XML_CONCAT_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getGeneratedMethod;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getRuntimeMethod;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getValueAsObject;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_ADD_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BINARY_EXPR_HELPER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_AND_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_OR_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_XOR_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DIV_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_GT_EQUALS_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_GT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LEFT_SHIFT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LOGICAL_AND_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LOGICAL_OR_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LT_EQUALS_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_MOD_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_MUL_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SIGNED_RIGHT_SHIFT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SUB_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_UNSIGNED_RIGHT_SHIFT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_XML_FACTORY_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_XML_VALUE_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REF_EQUAL_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VALUE_EQUAL_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.XML_CONCAT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getGeneratedMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
  * Evaluator implementation for binary expressions.
@@ -312,7 +312,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
         BVariable variable = VariableFactory.getVariable(context, result);
         boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
         booleanValue = operatorType == SyntaxKind.DOUBLE_EQUAL_TOKEN ? booleanValue : !booleanValue;
-        return EvaluationUtils.make(context, booleanValue);
+        return VMUtils.make(context, booleanValue);
     }
 
     /**
@@ -334,7 +334,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
         BVariable variable = VariableFactory.getVariable(context, result);
         boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
         booleanValue = operatorType == SyntaxKind.TRIPPLE_EQUAL_TOKEN ? booleanValue : !booleanValue;
-        return EvaluationUtils.make(context, booleanValue);
+        return VMUtils.make(context, booleanValue);
     }
 
     private EvaluationException createUnsupportedOperationException(BVariable lVar, BVariable rVar,

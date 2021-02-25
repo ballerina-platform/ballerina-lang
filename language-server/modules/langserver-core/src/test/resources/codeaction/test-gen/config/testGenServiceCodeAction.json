@@ -18,7 +18,7 @@
         }
     ],
     "expected": {
-        "title": "Create Test For Service",
+        "title": "Create test for service",
         "command": "CREATE_TEST"
     }
 }

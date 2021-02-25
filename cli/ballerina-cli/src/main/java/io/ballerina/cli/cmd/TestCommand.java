@@ -17,11 +17,12 @@
  */
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
-import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.ListTestGroupsTask;
+import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
@@ -33,7 +34,6 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
-import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -46,7 +46,7 @@ import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
- * This class represents the "ballerina test" command.
+ * This class represents the "bal test" command.
  *
  * @since 2.0.0
  */
@@ -119,7 +119,11 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
     private boolean rerunTests;
 
-    private static final String testCmd = "ballerina test [--offline] [--skip-tests]\n" +
+    @CommandLine.Option(names = "--includes", hidden = true,
+            description = "hidden option for code coverage to include all classes")
+    private String includes;
+
+    private static final String testCmd = "bal test [--offline] [--skip-tests]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
     public void execute() {
@@ -185,16 +189,25 @@ public class TestCommand implements BLauncherCmd {
         if (this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
+        //Display warning if any other options are provided with list-groups flag.
+        boolean displayWarning = false;
+        if (listGroups && (rerunTests || groupList != null || disableGroupList != null || testList != null)) {
+            displayWarning = true;
+        }
+
+        // Skip --includes flag if it is set without code coverage
+        if (!project.buildOptions().codeCoverage() && includes != null) {
+            this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
+        }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFile)   // clean the target directory(projects only)
-                .addTask(new CreateTargetDirTask()) // create target directory
-//                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
+                .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-                .addTask(new ListTestGroupsTask(outStream), !listGroups) // list the available test groups
+                .addTask(new ListTestGroupsTask(outStream, displayWarning), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, args, rerunTests, groupList, disableGroupList,
-                        testList), listGroups)
+                        testList, includes), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);

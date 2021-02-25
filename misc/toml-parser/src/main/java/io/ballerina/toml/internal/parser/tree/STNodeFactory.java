@@ -108,6 +108,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 endDoubleQuote);
     }
 
+    public static STNode createLiteralStringLiteralNode(
+            STNode startSingleQuote,
+            STNode content,
+            STNode endSingleQuote) {
+
+        return new STLiteralStringLiteralNode(
+                startSingleQuote,
+                content,
+                endSingleQuote);
+    }
+
     public static STNode createNumericLiteralNode(
             SyntaxKind kind,
             STNode sign,

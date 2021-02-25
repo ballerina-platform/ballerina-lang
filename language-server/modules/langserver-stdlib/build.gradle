@@ -18,11 +18,11 @@
 apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
 dependencies {
-    distributionBalo project(path: ':ballerina-io', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-io', configuration: 'distributionBala')
 
-    baloCreat project(':lib-creator')
+    balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-tool')
+    implementation project(':ballerina-cli')
     implementation project(':ballerina-io')
 
     testCompile 'org.testng:testng'
@@ -30,7 +30,7 @@ dependencies {
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-core')
-    testCompile project(':ballerina-tool')
+    testCompile project(':ballerina-cli')
 }
 
 configurations.all {

@@ -31,6 +31,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -382,5 +383,10 @@ public class ArrayStampInbuiltFunctionTest {
         Assert.assertEquals(jsonValue2.get("name").stringValue(), "Heshitha");
         Assert.assertEquals(((BInteger) jsonValue1.get("age")).intValue(), 10);
         Assert.assertEquals(((BInteger) jsonValue2.get("age")).intValue(), 15);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

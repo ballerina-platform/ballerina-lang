@@ -50,11 +50,13 @@ import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Set;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.aliases;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
@@ -127,6 +129,22 @@ public class BindgenUtils {
         cpTemplateLoader.setSuffix(MUSTACHE_FILE_EXTENSION);
         fileTemplateLoader.setSuffix(MUSTACHE_FILE_EXTENSION);
         Handlebars handlebars = new Handlebars().with(cpTemplateLoader, fileTemplateLoader);
+
+        // Helper to escape reserved words in module imports.
+        handlebars.registerHelper("escapeReservedWord", (object, options) -> {
+            if (object instanceof String) {
+                String moduleImport = (String) object;
+                String[] parts = moduleImport.split("\\.");
+                List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
+                for (int i = 0; i < parts.length; i++) {
+                    if (reservedWords.contains(parts[i])) {
+                        parts[i] = "'" + parts[i];
+                    }
+                }
+                return String.join(".", parts);
+            }
+            return "";
+        });
 
         // Helper to to carry out a string replace.
         handlebars.registerHelper("replace", (object, options) -> {

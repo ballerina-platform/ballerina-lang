@@ -15,13 +15,16 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
@@ -38,11 +41,11 @@ import java.util.List;
  * @since 1.1.1
  */
 public abstract class AbstractCodeActionProvider implements LSCodeActionProvider {
-    private List<CodeActionNodeType> codeActionNodeTypes;
-    private final boolean isNodeTypeBased;
+    protected List<CodeActionNodeType> codeActionNodeTypes;
+    protected boolean isNodeTypeBased;
 
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled(LanguageServerContext serverContext) {
         return true;
     }
 
@@ -67,7 +70,8 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                                    NodeBasedPositionDetails posDetails) {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -75,7 +79,9 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
+                                                    CodeActionContext context) {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -116,36 +122,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         action.setKind(CodeActionKind.QuickFix);
         action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
                 new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
-        action.setDiagnostics(diagnostics);
+        action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
         return action;
-    }
-
-    /**
-     * Allows convenient transformation of ImportDeclarationNode node model representation for org-name, module-name,
-     * version and alias.
-     */
-    protected static class ImportModel {
-        private static final String ORG_SEPARATOR = "/";
-        protected final String orgName;
-        protected final String moduleName;
-        protected final String version;
-        protected final String alias;
-
-        private ImportModel(String orgName, String moduleName, String alias, String version) {
-            this.orgName = orgName;
-            this.moduleName = moduleName;
-            this.alias = alias;
-            this.version = version;
-        }
-
-        static ImportModel from(ImportDeclarationNode importPkg) {
-            String orgName = importPkg.orgName().isPresent() ?
-                    importPkg.orgName().get().orgName().text() + ORG_SEPARATOR : "";
-            StringBuilder pkgNameBuilder = new StringBuilder();
-            importPkg.moduleName().forEach(name -> pkgNameBuilder.append(name.text()));
-            String pkgName = pkgNameBuilder.toString();
-            String alias = importPkg.prefix().isEmpty() ? "" : importPkg.prefix().get().prefix().text();
-            return new ImportModel(orgName, pkgName, alias, "");
-        }
     }
 }

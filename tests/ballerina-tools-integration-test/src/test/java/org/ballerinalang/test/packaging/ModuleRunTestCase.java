@@ -102,7 +102,7 @@ public class ModuleRunTestCase extends BaseTest {
         // Remove the .ballerina folder
         FileUtils.deleteDirectory(projectPath.resolve(".ballerina").toFile());
 
-        String msg = "error: you are trying to run a module that is not inside a project. Run `ballerina init` " +
+        String msg = "error: you are trying to run a module that is not inside a project. Run `bal init` " +
                 "from " + projectPath.toRealPath().toString() + " to initialize it as a project and then run the " +
                 "module.";
         LogLeecher leecher = new LogLeecher(msg, LeecherType.ERROR);

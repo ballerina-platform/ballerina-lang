@@ -40,8 +40,6 @@ public class TypeParamTest {
         CompileResult result = BCompileUtil.compile("test-src/type-param/type_param_test_negative.bal");
         int err = 0;
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean[]', found 'int[]'", 21, 20);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'anydata', found 'function (string) " +
-                "returns ()[]'", 25, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'float[]', found 'function (string) " +
                 "returns ()[]'", 25, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'float', found 'string'", 31, 16);

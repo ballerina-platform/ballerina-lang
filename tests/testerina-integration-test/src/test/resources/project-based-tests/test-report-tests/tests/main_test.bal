@@ -25,7 +25,7 @@ function testMain() {
 }
 
 @test:Config {
-    dependsOn: ["testMain"]
+    dependsOn: [testMain]
 }
 function testFunction() {
     test:assertTrue(true, msg = "Failed!");

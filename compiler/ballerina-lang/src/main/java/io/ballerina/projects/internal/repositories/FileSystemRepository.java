@@ -17,12 +17,12 @@
  */
 package io.ballerina.projects.internal.repositories;
 
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
-import io.ballerina.projects.balo.BaloProject;
+import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
@@ -49,11 +49,11 @@ import java.util.stream.Collectors;
 /**
  * Package Repository stored in file system.
  * The structure of the repository is as bellow
- * - balo
+ * - bala
  *     - org
  *         - package-name
  *             - version
- *                 - org-package-name-version-any.balo
+ *                 - org-package-name-version-any.bala
  * - cache
  *     - org
  *         - package-name
@@ -67,14 +67,14 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class FileSystemRepository implements PackageRepository {
-    Path balo;
+    Path bala;
     private final Path cacheDir;
     private final Environment environment;
 
     // TODO Refactor this when we do repository/cache split
     public FileSystemRepository(Environment environment, Path cacheDirectory) {
         this.cacheDir = cacheDirectory;
-        this.balo = cacheDirectory.resolve(ProjectConstants.REPO_BALO_DIR_NAME);
+        this.bala = cacheDirectory.resolve(ProjectConstants.REPO_BALA_DIR_NAME);
         this.environment = environment;
     }
 
@@ -86,14 +86,14 @@ public class FileSystemRepository implements PackageRepository {
         String version = resolutionRequest.version().isPresent() ?
                 resolutionRequest.version().get().toString() : "0.0.0";
 
-        //First we will check for a balo that match any platform
-        String baloName = ProjectUtils.getBaloName(orgName, packageName, version, null);
-        Path baloPath = this.balo.resolve(orgName).resolve(packageName).resolve(version).resolve(baloName);
-        if (!Files.exists(baloPath)) {
-            //If balo for any platform not exist check for specific platform
-            String javaBaloName = ProjectUtils.getBaloName(orgName, packageName, version, JdkVersion.JAVA_11.code());
-            baloPath = this.balo.resolve(orgName).resolve(packageName).resolve(version).resolve(javaBaloName);
-            if (!Files.exists(baloPath)) {
+        //First we will check for a bala that match any platform
+        String balaName = ProjectUtils.getBalaName(orgName, packageName, version, null);
+        Path balaPath = this.bala.resolve(orgName).resolve(packageName).resolve(version).resolve(balaName);
+        if (!Files.exists(balaPath)) {
+            //If bala for any platform not exist check for specific platform
+            String javaBalaName = ProjectUtils.getBalaName(orgName, packageName, version, JvmTarget.JAVA_11.code());
+            balaPath = this.bala.resolve(orgName).resolve(packageName).resolve(version).resolve(javaBalaName);
+            if (!Files.exists(balaPath)) {
                 return Optional.empty();
             }
         }
@@ -101,7 +101,7 @@ public class FileSystemRepository implements PackageRepository {
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
         environmentBuilder = environmentBuilder.addCompilationCacheFactory(
                 new FileSystemCache.FileSystemCacheFactory(cacheDir));
-        Project project = BaloProject.loadProject(environmentBuilder, baloPath);
+        Project project = BalaProject.loadProject(environmentBuilder, balaPath);
         return Optional.of(project.currentPackage());
     }
 
@@ -111,13 +111,13 @@ public class FileSystemRepository implements PackageRepository {
         String packageName = resolutionRequest.packageName().value();
         String orgName = resolutionRequest.orgName().value();
 
-        // Here we dont rely on directories we check for available balos
-        String globFilePart = orgName + "-" + packageName + "-*.balo";
+        // Here we dont rely on directories we check for available balas
+        String globFilePart = orgName + "-" + packageName + "-*.bala";
         String glob = "glob:**/" + orgName + "/" + packageName + "/*/" + globFilePart;
         PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(glob);
         List<Path> versions = new ArrayList<>();
         try {
-            Files.walkFileTree(balo.resolve(orgName).resolve(packageName)
+            Files.walkFileTree(bala.resolve(orgName).resolve(packageName)
                     , new SearchModules(pathMatcher, versions));
         } catch (IOException e) {
             // in any error we should report to the top
@@ -128,13 +128,13 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     /**
-     * Get the list of packages in the balo cache.
+     * Get the list of packages in the bala cache.
      *
      * @return {@link List} of package names
      */
     public Map<String, List<String>> getPackages() {
         Map<String, List<String>> packagesMap = new HashMap<>();
-        File[] orgDirs = this.balo.toFile().listFiles();
+        File[] orgDirs = this.bala.toFile().listFiles();
         if (orgDirs == null) {
             return packagesMap;
         }
@@ -143,7 +143,7 @@ public class FileSystemRepository implements PackageRepository {
                 continue;
             }
             String orgName = file.getName();
-            File[] filesList = this.balo.resolve(orgName).toFile().listFiles();
+            File[] filesList = this.bala.resolve(orgName).toFile().listFiles();
             if (filesList == null) {
                 return packagesMap;
             }
@@ -152,7 +152,7 @@ public class FileSystemRepository implements PackageRepository {
                 if (!pkgDir.isDirectory() || pkgDir.isHidden()) {
                     continue;
                 }
-                File[] pkgs = this.balo.resolve(orgName).resolve(pkgDir.getName()).toFile().listFiles();
+                File[] pkgs = this.bala.resolve(orgName).resolve(pkgDir.getName()).toFile().listFiles();
                 if (pkgs == null) {
                     continue;
                 }

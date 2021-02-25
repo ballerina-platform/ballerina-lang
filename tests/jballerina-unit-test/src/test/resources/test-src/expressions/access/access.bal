@@ -33,7 +33,7 @@ function testFieldAccessWithOptionalFieldAccess1() returns boolean {
 function testFieldAccessWithOptionalFieldAccess2() returns boolean {
     json j1 = { a: 1, b: { c: "qwer", d: 12.0 } };
     json|error j2 = j1?.b.c;
-    return j2 == "qwer";
+    return (checkpanic j2) == "qwer";
 }
 
 function testFieldAccessWithOptionalFieldAccess3() returns boolean {
@@ -128,7 +128,9 @@ function testNilLiftingOnMemberAccessOnNillableObjectField() returns boolean {
 
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
-        return je.message() == "{ballerina}JSONOperationError" && je.detail()["message"].toString() == "JSON value is not a mapping";
+        var detailMessage = je.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        return je.message() == "{ballerina}JSONOperationError" && detailMessageString == "JSON value is not a mapping";
     }
     return false;
 }
@@ -165,6 +167,9 @@ function assertEquality(any|error expected, any|error actual) {
     if expected === actual {
         return;
     }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

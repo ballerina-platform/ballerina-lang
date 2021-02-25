@@ -60,7 +60,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
     public List<BLangConstant> constants;
-    public List<BLangSimpleVariable> globalVars;
+    public List<BLangVariable> globalVars;
     public List<BLangService> services;
     public List<BLangFunction> functions;
     public List<BLangTypeDefinition> typeDefinitions;
@@ -134,7 +134,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<BLangSimpleVariable> getGlobalVariables() {
+    public List<BLangVariable> getGlobalVariables() {
         return globalVars;
     }
 
@@ -233,7 +233,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
      * @return testable package
      */
     public BLangTestablePackage getTestablePkg() {
-        return testablePkgs.stream().findAny().get();
+        return testablePkgs.stream().findAny().orElse(null);
     }
 
     /**

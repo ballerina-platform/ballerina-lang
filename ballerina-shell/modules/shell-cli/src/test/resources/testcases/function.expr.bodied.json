@@ -1,0 +1,15 @@
+[
+  {
+    "description": "Define anonymous bodied function.",
+    "code": "function add(int a, int b) returns int => a + b;"
+  },
+  {
+    "description": "Use function.",
+    "code": "add(10, 20)",
+    "expr": "30"
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

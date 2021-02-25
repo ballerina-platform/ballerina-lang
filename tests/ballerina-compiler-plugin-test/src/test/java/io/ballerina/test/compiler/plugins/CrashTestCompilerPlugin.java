@@ -33,7 +33,7 @@ import java.util.Set;
  * A test implementation of the {@link org.ballerinalang.compiler.plugins.CompilerPlugin} interface.
  */
 @SupportedAnnotationPackages(
-        value = {"testOrg/functions"}
+        value = {"test/proj"}
 )
 public class CrashTestCompilerPlugin extends AbstractCompilerPlugin {
 

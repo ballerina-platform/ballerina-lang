@@ -35,5 +35,5 @@ public interface BStream extends BValue {
      */
     Type getConstraintType();
 
-    Object getIteratorObj();
+    BObject getIteratorObj();
 }

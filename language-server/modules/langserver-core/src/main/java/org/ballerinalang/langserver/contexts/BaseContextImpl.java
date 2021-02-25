@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.contexts;
 
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 
 /**
@@ -28,8 +29,11 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
  */
 public class BaseContextImpl extends AbstractDocumentServiceContext {
 
-    BaseContextImpl(LSOperation operation, String fileUri, WorkspaceManager wsManager) {
-        super(operation, fileUri, wsManager);
+    BaseContextImpl(LSOperation operation,
+                    String fileUri,
+                    WorkspaceManager wsManager,
+                    LanguageServerContext serverContext) {
+        super(operation, fileUri, wsManager, serverContext);
     }
 
     /**
@@ -44,12 +48,13 @@ public class BaseContextImpl extends AbstractDocumentServiceContext {
          *
          * @param lsOperation LS Operation for the particular invocation
          */
-        public BaseContextBuilder(LSOperation lsOperation) {
-            super(lsOperation);
+        public BaseContextBuilder(LSOperation lsOperation,
+                                  LanguageServerContext serverContext) {
+            super(lsOperation, serverContext);
         }
 
         public DocumentServiceContext build() {
-            return new BaseContextImpl(this.operation, this.fileUri, this.wsManager);
+            return new BaseContextImpl(this.operation, this.fileUri, this.wsManager, this.serverContext);
         }
 
         @Override

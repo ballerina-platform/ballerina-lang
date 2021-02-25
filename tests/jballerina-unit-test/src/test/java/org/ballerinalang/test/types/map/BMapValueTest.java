@@ -30,6 +30,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -246,5 +247,10 @@ public class BMapValueTest {
         Assert.assertEquals(map.get(keys[1]).stringValue(), "bar");
         Assert.assertEquals(map.get(keys[2]).stringValue(), "foobar");
 
+    }
+
+    @AfterClass
+    public void tearDown() {
+        programFile = null;
     }
 }

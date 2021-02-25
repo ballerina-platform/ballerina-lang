@@ -75,16 +75,7 @@ public class FromJsonWithType {
 
     private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues,
                                   BTypedesc t) {
-
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
-        Type sourceType = TypeChecker.getType(value);
-
-        if (unresolvedValues.contains(typeValuePair)) {
-            throw new BallerinaException(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, sourceType).getValue());
-        }
-
-        unresolvedValues.add(typeValuePair);
 
         if (value == null) {
             if (targetType.isNilable()) {
@@ -93,6 +84,15 @@ public class FromJsonWithType {
             throw createError(VALUE_LANG_LIB_CONVERSION_ERROR,
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
+
+        Type sourceType = TypeChecker.getType(value);
+
+        if (unresolvedValues.contains(typeValuePair)) {
+            throw new BallerinaException(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, sourceType).getValue());
+        }
+
+        unresolvedValues.add(typeValuePair);
 
         List<Type> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType, new ArrayList<>());
         if (convertibleTypes.isEmpty()) {

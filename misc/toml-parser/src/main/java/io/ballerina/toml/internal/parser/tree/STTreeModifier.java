@@ -106,6 +106,18 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STLiteralStringLiteralNode transform(
+            STLiteralStringLiteralNode literalStringLiteralNode) {
+        STNode startSingleQuote = modifyNode(literalStringLiteralNode.startSingleQuote);
+        STNode content = modifyNode(literalStringLiteralNode.content);
+        STNode endSingleQuote = modifyNode(literalStringLiteralNode.endSingleQuote);
+        return literalStringLiteralNode.modify(
+                startSingleQuote,
+                content,
+                endSingleQuote);
+    }
+
+    @Override
     public STNumericLiteralNode transform(
             STNumericLiteralNode numericLiteralNode) {
         STNode sign = modifyNode(numericLiteralNode.sign);
@@ -144,10 +156,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
 
     public STLiteralValueToken transform(STLiteralValueToken literalValueToken) {
         return literalValueToken;
-    }
-
-    public STDocumentationLineToken transform(STDocumentationLineToken documentationLineToken) {
-        return documentationLineToken;
     }
 
     public STMissingToken transform(STMissingToken missingToken) {

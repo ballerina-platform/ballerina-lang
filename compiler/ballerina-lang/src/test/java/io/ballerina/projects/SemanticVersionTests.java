@@ -33,10 +33,12 @@ public class SemanticVersionTests {
         Assert.assertEquals(version.major(), 1);
         Assert.assertEquals(version.minor(), 0);
         Assert.assertEquals(version.patch(), 1);
-        Assert.assertEquals(version.preReleaseVersion(), "alpha");
+        Assert.assertEquals(version.preReleasePart(), "alpha");
+        Assert.assertFalse(version.isStable());
 
         version = SemanticVersion.from("1.0.1-alpha.1.2.3.4.23423");
-        Assert.assertEquals(version.preReleaseVersion(), "alpha.1.2.3.4.23423");
+        Assert.assertEquals(version.preReleasePart(), "alpha.1.2.3.4.23423");
+        Assert.assertFalse(version.isStable());
     }
 
     @Test
@@ -46,9 +48,11 @@ public class SemanticVersionTests {
         Assert.assertEquals(version.minor(), 0);
         Assert.assertEquals(version.patch(), 1);
         Assert.assertEquals(version.buildMetadata(), "20130313144700");
+        Assert.assertTrue(version.isStable());
 
         version = SemanticVersion.from("1.0.1+20130313144700.A1234.34343a");
         Assert.assertEquals(version.buildMetadata(), "20130313144700.A1234.34343a");
+        Assert.assertTrue(version.isStable());
     }
 
     @Test
@@ -57,7 +61,26 @@ public class SemanticVersionTests {
         Assert.assertEquals(version.major(), 1);
         Assert.assertEquals(version.minor(), 0);
         Assert.assertEquals(version.patch(), 1);
-        Assert.assertEquals(version.preReleaseVersion(), "alpha1.0.0");
+        Assert.assertEquals(version.preReleasePart(), "alpha1.0.0");
         Assert.assertEquals(version.buildMetadata(), "20130313144700.1.2.a");
+        Assert.assertFalse(version.isStable());
+    }
+
+    @Test
+    public void testStableVersions() {
+        SemanticVersion version = SemanticVersion.from("2.0.1");
+        Assert.assertEquals(version.major(), 2);
+        Assert.assertEquals(version.minor(), 0);
+        Assert.assertEquals(version.patch(), 1);
+        Assert.assertTrue(version.isStable());
+    }
+
+    @Test
+    public void testInitialVersions() {
+        SemanticVersion version = SemanticVersion.from("0.1.0-alpha");
+        Assert.assertEquals(version.major(), 0);
+        Assert.assertEquals(version.minor(), 1);
+        Assert.assertEquals(version.patch(), 0);
+        Assert.assertFalse(version.isStable());
     }
 }

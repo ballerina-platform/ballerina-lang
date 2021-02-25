@@ -9,7 +9,7 @@
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'test",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -23,7 +23,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'test;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -31,7 +31,7 @@
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'array",
+      "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -45,34 +45,12 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'array;\n"
+          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
     {
-      "label": "ballerina/lang.transaction",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'transaction",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.'transaction;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/java",
+      "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
       "insertText": "java",
@@ -89,7 +67,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/java;\n"
+          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -97,7 +75,7 @@
       "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'value",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -111,7 +89,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'value;\n"
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -141,7 +119,7 @@
       "label": "ballerina/lang.query",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'query",
+      "insertText": "query",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -155,7 +133,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'query;\n"
+          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },
@@ -163,7 +141,7 @@
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'runtime",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -177,99 +155,106 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'runtime;\n"
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
     {
-      "label": "ballerina/lang.float",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'float",
+      "label": "boolean",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.xml",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'xml",
+      "label": "decimal",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.decimal",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'decimal",
+      "label": "error",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.object",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'object",
+      "label": "float",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "float",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.string",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'string",
+      "label": "future",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "future",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.error",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'error",
+      "label": "int",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "int",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.stream",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'stream",
+      "label": "map",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "map",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.map",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'map",
+      "label": "object",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "object",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.table",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'table",
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.int",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'int",
+      "label": "string",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "string",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.boolean",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'boolean",
+      "label": "table",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "table",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.future",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'future",
+      "label": "transaction",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "transaction",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.typedesc",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'typedesc",
+      "label": "typedesc",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
@@ -284,22 +269,9 @@
     },
     {
       "label": "Thread",
+      "kind": "TypeParameter",
       "detail": "Union",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
@@ -324,38 +296,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "json",
       "kind": "Unit",
       "detail": "type",
       "insertText": "json",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "table",
       "insertTextFormat": "Snippet"
     },
     {
@@ -373,27 +317,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "int",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "boolean",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "service",
       "kind": "Unit",
       "detail": "type",
@@ -401,31 +324,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "typedesc",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "byte",
       "kind": "Unit",
       "detail": "type",
       "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "Unit",
-      "detail": "type ",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Event",
-      "detail": "error",
-      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
@@ -439,28 +341,28 @@
       "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "record {\n\t${1}\n}",
+      "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "record {|\n\t${1}\n|}",
+      "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "object",
+      "label": "distinct",
       "kind": "Keyword",
       "detail": "Keyword",
-      "insertText": "object ",
+      "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "object {\n\t${1}\n}",
+      "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -33,6 +33,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -559,5 +560,11 @@ public class ConstrainedMapTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapAnyDataClosedRecordAssignment");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Jack");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        negativeResult = null;
     }
 }

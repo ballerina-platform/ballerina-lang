@@ -37,8 +37,7 @@ public class TreeModifiers {
      * @return return the root node after replacing the target with the replacement
      */
     public static <T extends NonTerminalNode> T replace(T root, Node target, Node replacement) {
-        NodeReplacer
-                nodeReplacer = new NodeReplacer(target, replacement);
+        NodeReplacer nodeReplacer = new NodeReplacer(target, replacement);
         return nodeReplacer.replace(root);
     }
 }

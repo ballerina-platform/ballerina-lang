@@ -22,7 +22,7 @@ public class Color {
 
 public function foo(string... args) {
     Lorry lorry = new Lorry();
-    lorry.get_color(2).print("").toString().length()        ;
+    lorry.get_color(2).print("").toString().length();
     lorry.get_color(2).print(".invoc(\"");
 }
 

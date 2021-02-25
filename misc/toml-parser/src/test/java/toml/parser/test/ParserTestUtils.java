@@ -35,6 +35,7 @@ import io.ballerina.toml.internal.syntax.SyntaxUtils;
 import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
+import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.testng.Assert;
@@ -429,6 +430,8 @@ public class ParserTestUtils {
                 return SyntaxKind.IDENTIFIER_LITERAL;
             case "STRING_LITERAL":
                 return SyntaxKind.STRING_LITERAL;
+            case "LITERAL_STRING":
+                return SyntaxKind.LITERAL_STRING;
             case "WHITESPACE_MINUTIAE":
                 return SyntaxKind.WHITESPACE_MINUTIAE;
             case "END_OF_LINE_MINUTIAE":
@@ -439,6 +442,8 @@ public class ParserTestUtils {
                 return SyntaxKind.INVALID_NODE_MINUTIAE;
             case "INVALID_TOKEN":
                 return SyntaxKind.INVALID_TOKEN;
+            case "INVALID_TOKEN_MINUTIAE_NODE":
+                return SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE;
             case "MARKDOWN_DOCUMENTATION_LINE":
                 return SyntaxKind.MARKDOWN_DOCUMENTATION_LINE;
             case "TABLE":
@@ -451,6 +456,12 @@ public class ParserTestUtils {
                 return SyntaxKind.KEY;
             case "DEC_INT":
                 return SyntaxKind.DEC_INT;
+            case "HEX_INT":
+                return SyntaxKind.HEX_INT;
+            case "OCT_INT":
+                return SyntaxKind.OCT_INT;
+            case "BINARY_INT":
+                return SyntaxKind.BINARY_INT;
             case "FLOAT":
                 return SyntaxKind.FLOAT;
             case "INF_TOKEN":
@@ -463,6 +474,12 @@ public class ParserTestUtils {
                 return SyntaxKind.DECIMAL_INT_TOKEN;
             case "DECIMAL_FLOAT_TOKEN":
                 return SyntaxKind.DECIMAL_FLOAT_TOKEN;
+            case "HEX_INTEGER_LITERAL_TOKEN":
+                return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
+            case "OCTAL_INTEGER_LITERAL_TOKEN":
+                return SyntaxKind.OCTAL_INTEGER_LITERAL_TOKEN;
+            case "BINARY_INTEGER_LITERAL_TOKEN":
+                return SyntaxKind.BINARY_INTEGER_LITERAL_TOKEN;
             case "BOOLEAN":
                 return SyntaxKind.BOOLEAN;
             case "OFFSET_DATE_TIME":
@@ -487,5 +504,14 @@ public class ParserTestUtils {
                 return SyntaxKind.NONE;
         }
         return null;
+    }
+
+    public static void assertLineRange(LineRange lineRange, int startLine, int startOffset, int endLine,
+                                       int endOffset) {
+        Assert.assertEquals(lineRange.startLine().line(), startLine);
+        Assert.assertEquals(lineRange.startLine().offset(), startOffset);
+
+        Assert.assertEquals(lineRange.endLine().line(), endLine);
+        Assert.assertEquals(lineRange.endLine().offset(), endOffset);
     }
 }

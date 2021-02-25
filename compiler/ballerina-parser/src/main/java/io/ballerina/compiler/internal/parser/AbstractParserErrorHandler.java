@@ -178,7 +178,21 @@ public abstract class AbstractParserErrorHandler {
      * @return Recovery result
      */
     private Result seekMatch(ParserRuleContext currentCtx) {
-        return seekMatchInSubTree(currentCtx, 1, 0, true);
+        Result bestMatch;
+        try {
+            bestMatch = seekMatchInSubTree(currentCtx, 1, 0, true);
+        } catch (IllegalStateException exception) {
+            // This is a fail-safe mechanism to avoid parser being crashed in the production.
+            // We catch the exception and since we don't have any other path, return the solution as a REMOVE.
+            // We should never reach here. If we do, please open an issue.
+            assert false : "Oh no, something went bad with parser error handler: \n" +
+                    "seekMatch caught " +
+                    exception.toString();
+            bestMatch = new Result(new ArrayDeque<>(), LOOKAHEAD_LIMIT - 1);
+            bestMatch.solution = new Solution(Action.REMOVE, currentCtx, SyntaxKind.NONE, currentCtx.toString());
+        }
+
+        return bestMatch;
     }
 
     /**
@@ -245,8 +259,23 @@ public abstract class AbstractParserErrorHandler {
         // such that results with the same number of matches are put together. This is
         // done so that we can easily pick the best, without iterating through them.
         for (ParserRuleContext rule : alternativeRules) {
-            Result result = seekMatchInSubTree(rule, lookahead, currentDepth, isEntryPoint);
-            if (result.matches >= LOOKAHEAD_LIMIT - 1) {
+            Result result;
+            try {
+                result = seekMatchInSubTree(rule, lookahead, currentDepth, isEntryPoint);
+            } catch (IllegalStateException exception) {
+                // This is a fail-safe mechanism to avoid parser being crashed in the production.
+                // We Catch the exception and simply ignore that path.
+                // The best alternative path would get picked from the remaining contenders.
+                // We should never reach here. If we do, please open an issue.
+                assert false : "Oh no, something went bad with parser error handler: \n" +
+                        "seekInAlternativesPaths caught " +
+                        exception.toString();
+                continue;
+            }
+
+
+            // exit early
+            if (hasFoundBestAlternative(result)) {
                 return getFinalResult(currentMatches, result);
             }
 
@@ -291,14 +320,28 @@ public abstract class AbstractParserErrorHandler {
                 if (currentSol.action == Action.REMOVE && foundSol.action == Action.INSERT) {
                     bestMatch = currentMatch;
                 }
-            }
-
-            if (currentMatchFixesSize < bestmatchFixesSize) {
+            } else if (currentMatchFixesSize < bestmatchFixesSize) {
                 bestMatch = currentMatch;
             }
         }
 
         return getFinalResult(currentMatches, bestMatch);
+    }
+
+    private boolean hasFoundBestAlternative(Result result) {
+        // If the best possible solution is found we can exit early. However, if that solution
+        // is an REMOVE action, then we should not terminate, because there can be another
+        // alternative that could give an equally good solution with an INSERT action. Since
+        // INSERT action is given high priority, we should continue to search.
+        if (result.matches < LOOKAHEAD_LIMIT - 1) {
+            return false;
+        }
+
+        if (result.solution == null) {
+            return true;
+        }
+
+        return result.solution.action != Action.REMOVE;
     }
 
     /**

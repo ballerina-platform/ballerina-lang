@@ -23,3 +23,14 @@ type Bar object {
     string y;
 };
 
+public type Timestamp readonly & object {
+    int value;
+
+    public function toMillisecondsInt() returns int;
+};
+
+readonly class TimestampImpl  {
+    *Timestamp;
+
+    public function toMillisecondsInt() returns int => self.value;
+}

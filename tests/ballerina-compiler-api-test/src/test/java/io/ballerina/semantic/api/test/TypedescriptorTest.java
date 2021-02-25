@@ -18,19 +18,30 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaBooleanTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaByteTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaDecimalTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaFloatTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaIntTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaNilTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaStringTypeSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
+import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -44,30 +55,48 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
+import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT_SIGNED16;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT_SIGNED32;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT_SIGNED8;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT_UNSIGNED16;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT_UNSIGNED32;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT_UNSIGNED8;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NEVER;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.READONLY;
@@ -75,16 +104,22 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING_CHAR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_COMMENT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_PROCESSING_INSTRUCTION;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_TEXT;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -95,10 +130,13 @@ import static org.testng.Assert.assertTrue;
 public class TypedescriptorTest {
 
     private SemanticModel model;
+    private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/typedesc_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/typedesc_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
 
     @Test
@@ -174,18 +212,18 @@ public class TypedescriptorTest {
         ClassSymbol clazz = (ClassSymbol) symbol;
         assertEquals(clazz.typeKind(), OBJECT);
 
-        List<FieldSymbol> fields = clazz.fieldDescriptors();
-        FieldSymbol field = fields.get(0);
+        Map<String, ClassFieldSymbol> fields = clazz.fieldDescriptors();
+        ObjectFieldSymbol field = fields.get("name");
         assertEquals(fields.size(), 1);
-        assertEquals(field.name(), "name");
+        assertEquals(field.getName().get(), "name");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
 
-        List<MethodSymbol> methods = clazz.methods();
-        MethodSymbol method = methods.get(0);
+        Map<String, MethodSymbol> methods = clazz.methods();
+        MethodSymbol method = methods.get("getName");
         assertEquals(fields.size(), 1);
-        assertEquals(method.name(), "getName");
+        assertEquals(method.getName().get(), "getName");
 
-        assertEquals(clazz.initMethod().get().name(), "init");
+        assertEquals(clazz.initMethod().get().getName().get(), "init");
     }
 
     @Test
@@ -193,13 +231,14 @@ public class TypedescriptorTest {
         Symbol symbol = getSymbol(18, 5);
         RecordTypeSymbol type = (RecordTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), RECORD);
-        assertFalse(type.inclusive());
         assertFalse(type.restTypeDescriptor().isPresent());
 
-        List<FieldSymbol> fields = type.fieldDescriptors();
-        FieldSymbol field = fields.get(0);
+        Map<String, RecordFieldSymbol> fields = type.fieldDescriptors();
         assertEquals(fields.size(), 1);
-        assertEquals(field.name(), "path");
+        assertTrue(fields.containsKey("path"));
+
+        RecordFieldSymbol field = fields.get("path");
+        assertEquals(field.getName().get(), "path");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
     }
 
@@ -245,6 +284,8 @@ public class TypedescriptorTest {
         assertEquals(members.get(0).typeKind(), INT);
         assertEquals(members.get(1).typeKind(), STRING);
         assertEquals(members.get(2).typeKind(), FLOAT);
+
+        assertEquals(type.signature(), "int|string|float");
     }
 
     @Test(enabled = false)
@@ -262,6 +303,24 @@ public class TypedescriptorTest {
         assertEquals(members.get(2).typeKind(), DECIMAL);
     }
 
+    @Test(dataProvider = "UnionWithNilPos")
+    public void testUnionTypeWithNil(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), UNION);
+        assertEquals(type.signature(), signature);
+    }
+
+    @DataProvider(name = "UnionWithNilPos")
+    public Object[][] getUnionWithNilPos() {
+        return new Object[][]{
+                {204, 11, "int?"},
+                {205, 17, "int|float|()"},
+                {206, 11, "A?"},
+//                {207, 15, "A|B|()"}, TODO: Disabled due to /ballerina-lang/issues/27957
+        };
+    }
+
     @Test(dataProvider = "FiniteTypeDataProvider")
     public void testFiniteType(int line, int column, List<String> expSignatures) {
         Symbol symbol = getSymbol(line, column);
@@ -274,6 +333,9 @@ public class TypedescriptorTest {
             assertEquals(member.typeKind(), SINGLETON);
             assertEquals(member.signature(), expSignatures.get(i));
         }
+
+        String expSignature = members.stream().map(TypeSymbol::signature).collect(Collectors.joining("|"));
+        assertEquals(union.signature(), expSignature);
     }
 
     @DataProvider(name = "FiniteTypeDataProvider")
@@ -306,7 +368,7 @@ public class TypedescriptorTest {
         TypeSymbol type = symbol.typeDescriptor();
         assertEquals(type.typeKind(), XML);
         assertEquals(((XMLTypeSymbol) type).typeParameter().get().typeKind(), kind);
-        assertEquals(type.name(), name);
+        assertEquals(type.getName().get(), name);
     }
 
     @DataProvider(name = "XMLPosProvider")
@@ -326,7 +388,7 @@ public class TypedescriptorTest {
 
         TableTypeSymbol tableType = (TableTypeSymbol) type;
         assertEquals(tableType.rowTypeParameter().typeKind(), rowTypeKind);
-        assertEquals(tableType.rowTypeParameter().name(), rowTypeName);
+        assertEquals(tableType.rowTypeParameter().getName().get(), rowTypeName);
         assertEquals(tableType.keySpecifiers(), keySpecifiers);
         tableType.keyConstraintTypeParameter().ifPresent(t -> assertEquals(t.typeKind(), keyConstraintTypeKind));
         assertEquals(type.signature(), signature);
@@ -342,30 +404,30 @@ public class TypedescriptorTest {
     }
 
     @Test(dataProvider = "BuiltinTypePosProvider")
-    public void testBuiltinSubtypes(int line, int column, TypeDescKind kind, String name) {
+    public void testBuiltinSubtypes(int line, int column, String name, TypeDescKind kind) {
         Symbol symbol = getSymbol(line, column);
         TypeSymbol typeRef = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(typeRef.typeKind(), TYPE_REFERENCE);
 
         TypeSymbol type = ((TypeReferenceTypeSymbol) typeRef).typeDescriptor();
         assertEquals(type.typeKind(), kind);
-        assertEquals(type.name(), name);
+        assertEquals(type.getName().get(), name);
     }
 
     @DataProvider(name = "BuiltinTypePosProvider")
     public Object[][] getBuiltinTypePos() {
         return new Object[][]{
-                {77, 20, INT, "Unsigned32"},
-                {78, 18, INT, "Signed32"},
-                {79, 19, INT, "Unsigned8"},
-                {80, 17, INT, "Signed8"},
-                {81, 20, INT, "Unsigned16"},
-                {82, 18, INT, "Signed16"},
-                {84, 17, STRING, "Char"},
-                {86, 17, XML, "Element"},
-                {87, 31, XML, "ProcessingInstruction"},
-                {88, 17, XML, "Comment"},
-                {89, 14, XML, "Text"},
+                {77, 20, "Unsigned32", INT_UNSIGNED32},
+                {78, 18, "Signed32", INT_SIGNED32},
+                {79, 19, "Unsigned8", INT_UNSIGNED8},
+                {80, 17, "Signed8", INT_SIGNED8},
+                {81, 20, "Unsigned16", INT_UNSIGNED16},
+                {82, 18, "Signed16", INT_SIGNED16},
+                {84, 17, "Char", STRING_CHAR},
+                {86, 17, "Element", XML_ELEMENT},
+                {87, 31, "ProcessingInstruction", XML_PROCESSING_INSTRUCTION},
+                {88, 17, "Comment", XML_COMMENT},
+                {89, 14, "Text", XML_TEXT},
         };
     }
 
@@ -377,18 +439,13 @@ public class TypedescriptorTest {
 
         StreamTypeSymbol streamType = (StreamTypeSymbol) type;
         assertEquals(streamType.typeParameter().typeKind(), typeParamKind);
-
-        if (streamType.completionValueTypeParameter().isPresent()) {
-            assertEquals(streamType.completionValueTypeParameter().get().typeKind(), completionValueTypeKind);
-        } else {
-            assertNull(completionValueTypeKind);
-        }
+        assertEquals(streamType.completionValueTypeParameter().typeKind(), completionValueTypeKind);
     }
 
     @DataProvider(name = "StreamTypePosProvider")
     public Object[][] getStreamTypePos() {
         return new Object[][]{
-                {93, 19, TYPE_REFERENCE, null},
+                {93, 19, TYPE_REFERENCE, NEVER},
                 {94, 23, TYPE_REFERENCE, NIL},
                 {95, 45, RECORD, ERROR}
         };
@@ -402,7 +459,7 @@ public class TypedescriptorTest {
 
         for (TypeSymbol inclusion : typeInclusions) {
             assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), typeKind);
-            assertTrue(expTypes.contains(inclusion.name()));
+            assertTrue(expTypes.contains(inclusion.getName().get()));
         }
     }
 
@@ -423,7 +480,7 @@ public class TypedescriptorTest {
 
         for (TypeSymbol inclusion : typeInclusions) {
             assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), OBJECT);
-            assertTrue(expTypes.contains(inclusion.name()));
+            assertTrue(expTypes.contains(inclusion.getName().get()));
         }
     }
 
@@ -436,16 +493,16 @@ public class TypedescriptorTest {
 
         for (TypeSymbol inclusion : typeInclusions) {
             assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), OBJECT);
-            assertTrue(expTypes.contains(inclusion.name()));
+            assertTrue(expTypes.contains(inclusion.getName().get()));
         }
     }
 
     @Test
     public void testEnumsAsTypes() {
-        Optional<TypeSymbol> type = model.type("typedesc_test.bal",
-                                               LineRange.from("typedesc_test.bal", from(160, 37), from(160, 38)));
+        Optional<TypeSymbol> type =
+                model.type(LineRange.from("typedesc_test.bal", from(160, 37), from(160, 38)));
         assertEquals(type.get().typeKind(), TYPE_REFERENCE);
-        assertEquals(type.get().name(), "Colour");
+        assertEquals(type.get().getName().get(), "Colour");
 
         TypeSymbol enumType = ((TypeReferenceTypeSymbol) type.get()).typeDescriptor();
         assertEquals(enumType.typeKind(), UNION);
@@ -455,13 +512,137 @@ public class TypedescriptorTest {
         }
     }
 
+    @Test
+    public void testNeverType() {
+        Symbol symbol = getSymbol(163, 9);
+        TypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor().get();
+        assertEquals(type.typeKind(), NEVER);
+    }
+
+    @Test
+    public void testIntersectionType1() {
+        Symbol symbol = getSymbol(167, 6);
+        TypeSymbol type = ((TypeDefinitionSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), INTERSECTION);
+
+        List<TypeSymbol> members = ((IntersectionTypeSymbol) type).memberTypeDescriptors();
+
+        TypeSymbol mem1 = members.get(0);
+        assertEquals(mem1.getName().get(), "Foo");
+        assertEquals(((TypeReferenceTypeSymbol) mem1).typeDescriptor().typeKind(), RECORD);
+
+        assertEquals(members.get(1).typeKind(), READONLY);
+    }
+
+    @Test
+    public void testIntersectionType2() {
+        Symbol symbol = getSymbol(170, 25);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), INTERSECTION);
+
+        List<TypeSymbol> members = ((IntersectionTypeSymbol) type).memberTypeDescriptors();
+        assertEquals(members.get(0).typeKind(), MAP);
+        assertEquals(members.get(1).typeKind(), READONLY);
+    }
+
+    @Test
+    public void testIntersectionType3() {
+        Symbol symbol = getSymbol(171, 16);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), INTERSECTION);
+    }
+
+    @Test
+    public void testDistinctObjects() {
+        Symbol symbol = getSymbol(174, 12);
+        TypeSymbol type = ((TypeDefinitionSymbol) symbol).typeDescriptor();
+
+        assertTrue(((TypeDefinitionSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC));
+        assertEquals(type.typeKind(), OBJECT);
+        // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/27279
+//        assertTrue(((ObjectTypeSymbol) type).qualifiers().contains(Qualifier.DISTINCT));
+    }
+
+    @Test
+    public void testCompileErrorType1() {
+        LineRange range = LineRange.from("typedesc_test.bal", from(181, 12), from(181, 17));
+        Optional<TypeSymbol> type = model.type(range);
+        assertEquals(type.get().typeKind(), COMPILATION_ERROR);
+    }
+
+    @Test
+    public void testCompileErrorType2() {
+        Symbol symbol = getSymbol(182, 18);
+        assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), COMPILATION_ERROR);
+    }
+
+    @Test(dataProvider = "BasicTestPosProvider")
+    public void testTypeBasics(int line, int col, TypeDescKind typeKind, Class<? extends TypeSymbol> clazz) {
+        VariableSymbol symbol = (VariableSymbol) getSymbol(line, col);
+        assertEquals(symbol.typeDescriptor().typeKind(), typeKind);
+        assertEquals(symbol.typeDescriptor().getClass(), clazz);
+    }
+
+    @DataProvider(name = "BasicTestPosProvider")
+    public Object[][] getBasicTestPos() {
+        return new Object[][]{
+                {186, 8, INT, BallerinaIntTypeSymbol.class},
+                {187, 10, FLOAT, BallerinaFloatTypeSymbol.class},
+                {188, 12, DECIMAL, BallerinaDecimalTypeSymbol.class},
+                {189, 12, BOOLEAN, BallerinaBooleanTypeSymbol.class},
+                {190, 7, NIL, BallerinaNilTypeSymbol.class},
+                {191, 11, STRING, BallerinaStringTypeSymbol.class},
+                {192, 9, BYTE, BallerinaByteTypeSymbol.class},
+        };
+    }
+
+    @Test
+    public void testMultilineTypedefs() {
+        Symbol symbol = getSymbol(198, 18);
+        assertEquals(symbol.kind(), TYPE);
+        assertEquals(((TypeSymbol) symbol).typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) symbol).getName().get(), "CancelledError");
+    }
+
+    @Test(dataProvider = "ConstantPosProvider")
+    public void testConstantTypeSignature(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        assertEquals(symbol.kind(), CONSTANT);
+        assertEquals(((ConstantSymbol) symbol).typeKind(), SINGLETON);
+        assertEquals(((ConstantSymbol) symbol).signature(), signature);
+    }
+
+    @DataProvider(name = "ConstantPosProvider")
+    public Object[][] getConstPos() {
+        return new Object[][]{
+                {16, 6, "3.14"},
+                {210, 6, "()"},
+        };
+    }
+
+    @Test(dataProvider = "SingletonPosProvider")
+    public void testSingletonTypeSignature(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        assertEquals(symbol.kind(), TYPE_DEFINITION);
+        assertEquals(((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind(), SINGLETON);
+        assertEquals(((TypeDefinitionSymbol) symbol).typeDescriptor().signature(), signature);
+    }
+
+    @DataProvider(name = "SingletonPosProvider")
+    public Object[][] getSingletonTypePos() {
+        return new Object[][]{
+                {211, 5, "()"},
+                {213, 5, "3.14"},
+        };
+    }
+
     private Symbol getSymbol(int line, int column) {
-        return model.symbol("typedesc_test.bal", from(line, column)).get();
+        return model.symbol(srcFile, from(line, column)).get();
     }
 
     private void validateParam(ParameterSymbol param, String name, ParameterKind kind, TypeDescKind typeKind) {
-        assertEquals(param.name().get(), name);
-        assertEquals(param.kind(), kind);
+        assertEquals(param.getName().get(), name);
+        assertEquals(param.paramKind(), kind);
         assertEquals(param.typeDescriptor().typeKind(), typeKind);
     }
 }

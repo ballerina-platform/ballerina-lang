@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -201,5 +202,10 @@ public class TupleAccessExprTest {
                     "out of range: index: 6, size: 4.*")
     public void testTupleAccessUsingUnionWithFiniteTypesNegative() {
         BRunUtil.invoke(compileResult, "testTupleAccessUsingUnionWithFiniteTypesNegative");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

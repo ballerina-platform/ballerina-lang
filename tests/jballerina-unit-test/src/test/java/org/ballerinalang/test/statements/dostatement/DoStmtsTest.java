@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -65,5 +66,12 @@ public class DoStmtsTest {
         BAssertUtil.validateError(negativeFile2, 1, "incompatible types: expected 'string', " +
                 "found 'error'", 8, 12);
         BAssertUtil.validateError(negativeFile2, 2, "undefined symbol 'd'", 26, 12);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        programFile = null;
+        negativeFile1 = null;
+        negativeFile2 = null;
     }
 }

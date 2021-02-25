@@ -14,6 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Denotes anydata type
+public type 'anydata ()|boolean|int|float|decimal|string|xml|'anydata[]|map<'anydata>|table<map<'anydata>>;
+
+# Denotes json type
+public type 'json ()|boolean|int|float|decimal|string|'json[]|map<'json>;
+
 # Denote that the return value is tainted.
 public const annotation tainted on parameter, return, source listener, source var, source type;
 
@@ -73,5 +79,12 @@ public type StrandData record {|
 # Denotes new Strand execution semantics.
 public const annotation StrandData strand on source worker;
 
-# Denotes icon metadata related to types and functions.
-public const annotation record {| string path; |} icon on source type, source function, source class;
+# Denotes general-purpose metadata to customize how Ballerina symbols are displayed in a UI environment.
+public const annotation record {
+    # label for the Ballerina construct
+    string label;
+    # icon path relative to module's resource directory
+    string iconPath?;
+} display on source type, source class,
+      source function, source return, source parameter, source field, source listener,
+      source var, source const, source annotation, source service;

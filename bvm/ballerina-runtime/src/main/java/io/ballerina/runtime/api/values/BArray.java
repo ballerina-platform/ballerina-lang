@@ -152,6 +152,13 @@ public interface BArray extends BRefValue, BCollection {
     void append(Object value);
 
     /**
+     * Reverse an array.
+     *
+     * @return reversed array of input array
+     */
+    Object reverse();
+
+    /**
      * Removes and returns first member of an array.
      * @return the value that was the first member of the array
      */

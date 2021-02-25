@@ -30,13 +30,12 @@ configurations {
 dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-tool')
     implementation project(':ballerina-cli')
     implementation project(':docerina')
     implementation 'com.moandjiezana.toml:toml4j'
 
     dist project(':ballerina-lang')
-    dist project(':ballerina-tool')
+    dist project(':ballerina-cli')
     dist project(':docerina')
 
 }

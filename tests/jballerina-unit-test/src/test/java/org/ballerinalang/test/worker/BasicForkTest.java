@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -80,5 +81,10 @@ public class BasicForkTest {
 
     private int lastNum(String multiLineStr) {
         return Integer.parseInt(lastLine(multiLineStr));
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -27,7 +27,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -35,6 +35,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -51,19 +52,21 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
         super(attachmentPoint);
     }
 
-    protected List<LSCompletionItem> getFilteredItems(CompletionContext context, ExpressionNode node) {
+    protected List<LSCompletionItem> getFilteredItems(BallerinaCompletionContext context, ExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Predicate<Symbol> predicate;
         switch (node.kind()) {
             case SIMPLE_NAME_REFERENCE:
                 predicate = symbol -> symbol.kind() != SymbolKind.FUNCTION
-                        && symbol.name().equals(((SimpleNameReferenceNode) node).name().text());
+                        && Objects.equals(symbol.getName().orElse(null),
+                                          ((SimpleNameReferenceNode) node).name().text());
                 break;
             case FUNCTION_CALL:
                 predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION
-                        && symbol.name().equals(((SimpleNameReferenceNode) ((FunctionCallExpressionNode) node)
-                        .functionName()).name().text());
+                        && Objects.equals(symbol.getName().orElse(null),
+                                          ((SimpleNameReferenceNode) ((FunctionCallExpressionNode) node)
+                                                  .functionName()).name().text());
                 break;
             default:
                 return completionItems;
@@ -108,7 +111,7 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
             return new ArrayList<>();
         }
         TypeSymbol typeDescriptor = CommonUtil.getRawType(((VariableSymbol) symbol).typeDescriptor());
-        return ((ObjectTypeSymbol) typeDescriptor).methods().stream()
+        return ((ObjectTypeSymbol) typeDescriptor).methods().values().stream()
                 .filter(method -> method.qualifiers().contains(Qualifier.REMOTE))
                 .collect(Collectors.toList());
     }

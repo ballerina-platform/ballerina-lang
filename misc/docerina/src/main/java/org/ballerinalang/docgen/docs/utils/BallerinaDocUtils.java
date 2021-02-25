@@ -18,33 +18,32 @@
 
 package org.ballerinalang.docgen.docs.utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.commonmark.Extension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
+import org.commonmark.node.AbstractVisitor;
 import org.commonmark.node.BlockQuote;
 import org.commonmark.node.FencedCodeBlock;
 import org.commonmark.node.Heading;
 import org.commonmark.node.HtmlBlock;
 import org.commonmark.node.ListBlock;
 import org.commonmark.node.Node;
+import org.commonmark.node.Paragraph;
+import org.commonmark.node.Text;
 import org.commonmark.node.ThematicBreak;
 import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
+import org.commonmark.renderer.text.TextContentRenderer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -63,30 +62,6 @@ public class BallerinaDocUtils {
     private static final boolean debugEnabled = "true".equals(System.getProperty(
             BallerinaDocConstants.ENABLE_DEBUG_LOGS));
     private static final PrintStream out = System.out;
-
-    /**
-     * Convert a given md to a html.
-     *
-     * @param mdContent content
-     * @param pureMdFile is the mdContent read from a .md file(true) or a bal file(false).
-     * @return html representation
-     */
-    public static String mdToHtml(String mdContent, boolean pureMdFile) {
-        // TODO: Handle this properly at grammar level
-        // TODO: ```ballerina ``` sections in markdown shouldn't contain '#' at the beginning of each line
-        if (mdContent != null) {
-            mdContent = !pureMdFile
-                    ? mdContent.replaceAll("\n[\\s]*#", "\n")
-                    : mdContent;
-        }
-        List<Extension> extensions = Arrays.asList(TablesExtension.create());
-        Parser parser = Parser.builder().extensions(extensions).enabledBlockTypes(new HashSet<>(Arrays.asList(Heading
-                .class, HtmlBlock.class, ThematicBreak.class, FencedCodeBlock.class, BlockQuote.class, ListBlock
-                .class))).build();
-        Node document = parser.parse(mdContent != null ? mdContent.trim() : "");
-        HtmlRenderer renderer = HtmlRenderer.builder().extensions(extensions).build();
-        return renderer.render(document);
-    }
 
     /**
      * Parse a given markdown.
@@ -165,6 +140,16 @@ public class BallerinaDocUtils {
         return debugEnabled;
     }
 
+    public static String getSummary(String description) {
+        if (description != null) {
+            Node document = BallerinaDocUtils.parseMD(description);
+            SummaryVisitor summaryVisitor = new SummaryVisitor();
+            document.accept(summaryVisitor);
+            return summaryVisitor.getSummary();
+        }
+        return null;
+    }
+
     public static String getPrimitiveDescription(List<String> descriptions, String type) {
         // name=description
         Optional<String> desc = descriptions.stream().filter(description -> description.startsWith(type)).map
@@ -173,37 +158,26 @@ public class BallerinaDocUtils {
     }
 
     /**
-     * Visits a folder recursively and copy folders and files to a target directory.
+     * Used to get a summary of a module or a package.
      */
-    static class RecursiveFileVisitor extends SimpleFileVisitor<Path> {
-        Path source;
-        Path target;
-
-        public RecursiveFileVisitor(Path aSource, Path aTarget) {
-            this.source = aSource;
-            this.target = aTarget;
+    public static class SummaryVisitor extends AbstractVisitor {
+        protected Node summary;
+        @Override
+        public void visit(Heading heading) {
+            if (heading.getFirstChild() instanceof Text
+                    && (StringUtils.equalsIgnoreCase(((Text) heading.getFirstChild()).getLiteral(), "module overview")
+                    || StringUtils.equalsIgnoreCase(((Text) heading.getFirstChild()).getLiteral(), "package overview"))
+                    && heading.getNext() instanceof Paragraph
+            ) {
+                summary = heading.getNext();
+            }
         }
 
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            Path targetdir = target.resolve(source.relativize(dir).toString());
-            try {
-                Files.copy(dir, targetdir);
-            } catch (FileAlreadyExistsException e) {
-                if (!Files.isDirectory(targetdir)) {
-                    throw e;
-                }
+        public String getSummary() {
+            if (summary != null) {
+                return TextContentRenderer.builder().build().render(summary);
             }
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            Files.copy(file, target.resolve(source.relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
-            if (BallerinaDocUtils.isDebugEnabled()) {
-                out.println("File copied: " + file.toString());
-            }
-            return FileVisitResult.CONTINUE;
+            return "";
         }
     }
 }

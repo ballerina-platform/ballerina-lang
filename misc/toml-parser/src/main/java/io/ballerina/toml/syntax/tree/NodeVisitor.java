@@ -63,6 +63,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(stringLiteralNode);
     }
 
+    public void visit(LiteralStringLiteralNode literalStringLiteralNode) {
+        visitSyntaxNode(literalStringLiteralNode);
+    }
+
     public void visit(NumericLiteralNode numericLiteralNode) {
         visitSyntaxNode(numericLiteralNode);
     }

@@ -17,16 +17,18 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.BallerinaModuleID;
+import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.Documentation;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -36,18 +38,18 @@ import java.util.Optional;
  */
 public class BallerinaSymbol implements Symbol {
 
+    protected final CompilerContext context;
     private final String name;
-    private final PackageID moduleID;
     private final SymbolKind symbolKind;
-    private final Documentation docAttachment;
     private final Location position;
     private final BSymbol internalSymbol;
+    private ModuleSymbol module;
+    private boolean moduleEvaluated;
 
-    protected BallerinaSymbol(String name, PackageID moduleID, SymbolKind symbolKind, BSymbol symbol) {
+    protected BallerinaSymbol(String name, SymbolKind symbolKind, BSymbol symbol, CompilerContext context) {
         this.name = name;
-        this.moduleID = moduleID;
         this.symbolKind = symbolKind;
-        this.docAttachment = getDocAttachment(symbol);
+        this.context = context;
 
         if (symbol == null) {
             throw new IllegalArgumentException("'symbol' cannot be null");
@@ -61,20 +63,33 @@ public class BallerinaSymbol implements Symbol {
                                                     symbol.pos.lineRange().endLine().offset());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public String name() {
-        return this.name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(this.name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public ModuleID moduleID() {
-        return new BallerinaModuleID(this.moduleID);
+    public Optional<ModuleSymbol> getModule() {
+        if (this.module != null || this.moduleEvaluated) {
+            return Optional.ofNullable(this.module);
+        }
+
+        this.moduleEvaluated = true;
+        BSymbol symbol = this.internalSymbol.owner;
+        while (symbol != null) {
+            if (symbol instanceof BPackageSymbol) {
+                break;
+            }
+            symbol = symbol.owner;
+        }
+
+        if (symbol == null) {
+            return Optional.empty();
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        this.module = symbolFactory.createModuleSymbol((BPackageSymbol) symbol, symbol.name.value);
+        return Optional.of(this.module);
     }
 
     /**
@@ -85,25 +100,70 @@ public class BallerinaSymbol implements Symbol {
         return this.symbolKind;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Optional<Documentation> docAttachment() {
-        return Optional.ofNullable(this.docAttachment);
-    }
-
     @Override
     public Location location() {
         return this.position;
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        return Optional.ofNullable(this.position);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof Symbol)) {
+            return false;
+        }
+
+        Symbol symbol = (Symbol) obj;
+        return isSameName(this.getName(), symbol.getName())
+                && isSameModule(this.getModule(), symbol.getModule())
+                && isSameLocation(this.getLocation(), symbol.getLocation())
+                && this.kind().equals(symbol.kind());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getName().orElse(null), this.getModule().orElse(null), this.kind(),
+                            this.getLocation().isPresent() ? this.getLocation().get().lineRange() : null);
     }
 
     public BSymbol getInternalSymbol() {
         return this.internalSymbol;
     }
 
-    private Documentation getDocAttachment(BSymbol symbol) {
+    Documentation getDocAttachment(BSymbol symbol) {
         return symbol == null ? null : new BallerinaDocumentation(symbol.markdownDocumentation);
+    }
+
+    private boolean isSameName(Optional<String> name1, Optional<String> name2) {
+        if (name1.isEmpty() || name2.isEmpty()) {
+            return false;
+        }
+
+        return name1.get().equals(name2.get());
+    }
+
+    private boolean isSameModule(Optional<ModuleSymbol> mod1, Optional<ModuleSymbol> mod2) {
+        if (mod1.isEmpty() || mod2.isEmpty()) {
+            return false;
+        }
+
+        return mod1.get().id().equals(mod2.get().id());
+    }
+
+    private boolean isSameLocation(Optional<Location> loc1, Optional<Location> loc2) {
+        if (loc1.isEmpty() || loc2.isEmpty()) {
+            return false;
+        }
+
+        return loc1.get().lineRange().equals(loc2.get().lineRange());
     }
 
     /**
@@ -114,23 +174,23 @@ public class BallerinaSymbol implements Symbol {
     protected abstract static class SymbolBuilder<T extends SymbolBuilder<T>> {
 
         protected String name;
-        protected PackageID moduleID;
         protected SymbolKind ballerinaSymbolKind;
         protected BSymbol bSymbol;
+        protected CompilerContext context;
 
         /**
          * Symbol Builder Constructor.
          *
          * @param name       Symbol Name
-         * @param moduleID   module ID of the symbol
          * @param symbolKind symbol kind
          * @param bSymbol    symbol to evaluate
+         * @param context    context of the compilation
          */
-        public SymbolBuilder(String name, PackageID moduleID, SymbolKind symbolKind, BSymbol bSymbol) {
+        public SymbolBuilder(String name, SymbolKind symbolKind, BSymbol bSymbol, CompilerContext context) {
             this.name = name;
-            this.moduleID = moduleID;
             this.ballerinaSymbolKind = symbolKind;
             this.bSymbol = bSymbol;
+            this.context = context;
         }
 
         /**

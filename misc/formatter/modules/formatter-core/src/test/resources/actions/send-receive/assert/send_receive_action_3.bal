@@ -16,4 +16,5 @@ public function foo() {
         lw = <- w1;
         return "abc";
     }
+
 }

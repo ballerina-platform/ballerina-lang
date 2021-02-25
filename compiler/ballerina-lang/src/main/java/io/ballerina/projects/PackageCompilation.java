@@ -22,7 +22,9 @@ import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.CompilerBackend.TargetPlatform;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -31,13 +33,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.function.Function;
 
+import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
+import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
+import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.TAINT_CHECK;
 
 /**
  * Compilation at package level by resolving all the dependencies.
@@ -45,13 +51,15 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
  * @since 2.0.0
  */
 public class PackageCompilation {
+
     private final PackageContext rootPackageContext;
     private final PackageResolution packageResolution;
     private final CompilerContext compilerContext;
     private final Map<TargetPlatform, CompilerBackend> compilerBackends;
+    private final List<Diagnostic> pluginDiagnostics;
 
     private DiagnosticResult diagnosticResult;
-    private boolean compiled;
+    private volatile boolean compiled;
 
     private PackageCompilation(PackageContext rootPackageContext,
                                PackageResolution packageResolution) {
@@ -66,6 +74,7 @@ public class PackageCompilation {
 
         // We have only the jvm backend for now.
         this.compilerBackends = new HashMap<>(1);
+        this.pluginDiagnostics = new ArrayList<>();
     }
 
     private void setCompilerOptions(CompilationOptions compilationOptions) {
@@ -74,6 +83,10 @@ public class PackageCompilation {
         options.put(SKIP_TESTS, Boolean.toString(compilationOptions.skipTests()));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(compilationOptions.experimental()));
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
+        options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
+        options.put(DUMP_BIR_FILE, compilationOptions.getBirDumpFile());
+        options.put(CLOUD, compilationOptions.getCloud());
+        options.put(TAINT_CHECK, Boolean.toString(compilationOptions.getTaintCheck()));
     }
 
     static PackageCompilation from(PackageContext rootPackageContext) {
@@ -86,18 +99,12 @@ public class PackageCompilation {
     }
 
     public DiagnosticResult diagnosticResult() {
-        // TODO think about parallel invocations of this method
-        if (!compiled) {
-            compile();
-        }
+        compileIfRequired();
         return diagnosticResult;
     }
 
     public SemanticModel getSemanticModel(ModuleId moduleId) {
-        // TODO think about parallel invocations of this method
-        if (!compiled) {
-            compile();
-        }
+        compileIfRequired();
 
         ModuleContext moduleContext = this.rootPackageContext.moduleContext(moduleId);
         // We check whether the particular module compilation state equal to the typecheck phase here. 
@@ -126,25 +133,48 @@ public class PackageCompilation {
         return rootPackageContext;
     }
 
-    private void compile() {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
-            moduleContext.compile(compilerContext);
-            diagnostics.addAll(moduleContext.diagnostics());
-        }
-
-        addOtherDiagnostics(diagnostics);
-        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
-        compiled = true;
-    }
-
-    private void addOtherDiagnostics(List<Diagnostic> diagnostics) {
-        Optional<BallerinaToml> ballerinaTomlOptional = rootPackageContext.ballerinaToml();
-        if (ballerinaTomlOptional.isEmpty()) {
+    private void compileIfRequired() {
+        if (compiled) {
             return;
         }
 
-        BallerinaToml ballerinaToml = ballerinaTomlOptional.get();
-        diagnostics.addAll(ballerinaToml.diagnostics().allDiagnostics);
+        synchronized (this.compilerContext) {
+            if (compiled) {
+                return;
+            }
+            
+            List<Diagnostic> diagnostics = new ArrayList<>();
+            for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
+                moduleContext.compile(compilerContext);
+                moduleContext.diagnostics()
+                        .forEach(diagnostic -> diagnostics
+                                .add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
+            }
+            runPluginCodeAnalysis(diagnostics);
+            addOtherDiagnostics(diagnostics);
+            diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+            compiled = true;
+        }
+    }
+
+    private void runPluginCodeAnalysis(List<Diagnostic> diagnostics) {
+        // only run plugins for build projects
+        if (rootPackageContext.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+            ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+            for (CompilerPlugin plugin : processorServiceLoader) {
+                List<Diagnostic> pluginDiagnostics = plugin.codeAnalyze(rootPackageContext.project());
+                diagnostics.addAll(pluginDiagnostics);
+                this.pluginDiagnostics.addAll(pluginDiagnostics);
+            }
+        }
+    }
+
+    private void addOtherDiagnostics(List<Diagnostic> diagnostics) {
+        DiagnosticResult diagnosticResult = packageContext().manifest().diagnostics();
+        diagnostics.addAll(diagnosticResult.allDiagnostics);
+    }
+
+    List<Diagnostic> pluginDiagnostics() {
+        return pluginDiagnostics;
     }
 }

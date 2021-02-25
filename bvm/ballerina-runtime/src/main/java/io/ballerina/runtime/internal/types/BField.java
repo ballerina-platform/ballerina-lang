@@ -27,9 +27,9 @@ import io.ballerina.runtime.api.types.Type;
  */
 public class BField implements Field {
 
-    public Type type;
-    public String name;
-    public long flags;
+    private final Type type;
+    private final String name;
+    private final long flags;
 
     public BField(Type fieldType, String fieldName, long flags) {
         this.type = fieldType;

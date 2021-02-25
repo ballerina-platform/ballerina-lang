@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -265,5 +266,10 @@ public class BDecimalValueTest {
     public void testDecimalArrayValueLoading() {
         BValue[] returns = BRunUtil.invoke(result, "decimalArrayLoad");
         Assert.assertEquals(returns[0], new BDecimal("2.0", DecimalValueKind.OTHER));
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

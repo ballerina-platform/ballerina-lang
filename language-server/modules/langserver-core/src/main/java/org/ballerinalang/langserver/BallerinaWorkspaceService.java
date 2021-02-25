@@ -15,42 +15,54 @@
  */
 package org.ballerinalang.langserver;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
+import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
+import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-
-import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
-import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
+import java.util.stream.Collectors;
 
 /**
  * Workspace service implementation for Ballerina.
  */
 public class BallerinaWorkspaceService implements WorkspaceService {
     private final BallerinaLanguageServer languageServer;
-    private final LSClientConfigHolder configHolder = LSClientConfigHolder.getInstance();
+    private final LSClientConfigHolder configHolder;
     private LSClientCapabilities clientCapabilities;
     private final WorkspaceManager workspaceManager;
+    private final LanguageServerContext serverContext;
+    private final LSClientLogger clientLogger;
+    private final Gson gson = new Gson();
 
-
-    BallerinaWorkspaceService(BallerinaLanguageServer languageServer, WorkspaceManager workspaceManager) {
+    BallerinaWorkspaceService(BallerinaLanguageServer languageServer, WorkspaceManager workspaceManager,
+                              LanguageServerContext serverContext) {
         this.languageServer = languageServer;
         this.workspaceManager = workspaceManager;
+        this.serverContext = serverContext;
+        this.configHolder = LSClientConfigHolder.getInstance(this.serverContext);
+        this.clientLogger = LSClientLogger.getInstance(this.serverContext);
     }
 
     public void setClientCapabilities(LSClientCapabilities clientCapabilities) {
@@ -77,32 +89,53 @@ public class BallerinaWorkspaceService implements WorkspaceService {
 
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
-        // Operation not supported
+        // Looping through a set to avoid duplicated file events
+        for (FileEvent fileEvent : new HashSet<>(params.getChanges())) {
+            String uri = fileEvent.getUri();
+            Optional<Path> optFilePath = CommonUtil.getPathFromURI(uri);
+            if (optFilePath.isEmpty()) {
+                continue;
+            }
+            Path filePath = optFilePath.get();
+            try {
+                workspaceManager.didChangeWatched(filePath, fileEvent);
+            } catch (UserErrorException e) {
+                this.clientLogger.notifyUser("File Change Failed to Handle", e);
+            } catch (Throwable e) {
+                String msg = "Operation 'workspace/didChangeWatchedFiles' failed!";
+                this.clientLogger.logError(msg, e, null, (Position) null);
+            }
+        }
     }
 
     @Override
     public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
         return CompletableFuture.supplyAsync(() -> {
+            List<CommandArgument> commandArguments = params.getArguments().stream()
+                    .map(CommandArgument::from)
+                    .collect(Collectors.toList());
             ExecuteCommandContext context = ContextBuilder.buildExecuteCommandContext(this.workspaceManager,
-                    params.getArguments(),
-                    this.clientCapabilities,
-                    this.languageServer);
+                                                                                      this.serverContext,
+                                                                                      commandArguments,
+                                                                                      this.clientCapabilities,
+                                                                                      this.languageServer);
 
             try {
-                Optional<LSCommandExecutor> executor = LSCommandExecutorProvidersHolder.getInstance()
+                Optional<LSCommandExecutor> executor = LSCommandExecutorProvidersHolder.getInstance(this.serverContext)
                         .getCommandExecutor(params.getCommand());
                 if (executor.isPresent()) {
                     return executor.get().execute(context);
                 }
             } catch (UserErrorException e) {
-                notifyUser("Execute Command", e);
+                this.clientLogger.notifyUser("Execute Command", e);
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/executeCommand' failed!";
-                logError(msg, e, null, (Position) null);
+                this.clientLogger.logError(msg, e, null, (Position) null);
             }
-            logError("Operation 'workspace/executeCommand' failed!",
-                    new LSCommandExecutorException("No command executor found for '" + params.getCommand() + "'"),
-                    null, (Position) null);
+            this.clientLogger.logError("Operation 'workspace/executeCommand' failed!",
+                                       new LSCommandExecutorException(
+                                               "No command executor found for '" + params.getCommand() + "'"),
+                                       null, (Position) null);
             return false;
         });
     }

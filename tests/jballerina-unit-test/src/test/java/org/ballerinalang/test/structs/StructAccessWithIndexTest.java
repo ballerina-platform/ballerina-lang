@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -170,5 +171,11 @@ public class StructAccessWithIndexTest {
     @Test(description = "Test setting the field of a noninitialized root struct")
     public void testSetNonInitLastField() {
         BRunUtil.invoke(compileResult, "testSetFieldOfNonInitStruct");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        negativeResult = null;
     }
 }

@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -137,5 +138,10 @@ public class BDecimalUsageTest {
                 "Invalid decimal value returned.");
         Assert.assertEquals(height.decimalValue(), new BigDecimal("168.67", MathContext.DECIMAL128),
                 "Invalid decimal value returned.");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -79,6 +80,16 @@ public class FieldAccessMutateTest {
         Assert.assertEquals(JavaFieldAccessMutate.aShort, 345);
     }
 
+    @Test(description = "Test static boolean field mutate")
+    public void testStaticBooleanFieldMutate() {
+        BRunUtil.invoke(result, "testStaticBooleanFieldMutate");
+    }
+
+    @Test(description = "Test ballerina finite to java boolean cast")
+    public void testBFiniteToJBooleanCast() {
+        BRunUtil.invoke(result, "testBFiniteToJBooleanCast");
+    }
+
     @Test(description = "Test instance field access")
     public void testInstanceFieldAccess() {
         BValue[] args = new BValue[1];
@@ -119,5 +130,10 @@ public class FieldAccessMutateTest {
         args[1] = new BFloat(123.0f);
         BRunUtil.invoke(result, "testInstancePrimitiveFieldMutate", args);
         Assert.assertEquals(receiver.lkr, 123.0f);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'value;
 // ========================== Basics ==========================
 
 
@@ -404,7 +405,7 @@ function testTypeGuardsWithRecords_2() returns string {
 public type CustomError error<record { int status = 500; string message?; error cause?; }>;
 
 function testTypeGuardsWithError() returns string {
-    CustomError err = CustomError("some error");
+    CustomError err = error CustomError("some error");
     any|error e = err;
     if (e is error) {
         if (e is CustomError) {
@@ -872,7 +873,7 @@ function testFiniteTypeUnionAsFiniteTypeUnionNegative() returns boolean {
 }
 
 string reason = "error reason";
-map<anydata> detail = { code: 11, detail: "detail message" };
+map<value:Cloneable> detail = { code: 11, detail: "detail message" };
 
 function testTypeGuardForErrorPositive() returns boolean {
     any|error a1 = <error> error(reason);
@@ -889,7 +890,7 @@ function errorGuardHelper(any|error a1, any|error a2) returns boolean {
         error e3 = a1;
         error e4 = a2;
 
-        map<anydata|error> m = <map<anydata|error>> e4.detail();
+        map<value:Cloneable> m = <map<value:Cloneable>> e4.detail();
         return e3.message() == reason && e4.message() == reason && m == detail;
     }
     return false;
@@ -908,8 +909,8 @@ type MyErrorTwo distinct error<Details>;
 
 function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
     Details d = { message: "detail message" };
-    MyError e3 = MyError(ERR_REASON, message = d.message);
-    MyErrorTwo e4 = MyErrorTwo(ERR_REASON_TWO, message = "detail message");
+    MyError e3 = error MyError(ERR_REASON, message = d.message);
+    MyErrorTwo e4 = error MyErrorTwo(ERR_REASON_TWO, message = "detail message");
 
     any|error a1 = e3;
     any|error a2 = e4;
@@ -922,7 +923,7 @@ function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
 
         Details m1 = e5.detail();
         Details m2 = e6.detail();
-        isSpecificError = e5.message() == ERR_REASON && e6.message() == ERR_REASON_TWO && m1 == d && m2 == d;
+        isSpecificError = e5.message() == ERR_REASON && e6.message() == ERR_REASON_TWO && m1.message == m2.message;
     }
 
     boolean isGenericError = a1 is error && a2 is error;
@@ -1026,12 +1027,13 @@ type Detail record {
     string message?;
     error cause?;
     int? code;
+    float f?;
 };
 
 type ErrorD error<Detail>;
 
 function errorReturningFunc(int? i) returns error<Detail> {
-    return ErrorD("hello", message = "hello", code = i, f = 1.0);
+    return error ErrorD("hello", message = "hello", code = i, f = 1.0);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

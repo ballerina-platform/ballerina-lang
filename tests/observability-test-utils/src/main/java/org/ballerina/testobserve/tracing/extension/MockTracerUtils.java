@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 public class MockTracerUtils {
     public static Object getFinishedSpans(String serviceName) {
-        MockTracer mockTracer = BMockTracer.getTracerMap().get(serviceName);
+        MockTracer mockTracer = BMockTracerProvider.getTracerMap().get(serviceName);
         List<BMockSpan> mockSpans;
         if (mockTracer == null) {
             mockSpans = Collections.emptyList();
@@ -42,7 +42,8 @@ public class MockTracerUtils {
                             mockSpan.context().traceId(),
                             mockSpan.context().spanId(),
                             mockSpan.parentId(),
-                            mockSpan.tags()))
+                            mockSpan.tags(),
+                            mockSpan.logEntries()))
                     .collect(Collectors.toList());
         }
         return JsonUtils.parse(new Gson().toJson(mockSpans));

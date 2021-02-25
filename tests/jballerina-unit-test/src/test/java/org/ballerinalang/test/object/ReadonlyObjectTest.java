@@ -49,10 +49,10 @@ public class ReadonlyObjectTest {
                       33, 21);
         validateError(result, index++, "cannot update 'readonly' value of type 'Employee'", 38, 9);
         validateError(result, index++, "cannot update 'readonly' value of type 'Employee'", 39, 9);
-        validateError(result, index++, "invalid intersection type: cannot have a 'readonly' intersection with a " +
-                "'readonly object'", 55, 5);
+        validateError(result, index++, "cannot initialize abstract object '(Controller & readonly)'", 55, 31);
         validateError(result, index++, "invalid 'readonly object' 'InvalidReadOnlyObject': cannot have fields that " +
                 "are never 'readonly'", 58, 1);
+        validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 71, 18);
         assertEquals(result.getErrorCount(), index);
     }
 }

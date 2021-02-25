@@ -1,0 +1,69 @@
+{
+    "position": {
+        "line": 402,
+        "character": 22
+    },
+    "source": "expressions/expressions.bal",
+    "expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "function3(int param1, int param2, float... param3)",
+                    "documentation": {
+                        "right": {
+                            "kind": "markdown",
+                            "value": "**Description**  \nThis is function3 with input parameters"
+                        }
+                    },
+                    "parameters": [
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 14,
+                                    "second": 20
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`param1**: param1 Parameter Description "
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 26,
+                                    "second": 32
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`param2**: param2 Parameter Description"
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 43,
+                                    "second": 49
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`float...`param3**: param3 Parameter Description"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 0
+        },
+        "jsonrpc": "2.0"
+    }
+}

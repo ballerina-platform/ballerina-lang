@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class BLangResourceFunction extends BLangFunction {
 
-    public BLangIdentifier accessorName;
+    public BLangIdentifier methodName;
     public List<BLangIdentifier> resourcePath;
     public BLangSimpleVariable restPathParam;
     public List<BLangSimpleVariable> pathParams = new ArrayList<>();

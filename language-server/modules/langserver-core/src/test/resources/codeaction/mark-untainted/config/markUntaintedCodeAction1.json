@@ -3,7 +3,7 @@
     "character": 19,
     "expected": [
         {
-            "title": "Mark 'sensitiveInput' as Untainted",
+            "title": "Mark 'sensitiveInput' as untainted",
             "edits": [
                 {
                     "range": {

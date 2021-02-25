@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class Module {
     @Expose
-    public String id;
+    public String id = "";
     @Expose
     public String summary;
     @Expose
@@ -41,7 +41,7 @@ public class Module {
     @Expose
     public List<BClass> classes = new ArrayList<>();
     @Expose
-    public List<BAbstractObject> abstractObjects = new ArrayList<>();
+    public List<BObjectType> objectTypes = new ArrayList<>();
     @Expose
     public List<Client> clients = new ArrayList<>();
     @Expose
@@ -56,5 +56,7 @@ public class Module {
     public List<Error> errors = new ArrayList<>();
     @Expose
     public List<BType> types = new ArrayList<>();
+    @Expose
+    public List<Enum> enums = new ArrayList<>();
 
 }

@@ -1,8 +1,8 @@
 import unit_tests/proj4.a as a;
-import ballerina/io;
+
 
 function init() {
-	io:println("Initializing module b");
+	a:println("Initializing module b");
 	error sampleErr = error("panicked while initializing module B");
 	panic sampleErr;
 }

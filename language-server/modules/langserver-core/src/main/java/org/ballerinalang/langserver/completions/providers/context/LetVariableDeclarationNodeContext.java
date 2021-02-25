@@ -22,10 +22,11 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,7 +34,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class LetVariableDeclarationNodeContext extends AbstractCompletionProvider<LetVariableDeclarationNode> {
 
     public LetVariableDeclarationNodeContext() {
@@ -41,7 +42,8 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, LetVariableDeclarationNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, LetVariableDeclarationNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         /*
         Covers the following context
         eg: let var x = <cursor>
@@ -57,14 +59,17 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
 
-            return this.getCompletionItemList(exprEntries, context);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
         }
+        this.sort(context, node, completionItems);
 
-        return this.expressionCompletions(context);
+        return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, LetVariableDeclarationNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, LetVariableDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         return !node.equalsToken().isMissing() && node.equalsToken().textRange().startOffset() < cursor;
     }

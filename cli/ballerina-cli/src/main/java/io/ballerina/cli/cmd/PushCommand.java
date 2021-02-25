@@ -17,13 +17,15 @@
 */
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.balo.BaloProject;
+import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
@@ -31,7 +33,6 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -56,7 +57,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
 
 /**
- * This class represents the "ballerina push" command.
+ * This class represents the "bal push" command.
  *
  * @since 2.0.0
  */
@@ -131,7 +132,7 @@ public class PushCommand implements BLauncherCmd {
                 return;
             }
         } else {
-            CommandUtil.printError(this.errStream, "too many arguments", "ballerina push ", false);
+            CommandUtil.printError(this.errStream, "too many arguments", "bal push ", false);
             return;
         }
 
@@ -151,7 +152,7 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina push \n");
+        out.append("  bal push \n");
     }
 
     @Override
@@ -160,28 +161,28 @@ public class PushCommand implements BLauncherCmd {
 
     private void pushPackage(BuildProject project, CentralAPIClient client, Settings settings)
             throws CentralClientException {
-        Path baloFilePath = validateBalo(project, client);
-        pushBaloToRemote(baloFilePath, client, settings);
+        Path balaFilePath = validateBala(project, client);
+        pushBalaToRemote(balaFilePath, client, settings);
     }
 
-    private static Path validateBalo(BuildProject project, CentralAPIClient client) throws CentralClientException {
+    private static Path validateBala(BuildProject project, CentralAPIClient client) throws CentralClientException {
         final PackageName pkgName = project.currentPackage().packageName();
         final PackageOrg orgName = project.currentPackage().packageOrg();
         final PackageVersion version = project.currentPackage().packageVersion();
 
-        // Get balo output path
-        Path baloOutputDir = project.currentPackage().project().sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.TARGET_BALO_DIR_NAME);
+        // Get bala output path
+        Path balaOutputDir = project.currentPackage().project().sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
+                .resolve(ProjectConstants.TARGET_BALA_DIR_NAME);
 
-        if (Files.notExists(baloOutputDir)) {
-            throw new ProjectException("cannot find balo file for the package: " + pkgName + ". Run "
-                    + "'ballerina build' to compile and generate the balo.");
+        if (Files.notExists(balaOutputDir)) {
+            throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "
+                    + "'bal build' to compile and generate the bala.");
         }
 
-        Path packageBaloFile = findBaloFile(pkgName, orgName, baloOutputDir);
-        if (null == packageBaloFile) {
-            throw new ProjectException("cannot find balo file for the package: " + pkgName + ". Run "
-                    + "'ballerina build' to compile and generate the balo.");
+        Path packageBalaFile = findBalaFile(pkgName, orgName, balaOutputDir);
+        if (null == packageBalaFile) {
+            throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "
+                    + "'bal build' to compile and generate the bala.");
         }
 
         // check if the package is already there in remote repository
@@ -197,25 +198,25 @@ public class PushCommand implements BLauncherCmd {
                             + "updating the version in the Ballerina.toml.");
         }
 
-        // balo file path
-        return packageBaloFile;
+        // bala file path
+        return packageBalaFile;
     }
 
     /**
-     * Push a balo file to remote repository.
+     * Push a bala file to remote repository.
      *
-     * @param baloPath Path to the balo file.
+     * @param balaPath Path to the bala file.
      */
-    private void pushBaloToRemote(Path baloPath, CentralAPIClient client, Settings settings) {
-        Path baloFileName = baloPath.getFileName();
-        if (null != baloFileName) {
+    private void pushBalaToRemote(Path balaPath, CentralAPIClient client, Settings settings) {
+        Path balaFileName = balaPath.getFileName();
+        if (null != balaFileName) {
             ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
             defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-            BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
+            BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
 
-            String org = baloProject.currentPackage().manifest().org().toString();
-            String name = baloProject.currentPackage().manifest().name().toString();
-            String version = baloProject.currentPackage().manifest().version().toString();
+            String org = balaProject.currentPackage().manifest().org().toString();
+            String name = balaProject.currentPackage().manifest().name().toString();
+            String version = balaProject.currentPackage().manifest().version().toString();
 
             Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
@@ -223,7 +224,8 @@ public class PushCommand implements BLauncherCmd {
                                               settingsTomlFilePath);
 
             try {
-                client.pushPackage(baloPath, org, name, version, accessToken);
+                client.pushPackage(balaPath, org, name, version, accessToken, JvmTarget.JAVA_11.code(),
+                                   RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
                 if (null != errorMessage && !"".equals(errorMessage.trim())) {
@@ -258,7 +260,7 @@ public class PushCommand implements BLauncherCmd {
         for (String supportedPlatform : supportedPlatforms) {
             try {
                 client.getPackage(pkg.org().toString(), pkg.name().toString(), pkg.version().toString(),
-                                  supportedPlatform);
+                                  supportedPlatform, RepoUtils.getBallerinaVersion());
                 return true;
             } catch (NoPackageException e) {
                 return false;
@@ -269,24 +271,24 @@ public class PushCommand implements BLauncherCmd {
     }
 
     /**
-     * Find and return matching balo file from balo output directory.
+     * Find and return matching bala file from bala output directory.
      *
      * @param pkgName       package name
      * @param orgName       org name
-     * @param baloOutputDir balo output directory
-     * @return matching balo file path
+     * @param balaOutputDir bala output directory
+     * @return matching bala file path
      */
-    private static Path findBaloFile(PackageName pkgName, PackageOrg orgName, Path baloOutputDir) {
-        Path baloFilePath = null;
-        File[] baloFiles = new File(baloOutputDir.toString()).listFiles();
-        if (baloFiles != null && baloFiles.length > 0) {
-            for (File baloFile : baloFiles) {
-                if (baloFile != null && baloFile.getName().startsWith(orgName + "-" + pkgName)) {
-                    baloFilePath = baloFile.toPath();
+    private static Path findBalaFile(PackageName pkgName, PackageOrg orgName, Path balaOutputDir) {
+        Path balaFilePath = null;
+        File[] balaFiles = new File(balaOutputDir.toString()).listFiles();
+        if (balaFiles != null && balaFiles.length > 0) {
+            for (File balaFile : balaFiles) {
+                if (balaFile != null && balaFile.getName().startsWith(orgName + "-" + pkgName)) {
+                    balaFilePath = balaFile.toPath();
                     break;
                 }
             }
         }
-        return baloFilePath;
+        return balaFilePath;
     }
 }

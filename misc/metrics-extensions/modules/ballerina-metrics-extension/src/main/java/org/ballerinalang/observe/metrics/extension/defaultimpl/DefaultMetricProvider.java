@@ -33,9 +33,6 @@ import java.util.function.ToDoubleFunction;
  */
 public class DefaultMetricProvider implements MetricProvider {
 
-    public DefaultMetricProvider() {
-    }
-
     @Override
     public String getName() {
         return "Default";
@@ -59,5 +56,4 @@ public class DefaultMetricProvider implements MetricProvider {
     public <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction) {
         return new DefaultPolledGauge(metricId, obj, toDoubleFunction);
     }
-
 }

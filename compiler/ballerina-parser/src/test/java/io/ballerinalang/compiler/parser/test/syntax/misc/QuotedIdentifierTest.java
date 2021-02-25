@@ -63,4 +63,10 @@ public class QuotedIdentifierTest extends AbstractMiscTest {
         testFile("quoted-identifiers/invalid_identifier_source_02.bal",
                 "quoted-identifiers/invalid_identifier_assert_02.json");
     }
+
+    @Test
+    public void testIncompleteQuotedIdentifier() {
+        testFile("quoted-identifiers/incomplete_identifier_source.bal",
+                "quoted-identifiers/incomplete_identifier_assert.json");
+    }
 }

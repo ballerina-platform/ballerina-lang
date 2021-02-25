@@ -1,0 +1,29 @@
+[
+  {
+    "description": "Define variables with tuple binding pattern.",
+    "code": "[string, int, string] [name, age, address] = [\"Jack Smith\", 23, \"380 Lakewood Dr. Desoto, TX 75115\"];"
+  },
+  {
+    "description": "View values.",
+    "code": "println(\"Name: \", name, \" Age: \", age, \" Address: \", address);",
+    "stdout": "Name: Jack Smith Age: 23 Address: 380 Lakewood Dr. Desoto, TX 75115\n"
+  },
+  {
+    "description": "Assign values with tuple binding pattern.",
+    "code": "float latitude = 0; float longitude = 0; [latitude, longitude] = [37.773972, -122.431297];"
+  },
+  {
+    "description": "View values.",
+    "code": "println(\"Latitude: \", latitude, \" Longitude: \", longitude);",
+    "stdout": "Latitude: 37.773972 Longitude: -122.431297\n"
+  },
+  {
+    "description": "Nested define variables with tuple binding pattern.",
+    "code": "[string, [float, float, float]][eventId, [score1, score2, score3]] = [\"E335\", [9.8, 9.6, 9.5]];"
+  },
+  {
+    "description": "View values.",
+    "code": "println(\"Event Id: \", eventId, \" Score 1: \", score1, \" Score 2: \", score2, \" Score 3: \", score3)",
+    "stdout": "Event Id: E335 Score 1: 9.8 Score 2: 9.6 Score 3: 9.5\n"
+  }
+]

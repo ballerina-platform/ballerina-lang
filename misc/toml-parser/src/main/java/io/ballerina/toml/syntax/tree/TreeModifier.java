@@ -121,13 +121,28 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token startDoubleQuote =
                 modifyToken(stringLiteralNode.startDoubleQuote());
         Token content =
-                modifyToken(stringLiteralNode.content());
+                modifyToken(stringLiteralNode.content().orElse(null));
         Token endDoubleQuote =
                 modifyToken(stringLiteralNode.endDoubleQuote());
         return stringLiteralNode.modify(
                 startDoubleQuote,
                 content,
                 endDoubleQuote);
+    }
+
+    @Override
+    public LiteralStringLiteralNode transform(
+            LiteralStringLiteralNode literalStringLiteralNode) {
+        Token startSingleQuote =
+                modifyToken(literalStringLiteralNode.startSingleQuote());
+        Token content =
+                modifyToken(literalStringLiteralNode.content().orElse(null));
+        Token endSingleQuote =
+                modifyToken(literalStringLiteralNode.endSingleQuote());
+        return literalStringLiteralNode.modify(
+                startSingleQuote,
+                content,
+                endSingleQuote);
     }
 
     @Override

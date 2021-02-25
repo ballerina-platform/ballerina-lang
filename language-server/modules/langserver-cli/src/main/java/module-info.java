@@ -1,6 +1,6 @@
 module io.ballerina.language.server.cli {
     requires java.logging;
-    requires io.ballerina.tool;
+    requires io.ballerina.cli;
     requires info.picocli;
     requires io.ballerina.language.server.stdio.launcher;
 }

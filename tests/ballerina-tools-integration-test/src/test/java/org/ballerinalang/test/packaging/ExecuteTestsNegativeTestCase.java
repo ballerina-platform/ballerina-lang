@@ -58,7 +58,7 @@ public class ExecuteTestsNegativeTestCase extends BaseTest {
     @Test(description = "Test executing tests in a module which is not inside a project")
     public void testExecutionInModule() throws IOException, BallerinaTestException {
         String expectedMsg = "error: you are trying to execute tests in a module that is not inside a project. Run " +
-                "`ballerina init` from " + projectPath.toRealPath().toString() + " to initialize it as a project and " +
+                "`bal init` from " + projectPath.toRealPath().toString() + " to initialize it as a project and " +
                 "then execute the tests.";
 
         // Execute the command to run tests in the module.
@@ -71,7 +71,7 @@ public class ExecuteTestsNegativeTestCase extends BaseTest {
     @Test(description = "Test executing tests in a project which is not a ballerina project")
     public void testExecutionInProject() throws IOException, BallerinaTestException {
         String expectedMsg = "error: you are trying to execute tests in a directory that is not a project. Run " +
-                "`ballerina init` from " + projectPath.toRealPath().toString() + " to initialize it as a project " +
+                "`bal init` from " + projectPath.toRealPath().toString() + " to initialize it as a project " +
                 "and then execute the tests.";
 
         // Execute the command to run tests in the project.

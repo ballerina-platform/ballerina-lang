@@ -3,7 +3,7 @@
     "character": 4,
     "expected": [
         {
-            "title": "Create Variable with 'Person'",
+            "title": "Create variable with 'Person'",
             "edits": [
                 {
                     "range": {

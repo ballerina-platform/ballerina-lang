@@ -1,0 +1,19 @@
+[
+  {
+    "description": "Import int module.",
+    "code": "import ballerina/lang.'int as k"
+  },
+  {
+    "description": "Define function using module.",
+    "code": "function l(string s) returns int{ return checkpanic k:fromString(s);}"
+  },
+  {
+    "description": "Define variable.",
+    "code": "int y = 21"
+  },
+  {
+    "description": "Statement.",
+    "code": "l(\"100\") + y",
+    "expr": "121"
+  }
+]

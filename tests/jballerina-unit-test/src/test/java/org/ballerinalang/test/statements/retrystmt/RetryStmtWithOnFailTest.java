@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -54,5 +55,11 @@ public class RetryStmtWithOnFailTest {
         BAssertUtil.validateError(negativeFile, 2, "unreachable code", 62, 7);
         BAssertUtil.validateError(negativeFile, 3, "incompatible error definition type: " +
                 "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 100, 4);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        programFile = null;
+        negativeFile = null;
     }
 }

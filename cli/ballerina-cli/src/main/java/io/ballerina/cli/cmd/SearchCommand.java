@@ -18,11 +18,12 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.JvmTarget;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -37,7 +38,7 @@ import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
- * This class represents the "ballerina search" command.
+ * This class represents the "bal search" command.
  *
  * @since 2.0.0
  */
@@ -79,13 +80,13 @@ public class SearchCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.isEmpty()) {
-            CommandUtil.printError(this.errStream, "no keyword given", "ballerina search [<org>|<package>|<text>] ",
+            CommandUtil.printError(this.errStream, "no keyword given", "bal search [<org>|<package>|<text>] ",
                                    false);
             return;
         }
 
         if (argList.size() > 1) {
-            CommandUtil.printError(this.errStream, "too many arguments", "ballerina search [<org>|<package>|<text>] ",
+            CommandUtil.printError(this.errStream, "too many arguments", "bal search [<org>|<package>|<text>] ",
                                    false);
             return;
         }
@@ -107,7 +108,7 @@ public class SearchCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append(" ballerina search [<org>|<package>|<text>] \n");
+        out.append(" bal search [<org>|<package>|<text>] \n");
     }
 
     @Override
@@ -124,7 +125,9 @@ public class SearchCommand implements BLauncherCmd {
             Settings settings = readSettings();
             Proxy proxy = initializeProxy(settings.getProxy());
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
-            PackageSearchResult packageSearchResult = client.searchPackage(query);
+            PackageSearchResult packageSearchResult = client.searchPackage(query,
+                                                                           JvmTarget.JAVA_11.code(),
+                                                                           RepoUtils.getBallerinaVersion());
 
             if (packageSearchResult.getCount() > 0) {
                 printPackages(packageSearchResult.getPackages(), RepoUtils.getTerminalWidth());

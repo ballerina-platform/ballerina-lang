@@ -17,8 +17,8 @@
  */
 package io.ballerina.toml.semantic.diagnostics;
 
-import io.ballerina.toml.internal.diagnostics.DiagnosticCode;
 import io.ballerina.toml.internal.diagnostics.DiagnosticMessageHelper;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 
 /**
@@ -40,8 +40,8 @@ public class DiagnosticLog {
         return instance;
     }
 
-    public TomlDiagnostic error(TomlNodeLocation location, DiagnosticCode code) {
+    public TomlDiagnostic error(TomlNodeLocation location, DiagnosticCode code, Object... args) {
         DiagnosticInfo info = new DiagnosticInfo(code.diagnosticId(), code.messageKey(), code.severity());
-        return new TomlDiagnostic(location, info , DiagnosticMessageHelper.getDiagnosticMessage(code));
+        return new TomlDiagnostic(location, info , DiagnosticMessageHelper.getDiagnosticMessage(code, args));
     }
 }

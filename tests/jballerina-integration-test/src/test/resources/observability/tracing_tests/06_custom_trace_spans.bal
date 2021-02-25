@@ -17,12 +17,16 @@
 import ballerina/testobserve;
 import ballerina/observe;
 
-service "testServiceFive" on new testobserve:Listener(9096) {
-    resource function get resourceOne(testobserve:Caller caller) {
+service /testServiceSix on new testobserve:Listener(9096) {
+    resource function post resourceOne(testobserve:Caller caller) {
         var customSpanOneId = checkpanic observe:startSpan("customSpanOne");
         _ = checkpanic observe:addTagToSpan("resource", "resourceOne", customSpanOneId);
         _ = checkpanic observe:addTagToSpan("custom", "true", customSpanOneId);
         _ = checkpanic observe:addTagToSpan("index", "1", customSpanOneId);
+
+        // Adding a metric tag and this should not be included in the tracing tags
+        checkpanic observe:addTagToMetrics("metric", "Metric Value" );
+
         var a = 12;
         var b = 27;
         var sum = calculateSumWithObservability(a, b);
@@ -48,7 +52,7 @@ service "testServiceFive" on new testobserve:Listener(9096) {
         }
     }
 
-    resource function get resourceTwo(testobserve:Caller caller) {
+    resource function post resourceTwo(testobserve:Caller caller) {
         int customSpanThreeId = observe:startRootSpan("customSpanThree");
         _ = checkpanic observe:addTagToSpan("resource", "resourceTwo", customSpanThreeId);
         _ = checkpanic observe:addTagToSpan("custom", "true", customSpanThreeId);

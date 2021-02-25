@@ -38,15 +38,15 @@ import java.util.stream.Collectors;
 @Test(groups = "tracing-test")
 public class CustomTracingTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "06_custom_trace_spans.bal";
-    private static final String SERVICE_NAME = "testServiceFive";
+    private static final String SERVICE_NAME = "testServiceSix";
     private static final String BASE_URL = "http://localhost:9096";
 
     @Test
     public void testAddCustomSpanToSystemTrace() throws Exception {
         final String resourceName = "resourceOne";
         final String span1Position = FILE_NAME + ":21:5";
-        final String span3Position = FILE_NAME + ":28:19";
-        final String span5Position = FILE_NAME + ":41:20";
+        final String span3Position = FILE_NAME + ":32:19";
+        final String span5Position = FILE_NAME + ":45:20";
 
         HttpResponse httpResponse = HttpClientRequest.doGet(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName);
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
@@ -75,13 +75,13 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
-                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("http.method", "GET"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", SERVER_CONNECTOR_NAME)
+                    new AbstractMap.SimpleEntry<>("src.object.name", SERVER_CONNECTOR_NAME)
             ));
         });
 
@@ -114,7 +114,7 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("function", "calculateSumWithObservability")
+                    new AbstractMap.SimpleEntry<>("src.function.name", "calculateSumWithObservability")
             ));
         });
 
@@ -145,11 +145,11 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span5Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/testobserve/Caller"),
-                    new AbstractMap.SimpleEntry<>("action", "respond")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
         });
     }
@@ -157,9 +157,9 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
     @Test
     public void testCustomTrace() throws Exception {
         final String resourceName = "resourceTwo";
-        final String span1Position = FILE_NAME + ":51:5";
-        final String span2Position = FILE_NAME + ":70:15";
-        final String span3Position = FILE_NAME + ":59:20";
+        final String span1Position = FILE_NAME + ":55:5";
+        final String span2Position = FILE_NAME + ":74:15";
+        final String span3Position = FILE_NAME + ":63:20";
 
         HttpResponse httpResponse = HttpClientRequest.doGet(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName);
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
@@ -188,13 +188,13 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
-                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("http.method", "GET"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", SERVER_CONNECTOR_NAME)
+                    new AbstractMap.SimpleEntry<>("src.object.name", SERVER_CONNECTOR_NAME)
             ));
         });
 
@@ -212,7 +212,7 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("function", "calculateSumWithObservability")
+                    new AbstractMap.SimpleEntry<>("src.function.name", "calculateSumWithObservability")
             ));
         });
 
@@ -228,11 +228,11 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/testobserve/Caller"),
-                    new AbstractMap.SimpleEntry<>("action", "respond")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
         });
 

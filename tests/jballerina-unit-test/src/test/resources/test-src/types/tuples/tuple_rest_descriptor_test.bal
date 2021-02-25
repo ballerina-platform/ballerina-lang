@@ -122,3 +122,79 @@ function testIndexBasedAccessNegative() returns string {
     }
     return s;
 }
+
+function testToStringRepresentation() {
+    [string, int, int[]...] t1 = ["records", 100];
+    [int, (string|boolean)...] t2 = [1, true];
+    //[[int...]...] t3 = [[1, 2], [1, 2, 3]]; // https://github.com/ballerina-platform/ballerina-lang/issues/28347
+
+    assertEquality("typedesc [string,int,int[]...]", (typeof t1).toString());
+    assertEquality("typedesc [int,string|boolean...]", (typeof t2).toString());
+    //assertEquality("typedesc [[int...]...]", (typeof t3).toString());
+}
+
+function testSubTypingWithRestDescriptorPositive() {
+    [int, (string|int)...] a = [1, 10, "foo"];
+    any v1 = a;
+    [int|boolean, anydata...] b = a;
+    [int|string...] c = a;
+    (int|string)[] d = a;
+    assertTrue(v1 is [int|boolean, anydata...]);
+    assertTrue(v1 is [int|string...]);
+    assertTrue(v1 is (int|string)[]);
+
+    int[3] e = [1, 2, 3];
+    any v2 = e;
+    [int, int...] f = e;
+    [int, int, int...] g = e;
+    [int, int, int, int...] h = e;
+    [int, int, int] i = e;
+    [int...] j = e;
+    assertTrue(v2 is [int, int...]);
+    assertTrue(v2 is [int, int, int...]);
+    assertTrue(v2 is [int, int, int, int...]);
+    assertTrue(v2 is [int, int, int]);
+    assertTrue(v2 is [int...]);
+
+    [int...] k = [1, 2, 3];
+    any v3 = k;
+    int[] l = k;
+    assertTrue(v3 is int[]);
+}
+
+function testSubTypingWithRestDescriptorNegative() {
+    [int, (string|int)...] a = [1, 10, "foo"];
+    any v1 = a;
+    assertTrue(v1 is [int, (string|int)...]);
+    assertFalse(v1 is [int, string|int, string|int...]);
+    assertFalse(v1 is [int, string...]);
+    assertFalse(v1 is [int]);
+
+    int[3] e = [1, 2, 3];
+    any v2 = e;
+    assertTrue(v2 is int[3]);
+    assertFalse(v2 is [int, int, int, int, int...]);
+    assertFalse(v2 is [int, string...]);
+    assertFalse(v2 is [string, string, string, string]);
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+function assertFalse(any|error actual) {
+    assertEquality(false, actual);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error("expected '" + (expected is error ? expected.toString() : expected.toString()) + "', found '" +
+                    (actual is error ? actual.toString() : actual.toString()) + "'");
+}

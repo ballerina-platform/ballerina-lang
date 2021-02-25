@@ -20,25 +20,28 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
-import io.ballerina.runtime.observability.TracingUtils;
+import io.ballerina.runtime.observability.tracer.BSpan;
 import io.ballerina.runtime.observability.tracer.TracersStore;
+import io.ballerina.runtime.observability.tracer.TracingUtils;
 import io.opentracing.Tracer;
-import org.ballerinalang.config.ConfigRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
-import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_SERVICE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.DEFAULT_SERVICE_NAME;
 
 /**
  * This class wraps opentracing apis and exposes extern functions to use within ballerina.
  */
 public class OpenTracerBallerinaWrapper {
+    private static final Logger log = LoggerFactory.getLogger(OpenTracerBallerinaWrapper.class);
 
     private static final OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
     private final TracersStore tracerStore;
@@ -50,7 +53,7 @@ public class OpenTracerBallerinaWrapper {
     static final int ROOT_SPAN_INDICATOR = -2;
 
     private OpenTracerBallerinaWrapper() {
-        enabled = ConfigRegistry.getInstance().getAsBoolean(CONFIG_TRACING_ENABLED);
+        enabled = ObserveUtils.isTracingEnabled();
         tracerStore = TracersStore.getInstance();
     }
 
@@ -59,7 +62,7 @@ public class OpenTracerBallerinaWrapper {
     }
 
     private long startSpan(ObserverContext observerContext, boolean isClient, String spanName) {
-        observerContext.setFunctionName(spanName);
+        observerContext.setOperationName(spanName);
         TracingUtils.startObservation(observerContext, isClient);
         long spanId = this.spanIdCounter.getAndIncrement();
         observerContextMap.put(spanId, observerContext);
@@ -70,41 +73,38 @@ public class OpenTracerBallerinaWrapper {
      * Method to start a span using parent span context.
      *
      * @param env          native context
-     * @param serviceName  name of the service to which the span is attached to
      * @param spanName     name of the span
      * @param tags         key value paired tags to attach to the span
      * @param parentSpanId id of parent span
      * @return unique id of the created span
      */
-    public long startSpan(Environment env, String serviceName, String spanName, Map<String, String> tags,
-                          long parentSpanId) {
+    public long startSpan(Environment env, String spanName, Map<String, String> tags, long parentSpanId) {
         if (!enabled) {
             return -1;
         }
 
-        ObserverContext currentObserverContext = ObserveUtils.getObserverContextOfCurrentFrame(env);
-        if (serviceName == null && currentObserverContext != null) {
-            serviceName = currentObserverContext.getServiceName();
+        ObserverContext observerContext = new ObserverContext();
+        ObserverContext prevObserverContext = ObserveUtils.getObserverContextOfCurrentFrame(env);
+        String serviceName;
+        if (prevObserverContext != null) {
+            serviceName = prevObserverContext.getServiceName();
+            observerContext.setEntrypointFunctionModule(prevObserverContext.getEntrypointFunctionModule());
+            observerContext.setEntrypointFunctionPosition(prevObserverContext.getEntrypointFunctionPosition());
+        } else {
+            serviceName = DEFAULT_SERVICE_NAME;
         }
-        if (serviceName == null) {
-            serviceName = UNKNOWN_SERVICE;
-        }
+        observerContext.setServiceName(serviceName);
 
         Tracer tracer = tracerStore.getTracer(serviceName);
         if (tracer == null) {
             return -1;
         }
-
-        ObserverContext observerContext = new ObserverContext();
-        observerContext.setServiceName(serviceName);
-        observerContext.setResourceName(currentObserverContext != null ? currentObserverContext.getResourceName()
-                                                                       : UNKNOWN_RESOURCE);
         tags.forEach((observerContext::addTag));
 
         if (parentSpanId == SYSTEM_TRACE_INDICATOR) {
             observerContext.setSystemSpan(true);
-            if (currentObserverContext != null) {
-                observerContext.setParent(currentObserverContext);
+            if (prevObserverContext != null) {
+                observerContext.setParent(prevObserverContext);
             }
             ObserveUtils.setObserverContextToCurrentFrame(env, observerContext);
             return startSpan(observerContext, true, spanName);
@@ -122,7 +122,6 @@ public class OpenTracerBallerinaWrapper {
 
     /**
      * Method to mark a span as finished.
-     *
      *
      * @param env current environment
      * @param spanId id of the Span
@@ -149,29 +148,40 @@ public class OpenTracerBallerinaWrapper {
     /**
      * Method to add tags to an existing span.
      *
-     * @param env current environment
-     * @param tagKey the key of the tag
+     * @param env      current environment
+     * @param tagKey   the key of the tag
      * @param tagValue the value of the tag
-     * @param spanId id of the Span
-     * @return boolean to indicate if tag was added to the span
+     * @param spanId   id of the Span
+     * @return Object to indicate if tag was added to the span
      */
-    public boolean addTag(Environment env, String tagKey, String tagValue, long spanId) {
+    public Object addTag(Environment env, String tagKey, String tagValue, long spanId) {
+
         if (!enabled) {
-            return false;
+            return null;
         }
+
+        final BSpan span;
         if (spanId == -1) {
             ObserverContext observer = ObserveUtils.getObserverContextOfCurrentFrame(env);
-            if (observer != null) {
-                observer.addTag(tagKey, tagValue);
-                return true;
+            if (observer == null) {
+                return ErrorCreator.createError(
+                        StringUtils.fromString(
+                                ("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}")));
             }
-        }
-        ObserverContext observerContext = observerContextMap.get(spanId);
-        if (observerContext != null) {
-            observerContext.addTag(tagKey, tagValue);
-            return true;
+            span = observer.getSpan();
         } else {
-            return false;
+            ObserverContext observerContext = observerContextMap.get(spanId);
+            if (observerContext == null) {
+                String errorMsg =
+                        "Could not find the trace for given span id. Can not add tag {" + tagKey + ":" + tagValue +
+                                "}";
+                log.info(errorMsg);
+                return ErrorCreator.createError(StringUtils.fromString(errorMsg));
+            }
+            span = observerContext.getSpan();
         }
+
+        span.addTag(tagKey, tagValue);
+        return null;
     }
 }

@@ -67,11 +67,6 @@ public class FindRefsInLambdasTest extends FindAllReferencesTest {
     }
 
     @Override
-    public String getFileName() {
-        return "find_var_ref_within_lambdas.bal";
-    }
-
-    @Override
     public String getTestSourcePath() {
         return "test-src/find-all-ref/find_var_ref_within_lambdas.bal";
     }

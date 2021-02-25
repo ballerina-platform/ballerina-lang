@@ -17,12 +17,12 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BLink;
@@ -32,13 +32,14 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.OBJECT_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
@@ -106,11 +107,20 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     @Override
     public String expressionStringValue(BLink parent) {
-        Module pkg = type.getPackage();
-        String moduleLocalName = pkg.getOrg() != null && pkg.getOrg().equals("$anon") ||
-                pkg.getName() == null ? type.getName() :
-                String.valueOf(BallerinaErrorReasons.getModulePrefixedReason(pkg.getName(), type.getName()));
-        return "object " + moduleLocalName + " " + this.hashCode();
+        if (type.typeIdSet == null) {
+            return "object " + this.hashCode();
+        }
+        StringJoiner sj = new StringJoiner("&");
+        List<TypeId> typeIds = type.typeIdSet.getIds();
+        for (TypeId typeId : typeIds) {
+            String pkg = typeId.getPkg().toString();
+            if (DOT.equals(pkg)) {
+                sj.add(typeId.getName());
+            } else {
+                sj.add("{" + pkg + "}" + typeId.getName());
+            }
+        }
+        return "object " + sj.toString() + " " + this.hashCode();
     }
 
     @Override

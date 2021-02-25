@@ -41,32 +41,6 @@ import ballerina/lang.'xml;
 // - mapping
 // - table
 
-function testImmutableTypes() {
-    testSimpleInitializationForSelectivelyImmutableTypes();
-    testRuntimeIsTypeForSelectivelyImmutableBasicTypes();
-    testRuntimeIsTypeNegativeForSelectivelyImmutableTypes();
-    testImmutabilityOfNestedXmlWithAttributes();
-    testImmutableTypedRecordFields();
-    testImmutabilityForSelfReferencingType();
-    testImmutableRecordWithDefaultValues();
-    testImmutableObjects();
-    testImmutableJson();
-    testImmutableAnydata();
-    testImmutableAny();
-    testImmutableUnion();
-    testDefaultValuesOfFields();
-    testUnionReadOnlyFields();
-    testReadOnlyCastConstructingReadOnlyValues();
-    testReadOnlyCastConstructingReadOnlyValuesPropagation();
-}
-
-function testSimpleInitializationForSelectivelyImmutableTypes() {
-    testSimpleInitializationForSelectivelyImmutableXmlTypes();
-    testSimpleInitializationForSelectivelyImmutableListTypes();
-    testSimpleInitializationForSelectivelyImmutableMappingTypes();
-    testSimpleInitializationForSelectivelyImmutableTableTypes();
-}
-
 function testSimpleInitializationForSelectivelyImmutableXmlTypes() {
     'xml:Comment & readonly a = xml `<!--I'm a comment-->`;
     readonly r1 = a;
@@ -119,7 +93,7 @@ function testSimpleInitializationForSelectivelyImmutableListTypes() {
     assertTrue(r2 is [Employee, Employee] & readonly);
     assertTrue(r2 is Employee[2] & readonly);
 
-    [Employee, Employee] & readonly empTup = <[Employee, Employee] & readonly> r2;
+    [Employee, Employee] & readonly empTup = <[Employee, Employee] & readonly> checkpanic r2;
 
     assertEquality(emp, empTup[0]);
     record {} rec = empTup[0];
@@ -145,7 +119,7 @@ function testSimpleInitializationForSelectivelyImmutableListTypes() {
     assertTrue(r3 is [Details[], Employee...] & readonly);
     assertTrue(r3 is [[Details, Details], Employee] & readonly);
 
-    [[Details, Details], Employee] & readonly vals = <[[Details, Details], Employee] & readonly> r3;
+    [[Details, Details], Employee] & readonly vals = <[[Details, Details], Employee] & readonly> checkpanic r3;
     assertTrue(vals[0].isReadOnly());
 
     Details d1 = vals[0][0];
@@ -197,8 +171,9 @@ function testSimpleInitializationForSelectivelyImmutableMappingTypes() {
     assertTrue(r2 is Employee & readonly);
 
     assertEquality(emp, r2);
-    any val = r2;
-    Employee rec = <Employee> val;
+    any|error val = r2;
+    assertFalse(val is error);
+    Employee rec = <Employee> checkpanic val;
     assertTrue(rec is Employee & readonly);
     assertTrue(rec.isReadOnly());
 
@@ -218,7 +193,8 @@ function testSimpleInitializationForSelectivelyImmutableMappingTypes() {
     assertTrue(r3 is Student & readonly);
 
     val = r3;
-    Student stVal = <Student> val;
+    assertFalse(val is error);
+    Student stVal = <Student> checkpanic val;
     assertTrue(stVal.isReadOnly());
     assertTrue(stVal.details.isReadOnly());
     assertEquality(<Details> {name: "Jo", id: 4567}, stVal.details);
@@ -246,7 +222,7 @@ function testSimpleInitializationForSelectivelyImmutableTableTypes() {
     readonly r1 = a;
     assertTrue(r1 is table<map<string>> & readonly);
 
-    table<map<string>> tbString = <table<map<string>>> <any> r1;
+    table<map<string>> tbString = <table<map<string>>> <any> checkpanic r1;
     assertEquality(2, tbString.length());
 
     map<string>[] mapArr = tbString.toArray();
@@ -264,7 +240,7 @@ function testSimpleInitializationForSelectivelyImmutableTableTypes() {
     assertTrue(r2 is table<Identifier> key(name) & readonly);
     assertTrue(r2 is table<Identifier> & readonly);
 
-    table<Identifier> tbDetails = <table<Identifier>> <any> r2;
+    table<Identifier> tbDetails = <table<Identifier>> <any> checkpanic r2;
     assertEquality(3, tbDetails.length());
 
     Identifier[] detailsArr = tbDetails.toArray();
@@ -285,26 +261,26 @@ type Student record {|
 
 function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
     xml a = xml `<foo><bar>Text</bar></foo>`;
-    any b = a;
-    any c = a.cloneReadOnly();
+    any|error b = a;
+    any|error c = a.cloneReadOnly();
     assertFalse(b is readonly);
     assertTrue(c is readonly);
 
     int[] d = [1, 2];
-    any e = d;
-    any f = d.cloneReadOnly();
+    any|error e = d;
+    any|error f = d.cloneReadOnly();
     assertFalse(e is readonly);
     assertTrue(f is readonly);
 
     [boolean, int] g = [true, 2];
-    any h = g;
-    any i = g.cloneReadOnly();
+    any|error h = g;
+    any|error i = g.cloneReadOnly();
     assertFalse(h is readonly);
     assertTrue(i is readonly);
 
     map<string> j = {a: "a", b: "b"};
-    any k = j;
-    any l = j.cloneReadOnly();
+    any|error k = j;
+    any|error l = j.cloneReadOnly();
     assertFalse(k is readonly);
     assertTrue(l is readonly);
 
@@ -324,7 +300,7 @@ function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
 function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     int[] a = [1, 2];
     anydata a1 = a;
-    any an1 = a;
+    any|error an1 = a;
     assertFalse(an1 is int[] & readonly);
     assertFalse(an1 is readonly);
     assertFalse(a1.isReadOnly());
@@ -1002,7 +978,59 @@ function testReadOnlyCastConstructingReadOnlyValuesPropagation() {
     assertEquality(<anydata[]> [1, 2], val.c);
 }
 
-type AssertionError error;
+readonly class ReadOnlyClass {
+    int i = 1;
+}
+
+ReadOnlyClass & readonly rc1 = new ReadOnlyClass();
+
+function testValidInitializationOfReadOnlyClassIntersectionWithReadOnly() {
+    assertTrue(<any> rc1 is ReadOnlyClass);
+    ReadOnlyClass v1 = <ReadOnlyClass> rc1;
+    assertEquality(1, v1.i);
+
+    ReadOnlyClass & readonly rc2 = object {
+        int i = 123;
+        int j;
+
+        function init() {
+            self.j = 234;
+        }
+    };
+    assertTrue(<any> rc2 is object { int i; int j; } & readonly);
+    object { int i; int j; } v2 = <object { int i; int j; } & readonly> rc2;
+    assertEquality(123, v2.i);
+    assertEquality(234, v2.j);
+}
+
+class NonReadOnlyClass {
+    int i = 2;
+}
+
+NonReadOnlyClass & readonly nrc1 = object {
+                                      int i = 1234;
+                                      int j = 2345;
+                                   };
+
+function testValidInitializationOfNonReadOnlyClassIntersectionWithReadOnly() {
+    assertTrue(<any> nrc1 is object { int i; int j; } & readonly);
+    object { int i; int j; } v1 = <object { int i; int j; }> <any> nrc1;
+    assertEquality(1234, v1.i);
+    assertEquality(2345, v1.j);
+
+    NonReadOnlyClass & readonly nrc2 = new ReadOnlyClass();
+    assertTrue(<any> nrc2 is ReadOnlyClass);
+    ReadOnlyClass v2 = <ReadOnlyClass> nrc2;
+    assertEquality(1, v2.i);
+}
+
+function testFunctionWithReturnTypeAnyToReadonly() {
+    any a = foo;
+    assertFalse(a is function () returns any);
+    assertTrue(a is function () returns any|error);
+}
+
+function foo() returns readonly => 1;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -1023,5 +1051,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

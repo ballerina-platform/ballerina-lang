@@ -39,7 +39,7 @@ public class ArrayTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidArrayTypeDescriptorAsReturnType() {
-        testTopLevelNode("array-type/array_type_assert_01.bal", "array-type/array_type_assert_02.json");
+        testTopLevelNode("array-type/array_type_source_02.bal", "array-type/array_type_assert_02.json");
     }
 
     @Test
@@ -64,7 +64,7 @@ public class ArrayTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidTwoDimensionalArrayTypeDescriptorAsReturnType() {
-        testTopLevelNode("array-type/array_type_assert_02.bal", "array-type/array_type_assert_08.json");
+        testTopLevelNode("array-type/array_type_source_08.bal", "array-type/array_type_assert_08.json");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class ArrayTypeTest extends AbstractTypesTest {
 
     @Test
     public void testLocalValidArrayType() {
-        testTopLevelNode("array-type/array_type_assert_03.bal", "array-type/array_type_assert_16.json");
+        testTopLevelNode("array-type/array_type_source_16.bal", "array-type/array_type_assert_16.json");
     }
 
     //Recovery test
@@ -102,6 +102,11 @@ public class ArrayTypeTest extends AbstractTypesTest {
     @Test
     public void testInvalidArrayTypeWithArrayLengthMissingCloseBracket() {
         test("int[5 a;", "array-type/array_type_assert_11.json");
+    }
+
+    @Test
+    public void testTopLevelArrayTypeWithMissingCloseBracket() {
+        testTopLevelNode("array-type/array_type_source_20.bal", "array-type/array_type_assert_20.json");
     }
 
     @Test
@@ -121,7 +126,6 @@ public class ArrayTypeTest extends AbstractTypesTest {
 
     @Test
     public void testLocalInValidArrayType() {
-        testTopLevelNode("array-type/array_type_assert_04.bal", "array-type/array_type_assert_17.json");
+        testTopLevelNode("array-type/array_type_source_17.bal", "array-type/array_type_assert_17.json");
     }
-
 }

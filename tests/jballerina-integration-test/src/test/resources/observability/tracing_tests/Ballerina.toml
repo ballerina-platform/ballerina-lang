@@ -3,6 +3,8 @@ org = "intg_tests"
 name = "tracing_tests"
 version = "0.0.1"
 
+[build-options]
+observabilityIncluded=true
 
 [[platform.java11.dependency]]
 path = "../../../../../../observability-test-utils/build/libs/observability-test-utils.jar"

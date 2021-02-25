@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
  */
 package io.ballerina.compiler.api.symbols;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -24,14 +23,23 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface ParameterSymbol {
+public interface ParameterSymbol extends Annotatable, Qualifiable {
+
+    /**
+     * Get the parameter name.
+     *
+     * @return {@link Optional} name of the field
+     * @deprecated This method will be removed in a later version. Use getName() instead.
+     */
+    @Deprecated
+    Optional<String> name();
 
     /**
      * Get the parameter name.
      *
      * @return {@link Optional} name of the field
      */
-    Optional<String> name();
+    Optional<String> getName();
 
     /**
      * Get the type descriptor of the field.
@@ -39,13 +47,6 @@ public interface ParameterSymbol {
      * @return {@link TypeSymbol} of the field
      */
     TypeSymbol typeDescriptor();
-
-    /**
-     * Get the access modifiers.
-     *
-     * @return {@link List} of access modifiers
-     */
-    List<Qualifier> qualifiers();
 
     /**
      * Get a string representation of the signature of the parameter.
@@ -59,5 +60,13 @@ public interface ParameterSymbol {
      *
      * @return {@link ParameterKind} of the param
      */
+    @Deprecated
     ParameterKind kind();
+
+    /**
+     * Get the kind of the parameter.
+     *
+     * @return {@link ParameterKind} of the param
+     */
+    ParameterKind paramKind();
 }

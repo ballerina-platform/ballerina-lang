@@ -24,6 +24,7 @@ import com.google.gson.JsonParser;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -34,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Test class to test report using a ballerina project.
@@ -56,10 +58,12 @@ public class TestReportTest extends BaseTestCase {
     @Test ()
     public void testWarningForReportTools() throws BallerinaTestException, IOException {
         String msg = "warning: Could not find the required HTML report tools for code coverage";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"--code-coverage"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(60000);
+        String[] args = mergeCoverageArgs(new String[]{"--code-coverage", "--includes=*"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg)) {
+            AssertionUtils.assertForTestFailures(output, "report tools validation failure");
+        }
     }
 
     @Test ()
@@ -79,14 +83,12 @@ public class TestReportTest extends BaseTestCase {
     private void runCommand(boolean coverage) throws BallerinaTestException, IOException {
         String[] args;
         if (coverage) {
-            args = new String[]{"--code-coverage"};
+            args = new String[]{"--code-coverage", "--includes=*"};
         } else {
             args = new String[]{"--test-report"};
         }
-
         balClient.runMain("test", args, null, new String[]{},
                 new LogLeecher[]{}, projectPath);
-
         Gson gson = new Gson();
         BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8);
         resultObj = gson.fromJson(bufferedReader, JsonObject.class);
@@ -133,13 +135,13 @@ public class TestReportTest extends BaseTestCase {
     private void validateCoverage() {
         JsonParser parser = new JsonParser();
         //math module
-        int[] mathAddCovered = new int[] {22, 23, 24, 26, 29, 31}, mathAddMissed = new int[] {27};
+        int[] mathAddCovered = new int[] {22, 23, 24, 26, 29, 30, 31}, mathAddMissed = new int[] {27};
         float mathAddPercentageVal =
                 (float) (mathAddCovered.length) / (mathAddCovered.length + mathAddMissed.length) * 100;
         float mathAddPercentage =
                 (float) (Math.round(mathAddPercentageVal * 100.0) / 100.0);
 
-        int[] mathDivideCovered = new int[] {22, 23, 25, 26, 30}, mathDivideMissed = new int[] {28};
+        int[] mathDivideCovered = new int[] {22, 23, 25, 26, 30}, mathDivideMissed = new int[] {28, 29};
         float mathDividePercentageVal =
                 (float) (mathDivideCovered.length) / (mathDivideCovered.length + mathDivideMissed.length) * 100;
         float mathDividePercentage =
@@ -151,7 +153,7 @@ public class TestReportTest extends BaseTestCase {
         float mathPercentage = (float) (Math.round(mathPercentageVal * 100.0) / 100.0);
 
         //foo module
-        int[] fooMainCovered = new int[] {22, 23, 24, 26, 29, 30, 36, 37}, fooMainMissed = new int[] {};
+        int[] fooMainCovered = new int[] {22, 23, 24, 27, 29, 30, 36, 37}, fooMainMissed = new int[] {26};
         float fooMainPercentageVal =
                 (float) (fooMainCovered.length) / (fooMainCovered.length + fooMainMissed.length) * 100;
         float fooMainPercentage =

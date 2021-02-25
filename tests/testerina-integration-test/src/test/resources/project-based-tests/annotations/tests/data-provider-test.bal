@@ -17,7 +17,7 @@
 import ballerina/test;
 
 @test:Config{
-    dataProvider:"dataGen"
+    dataProvider: dataGen
 }
 function stringDataProviderTest (string fValue, string sValue, string result) returns error? {
 
@@ -36,7 +36,7 @@ function dataGen() returns (string[][]) {
 }
 
 @test:Config{
-    dataProvider:"dataGen2"
+    dataProvider: dataGen2
 }
 function stringDataProviderTest2 (string fValue, string sValue, string result) returns error? {
             
@@ -55,7 +55,7 @@ function dataGen2() returns (string[][]) {
 }
 
 @test:Config{
-    dataProvider:"dataGen3"
+    dataProvider: dataGen3
 }
 function jsonDataProviderTest (json fValue, json sValue, json result) {
     json a = {"a": "a"};
@@ -71,7 +71,7 @@ function dataGen3() returns (json[][]) {
 }
 
 @test:Config{
-    dataProvider:"dataGen4"
+    dataProvider: dataGen4
 }
 function tupleDataProviderTest ([int, int, [int, int]] result) {
     int a = 10;

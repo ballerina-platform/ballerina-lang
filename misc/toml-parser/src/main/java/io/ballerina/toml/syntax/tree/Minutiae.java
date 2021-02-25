@@ -17,11 +17,14 @@
  */
 package io.ballerina.toml.syntax.tree;
 
+import io.ballerina.toml.internal.parser.tree.STInvalidNodeMinutiae;
 import io.ballerina.toml.internal.parser.tree.STMinutiae;
 import io.ballerina.toml.internal.parser.tree.STNode;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
+
+import java.util.Optional;
 
 /**
  * Represents whitespaces, comments, newline characters attached to a {@code Token}.
@@ -52,6 +55,24 @@ public final class Minutiae {
 
     public SyntaxKind kind() {
         return internalMinutiae.kind;
+    }
+
+    public Token parentToken() {
+        return token;
+    }
+
+    public boolean isInvalidNodeMinutiae() {
+        return SyntaxKind.INVALID_NODE_MINUTIAE == internalMinutiae.kind;
+    }
+
+    public Optional<InvalidTokenMinutiaeNode> invalidTokenMinutiaeNode() {
+        if (!isInvalidNodeMinutiae()) {
+            return Optional.empty();
+        }
+
+        STInvalidNodeMinutiae minutiae = (STInvalidNodeMinutiae) internalMinutiae;
+        return Optional.of(new InvalidTokenMinutiaeNode(
+                minutiae.invalidNode(), position, this, token.syntaxTree()));
     }
 
     public TextRange textRange() {

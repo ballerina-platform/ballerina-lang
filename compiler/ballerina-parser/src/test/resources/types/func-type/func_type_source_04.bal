@@ -1,2 +1,2 @@
-function foo(function() f) {
+function foo(function () f) {
 }

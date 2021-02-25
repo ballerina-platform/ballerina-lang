@@ -28,6 +28,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.SourceKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
@@ -97,10 +98,10 @@ class DocumentContext {
         return this.textDocument;
     }
 
-    BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID) {
+    BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID, SourceKind sourceKind) {
         nodeCloner = NodeCloner.getInstance(compilerContext);
         if (compilationUnit != null) {
-            return nodeCloner.clone(compilationUnit);
+            return nodeCloner.cloneCUnit(compilationUnit);
         }
         BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
 
@@ -108,19 +109,20 @@ class DocumentContext {
         reportSyntaxDiagnostics(pkgID, syntaxTree, dlog);
         BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(compilerContext, pkgID, this.name);
         compilationUnit = (BLangCompilationUnit) bLangNodeTransformer.accept(syntaxTree.rootNode()).get(0);
-        return nodeCloner.clone(compilationUnit);
+        compilationUnit.setSourceKind(sourceKind);
+        return nodeCloner.cloneCUnit(compilationUnit);
     }
 
-    Set<ModuleLoadRequest> moduleLoadRequests(PackageDependencyScope scope) {
+    Set<ModuleLoadRequest> moduleLoadRequests(ModuleId currentModuleId, PackageDependencyScope scope) {
         if (this.moduleLoadRequests != null) {
             return this.moduleLoadRequests;
         }
 
-        this.moduleLoadRequests = getModuleLoadRequests(scope);
+        this.moduleLoadRequests = getModuleLoadRequests(currentModuleId, scope);
         return this.moduleLoadRequests;
     }
 
-    private Set<ModuleLoadRequest> getModuleLoadRequests(PackageDependencyScope scope) {
+    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleId currentModuleId, PackageDependencyScope scope) {
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         ModulePartNode modulePartNode = syntaxTree().rootNode();
         for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
@@ -130,7 +132,8 @@ class DocumentContext {
         // TODO This is a temporary solution for SLP6 release
         // TODO Traverse the syntax tree to see whether to import the ballerinai/transaction package or not
         TransactionImportValidator trxImportValidator = new TransactionImportValidator();
-        if (trxImportValidator.shouldImportTransactionPackage(modulePartNode)) {
+        if (trxImportValidator.shouldImportTransactionPackage(modulePartNode) &&
+               !currentModuleId.moduleName().equals(Names.TRANSACTION.value)) {
             PackageName packageName = PackageName.from(Names.TRANSACTION.value);
             ModuleLoadRequest ballerinaiLoadReq =
                     new ModuleLoadRequest(PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),

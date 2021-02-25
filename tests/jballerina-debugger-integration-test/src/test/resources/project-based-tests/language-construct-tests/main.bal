@@ -31,7 +31,7 @@ public client class Person {
         return self.firstName + " " + self.lastName;
     }
 
-    public remote function getName() returns string {
+    remote function getName() returns string {
         string name = self.firstName;
         return name;
     }
@@ -52,7 +52,7 @@ public client class MockPerson {
         return self.firstName + " " + self.lastName;
     }
 
-    public remote function getName() returns string {
+    remote function getName() returns string {
         string name = self.firstName;
         return name;
     }

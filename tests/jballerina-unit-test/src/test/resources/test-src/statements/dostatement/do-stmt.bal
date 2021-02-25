@@ -1,5 +1,3 @@
-type AssertionError error;
-
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 type ErrorTypeA distinct error;
@@ -221,11 +219,11 @@ public function testLambdaFunctionWithOnFail() returns int {
 function testOnFailWithUnion () returns string {
    string str = "";
    var getTypeAError = function () returns int|ErrorTypeA{
-       ErrorTypeA errorA = ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
+       ErrorTypeA errorA = error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
        return errorA;
    };
    var getTypeBError = function () returns int|ErrorTypeB{
-       ErrorTypeB errorB = ErrorTypeB(TYPE_B_ERROR_REASON, message = "Error Type B");
+       ErrorTypeB errorB = error ErrorTypeB(TYPE_B_ERROR_REASON, message = "Error Type B");
        return errorB;
    };
    do {
@@ -358,6 +356,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(ASSERTION_ERROR_REASON,
-            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

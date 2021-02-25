@@ -52,7 +52,7 @@ public class ParserTestFormatter extends FormatterTest {
     @Override
     public List<String> skipList() {
         return Arrays.asList(
-                // the following tests need to be skipped since these contain intended extra minutiaes
+                // the following tests need to be skipped since these contain intended extra/no minutiae
                 "minutiae_test_01.bal",
                 "minutiae_test_02.bal",
                 "minutiae_test_03.bal",
@@ -61,32 +61,16 @@ public class ParserTestFormatter extends FormatterTest {
                 "minutiae_test_05_with_no_newlines.bal",
                 "doc_source_15.bal",
                 "doc_source_06.bal",
+                "module_var_decl_source_16.bal",
+                "doc_source_24.bal",
 
                 // the following tests need to be enabled in the future
                 "ambiguity_source_11.bal", // parser issue for indexed expressions #26420
-                "typed_binding_patterns_source_19.bal", // parser issue for binding patterns #26421
-                "typed_binding_patterns_source_04.bal", // parser issue for binding patterns #26421
-                "typed_binding_patterns_source_15.bal", // parser issue for binding patterns #26421
-                "typed_binding_patterns_source_01.bal", // parser issue for binding patterns #26421
-                "typed_binding_patterns_source_14.bal", // parser issue for binding patterns #26421
-                "typed_binding_patterns_source_02.bal", // parser issue for binding patterns #26421
-                "typed_binding_patterns_source_17.bal", // parser issue for binding patterns #26421
-                "typed_binding_patterns_source_03.bal", // parser issue for binding patterns #26421
                 "annotations_source_04.bal", // could be considered an invalid scenario
-                "list_binding_pattern_source_01.bal", // parser issue for binding patterns #26421
-                "mapping_binding_pattern_source_01.bal", // parser issue for binding patterns #26421
-                "forEach_stmt_source_19.bal", // parser issue for binding patterns #26421
-                "forEach_stmt_source_18.bal", // parser issue for binding patterns #26421
-                "forEach_stmt_source_12.bal", // parser issue for binding patterns #26421
-                "match_stmt_source_08.bal", // parser issue for binding patterns & match block #26421
-                "match_stmt_source_05.bal", // parser issue for binding patterns & match block #26421
-                "match_stmt_source_14.bal", // match block
-                "match_stmt_source_01.bal", // match block
                 "receive_action_source_01.bal", // issue #26376
-                "match_stmt_source_10.bal", // issue #26376
-                "match_stmt_source_12.bal", // issue #26376
-                "typed_binding_patterns_source_16.bal", // parser issue for binding patterns #26421
-                "error_binding_pattern_source_02.bal", // issue #26376
+                "doc_source_21.bal", // issue #28172
+
+                "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
 
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
@@ -99,11 +83,11 @@ public class ParserTestFormatter extends FormatterTest {
                 "typed_binding_patterns_source_07.bal", "annotations_source_09.bal", "annotations_source_08.bal",
                 "annotations_source_06.bal", "resiliency_source_01.bal", "resiliency_source_02.bal",
                 "separated_node_list_modify_all_nodes_assert.bal", "child_node_list_test_01.bal",
-                "intersection_type_source_06.bal", "array_type_assert_04.bal",
+                "intersection_type_source_06.bal", "array_type_source_17.bal",
                 "stream_type_source_05.bal", "func_type_source_05.bal", "func_type_source_07.bal",
-                "func_type_source_08.bal", "table_type_source_08.bal", "singleton_type_source_08.bal",
-                "singleton_type_source_06.bal", "simple_types_source_02.bal", "tuple_type_source_04.bal",
-                "tuple_type_source_06.bal", "trivia_source_02.bal",
+                "func_type_source_08.bal", "table_type_source_08.bal", "table_type_source_09.bal",
+                "singleton_type_source_08.bal", "singleton_type_source_06.bal", "simple_types_source_02.bal",
+                "tuple_type_source_04.bal", "tuple_type_source_06.bal", "trivia_source_02.bal",
                 "enum_decl_source_05.bal", "enum_decl_source_08.bal", "enum_decl_source_09.bal",
                 "service_decl_source_09.bal", "service_decl_source_15.bal", "service_decl_source_03.bal",
                  "service_decl_source_12.bal", "service_decl_source_10.bal", "service_decl_source_04.bal",
@@ -170,10 +154,9 @@ public class ParserTestFormatter extends FormatterTest {
                 "resiliency_source_03.bal", "module_var_decl_source_10.bal", "error_binding_pattern_source_03.bal",
                 "match_stmt_source_06.bal", "match_stmt_source_07.bal", "match_stmt_source_11.bal",
                 "receive_action_source_02.bal", "receive_action_source_03.bal", "module_var_decl_source_15.bal",
-                "annot_decl_source_02.bal", "class_def_source_11.bal", "object_type_def_source_26.bal",
-                "ambiguity_source_32.bal", "service_object_constructor_source_01.bal",
-                "service_object_constructor_source_02.bal", "object_constructor_source_08.bal",
-                "annotations_source_01.bal", "do_stmt_source_08.bal");
+                "annot_decl_source_02.bal", "do_stmt_source_08.bal", "func_params_source_11.bal",
+                "predeclared-module-prefix_02.bal", "object_type_def_source_44.bal", "record_type_def_source_27.bal",
+                "import_decl_source_24.bal");
     }
 
     @DataProvider(name = "test-file-provider")

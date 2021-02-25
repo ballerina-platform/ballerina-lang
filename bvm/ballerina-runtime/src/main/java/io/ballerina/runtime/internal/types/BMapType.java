@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 /**
  * {@code BMapType} represents a type of a map in Ballerina.
@@ -40,36 +41,32 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 @SuppressWarnings("unchecked")
 public class BMapType extends BType implements MapType {
 
-    private Type constraint;
+    private final Type constraint;
     private final boolean readonly;
     private IntersectionType immutableType;
-
-    /**
-     * Create a type from the given name.
-     *
-     * @param typeName string name of the type.
-     * @param constraint constraint type which particular map is bound to.
-     * @param pkg package for the type.
-     */
-    public BMapType(String typeName, Type constraint, Module pkg) {
-        super(typeName, pkg, MapValueImpl.class);
-        this.constraint = constraint;
-        this.readonly = false;
-    }
-
-    public BMapType(String typeName, Type constraint, Module pkg, boolean readonly) {
-        super(typeName, pkg, MapValueImpl.class);
-        this.constraint = constraint;
-        this.readonly = readonly;
-    }
 
     public BMapType(Type constraint) {
         this(constraint, false);
     }
 
     public BMapType(Type constraint, boolean readonly) {
-        super(TypeConstants.MAP_TNAME, null, MapValueImpl.class);
-        this.constraint = constraint;
+        this(TypeConstants.MAP_TNAME, constraint, null, readonly);
+    }
+
+    /**
+     * Create a type from the given name.
+     *
+     * @param typeName   string name of the type.
+     * @param constraint constraint type which particular map is bound to.
+     * @param pkg        package for the type.
+     */
+    public BMapType(String typeName, Type constraint, Module pkg) {
+        this(typeName, constraint, pkg, false);
+    }
+
+    public BMapType(String typeName, Type constraint, Module pkg, boolean readonly) {
+        super(typeName, pkg, MapValueImpl.class);
+        this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
     }
 

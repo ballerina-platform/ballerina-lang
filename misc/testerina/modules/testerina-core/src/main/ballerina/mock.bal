@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # Represents the placeholder to be given for object or record type arguments
 public const ANY = "__ANY__";
@@ -107,7 +107,7 @@ public class MockObject {
 public class MemberFunctionStub {
     object {} mockObject;
     string functionName = "";
-    anydata|error args = [];
+    (anydata|error)[] args = [];
     any|error returnValue = ();
     any|error returnValueSeq = [];
 
@@ -154,7 +154,7 @@ public class MemberFunctionStub {
              error err = error("function to mock is not specified.");
              panic err;
         }
-        if (self.args != []) {
+        if (self.args.length() != 0) {
             error err = error("'withArguments' function cannot be specified with a return sequence");
             panic err;
         }
@@ -226,6 +226,7 @@ public isolated function when(MockFunction mockFunction) returns FunctionStub {
 public class MockFunction {
     string functionToMock = "";
     string functionToMockPackage = "";
+    string[] mockFunctionClasses = [];
 }
 
 # Represents an object that allows stubbing function invocations
@@ -236,7 +237,7 @@ public class MockFunction {
 public class FunctionStub {
     MockFunction mockFuncObj;
     any|error returnValue = ();
-    anydata|error args = [];
+    (anydata|error)[] args = [];
 
 
     # Gets invoked during the stub registration

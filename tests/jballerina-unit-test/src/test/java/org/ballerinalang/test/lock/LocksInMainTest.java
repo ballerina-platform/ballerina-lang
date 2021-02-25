@@ -29,6 +29,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -278,8 +279,9 @@ public class LocksInMainTest {
 
     @Test(description = "Test for parallel run when invocations are imported and contains global var dependencies")
     public void testParallelRunWithImportInvocationDependencies() {
-        CompileResult importInvocationDependencies = BCompileUtil.compile("test-src/lock/locks-in-imports-test");
-        BRunUtil.invoke(importInvocationDependencies, "testLockWIthInvokableChainsAccessingGlobal");
+        CompileResult importInvocationDependencies = BCompileUtil.
+                compile("test-src/lock/locks_in_imports_test_project");
+        BRunUtil.invoke(importInvocationDependencies, "testLockWithInvokableChainsAccessingGlobal");
     }
 
     @Test(description = "Test for locks on global references")
@@ -295,5 +297,10 @@ public class LocksInMainTest {
     @Test(description = "Test for global reference updated inside conditional statment")
     public void testForGlobalRefUpdateInsideConditional() {
         BRunUtil.invoke(parallelCompileResult, "testForGlobalRefUpdateInsideConditional");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        parallelCompileResult = null;
     }
 }

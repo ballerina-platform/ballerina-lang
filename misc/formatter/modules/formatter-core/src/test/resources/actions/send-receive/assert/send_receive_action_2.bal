@@ -14,4 +14,5 @@ public function foo() {
         int lw;
         lw = <- w1;
     }
+
 }

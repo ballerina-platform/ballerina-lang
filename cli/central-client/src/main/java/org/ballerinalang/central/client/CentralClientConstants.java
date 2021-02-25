@@ -39,5 +39,4 @@ public class CentralClientConstants {
     static final String ACCEPT = "Accept";
     static final String CONTENT_DISPOSITION = "Content-Disposition";
     static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
-    static final String VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
 }

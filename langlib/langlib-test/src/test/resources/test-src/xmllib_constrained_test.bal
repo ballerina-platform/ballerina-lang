@@ -66,7 +66,7 @@ public function xmlConstraintRuntimeCast() {
 
 public function xmlCastSingleElementAsConstrainedSequence() {
     string elemText = "<hello>xml element 1</hello>";
-    xml<'xml:Element> elementSequence = <xml<'xml:Element>> 'xml:fromString(elemText);
+    xml<'xml:Element> elementSequence = <xml<'xml:Element>> checkpanic 'xml:fromString(elemText);
     assert(elementSequence.length(), 1);
     assert((elementSequence[0]/*).toString(),"xml element 1");
 }

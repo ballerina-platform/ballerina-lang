@@ -22,10 +22,13 @@ import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,7 +36,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectClauseNode> {
 
     public SelectClauseNodeContext() {
@@ -41,7 +44,8 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, SelectClauseNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, SelectClauseNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
@@ -50,14 +54,18 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-            return this.getCompletionItemList(exprEntries, context);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_CONFLICT.get()));
         }
-
-        return this.expressionCompletions(context);
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, SelectClauseNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, SelectClauseNode node) {
         return !node.selectKeyword().isMissing();
     }
 }

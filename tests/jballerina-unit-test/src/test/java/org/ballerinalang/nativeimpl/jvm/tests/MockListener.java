@@ -56,7 +56,7 @@ public class MockListener {
                                               err = error;
                                               latch.countDown();
                                           }
-                             }, new HashMap<>(), null);
+                             }, new HashMap<>());
             latch.await();
         }
         return err;

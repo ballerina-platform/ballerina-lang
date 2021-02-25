@@ -21,7 +21,7 @@ import io.ballerina.projects.CompilationCache;
 import io.ballerina.projects.CompilationCacheFactory;
 import io.ballerina.projects.CompilerBackend;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
@@ -53,7 +53,7 @@ public class TestBirAndJarCache {
 
     @Test(description = "tests writing of the BIR and Jar files")
     public void testBirAndJarCaching() throws IOException {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectOne");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("balawriter").resolve("projectOne");
 
         // 1) Initialize the project instance
         Path cacheDirPath = null;
@@ -73,7 +73,7 @@ public class TestBirAndJarCache {
         // 2) Issue a compilation and code generation
         Package currentPackage = project.currentPackage();
         PackageCompilation pkgCompilation = currentPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
 
         int numOfModules = currentPackage.moduleIds().size();
         TestCompilationCache testCompilationCache = testCompCacheFactory.compilationCache();

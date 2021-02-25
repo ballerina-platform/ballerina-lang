@@ -49,10 +49,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessibleExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -67,12 +69,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -724,11 +726,11 @@ public class ASTBuilderUtil {
         return matchExpr;
     }
 
-    public static BLangFieldBasedAccess createFieldAccessExpr(BLangVariableReference varRef, BLangIdentifier field) {
+    public static BLangFieldBasedAccess createFieldAccessExpr(BLangAccessibleExpression varRef, BLangIdentifier field) {
         return createFieldAccessExpr(varRef, field, false);
     }
 
-    public static BLangFieldBasedAccess createFieldAccessExpr(BLangVariableReference varRef, BLangIdentifier field,
+    public static BLangFieldBasedAccess createFieldAccessExpr(BLangAccessibleExpression varRef, BLangIdentifier field,
                                                               boolean except) {
         BLangFieldBasedAccess fieldAccessExpr = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldAccessExpr.expr = varRef;
@@ -736,7 +738,7 @@ public class ASTBuilderUtil {
         return fieldAccessExpr;
     }
 
-    public static BLangIndexBasedAccess createIndexAccessExpr(BLangVariableReference varRef,
+    public static BLangIndexBasedAccess createIndexAccessExpr(BLangAccessibleExpression varRef,
                                                               BLangExpression indexExpr) {
         BLangIndexBasedAccess fieldAccessExpr = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         fieldAccessExpr.expr = varRef;
@@ -844,6 +846,11 @@ public class ASTBuilderUtil {
             dupInvokableType.flags |= Flags.ISOLATED;
         }
 
+        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.TRANSACTIONAL)) {
+            dupFuncSymbol.flags |= Flags.TRANSACTIONAL;
+            dupInvokableType.flags |= Flags.TRANSACTIONAL;
+        }
+
         dupFuncSymbol.type = dupInvokableType;
         dupFuncSymbol.dependentGlobalVars = invokableSymbol.dependentGlobalVars;
 
@@ -920,5 +927,38 @@ public class ASTBuilderUtil {
         xmlTextLiteral.parent = parent;
         xmlTextLiteral.type = type;
         return xmlTextLiteral;
+    }
+
+    public static BLangDynamicArgExpr createDynamicParamExpression(BLangExpression condition,
+                                                                   BLangExpression conditionalArg) {
+        BLangDynamicArgExpr dynamicExpression = new BLangDynamicArgExpr();
+        dynamicExpression.condition = condition;
+        dynamicExpression.conditionalArgument = conditionalArg;
+        return dynamicExpression;
+    }
+
+    public static BLangTernaryExpr createTernaryExprNode(BType type, BLangExpression expr, BLangExpression thenExpr,
+                                                         BLangExpression elseExpr) {
+        BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) TreeBuilder.createTernaryExpressionNode();
+        ternaryExpr.elseExpr = elseExpr;
+        ternaryExpr.thenExpr = thenExpr;
+        ternaryExpr.expr = expr;
+        ternaryExpr.type = type;
+        return ternaryExpr;
+    }
+
+    public static BLangIndexBasedAccess createMemberAccessExprNode(BType type, BLangExpression expr,
+                                                                   BLangExpression indexExpr) {
+        BLangIndexBasedAccess memberAccessExpr = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        memberAccessExpr.expr = expr;
+        memberAccessExpr.indexExpr = indexExpr;
+        memberAccessExpr.type = type;
+        return memberAccessExpr;
+    }
+
+    public static BLangExpression createIgnoreExprNode(BType type) {
+        BLangExpression ignoreExpr = (BLangExpression) TreeBuilder.createIgnoreExprNode();
+        ignoreExpr.type = type;
+        return ignoreExpr;
     }
 }

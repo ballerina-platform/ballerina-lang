@@ -60,7 +60,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     protected TupleType tupleType;
     Object[] refValues;
-    private int minSize = 0;
+    private int minSize;
     private boolean hasRestElement; // cached value for ease of access
     // ------------------------ Constructors -------------------------------------------------------------------
 
@@ -88,7 +88,6 @@ public class TupleValueImpl extends AbstractArrayValue {
         return result;
     }
 
-    @Deprecated
     public TupleValueImpl(Object[] values, TupleType type) {
         this.refValues = values;
         this.tupleType = type;
@@ -107,7 +106,6 @@ public class TupleValueImpl extends AbstractArrayValue {
         this.size = refValues.length;
     }
 
-    @Deprecated
     public TupleValueImpl(TupleType type) {
         this.tupleType = type;
 
@@ -133,7 +131,6 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
     }
 
-    @Deprecated
     public TupleValueImpl(TupleType type, long size, ListInitialValueEntry[] initialValues) {
         this.tupleType = type;
 
@@ -255,7 +252,6 @@ public class TupleValueImpl extends AbstractArrayValue {
      * @return array element
      */
     @Override
-    @Deprecated
     public String getString(long index) {
         return get(index).toString();
     }
@@ -341,7 +337,6 @@ public class TupleValueImpl extends AbstractArrayValue {
      * @param value value to be added
      */
     @Override
-    @Deprecated
     public void add(long index, String value) {
         add(index, (Object) value);
     }

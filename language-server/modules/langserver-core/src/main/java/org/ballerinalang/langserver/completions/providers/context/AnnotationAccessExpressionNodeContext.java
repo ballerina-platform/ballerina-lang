@@ -30,7 +30,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
@@ -57,7 +58,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class AnnotationAccessExpressionNodeContext extends AbstractCompletionProvider<AnnotAccessExpressionNode> {
 
     public AnnotationAccessExpressionNodeContext() {
@@ -65,7 +66,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, AnnotAccessExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, AnnotAccessExpressionNode node) {
 //        List<LSCompletionItem> completionItems = new ArrayList<>();
 //        Optional<Symbol> expressionEntry = this.getExpressionEntry(context, node.expression());
 
@@ -85,7 +86,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         return new ArrayList<>();
     }
 
-    public List<LSCompletionItem> getAnnotationTags(CompletionContext context, BTypedescType typedescType) {
+    public List<LSCompletionItem> getAnnotationTags(BallerinaCompletionContext context, BTypedescType typedescType) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         AttachPoint.Point attachPoint = getAttachPointForType(typedescType);
 
@@ -138,11 +139,12 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         }
     }
 
-    private LSCompletionItem getAnnotationsCompletionItem(CompletionContext ctx, AnnotationSymbol annotationSymbol) {
+    private LSCompletionItem getAnnotationsCompletionItem(BallerinaCompletionContext ctx,
+                                                          AnnotationSymbol annotationSymbol) {
         Optional<TypeSymbol> attachedType = annotationSymbol.typeDescriptor();
         CompletionItem item = new CompletionItem();
-        item.setInsertText(annotationSymbol.name());
-        item.setLabel(annotationSymbol.name());
+        item.setInsertText(annotationSymbol.getName().get());
+        item.setLabel(annotationSymbol.getName().get());
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
         item.setKind(CompletionItemKind.Property);
@@ -157,14 +159,14 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
      * @param expressionNode expression node
      * @return {@link Optional} scope entry for the node
      */
-    private Optional<Symbol> getExpressionEntry(CompletionContext context, Node expressionNode) {
+    private Optional<Symbol> getExpressionEntry(BallerinaCompletionContext context, Node expressionNode) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
 
         switch (expressionNode.kind()) {
             case SIMPLE_NAME_REFERENCE:
                 String nameRef = ((SimpleNameReferenceNode) expressionNode).name().text();
                 for (Symbol symbol : visibleSymbols) {
-                    if (symbol.name().equals(nameRef)) {
+                    if (Objects.equals(symbol.getName().orElse(null), nameRef)) {
                         return Optional.of(symbol);
                     }
                 }
@@ -179,7 +181,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
                         return Optional.empty();
                     }
                     for (FunctionSymbol functionSymbol : moduleSymbol.get().functions()) {
-                        if (functionSymbol.name().equals(fName)) {
+                        if (functionSymbol.getName().get().equals(fName)) {
                             return Optional.of(functionSymbol);
                         }
                     }
@@ -187,7 +189,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
                 } else if (refName.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                     String funcName = ((SimpleNameReferenceNode) refName).name().text();
                     for (Symbol symbol : visibleSymbols) {
-                        if (symbol.kind() == FUNCTION && symbol.name().equals(funcName)) {
+                        if (symbol.kind() == FUNCTION && symbol.getName().get().equals(funcName)) {
                             return Optional.of(symbol);
                         }
                     }

@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Binary Expression",
+    "input": "var1 == var2;",
+    "accepted": true
+  },
+  {
+    "name": "Braced Expression",
+    "input": "(var1 == var2);",
+    "accepted": true
+  },
+  {
+    "name": "Check Expression",
+    "input": "check func1(10);",
+    "accepted": true
+  },
+  {
+    "name": "Field Access Expression",
+    "input": "abc.value;",
+    "accepted": true
+  },
+  {
+    "name": "Function Call Expression",
+    "input": "func1(arg1);",
+    "accepted": true
+  },
+  {
+    "name": "Method Call Expression",
+    "input": "abs.method(arg1);",
+    "accepted": true
+  },
+  {
+    "name": "Mapping Constructor Expression",
+    "input": "{ line: \"str\", country: \"abc\" };",
+    "accepted": true
+  },
+  {
+    "name": "Typeof Expression",
+    "input": "typeof var1;",
+    "accepted": true
+  },
+  {
+    "name": "Unary Expression",
+    "input": "! var1;",
+    "accepted": true
+  },
+  {
+    "name": "Object Constructor Expression",
+    "input": "object { public string city; };",
+    "accepted": true
+  },
+  {
+    "name": "Type Test Expression",
+    "input": "var1 is Type;",
+    "accepted": true
+  },
+  {
+    "name": "Action",
+    "input": "abc->method(arg1);",
+    "accepted": true
+  },
+  {
+    "name": "Nil Literal",
+    "input": "();",
+    "accepted": true
+  },
+  {
+    "name": "Basic Literal",
+    "input": "4;",
+    "accepted": true
+  },
+  {
+    "name": "Trap Expression",
+    "input": "trap func1(10);",
+    "accepted": true
+  },
+  {
+    "name": "List Constructor Expression",
+    "input": "[1, 2, 3, 4];",
+    "accepted": true
+  },
+  {
+    "name": "Type Cast Expression",
+    "input": "<float> v1;",
+    "accepted": true
+  },
+  {
+    "name": "Table Constructor Expression",
+    "input": "table [ {id: 1, name: \"J\"}, {id: 2, name: \"B\"} ];",
+    "accepted": true
+  },
+  {
+    "name": "Let Expression",
+    "input": "let int x = 2 in x*2;",
+    "accepted": true
+  },
+  {
+    "name": "Template Expression",
+    "input": "string `INSERT INTO Details VALUES (${p.name}, ${p.age})`;",
+    "accepted": true
+  },
+  {
+    "name": "Annonymous Function Expression",
+    "input": "function(int arg1) { };",
+    "accepted": true
+  },
+  {
+    "name": "New Expression",
+    "input": "new Abc(arg1);",
+    "accepted": true
+  },
+  {
+    "name": "Query Expression",
+    "input": "from var student in studentList select { name: student.firstName };",
+    "accepted": true
+  },
+  {
+    "name": "Start Action",
+    "input": "start func1(arg1);",
+    "accepted": true
+  },
+  {
+    "name": "Flush Action",
+    "input": "flush worker1;",
+    "accepted": true
+  },
+  {
+    "name": "Optional Field Access Expression",
+    "input": "abc?.value;",
+    "accepted": true
+  },
+  {
+    "name": "Conditional Expression",
+    "input": "cond ? func1() : func2();",
+    "accepted": true
+  },
+  {
+    "name": "Transactional Expression",
+    "input": "transactional;",
+    "accepted": true
+  },
+  {
+    "name": "Byte Array Expression",
+    "input": "base16 `112233`;",
+    "accepted": true
+  },
+  {
+    "name": "XML Navigate Expression",
+    "input": "bookXML/**/<fname>;",
+    "accepted": true
+  }
+]

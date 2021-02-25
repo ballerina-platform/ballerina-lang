@@ -285,10 +285,10 @@ function testWithComplexJson() returns json[] {
     };
     json[] filteredResults = [];
     string filterFrom = "street_number";
-    json[] addressComp = <json[]>j.address_components;
+    json[] addressComp = <json[]> checkpanic j.address_components;
     int index = 0;
     addressComp.filter(function (json comp) returns boolean {
-            json[] compTypes = <json[]>comp.types;
+            json[] compTypes = <json[]> checkpanic comp.types;
             return compTypes.filter(function (json compType) returns boolean {
                         return compType.toString() == filterFrom;
 
@@ -337,12 +337,9 @@ function testWithComplexXML() returns ([int, string][]) {
    [int, string][] titles = [];
    int count = 0;
 
-   (bookstore/<book>).forEach(function (xml|string ent) {
-           // If the element is an xml.
-           if (ent is xml) {
-               titles[count] = [count, (ent/<title>/*).toString()];
-               count += 1;
-           }
+   (bookstore/<book>).forEach(function (xml ent) {
+       titles[count] = [count, (ent/<title>/*).toString()];
+       count += 1;
    });
 
    return titles;

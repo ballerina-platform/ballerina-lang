@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -39,7 +40,7 @@ import java.math.MathContext;
  */
 public class MapConstantTest {
 
-    private static CompileResult compileResult;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
@@ -268,5 +269,10 @@ public class MapConstantTest {
     public void testNestedConstMapAccess() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNestedConstMapAccess");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

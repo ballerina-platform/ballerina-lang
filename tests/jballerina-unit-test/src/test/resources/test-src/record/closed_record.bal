@@ -247,13 +247,13 @@ public type EmptyRec4 record {|
 
 |};
 
-function testEmptyClosedRecords() returns record {||}[] {
+function testEmptyClosedRecords() returns record {}[] {
     EmptyRec1 r1 = {};
     EmptyRec2 r2 = {};
     EmptyRec3 r3 = {};
     EmptyRec4 r4 = {};
 
-    record {||}[] recArr= [r1, r2, r3, r4];
+    record {||}[] recArr = [r1, r2, r3, r4];
     return recArr;
 }
 

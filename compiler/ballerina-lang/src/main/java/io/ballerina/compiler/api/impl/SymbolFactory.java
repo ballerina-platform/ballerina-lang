@@ -19,18 +19,22 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaClassFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaClassSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaEnumSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.impl.symbols.BallerinaObjectFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaParameterSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaRecordFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -41,7 +45,6 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -51,12 +54,16 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -112,14 +119,20 @@ public class SymbolFactory {
                 }
                 return createFunctionSymbol((BInvokableSymbol) symbol, name);
             }
-            if (symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
-                return createTypeDefinition(symbol.type.tsymbol, name);
-            }
             if (symbol instanceof BConstantSymbol) {
                 return createConstantSymbol((BConstantSymbol) symbol, name);
             }
             if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
                 return createWorkerSymbol((BVarSymbol) symbol, name);
+            }
+            if (symbol.owner instanceof BRecordTypeSymbol) {
+                return createRecordFieldSymbol((BVarSymbol) symbol);
+            }
+            if (symbol.owner instanceof BClassSymbol) {
+                return createClassFieldSymbol((BVarSymbol) symbol);
+            }
+            if (symbol.owner instanceof BObjectTypeSymbol) {
+                return createObjectFieldSymbol((BVarSymbol) symbol);
             }
 
             // return the variable symbol
@@ -159,9 +172,8 @@ public class SymbolFactory {
      * @return {@link Symbol} generated
      */
     public BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol, String name) {
-        PackageID pkgID = invokableSymbol.pkgID;
         BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
-                new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol);
+                new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, invokableSymbol, this.context);
         boolean isResourceMethod = isFlagOn(invokableSymbol.flags, Flags.RESOURCE);
         boolean isRemoteMethod = isFlagOn(invokableSymbol.flags, Flags.REMOTE);
 
@@ -182,6 +194,13 @@ public class SymbolFactory {
         }
         if (isFlagOn(invokableSymbol.flags, Flags.TRANSACTIONAL)) {
             builder.withQualifier(Qualifier.TRANSACTIONAL);
+        }
+
+        for (BLangAnnotationAttachment annAttachment : invokableSymbol.annAttachments) {
+            if (annAttachment.annotationSymbol == null) {
+                continue;
+            }
+            builder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
         }
 
         return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory.getTypeDescriptor(invokableSymbol.type))
@@ -224,9 +243,8 @@ public class SymbolFactory {
      * @return {@link BallerinaVariableSymbol} generated
      */
     public BallerinaVariableSymbol createVariableSymbol(BVarSymbol symbol, String name) {
-        PackageID pkgID = symbol.pkgID;
         BallerinaVariableSymbol.VariableSymbolBuilder symbolBuilder =
-                new BallerinaVariableSymbol.VariableSymbolBuilder(name, pkgID, symbol);
+                new BallerinaVariableSymbol.VariableSymbolBuilder(name, symbol, this.context);
 
         if (isFlagOn(symbol.flags, Flags.FINAL) || isFlagOn(symbol.flags, Flags.FUNCTION_FINAL)) {
             symbolBuilder.withQualifier(Qualifier.FINAL);
@@ -240,16 +258,40 @@ public class SymbolFactory {
         if (isFlagOn(symbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
+        if (isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+            symbolBuilder.withQualifier(Qualifier.CONFIGURABLE);
+        }
+
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
+        }
 
         return symbolBuilder
                 .withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.type))
                 .build();
     }
 
+    public BallerinaRecordFieldSymbol createRecordFieldSymbol(BVarSymbol symbol) {
+        return new BallerinaRecordFieldSymbol(this.context, getBField(symbol));
+    }
+
+    public BallerinaObjectFieldSymbol createObjectFieldSymbol(BVarSymbol symbol) {
+        return new BallerinaObjectFieldSymbol(this.context, getBField(symbol));
+    }
+
+    public BallerinaClassFieldSymbol createClassFieldSymbol(BVarSymbol symbol) {
+        return new BallerinaClassFieldSymbol(this.context, getBField(symbol));
+    }
+
     public BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol, String name) {
-        return new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol.pkgID, symbol)
-                .withReturnType(typesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint))
-                .build();
+        BallerinaWorkerSymbol.WorkerSymbolBuilder builder =
+                new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol, this.context);
+
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+            builder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
+        }
+
+        return builder.withReturnType(typesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint)).build();
     }
 
     /**
@@ -269,7 +311,13 @@ public class SymbolFactory {
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             qualifiers.add(Qualifier.PUBLIC);
         }
-        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, kind);
+
+        List<AnnotationSymbol> annotSymbols = new ArrayList<>();
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+            annotSymbols.add(createAnnotationSymbol((BAnnotationSymbol) annot));
+        }
+
+        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind);
     }
 
     /**
@@ -281,7 +329,8 @@ public class SymbolFactory {
      */
     public BallerinaTypeDefinitionSymbol createTypeDefinition(BTypeSymbol typeSymbol, String name) {
         BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder symbolBuilder =
-                new BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder(name, typeSymbol.pkgID, typeSymbol);
+                new BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder(name, typeSymbol,
+                                                                       this.context);
 
         if (isFlagOn(typeSymbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
@@ -292,7 +341,7 @@ public class SymbolFactory {
 
     public BallerinaEnumSymbol createEnumSymbol(BEnumSymbol enumSymbol, String name) {
         BallerinaEnumSymbol.EnumSymbolBuilder symbolBuilder =
-                new BallerinaEnumSymbol.EnumSymbolBuilder(name, enumSymbol.pkgID, enumSymbol);
+                new BallerinaEnumSymbol.EnumSymbolBuilder(name, enumSymbol, this.context);
 
         if (isFlagOn(enumSymbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
@@ -301,6 +350,10 @@ public class SymbolFactory {
         List<ConstantSymbol> members = new ArrayList<>();
         for (BConstantSymbol member : enumSymbol.members) {
             members.add(this.createConstantSymbol(member, member.name.value));
+        }
+
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : enumSymbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder
@@ -316,26 +369,21 @@ public class SymbolFactory {
 
     public BallerinaClassSymbol createClassSymbol(BClassSymbol classSymbol, String name, TypeSymbol type) {
         BallerinaClassSymbol.ClassSymbolBuilder symbolBuilder =
-                new BallerinaClassSymbol.ClassSymbolBuilder(this.context, name, classSymbol.pkgID, classSymbol);
+                new BallerinaClassSymbol.ClassSymbolBuilder(this.context, name, classSymbol);
 
-        if (isFlagOn(classSymbol.flags, Flags.PUBLIC)) {
-            symbolBuilder.withQualifier(Qualifier.PUBLIC);
-        }
-        if (isFlagOn(classSymbol.flags, Flags.DISTINCT)) {
-            symbolBuilder.withQualifier(Qualifier.DISTINCT);
-        }
-        if (isFlagOn(classSymbol.flags, Flags.SERVICE)) {
-            symbolBuilder.withQualifier(Qualifier.SERVICE);
-        }
-        if (isFlagOn(classSymbol.flags, Flags.CLIENT)) {
-            symbolBuilder.withQualifier(Qualifier.CLIENT);
-        }
-        if (isFlagOn(classSymbol.flags, Flags.READONLY)) {
-            symbolBuilder.withQualifier(Qualifier.READONLY);
-        }
+        addIfFlagSet(symbolBuilder, classSymbol.flags, Flags.PUBLIC, Qualifier.PUBLIC);
+        addIfFlagSet(symbolBuilder, classSymbol.flags, Flags.DISTINCT, Qualifier.DISTINCT);
+        addIfFlagSet(symbolBuilder, classSymbol.flags, Flags.READONLY, Qualifier.READONLY);
+        addIfFlagSet(symbolBuilder, classSymbol.flags, Flags.ISOLATED, Qualifier.ISOLATED);
+        addIfFlagSet(symbolBuilder, classSymbol.flags, Flags.CLIENT, Qualifier.CLIENT);
+        addIfFlagSet(symbolBuilder, classSymbol.flags, Flags.SERVICE, Qualifier.SERVICE);
 
         if (type.typeKind() == TypeDescKind.TYPE_REFERENCE) {
             type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        }
+
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : classSymbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder.withTypeDescriptor((ObjectTypeSymbol) type).build();
@@ -350,13 +398,18 @@ public class SymbolFactory {
      */
     public BallerinaConstantSymbol createConstantSymbol(BConstantSymbol constantSymbol, String name) {
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
-                new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID, constantSymbol);
+                new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol,
+                                                                  this.context);
         symbolBuilder.withConstValue(constantSymbol.getConstValue())
                 .withTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.type))
                 .withBroaderTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.literalType));
 
         if ((constantSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : constantSymbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder.build();
@@ -370,12 +423,17 @@ public class SymbolFactory {
      */
     public BallerinaAnnotationSymbol createAnnotationSymbol(BAnnotationSymbol symbol) {
         BallerinaAnnotationSymbol.AnnotationSymbolBuilder symbolBuilder =
-                new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol);
+                new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol,
+                                                                      this.context);
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
         if (symbol.attachedType != null && symbol.attachedType.getType() != null) {
             symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType.getType()));
+        }
+
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder.build();
@@ -389,7 +447,7 @@ public class SymbolFactory {
      */
     public BallerinaXMLNSSymbol createXMLNamespaceSymbol(BXMLNSSymbol symbol) {
         BallerinaXMLNSSymbol.XmlNSSymbolBuilder symbolBuilder =
-                new BallerinaXMLNSSymbol.XmlNSSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol);
+                new BallerinaXMLNSSymbol.XmlNSSymbolBuilder(symbol.name.getValue(), symbol, this.context);
 
         return symbolBuilder.build();
     }
@@ -402,11 +460,11 @@ public class SymbolFactory {
      * @return {@link BallerinaModule} symbol generated
      */
     public BallerinaModule createModuleSymbol(BPackageSymbol symbol, String name) {
-        return new BallerinaModule.ModuleSymbolBuilder(this.context, name, symbol.pkgID, symbol).build();
+        return new BallerinaModule.ModuleSymbolBuilder(this.context, name, symbol).build();
     }
 
     // Private methods
-    public static boolean isFlagOn(long mask, long flags) {
+    private static boolean isFlagOn(long mask, long flags) {
         return (mask & flags) == flags;
     }
 
@@ -422,5 +480,18 @@ public class SymbolFactory {
 
         throw new IllegalStateException(
                 format("Method symbol for '%s' not found in owner symbol '%s'", method.name, owner.name));
+    }
+
+    private void addIfFlagSet(BallerinaClassSymbol.ClassSymbolBuilder symbolBuilder, final long mask, final long flag,
+                              Qualifier qualifier) {
+        if (Symbols.isFlagOn(mask, flag)) {
+            symbolBuilder.withQualifier(qualifier);
+        }
+    }
+
+    private BField getBField(BVarSymbol symbol) {
+        String fieldName = symbol.name.value;
+        BStructureType type = (BStructureType) symbol.owner.type;
+        return type.fields.get(fieldName);
     }
 }

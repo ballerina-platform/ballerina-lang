@@ -22,18 +22,18 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
-import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.services.ErrorHandlerUtils;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BTypeIdSet;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -44,6 +44,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 
 /**
@@ -102,7 +103,7 @@ public class ErrorValue extends BError implements RefValue {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
             return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent)
-                    + ")";
+                    + getCauseToString(linkParent) + ")";
         }
         return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent) +
                 getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
@@ -113,7 +114,7 @@ public class ErrorValue extends BError implements RefValue {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
             return "error" + getModuleNameToBalString() + "(" + ((StringValue) message)
-                    .informalStringValue(linkParent) + ")";
+                    .informalStringValue(linkParent) + getCauseToBalString(linkParent) + ")";
         }
         return "error" + getModuleNameToBalString() + "(" + ((StringValue) message).expressionStringValue(linkParent) +
                 getCauseToBalString(linkParent) + getDetailsToBalString(linkParent) + ")";
@@ -175,10 +176,20 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String getModuleNameToBalString() {
-        return (type.getPackage().getOrg() != null && type.getPackage().getOrg().equals("$anon")) ||
-                type.getPackage().getName() == null ? " " + type.getName() + " " :
-                String.valueOf(
-                        BallerinaErrorReasons.getModulePrefixedReason(type.getPackage().getName(), type.getName()));
+        if (((BErrorType) type).typeIdSet == null) {
+            return "";
+        }
+        StringJoiner sj = new StringJoiner("&");
+        List<TypeId> typeIds = ((BErrorType) type).typeIdSet.getIds();
+        for (TypeId typeId : typeIds) {
+            String pkg = typeId.getPkg().toString();
+            if (DOT.equals(pkg)) {
+                sj.add(typeId.getName());
+            } else {
+                sj.add("{" + pkg + "}" + typeId.getName());
+            }
+        }
+        return " " + sj.toString() + " ";
     }
 
     @Override

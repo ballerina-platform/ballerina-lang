@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -265,5 +266,10 @@ public class ObjectFunctionsWithDefaultableArguments {
         bValueArray = (BValueArray) returns[3];
         Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 400);
         Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 44.4);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

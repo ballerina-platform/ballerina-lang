@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'xml;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 type ItemType 'xml:Element|'xml:Comment|'xml:ProcessingInstruction|'xml:Text;
 
@@ -362,13 +362,13 @@ var outParameterObject = object OutParameter {
 function testDependentlyTypedMethodsWithObjectTypeInclusion() {
     OutParameterClass c1 = new;
     int|error v1 = c1.get(int);
-    assert(1234, <int> v1);
+    assert(1234, <int> checkpanic v1);
     assertSame(c1.c, c1.get(float));
-    assert("hello world", <string> c1.get(string));
+    assert("hello world", <string> checkpanic c1.get(string));
 
-    assert(321, <int> outParameterObject.get(int));
+    assert(321, <int> checkpanic outParameterObject.get(int));
     decimal|error v2 = outParameterObject.get(decimal);
-    assert(23.45d, <decimal> v2);
+    assert(23.45d, <decimal> checkpanic v2);
 }
 
 public class Bar {
@@ -446,20 +446,20 @@ public function testSubtypingWithDependentlyTypedMethods() {
     Baz baz = new;
     Qux qux = new;
 
-    assert(1, <int> bar.get(int));
-    assert(2, <int> baz.get(int));
-    assert(3, <int> qux.get(int));
+    assert(1, <int> checkpanic bar.get(int));
+    assert(2, <int> checkpanic baz.get(int));
+    assert(3, <int> checkpanic qux.get(int));
     decimal|error v2 = bar.get(decimal);
-    assert(23.45d, <decimal> v2);
+    assert(23.45d, <decimal> checkpanic v2);
     anydata|error v3 = baz.get(decimal);
-    assert(23.45d, <decimal> v3);
+    assert(23.45d, <decimal> checkpanic v3);
     v2 = qux.get(decimal);
-    assert(23.45d, <decimal> v2);
+    assert(23.45d, <decimal> checkpanic v2);
 
     Baz baz1 = bar;
     Bar bar1 = qux;
-    assert(1, <int> baz1.get(int));
-    assert(3, <int> bar1.get(int));
+    assert(1, <int> checkpanic baz1.get(int));
+    assert(3, <int> checkpanic bar1.get(int));
 
     assert(true, <any> bar is Baz);
     assert(true, <any> qux is Bar);
@@ -469,12 +469,12 @@ public function testSubtypingWithDependentlyTypedMethods() {
     assert(false, <any> qux is Quux);
 
     Corge corge = new Grault();
-    assert(200, <int> corge.get(int, string));
-    assert("Hello World!", <string> corge.get(string, int));
+    assert(200, <int> checkpanic corge.get(int, string));
+    assert("Hello World!", <string> checkpanic corge.get(string, int));
 
     Grault grault = new Corge();
-    assert(100, <int> grault.get(int, string));
-    assert("Hello World!", <string> grault.get(string, float));
+    assert(100, <int> checkpanic grault.get(int, string));
+    assert("Hello World!", <string> checkpanic grault.get(string, float));
 
     assert(true, <any> new Corge() is Grault);
     assert(true, <any> new Grault() is Corge);
@@ -482,6 +482,38 @@ public function testSubtypingWithDependentlyTypedMethods() {
     assert(false, <any> new Garply() is Corge);
     assert(false, <any> new Grault() is Garply);
     assert(false, <any> new Garply() is Grault);
+}
+
+function getWithDefaultableParams(int|string x, int|string y = 1, typedesc<int|string> z = int) returns z =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getWithDefaultableParams"
+    } external;
+
+function testDependentlyTypedFunctionWithDefaultableParams() {
+    int a = getWithDefaultableParams(1);
+    assert(2, a);
+
+    int b = getWithDefaultableParams("1");
+    assert(2, b);
+
+    string c = getWithDefaultableParams("hello", z = string);
+    assert("hello1", c);
+
+    string d = getWithDefaultableParams("hello", z = string, y = " world");
+    assert("hello world", d);
+
+    string e = getWithDefaultableParams(z = string, y = " world", x = "hello again");
+    assert("hello again world", e);
+
+    int f = getWithDefaultableParams(1, 2);
+    assert(3, f);
+
+    int g = getWithDefaultableParams(2, 2, int);
+    assert(4, g);
+
+    int h = getWithDefaultableParams(z = int, x = 101);
+    assert(102, h);
 }
 
 // Util functions

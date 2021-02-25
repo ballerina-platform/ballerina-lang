@@ -104,7 +104,7 @@ isolated class IsolatedObject {
 isolated map<boolean>[] f = [];
 map<boolean> globBoolMap = {a: true, b: false};
 
-function testInvalidCopyInWithIsolatedVarOne(map<boolean> boolMap) {
+function testInvalidCopyInWithIsolatedVarAccessOne(map<boolean> boolMap) {
     map<boolean> bm1 = {};
     lock {
         map<boolean> bm2 = {a: true, b: false};
@@ -114,7 +114,7 @@ function testInvalidCopyInWithIsolatedVarOne(map<boolean> boolMap) {
     }
 }
 
-isolated function testInvalidCopyInWithIsolatedVarTwo(map<boolean> boolMap) {
+isolated function testInvalidCopyInWithIsolatedVarAccessTwo(map<boolean> boolMap) {
     map<boolean> bm1 = {};
     lock {
         map<boolean> bm2 = {};
@@ -126,7 +126,7 @@ isolated function testInvalidCopyInWithIsolatedVarTwo(map<boolean> boolMap) {
         f.push(boolMap);
         f[0] = boolMap;
         f = [bm1, bm2];
-        bm2 = f[0];
+        bm1 = f[0];
     }
 }
 
@@ -175,4 +175,45 @@ isolated function testAccessingDifferentIsolatedVarsInNestedLockStatements() {
 
 function nonIsolatedFunc() returns int[] {
     return [1, 2, 3];
+}
+
+isolated int[] stack = [];
+
+int[][] allStacks = [];
+
+function testInvalidTransferOutInLockAccessingIsolatedVar() {
+    lock {
+        int[][] stacks = [stack]; // OK
+        allStacks = stacks; // error
+    }
+}
+
+isolated int[][] isolatedStacks = [];
+
+function testInvalidTransferInUpdatingIsolatedVar(int[] n) {
+    lock {
+        isolatedStacks.push(n); // error for `n`, OK if it was `n.clone()`
+    }
+}
+
+isolated function testInvalidTransferOutUpdatingOfIsolatedVar() returns int[][] {
+    lock {
+        return isolatedStacks; // error, OK if it was `isolatedStacks.clone()`
+    }
+}
+
+isolated function testInvalidTransferOutUpdatingOfIsolatedVarMember(int index) returns int[] {
+    lock {
+        return isolatedStacks[index]; // error, OK if it was `isolatedStacks[index].clone()` or ` isolatedStacks.clone()[index]`
+    }
+}
+
+function testInvalidTransferInAsArgInLockAccessingIsolatedVar(int[] n) {
+    lock {
+        update(isolatedStacks, n); // error, OK if `update(isolatedStacks, n.clone())`
+    }
+}
+
+isolated function update(int[][] x, int[] y) {
+    x.push(y);
 }

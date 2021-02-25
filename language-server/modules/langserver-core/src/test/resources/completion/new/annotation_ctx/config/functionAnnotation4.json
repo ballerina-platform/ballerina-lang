@@ -9,22 +9,28 @@
       "label": "a2",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "Q",
       "insertText": "a2 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "functionAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "Q",
       "insertText": "functionAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
       "label": "functionAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "Q",
       "insertText": "functionAnnotation2",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }

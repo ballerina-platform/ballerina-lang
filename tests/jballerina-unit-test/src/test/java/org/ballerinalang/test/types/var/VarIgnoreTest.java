@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -51,5 +52,10 @@ public class VarIgnoreTest {
         Assert.assertEquals(res.getErrorCount(), 2);
         BAssertUtil.validateError(res, 0, "no new variables on left side", 2, 5);
         BAssertUtil.validateError(res, 1, "no new variables on left side", 3, 5);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

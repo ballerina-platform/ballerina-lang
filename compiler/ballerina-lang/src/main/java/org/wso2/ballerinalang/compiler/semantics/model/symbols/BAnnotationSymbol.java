@@ -27,8 +27,10 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.AttachPoints;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
@@ -41,12 +43,27 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public BTypeSymbol attachedType;
     public Set<AttachPoint> points;
     public int maskedPoints;
+    private List<BAnnotationSymbol> annots;
 
     public BAnnotationSymbol(Name name, long flags, Set<AttachPoint> points, PackageID pkgID,
                              BType type, BSymbol owner, Location pos, SymbolOrigin origin) {
         super(ANNOTATION, flags, name, pkgID, type, owner, pos, origin);
         this.points = points;
         this.maskedPoints = getMaskedPoints(points);
+        this.annots = new ArrayList<>();
+    }
+
+    @Override
+    public void addAnnotation(AnnotationSymbol symbol) {
+        if (symbol == null) {
+            return;
+        }
+        this.annots.add((BAnnotationSymbol) symbol);
+    }
+
+    @Override
+    public List<? extends AnnotationSymbol> getAnnotations() {
+        return this.annots;
     }
 
     @Override

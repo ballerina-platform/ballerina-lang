@@ -1,0 +1,57 @@
+[
+  {
+    "description": "Define variable.",
+    "code": "int value = 1; value",
+    "expr": "1"
+  },
+  {
+    "description": "Compound addition.",
+    "code": "value += 7; value",
+    "expr": "8"
+  },
+  {
+    "description": "Compound addition.",
+    "code": "value -= 2; value",
+    "expr": "6"
+  },
+  {
+    "description": "Compound division.",
+    "code": "value /= 3; value",
+    "expr": "2"
+  },
+  {
+    "description": "Compound multiplication.",
+    "code": "value *= 2; value",
+    "expr": "4"
+  },
+  {
+    "description": "Compound AND.",
+    "code": "value &= 4; value",
+    "expr": "4"
+  },
+  {
+    "description": "Compound OR.",
+    "code": "value |= 3; value",
+    "expr": "7"
+  },
+  {
+    "description": "Compound XOR.",
+    "code": "value ^= 5; value",
+    "expr": "2"
+  },
+  {
+    "description": "Compound left shift.",
+    "code": "value <<= 1; value",
+    "expr": "4"
+  },
+  {
+    "description": "Compound right shift.",
+    "code": "value >>= 1; value",
+    "expr": "2"
+  },
+  {
+    "description": "Compound logical shift.",
+    "code": "value >>>= 1; value",
+    "expr": "1"
+  }
+]

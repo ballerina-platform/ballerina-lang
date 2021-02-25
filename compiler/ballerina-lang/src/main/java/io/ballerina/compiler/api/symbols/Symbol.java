@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.api.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Optional;
@@ -30,18 +29,19 @@ import java.util.Optional;
 public interface Symbol {
 
     /**
-     * Get the symbol name.
-     * 
-     * @return {@link String} name of the symbol
+     * Retrieves the name of the symbol if it is associated with an identifier.
+     *
+     * @return The name of the symbol if applicable
      */
-    String name();
+    Optional<String> getName();
 
     /**
-     * Get the moduleID of the symbol.
-     * 
-     * @return {@link ModuleID} of the symbol
+     * Retrieves the symbol of the module this symbol belongs to if the symbol is defined in a module. Type symbols will
+     * typically return empty except for {@link TypeReferenceTypeSymbol}.
+     *
+     * @return The {@link ModuleSymbol} of the module
      */
-    ModuleID moduleID();
+    Optional<ModuleSymbol> getModule();
 
     /**
      * Get the Symbol Kind.
@@ -51,19 +51,19 @@ public interface Symbol {
     SymbolKind kind();
 
     /**
-     * Get the Documentation attachment bound to the symbol.
-     *
-     * @return {@link Optional} doc attachment
-     */
-    Optional<Documentation> docAttachment();
-
-    /**
      * This retrieves position information of the symbol in the source code. The position given here is the location of
      * the definition of the symbol.
      *
      * @return The position information of the symbol
+     * @deprecated This method will be removed in a later version and be replaced with the getLocation() method.
      */
+    @Deprecated
     Location location();
 
-    // TODO: Add the annotation attachment API
+    /**
+     * Retrieves the location of the symbol if the symbol is associated with an identifier in a source file.
+     *
+     * @return The location of the symbol if applicable
+     */
+    Optional<Location> getLocation();
 }

@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -185,5 +186,10 @@ public class IterableOperationsWithVarMutabilityTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "[\"USD\", \"USD\", \"EUR\", \"GBP\", \"USD\", \"EUR\", " +
                 "\"GBP\", \"USD\"]");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

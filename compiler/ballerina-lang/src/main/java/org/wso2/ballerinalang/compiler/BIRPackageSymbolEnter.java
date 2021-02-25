@@ -24,7 +24,6 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
@@ -45,7 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -336,7 +335,7 @@ public class BIRPackageSymbolEnter {
         String pkgVersion = getStringCPEntryValue(dataInStream);
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageCache.getSymbol(importPkgID);
-        //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
+        //TODO: after bala_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
         this.env.pkgSymbol.imports.add(importPackageSymbol);
@@ -427,6 +426,9 @@ public class BIRPackageSymbolEnter {
 
         byte[] docBytes = readDocBytes(dataInStream);
 
+        // Skip annotation attachments for now
+        dataInStream.skip(dataInStream.readLong());
+
         BType type = readBType(dataInStream);
         if (type.tag == TypeTags.INVOKABLE) {
             setInvokableTypeSymbol((BInvokableType) type);
@@ -459,9 +461,6 @@ public class BIRPackageSymbolEnter {
         }
 
         this.env.pkgSymbol.scope.define(symbol.name, symbol);
-        if (type.tag == TypeTags.ERROR) {
-            defineErrorConstructor(this.env.pkgSymbol.scope, symbol);
-        }
     }
 
     private void skipPosition(DataInputStream dataInStream) throws IOException {
@@ -473,7 +472,7 @@ public class BIRPackageSymbolEnter {
 
     private void setInvokableTypeSymbol(BInvokableType invokableType) {
         BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
-        List<BVarSymbol> params = new ArrayList<>();
+        List<BVarSymbol> params = new ArrayList<>(invokableType.paramTypes.size());
         for (BType paramType : invokableType.paramTypes) {
             BVarSymbol varSymbol = new BVarSymbol(paramType.flags, Names.EMPTY, //TODO: should be written/read to BIR
                                                   this.env.pkgSymbol.pkgID, paramType, null, symTable.builtinPos,
@@ -496,15 +495,16 @@ public class BIRPackageSymbolEnter {
         if (!docPresent) {
             return;
         }
-        MarkdownDocAttachment markdownDocAttachment = new MarkdownDocAttachment();
 
         int descCPIndex = dataInStream.readInt();
         int retDescCPIndex = dataInStream.readInt();
+        int paramLength = dataInStream.readInt();
+        MarkdownDocAttachment markdownDocAttachment = new MarkdownDocAttachment(paramLength);
+
         markdownDocAttachment.description = descCPIndex >= 0 ? getStringCPEntryValue(descCPIndex) : null;
         markdownDocAttachment.returnValueDescription
                 = retDescCPIndex  >= 0 ? getStringCPEntryValue(retDescCPIndex) : null;
 
-        int paramLength = dataInStream.readInt();
         for (int i = 0; i < paramLength; i++) {
             int nameCPIndex = dataInStream.readInt();
             int paramDescCPIndex = dataInStream.readInt();
@@ -514,17 +514,6 @@ public class BIRPackageSymbolEnter {
             markdownDocAttachment.parameters.add(parameter);
         }
         symbol.markdownDocumentation = markdownDocAttachment;
-    }
-
-    private void defineErrorConstructor(Scope scope, BTypeSymbol typeDefSymbol) {
-        BConstructorSymbol symbol = new BConstructorSymbol(typeDefSymbol.flags, typeDefSymbol.name,
-                typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, symTable.builtinPos, COMPILED_SOURCE);
-        symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
-        symbol.scope = new Scope(symbol);
-        symbol.retType = typeDefSymbol.type;
-        scope.define(symbol.name, symbol);
-
-        ((BErrorTypeSymbol) typeDefSymbol).ctorSymbol = symbol;
     }
 
     private BType readBType(DataInputStream dataInStream) throws IOException {
@@ -719,7 +708,7 @@ public class BIRPackageSymbolEnter {
             Map<Name, BVarSymbol> paramsMap = new HashMap<>();
             for (BVarSymbol param : invokableSymbol.params) {
                 if (paramsMap.put(param.getName(), param) != null) {
-                    throw new IllegalStateException("Duplicate key: " + param.getName());
+                    throw new IllegalStateException("duplicate key: " + param.getName());
                 }
             }
             populateParameterizedType(invokableSymbol.retType, paramsMap, invokableSymbol);
@@ -837,7 +826,7 @@ public class BIRPackageSymbolEnter {
 
             TaintRecord.TaintedStatus returnTaintedStatus =
                     convertByteToTaintedStatus(dataInStream.readByte());
-            List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>();
+            List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>(columnCount);
 
             for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
                 parameterTaintedStatusList.add(convertByteToTaintedStatus(dataInStream.readByte()));
@@ -973,6 +962,9 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.NEVER:
                     return symTable.neverType;
                 case TypeTags.ANYDATA:
+                    if (name.getValue().equals(Names.ANYDATA.getValue())) {
+                        name = Names.EMPTY;
+                    }
                     BType anydataNominalType = typeParamAnalyzer.getNominalType(symTable.anydataType, name, flags);
                     return isImmutable(flags) ? getEffectiveImmutableType(anydataNominalType,
                             symTable.anydataType.tsymbol.pkgID,
@@ -983,7 +975,7 @@ public class BIRPackageSymbolEnter {
                     PackageID pkgId = getPackageId(pkgCpIndex);
 
                     String recordName = getStringCPEntryValue(inputStream);
-                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                                                                                 names.fromString(recordName),
                                                                                 env.pkgSymbol.pkgID, null,
                                                                                 env.pkgSymbol, symTable.builtinPos,
@@ -1085,8 +1077,8 @@ public class BIRPackageSymbolEnter {
 
                     boolean hasFieldNameList = inputStream.readByte() == 1;
                     if (hasFieldNameList) {
-                        bTableType.fieldNameList = new ArrayList<>();
                         int fieldNameListSize = inputStream.readInt();
+                        bTableType.fieldNameList = new ArrayList<>(fieldNameListSize);
                         for (int i = 0; i < fieldNameListSize; i++) {
                             String fieldName = getStringCPEntryValue(inputStream);
                             bTableType.fieldNameList.add(fieldName);
@@ -1113,7 +1105,7 @@ public class BIRPackageSymbolEnter {
                     BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
                     bInvokableType.flags = flags;
                     int paramCount = inputStream.readInt();
-                    List<BType> paramTypes = new ArrayList<>();
+                    List<BType> paramTypes = new ArrayList<>(paramCount);
                     for (int i = 0; i < paramCount; i++) {
                         paramTypes.add(readTypeFromCp());
                     }
@@ -1150,19 +1142,55 @@ public class BIRPackageSymbolEnter {
                     bArrayType.eType = readTypeFromCp();
                     return bArrayType;
                 case TypeTags.UNION:
+                    boolean isCyclic = inputStream.readByte() == 1;
+                    boolean hasName = inputStream.readByte() == 1;
+                    PackageID unionsPkgId = env.pkgSymbol.pkgID;
+                    Name unionName = Names.EMPTY;
+                    if (hasName) {
+                        pkgCpIndex = inputStream.readInt();
+                        unionsPkgId = getPackageId(pkgCpIndex);
+                        String unionNameStr = getStringCPEntryValue(inputStream);
+                        unionName = names.fromString(unionNameStr);
+                    }
                     BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE,
-                                                                           Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                                           Names.EMPTY, env.pkgSymbol.pkgID, null,
-                                                                           env.pkgSymbol.owner, symTable.builtinPos,
-                                                                           COMPILED_SOURCE);
-                    BUnionType unionType = BUnionType.create(unionTypeSymbol,
-                                                             new LinkedHashSet<>()); //TODO improve(useless second
-                    // param)
+                            Flags.asMask(EnumSet.of(Flag.PUBLIC)), unionName, unionsPkgId,
+                            null, env.pkgSymbol.owner, symTable.builtinPos, COMPILED_SOURCE);
+
                     int unionMemberCount = inputStream.readInt();
+                    BUnionType unionType = BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(unionMemberCount));
+                    unionType.name = unionName;
+
+                    addShapeCP(unionType, cpI);
+                    compositeStack.push(unionType);
+
+                    unionType.flags = flags;
+                    unionType.isCyclic = isCyclic;
                     for (int i = 0; i < unionMemberCount; i++) {
                         unionType.add(readTypeFromCp());
                     }
-                    unionType.flags = flags;
+
+                    var poppedUnionType = compositeStack.pop();
+                    assert poppedUnionType == unionType;
+
+                    boolean isEnum = inputStream.readBoolean();
+                    if (isEnum) {
+                        readAndSetEnumSymbol(unionType, flags);
+                    }
+
+                    if (hasName) {
+                        if (unionsPkgId.equals(env.pkgSymbol.pkgID)) {
+                            return unionType;
+                        } else {
+                            pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(unionsPkgId));
+                            if (pkgEnv != null) {
+                                BType existingUnionType =
+                                        symbolResolver.lookupSymbolInMainSpace(pkgEnv, unionName).type;
+                                if (existingUnionType != symTable.noType) {
+                                    return existingUnionType;
+                                }
+                            }
+                        }
+                    }
                     return unionType;
                 case TypeTags.INTERSECTION:
                     BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
@@ -1232,11 +1260,16 @@ public class BIRPackageSymbolEnter {
                     BTupleType bTupleType = new BTupleType(tupleTypeSymbol, null);
                     bTupleType.flags = flags;
                     int tupleMemberCount = inputStream.readInt();
-                    List<BType> tupleMemberTypes = new ArrayList<>();
+                    List<BType> tupleMemberTypes = new ArrayList<>(tupleMemberCount);
                     for (int i = 0; i < tupleMemberCount; i++) {
                         tupleMemberTypes.add(readTypeFromCp());
                     }
                     bTupleType.tupleTypes = tupleMemberTypes;
+
+                    if (inputStream.readBoolean()) {
+                        bTupleType.restType = readTypeFromCp();
+                    }
+
                     return bTupleType;
                 case TypeTags.FUTURE:
                     BFutureType bFutureType = new BFutureType(TypeTags.FUTURE, null, symTable.futureType.tsymbol);
@@ -1409,12 +1442,41 @@ public class BIRPackageSymbolEnter {
 
         private List<BType> readTypeInclusions() throws IOException {
             int nTypeInclusions = inputStream.readInt();
-            List<BType> typeInclusions = new ArrayList<>();
+            List<BType> typeInclusions = new ArrayList<>(nTypeInclusions);
             for (int i = 0; i < nTypeInclusions; i++) {
                 BType inclusion = readTypeFromCp();
                 typeInclusions.add(inclusion);
             }
             return typeInclusions;
+        }
+
+        private void readAndSetEnumSymbol(BUnionType unionType, long flags) throws IOException {
+            PackageID enumPkgId = getPackageId(inputStream.readInt());
+            String enumName = getStringCPEntryValue(inputStream);
+            int memberCount = inputStream.readInt();
+            BSymbol pkgSymbol = packageCache.getSymbol(enumPkgId);
+
+            // pkg symbol will be null if it's an enum in the current module.
+            if (pkgSymbol == null) {
+                pkgSymbol = env.pkgSymbol;
+            }
+
+            SymbolEnv enumPkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+
+            // pkg env will be null if it's an enum in the current module.
+            if (enumPkgEnv == null) {
+                enumPkgEnv = SymbolEnv.createPkgEnv(null, env.pkgSymbol.scope, null);
+            }
+
+            List<BConstantSymbol> members = new ArrayList<>();
+            for (int i = 0; i < memberCount; i++) {
+                String memName = getStringCPEntryValue(inputStream);
+                BSymbol sym = symbolResolver.lookupSymbolInMainSpace(enumPkgEnv, names.fromString(memName));
+                members.add((BConstantSymbol) sym);
+            }
+
+            unionType.tsymbol = new BEnumSymbol(members, flags, names.fromString(enumName), pkgSymbol.pkgID, unionType,
+                                                pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
         }
     }
 
@@ -1423,7 +1485,7 @@ public class BIRPackageSymbolEnter {
         byte[] docBytes = new byte[docLength];
         int noOfBytesRead = inputStream.read(docBytes);
         if (docLength != noOfBytesRead) {
-            throw new RuntimeException("Failed to read Markdown Documenation");
+            throw new RuntimeException("failed to read Markdown Documentation");
         }
         return docBytes;
     }

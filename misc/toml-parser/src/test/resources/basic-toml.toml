@@ -14,7 +14,5 @@
 # specific language governing permissions and limitations
 # under the License.
 
-[package]
-name = "ss
-org = "hello"
-version = "0.1.0"
+key = "lul"
+key = "hello"

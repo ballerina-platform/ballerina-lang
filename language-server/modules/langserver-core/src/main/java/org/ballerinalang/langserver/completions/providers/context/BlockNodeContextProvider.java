@@ -33,7 +33,7 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -60,8 +60,11 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, T node) throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, T node)
+            throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+
         if (onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Covers the following
@@ -79,27 +82,27 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                             || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
 
-            return this.getCompletionItemList(moduleContent, context);
+            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+        } else {
+            /*
+            Covers the following
+            Ex: function test() {
+                    <cursor>
+                    i<cursor>
+                }
+             */
+            completionItems.addAll(getStaticCompletionItems(context));
+            completionItems.addAll(getStatementCompletionItems(context, node));
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getSymbolCompletions(context));
         }
+        this.sort(context, node, completionItems);
         
-        /*
-        Covers the following
-        Ex: function test() {
-                <cursor>
-                i<cursor>
-            }
-         */
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(getStaticCompletionItems(context));
-        completionItems.addAll(getStatementCompletionItems(context, node));
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getSymbolCompletions(context));
-
         return completionItems;
     }
 
-    protected List<LSCompletionItem> getStaticCompletionItems(CompletionContext context) {
+    protected List<LSCompletionItem> getStaticCompletionItems(BallerinaCompletionContext context) {
 
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -111,6 +114,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
@@ -119,7 +123,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return completionItems;
     }
 
-    protected List<LSCompletionItem> getStatementCompletionItems(CompletionContext context, T node) {
+    protected List<LSCompletionItem> getStatementCompletionItems(BallerinaCompletionContext context, T node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         boolean withinLoop = this.withinLoopConstructs(node);
@@ -135,6 +139,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_PANIC.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_STREAM.get()));
         Optional<Node> nodeBeforeCursor = this.nodeBeforeCursor(context, node);
         if (nodeBeforeCursor.isPresent()) {
             switch (nodeBeforeCursor.get().kind()) {
@@ -166,7 +171,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return completionItems;
     }
 
-    protected List<LSCompletionItem> getSymbolCompletions(CompletionContext context) {
+    protected List<LSCompletionItem> getSymbolCompletions(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         // TODO: Can we get this filter to a common place
@@ -191,7 +196,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return withinLoops;
     }
 
-    private Optional<Node> nodeBeforeCursor(CompletionContext context, Node node) {
+    private Optional<Node> nodeBeforeCursor(BallerinaCompletionContext context, Node node) {
         NodeList<StatementNode> statements;
         if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
             statements = ((FunctionBodyBlockNode) node).statements();
@@ -224,7 +229,8 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return Optional.empty();
     }
 
-    private List<LSCompletionItem> getTypeguardDestructedItems(List<Symbol> scopeEntries, CompletionContext ctx) {
+    private List<LSCompletionItem> getTypeguardDestructedItems(List<Symbol> scopeEntries,
+                                                               BallerinaCompletionContext ctx) {
         List<String> capturedSymbols = new ArrayList<>();
         // In the case of type guarded variables multiple symbols with the same symbol name and we ignore those
         return scopeEntries.stream()
@@ -233,10 +239,12 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                         return false;
                     }
                     TypeSymbol typeDesc = ((VariableSymbol) symbol).typeDescriptor();
-                    return typeDesc.typeKind() == TypeDescKind.UNION && !capturedSymbols.contains(symbol.name());
+                    return typeDesc.typeKind() == TypeDescKind.UNION
+                            && !capturedSymbols.contains(symbol.getName().get());
                 })
                 .map(symbol -> {
-                    capturedSymbols.add(symbol.name());
+                    String symbolName = symbol.getName().get();
+                    capturedSymbols.add(symbolName);
                     List<TypeSymbol> errorTypes = new ArrayList<>();
                     List<TypeSymbol> resultTypes = new ArrayList<>();
                     List<TypeSymbol> members
@@ -252,7 +260,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     if (errorTypes.size() == 1) {
                         resultTypes.addAll(errorTypes);
                     }
-                    String symbolName = symbol.name();
                     String label = symbolName + " - typeguard " + symbolName;
                     String detail = "Destructure the variable " + symbolName + " with typeguard";
                     StringBuilder snippet = new StringBuilder();
@@ -264,7 +271,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                         paramCounter++;
                     } else if (errorTypes.size() == 1) {
                         snippet.append("if (").append(symbolName).append(" is ")
-                                .append(errorTypes.get(0).signature()).append(") {")
+                                .append(CommonUtil.getModifiedTypeName(ctx, errorTypes.get(0))).append(") {")
                                 .append(CommonUtil.LINE_SEPARATOR).append("\t${1}").append(CommonUtil.LINE_SEPARATOR)
                                 .append("}");
                         paramCounter++;
@@ -274,7 +281,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     restSnippet += IntStream.range(0, resultTypes.size() - paramCounter).mapToObj(value -> {
                         TypeSymbol bType = members.get(value);
                         String placeHolder = "\t${" + (value + finalParamCounter) + "}";
-                        return "if (" + symbolName + " is " + bType.signature() + ") {"
+                        return "if (" + symbolName + " is " + CommonUtil.getModifiedTypeName(ctx, bType) + ") {"
                                 + CommonUtil.LINE_SEPARATOR + placeHolder + CommonUtil.LINE_SEPARATOR + "}";
                     }).collect(Collectors.joining(" else ")) + " else {" + CommonUtil.LINE_SEPARATOR + "\t${"
                             + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Variable Declaration",
+    "input": "int variable = 3;",
+    "accepted": true
+  },
+  {
+    "name": "Variable Declaration without value",
+    "input": "int variable;",
+    "accepted": false
+  },
+  {
+    "name": "Explicit anonymous function variable",
+    "input": "function (string, string) returns string concat = function (string x, string y) returns string { return x + y; };",
+    "accepted": true
+  }
+]

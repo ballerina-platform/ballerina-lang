@@ -21,6 +21,9 @@ package io.ballerina.toml.semantic.diagnostics;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+
+import java.util.List;
 
 /**
  * Represents New Toml Diagnostics.
@@ -51,5 +54,10 @@ public class TomlDiagnostic extends Diagnostic {
     @Override
     public String message() {
         return message;
+    }
+
+    @Override
+    public List<DiagnosticProperty<?>> properties() {
+        return null;
     }
 }

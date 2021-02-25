@@ -31,6 +31,10 @@ public enum SyntaxKind {
     STRING_LITERAL_TOKEN(203),
     DECIMAL_INT_TOKEN(204),
     DECIMAL_FLOAT_TOKEN(205),
+    HEX_INTEGER_LITERAL_TOKEN(206),
+    OCTAL_INTEGER_LITERAL_TOKEN(207),
+    BINARY_INTEGER_LITERAL_TOKEN(208),
+    
     //Separators
     OPEN_BRACKET_TOKEN(500, "["),
     CLOSE_BRACKET_TOKEN(501, "]"),
@@ -47,6 +51,7 @@ public enum SyntaxKind {
 
     IDENTIFIER_LITERAL(1000),
     STRING_LITERAL(1001),
+    LITERAL_STRING(1002),
 
     // Minutiae kinds
     WHITESPACE_MINUTIAE(1500),
@@ -57,6 +62,7 @@ public enum SyntaxKind {
     // Invalid nodes
     INVALID_TOKEN(1600),
     MISSING_VALUE(1601),
+    INVALID_TOKEN_MINUTIAE_NODE(1602),
 
     // Documentation
     MARKDOWN_DOCUMENTATION_LINE(1504),
@@ -68,6 +74,9 @@ public enum SyntaxKind {
 
     //Int
     DEC_INT(2010),
+    HEX_INT(2011),
+    OCT_INT(2012),
+    BINARY_INT(2013),
 
     //Float
     FLOAT(2020),

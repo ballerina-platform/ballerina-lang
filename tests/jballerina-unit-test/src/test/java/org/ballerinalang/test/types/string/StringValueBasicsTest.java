@@ -23,6 +23,7 @@ import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -79,5 +80,10 @@ public class StringValueBasicsTest extends BStringTestCommons {
     public void testCastToString() {
         testAndAssert("anyToStringCasting", 6);
         testAndAssert("anydataToStringCast", 6);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -1,3 +1,19 @@
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 type Person record {|
    string firstName;
    string lastName;
@@ -146,4 +162,38 @@ function testSimpleSelectQueryWithMultipleFromClauses() returns  Employee[] {
                 }
             };
     return  employeeList;
+}
+
+function testQueryExpressionIteratingOverXMLInFromInQueryAction() returns float {
+    xml<xml:Element> bookstore = xml `<bookstore>
+                                          <book category="cooking">
+                                              <title lang="en">Everyday Italian</title>
+                                              <price>30.00</price>
+                                          </book>
+                                          <book category="children">
+                                              <title lang="en">Harry Potter</title>
+                                              <price>29.99</price>
+                                          </book>
+                                          <book category="web">
+                                              <title lang="en">XQuery Kick Start</title>
+                                              <price>49.99</price>
+                                          </book>
+                                          <book category="web" cover="paperback">
+                                              <title lang="en">Learning XML</title>
+                                              <price>39.95</price>
+                                          </book>
+                                      </bookstore>`;
+
+    float total = 0;
+    var res = from xml:Element price in bookstore/<book>/**/<price>
+              do {
+                  var p = price/*;
+                  if (p is xml:Text) {
+                      var i = float:fromString(p.toString());
+                      if (i is float) {
+                          total += i;
+                      }
+                  }
+              };
+    return total;
 }

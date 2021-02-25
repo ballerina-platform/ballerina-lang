@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -98,7 +99,8 @@ public class ModuleCompilation {
             Package pkg = packageCache.getPackageOrThrow(sortedModuleId.packageId());
             ModuleContext moduleContext = pkg.module(sortedModuleId).moduleContext();
             moduleContext.compile(compilerContext);
-            diagnostics.addAll(moduleContext.diagnostics());
+            moduleContext.diagnostics().forEach(diagnostic ->
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
 
         // Create an immutable list

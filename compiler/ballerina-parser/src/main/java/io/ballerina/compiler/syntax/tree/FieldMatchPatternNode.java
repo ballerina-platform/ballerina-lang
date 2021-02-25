@@ -32,7 +32,7 @@ public class FieldMatchPatternNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public SimpleNameReferenceNode fieldNameNode() {
+    public IdentifierToken fieldNameNode() {
         return childInBucket(0);
     }
 
@@ -63,7 +63,7 @@ public class FieldMatchPatternNode extends NonTerminalNode {
     }
 
     public FieldMatchPatternNode modify(
-            SimpleNameReferenceNode fieldNameNode,
+            IdentifierToken fieldNameNode,
             Token colonToken,
             Node matchPattern) {
         if (checkForReferenceEquality(
@@ -90,7 +90,7 @@ public class FieldMatchPatternNode extends NonTerminalNode {
      */
     public static class FieldMatchPatternNodeModifier {
         private final FieldMatchPatternNode oldNode;
-        private SimpleNameReferenceNode fieldNameNode;
+        private IdentifierToken fieldNameNode;
         private Token colonToken;
         private Node matchPattern;
 
@@ -102,7 +102,7 @@ public class FieldMatchPatternNode extends NonTerminalNode {
         }
 
         public FieldMatchPatternNodeModifier withFieldNameNode(
-                SimpleNameReferenceNode fieldNameNode) {
+                IdentifierToken fieldNameNode) {
             Objects.requireNonNull(fieldNameNode, "fieldNameNode must not be null");
             this.fieldNameNode = fieldNameNode;
             return this;

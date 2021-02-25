@@ -20,7 +20,6 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -41,12 +40,8 @@ public class ListMatchPatternNode extends NonTerminalNode {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
-    public Optional<RestMatchPatternNode> restMatchPattern() {
-        return optionalChildInBucket(2);
-    }
-
     public Token closeBracket() {
-        return childInBucket(3);
+        return childInBucket(2);
     }
 
     @Override
@@ -64,19 +59,16 @@ public class ListMatchPatternNode extends NonTerminalNode {
         return new String[]{
                 "openBracket",
                 "matchPatterns",
-                "restMatchPattern",
                 "closeBracket"};
     }
 
     public ListMatchPatternNode modify(
             Token openBracket,
             SeparatedNodeList<Node> matchPatterns,
-            RestMatchPatternNode restMatchPattern,
             Token closeBracket) {
         if (checkForReferenceEquality(
                 openBracket,
                 matchPatterns.underlyingListNode(),
-                restMatchPattern,
                 closeBracket)) {
             return this;
         }
@@ -84,7 +76,6 @@ public class ListMatchPatternNode extends NonTerminalNode {
         return NodeFactory.createListMatchPatternNode(
                 openBracket,
                 matchPatterns,
-                restMatchPattern,
                 closeBracket);
     }
 
@@ -101,14 +92,12 @@ public class ListMatchPatternNode extends NonTerminalNode {
         private final ListMatchPatternNode oldNode;
         private Token openBracket;
         private SeparatedNodeList<Node> matchPatterns;
-        private RestMatchPatternNode restMatchPattern;
         private Token closeBracket;
 
         public ListMatchPatternNodeModifier(ListMatchPatternNode oldNode) {
             this.oldNode = oldNode;
             this.openBracket = oldNode.openBracket();
             this.matchPatterns = oldNode.matchPatterns();
-            this.restMatchPattern = oldNode.restMatchPattern().orElse(null);
             this.closeBracket = oldNode.closeBracket();
         }
 
@@ -126,12 +115,6 @@ public class ListMatchPatternNode extends NonTerminalNode {
             return this;
         }
 
-        public ListMatchPatternNodeModifier withRestMatchPattern(
-                RestMatchPatternNode restMatchPattern) {
-            this.restMatchPattern = restMatchPattern;
-            return this;
-        }
-
         public ListMatchPatternNodeModifier withCloseBracket(
                 Token closeBracket) {
             Objects.requireNonNull(closeBracket, "closeBracket must not be null");
@@ -143,7 +126,6 @@ public class ListMatchPatternNode extends NonTerminalNode {
             return oldNode.modify(
                     openBracket,
                     matchPatterns,
-                    restMatchPattern,
                     closeBracket);
         }
     }

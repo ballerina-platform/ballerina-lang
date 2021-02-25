@@ -14,7 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# The type of value to which `clone` and `cloneReadOnly` can be applied.
+type __Cloneable readonly|xml|__Cloneable[]|map<__Cloneable>|table<map<__Cloneable>>;
 
 # Default error type.
-# The type parameter is for the error detail type. It's constrained to anydata or readonly type.
-public type 'error error<map<anydata|readonly>>;
+# The type parameter is for the error detail type. It's constrained to Cloneable type.
+public type 'error error<map<__Cloneable>>;

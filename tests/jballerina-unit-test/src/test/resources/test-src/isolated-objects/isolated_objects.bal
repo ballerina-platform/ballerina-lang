@@ -468,6 +468,29 @@ function testRuntimeIsolatedFlag() {
     assertFalse(<any> ob2 is isolated object {});
 }
 
+public service isolated class IsolatedServiceClassWithNoMutableFields {
+    public final int[] & readonly a;
+    final readonly & record {int i;} b;
+
+    function init(int[] & readonly a, record {int i;} & readonly b) {
+        self.a = a;
+        self.b = b;
+    }
+}
+
+isolated client class IsolatedClientClassWithPrivateMutableFields {
+    public final int[] & readonly a = [10, 20, 30];
+    final readonly & record {int i;} b;
+
+    private int c;
+    private map<int>[] d;
+
+    isolated function init(record {int i;} & readonly b, int c) {
+        self.b = b;
+        self.c = c;
+    }
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
@@ -485,5 +508,7 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

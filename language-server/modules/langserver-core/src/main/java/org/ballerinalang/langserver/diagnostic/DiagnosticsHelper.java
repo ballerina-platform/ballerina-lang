@@ -15,12 +15,12 @@
  */
 package org.ballerinalang.langserver.diagnostic;
 
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleCompilation;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Diagnostic;
@@ -43,18 +43,25 @@ import java.util.Optional;
  * @since 0.983.0
  */
 public class DiagnosticsHelper {
-    private static final List<Diagnostic> EMPTY_DIAGNOSTIC_LIST = new ArrayList<>(0);
-    private static final DiagnosticsHelper INSTANCE = new DiagnosticsHelper();
+    private final List<Diagnostic> emptyDiagnosticList = new ArrayList<>(0);
+    private static final LanguageServerContext.Key<DiagnosticsHelper> DIAGNOSTICS_HELPER_KEY =
+            new LanguageServerContext.Key<>();
     /**
      * Holds last sent diagnostics for the purpose of clear-off when publishing new diagnostics.
      */
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
 
-    public static DiagnosticsHelper getInstance() {
-        return INSTANCE;
+    public static DiagnosticsHelper getInstance(LanguageServerContext serverContext) {
+        DiagnosticsHelper diagnosticsHelper = serverContext.get(DIAGNOSTICS_HELPER_KEY);
+        if (diagnosticsHelper == null) {
+            diagnosticsHelper = new DiagnosticsHelper(serverContext);
+        }
+
+        return diagnosticsHelper;
     }
 
-    private DiagnosticsHelper() {
+    private DiagnosticsHelper(LanguageServerContext serverContext) {
+        serverContext.put(DIAGNOSTICS_HELPER_KEY, this);
         this.lastDiagnosticMap = new HashMap<>();
     }
 
@@ -70,15 +77,19 @@ public class DiagnosticsHelper {
         if (project.isEmpty()) {
             return;
         }
-        Map<String, List<Diagnostic>> diagnosticMap = getBallerinaDiagnostics(context);
+        Map<String, List<Diagnostic>> diagnosticMap = getLatestDiagnostics(context);
 
         // If the client is null, returns
         if (client == null) {
             return;
         }
 
-        // Replace old entries with an empty list
-        lastDiagnosticMap.keySet().forEach((key) -> diagnosticMap.computeIfAbsent(key, value -> EMPTY_DIAGNOSTIC_LIST));
+        // Clear old entries with an empty list
+        lastDiagnosticMap.forEach((key, value) -> {
+            if (!diagnosticMap.containsKey(key)) {
+                client.publishDiagnostics(new PublishDiagnosticsParams(key, emptyDiagnosticList));
+            }
+        });
 
         // Publish diagnostics
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
@@ -87,7 +98,7 @@ public class DiagnosticsHelper {
         lastDiagnosticMap = diagnosticMap;
     }
 
-    public Map<String, List<Diagnostic>> getBallerinaDiagnostics(DocumentServiceContext context) {
+    public Map<String, List<Diagnostic>> getLatestDiagnostics(DocumentServiceContext context) {
         WorkspaceManager workspace = context.workspace();
         Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
 
@@ -98,27 +109,16 @@ public class DiagnosticsHelper {
         // NOTE: We are not using `project.sourceRoot()` since it provides the single file project uses a temp path and
         // IDE requires the original path.
         Path projectRoot = workspace.projectRoot(context.filePath());
-        for (Module module : project.get().currentPackage().modules()) {
-            Path modulePath;
-            if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                modulePath = projectRoot.getParent();
-            } else {
-                String moduleNamePart = module.moduleName().moduleNamePart();
-                modulePath = (moduleNamePart == null) ? projectRoot
-                        : projectRoot.resolve("modules").resolve(moduleNamePart);
-            }
-            Optional<ModuleCompilation> modCompilation = workspace.waitAndGetModuleCompilation(module);
-            if (modCompilation.isEmpty()) {
-                continue;
-            }
-            diagnosticMap.putAll(toDiagnosticsMap(modCompilation.get().diagnostics().diagnostics(), modulePath));
+        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            projectRoot = projectRoot.getParent();
         }
-
+        PackageCompilation compilation = workspace.waitAndGetPackageCompilation(context.filePath()).orElseThrow();
+        diagnosticMap.putAll(toDiagnosticsMap(compilation.diagnosticResult().diagnostics(), projectRoot));
         return diagnosticMap;
     }
 
     private Map<String, List<Diagnostic>> toDiagnosticsMap(Collection<io.ballerina.tools.diagnostics.Diagnostic> diags,
-                                                           Path modulePath) {
+                                                           Path projectRoot) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
         for (io.ballerina.tools.diagnostics.Diagnostic diag : diags) {
             LineRange lineRange = diag.location().lineRange();
@@ -132,7 +132,7 @@ public class DiagnosticsHelper {
             endChar = (endChar <= 0) ? startChar + 1 : endChar;
 
             Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
-            Diagnostic diagnostic = new Diagnostic(range, diag.message());
+            Diagnostic diagnostic = new Diagnostic(range, diag.message(), null, null, diag.diagnosticInfo().code());
 
             switch (diag.diagnosticInfo().severity()) {
                 case ERROR:
@@ -151,7 +151,7 @@ public class DiagnosticsHelper {
                     break;
             }
 
-            String fileURI = modulePath.resolve(lineRange.filePath()).toUri().toString();
+            String fileURI = projectRoot.resolve(lineRange.filePath()).toUri().toString();
             List<Diagnostic> clientDiagnostics = diagnosticsMap.computeIfAbsent(fileURI, s -> new ArrayList<>());
             clientDiagnostics.add(diagnostic);
         }

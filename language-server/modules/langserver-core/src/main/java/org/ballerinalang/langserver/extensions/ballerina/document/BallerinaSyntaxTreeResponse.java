@@ -26,6 +26,8 @@ public class BallerinaSyntaxTreeResponse {
 
     private JsonElement syntaxTree;
 
+    private String source;
+
     private boolean parseSuccess;
 
     public JsonElement getSyntaxTree() {
@@ -34,6 +36,14 @@ public class BallerinaSyntaxTreeResponse {
 
     public void setSyntaxTree(JsonElement syntaxTree) {
         this.syntaxTree = syntaxTree;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public boolean isParseSuccess() {

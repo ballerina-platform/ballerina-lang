@@ -25,10 +25,11 @@ import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.context.util.ObjectConstructorBodyContextUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ObjectConstructorExpressionNodeContext
         extends AbstractCompletionProvider<ObjectConstructorExpressionNode> {
 
@@ -51,21 +52,25 @@ public class ObjectConstructorExpressionNodeContext
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ObjectConstructorExpressionNode node) {
-        if (this.onSuggestObjectOnly(context, node)) {
-            return Arrays.asList(
-                    new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()),
-                    new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get())
-            );
-        }
-        if (this.onSuggestTypeReferences(context, node)) {
-            return this.getTypeReferenceCompletions(context);
-        }
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ObjectConstructorExpressionNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        return this.getConstructorBodyCompletions(context);
+        if (this.onSuggestObjectOnly(ctx, node)) {
+            completionItems.addAll(Arrays.asList(
+                    new SnippetCompletionItem(ctx, Snippet.KW_OBJECT.get()),
+                    new SnippetCompletionItem(ctx, Snippet.EXPR_OBJECT_CONSTRUCTOR.get())
+            ));
+        } else if (this.onSuggestTypeReferences(ctx, node)) {
+            completionItems.addAll(this.getTypeReferenceCompletions(ctx));
+        } else {
+            completionItems.addAll(this.getConstructorBodyCompletions(node, ctx));
+        }
+        this.sort(ctx, node, completionItems);
+
+        return completionItems;
     }
 
-    private List<LSCompletionItem> getTypeReferenceCompletions(CompletionContext ctx) {
+    private List<LSCompletionItem> getTypeReferenceCompletions(BallerinaCompletionContext ctx) {
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
@@ -83,23 +88,17 @@ public class ObjectConstructorExpressionNodeContext
         return completionItems;
     }
 
-    private List<LSCompletionItem> getConstructorBodyCompletions(CompletionContext context) {
+    private List<LSCompletionItem> getConstructorBodyCompletions(ObjectConstructorExpressionNode node,
+                                                                 BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
+        completionItems.addAll(ObjectConstructorBodyContextUtil.getBodyContextSnippets(node, context));
 
         return completionItems;
     }
 
-    private boolean onSuggestObjectOnly(CompletionContext context, ObjectConstructorExpressionNode node) {
+    private boolean onSuggestObjectOnly(BallerinaCompletionContext context, ObjectConstructorExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
         NodeList<Token> qualifiers = node.objectTypeQualifiers();
 
@@ -113,7 +112,7 @@ public class ObjectConstructorExpressionNodeContext
                 && (objectKeyword.isMissing() || cursor < objectKeyword.textRange().startOffset());
     }
 
-    private boolean onSuggestTypeReferences(CompletionContext context, ObjectConstructorExpressionNode node) {
+    private boolean onSuggestTypeReferences(BallerinaCompletionContext context, ObjectConstructorExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
         Token objectKeyword = node.objectKeyword();
         Token openBrace = node.openBraceToken();

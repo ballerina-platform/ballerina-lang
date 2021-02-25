@@ -43,7 +43,7 @@ public abstract class Node {
     /**
      * A reference to the syntaxTree to which this node belongs.
      */
-    private SyntaxTree syntaxTree;
+    protected SyntaxTree syntaxTree;
     private LineRange lineRange;
 
     // TextRange - starting startOffset and width

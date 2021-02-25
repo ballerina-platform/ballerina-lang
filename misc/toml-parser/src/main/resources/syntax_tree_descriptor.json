@@ -147,10 +147,31 @@
                 },
                 {
                     "name": "content",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "endDoubleQuote",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "LiteralStringLiteralNode",
+            "base": "ValueNode",
+            "kind": "LITERAL_STRING",
+            "attributes": [
+                {
+                    "name": "startSingleQuote",
+                    "type": "Token"
+                },
+                {
+                    "name": "content",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "endSingleQuote",
                     "type": "Token"
                 }
             ]

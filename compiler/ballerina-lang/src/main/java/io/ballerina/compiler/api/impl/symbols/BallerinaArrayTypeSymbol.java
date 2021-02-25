@@ -35,7 +35,7 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
     private TypeSymbol memberTypeDesc;
 
     public BallerinaArrayTypeSymbol(CompilerContext context, ModuleID moduleID, BArrayType arrayType) {
-        super(context, TypeDescKind.ARRAY, moduleID, arrayType);
+        super(context, TypeDescKind.ARRAY, arrayType);
     }
 
     @Override
@@ -49,6 +49,9 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
 
     @Override
     public String signature() {
+        if (memberTypeDescriptor().typeKind() == TypeDescKind.UNION) {
+            return "(" + memberTypeDescriptor().signature() + ")[]";
+        }
         return memberTypeDescriptor().signature() + "[]";
     }
 

@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -85,5 +86,10 @@ public class NamedReturnParameterTest {
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
         Assert.assertEquals(returns[1].stringValue(), "test, john");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

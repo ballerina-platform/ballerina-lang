@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -54,5 +55,10 @@ public class PackageInitInvocationTest {
         Assert.assertEquals(values.length, 1);
         Assert.assertTrue(values[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) values[0]).intValue(), 899);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

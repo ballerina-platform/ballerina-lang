@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.completions;
 
 import io.ballerina.compiler.syntax.tree.Node;
-import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
+import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,20 +29,21 @@ import java.util.ServiceLoader;
  */
 public class ProviderFactory {
 
-    private static final Map<Class<?>, CompletionProvider<Node>> providers = new HashMap<>();
+    private static final Map<Class<?>, BallerinaCompletionProvider<Node>> providers = new HashMap<>();
 
     private static final ProviderFactory INSTANCE = new ProviderFactory();
 
     private ProviderFactory() {
-        ServiceLoader<CompletionProvider> providerServices = ServiceLoader.load(CompletionProvider.class);
-        for (CompletionProvider<Node> provider : providerServices) {
+        ServiceLoader<BallerinaCompletionProvider> providerServices =
+                ServiceLoader.load(BallerinaCompletionProvider.class);
+        for (BallerinaCompletionProvider<Node> provider : providerServices) {
             if (provider == null) {
                 continue;
             }
             for (Class<?> attachmentPoint : provider.getAttachmentPoints()) {
                 if (!providers.containsKey(attachmentPoint) ||
-                        (providers.get(attachmentPoint).getPrecedence() == CompletionProvider.Precedence.LOW
-                                && provider.getPrecedence() == CompletionProvider.Precedence.HIGH)) {
+                        (providers.get(attachmentPoint).getPrecedence() == BallerinaCompletionProvider.Precedence.LOW
+                                && provider.getPrecedence() == BallerinaCompletionProvider.Precedence.HIGH)) {
                     providers.put(attachmentPoint, provider);
                 }
             }
@@ -58,7 +59,7 @@ public class ProviderFactory {
      *
      * @param provider completion provider to register
      */
-    public void register(CompletionProvider<Node> provider) {
+    public void register(BallerinaCompletionProvider<Node> provider) {
         for (Class<?> attachmentPoint : provider.getAttachmentPoints()) {
             providers.put(attachmentPoint, provider);
         }
@@ -69,13 +70,13 @@ public class ProviderFactory {
      *
      * @param provider completion provider to unregister
      */
-    public void unregister(CompletionProvider<?> provider) {
+    public void unregister(BallerinaCompletionProvider<?> provider) {
         for (Class<?> attachmentPoint : provider.getAttachmentPoints()) {
             providers.remove(attachmentPoint, provider);
         }
     }
 
-    public Map<Class<?>, CompletionProvider<Node>> getProviders() {
+    public Map<Class<?>, BallerinaCompletionProvider<Node>> getProviders() {
         return providers;
     }
 
@@ -83,9 +84,9 @@ public class ProviderFactory {
      * Get Provider by Class key.
      *
      * @param key Provider key
-     * @return {@link CompletionProvider} Completion provider
+     * @return {@link BallerinaCompletionProvider} Completion provider
      */
-    public CompletionProvider<?> getProvider(Class<?> key) {
+    public BallerinaCompletionProvider<?> getProvider(Class<?> key) {
         return providers.get(key);
     }
 }

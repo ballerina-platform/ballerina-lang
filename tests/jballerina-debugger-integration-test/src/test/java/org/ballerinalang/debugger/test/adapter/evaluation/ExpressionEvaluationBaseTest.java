@@ -25,6 +25,10 @@ import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 
 /**
  * Base implementation for debug expression evaluation scenarios.
@@ -87,10 +91,38 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
 
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 182));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 191));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         this.context = debugHitInfo.getRight();
+
+        // Enable to see all the assertion failures at once.
+        // debugTestRunner.setAssertionMode(DebugTestRunner.AssertionMode.SOFT_ASSERT);
+    }
+
+    @BeforeClass(alwaysRun = true)
+    protected void setup() throws BallerinaTestException {
+        prepareForEvaluation();
+    }
+
+    @BeforeMethod(alwaysRun = true)
+    protected void beginSoftAssertions() {
+        if (debugTestRunner.isSoftAssertionsEnabled()) {
+            debugTestRunner.beginSoftAssertions();
+        }
+    }
+
+    @AfterMethod(alwaysRun = true)
+    protected void endSoftAssertions() {
+        if (debugTestRunner.isSoftAssertionsEnabled()) {
+            debugTestRunner.endSoftAssertions();
+        }
+    }
+
+    @AfterClass(alwaysRun = true)
+    protected void cleanup() {
+        debugTestRunner.terminateDebugSession();
+        this.context = null;
     }
 
     // 1. literal expressions

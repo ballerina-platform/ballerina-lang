@@ -24,15 +24,20 @@ function func2() {
 }
 
 function func3() {
-    Student student = new();
+    Student student = new("Praveen");
     string name = student -> getName();
     int x = 0;
 }
 
 public client class Student {
-    public remote function getName() returns string {
-        string name = "Praveen";
-        return name;
+    string name;
+
+    function init(string name) {
+        self.name = name;
+    }
+
+    remote function getName() returns string {
+        return self.name;
     }
 }
 

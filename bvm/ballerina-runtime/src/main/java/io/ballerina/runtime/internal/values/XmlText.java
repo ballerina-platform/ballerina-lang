@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
-import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BXml;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.CharacterDataImpl;
@@ -28,8 +27,6 @@ import org.apache.axiom.om.impl.llom.CharacterDataImpl;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
 
 /**
  * XML nodes containing atomic content such as text, comment and processing instructions.
@@ -43,6 +40,7 @@ public class XmlText extends XmlNonElementItem {
     public XmlText(String data) {
         // data is the content of xml comment or text node
         this.data = data;
+        this.type = data.isEmpty() ? PredefinedTypes.TYPE_XML_NEVER : PredefinedTypes.TYPE_TEXT;
     }
 
     @Override
@@ -91,17 +89,8 @@ public class XmlText extends XmlNonElementItem {
     }
 
     @Override
-    public String stringValue(BLink parent) {
-        try {
-            return data;
-        } catch (Throwable t) {
-            handleXmlException("failed to get xml as string: ", t);
-        }
-        return STRING_NULL_VALUE;
-    }
-
-    @Override
     public IteratorValue getIterator() {
+        XmlText that = this;
         return new IteratorValue() {
             boolean read = false;
             @Override
@@ -113,7 +102,7 @@ public class XmlText extends XmlNonElementItem {
             public Object next() {
                 if (!read) {
                     this.read = true;
-                    return data;
+                    return that;
                 } else {
                     throw new NoSuchElementException();
                 }
@@ -142,6 +131,6 @@ public class XmlText extends XmlNonElementItem {
 
     @Override
     public Type getType() {
-        return PredefinedTypes.TYPE_TEXT;
+        return this.type;
     }
 }

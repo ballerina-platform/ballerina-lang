@@ -41,17 +41,18 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Test cases for listener written to be used in unit tests.
  */
-// Disabled on https://github.com/ballerina-platform/ballerina-lang/issues/27151
 @Test(groups = "mock-listener-tests")
 public class ListenerEndpointTest {
-    private static final String OBESERVABILITY_TEST_UTILS_BALO = System.getProperty("observability.test.utils.balo");
+    private static final String OBESERVABILITY_TEST_UTILS_BALA = System.getProperty("observability.test.utils.bala");
     private static final String OBESERVABILITY_TEST_UTILS_JAR = System.getProperty("observability.test.utils.jar");
     private static final String BALLERINA_TOML_TEST_NATIVES_JAR_NAME = "observability-test-utils.jar";
 
     private static BalServer balServer;
     private static BServerInstance servicesServerInstance;
 
-    @BeforeGroups(value = "mock-listener-tests", alwaysRun = true, enabled = false)
+    private static final String SERVICE_BASE_URL = "http://localhost:9091/testServiceOne";
+
+    @BeforeGroups(value = "mock-listener-tests", alwaysRun = true)
     private void setup() throws Exception {
         balServer = new BalServer();
         final String serverHome = balServer.getServerHome();
@@ -65,7 +66,7 @@ public class ListenerEndpointTest {
         copyFile(testUtilsJar, Paths.get(serverHome, "bre", "lib", testUtilsJar.getFileName().toString()));
 
         // Copy caches
-        try (FileSystem fs = FileSystems.newFileSystem(Paths.get(OBESERVABILITY_TEST_UTILS_BALO),
+        try (FileSystem fs = FileSystems.newFileSystem(Paths.get(OBESERVABILITY_TEST_UTILS_BALA),
                 ListenerEndpointTest.class.getClassLoader())) {
             copyDir(fs.getPath("/"), Paths.get(serverHome, "repo"));
         }
@@ -74,43 +75,44 @@ public class ListenerEndpointTest {
         servicesServerInstance = new BServerInstance(balServer);
         String sourcesDir = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "listener_tests").getAbsolutePath();
-        servicesServerInstance.startServer(sourcesDir, "listener_tests", null, new String[0], new int[]{9091});
+        servicesServerInstance.startServer(sourcesDir, "listener_tests-0.0.1", null, new String[0],
+                new int[]{9091});
     }
 
-    @AfterGroups(value = "mock-listener-tests", alwaysRun = true, enabled = false)
+    @AfterGroups(value = "mock-listener-tests", alwaysRun = true)
     private void cleanup() throws Exception {
         servicesServerInstance.removeAllLeechers();
         servicesServerInstance.shutdownServer();
         balServer.cleanup();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testHelloWorldResponse() throws Exception {
-        HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:9091/testServiceOne/resourceOne",
+        HttpResponse httpResponse = HttpClientRequest.doPost(SERVICE_BASE_URL + "/resourceOne",
                 "dummy-ignored-input-1", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Hello from Resource One");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSuccessfulResponse() throws Exception {
-        HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:9091/testServiceOne/resourceTwo",
+        HttpResponse httpResponse = HttpClientRequest.doPost(SERVICE_BASE_URL + "/resourceTwo",
                 "10", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Sum of numbers: 55");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testErrorReturnResponse() throws Exception {
-        HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:9091/testServiceOne/resourceTwo",
+        HttpResponse httpResponse = HttpClientRequest.doPost(SERVICE_BASE_URL + "/resourceTwo",
                 "invalid-number", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 500);
         Assert.assertEquals(httpResponse.getData(), "{ballerina/lang.int}NumberParsingError");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testPanicResponse() throws Exception {
-        HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:9091/testServiceOne/resourceThree",
+        HttpResponse httpResponse = HttpClientRequest.doPost(SERVICE_BASE_URL + "/resourceThree",
                 "dummy-ignored-input-2", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 500);
         Assert.assertEquals(httpResponse.getData(), "Test Error");

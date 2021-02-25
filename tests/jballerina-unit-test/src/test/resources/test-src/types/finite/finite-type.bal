@@ -484,6 +484,55 @@ function testFiniteTypesWithPositiveFloats() {
     assertEquality(1.5,n);
 }
 
+const CONST3 = ();
+
+public function testNilFiniteType() {
+    any v = CONST3;
+    string a = "";
+    string mah = "match";
+    if (v is CONST3) {
+        a = mah;
+    }
+    assertEquality(a, mah);
+}
+
+type FooString "foo";
+
+type BarString "bar";
+
+type FooInt 1;
+
+type BarInt 2;
+
+type FooBoolean true;
+
+type BarBoolean false;
+
+type RecString1 record {|
+    FooString|BarString a;
+    FooInt|BarInt b;
+    FooBoolean|BarBoolean c;
+|};
+
+type RecString2 record {|
+    string a;
+    int b;
+    boolean c;
+|};
+
+public function testRecordStringEquality() {
+    RecString1 rec1 = {a: "foo", b: 1, c: true};
+
+    RecString2 rec2 = rec1;
+
+    string a = "";
+    string mah = "match";
+    if (<any>rec1 is RecString2) {
+        a = mah;
+    }
+    assertEquality(a, mah);
+}
+
 const ASSERTION_ERROR_REASON = "TypeAssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
@@ -494,16 +543,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
     typedesc<any|error> tActual = typeof actual;
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + tActual.toString() + "'");
-}
 
-//public const '\- = "-";
-//public const d = "d";
-//public const s = "s";
-//public type FT '\-|s|d;
-//
-//function testEscapedTypeName() returns FT {
-//    FT f = '\-;
-//    return f;
-//}
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + tActual.toString() + "'");
+}

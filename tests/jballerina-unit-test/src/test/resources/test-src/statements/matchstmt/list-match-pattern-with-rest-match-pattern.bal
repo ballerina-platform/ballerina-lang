@@ -73,16 +73,16 @@ function listMatchPattern5(any v) returns int|string {
     match v {
         [1, "str", ...var a] => {
             if (a[0] is string) {
-                return <string> a[0];
+                return <string> checkpanic a[0];
             } else if (a[0] is int) {
-                return <int> a[0];
+                return <int> checkpanic a[0];
             }
         }
         [1, ...var a] => {
             if (a[0] is string) {
-                return <string> a[0];
+                return <string> checkpanic a[0];
             } else if (a[0] is int) {
-                return <int> a[0];
+                return <int> checkpanic a[0];
             }
         }
         _ => {

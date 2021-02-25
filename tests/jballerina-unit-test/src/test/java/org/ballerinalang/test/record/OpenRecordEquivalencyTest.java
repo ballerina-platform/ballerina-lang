@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -133,5 +134,10 @@ public class OpenRecordEquivalencyTest {
         Assert.assertEquals(((BFloat) foo.get("e")).floatValue(), 0.0D);
         Assert.assertEquals(foo.get("f").stringValue(), "rest field");
         Assert.assertNull(foo.get("p"));
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

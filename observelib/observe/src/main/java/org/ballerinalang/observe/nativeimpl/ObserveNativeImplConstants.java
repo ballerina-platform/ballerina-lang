@@ -17,11 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Constants used in Ballerina Observe package.
@@ -33,8 +30,6 @@ public final class ObserveNativeImplConstants {
     private ObserveNativeImplConstants() {
     }
 
-    public static final String OBSERVE_PACKAGE_PATH = "ballerina/observe";
-    public static final Module OBSERVE_PACKAGE_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0.8.0");
     public static final String GAUGE = "Gauge";
     public static final String COUNTER = "Counter";
     public static final String SNAPSHOT = "Snapshot";

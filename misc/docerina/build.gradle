@@ -15,8 +15,11 @@
  *
  */
  
-apply from: "$rootDir/gradle/javaProject.gradle"
+apply plugin: 'base'
 apply plugin: 'com.github.johnrengelman.shadow'
+
+apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
@@ -26,13 +29,17 @@ configurations {
     distBal {
         transitive false
     }
+    distributionBala
+    distributionBirJar
+    balRt
+    testRt
+    testCore
 }
 
 dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-tool')
     implementation project(':ballerina-lang:annotations')
 //    implementation project(':ballerina-http')
     implementation project(':ballerina-config')
@@ -43,13 +50,48 @@ dependencies {
     implementation 'commons-io:commons-io'
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'org.slf4j:slf4j-api'
-    distBal project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-//    distBal project(path: ':ballerina-http', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-io', configuration: 'baloImplementation')
-    
-    testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-jdk14'
+    distBal project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
+//    distBal project(path: ':ballerina-http', configuration: 'balaImplementation')
+    distBal project(path: ':ballerina-io', configuration: 'balaImplementation')
 
+    testImplementation 'org.testng:testng'
+    testImplementation 'org.slf4j:slf4j-jdk14'
+
+    balRt project(':ballerina-rt')
+}
+
+
+task createTestDistributionCache(type: Copy) {
+    dependsOn configurations.distributionBala
+    from configurations.distributionBala
+    into "$buildDir/repo"
+}
+
+task createTestBre(type: Copy) {
+    from configurations.balRt
+    from configurations.testRt
+    from configurations.testCore
+    from configurations.distributionBirJar
+    into "$buildDir/bre/lib"
+}
+
+test {
+    dependsOn ':ballerina-lang:build'
+    dependsOn createTestDistributionCache
+    dependsOn createTestBre
+
+    systemProperty "ballerina.home", "$buildDir"
+
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+        showStackTraces = true
+        showStandardStreams = true
+    }
+
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
 
 artifacts {
@@ -85,16 +127,9 @@ shadowJar {
     }
 }
 
-task copyBalo(type: Copy) {
+task copyBala(type: Copy) {
     from configurations.distBal
     into("$buildDir/lib")
-}
-
-
-test {
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
 }
 
 description = 'Ballerina - Docerina'

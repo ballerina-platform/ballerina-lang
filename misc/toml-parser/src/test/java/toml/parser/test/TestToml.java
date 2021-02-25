@@ -50,8 +50,7 @@ public class TestToml {
             OUT.println(diagnostic.message());
         }
 
-        TomlStringValueNode key1 = read.getTable("package").get("version");
-
+        TomlStringValueNode key1 = (TomlStringValueNode) read.get("key").get();
         OUT.println(key1.getValue());
     }
 }

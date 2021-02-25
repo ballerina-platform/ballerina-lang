@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 
@@ -35,60 +37,47 @@ import java.util.stream.Collectors;
 public class CodeActionProvidersHolder {
     private static final Map<CodeActionNodeType, List<LSCodeActionProvider>> nodeBasedProviders = new HashMap<>();
     private static final List<LSCodeActionProvider> diagnosticsBasedProviders = new ArrayList<>();
-    private static final CodeActionProvidersHolder INSTANCE = new CodeActionProvidersHolder();
+    private static final LanguageServerContext.Key<CodeActionProvidersHolder> CODE_ACTION_PROVIDERS_HOLDER_KEY =
+            new LanguageServerContext.Key<>();
 
     /**
      * Returns the instance of Holder.
      *
      * @return code action provider holder instance
      */
-    public static CodeActionProvidersHolder getInstance() {
-        return INSTANCE;
+    public static CodeActionProvidersHolder getInstance(LanguageServerContext serverContext) {
+        CodeActionProvidersHolder codeActionProvidersHolder = serverContext.get(CODE_ACTION_PROVIDERS_HOLDER_KEY);
+        if (codeActionProvidersHolder == null) {
+            codeActionProvidersHolder = new CodeActionProvidersHolder(serverContext);
+        }
+
+        return codeActionProvidersHolder;
     }
 
-    private CodeActionProvidersHolder() {
+    private CodeActionProvidersHolder(LanguageServerContext serverContext) {
+        serverContext.put(CODE_ACTION_PROVIDERS_HOLDER_KEY, this);
+        loadServices();
+    }
+
+    private void loadServices() {
+        if (!CodeActionProvidersHolder.nodeBasedProviders.isEmpty()) {
+            return;
+        }
         ServiceLoader<LSCodeActionProvider> serviceLoader = ServiceLoader.load(LSCodeActionProvider.class);
         for (CodeActionNodeType nodeType : CodeActionNodeType.values()) {
-            nodeBasedProviders.put(nodeType, new ArrayList<>());
+            CodeActionProvidersHolder.nodeBasedProviders.put(nodeType, new ArrayList<>());
         }
         for (LSCodeActionProvider provider : serviceLoader) {
+            if (provider == null) {
+                continue;
+            }
             if (provider.isNodeBasedSupported()) {
                 for (CodeActionNodeType nodeType : provider.getCodeActionNodeTypes()) {
-                    switch (nodeType) {
-                        case IMPORTS:
-                            nodeBasedProviders.get(CodeActionNodeType.IMPORTS).add(provider);
-                            break;
-                        case FUNCTION:
-                            nodeBasedProviders.get(CodeActionNodeType.FUNCTION).add(provider);
-                            break;
-                        case OBJECT:
-                            nodeBasedProviders.get(CodeActionNodeType.OBJECT).add(provider);
-                            break;
-                        case CLASS:
-                            nodeBasedProviders.get(CodeActionNodeType.CLASS).add(provider);
-                            break;
-                        case SERVICE:
-                            nodeBasedProviders.get(CodeActionNodeType.SERVICE).add(provider);
-                            break;
-                        case RECORD:
-                            nodeBasedProviders.get(CodeActionNodeType.RECORD).add(provider);
-                            break;
-                        case RESOURCE:
-                            nodeBasedProviders.get(CodeActionNodeType.RESOURCE).add(provider);
-                            break;
-                        case OBJECT_FUNCTION:
-                            nodeBasedProviders.get(CodeActionNodeType.OBJECT_FUNCTION).add(provider);
-                            break;
-                        case CLASS_FUNCTION:
-                            nodeBasedProviders.get(CodeActionNodeType.CLASS_FUNCTION).add(provider);
-                            break;
-                        default:
-                            break;
-                    }
+                    CodeActionProvidersHolder.nodeBasedProviders.get(nodeType).add(provider);
                 }
             }
             if (provider.isDiagBasedSupported()) {
-                diagnosticsBasedProviders.add(provider);
+                CodeActionProvidersHolder.diagnosticsBasedProviders.add(provider);
             }
         }
     }
@@ -99,10 +88,10 @@ public class CodeActionProvidersHolder {
      * @param nodeType node type
      * @return node based providers
      */
-    List<LSCodeActionProvider> getActiveNodeBasedProviders(CodeActionNodeType nodeType) {
-        if (nodeBasedProviders.containsKey(nodeType)) {
-            return nodeBasedProviders.get(nodeType).stream()
-                    .filter(LSCodeActionProvider::isEnabled)
+    List<LSCodeActionProvider> getActiveNodeBasedProviders(CodeActionNodeType nodeType, CodeActionContext ctx) {
+        if (CodeActionProvidersHolder.nodeBasedProviders.containsKey(nodeType)) {
+            return CodeActionProvidersHolder.nodeBasedProviders.get(nodeType).stream()
+                    .filter(provider -> provider.isEnabled(ctx.languageServercontext()))
                     .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
                     .collect(Collectors.toList());
         }
@@ -114,9 +103,9 @@ public class CodeActionProvidersHolder {
      *
      * @return diagnostic based providers
      */
-    List<LSCodeActionProvider> getActiveDiagnosticsBasedProviders() {
-        return diagnosticsBasedProviders.stream()
-                .filter(LSCodeActionProvider::isEnabled)
+    List<LSCodeActionProvider> getActiveDiagnosticsBasedProviders(CodeActionContext ctx) {
+        return CodeActionProvidersHolder.diagnosticsBasedProviders.stream()
+                .filter(provider -> provider.isEnabled(ctx.languageServercontext()))
                 .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
                 .collect(Collectors.toList());
     }

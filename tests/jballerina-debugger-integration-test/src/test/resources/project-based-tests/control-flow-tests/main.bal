@@ -27,14 +27,19 @@ public function main() {
 
     // debug engage in 'while' loop
     int v04_intVar = 0;
-    while (v04_intVar < 1) {
+    while (true) {
+        if (v04_intVar >= 1) {
+            break;
+        }
         v04_intVar = v04_intVar + 1;
+        z += 1;
     }
 
     // debug engage in 'foreach' loop
-    string[] v05_fruits = ["apple"];
-    foreach var v in v05_fruits {
-        z = 7;
+    string[] v05_fruits = ["apple", "orange"];
+    foreach string v in v05_fruits {
+        string fruit = v;
+        z += 1;
     }
 
     // debug engage in 'match' statement

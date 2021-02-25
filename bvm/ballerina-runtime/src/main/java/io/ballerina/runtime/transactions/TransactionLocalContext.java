@@ -86,6 +86,10 @@ public class TransactionLocalContext {
         return transactionBlockIdStack.peek();
     }
 
+    public void addCurrentTransactionBlockId(String blockId) {
+        transactionBlockIdStack.push(blockId);
+    }
+
     public boolean hasTransactionBlock() {
         return !transactionBlockIdStack.empty();
     }
@@ -140,10 +144,9 @@ public class TransactionLocalContext {
         return true;
     }
 
-
-    public void rollbackTransaction(String transactionBlockId, Object error) {
+    public void notifyAbortAndClearTransaction(String transactionBlockId) {
         transactionContextStore.clear();
-        transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId, error);
+        transactionResourceManager.notifyAbort(globalTransactionId, transactionBlockId);
     }
 
     public void setRollbackOnlyError(Object error) {

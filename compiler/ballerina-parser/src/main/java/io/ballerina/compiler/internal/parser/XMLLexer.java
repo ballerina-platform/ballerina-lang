@@ -151,38 +151,6 @@ public class XMLLexer extends AbstractLexer {
     }
 
     /**
-     * <p>
-     * Check whether a given char is a digit.
-     * </p>
-     * <code>Digit := 0..9</code>
-     * 
-     * @param c character to check
-     * @return <code>true</code>, if the character represents a digit. <code>false</code> otherwise.
-     */
-    private boolean isDigit(int c) {
-        return ('0' <= c && c <= '9');
-    }
-
-    /**
-     * <p>
-     * Check whether a given char is a hexa digit.
-     * </p>
-     * <code>HexDigit := Digit | a .. f | A .. F</code>
-     * 
-     * @param c character to check
-     * @return <code>true</code>, if the character represents a hex digit. <code>false</code> otherwise.
-     */
-    private boolean isHexDigit(int c) {
-        if ('a' <= c && c <= 'f') {
-            return true;
-        }
-        if ('A' <= c && c <= 'F') {
-            return true;
-        }
-        return isDigit(c);
-    }
-
-    /**
      * Returns the next character from the reader, without consuming the stream.
      * 
      * @return Next character

@@ -1,0 +1,30 @@
+[
+  {
+    "input": "function printValue(string value) { };",
+    "accepted": true
+  },
+  {
+    "input": "listener http:Listener helloWorldEP = new (9095, helloWorldEPConfig);",
+    "accepted": true
+  },
+  {
+    "input": "type newType record{string name;};",
+    "accepted": true
+  },
+  {
+    "input": "service hello on new http:Listener(9090) { };",
+    "accepted": false
+  },
+  {
+    "input": "const int var1 = 3;",
+    "accepted": true
+  },
+  {
+    "input": "xmlns \"http://ballerina.com/aa\" as ns0;",
+    "accepted": true
+  },
+  {
+    "input": "class Person { };",
+    "accepted": true
+  }
+]

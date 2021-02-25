@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -75,5 +76,10 @@ public class NullableTypeTest {
         CompileResult result = BCompileUtil.compile("test-src/types/nullable/nilable_types_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         validateError(result, 0, "incompatible types: expected '(()|any)', found '(()|any)?'", 33, 19);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

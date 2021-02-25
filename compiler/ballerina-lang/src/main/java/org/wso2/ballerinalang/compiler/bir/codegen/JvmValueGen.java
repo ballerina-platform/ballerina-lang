@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -28,8 +28,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldBIRFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodBIRFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
@@ -53,7 +54,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -131,7 +132,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrich
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.lookupBIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
 
 /**
@@ -148,15 +148,12 @@ class JvmValueGen {
     private final BIRNode.BIRPackage module;
     private final JvmPackageGen jvmPackageGen;
     private final MethodGen methodGen;
-    private final LambdaGen lambdaGen;
     private final BType booleanType;
 
-    JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen,
-                LambdaGen lambdaGen) {
+    JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.methodGen = methodGen;
-        this.lambdaGen = lambdaGen;
         this.booleanType = jvmPackageGen.symbolTable.booleanType;
     }
 
@@ -176,12 +173,13 @@ class JvmValueGen {
             BType bType = optionalTypeDef.type;
             if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
-                desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, initMethodGen, jvmPackageGen);
+                desugarObjectMethods(module.packageID, bType, optionalTypeDef.attachedFuncs, initMethodGen,
+                                     jvmPackageGen);
             }
         }
     }
 
-    private static void desugarObjectMethods(BIRNode.BIRPackage module, BType bType,
+    private static void desugarObjectMethods(PackageID module, BType bType,
                                              List<BIRNode.BIRFunction> attachedFuncs, InitMethodGen initMethodGen,
                                              JvmPackageGen jvmPackageGen) {
         if (attachedFuncs == null) {
@@ -192,19 +190,20 @@ class JvmValueGen {
                 continue;
             }
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
-                BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, bType, jvmPackageGen);
+                BIRFunctionWrapper extFuncWrapper = ExternalMethodGen.lookupBIRFunctionWrapper(module, birFunc, bType,
+                                                                                               jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
                     desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
-                } else if (extFuncWrapper instanceof JMethodFunctionWrapper) {
-                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
+                } else if (birFunc instanceof JMethodBIRFunction) {
+                    desugarInteropFuncs((JMethodBIRFunction) birFunc, initMethodGen);
                     enrichWithDefaultableParamInits(birFunc, initMethodGen);
-                } else if (!(extFuncWrapper instanceof JFieldFunctionWrapper)) {
+                } else if (!(birFunc instanceof JFieldBIRFunction)) {
                     enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 }
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
+                enrichWithDefaultableParamInits(birFunc, initMethodGen);
             }
-            enrichWithDefaultableParamInits(birFunc, initMethodGen);
         }
     }
 
@@ -221,7 +220,7 @@ class JvmValueGen {
         for (NamedNode node : nodes) {
             if (node != null) {
                 labels.add(i, new Label());
-                String name = decodeIdentifier(node.getName().value);;
+                String name = decodeIdentifier(node.getName().value);
                 hashCodes[i] = name.hashCode();
                 i += 1;
             }
@@ -252,32 +251,8 @@ class JvmValueGen {
         mv.visitInsn(ATHROW);
     }
 
-    static String getTypeDescClassName(Object module, String typeName) {
-
-        String packageName = calculateJavaPkgName(module);
+    static String getTypeDescClassName(String packageName, String typeName) {
         return packageName + TYPEDESC_CLASS_PREFIX + typeName;
-    }
-
-    static String getTypeValueClassName(Object module, String typeName) {
-
-        String packageName = calculateJavaPkgName(module);
-        return packageName + VALUE_CLASS_PREFIX + typeName;
-    }
-
-    private static String calculateJavaPkgName(Object module) {
-
-        String packageName;
-        if (module instanceof BIRNode.BIRPackage) {
-            BIRNode.BIRPackage birPackage = (BIRNode.BIRPackage) module;
-            packageName = JvmCodeGenUtil.getPackageName(birPackage);
-        } else if (module instanceof PackageID) {
-            PackageID packageID = (PackageID) module;
-            packageName = JvmCodeGenUtil.getPackageName(packageID);
-        } else {
-            throw new ClassCastException("module should be PackageID or BIRPackage but is : "
-                    + (module == null ? "null" : module.getClass()));
-        }
-        return packageName;
     }
 
     static List<Label> createDecodedLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
@@ -305,7 +280,8 @@ class JvmValueGen {
         return targetLabels;
     }
 
-    private void createLambdas(ClassWriter cw, AsyncDataCollector asyncDataCollector) {
+    private void createLambdas(ClassWriter cw, AsyncDataCollector asyncDataCollector,
+                               LambdaGen lambdaGen) {
         for (Map.Entry<String, BIRInstruction> entry : asyncDataCollector.getLambdas().entrySet()) {
             lambdaGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
         }
@@ -326,16 +302,16 @@ class JvmValueGen {
         }
     }
 
-    private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs,
-                                     String moduleClassName, BObjectType currentObjectType,
-                                     AsyncDataCollector asyncDataCollector) {
+    private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
+                                     BObjectType currentObjectType, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
+                                     JvmBStringConstantsGen stringConstantsGen, AsyncDataCollector asyncDataCollector) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
             methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
-                                     asyncDataCollector);
+                                     jvmTypeGen, jvmCastGen, stringConstantsGen, asyncDataCollector);
         }
     }
 
@@ -374,7 +350,8 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName) {
+    private void createCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
+                                  JvmCastGen jvmCastGen) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call", String.format(
                 "(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT), null, null);
@@ -420,7 +397,7 @@ class JvmValueGen {
                 mv.visitLdcInsn((long) j);
                 mv.visitInsn(L2I);
                 mv.visitInsn(AALOAD);
-                JvmCastGen.addUnboxInsn(mv, paramType);
+                jvmCastGen.addUnboxInsn(mv, paramType);
                 j += 1;
             }
 
@@ -429,7 +406,7 @@ class JvmValueGen {
             if (retType == null || retType.tag == TypeTags.NIL || retType.tag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);
             } else {
-                JvmCastGen.addBoxInsn(mv, retType);
+                jvmCastGen.addBoxInsn(mv, retType);
             }
             mv.visitInsn(ARETURN);
             i += 1;
@@ -440,7 +417,8 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createObjectGetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createObjectGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                       JvmCastGen jvmCastGen) {
 
         String signature = String.format("(L%s;)L%s;", B_STRING_VALUE, OBJECT);
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", signature, null, null);
@@ -468,7 +446,7 @@ class JvmValueGen {
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, className, optionalField.name.value, getTypeDesc(optionalField.type));
-            JvmCastGen.addBoxInsn(mv, optionalField.type);
+            jvmCastGen.addBoxInsn(mv, optionalField.type);
             mv.visitInsn(ARETURN);
             i += 1;
         }
@@ -478,18 +456,22 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                       JvmCastGen jvmCastGen) {
 
-        createObjectSetMethod(cw, fields, className, "set", "checkFieldUpdate");
+        createObjectSetMethod(cw, fields, className, "set", "checkFieldUpdate", jvmCastGen);
     }
 
-    private void createObjectSetOnInitializationMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createObjectSetOnInitializationMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                                       JvmCastGen jvmCastGen) {
 
-        createObjectSetMethod(cw, fields, className, "setOnInitialization", "checkFieldUpdateOnInitialization");
+        createObjectSetMethod(cw, fields, className, "setOnInitialization", "checkFieldUpdateOnInitialization",
+                              jvmCastGen);
     }
 
     private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                                       String setFuncName, String checkFieldUpdateFuncName) {
+                                       String setFuncName, String checkFieldUpdateFuncName,
+                                       JvmCastGen jvmCastGen) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, setFuncName,
                                           String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
@@ -525,7 +507,7 @@ class JvmValueGen {
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
-            JvmCastGen.addUnboxInsn(mv, optionalField.type);
+            jvmCastGen.addUnboxInsn(mv, optionalField.type);
             String filedName = optionalField.name.value;
             mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(optionalField.type));
             mv.visitInsn(RETURN);
@@ -552,8 +534,7 @@ class JvmValueGen {
         this.createInstantiateMethod(cw, recordType, typeDef);
 
         cw.visitEnd();
-
-        return jvmPackageGen.getBytes(cw, typeDef);
+        return jvmPackageGen.getBytes(cw, className, typeDef);
     }
 
     private void createInstantiateMethod(ClassWriter cw, BRecordType recordType,
@@ -640,6 +621,14 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
+    static String getTypeValueClassName(PackageID packageID, String typeName) {
+        return getTypeValueClassName(JvmCodeGenUtil.getPackageName(packageID), typeName);
+    }
+
+    static String getTypeValueClassName(String packageName, String typeName) {
+        return packageName + VALUE_CLASS_PREFIX + typeName;
+    }
+
     private StringBuilder calcClosureMapSignature(int size) {
         StringBuilder closureParamSignature = new StringBuilder();
         for (int i = 0; i < size; i++) {
@@ -650,8 +639,9 @@ class JvmValueGen {
         return closureParamSignature;
     }
 
-    private byte[] createRecordValueClass(BRecordType recordType, String className,
-                                          BIRNode.BIRTypeDefinition typeDef) {
+    private byte[] createRecordValueClass(BRecordType recordType, String className, BIRNode.BIRTypeDefinition typeDef,
+                                          JvmBStringConstantsGen stringConstantsGen,
+                                          AsyncDataCollector asyncDataCollector) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (typeDef.pos != null) {
@@ -659,48 +649,53 @@ class JvmValueGen {
         } else {
             cw.visitSource(className, null);
         }
-        AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
+        JvmTypeGen jvmTypeGen =  new JvmTypeGen(stringConstantsGen);
+        JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
+        LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
                 String.format("<K:L%s;V:L%s;>L%s<TK;TV;>;L%s<TK;TV;>;", OBJECT, OBJECT, MAP_VALUE_IMPL, MAP_VALUE),
                 MAP_VALUE_IMPL, new String[]{MAP_VALUE});
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createRecordMethods(cw, attachedFuncs, className, asyncDataCollector);
+            this.createRecordMethods(cw, attachedFuncs, className, jvmTypeGen, jvmCastGen, stringConstantsGen,
+                                     asyncDataCollector);
         }
 
         Map<String, BField> fields = recordType.fields;
         this.createRecordFields(cw, fields);
-        this.createRecordGetMethod(cw, fields, className);
-        this.createRecordSetMethod(cw, fields, className);
-        this.createRecordEntrySetMethod(cw, fields, className);
+        this.createRecordGetMethod(cw, fields, className, jvmCastGen);
+        this.createRecordSetMethod(cw, fields, className, jvmCastGen);
+        this.createRecordEntrySetMethod(cw, fields, className, jvmCastGen);
         this.createRecordContainsKeyMethod(cw, fields, className);
-        this.createRecordGetValuesMethod(cw, fields, className);
+        this.createRecordGetValuesMethod(cw, fields, className, jvmCastGen);
         this.createGetSizeMethod(cw, fields, className);
         this.createRecordClearMethod(cw);
-        this.createRecordRemoveMethod(cw, fields, className);
+        this.createRecordRemoveMethod(cw, fields, className, jvmCastGen);
         this.createRecordGetKeysMethod(cw, fields, className);
         this.createRecordPopulateInitialValuesMethod(cw);
 
         this.createRecordConstructor(cw, TYPEDESC_VALUE);
         this.createRecordConstructor(cw, TYPE);
         this.createRecordInitWrapper(cw, className, typeDef);
-        this.createLambdas(cw, asyncDataCollector);
-        JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
-        this.generateStaticInitializer(cw, className, module, asyncDataCollector);
+        this.createLambdas(cw, asyncDataCollector, lambdaGen);
+        JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
+        this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
         cw.visitEnd();
 
-        return jvmPackageGen.getBytes(cw, typeDef);
+        return jvmPackageGen.getBytes(cw, className, typeDef);
     }
 
     private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
-                                     AsyncDataCollector asyncDataCollector) {
+                                     JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
+                                     JvmBStringConstantsGen stringConstantsGen, AsyncDataCollector asyncDataCollector) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            methodGen.generateMethod(func, cw, this.module, null, moduleClassName, asyncDataCollector);
+            methodGen.generateMethod(func, cw, this.module, null, moduleClassName, jvmTypeGen, jvmCastGen,
+                                     stringConstantsGen, asyncDataCollector);
         }
     }
 
@@ -742,8 +737,8 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void generateStaticInitializer(ClassWriter cw, String moduleClass, BIRNode.BIRPackage module,
-                                                  AsyncDataCollector asyncDataCollector) {
+    private void generateStaticInitializer(ClassWriter cw, String moduleClass, PackageID module,
+                                           AsyncDataCollector asyncDataCollector) {
 
         if (asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
@@ -831,7 +826,8 @@ class JvmValueGen {
         return (field.symbol.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
     }
 
-    private void createRecordGetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createRecordGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                       JvmCastGen jvmCastGen) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
                                               String.format("(L%s;)L%s;", OBJECT, OBJECT),
@@ -878,7 +874,7 @@ class JvmValueGen {
             // return the value of the field
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
-            JvmCastGen.addBoxInsn(mv, optionalField.type);
+            jvmCastGen.addBoxInsn(mv, optionalField.type);
             mv.visitInsn(ARETURN);
             i += 1;
         }
@@ -888,7 +884,8 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createRecordSetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createRecordSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                       JvmCastGen jvmCastGen) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "putValue",
                                               String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), "(TK;TV;)TV;",
@@ -925,11 +922,11 @@ class JvmValueGen {
             String fieldName = optionalField.name.value;
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
-            JvmCastGen.addBoxInsn(mv, optionalField.type);
+            jvmCastGen.addBoxInsn(mv, optionalField.type);
 
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
-            JvmCastGen.addUnboxInsn(mv, optionalField.type);
+            jvmCastGen.addUnboxInsn(mv, optionalField.type);
             mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(optionalField.type));
 
             // if the field is an optional-field, then also set the isPresent flag of that field to true.
@@ -971,7 +968,8 @@ class JvmValueGen {
         mv.visitInsn(ARETURN);
     }
 
-    private void createRecordEntrySetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createRecordEntrySetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                            JvmCastGen jvmCastGen) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "entrySet",
                                           String.format("()L%s;", SET),
@@ -1010,7 +1008,7 @@ class JvmValueGen {
             // field value as the map-entry value
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
-            JvmCastGen.addBoxInsn(mv, optionalField.type);
+            jvmCastGen.addBoxInsn(mv, optionalField.type);
 
             mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, JVM_INIT_METHOD,
                     String.format("(L%s;L%s;)V", OBJECT, OBJECT), false);
@@ -1089,7 +1087,8 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createRecordGetValuesMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createRecordGetValuesMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                             JvmCastGen jvmCastGen) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "values", String.format("()L%s;", COLLECTION),
                                           String.format("()L%s<TV;>;", COLLECTION), null);
@@ -1116,7 +1115,7 @@ class JvmValueGen {
             mv.visitVarInsn(ALOAD, valuesVarIndex);
             mv.visitVarInsn(ALOAD, 0); // this
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
-            JvmCastGen.addBoxInsn(mv, optionalField.type);
+            jvmCastGen.addBoxInsn(mv, optionalField.type);
             mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", String.format("(L%s;)Z", OBJECT), true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);
@@ -1180,7 +1179,8 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createRecordRemoveMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createRecordRemoveMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                          JvmCastGen jvmCastGen) {
         // throw an UnsupportedOperationException, since remove is not supported by for records.
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", String.format("(L%s;)L%s;", OBJECT, OBJECT),
                                           String.format("(L%s;)TV;", OBJECT), null);
@@ -1224,7 +1224,7 @@ class JvmValueGen {
                 // load the existing value to return
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
-                JvmCastGen.addBoxInsn(mv, optionalField.type);
+                jvmCastGen.addBoxInsn(mv, optionalField.type);
 
                 // Set default value for reference types
                 if (checkIfValueIsJReferenceType(optionalField.type)) {
@@ -1333,34 +1333,40 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    void generateValueClasses(Map<String, byte[]> jarEntries) {
+    void generateValueClasses(Map<String, byte[]> jarEntries, JvmBStringConstantsGen stringConstantsGen) {
 
+        String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
             BType bType = optionalTypeDef.type;
+            String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
+            AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
             if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
-                String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
-                byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef);
+                byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, stringConstantsGen
+                        , asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
-                String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
-                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef);
+                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, stringConstantsGen
+                        , asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);
-
-                String typedescClass = getTypeDescClassName(this.module, optionalTypeDef.name.value);
+                String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef);
                 jarEntries.put(typedescClass + ".class", bytes);
             }
         });
     }
 
-    private byte[] createObjectValueClass(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef) {
+    private byte[] createObjectValueClass(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
+                                          JvmBStringConstantsGen stringConstantsGen,
+                                          AsyncDataCollector asyncDataCollector) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().filePath(), null);
 
-        AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen);
+        JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
+        LambdaGen lambdaGen =  new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
 
         Map<String, BField> fields = objectType.fields;
@@ -1368,19 +1374,20 @@ class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createObjectMethods(cw, attachedFuncs, className, objectType, asyncDataCollector);
+            this.createObjectMethods(cw, attachedFuncs, className, objectType, jvmTypeGen, jvmCastGen,
+                                     stringConstantsGen, asyncDataCollector);
         }
 
         this.createObjectInit(cw, fields, className);
-        this.createCallMethod(cw, attachedFuncs, className);
-        this.createObjectGetMethod(cw, fields, className);
-        this.createObjectSetMethod(cw, fields, className);
-        this.createObjectSetOnInitializationMethod(cw, fields, className);
-        this.createLambdas(cw, asyncDataCollector);
-        JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
-        this.generateStaticInitializer(cw, className, module, asyncDataCollector);
+        this.createCallMethod(cw, attachedFuncs, className, jvmCastGen);
+        this.createObjectGetMethod(cw, fields, className, jvmCastGen);
+        this.createObjectSetMethod(cw, fields, className, jvmCastGen);
+        this.createObjectSetOnInitializationMethod(cw, fields, className, jvmCastGen);
+        this.createLambdas(cw, asyncDataCollector, lambdaGen);
+        JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
+        this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
 
         cw.visitEnd();
-        return jvmPackageGen.getBytes(cw, typeDef);
+        return jvmPackageGen.getBytes(cw, className, typeDef);
     }
 }

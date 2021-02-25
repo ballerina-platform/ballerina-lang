@@ -24,6 +24,7 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -139,5 +140,10 @@ public class ShadowingTest {
     @Test(description = "test shadowing with ballerina generated names")
     public void testGeneratedNames() {
         BRunUtil.invoke(result, "testGeneratedNames");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

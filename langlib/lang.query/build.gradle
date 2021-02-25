@@ -15,23 +15,23 @@
  *
  */
 
-apply from: "$rootDir/gradle/ballerinaModuleToPackage.gradle"
+ 
 apply from: "$rootDir/gradle/ballerinaLangLibBuild.gradle"
 
 dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
 
-    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:map', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:string', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:internal', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:array', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:map', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:string', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:value', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:xml', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:table', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:stream', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
 
     implementation 'org.slf4j:slf4j-api'
 }

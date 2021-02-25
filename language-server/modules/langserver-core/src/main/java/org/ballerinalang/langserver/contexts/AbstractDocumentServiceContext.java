@@ -21,12 +21,14 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 
@@ -35,6 +37,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 /**
  * Language server context implementation.
@@ -55,12 +59,16 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     private List<ImportDeclarationNode> currentDocImports;
 
-    private Module currentModule;
+    private final LanguageServerContext languageServerContext;
 
-    AbstractDocumentServiceContext(LSOperation operation, String fileUri, WorkspaceManager wsManager) {
+    AbstractDocumentServiceContext(LSOperation operation,
+                                   String fileUri,
+                                   WorkspaceManager wsManager,
+                                   LanguageServerContext serverContext) {
         this.operation = operation;
         this.fileUri = fileUri;
         this.workspaceManager = wsManager;
+        this.languageServerContext = serverContext;
         Optional<Path> optFilePath = CommonUtil.getPathFromURI(this.fileUri);
         if (optFilePath.isEmpty()) {
             throw new RuntimeException("Invalid file uri: " + this.fileUri);
@@ -82,6 +90,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
      *
      * @return {@link Path} file path
      */
+    @Nonnull
     public Path filePath() {
         return this.filePath;
     }
@@ -95,13 +104,15 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     public List<Symbol> visibleSymbols(Position position) {
         if (this.visibleSymbols == null) {
             Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(this.filePath);
-            if (semanticModel.isEmpty()) {
+            Optional<Document> srcFile = this.workspaceManager.document(filePath);
+
+            if (semanticModel.isEmpty() || srcFile.isEmpty()) {
                 return Collections.emptyList();
             }
-            // TODO: file uri here should be the relative file URI
-            visibleSymbols = semanticModel.get().visibleSymbols(
-                    this.filePath.toFile().getName(),
-                    LinePosition.from(position.getLine(), position.getCharacter()));
+
+            visibleSymbols = semanticModel.get().visibleSymbols(srcFile.get(),
+                                                                LinePosition.from(position.getLine(),
+                                                                                  position.getCharacter()));
         }
 
         return visibleSymbols;
@@ -127,12 +138,28 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     }
 
     @Override
-    public Optional<Module> currentModule() {
-        if (this.currentModule == null) {
-            this.currentModule = this.workspaceManager.module(this.filePath).orElse(null);
-        }
+    public Optional<Document> currentDocument() {
+        return this.workspace().document(this.filePath());
+    }
 
-        return Optional.ofNullable(this.currentModule);
+    @Override
+    public Optional<Module> currentModule() {
+        return this.workspaceManager.module(this.filePath);
+    }
+
+    @Override
+    public Optional<SemanticModel> currentSemanticModel() {
+        return this.workspaceManager.semanticModel(this.filePath);
+    }
+
+    @Override
+    public Optional<SyntaxTree> currentSyntaxTree() {
+        return this.workspaceManager.syntaxTree(this.filePath);
+    }
+
+    @Override
+    public LanguageServerContext languageServercontext() {
+        return this.languageServerContext;
     }
 
     /**
@@ -143,16 +170,19 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
      */
     protected abstract static class AbstractContextBuilder<T extends AbstractContextBuilder<T>> {
         protected final LSOperation operation;
+        protected final LanguageServerContext serverContext;
         protected String fileUri;
         protected WorkspaceManager wsManager;
 
         /**
          * Context Builder constructor.
          *
-         * @param lsOperation LS Operation for the particular invocation
+         * @param lsOperation   LS Operation for the particular invocation
+         * @param serverContext Language server context
          */
-        public AbstractContextBuilder(LSOperation lsOperation) {
+        public AbstractContextBuilder(LSOperation lsOperation, LanguageServerContext serverContext) {
             this.operation = lsOperation;
+            this.serverContext = serverContext;
         }
 
         public T withFileUri(String fileUri) {
@@ -166,7 +196,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
         }
 
         public DocumentServiceContext build() {
-            return new AbstractDocumentServiceContext(this.operation, this.fileUri, this.wsManager);
+            return new AbstractDocumentServiceContext(this.operation, this.fileUri, this.wsManager, this.serverContext);
         }
 
         public abstract T self();

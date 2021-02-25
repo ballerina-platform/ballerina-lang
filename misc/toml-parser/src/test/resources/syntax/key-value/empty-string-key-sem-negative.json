@@ -1,10 +1,8 @@
 {
   "kind": "MODULE_PART",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
-      "hasDiagnostics": true,
       "children": [
         {
           "kind": "KEY_VALUE",
@@ -201,26 +199,15 @@
         },
         {
           "kind": "KEY_VALUE",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LIST",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "STRING_LITERAL",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "DOUBLE_QUOTE_TOKEN"
-                    },
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_STRING_LITERAL"
-                      ]
                     },
                     {
                       "kind": "DOUBLE_QUOTE_TOKEN",

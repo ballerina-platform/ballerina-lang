@@ -30,6 +30,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -228,5 +229,10 @@ public class AnydataStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.get("status").stringValue(), "single");
         Assert.assertEquals(mapValue.get("status").getType().getClass(), BStringType.class);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

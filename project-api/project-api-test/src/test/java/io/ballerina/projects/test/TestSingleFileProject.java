@@ -21,17 +21,25 @@ import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.testng.Assert;
+import org.testng.SkipException;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+
+import static io.ballerina.projects.test.TestUtils.isWindows;
+import static io.ballerina.projects.test.TestUtils.resetPermissions;
 
 /**
  * Contains cases to test the basic package structure.
@@ -43,7 +51,7 @@ public class TestSingleFileProject {
 
     @Test (description = "tests loading a valid standalone Ballerina file")
     public void testLoadSingleFile() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         SingleFileProject project = null;
         try {
             project = SingleFileProject.load(projectPath);
@@ -107,7 +115,7 @@ public class TestSingleFileProject {
 
     @Test(description = "tests setting build options to the project")
     public void testDefaultBuildOptions() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         SingleFileProject project = null;
         try {
             project = SingleFileProject.load(projectPath);
@@ -126,7 +134,7 @@ public class TestSingleFileProject {
 
     @Test(description = "tests setting build options to the project")
     public void testOverrideBuildOptions() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         SingleFileProject project = null;
         BuildOptions buildOptions = new BuildOptionsBuilder()
                 .skipTests(true)
@@ -150,7 +158,7 @@ public class TestSingleFileProject {
     @Test
     public void testUpdateDocument() {
         // Inputs from langserver
-        Path filePath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        Path filePath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         String newContent = "import ballerina/io;\n";
 
         // Load the project from document filepath
@@ -182,5 +190,58 @@ public class TestSingleFileProject {
         Assert.assertNotEquals(oldModule.packageInstance(), singleFileProject.currentPackage());
         Assert.assertEquals(updatedPackage.module(oldDocument.module().moduleId()).document(oldDocumentId), updatedDoc);
         Assert.assertEquals(updatedPackage, updatedDoc.module().packageInstance());
+    }
+
+    @Test (description = "tests loading a single file with no read permission")
+    public void testSingleFileWithNoReadPermission() {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single_file_no_permission").resolve("main.bal");
+
+        // 1) Remove write permission
+        boolean readable = projectPath.toFile().setReadable(false, false);
+        if (!readable) {
+            Assert.fail("could not remove read permission of file");
+        }
+
+        // 2) Initialize the project instance
+        SingleFileProject project = null;
+        try {
+            project = SingleFileProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("does not have read permissions"));
+        }
+
+        resetPermissions(projectPath);
+    }
+
+    @Test (description = "tests diagnostics of a single file")
+    public void testDiagnostics() {
+
+        Path filePath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main_with_error.bal");
+
+        // Load the project from document filepath
+        SingleFileProject project = SingleFileProject.load(filePath);
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the current package
+        PackageCompilation compilation = currentPackage.getCompilation();
+
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 1);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        Assert.assertEquals(jBallerinaBackend.diagnosticResult().diagnosticCount(), 1);
+
+        Assert.assertEquals(
+                compilation.diagnosticResult().diagnostics().stream().findFirst().get().location().lineRange()
+                        .filePath(), "main_with_error.bal");
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void reset() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single_file_no_permission");
+        resetPermissions(projectPath);
     }
 }

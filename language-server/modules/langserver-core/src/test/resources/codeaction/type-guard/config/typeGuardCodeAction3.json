@@ -3,7 +3,7 @@
     "character": 6,
     "expected": [
         {
-            "title": "Create Variable and Type Guard",
+            "title": "Create variable and type guard",
             "edits": [
                 {
                     "range": {
@@ -13,24 +13,24 @@
                         },
                         "end": {
                             "line": 5,
-                        "character": 19
-                    }
-                },
-                "newText": "\n    if (apple is int) {\n\n    } else {\n\n    }\n"
-            },
-            {
-                "range": {
-                    "start": {
-                        "line": 5,
-                        "character": 4
+                            "character": 19
+                        }
                     },
-                    "end": {
-                        "line": 5,
-                        "character": 4
-                    }
+                    "newText": "\n    if (apple is int) {\n\n    }"
                 },
-                "newText": "int|error apple \u003d "
-            }
+                {
+                    "range": {
+                        "start": {
+                            "line": 5,
+                            "character": 4
+                        },
+                        "end": {
+                            "line": 5,
+                            "character": 4
+                        }
+                    },
+                    "newText": "int|error apple \u003d "
+                }
             ]
         }
     ]

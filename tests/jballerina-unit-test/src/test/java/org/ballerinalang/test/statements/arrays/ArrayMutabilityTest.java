@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -190,5 +191,11 @@ public class ArrayMutabilityTest {
                 "incompatible types: expected 'Animal[]', found 'Cat[]'", 80, 28);
         BAssertUtil.validateError(resultNegative, i,
                 "incompatible types: expected '(int[]|boolean[])', found '(int|boolean)?[]'", 90, 10);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        resultNegative = null;
     }
 }

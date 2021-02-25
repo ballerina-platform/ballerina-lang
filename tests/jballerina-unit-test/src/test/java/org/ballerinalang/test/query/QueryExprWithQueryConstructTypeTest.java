@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -171,17 +172,17 @@ public class QueryExprWithQueryConstructTypeTest {
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
-                38, 35);
+                54, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'Customer[]', " +
                         "found '(table<Customer> key(id, name)|error)'",
-                55, 32);
+                71, 32);
         validateError(negativeResult, index++, "incompatible types: expected " +
                         "'table<Customer> key(id, name)', found '(table<Customer> key(id, name)|error)'",
-                70, 35);
+                86, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'error', found 'boolean'",
-                91, 21);
+                107, 21);
         validateError(negativeResult, index, "type 'error' not allowed here; expected " +
-                "an 'error' or a subtype of 'error'.", 91, 21);
+                "an 'error' or a subtype of 'error'.", 107, 21);
     }
 
     @Test(description = "Test semantic negative scenarios for query expr with query construct type")
@@ -190,5 +191,12 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(semanticsNegativeResult, 0, "on conflict can only be used with queries which produce tables " +
                         "with key specifiers",
                 39, 13);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
+        semanticsNegativeResult = null;
     }
 }

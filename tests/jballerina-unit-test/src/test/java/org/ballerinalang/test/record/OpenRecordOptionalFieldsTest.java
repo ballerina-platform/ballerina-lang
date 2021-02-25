@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -145,5 +146,10 @@ public class OpenRecordOptionalFieldsTest {
         Assert.assertNull(person.get("lname"));
         Assert.assertNull(person.get("age"));
         Assert.assertNull(person.get("adrs"));
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

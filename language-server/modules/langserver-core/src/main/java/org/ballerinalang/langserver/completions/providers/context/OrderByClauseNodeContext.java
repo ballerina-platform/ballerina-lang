@@ -24,13 +24,13 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,7 +38,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderByClauseNode> {
 
     public OrderByClauseNodeContext() {
@@ -46,34 +46,34 @@ public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderBy
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, OrderByClauseNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, OrderByClauseNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (onSuggestDirectionKeywords(context, node)) {
-            return Arrays.asList(
-                    new SnippetCompletionItem(context, Snippet.KW_ASCENDING.get()),
-                    new SnippetCompletionItem(context, Snippet.KW_DESCENDING.get())
-            );
-        }
-
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ASCENDING.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DESCENDING.get()));
+        } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-            return this.getCompletionItemList(exprEntries, context);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
         }
+        this.sort(context, node, completionItems);
 
-        return this.expressionCompletions(context);
+        return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, OrderByClauseNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, OrderByClauseNode node) {
         return !node.orderKeyword().isMissing();
     }
 
-    private boolean onSuggestDirectionKeywords(CompletionContext context, OrderByClauseNode node) {
+    private boolean onSuggestDirectionKeywords(BallerinaCompletionContext context, OrderByClauseNode node) {
         SeparatedNodeList<OrderKeyNode> orderKeyNodes = node.orderKey();
         int cursor = context.getCursorPositionInTree();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();

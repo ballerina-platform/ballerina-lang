@@ -4,6 +4,7 @@ module io.ballerina.language.server.commons {
     requires io.ballerina.tools.api;
     requires org.eclipse.lsp4j;
     requires org.eclipse.lsp4j.jsonrpc;
+    requires gson;
     exports org.ballerinalang.langserver.commons;
     exports org.ballerinalang.langserver.commons.client;
     exports org.ballerinalang.langserver.commons.semantichighlighter;

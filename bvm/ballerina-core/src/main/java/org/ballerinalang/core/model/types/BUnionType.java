@@ -22,7 +22,6 @@ import org.ballerinalang.core.model.values.BValue;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * {@code BUnionType} represents a union type in Ballerina.
@@ -33,6 +32,8 @@ public class BUnionType extends BType {
 
     private List<BType> memberTypes;
     private boolean nullable;
+    private boolean resolving = false;
+    public static final char PIPE = '|';
 
     /**
      * Create a {@code BUnionType} which represents the union type.
@@ -47,9 +48,9 @@ public class BUnionType extends BType {
      * @param memberTypes of the union type
      */
     public BUnionType(List<BType> memberTypes) {
-        super(String.join("|", memberTypes.stream().map(BType::toString).collect(Collectors.toList())), null,
-              BValue.class);
+        super(null, null, BValue.class);
         this.memberTypes = memberTypes;
+        this.typeName = this.toString();
         this.nullable = memberTypes.contains(BTypes.typeNull);
     }
 
@@ -91,8 +92,27 @@ public class BUnionType extends BType {
 
     @Override
     public String toString() {
-        List<String> list = memberTypes.stream().map(BType::toString).collect(Collectors.toList());
-        return String.join("|", list);
+        String cachedToString;
+        if (resolving) {
+            if (this.typeName != null) {
+                return this.typeName;
+            } else {
+                return "...";
+            }
+        }
+        resolving = true;
+        StringBuilder sb = new StringBuilder();
+        int size = memberTypes != null ? memberTypes.size() : 0;
+        int i = 0;
+        while (i < size) {
+            sb.append(memberTypes.get(i).toString());
+            if (++i < size) {
+                sb.append(PIPE);
+            }
+        }
+        cachedToString = sb.toString();
+        resolving = false;
+        return cachedToString;
     }
 
     @Override

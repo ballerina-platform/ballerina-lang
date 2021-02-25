@@ -1,0 +1,14 @@
+[package]
+org = "ballerina"
+name = "lang.test"
+version = "1.0.0"
+
+[[platform.java11.dependency]]
+<<<<<<< HEAD
+path = "../libs/ballerina-lang-test-2.0.0-Preview8-SNAPSHOT.jar"
+=======
+path = "../libs/ballerina-lang-test-2.0.0-Preview7-SNAPSHOT.jar"
+>>>>>>> Migrate ballerina-tool module to ballerina-cli
+groupId = "ballerina"
+artifactId = "io"
+version = "0.5.0"

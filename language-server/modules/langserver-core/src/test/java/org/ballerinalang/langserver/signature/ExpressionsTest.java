@@ -48,8 +48,7 @@ public class ExpressionsTest extends AbstractSignatureHelpTest {
                 "exprFunctionConstructorDirect.json",
                 "exprNewImplicit.json",
                 "exprFunctionConstructorIndirect.json",
-                "exprNewExplicit.json",
-                "exprServiceConstructor.json");
+                "exprNewExplicit.json");
     }
 
     @Override

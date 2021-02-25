@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/lang.array;
 import ballerina/lang.'string as strings;
 import ballerina/lang.'int as ints;
@@ -188,9 +189,54 @@ function testLastIndexOf() {
     }
 }
 
-function testReverse() returns [int[], int[]] {
+function testReverseInt() {
     int[] arr = [10, 20, 30, 40, 50];
-    return [arr, arr.reverse()];
+    assertValueEquality(arr.reverse(), [50, 40, 30, 20, 10]);
+}
+
+function testReverseFloat() {
+    float[] arr = [10.5, 20.6, 30.7, 40.8, 50.9];
+    assertValueEquality(arr.reverse(), [50.9, 40.8, 30.7, 20.6, 10.5]);
+}
+
+function testReverseStr() {
+    string[] arr = ["hello", "A", "Ballerina"];
+    assertValueEquality(arr.reverse(), ["Ballerina", "A", "hello"]);
+}
+
+function testReverseBool() {
+    boolean[] arr = [true, false, true, true, false];
+    assertValueEquality(arr.reverse(), [false, true, true, false, true]);
+}
+
+function testReverseByte() {
+    byte[] arr = [2, 4, 6, 8, 10];
+    assertValueEquality(arr.reverse(), [10, 8, 6, 4, 2]);
+}
+
+function testReverseMap() {
+    map<string>[] arr = [{line1: "a", line2: "b"}, {line3: "c", line4: "d"}];
+    assertValueEquality(arr.reverse(), [{line3: "c", line4: "d"}, {line1: "a", line2: "b"}]);
+}
+
+type Employee record {
+    string name;
+    int age;
+    string designation;
+};
+
+function testReverseRecord() {
+    Employee[] arr = [{name: "John Doe", age: 25, designation: "Software Engineer"},
+        {name: "Jane Doe", age: 27, designation: "UX Engineer"}];
+    assertValueEquality(arr.reverse(), [{name: "Jane Doe", age: 27, designation: "UX Engineer"},
+        {name: "John Doe", age: 25, designation: "Software Engineer"}]);
+}
+
+function testArrayReverseEquality() {
+    int[] x = [1, 2, 3, 4, 5];
+    int[] y = x.reverse();
+    assertValueEquality(x == y, false);
+    assertValueEquality(x === y, false);
 }
 
 type Person record {|
@@ -322,7 +368,7 @@ function testTupleRemoveAll() returns [int, string] {
     return t;
 }
 
-function testTupleRemoveAllForTupleWithRestMemberType() returns [int, string] {
+function testTupleRemoveAllForTupleWithRestMemberType() returns [int, string, boolean...] {
     [int, string, boolean...] t = [1, "hello", true];
     t.removeAll();
     return t;
@@ -490,8 +536,11 @@ function testInvalidPushOnUnionOfSameBasicType() {
     assertTrue(res is error);
 
     error err = <error> res;
+
+    var message = err.detail()["message"];
+    string detailMessage = message is error? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
-    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()["message"].toString());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage);
 
     fn = function () {
         arr.unshift("foo");
@@ -501,8 +550,11 @@ function testInvalidPushOnUnionOfSameBasicType() {
     assertTrue(res is error);
 
     err = <error> res;
+
+    message = err.detail()["message"];
+    detailMessage = message is error? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
-    assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()["message"].toString());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage);
 }
 
 function testShiftOperation() {
@@ -520,8 +572,10 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     assertTrue(res is error);
 
     error err = <error> res;
+    var message = err.detail()["message"];
+    string detailMessage = message is error? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
-    assertValueEquality("shift() not supported on type 'null'", err.detail()["message"].toString());
+    assertValueEquality("shift() not supported on type 'null'", detailMessage);
 }
 
 type Student record {|
@@ -1061,6 +1115,49 @@ function testSort10() {
     assertValueEquality(sortedArr6, arr3);
 }
 
+function testTupleReverse() {
+    [int, string, float] tupleArr = [2,  "abc", 2.4];
+    anydata[] y = tupleArr.reverse();
+    (int|string|float)[] expected = [2.4,  "abc", 2];
+    assertValueEquality(expected, y);
+
+    [int, int, int] arr1 = [1, 2, 3];
+    y = arr1.reverse();
+    int[]  res = [3, 2, 1];
+    assertValueEquality(res, y);
+
+
+    [int, int, int...] arr2 = [1, 2, 3, 4, 5];
+    y = arr2.reverse();
+    anydata[]  res1 = [5, 4, 3, 2, 1];
+    assertValueEquality(res1, y);
+}
+
+function testTupleFilter() {
+    [int, string, float] tupleArr = [2,  "abc", 2.4];
+    anydata[] y = tupleArr.filter(function (anydata value) returns boolean {
+        return (value is int);
+    });
+
+    (int|string|float)[] expected = [2];
+    assertValueEquality(expected, y);
+
+    [int, int, int] arr1 = [1, 2, 3];
+    y = arr1.filter(function (int value) returns boolean {
+        return value >= 2;
+    });
+    int[] res = [2, 3];
+    assertValueEquality(res, y);
+
+
+    [int, int, int...] arr2 = [1, 2, 3, 4, 5];
+    y = arr2.filter(function (int value) returns boolean {
+        return value > 2;
+    });
+    anydata[]  res1 = [3, 4, 5];
+    assertValueEquality(res1, y);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
@@ -1068,8 +1165,8 @@ function assertTrue(any|error actual) {
         return;
     }
 
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'true', found '" + actual.toString () + "'");
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found '" + actualValAsString + "'");
 }
 
 function assertFalse(any|error actual) {
@@ -1077,8 +1174,8 @@ function assertFalse(any|error actual) {
         return;
     }
 
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'false', found '" + actual.toString () + "'");
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON, message = "expected 'false', found '" + actualValAsString + "'");
 }
 
 

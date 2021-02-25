@@ -21,7 +21,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -34,25 +34,26 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class TupleTypeDescriptorNodeContext extends AbstractCompletionProvider<TupleTypeDescriptorNode> {
     public TupleTypeDescriptorNodeContext() {
         super(TupleTypeDescriptorNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, TupleTypeDescriptorNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TupleTypeDescriptorNode node)
             throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context,
                     (QualifiedNameReferenceNode) nodeAtCursor);
-            return this.getCompletionItemList(typesInModule, context);
+            completionItems.addAll(this.getCompletionItemList(typesInModule, context));
+        } else {
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.addAll(this.getTypeItems(context));
         }
-
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(this.getTypeItems(context));
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }

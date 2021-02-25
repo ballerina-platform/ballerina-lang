@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -77,5 +78,11 @@ public class TableCastTest {
         BAssertUtil.validateError(negativeResult, 3, "invalid key constraint provided for member access. " +
                 "key constraint expected with type 'string'", 60, 12);
         BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'string', found 'int'", 60, 16);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 }

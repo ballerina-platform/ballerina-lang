@@ -27,4 +27,20 @@ import org.eclipse.lsp4j.CompletionItem;
 public interface LSCompletionItem {
 
     CompletionItem getCompletionItem();
+    
+    CompletionItemType getType();
+
+    /**
+     * Represents the completion item type.
+     * 
+     * @since 2.0.0
+     */
+    enum CompletionItemType {
+        OBJECT_FIELD,
+        RECORD_FIELD,
+        SNIPPET,
+        STATIC,
+        SYMBOL,
+        TYPE
+    }
 }

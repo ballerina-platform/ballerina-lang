@@ -27,6 +27,13 @@ function testRetryStatement() {
     } else {
         panic error("Expected an error");
     }
+
+    string|error ignoreErrorReturnRes = ignoreErrorReturn();
+    if(ignoreErrorReturnRes is error) {
+        assertEquality("Custom Error", ignoreErrorReturnRes.message());
+    } else {
+        panic error("Expected an error");
+    }
 }
 
 function retrySuccess() returns string |error {
@@ -36,7 +43,7 @@ function retrySuccess() returns string |error {
         count = count+1;
         if (count < 3) {
             str += (" attempt " + count.toString() + ":error,");
-            return trxError();
+            fail trxError();
         }
         str += (" attempt "+ count.toString() + ":result returned end.");
         return str;
@@ -57,11 +64,23 @@ function retryFailure() returns string |error {
     }
 }
 
+function ignoreErrorReturn() returns string|error {
+    string str = "start";
+    int count = 0;
+    retry<MyRetryManager> (3) {
+        count = count+1;
+        if (count < 5) {
+            str += (" attempt " + count.toString() + ":error,");
+            return error("Custom Error");
+        }
+        str += (" attempt "+ count.toString() + ":result returned end.");
+        return str;
+    }
+}
+
 function trxError()  returns error {
     return error("TransactionError");
 }
-
-type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -74,5 +93,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
    }
 
-    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                        message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

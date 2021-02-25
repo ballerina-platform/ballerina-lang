@@ -32,7 +32,6 @@ import java.util.Collection;
  * @since 1.3.0
  */
 public abstract class STAbstractNodeFactory {
-
     private static final STNodeList EMPTY_LIST = new STNodeList();
 
     public static STToken createIdentifierToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
@@ -53,8 +52,7 @@ public abstract class STAbstractNodeFactory {
         return new STNodeList(children);
     }
 
-    public static STNode createNodeList(
-            STNode... children) {
+    public static STNode createNodeList(STNode... children) {
         if (children.length == 0) {
             return EMPTY_LIST;
         }
@@ -77,6 +75,11 @@ public abstract class STAbstractNodeFactory {
     public static STToken createMissingToken(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
         // TODO Seems like we can get these tokens from a cache
         return new STMissingToken(kind, diagnostics);
+    }
+
+    public static STToken createMissingToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia,
+                                             Collection<STNodeDiagnostic> diagnostics) {
+        return new STMissingToken(kind, leadingTrivia, trailingTrivia, diagnostics);
     }
 
     public static STToken createInvalidToken(String tokenText) {
@@ -127,19 +130,15 @@ public abstract class STAbstractNodeFactory {
         return new STMinutiae(kind, text, width);
     }
 
-    public static STNode createInvalidNodeMinutiae(
-            STNode invalidNode) {
-        return new STInvalidNodeMinutiae(invalidNode);
+    public static STNode createInvalidNodeMinutiae(STToken invalidToken) {
+        return new STInvalidNodeMinutiae(createInvalidTokenMinutiaeNode(invalidToken));
     }
 
-    public static STToken createDocumentationLineToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
-        return new STDocumentationLineToken(text, leadingTrivia, trailingTrivia);
+    public static STNode createInvalidNodeMinutiae(STInvalidTokenMinutiaeNode invalidTokenTriviaNode) {
+        return new STInvalidNodeMinutiae(invalidTokenTriviaNode);
     }
 
-    public static STToken createDocumentationLineToken(String text,
-                                                       STNode leadingTrivia,
-                                                       STNode trailingTrivia,
-                                                       Collection<STNodeDiagnostic> diagnostics) {
-        return new STDocumentationLineToken(text, leadingTrivia, trailingTrivia, diagnostics);
+    public static STInvalidTokenMinutiaeNode createInvalidTokenMinutiaeNode(STToken invalidToken) {
+        return new STInvalidTokenMinutiaeNode(invalidToken);
     }
 }

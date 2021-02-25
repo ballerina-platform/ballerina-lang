@@ -53,8 +53,8 @@ type MyError error;
 function testSelfReferencingErrorConstructor() {
     error e3 = error(e3.message(), e3);
     MyError e4 = error("reason", e4);
-    UserDefErrorOne ue1 = UserDefErrorOne();
-    MyError me1 = MyError();
+    UserDefErrorOne ue1 = error UserDefErrorOne();
+    MyError me1 = error MyError();
 }
 
 type TrxErrorData record {|
@@ -92,16 +92,16 @@ type RNError error <Bee>;
 type RNStrError error <Bee>;
 
 function testIndirectErrorDestructuring() {
-    BeeError e = BeeError("Msg", fatal=false, other="k");
-    RNError e2 = RNError(message="Msg", fatal=false, other="k");
-    RNStrError e3 = RNStrError(message="Msg", fatal=false, other="k");
+    BeeError e = error BeeError("Msg", fatal=false, other="k");
+    RNError e2 = error RNError(message="Msg", fatal=false, other="k");
+    RNStrError e3 = error RNStrError(message="Msg", fatal=false, other="k");
 }
 
-type TrxErrorData2 record {
+type TrxErrorData2 record {|
     string message = "";
     error cause?;
     map<string> data = {};
-};
+|};
 
 const string reasonA = "ErrNo-1";
 type UserDefErrorTwoA error<TrxErrorData2>;

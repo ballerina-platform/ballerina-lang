@@ -30,6 +30,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -197,5 +198,10 @@ public class TupleTypeStampInbuiltFunctionTest {
         BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataTupleToBasicTypeTuple");
         Assert.assertEquals(((BInteger) results[0]).value().intValue(), 1);
         Assert.assertEquals(((BInteger) results[1]).value().intValue(), 2);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

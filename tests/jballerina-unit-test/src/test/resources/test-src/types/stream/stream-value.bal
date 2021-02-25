@@ -97,11 +97,11 @@ function testStreamConstructWithFilter() returns boolean {
     NumberGenerator numGen = new NumberGenerator();
     var intStream = new stream<int>(numGen);
 
-    stream<int,error> oddNumberStream = intStream.filter(function (int intVal) returns boolean {
+    stream<int> oddNumberStream = intStream.filter(function (int intVal) returns boolean {
         return intVal % 2 == 1;
     });
 
-    ResultValue? oddNumber = <ResultValue?> oddNumberStream.next();
+    ResultValue? oddNumber = <ResultValue?>oddNumberStream.next();
     testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
 
     oddNumber = getRecordValue(oddNumberStream.next());
@@ -162,11 +162,11 @@ function testStreamReturnTypeImplicit() returns boolean {
 
 // ------------------- Error Related Tests -------------------
 
-type CustomErrorData record {
+type CustomErrorData record {|
     string message?;
     error cause?;
     int accountID?;
-};
+|};
 
 type CustomError distinct error<CustomErrorData>;
 
@@ -177,7 +177,7 @@ class IteratorWithCustomError {
     public isolated function next() returns record {| int value; |}|CustomError? {
         self.i += 1;
         if (self.i == 2) {
-            CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 1);
+            CustomError e = error CustomError("CustomError", message = "custom error occured", accountID = 1);
             return e;
         } else {
             return { value: self.i };
@@ -287,10 +287,10 @@ class IteratorWithErrorUnion {
     public isolated function next() returns record {| int value; |}|Error? {
         self.i += 1;
         if (self.i == 2) {
-            CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 2);
+            CustomError e = error CustomError("CustomError", message = "custom error occured", accountID = 2);
             return e;
         } else if (self.i == 3) {
-            CustomError1 e = CustomError1("CustomError1", message = "custom error occured", accountID = 3);
+            CustomError1 e = error CustomError1("CustomError1", message = "custom error occured", accountID = 3);
             return e;
         } else {
             return { value: self.i };
@@ -395,14 +395,49 @@ function testEmptyStreamConstructs() returns boolean {
     var emptyStream8 = new stream<int, never>();
     var emptyStream9 = new stream<int, error>();
 
-    testPassed = testPassed && (emptyStream1.next() == ());
-    testPassed = testPassed && (emptyStream2.next() == ());
-    testPassed = testPassed && (emptyStream3.next() == ());
-    testPassed = testPassed && (emptyStream4.next() == ());
-    testPassed = testPassed && (emptyStream5.next() == ());
-    testPassed = testPassed && (emptyStream6.next() == ());
-    testPassed = testPassed && (emptyStream7.next() == ());
-    testPassed = testPassed && (emptyStream8.next() == ());
-    testPassed = testPassed && (emptyStream9.next() == ());
+    testPassed = testPassed && (emptyStream1.next() === ());
+    testPassed = testPassed && (emptyStream2.next() === ());
+    testPassed = testPassed && (emptyStream3.next() === ());
+    testPassed = testPassed && (emptyStream4.next() === ());
+    testPassed = testPassed && (emptyStream5.next() === ());
+    testPassed = testPassed && (emptyStream6.next() === ());
+    testPassed = testPassed && (emptyStream7.next() === ());
+    testPassed = testPassed && (emptyStream8.next() === ());
+    testPassed = testPassed && (emptyStream9.next() === ());
+
+    // test the assignability of stream<int> and stream<int, never>
+    emptyStream1 = emptyStream5;
+    emptyStream2 = emptyStream5;
+    emptyStream7 = emptyStream8;
+    emptyStream7 = emptyStream5;
+
     return testPassed;
+}
+
+type Foo record {|
+    string v;
+|};
+
+type Bar record {|
+    int v;
+|};
+
+function testUnionOfStreamsAsFunctionParams() returns boolean {
+    boolean testPassed = false;
+    Foo[] fooArr = [{v: "foo1"}, {v: "foo2"}];
+    stream<Foo>|stream<Bar> fooBarStream = fooArr.toStream();
+    record {|Foo|Bar value;|}|error? res = fooBarStream.next();
+    if (res is record {|Foo value;|}) {
+        testPassed = (res.value == {v: "foo1"});
+    }
+    testPassed = testPassed && functionWithStreamArgs(fooBarStream);
+    return testPassed;
+}
+
+function functionWithStreamArgs(stream<any|error> str) returns boolean {
+    record {|any|error value;|}? res = str.next();
+    if (res is record {|Foo value;|}) {
+        return res.value == {v: "foo2"};
+    }
+    return false;
 }

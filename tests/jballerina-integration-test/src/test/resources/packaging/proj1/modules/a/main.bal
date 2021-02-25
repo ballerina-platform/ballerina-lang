@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object;
 import ballerina/test;
 
 int count = 0;
@@ -73,10 +72,10 @@ public class ABC {
        }
     }
 
-    public function attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string[]? name) returns error? {
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 }
 

@@ -20,17 +20,28 @@ function assertTrue(any|error actual) {
     if actual is boolean && actual {
         return;
     }
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'true', found '" + actual.toString () + "'");
+
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found '" + actualValAsString + "'");
 }
 
 function assertEqual(anydata|error expected, anydata|error actual) {
-    if expected == actual {
+    if isEqual(expected, actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {
+    if (val1 is anydata && val2 is anydata) {
+        return (val1 == val2);
+    } else {
+        return (val1 === val2);
+    }
 }
 
 function testSimpleUnion() {

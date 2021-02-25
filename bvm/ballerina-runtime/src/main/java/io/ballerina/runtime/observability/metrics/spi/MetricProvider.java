@@ -63,6 +63,7 @@ public interface MetricProvider {
 
     /**
      * This returns the new instance of the Polled Gauge metric.
+     *
      * @param metricId ID of the metric that needs to be returned.
      * @param obj State object used to compute a value.
      * @param toDoubleFunction Function that produces an instantaneous gauge value from the state object.
@@ -70,5 +71,4 @@ public interface MetricProvider {
      * @return PolledGauge Instance created.
      */
     <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction);
-
 }

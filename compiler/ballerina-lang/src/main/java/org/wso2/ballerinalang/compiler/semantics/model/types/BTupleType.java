@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -37,7 +36,7 @@ public class BTupleType extends BType implements TupleType {
 
     public List<BType> tupleTypes;
     public BType restType;
-    private Optional<Boolean> isAnyData = Optional.empty();
+    public Boolean isAnyData = null;
 
     public BIntersectionType immutableType;
 
@@ -83,28 +82,6 @@ public class BTupleType extends BType implements TupleType {
                 + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
 
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
-    }
-
-    @Override
-    public final boolean isAnydata() {
-        if (this.isAnyData.isPresent()) {
-            return this.isAnyData.get();
-        }
-
-        for (BType memberType : this.tupleTypes) {
-            if (!memberType.isPureType()) {
-                this.isAnyData = Optional.of(false);
-                return false;
-            }
-        }
-
-        if (this.restType != null && !this.restType.isPureType()) {
-            this.isAnyData = Optional.of(false);
-            return false;
-        }
-
-        this.isAnyData = Optional.of(true);
-        return true;
     }
 
     @Override

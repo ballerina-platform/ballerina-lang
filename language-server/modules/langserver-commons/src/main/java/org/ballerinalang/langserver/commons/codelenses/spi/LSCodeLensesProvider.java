@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.commons.codelenses.spi;
 
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
 import org.eclipse.lsp4j.CodeLens;
 
@@ -46,7 +47,8 @@ public interface LSCodeLensesProvider {
     /**
      * Mark code lenses provider is enabled or not.
      *
+     * @param serverContext {@link LanguageServerContext}
      * @return True when enabled, false otherwise
      */
-    boolean isEnabled();
+    boolean isEnabled(LanguageServerContext serverContext);
 }

@@ -24,8 +24,7 @@ import org.ballerinalang.build.kaitai.Bir;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
@@ -35,13 +34,10 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -91,12 +87,16 @@ class BIRTestUtils {
     }
 
     static void validateBIRSpec(String testSource) {
-        BIRCompileResult compileResult = compile(testSource);
-        BIRNode.BIRPackage expectedBIRModule = compileResult.getExpectedBIR();
-        Bir actualBIR = compileResult.getActualBIR();
+        BCompileUtil.BIRCompileResult compileResult = BCompileUtil.generateBIR(testSource);
+        Assert.assertNotNull(compileResult, "Compilation may contain errors!");
 
-        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = actualBIR.constantPool().constantPoolEntries();
-        Bir.Module actualBIRModule = actualBIR.module();
+        BIRNode.BIRPackage expectedBIRModule = compileResult.getExpectedBIR();
+        byte[] actualBIRbinary = compileResult.getActualBIR();
+        Bir kaitaiBir = new Bir(new ByteBufferKaitaiStream(actualBIRbinary));
+
+
+        ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = kaitaiBir.constantPool().constantPoolEntries();
+        Bir.Module actualBIRModule = kaitaiBir.module();
 
         // assert constants
         assertValues(expectedBIRModule, actualBIRModule, constantPoolEntries);
@@ -109,22 +109,6 @@ class BIRTestUtils {
 
         // assert functions
         assertFunctions(expectedBIRModule, actualBIRModule, constantPoolEntries);
-    }
-
-    private static BIRCompileResult compile(String testSource) {
-        CompileResult result = BCompileUtil.compileAndGetBIR(testSource);
-        Assert.assertEquals(result.getErrorCount(), 0);
-
-        BPackageSymbol packageSymbol = ((BLangPackage) result.getAST()).symbol;
-
-        BIRPackageFile birPackageFile = packageSymbol.birPackageFile;
-        Assert.assertNotNull(birPackageFile);
-
-        byte[] birBinaryContent = birPackageFile.pkgBirBinaryContent;
-        Assert.assertNotNull(birBinaryContent);
-
-        Bir kaitaiBir = new Bir(new ByteBufferKaitaiStream(birBinaryContent));
-        return new BIRCompileResult(packageSymbol.bir, kaitaiBir);
     }
 
     private static void assertFunctions(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
@@ -441,7 +425,7 @@ class BIRTestUtils {
 
             // assert name
             assertConstantPoolEntry(constantPoolEntries.get(actualTypeDefinition.nameCpIndex()),
-                    expectedTypeDefinition.name.value);
+                    expectedTypeDefinition.internalName.value);
 
             // assert flags
             assertFlags(actualTypeDefinition.flags(), expectedTypeDefinition.flags);
@@ -641,28 +625,6 @@ class BIRTestUtils {
                 break;
             default:
                 Assert.fail(String.format("Unknown constant value type: %s", typeTag.name()));
-        }
-    }
-
-    /**
-     * Class to hold both expected and actual compile result of BIR.
-     */
-    static class BIRCompileResult {
-
-        private BIRNode.BIRPackage expectedBIR;
-        private Bir actualBIR;
-
-        BIRCompileResult(BIRNode.BIRPackage expectedBIR, Bir actualBIR) {
-            this.expectedBIR = expectedBIR;
-            this.actualBIR = actualBIR;
-        }
-
-        BIRNode.BIRPackage getExpectedBIR() {
-            return expectedBIR;
-        }
-
-        Bir getActualBIR() {
-            return actualBIR;
         }
     }
 

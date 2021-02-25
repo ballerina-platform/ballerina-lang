@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codelenses.providers;
 
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
 
 /**
@@ -49,7 +50,7 @@ public abstract class AbstractCodeLensesProvider implements LSCodeLensesProvider
      * {@inheritDoc}
      */
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled(LanguageServerContext serverContext) {
         return isEnabled;
     }
 }

@@ -19,15 +19,15 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
@@ -36,7 +36,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringVal
 /**
  * Ballerina xml variable type.
  */
-public class BXmlSequence extends BCompoundVariable {
+public class BXmlSequence extends IndexedCompoundVariable {
 
     private static final String FIELD_CHILDREN = "children";
     private static final String FIELD_ELEMENT_DATA = "elementData";
@@ -55,27 +55,45 @@ public class BXmlSequence extends BCompoundVariable {
     }
 
     @Override
-    public Map<String, Value> computeChildVariables() {
-        Map<String, Value> childMap = new HashMap<>();
+    public Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
+        List<Value> childValues = new ArrayList<>();
         try {
             Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
-            if (!children.isPresent()) {
-                return childMap;
+            if (children.isEmpty()) {
+                return Either.forRight(childValues);
             }
             Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), FIELD_ELEMENT_DATA);
-            if (!childArray.isPresent()) {
-                return childMap;
+            if (childArray.isEmpty()) {
+                return Either.forRight(childValues);
             }
-            List<Value> childrenValues = ((ArrayReference) childArray.get()).getValues();
-            AtomicInteger index = new AtomicInteger();
-            childrenValues.forEach(ref -> {
-                if (ref != null) {
-                    childMap.put(Integer.toString(index.getAndIncrement()), ref);
-                }
-            });
-            return childMap;
+
+            // If count > 0, returns a sublist of the child variables
+            // If count == 0, returns all child variables
+            if (count > 0) {
+                childValues = ((ArrayReference) childArray.get()).getValues(start, count);
+            } else {
+                childValues = ((ArrayReference) childArray.get()).getValues();
+            }
+            return Either.forRight(childValues);
         } catch (Exception e) {
-            return childMap;
+            return Either.forRight(childValues);
+        }
+    }
+
+    @Override
+    public int getChildrenCount() {
+        try {
+            Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
+            if (children.isEmpty()) {
+                return 0;
+            }
+            Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), FIELD_ELEMENT_DATA);
+            if (childArray.isEmpty()) {
+                return 0;
+            }
+            return ((ArrayReference) childArray.get()).length();
+        } catch (Exception e) {
+            return 0;
         }
     }
 }

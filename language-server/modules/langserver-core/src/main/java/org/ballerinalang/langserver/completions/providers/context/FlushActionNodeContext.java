@@ -19,7 +19,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.FlushActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -35,14 +35,14 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class FlushActionNodeContext extends AbstractCompletionProvider<FlushActionNode> {
     public FlushActionNodeContext() {
         super(FlushActionNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, FlushActionNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FlushActionNode node)
             throws LSCompletionException {
         // TODO: Following logic can be generalized
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
@@ -52,7 +52,8 @@ public class FlushActionNodeContext extends AbstractCompletionProvider<FlushActi
 
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getCompletionItemList(filteredWorkers, context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
-
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 }

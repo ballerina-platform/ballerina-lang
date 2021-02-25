@@ -17,9 +17,6 @@
  */
 package io.ballerina.tools.diagnostics;
 
-import java.util.Collection;
-import java.util.Collections;
-
 /**
  * Represents a abstract shape of a {@code Diagnostic} that is independent of
  * the location and message arguments.
@@ -31,22 +28,13 @@ public class DiagnosticInfo {
     private final String code;
     private final String messageTemplate;
     private final DiagnosticSeverity severity;
-    private final Collection<DiagnosticRelatedInformation> relatedInformation;
 
     public DiagnosticInfo(String code,
                           String messageTemplate,
                           DiagnosticSeverity severity) {
-        this(code, messageTemplate, severity, Collections.emptyList());
-    }
-
-    public DiagnosticInfo(String code,
-                          String messageTemplate,
-                          DiagnosticSeverity severity,
-                          Collection<DiagnosticRelatedInformation> relatedInformation) {
         this.code = code;
         this.messageTemplate = messageTemplate;
         this.severity = severity;
-        this.relatedInformation = relatedInformation;
     }
 
     public String code() {
@@ -59,9 +47,5 @@ public class DiagnosticInfo {
 
     public DiagnosticSeverity severity() {
         return severity;
-    }
-
-    public Collection<DiagnosticRelatedInformation> relatedInformation() {
-        return relatedInformation;
     }
 }

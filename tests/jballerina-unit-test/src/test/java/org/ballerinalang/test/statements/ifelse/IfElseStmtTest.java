@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -265,5 +266,12 @@ public class IfElseStmtTest {
                 "incompatible types: expected 'boolean', found 'int'", 37, 15);
         BAssertUtil.validateError(semanticsNegativeResult, 5,
                 "incompatible types: expected 'boolean', found '[int,string]'", 41, 8);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
+        semanticsNegativeResult = null;
     }
 }

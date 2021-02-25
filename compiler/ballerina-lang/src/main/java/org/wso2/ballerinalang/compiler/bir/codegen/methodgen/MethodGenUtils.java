@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
@@ -64,10 +64,6 @@ public class MethodGenUtils {
 
     static boolean isModuleInitFunction(BIRNode.BIRFunction func) {
         return func.name.value.equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
-    }
-
-    static PackageID packageToModuleId(BIRNode.BIRPackage mod) {
-        return new PackageID(mod.org, mod.name, mod.version);
     }
 
     static void submitToScheduler(MethodVisitor mv, String moduleClassName,

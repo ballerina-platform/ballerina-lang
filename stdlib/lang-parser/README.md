@@ -292,7 +292,7 @@ Sample serialized json output:
 #### Unit Tests
 To execute the Unit tests, run the following command from the <PROJECT_ROOT_DIRECTORY>
 
- `ballerina test parserModule` 
+ `bal test parserModule` 
  
  serialized JSON outputs for the unit tests can be found below.
  

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object;
 import ballerina/test;
 
 int initCount = 0;

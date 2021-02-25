@@ -40,7 +40,7 @@ public function afterEachFunc() {
 
 // 2nd function
 @test:Config {
-    dependsOn:["testFunc"]
+    dependsOn: [testFunc]
 }
 public function testFunc2() {
     test:assertEquals(testString, "beforeEachtestafterEachbeforeEach");
@@ -48,7 +48,7 @@ public function testFunc2() {
 
 // 2nd function
 @test:Config {
-    dependsOn:["testFunc2"]
+    dependsOn: [testFunc2]
 }
 public function testFunc3() {
     test:assertEquals(testString, "beforeEachtestafterEachbeforeEachafterEachbeforeEach");

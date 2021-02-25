@@ -39,6 +39,8 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
@@ -53,7 +55,9 @@ import org.ballerinalang.debugadapter.evaluation.engine.MethodCallExpressionEval
 import org.ballerinalang.debugadapter.evaluation.engine.OptionalFieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.StringTemplateEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.TypeCastExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.TypeOfExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.TypeTestExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.UnaryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.XMLTemplateEvaluator;
 
@@ -66,7 +70,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.REST_ARG_IDENTIFIER;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
 
 /**
  * A {@code NodeVisitor} based implementation used to traverse and capture evaluatable segments of a parsed ballerina
@@ -94,6 +98,7 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.REST_ARG
  * <li> XML template expression
  * <li> Shift expression
  * <li> Unary expression
+ * <li> Type test expression
  * </ul>
  * <br>
  * To be Implemented.
@@ -106,7 +111,6 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.REST_ARG
  * <li> Let expression
  * <li> Type cast expression
  * <li> Range expression
- * <li> Type test expression
  * <li> Checking expression
  * <li> Trap expression
  * <li> Query expression
@@ -138,11 +142,11 @@ public class EvaluatorBuilder extends NodeVisitor {
     public Evaluator build(ExpressionNode parsedExpr) throws EvaluationException {
         clearState();
         // Uses `ExpressionIdentifierModifier` to modify and encode all the identifiers within the expression.
-        parsedExpr = (ExpressionNode) parsedExpr.apply(new ExpressionIdentifierModifier());
+        parsedExpr = (ExpressionNode) parsedExpr.apply(new IdentifierModifier());
         parsedExpr.accept(this);
         if (unsupportedSyntaxDetected()) {
             final StringJoiner errors = new StringJoiner(System.lineSeparator());
-            unsupportedNodes.forEach(node -> errors.add(String.format("%s - %s", node.toString(), node.kind())));
+            unsupportedNodes.forEach(node -> errors.add(String.format("'%s' - %s", node.toString(), node.kind())));
             throw new EvaluationException(String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
                     errors));
         }
@@ -274,6 +278,22 @@ public class EvaluatorBuilder extends NodeVisitor {
     public void visit(RestArgumentNode restArgumentNode) {
         visitSyntaxNode(restArgumentNode);
         restArgumentNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(TypeTestExpressionNode typeTestExpressionNode) {
+        visitSyntaxNode(typeTestExpressionNode);
+        typeTestExpressionNode.expression().accept(this);
+        Evaluator exprEvaluator = result;
+        result = new TypeTestExpressionEvaluator(context, typeTestExpressionNode, exprEvaluator);
+    }
+
+    @Override
+    public void visit(TypeCastExpressionNode typeCastExpressionNode) {
+        visitSyntaxNode(typeCastExpressionNode);
+        typeCastExpressionNode.expression().accept(this);
+        Evaluator exprEvaluator = result;
+        result = new TypeCastExpressionEvaluator(context, typeCastExpressionNode, exprEvaluator);
     }
 
     @Override
@@ -475,7 +495,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addTypeCastExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.TYPE_CAST_EXPRESSION);
     }
 
     private void addTypeOfExpressionSyntax() {
@@ -516,7 +536,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addTypeTestExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.TYPE_TEST_EXPRESSION);
     }
 
     private void addEqualityExpressionSyntax() {

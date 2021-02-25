@@ -28,6 +28,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.util.BFileUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -201,5 +202,11 @@ public class XMLTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetGlobalXML");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<test><name>ballerina</name></test>");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        literalWithNamespacesResult = null;
     }
 }

@@ -20,11 +20,12 @@ import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.NilLiteralNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 /**
  * Evaluator implementation for Basic literals.
@@ -36,16 +37,22 @@ public class BasicLiteralEvaluator extends Evaluator {
     private final Node syntaxNode;
     private final String literalString;
 
-    public BasicLiteralEvaluator(SuspendedContext context, Node node) {
-        super(context);
-        this.syntaxNode = node;
-        this.literalString = node.toSourceCode();
+    public BasicLiteralEvaluator(SuspendedContext context, BasicLiteralNode node) {
+        this(context, node, node.literalToken().text());
     }
 
     public BasicLiteralEvaluator(SuspendedContext context, NilLiteralNode node) {
+        this(context, node, node.toSourceCode().trim());
+    }
+
+    public BasicLiteralEvaluator(SuspendedContext context, Token node) {
+        this(context, node, node.text());
+    }
+
+    private BasicLiteralEvaluator(SuspendedContext context, Node node, String literalString) {
         super(context);
         this.syntaxNode = node;
-        this.literalString = node.toSourceCode().trim();
+        this.literalString = literalString;
     }
 
     @Override
@@ -59,17 +66,17 @@ public class BasicLiteralEvaluator extends Evaluator {
                 if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
                     // int literal
                     // Todo - Add hex int literal support
-                    return EvaluationUtils.make(context, Long.parseLong(literalString.trim()));
+                    return VMUtils.make(context, Long.parseLong(literalString.trim()));
                 } else {
                     // float literal
                     // Todo - Add hex float literal support
-                    return EvaluationUtils.make(context, Double.parseDouble(literalString.trim()));
+                    return VMUtils.make(context, Double.parseDouble(literalString.trim()));
                 }
             case BOOLEAN_LITERAL:
-                return EvaluationUtils.make(context, Boolean.parseBoolean(literalString.trim()));
+                return VMUtils.make(context, Boolean.parseBoolean(literalString.trim()));
             case STRING_LITERAL:
             case TEMPLATE_STRING:
-                return EvaluationUtils.make(context, literalString);
+                return VMUtils.make(context, literalString);
             default:
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                         "Unsupported basic literal detected: " + literalString));

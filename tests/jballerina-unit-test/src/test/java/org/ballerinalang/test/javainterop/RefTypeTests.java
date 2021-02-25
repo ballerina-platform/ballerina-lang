@@ -44,6 +44,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -413,5 +414,10 @@ public class RefTypeTests {
     public static io.ballerina.runtime.api.values.BString useHandle(HandleValue h) {
         Map<String, String> m = (Map<String, String>) h.getValue();
         return StringUtils.fromString(m.get("name"));
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

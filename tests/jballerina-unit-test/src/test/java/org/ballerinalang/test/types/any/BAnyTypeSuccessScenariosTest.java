@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -143,5 +144,10 @@ public class BAnyTypeSuccessScenariosTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "anyArrayWithMapArray", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BValueArray.class);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

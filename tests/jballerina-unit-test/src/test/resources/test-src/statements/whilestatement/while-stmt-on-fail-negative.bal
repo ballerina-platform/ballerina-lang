@@ -29,7 +29,7 @@ function testIncompatibleErrorTypeOnFail (int i) returns string {
    while (count < 5) {
      count += 1;
      str += "Before failure throw";
-     fail ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
+     fail error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
    }
    on fail ErrorTypeB e {
       str += "-> Error caught ! ";
@@ -44,7 +44,7 @@ function testIgnoreReturnInOnFail (int i) returns string {
    while (count < 5) {
      count += 1;
      str += "Before failure throw";
-     fail ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
+     fail error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
    }
    on fail ErrorTypeA e {
       str += "-> Error caught ! ";
@@ -60,7 +60,7 @@ function testUnreachableInOnFail (int i) returns string {
    while (count < 5) {
      count += 1;
      str += "Before failure throw";
-     fail ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
+     fail error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
    }
    on fail ErrorTypeA e {
       str += "-> Error caught ! ";
@@ -85,11 +85,11 @@ function testReturnWitihinDo(int i) returns string {
 function testOnFailWithUnion (int i) returns string {
    string str = "";
    var getTypeAError = function () returns int|ErrorTypeA{
-       ErrorTypeA errorA = ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
+       ErrorTypeA errorA = error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
        return errorA;
    };
    var getTypeBError = function () returns int|ErrorTypeB{
-       ErrorTypeB errorB = ErrorTypeB(TYPE_B_ERROR_REASON, message = "Error Type B");
+       ErrorTypeB errorB = error ErrorTypeB(TYPE_B_ERROR_REASON, message = "Error Type B");
        return errorB;
    };
    int count = i;

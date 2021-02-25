@@ -429,16 +429,16 @@ function testListMatchPattern16() {
 function listMatchPattern17(any x) returns string {
     match x {
         [var s, var i] if s is string => {
-            return "Matched with string : " + s + " added text with " + i.toString();
+            return "Matched with string : " + s + " added text with " + (checkpanic i).toString();
         }
         [var s, var i] if s is float => {
-            return "Matched with float : " + (s + 4.5).toString() + " with " + i.toString();
+            return "Matched with float : " + (s + 4.5).toString() + " with " + (checkpanic i).toString();
         }
         [var s, var i] if i is int => {
-            return "Matched with int : " + s.toString() + " with " + (i + 3456).toString();
+            return "Matched with int : " + (checkpanic s).toString() + " with " + (i + 3456).toString();
         }
         [var s, var i] if i is boolean => {
-            return "Matched with boolean : " + s.toString() + ", " + i.toString();
+            return "Matched with boolean : " + (checkpanic s).toString() + ", " + i.toString();
         }
         var y => {
             return "Matched with default type - float : " + y.toString();
@@ -464,16 +464,18 @@ function testListMatchPattern17() {
 function listMatchPattern18(any x) returns string {
     match x {
         [var s, var i, var f] if s is string => {
-            return "Matched with string : " + s + " added text with " + i.toString();
+            return "Matched with string : " + s + " added text with " + (checkpanic i).toString();
         }
         [var s, [var i, var f]] if s is float => {
-            return "Matched with float : " + (s + 4.5).toString() + " with " + i.toString() + " and " + f.toString();
+            return "Matched with float : " + (s + 4.5).toString() + " with " + (checkpanic i).toString()
+                                                                            + " and " + (checkpanic f).toString();
         }
         [[var s, var i], var f] if i is int => {
-            return "Matched with int : " + s.toString() + " with " + (i + 3456).toString() + " and " + f.toString();
+            return "Matched with int : " + (checkpanic s).toString() + " with " + (i + 3456).toString()
+                                                                            + " and " + (checkpanic f).toString();
         }
         [var s, var i] if i is boolean => {
-            return "Matched with boolean : " + s.toString() + ", " + i.toString();
+            return "Matched with boolean : " + (checkpanic s).toString() + ", " + i.toString();
         }
     }
     return "Default";
@@ -558,6 +560,57 @@ function testListMatchPattern19() {
                                 listMatchPattern19(a6));
     assertEquals("Default" ,listMatchPattern19(a7));
     assertEquals("Default" ,listMatchPattern19(a8));
+}
+
+function listMatchPattern20() returns string {
+    [boolean, string] | [int, string, decimal] v = [1, "A", 1.1d];
+    match v {
+        [var i, ...var s] => {
+            return "i: " + i.toString() + " s: " + s.toString();
+        }
+    }
+}
+
+function testListMatchPattern20() {
+    assertEquals("i: 1 s: [\"A\",1.1]", listMatchPattern20());
+}
+
+function listMatchPattern21(int[] v) returns int {
+    match v {
+        [var a, var b, ...var c] => {
+            return a + b + c[0];
+        }
+    }
+    return -1;
+}
+
+function testListMatchPattern21() {
+    assertEquals(6, listMatchPattern21([1, 2, 3, 4, 5]));
+}
+
+function listMatchPattern22(int[5] v) returns int {
+    match v {
+        [var a, var b, ...var c] => {
+            return a + b + c[1];
+        }
+    }
+}
+
+function testListMatchPattern22() {
+    assertEquals(7, listMatchPattern22([1, 2, 3, 4, 5]));
+}
+
+function listMatchPattern23(any[] v) returns string {
+    match v {
+        [var a, var b, ...var c] => {
+            return a.toString();
+        }
+    }
+    return "No Match";
+}
+
+function testListMatchPattern23() {
+    assertEquals("1", listMatchPattern23([1, 2, 3, 4, 5]));
 }
 
 function assertEquals(anydata expected, anydata actual) {

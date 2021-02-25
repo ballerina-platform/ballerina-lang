@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.XmlFactory;
 
 import java.util.ArrayList;
@@ -50,6 +51,9 @@ public class Concat {
                 BXml xmlText = XmlFactory.createXMLText((BString) refValue);
                 backingArray.add(xmlText);
                 lastItem = xmlText;
+            } else if (refValue instanceof BXmlSequence) {
+                backingArray.addAll(((BXmlSequence) refValue).getChildrenList());
+                lastItem = (BXml) refValue;
             } else {
                 backingArray.add((BXml) refValue);
                 lastItem = (BXml) refValue;

@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
@@ -60,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -135,6 +136,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -185,7 +187,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
  *
  * @since 2.0.0
  */
-class SymbolFinder extends BLangNodeVisitor {
+class SymbolFinder extends BaseVisitor {
 
     private LinePosition cursorPos;
     private BSymbol symbolAtCursor;
@@ -255,6 +257,7 @@ class SymbolFinder extends BLangNodeVisitor {
             return;
         }
 
+        lookupNodes(funcNode.annAttachments);
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
         lookupNode(funcNode.returnTypeNode);
@@ -294,6 +297,7 @@ class SymbolFinder extends BLangNodeVisitor {
             return;
         }
 
+        lookupNodes(typeDefinition.annAttachments);
         lookupNode(typeDefinition.typeNode);
     }
 
@@ -466,6 +470,12 @@ class SymbolFinder extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangDo doNode) {
+        lookupNode(doNode.body);
+        lookupNode(doNode.onFailClause);
+    }
+
+    @Override
     public void visit(BLangFromClause fromClause) {
         lookupNode(fromClause.collection);
         lookupNode((BLangNode) fromClause.variableDefinitionNode);
@@ -516,6 +526,12 @@ class SymbolFinder extends BLangNodeVisitor {
     @Override
     public void visit(BLangDoClause doClause) {
         lookupNode(doClause.body);
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        lookupNode((BLangNode) onFailClause.variableDefinitionNode);
+        lookupNode(onFailClause.body);
     }
 
     @Override
@@ -666,7 +682,7 @@ class SymbolFinder extends BLangNodeVisitor {
             return;
         }
 
-        lookupNodes(invocationExpr.requiredArgs);
+        lookupNodes(invocationExpr.argExprs);
         lookupNodes(invocationExpr.restArgs);
         lookupNode(invocationExpr.expr);
     }
@@ -1039,6 +1055,13 @@ class SymbolFinder extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorType errorType) {
         lookupNode(errorType.detailType);
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        lookupNode(errorConstructorExpr.errorTypeRef);
+        lookupNodes(errorConstructorExpr.positionalArgs);
+        lookupNodes(errorConstructorExpr.namedArgs);
     }
 
     @Override

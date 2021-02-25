@@ -163,7 +163,7 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
                     .values().toArray(new BField[0]);
             if (internalStructFields != null) {
                 for (int i = 0; i < internalStructFields.length; i++) {
-                    BString internalKeyName = StringUtils.fromString(internalStructFields[i].name);
+                    BString internalKeyName = StringUtils.fromString(internalStructFields[i].getFieldName());
                     Object val = structData.get(internalKeyName);
                     xmlStreamWriter.writeStartElement("", internalStructFields[i].getFieldName(), "");
                     if (val instanceof MapValueImpl) {

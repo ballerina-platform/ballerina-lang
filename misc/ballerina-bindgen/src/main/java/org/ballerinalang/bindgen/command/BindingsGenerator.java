@@ -17,20 +17,22 @@
  */
 package org.ballerinalang.bindgen.command;
 
+import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.ManifestBuilder;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.model.JClass;
 import org.ballerinalang.bindgen.model.JError;
+import org.ballerinalang.bindgen.utils.BindgenEnv;
 import org.ballerinalang.bindgen.utils.BindgenMvnResolver;
-import org.ballerinalang.toml.model.Library;
-import org.ballerinalang.toml.model.Manifest;
-import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,10 +45,10 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NA
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.MODULES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.getExistingBindings;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getUpdatedConstantsList;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
@@ -58,8 +60,9 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
  */
 public class BindingsGenerator {
 
+    private final BindgenEnv env;
+
     private Path modulePath;
-    private Path projectRoot;
     private Path dependenciesPath;
     private Path utilsDirPath;
     private String mvnGroupId;
@@ -69,13 +72,10 @@ public class BindingsGenerator {
     private PrintStream errStream;
     private PrintStream outStream;
     private Set<String> classNames = new HashSet<>();
-
-    private static String outputPath;
-    private static boolean directJavaClass = true;
-    private static Set<String> classPaths = new HashSet<>();
-    private static Path userDir = Paths.get(System.getProperty(USER_DIR));
+    private Path userDir = Paths.get(System.getProperty(USER_DIR));
 
     private static Set<String> allClasses = new HashSet<>();
+    private static Set<String> allPackages = new HashSet<>();
     private static Set<String> classListForLooping = new HashSet<>();
     private static Set<String> allJavaClasses = new HashSet<>();
     private static Set<JError> exceptionList = new HashSet<>();
@@ -86,6 +86,7 @@ public class BindingsGenerator {
     BindingsGenerator(PrintStream out, PrintStream err) {
         this.outStream = out;
         this.errStream = err;
+        this.env = new BindgenEnv();
     }
 
     void generateJavaBindings() throws BindgenException {
@@ -95,7 +96,8 @@ public class BindingsGenerator {
         // Resolve the maven dependency received through the tool and update the Ballerina.toml file
         // with the direct and transitive platform.libraries
         if ((mvnGroupId != null) && (mvnArtifactId != null) && (mvnVersion != null)) {
-            new BindgenMvnResolver(outStream).mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion, projectRoot, true);
+            new BindgenMvnResolver(outStream, env).mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion,
+                    env.getProjectRoot(), true);
         }
 
         ClassLoader classLoader = setClassLoader();
@@ -109,13 +111,11 @@ public class BindingsGenerator {
             // Generate bindings for dependent Java classes.
             if (!classListForLooping.isEmpty()) {
                 outStream.println("\nGenerating dependency bindings for: ");
-                setDependentJavaClass();
+                env.setDirectJavaClass(false);
             }
             while (!classListForLooping.isEmpty()) {
                 Set<String> newSet = new HashSet<>(classListForLooping);
                 newSet.removeAll(classNames);
-                List<String> existingBindings = getExistingBindings(newSet, modulePath.toFile());
-                newSet.removeAll(existingBindings);
                 allJavaClasses.addAll(newSet);
                 classListForLooping.clear();
                 generateBindings(newSet, classLoader, dependenciesPath);
@@ -139,29 +139,55 @@ public class BindingsGenerator {
     }
 
     private void resolvePlatformLibraries() throws BindgenException {
-        if (projectRoot != null) {
-            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-            if (manifest != null) {
-                List<Library> platformLibraries = manifest.getPlatform().getLibraries();
-                if (platformLibraries != null) {
-                    for (Library library : platformLibraries) {
-                        if (library.path != null) {
-                            classPaths.add(Paths.get(projectRoot.toString(), library.path).toString());
-                        } else if (library.groupId != null && library.artifactId != null && library.version != null) {
-                            new BindgenMvnResolver(outStream).mavenResolver(library.groupId, library.artifactId,
-                                    library.version, projectRoot, false);
-                        }
+        if (env.getProjectRoot() != null) {
+            TomlDocument tomlDocument = env.getTomlDocument();
+            PackageManifest.Platform platform = getPackagePlatform(tomlDocument);
+            if (platform != null && platform.dependencies() != null) {
+                for (Map<String, Object> library : platform.dependencies()) {
+                    if (library.get("path") != null) {
+                        handlePathDependency(library.get("path").toString());
+                    } else if (library.get("groupId") != null && library.get("artifactId") != null &&
+                            library.get("version") != null) {
+                        resolveMvnDependency(library.get("groupId").toString(),
+                                library.get("artifactId").toString(), library.get("version").toString());
                     }
                 }
             }
         }
     }
 
+    private PackageManifest.Platform getPackagePlatform(TomlDocument tomlDocument) {
+        if (tomlDocument != null) {
+            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
+                    env.getProjectRoot()).packageManifest();
+            if (packageManifest != null) {
+                return packageManifest.platform(JvmTarget.JAVA_11.code());
+            }
+        }
+        return null;
+    }
+
+    private void handlePathDependency(String libPath) {
+        Path libraryPath;
+        if (Paths.get(libPath).isAbsolute()) {
+            libraryPath = Paths.get(libPath);
+        } else {
+            libraryPath = Paths.get(env.getProjectRoot().toString(), libPath);
+        }
+        env.addClasspath(libraryPath.toString());
+    }
+
+    private void resolveMvnDependency(String mvnGroupId, String mvnArtifactId, String mvnVersion)
+            throws BindgenException {
+        new BindgenMvnResolver(outStream, env).mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion,
+                env.getProjectRoot(), false);
+    }
+
     private ClassLoader setClassLoader() throws BindgenException {
         ClassLoader classLoader;
         try {
-            if (!classPaths.isEmpty()) {
-                classLoader = getClassLoader(classPaths, this.getClass().getClassLoader());
+            if (!env.getClassPaths().isEmpty()) {
+                classLoader = getClassLoader(env.getClassPaths(), this.getClass().getClassLoader());
             } else {
                 outStream.println("\nNo classpaths were detected.");
                 classLoader = this.getClass().getClassLoader();
@@ -174,16 +200,16 @@ public class BindingsGenerator {
 
     private void setDirectoryPaths() throws BindgenException {
         String userPath = userDir.toString();
-        if (outputPath != null) {
+        String outputPath = env.getOutputPath();
+        if (env.getModulesFlag()) {
+            userPath = Paths.get(userPath, MODULES_DIR).toString();
+        } else if (outputPath != null) {
             if (!Paths.get(outputPath).toFile().exists()) {
                 throw new BindgenException("Output path provided [" + outputPath + "] could not be found.");
             }
             userPath = outputPath;
         }
-        // The folder structure is flattened to address the Project API changes.
-        modulePath = Paths.get(userPath);
-        dependenciesPath = Paths.get(userPath);
-        utilsDirPath = Paths.get(userPath);
+        utilsDirPath = dependenciesPath = modulePath = Paths.get(userPath);
     }
 
     private void handleFailedClassGens() {
@@ -201,31 +227,48 @@ public class BindingsGenerator {
         createDirectory(utilsDirStrPath);
 
         // Create the Constants.bal file.
-        Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
-        Set<String> names = new HashSet<>(allClasses);
-        if (constantsPath.toFile().exists()) {
-            getUpdatedConstantsList(constantsPath, names);
-        }
-        if (!names.isEmpty()) {
-            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
+        if (!env.getModulesFlag()) {
+            Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
+            generateConstantFiles(constantsPath);
+        } else {
+            for (String packagePath : allPackages) {
+                Path constantsPath = Paths.get(modulePath.toString(), packagePath, CONSTANTS_FILE_NAME);
+                generateConstantFiles(constantsPath);
+            }
         }
 
         // Create the .bal files for Ballerina error types.
         for (JError jError : exceptionList) {
             jError.setAccessModifier(accessModifier);
             String fileName = jError.getShortExceptionName() + BAL_EXTENSION;
+            if (env.getModulesFlag()) {
+                utilsDirStrPath = Paths.get(modulePath.toString(), jError.getPackageName()).toString();
+                createDirectory(utilsDirStrPath);
+            }
             // The folder structure is flattened to address the Project API changes.
             writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
                     Paths.get(utilsDirStrPath, fileName).toString(), false);
         }
     }
 
-    static void setOutputPath(String output) {
-        outputPath = output;
+    private void generateConstantFiles(Path constantPaths) throws BindgenException {
+        Set<String> names = new HashSet<>(allClasses);
+        if (constantPaths.toFile().exists()) {
+            getUpdatedConstantsList(constantPaths, names);
+        }
+        if (!names.isEmpty()) {
+            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantPaths.toString(), true);
+        }
+    }
+
+    void setOutputPath(String output) {
+        this.env.setOutputPath(output);
     }
 
     void setDependentJars(String[] jarPaths) {
-        Collections.addAll(classPaths, jarPaths);
+        for (String path : jarPaths) {
+            env.addClasspath(path);
+        }
     }
 
     void setClassNames(List<String> classNames) {
@@ -240,29 +283,26 @@ public class BindingsGenerator {
                 if (classLoader != null) {
                     Class classInstance = classLoader.loadClass(c);
                     if (classInstance != null && isPublicClass(classInstance)) {
-                        JClass jClass = new JClass(classInstance);
+                        JClass jClass = new JClass(classInstance, env);
                         jClass.setAccessModifier(accessModifier);
-                        // The folder structure is flattened to address the Project API changes.
-                        String filePath = Paths.get(modulePath.toString(), jClass.getShortClassName()
-                                + BAL_EXTENSION).toString();
+                        allPackages.add(jClass.getPackageName());
+                        String filePath;
+                        if (env.getModulesFlag()) {
+                            String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
+                            createDirectory(outputFile);
+                            filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
+                        } else {
+                            filePath = Paths.get(modulePath.toString(), jClass.getShortClassName()
+                                    + BAL_EXTENSION).toString();
+                        }
                         writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
                         outStream.println("\t" + c);
                     }
                 }
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
                 failedClassGens.put(c, e.toString());
-            } catch (BindgenException e) {
-                throw new BindgenException("Error while generating Ballerina bridge code: " + e);
             }
         }
-    }
-
-    public static boolean isDirectJavaClass() {
-        return directJavaClass;
-    }
-
-    private static void setDependentJavaClass() {
-        BindingsGenerator.directJavaClass = false;
     }
 
     public static Set<String> getAllJavaClasses() {
@@ -281,10 +321,6 @@ public class BindingsGenerator {
         BindingsGenerator.exceptionList.add(exception);
     }
 
-    void setProjectRoot(Path projectRoot) {
-        this.projectRoot = projectRoot;
-    }
-
     void setMvnGroupId(String mvnGroupId) {
         this.mvnGroupId = mvnGroupId;
     }
@@ -297,15 +333,15 @@ public class BindingsGenerator {
         this.mvnVersion = mvnVersion;
     }
 
-    public static void setClassPaths(String classPath) {
-        BindingsGenerator.classPaths.add(classPath);
-    }
-
-    public static String getOutputPath() {
-        return outputPath;
-    }
-
     void setPublic() {
         this.accessModifier = "public ";
+    }
+
+    void setModulesFlag(boolean modulesFlag) {
+        this.env.setModulesFlag(modulesFlag);
+    }
+
+    void setProject(Project project) {
+        this.env.setProject(project);
     }
 }

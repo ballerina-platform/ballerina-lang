@@ -605,7 +605,7 @@
               "kind": "LIST",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
+                  "kind": "LITERAL_STRING",
                   "children": [
                     {
                       "kind": "SINGLE_QUOTE_TOKEN"
@@ -666,7 +666,7 @@
               "kind": "LIST",
               "children": [
                 {
-                  "kind": "STRING_LITERAL",
+                  "kind": "LITERAL_STRING",
                   "children": [
                     {
                       "kind": "SINGLE_QUOTE_TOKEN"

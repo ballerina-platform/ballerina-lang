@@ -43,7 +43,8 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(resultNegative, i++, "missing identifier", 31, 46);
         BAssertUtil.validateError(resultNegative, i++, "missing equal token", 33, 59);
         BAssertUtil.validateError(resultNegative, i++, "missing identifier", 33, 59);
-        BAssertUtil.validateError(resultNegative, i++, "cyclic type reference in '[Listener, Listener]'", 35, 1);
+        BAssertUtil.validateError(resultNegative, i++, "invalid cyclic type reference in '[Listener, Listener]'", 35,
+                1);
     }
 
     @Test
@@ -83,8 +84,10 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "configurable variable cannot be declared with var", 20, 1);
         BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 22, 22);
         BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 24, 14);
-        BAssertUtil.validateError(result, i++, "invalid token 'configurable'", 28, 18);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for 'decimal'", 31, 14);
+        BAssertUtil.validateError(result, i++, "missing close brace token", 27, 1);
+        BAssertUtil.validateError(result, i++, "invalid token '}'", 31, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
+                "'(xml & readonly)'", 31, 14);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

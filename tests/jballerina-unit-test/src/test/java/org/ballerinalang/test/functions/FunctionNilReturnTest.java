@@ -207,4 +207,9 @@ public class FunctionNilReturnTest {
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTupleArray")[0]);
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTypedescArray")[0]);
     }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+    }
 }

@@ -15,9 +15,8 @@
  */
 package org.ballerinalang.langserver.command;
 
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,39 +27,46 @@ import java.util.ServiceLoader;
 
 /**
  * Loads and provides the Command Executor Providers.
- * 
+ *
  * @since 0.983.0
  */
 public class LSCommandExecutorProvidersHolder {
-
-    private static final Logger logger = LoggerFactory.getLogger(LSCommandExecutorProvidersHolder.class);
-
     private static final Map<String, LSCommandExecutor> executors = new HashMap<>();
+    private static final LanguageServerContext.Key<LSCommandExecutorProvidersHolder> CMD_EXEC_PROVIDERS_HOLDER_KEY =
+            new LanguageServerContext.Key<>();
 
-    private static final LSCommandExecutorProvidersHolder INSTANCE = new LSCommandExecutorProvidersHolder();
+    public static LSCommandExecutorProvidersHolder getInstance(LanguageServerContext serverContext) {
+        LSCommandExecutorProvidersHolder executorProvidersHolder = serverContext.get(CMD_EXEC_PROVIDERS_HOLDER_KEY);
+        if (executorProvidersHolder == null) {
+            executorProvidersHolder = new LSCommandExecutorProvidersHolder(serverContext);
+        }
 
-    public static LSCommandExecutorProvidersHolder getInstance() {
-        return INSTANCE;
+        return executorProvidersHolder;
     }
 
-    private LSCommandExecutorProvidersHolder() {
+    private LSCommandExecutorProvidersHolder(LanguageServerContext serverContext) {
+        serverContext.put(CMD_EXEC_PROVIDERS_HOLDER_KEY, this);
+        loadServices();
+    }
+
+    private void loadServices() {
         ServiceLoader<LSCommandExecutor> loader = ServiceLoader.load(LSCommandExecutor.class);
         for (LSCommandExecutor executor : loader) {
             if (executor == null) {
                 continue;
             }
-            executors.put(executor.getCommand(), executor);
+            LSCommandExecutorProvidersHolder.executors.put(executor.getCommand(), executor);
         }
     }
 
     /**
      * Get the command executor registered for the given.
      *
-     * @param command               Command name
+     * @param command Command name
      * @return {@link Optional}     Mapped command executor
      */
     public Optional<LSCommandExecutor> getCommandExecutor(String command) {
-        return Optional.ofNullable(executors.get(command));
+        return Optional.ofNullable(LSCommandExecutorProvidersHolder.executors.get(command));
     }
 
     /**
@@ -69,6 +75,6 @@ public class LSCommandExecutorProvidersHolder {
      * @return {@link List} Command List
      */
     public List<String> getCommandsList() {
-        return new ArrayList<>(executors.keySet());
+        return new ArrayList<>(LSCommandExecutorProvidersHolder.executors.keySet());
     }
 }

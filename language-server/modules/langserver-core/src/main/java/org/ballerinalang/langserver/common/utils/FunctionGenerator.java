@@ -16,36 +16,24 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Module;
+import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
-import org.ballerinalang.langserver.commons.LSContext;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
@@ -54,11 +42,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.createModuleID;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getModulePrefix;
 
 /**
@@ -66,87 +52,38 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.getModulePref
  */
 public class FunctionGenerator {
 
-    public static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)\\/([\\w.]+):([\\d.]+):");
-
-    /**
-     * Generate function code.
-     *
-     * @param name               function name
-     * @param args               Function arguments
-     * @param returnType         return type
-     * @param returnDefaultValue default return value
-     * @param modifiers          modifiers
-     * @param prependLineFeed    prepend line feed or not
-     * @param padding            padding for the function
-     * @return {@link String}       generated function signature
-     */
-    public static String createFunction(String name, String args, String returnType, String returnDefaultValue,
-                                        String modifiers, boolean prependLineFeed, String padding) {
-        String funcBody = CommonUtil.LINE_SEPARATOR;
-        String funcReturnSignature = "";
-        if (returnType != null) {
-            funcBody = returnDefaultValue + funcBody;
-            funcReturnSignature = " returns " + returnType + " ";
-        }
-        String lineFeed = prependLineFeed ? CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR
-                : CommonUtil.LINE_SEPARATOR;
-        return lineFeed + padding + modifiers + "function " + name + "(" + args + ")"
-                + funcReturnSignature + "{" + CommonUtil.LINE_SEPARATOR + funcBody + padding + "}"
-                + CommonUtil.LINE_SEPARATOR;
-    }
-
-    /**
-     * Get the default function return statement.
-     *
-     * @param importsAcceptor imports acceptor
-     * @param bLangNode       BLangNode to evaluate
-     * @param template        return statement to modify
-     * @param context         {@link LSContext}
-     * @return {@link String}   Default return statement
-     */
-    public static String generateReturnValue(ImportsAcceptor importsAcceptor,
-                                             BLangNode bLangNode, String template,
-                                             LSContext context) {
-        if (bLangNode.type == null && bLangNode instanceof BLangTupleDestructure) {
-            // Check for tuple assignment eg. (int, int)
-            List<String> list = new ArrayList<>();
-            for (BLangExpression bLangExpression : ((BLangTupleDestructure) bLangNode).varRef.expressions) {
-                if (bLangExpression.type != null) {
-                    list.add(generateReturnValue(importsAcceptor, bLangExpression.type, "{%1}", context));
-                }
-            }
-            return template.replace("{%1}", "(" + String.join(", ", list) + ")");
-        } else if (bLangNode instanceof BLangLiteral) {
-            return template.replace("{%1}", ((BLangLiteral) bLangNode).getValue().toString());
-        } else if (bLangNode instanceof BLangAssignment) {
-            return template.replace("{%1}", "0");
-        }
-        return (bLangNode.type != null)
-                ? generateReturnValue(importsAcceptor, bLangNode.type, template, context)
-                : null;
-    }
+    public static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)\\/([\\w.]+):(.+):");
 
     /**
      * Returns signature of the return type.
      *
      * @param importsAcceptor imports acceptor
      * @param typeDescriptor  {@link BLangNode}
+     * @param context         {@link DocumentServiceContext}
      * @return return type signature
      */
     public static String generateTypeDefinition(ImportsAcceptor importsAcceptor,
                                                 TypeSymbol typeDescriptor, DocumentServiceContext context) {
-        return processModuleIDsInText(importsAcceptor, context, typeDescriptor.signature());
+        return processModuleIDsInText(importsAcceptor, typeDescriptor.signature(), context);
     }
 
-    private static String processModuleIDsInText(ImportsAcceptor importsAcceptor, DocumentServiceContext context,
-                                                 String text) {
+    /**
+     * Returns imports processed of the type text.
+     *
+     * @param importsAcceptor imports acceptor
+     * @param text            generated type text
+     * @param context         {@link DocumentServiceContext}
+     * @return return type signature
+     */
+    public static String processModuleIDsInText(ImportsAcceptor importsAcceptor, String text,
+                                                DocumentServiceContext context) {
         Module module = context.workspace().module(context.filePath()).orElseThrow();
         String currentOrg = module.packageInstance().descriptor().org().value();
-        String currentModule = module.descriptor().name().packageName().value();
+        String currentModule = module.descriptor().name().toString();
         String currentVersion = module.packageInstance().descriptor().version().value().toString();
 
         StringBuilder newText = new StringBuilder();
-        ModuleID currentModuleID = createModuleID(currentOrg, currentModule, currentVersion);
+        ModuleID currentModuleID = CodeActionModuleId.from(currentOrg, currentModule, currentVersion);
         Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(text);
         int nextStart = 0;
         // Matching Fully-Qualified-Module-IDs (eg.`abc/mod1:1.0.0`)
@@ -156,7 +93,7 @@ public class FunctionGenerator {
             // Append up-to start of the match
             newText.append(text, nextStart, matcher.start(1));
             // Append module prefix(empty when in same module) and identify imports
-            ModuleID moduleID = createModuleID(matcher.group(1), matcher.group(2), matcher.group(3));
+            ModuleID moduleID = CodeActionModuleId.from(matcher.group(1), matcher.group(2), matcher.group(3));
             newText.append(getModulePrefix(importsAcceptor, currentModuleID, moduleID, context));
             // Update next-start position
             nextStart = matcher.end(3) + 1;
@@ -173,12 +110,12 @@ public class FunctionGenerator {
      *
      * @param importsAcceptor imports accepter
      * @param parent          Parent node
-     * @param context         {@link LSContext}
+     * @param context         {@link BallerinaCompletionContext}
      * @return {@link List} List of arguments
      */
     @Deprecated
     public static List<String> getFuncArguments(ImportsAcceptor importsAcceptor, BLangNode parent,
-                                                CompletionContext context) {
+                                                BallerinaCompletionContext context) {
         List<String> list = new ArrayList<>();
         if (parent instanceof BLangInvocation) {
             BLangInvocation bLangInvocation = (BLangInvocation) parent;
@@ -237,111 +174,100 @@ public class FunctionGenerator {
                 : "any";
     }
 
-    public static String generateReturnValue(ImportsAcceptor importsAcceptor,
-                                             BType bType,
-                                             String template, LSContext context) {
-        if (bType instanceof BArrayType) {
-            String arrDef = "[" + generateReturnValue(importsAcceptor, ((BArrayType) bType).eType,
-                    "{%1}", context) + "]";
-            return template.replace("{%1}", arrDef);
-        } else if (bType instanceof BFiniteType) {
-            // Check for finite set assignment
-            BFiniteType bFiniteType = (BFiniteType) bType;
-            Set<BLangExpression> valueSpace = bFiniteType.getValueSpace();
-            if (!valueSpace.isEmpty()) {
-                return generateReturnValue(importsAcceptor, valueSpace.stream().findFirst().get(),
-                        template, context);
-            }
-        } else if (bType instanceof BMapType && ((BMapType) bType).constraint != null) {
-            // Check for constrained map assignment eg. map<Student>
-            BType constraintType = ((BMapType) bType).constraint;
-            String mapDef = "{key: " + generateReturnValue(importsAcceptor, constraintType, "{%1}",
-                    context) +
-                    "}";
-            return template.replace("{%1}", mapDef);
-        } else if (bType instanceof BUnionType) {
-            BUnionType bUnionType = (BUnionType) bType;
-            Set<BType> memberTypes = bUnionType.getMemberTypes();
-            if (memberTypes.size() == 2 && memberTypes.stream().anyMatch(bType1 -> bType1 instanceof BNilType)) {
-                Optional<BType> type = memberTypes.stream()
-                        .filter(bType1 -> !(bType1 instanceof BNilType)).findFirst();
-                if (type.isPresent()) {
-                    return generateReturnValue(importsAcceptor, type.get(), template, context);
-                }
-            }
-            if (!memberTypes.isEmpty()) {
-                BType firstBType = memberTypes.stream().findFirst().get();
-                return generateReturnValue(importsAcceptor, firstBType, template, context);
-            }
-        } else if (bType instanceof BTupleType) {
-            BTupleType bTupleType = (BTupleType) bType;
-            List<BType> tupleTypes = bTupleType.tupleTypes;
-            List<String> list = new ArrayList<>();
-            for (BType type : tupleTypes) {
-                list.add(generateReturnValue(importsAcceptor, type, "{%1}", context));
-            }
-            return template.replace("{%1}", "(" + String.join(", ", list) + ")");
-        } else if (bType instanceof BObjectType && ((BObjectType) bType).tsymbol instanceof BObjectTypeSymbol) {
-            BObjectTypeSymbol bStruct = (BObjectTypeSymbol) ((BObjectType) bType).tsymbol;
-            List<String> list = new ArrayList<>();
-            for (BVarSymbol param : bStruct.initializerFunc.symbol.params) {
-                list.add(generateReturnValue(param.type.tsymbol, "{%1}"));
-            }
-            //Fix this
-//            String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, bStruct.pkgID, context);
-            String pkgPrefix = "";
-            String paramsStr = String.join(", ", list);
-            String newObjStr = "new " + pkgPrefix + bStruct.name.getValue() + "(" + paramsStr + ")";
-            return template.replace("{%1}", newObjStr);
-        } else if (bType instanceof BRecordType) {
-            BRecordType recordType = (BRecordType) bType;
-            StringJoiner sb = new StringJoiner(", ");
-            if (CommonUtil.isInvalidSymbol(recordType.tsymbol)) {
-                for (BField field : recordType.fields.values()) {
-                    sb.add(field.name.value + ": " + generateReturnValue(field.type.tsymbol, "{%1}"));
-                }
-            }
-            return template.replace("{%1}", "{" + sb.toString() + "}");
+    /**
+     * Generates a function with the provided parameters.
+     *
+     * @param context          Code action context
+     * @param newLineAtStart   Whether to add an additional newline at the beginning of the function.
+     * @param functionName     Name of the created function
+     * @param args             Function arguments as a string list
+     * @param returnTypeSymbol return type of the function
+     * @return Created function as a string
+     */
+    public static String generateFunction(CodeActionContext context, boolean newLineAtStart, String functionName,
+                                          List<String> args, TypeSymbol returnTypeSymbol) {
+        Optional<String> returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol);
+
+        // padding
+        int padding = 4;
+        String paddingStr = StringUtils.repeat(" ", padding);
+
+        String returnsClause = "";
+        String returnStmt = "";
+        if (returnType.isPresent()) {
+            // returns clause
+            returnsClause = "returns " + returnType.get();
+            // return statement
+            returnStmt = "return " + CommonUtil.getDefaultValueForType(returnTypeSymbol) +
+                    CommonKeys.SEMI_COLON_SYMBOL_KEY;
         }
-        return (bType.tsymbol != null) ? generateReturnValue(bType.tsymbol, template) :
-                template.replace("{%1}", "()");
+
+        // body
+        String body;
+        if (!returnStmt.isEmpty()) {
+            body = paddingStr + CommonUtil.LINE_SEPARATOR + paddingStr + returnStmt + CommonUtil.LINE_SEPARATOR;
+        } else {
+            body = paddingStr + CommonUtil.LINE_SEPARATOR;
+        }
+
+        StringBuilder fnBuilder = new StringBuilder();
+
+        if (newLineAtStart) {
+            fnBuilder.append(CommonUtil.LINE_SEPARATOR);
+        }
+
+        fnBuilder.append(CommonUtil.LINE_SEPARATOR)
+                .append("function").append(" ").append(functionName)
+                .append(CommonKeys.OPEN_PARENTHESES_KEY)
+                .append(String.join(", ", args))
+                .append(CommonKeys.CLOSE_PARENTHESES_KEY);
+
+        if (!returnsClause.isEmpty()) {
+            fnBuilder.append(" ").append(returnsClause);
+        }
+
+        fnBuilder.append(" ").append(CommonKeys.OPEN_BRACE_KEY)
+                .append(CommonUtil.LINE_SEPARATOR)
+                .append(body)
+                .append(CommonKeys.CLOSE_BRACE_KEY)
+                .append(CommonUtil.LINE_SEPARATOR);
+
+        return fnBuilder.toString();
     }
 
-    private static String generateReturnValue(BTypeSymbol tSymbol, String template) {
-        String result;
-        switch (tSymbol.name.getValue()) {
-            case "int":
-            case "any":
-                result = "0";
-                break;
-            case "string":
-                result = "\"\"";
-                break;
-            case "float":
-                result = "0.0";
-                break;
-            case "json":
-                result = "{}";
-                break;
-            case "map":
-                result = "<map>{}";
-                break;
-            case "boolean":
-                result = "false";
-                break;
-            case "xml":
-                result = "xml ` `";
-                break;
-            case "byte":
-                result = "0";
-                break;
-            case "error":
-                result = "error(\"\")";
-                break;
-            default:
-                result = "()";
-                break;
+    /**
+     * Converts the provided type to a string which is to be used as the return type (ex: in a function definition).
+     * Uses the signature ({@link TypeSymbol#signature()}) of the type symbol to derive the return type string.
+     *
+     * @param context    Context
+     * @param typeSymbol Type symbol to be converted to a string
+     * @return Return type as string
+     */
+    public static Optional<String> getReturnTypeAsString(DocumentServiceContext context, TypeSymbol typeSymbol) {
+        String typeName = null;
+        // Unknown types are treated as no return type
+        if (typeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
+            ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+            typeName = processModuleIDsInText(importsAcceptor, typeSymbol.signature(), context);
         }
-        return template.replace("{%1}", result);
+
+        return Optional.ofNullable(typeName);
+    }
+
+    /**
+     * Converts the provided type symbol to a type name which will be used as a type of a function parameter.
+     *
+     * @param context    Context
+     * @param typeSymbol Type symbol to be converted to a string
+     * @return Type as a string
+     */
+    public static String getParameterTypeAsString(DocumentServiceContext context, TypeSymbol typeSymbol) {
+        // Unknown types are considered as 'any' when generating parameters of a function
+        if (typeSymbol == null || typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR) {
+            return TypeDescKind.ANY.getName();
+        }
+
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        return processModuleIDsInText(importsAcceptor, typeSymbol.signature(), context);
     }
 }

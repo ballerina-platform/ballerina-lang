@@ -60,13 +60,13 @@ public function bar(int|error x) returns int|error {
 }
 
 public function testSelfReferencingError() returns error {
-    MyError cause = MyError("root cause msg");
-    MyError e = MyError("actual error msg", cause);
+    MyError cause = error MyError("root cause msg");
+    MyError e = error MyError("actual error msg", cause);
     return e;
 }
 
 type MyError error<MyErrorData>;
 
-type MyErrorData record {
+type MyErrorData record {|
     *lang:Detail;
-};
+|};

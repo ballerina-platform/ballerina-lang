@@ -19,12 +19,10 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
-import io.ballerina.runtime.api.types.MemberFunctionType;
-import io.ballerina.runtime.api.types.ResourceFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.RemoteMethodType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
-import io.ballerina.runtime.internal.AnnotationUtils;
-import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.values.MapValue;
 
 import java.util.ArrayList;
 
@@ -35,26 +33,15 @@ import java.util.ArrayList;
  */
 public class BServiceType extends BObjectType implements ServiceType {
 
-    private ResourceFunctionType[] resourceFunctions;
-    private volatile MemberFunctionType[] remoteFunctions;
+    private ResourceMethodType[] resourceMethods;
+    private volatile RemoteMethodType[] remoteMethods;
 
     public BServiceType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags);
     }
 
-    public void setAttachedFuncsAndProcessAnnots(MapValue globalAnnotationMap, Strand strand,
-                                                         BServiceType originalType,
-                                                         BMemberFunctionType[] attachedFunctions) {
-        this.setAttachedFunctions(attachedFunctions);
-        this.setFields(originalType.getFields());
-        this.initializer = originalType.initializer;
-        this.generatedInitializer = originalType.generatedInitializer;
-
-        AnnotationUtils.processServiceAnnotations(globalAnnotationMap, this, strand);
-    }
-
-    public void setResourceFunctions(ResourceFunctionType[] resourceFunctions) {
-        this.resourceFunctions = resourceFunctions;
+    public void setResourceMethods(ResourceMethodType[] resourceMethods) {
+        this.resourceMethods = resourceMethods;
     }
 
     /**
@@ -63,26 +50,26 @@ public class BServiceType extends BObjectType implements ServiceType {
      * @return array of remote functions
      */
     @Override
-    public MemberFunctionType[] getRemoteFunctions() {
-        if (remoteFunctions == null) {
-            MemberFunctionType[] funcs = getRemoteFunctions(getAttachedFunctions());
+    public RemoteMethodType[] getRemoteMethods() {
+        if (remoteMethods == null) {
+            RemoteMethodType[] funcs = getRemoteMethods(getMethods());
             synchronized (this) {
-                if (remoteFunctions == null) {
-                    remoteFunctions = funcs;
+                if (remoteMethods == null) {
+                    remoteMethods = funcs;
                 }
             }
         }
-        return remoteFunctions;
+        return remoteMethods;
     }
 
-    private MemberFunctionType[] getRemoteFunctions(MemberFunctionType[] attachedFunctions) {
-        ArrayList<MemberFunctionType> functions = new ArrayList<>();
-        for (MemberFunctionType funcType : attachedFunctions) {
-            if (SymbolFlags.isFlagOn(((BMemberFunctionType) funcType).flags, SymbolFlags.REMOTE)) {
+    private RemoteMethodType[] getRemoteMethods(MethodType[] methodTypes) {
+        ArrayList<MethodType> functions = new ArrayList<>();
+        for (MethodType funcType : methodTypes) {
+            if (SymbolFlags.isFlagOn(((BMethodType) funcType).flags, SymbolFlags.REMOTE)) {
                 functions.add(funcType);
             }
         }
-        return functions.toArray(new MemberFunctionType[]{});
+        return functions.toArray(new RemoteMethodType[]{});
     }
 
     /**
@@ -91,12 +78,23 @@ public class BServiceType extends BObjectType implements ServiceType {
      * @return resource functions
      */
     @Override
-    public ResourceFunctionType[] getResourceFunctions() {
-        return resourceFunctions;
+    public ResourceMethodType[] getResourceMethods() {
+        return resourceMethods;
     }
 
     @Override
     public int getTag() {
         return TypeTags.SERVICE_TAG;
+    }
+
+    @Override
+    public BObjectType duplicate() {
+        BServiceType type = new BServiceType(this.typeName, this.pkg, this.flags);
+        type.setFields(fields);
+        type.setMethods(duplicateArray(getMethods()));
+        type.immutableType = this.immutableType;
+        type.typeIdSet = this.typeIdSet;
+        type.setResourceMethods(duplicateArray(resourceMethods));
+        return type;
     }
 }

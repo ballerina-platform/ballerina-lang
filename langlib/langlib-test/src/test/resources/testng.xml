@@ -48,6 +48,7 @@
             <class name="org.ballerinalang.langlib.test.LangLibStreamTest" />
             <class name="org.ballerinalang.langlib.test.LangLibTableTest" />
             <class name="org.ballerinalang.langlib.test.LangLibSubTypeTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibRuntimeTest" />
 
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorBindingPatternsTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorHandlingTests"/>

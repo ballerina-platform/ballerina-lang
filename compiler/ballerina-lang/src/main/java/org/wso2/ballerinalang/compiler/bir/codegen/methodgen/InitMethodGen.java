@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -94,18 +93,18 @@ public class InitMethodGen {
      * @param depMods   dependent module list
      */
     public void generateLambdaForPackageInits(ClassWriter cw, BIRNode.BIRPackage pkg, String initClass,
-                                              List<PackageID> depMods) {
+                                              List<PackageID> depMods, JvmCastGen jvmCastGen) {
         //need to generate lambda for package Init as well, if exist
         if (!MethodGenUtils.hasInitFunction(pkg)) {
             return;
         }
-        generateLambdaForModuleFunction(cw, MODULE_INIT, initClass);
+        generateLambdaForModuleFunction(cw, MODULE_INIT, initClass, jvmCastGen);
 
         // generate another lambda for start function as well
-        generateLambdaForModuleFunction(cw, MODULE_START, initClass);
+        generateLambdaForModuleFunction(cw, MODULE_START, initClass, jvmCastGen);
 
         MethodVisitor mv = visitFunction(cw, MethodGenUtils
-                .calculateLambdaStopFuncName(MethodGenUtils.packageToModuleId(pkg)));
+                .calculateLambdaStopFuncName(pkg.packageID));
 
         invokeStopFunction(initClass, mv);
 
@@ -115,7 +114,8 @@ public class InitMethodGen {
         }
     }
 
-    private void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass) {
+    private void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass,
+                                                 JvmCastGen jvmCastGen) {
         MethodVisitor mv = visitFunction(cw, String.format("$lambda$%s$", funcName));
         mv.visitCode();
 
@@ -126,7 +126,7 @@ public class InitMethodGen {
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND_CLASS, OBJECT), false);
-        JvmCastGen.addBoxInsn(mv, errorOrNilType);
+        jvmCastGen.addBoxInsn(mv, errorOrNilType);
         MethodGenUtils.visitReturn(mv);
     }
 
@@ -159,7 +159,7 @@ public class InitMethodGen {
         // Using object return type since this is similar to a ballerina function without a return.
         // A ballerina function with no returns is equivalent to a function with nil-return.
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_INIT,
-                                          String.format("(L%s;)L%s;", STRAND_CLASS, OBJECT), null, null);
+                                          String.format("()L%s;", OBJECT), null, null);
         mv.visitCode();
 
         mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_TYPES_METHOD, "()V", false);
@@ -167,9 +167,9 @@ public class InitMethodGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, "()V", false);
         mv.visitVarInsn(ASTORE, 1);
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.org.value));
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.name.value));
-        mv.visitLdcInsn(module.version.value);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.packageID.orgName.getValue()));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.packageID.name.getValue()));
+        mv.visitLdcInsn(module.packageID.version.getValue());
         mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", VALUE_CREATOR), "addValueCreator",
                            String.format("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE,
@@ -179,34 +179,6 @@ public class InitMethodGen {
         // Add a nil-return
         mv.visitInsn(ACONST_NULL);
         MethodGenUtils.visitReturn(mv);
-    }
-
-    public void addInitAndTypeInitInstructions(BIRNode.BIRPackage pkg, BIRNode.BIRFunction func) {
-        List<BIRNode.BIRBasicBlock> basicBlocks = new ArrayList<>();
-        nextId = -1;
-        BIRNode.BIRBasicBlock nextBB = new BIRNode.BIRBasicBlock(getNextBBId());
-        basicBlocks.add(nextBB);
-
-        PackageID modID = MethodGenUtils.packageToModuleId(pkg);
-
-        BIRNode.BIRBasicBlock typeOwnerCreateBB = new BIRNode.BIRBasicBlock(getNextBBId());
-        basicBlocks.add(typeOwnerCreateBB);
-
-        nextBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modID,
-                                                   new Name(CURRENT_MODULE_INIT),
-                                                   new ArrayList<>(), null, typeOwnerCreateBB, Collections.emptyList(),
-                                                   Collections.emptySet());
-
-        if (func.basicBlocks.size() == 0) {
-            typeOwnerCreateBB.terminator = new BIRTerminator.Return(func.pos);
-            func.basicBlocks = basicBlocks;
-            return;
-        }
-
-        typeOwnerCreateBB.terminator = new BIRTerminator.GOTO(null, func.basicBlocks.get(0));
-
-        basicBlocks.addAll(func.basicBlocks);
-        func.basicBlocks = basicBlocks;
     }
 
     public void enrichPkgWithInitializers(Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
@@ -247,9 +219,8 @@ public class InitMethodGen {
             addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef, boolRef);
         }
 
-        PackageID currentModId = MethodGenUtils.packageToModuleId(pkg);
         String currentInitFuncName = MethodGenUtils.encodeModuleSpecialFuncName(initName);
-        BIRNode.BIRBasicBlock lastBB = addCheckedInvocation(modInitFunc, currentModId, currentInitFuncName, retVarRef,
+        BIRNode.BIRBasicBlock lastBB = addCheckedInvocation(modInitFunc, pkg.packageID, currentInitFuncName, retVarRef,
                                                             boolRef);
 
         lastBB.terminator = new BIRTerminator.Return(null);

@@ -48,6 +48,11 @@ function testStartsWithFunctionInString() returns boolean {
     return 'string:startsWith(str, "Hello");
 }
 
+function testTrxInfoRecordTypeUse() returns boolean {
+    transaction:Info info;
+    return true;
+}
+
 function testPredeclaredModules() {
     decimal d1 = 22.0;
     decimal d2 = 5.7;
@@ -63,6 +68,7 @@ function testPredeclaredModules() {
     assertEquality(true, 'boolean:fromString(s1));
     assertEquality(s2, testSubString());
     assertEquality(true, testStartsWithFunctionInString());
+    assertEquality(true, testTrxInfoRecordTypeUse());
 }
 
 function testPredeclaredModules2() {
@@ -91,5 +97,7 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

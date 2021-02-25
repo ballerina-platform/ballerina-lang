@@ -35,7 +35,7 @@ public class BallerinaMapTypeSymbol extends AbstractTypeSymbol implements MapTyp
     private TypeSymbol memberTypeDesc;
 
     public BallerinaMapTypeSymbol(CompilerContext context, ModuleID moduleID, BMapType mapType) {
-        super(context, TypeDescKind.MAP, moduleID, mapType);
+        super(context, TypeDescKind.MAP, mapType);
     }
 
     @Override

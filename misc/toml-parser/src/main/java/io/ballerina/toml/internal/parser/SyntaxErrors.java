@@ -17,7 +17,6 @@
  */
 package io.ballerina.toml.internal.parser;
 
-import io.ballerina.toml.internal.diagnostics.DiagnosticCode;
 import io.ballerina.toml.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.toml.internal.parser.tree.STNode;
 import io.ballerina.toml.internal.parser.tree.STNodeDiagnostic;
@@ -27,6 +26,7 @@ import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.toml.internal.syntax.NodeListUtils;
 import io.ballerina.toml.internal.syntax.SyntaxUtils;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -76,10 +76,6 @@ public class SyntaxErrors {
     public static STToken createMissingToken(SyntaxKind expectedKind) {
         return STNodeFactory.createMissingToken(expectedKind);
     }
-    // TODO check for possibility of removing this method
-    public static STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind) {
-        return createMissingTokenWithDiagnostics(expectedKind, getErrorCode(expectedKind));
-    }
 
     public static STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind, ParserRuleContext currentCtx) {
         return createMissingTokenWithDiagnostics(expectedKind, getErrorCode(currentCtx));
@@ -92,46 +88,9 @@ public class SyntaxErrors {
         return STNodeFactory.createMissingToken(expectedKind, diagnosticList);
     }
 
-    // TODO check for possibility of removing this method
-    private static DiagnosticCode getErrorCode(SyntaxKind expectedKind) {
-        switch (expectedKind) {
-
-            // Separators
-            case OPEN_BRACKET_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACKET_TOKEN;
-            case CLOSE_BRACKET_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
-            case DOT_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_DOT_TOKEN;
-            case COMMA_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
-            case HASH_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_HASH_TOKEN;
-            case DOUBLE_QUOTE_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE_TOKEN;
-            case SINGLE_QUOTE_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_SINGLE_QUOTE_TOKEN;
-
-            // Operators
-            case EQUAL_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
-            case PLUS_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_PLUS_TOKEN;
-            case MINUS_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_MINUS_TOKEN;
-
-            case IDENTIFIER_LITERAL:
-                return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
-            case STRING_LITERAL:
-                return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
-            default:
-                return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
-        }
-    }
-
     private static DiagnosticCode getErrorCode(ParserRuleContext currentCtx) {
         switch (currentCtx) {
-            case STRING_CONTENT:
+            case STRING_BODY:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
             case ASSIGN_OP:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
@@ -152,6 +111,15 @@ public class SyntaxErrors {
             case STRING_END:
             case STRING_START:
                 return DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE_TOKEN;
+            case MULTILINE_STRING_START:
+            case MULTILINE_STRING_END:
+                return DiagnosticErrorCode.ERROR_MISSING_TRIPLE_DOUBLE_QUOTE_TOKEN;
+            case LITERAL_STRING_END:
+            case LITERAL_STRING_START:
+                return DiagnosticErrorCode.ERROR_MISSING_SINGLE_QUOTE_TOKEN;
+            case MULTILINE_LITERAL_STRING_START:
+            case MULTILINE_LITERAL_STRING_END:
+                return DiagnosticErrorCode.ERROR_MISSING_TRIPLE_SINGLE_QUOTE_TOKEN;
             case DECIMAL_INTEGER_LITERAL:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case BOOLEAN_LITERAL:

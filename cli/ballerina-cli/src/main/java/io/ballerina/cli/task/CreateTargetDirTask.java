@@ -19,11 +19,12 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.model.Target;
 
 import java.io.IOException;
 
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 
 /**
  * Create the target directory.
@@ -36,7 +37,7 @@ public class CreateTargetDirTask implements Task {
     public void execute(Project project) {
         try {
             new Target(project.sourceRoot());
-        } catch (IOException e) {
+        } catch (IOException | ProjectException e) {
             throw createLauncherException("unable to create the target directory: " + e.getMessage());
         }
     }

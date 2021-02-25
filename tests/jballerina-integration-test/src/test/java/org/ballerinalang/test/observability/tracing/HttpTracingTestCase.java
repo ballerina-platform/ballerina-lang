@@ -74,13 +74,13 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
-                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-1"),
                     new AbstractMap.SimpleEntry<>("http.method", "GET"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "http")
             ));
         });
 
@@ -96,15 +96,15 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.base_url", "http://localhost:9091/test-service"),
                     new AbstractMap.SimpleEntry<>("http.url", "/resource-2"),
                     new AbstractMap.SimpleEntry<>("http.method", "GET"),
                     new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
                     new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Client"),
-                    new AbstractMap.SimpleEntry<>("action", "get")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/http/Client"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "get")
             ));
         });
 
@@ -120,7 +120,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina/http:1.0.0"),
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.status_code", "200"),
                     new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
                     new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-2"),
@@ -128,8 +128,8 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("peer.address", "localhost:9091"),
                     new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/HttpClient"),
-                    new AbstractMap.SimpleEntry<>("action", "get")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/http/HttpClient"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "get")
             ));
         });
 
@@ -145,13 +145,13 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
                     new AbstractMap.SimpleEntry<>("src.position", span4Position),
-                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-2"),
                     new AbstractMap.SimpleEntry<>("http.method", "GET"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceTwo"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "http")
             ));
         });
 
@@ -167,13 +167,13 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
                     new AbstractMap.SimpleEntry<>("src.position", span5Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.status_code", "200"),
                     new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
                     new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceTwo"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
-                    new AbstractMap.SimpleEntry<>("action", "respond")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
         });
 
@@ -189,13 +189,13 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
                     new AbstractMap.SimpleEntry<>("src.position", span6Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.status_code", "200"),
                     new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
                     new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
-                    new AbstractMap.SimpleEntry<>("action", "respond")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
         });
     }
@@ -243,13 +243,13 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
-                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-1"),
                     new AbstractMap.SimpleEntry<>("http.method", "GET"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("service", "testServiceTwo"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "http")
             ));
         });
 
@@ -265,15 +265,15 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.base_url", "http://localhost:10011/echo-service"),
                     new AbstractMap.SimpleEntry<>("http.url", "/echo/Hello Echo !"),
                     new AbstractMap.SimpleEntry<>("http.method", "GET"),
                     new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
                     new AbstractMap.SimpleEntry<>("service", "testServiceTwo"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Client"),
-                    new AbstractMap.SimpleEntry<>("action", "get")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/http/Client"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "get")
             ));
         });
 
@@ -289,7 +289,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina/http:1.0.0"),
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.status_code", "200"),
                     new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
                     new AbstractMap.SimpleEntry<>("http.url", "/echo-service/echo/Hello%20Echo%20!"),
@@ -297,8 +297,8 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("peer.address", "localhost:10011"),
                     new AbstractMap.SimpleEntry<>("service", "testServiceTwo"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/HttpClient"),
-                    new AbstractMap.SimpleEntry<>("action", "get")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/http/HttpClient"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "get")
             ));
         });
 
@@ -314,13 +314,13 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/backend:0.0.1"),
                     new AbstractMap.SimpleEntry<>("src.position", span4Position),
-                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/echo-service/echo/Hello%20Echo%20!"),
                     new AbstractMap.SimpleEntry<>("http.method", "GET"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("service", "echoServiceOne"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "http")
             ));
         });
 
@@ -336,13 +336,13 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/backend:0.0.1"),
                     new AbstractMap.SimpleEntry<>("src.position", span5Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.status_code", "200"),
                     new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
                     new AbstractMap.SimpleEntry<>("service", "echoServiceOne"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
-                    new AbstractMap.SimpleEntry<>("action", "respond")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
         });
 
@@ -358,13 +358,13 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
                     new AbstractMap.SimpleEntry<>("src.position", span6Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("http.status_code", "200"),
                     new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
                     new AbstractMap.SimpleEntry<>("service", "testServiceTwo"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
-                    new AbstractMap.SimpleEntry<>("action", "respond")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
         });
     }

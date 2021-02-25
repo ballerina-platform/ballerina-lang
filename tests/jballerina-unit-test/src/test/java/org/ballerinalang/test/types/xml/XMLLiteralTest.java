@@ -40,7 +40,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.94
  */
-@Test(groups = { "disableOnOldParser" })
 public class XMLLiteralTest {
 
     private CompileResult result;
@@ -95,6 +94,10 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 72, 29);
         BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 72, 47);
         Assert.assertEquals(index, negativeResult.getErrorCount());
+
+        // XML iterator return type
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'xml' will not be matched to 'string'",
+                81, 29);
     }
 
     @Test
@@ -217,9 +220,8 @@ public class XMLLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testXMLLiteralWithEscapeSequence");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "hello &lt; &gt; &amp;"); // BXMLItem.toString()
-        Assert.assertEquals(arrayToString(returns[1]), "hello < > &");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
-        Assert.assertEquals(arrayToString(returns[3]), "");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+        Assert.assertEquals(arrayToString(returns[2]), "");
     }
 
     private String arrayToString(BValue aReturn) {

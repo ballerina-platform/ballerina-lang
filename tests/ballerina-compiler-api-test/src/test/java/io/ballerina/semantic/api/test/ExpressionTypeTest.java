@@ -223,7 +223,7 @@ public class ExpressionTypeTest {
     public void testObjecTypeInit(int sLine, int sCol, int eLine, int eCol) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) type).name(), "PersonObj");
+        assertEquals(((TypeReferenceTypeSymbol) type).getName().get(), "PersonObj");
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), OBJECT);
     }
 
@@ -329,6 +329,6 @@ public class ExpressionTypeTest {
     private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {
         LinePosition start = LinePosition.from(sLine, sCol);
         LinePosition end = LinePosition.from(eLine, eCol);
-        return model.type("expressions_test.bal", LineRange.from("expressions_test.bal", start, end)).get();
+        return model.type(LineRange.from("expressions_test.bal", start, end)).get();
     }
 }
