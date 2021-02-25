@@ -260,11 +260,6 @@ public class CoverageReport {
         for (JarLibrary library : pathCollection) {
             Path path = library.path();
             if (!exclusionPathList.contains(path)) {
-
-//        for (JarLibrary library : pathCollection) {
-//            Path path = library.path();
-//            if (path.toString().contains(this.module.project().sourceRoot().toString()) &&
-//                    path.toString().contains(target.cachesPath().toString())) {
                 filteredPathList.add(path);
             }
         }
