@@ -18,6 +18,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
@@ -223,7 +224,8 @@ public class PushCommand implements BLauncherCmd {
                                               settingsTomlFilePath);
 
             try {
-                client.pushPackage(balaPath, org, name, version, accessToken, RepoUtils.getBallerinaVersion());
+                client.pushPackage(balaPath, org, name, version, accessToken, JvmTarget.JAVA_11.code(),
+                                   RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
                 if (null != errorMessage && !"".equals(errorMessage.trim())) {
@@ -258,7 +260,7 @@ public class PushCommand implements BLauncherCmd {
         for (String supportedPlatform : supportedPlatforms) {
             try {
                 client.getPackage(pkg.org().toString(), pkg.name().toString(), pkg.version().toString(),
-                                  supportedPlatform);
+                                  supportedPlatform, RepoUtils.getBallerinaVersion());
                 return true;
             } catch (NoPackageException e) {
                 return false;

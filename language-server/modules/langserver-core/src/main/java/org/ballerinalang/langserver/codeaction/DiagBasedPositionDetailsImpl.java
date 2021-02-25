@@ -18,7 +18,13 @@ package org.ballerinalang.langserver.codeaction;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * This class holds position details for the diagnostics-based code actions.
@@ -28,20 +34,20 @@ import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDeta
 public class DiagBasedPositionDetailsImpl implements DiagBasedPositionDetails {
     private final NonTerminalNode matchedNode;
     private final Symbol matchedSymbol;
-    private final TypeSymbol matchedExprType;
+    private final Diagnostic diagnostic;
 
     private DiagBasedPositionDetailsImpl(NonTerminalNode matchedNode,
                                          Symbol matchedSymbol,
-                                         TypeSymbol matchedExprType) {
+                                         Diagnostic diagnostic) {
         this.matchedNode = matchedNode;
         this.matchedSymbol = matchedSymbol;
-        this.matchedExprType = matchedExprType;
+        this.diagnostic = diagnostic;
     }
 
     public static DiagBasedPositionDetailsImpl from(NonTerminalNode matchedNode,
                                                     Symbol matchedSymbol,
-                                                    TypeSymbol optTypeDesc) {
-        return new DiagBasedPositionDetailsImpl(matchedNode, matchedSymbol, optTypeDesc);
+                                                    Diagnostic diagnostic) {
+        return new DiagBasedPositionDetailsImpl(matchedNode, matchedSymbol, diagnostic);
     }
 
     /**
@@ -64,7 +70,16 @@ public class DiagBasedPositionDetailsImpl implements DiagBasedPositionDetails {
      * {@inheritDoc}
      */
     @Override
-    public TypeSymbol matchedExprType() {
-        return matchedExprType;
+    public Optional<TypeSymbol> diagnosticProperty(int propertyIndex) {
+        List<DiagnosticProperty<?>> props = diagnostic.properties();
+        if (props.size() < (propertyIndex + 1) || props.get(propertyIndex).kind() != DiagnosticPropertyKind.SYMBOLIC) {
+            return Optional.empty();
+        }
+
+        Symbol rhsTypeSymbol = ((DiagnosticProperty<Symbol>) props.get(propertyIndex)).value();
+        if (diagnostic.properties().get(propertyIndex) == null || !(rhsTypeSymbol instanceof TypeSymbol)) {
+            return Optional.empty();
+        }
+        return Optional.of((TypeSymbol) rhsTypeSymbol);
     }
 }
