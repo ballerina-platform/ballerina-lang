@@ -155,6 +155,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String SCOPE_NAME_LOCAL = "Local";
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
+    private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
 
     public JBallerinaDebugServer() {
         context = new ExecutionContext(this);
@@ -523,10 +524,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             exitedEventArguments.setExitCode(0L);
             context.getClient().exited(exitedEventArguments);
         }
+
         // Notifies user.
-        String address = (executionManager.getHost().isPresent() && executionManager.getPort().isPresent()) ?
-                executionManager.getHost().get() + ":" + executionManager.getPort().get() : VALUE_UNKNOWN;
-        sendOutput(String.format("Disconnected from the target VM, address: '%s'", address), STDOUT);
+        if (executionManager != null) {
+            String address = (executionManager.getHost().isPresent() && executionManager.getPort().isPresent()) ?
+                    executionManager.getHost().get() + ":" + executionManager.getPort().get() : VALUE_UNKNOWN;
+            sendOutput(String.format("Disconnected from the target VM, address: '%s'", address), STDOUT);
+        }
 
         // Exits from the debug server VM.
         new java.lang.Thread(() -> {
@@ -889,6 +893,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     // Todo - Redirect back to error stream, once the ballerina program output is fixed to use
                     //  the STDOUT stream.
                     sendOutput(line, STDOUT);
+                    if (context.getDebuggee() == null && line.contains(COMPILATION_ERROR_MESSAGE)) {
+                        terminateServer(false);
+                    }
                 }
             } catch (IOException ignored) {
             }
@@ -906,6 +913,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 while ((line = inputStream.readLine()) != null) {
                     if (line.contains("Listening for transport dt_socket")) {
                         attachToRemoteVM("", clientConfigHolder.getDebuggePort());
+                    } else if (context.getDebuggee() == null && line.contains(COMPILATION_ERROR_MESSAGE)) {
+                        terminateServer(false);
                     }
                     sendOutput(line, STDOUT);
                 }
