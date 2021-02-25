@@ -318,7 +318,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_TUPLE_BINDING_PATTERN("BCE2588", "invalid.tuple.binding.pattern"),
     INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION("BCE2589", "invalid.type.for.tuple.var.expr"),
     INVALID_TUPLE_BINDING_PATTERN_DECL("BCE2590", "invalid.tuple.binding.pattern.decl"),
-    INVALID_TUPLE_BINDING_PATTERN_INFERENCE("BCE2591", "invalid.tuple.binding.pattern.inference"),
+    INVALID_LIST_BINDING_PATTERN_INFERENCE("BCE2591", "invalid.list.binding.pattern.inference"),
     MISMATCHING_ARRAY_LITERAL_VALUES("BCE2592", "mismatching.array.literal.values"),
     SEALED_ARRAY_TYPE_NOT_INITIALIZED("BCE2593", "sealed.array.type.not.initialized"),
     INVALID_LIST_INDEX_EXPR("BCE2594", "invalid.list.index.expr"),

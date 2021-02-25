@@ -222,6 +222,11 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testXMLToStringWithXMLTextContainingAngleBrackets() {
+        BRunUtil.invoke(compileResult, "testXMLWithAngleBrackets");
+    }
+
+    @Test
     public void testToStringForTable() {
         BRunUtil.invokeFunction(compileResult, "testToStringMethodForTable");
     }
