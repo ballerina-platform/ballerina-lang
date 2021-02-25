@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -67,7 +68,6 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createIdent
  * @since 1.2.0
  */
 public class TypeDefBuilderHelper {
-    private static int errorDetailAnnonCount = 0;
 
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
                                                            SymbolTable symTable, Location pos) {
@@ -193,10 +193,11 @@ public class TypeDefBuilderHelper {
     public static BLangTypeDefinition addTypeDefinition(BType type, BTypeSymbol symbol, BLangType typeNode,
                                                         SymbolEnv env) {
         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        env.enclPkg.addTypeDefinition(typeDefinition);
         typeDefinition.typeNode = typeNode;
         typeDefinition.type = type;
         typeDefinition.symbol = symbol;
+        typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
+        env.enclPkg.addTypeDefinition(typeDefinition);
         return typeDefinition;
     }
 
@@ -222,12 +223,17 @@ public class TypeDefBuilderHelper {
         return classDefNode;
     }
 
-    public static BLangErrorType createBLangErrorType(Location pos, BType detailType, SymbolEnv env, Names names,
+    public static BLangErrorType createBLangErrorType(Location pos, BErrorType type,
+                                                      SymbolEnv env, Names names,
                                                       BLangAnonymousModelHelper anonymousModelHelper) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+        errorType.type = type;
+
         BLangUserDefinedType userDefinedTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         userDefinedTypeNode.pos = pos;
         userDefinedTypeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        BType  detailType = type.detailType;
 
         // When the error detail type is a inline type decl, such as in `error<map<value:Cloneable>>` we need to
         // add a explicit type decl for the detail type.
@@ -242,7 +248,8 @@ public class TypeDefBuilderHelper {
 
         // Add explicit type definition for this error detail
         if (!userDefinedDetailTypeAvailable) {
-            BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE, Flags.ANONYMOUS,
+            BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE,
+                    Flags.asMask(EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS)),
                     names.fromString(typeName), env.enclPkg.packageID, userDefinedTypeNode.type,
                     env.enclPkg.symbol, pos, VIRTUAL);
             addTypeDefinition(userDefinedTypeNode.type, typeSymbol, userDefinedTypeNode, env);

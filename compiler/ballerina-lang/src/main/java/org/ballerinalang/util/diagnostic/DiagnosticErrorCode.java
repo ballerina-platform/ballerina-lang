@@ -690,7 +690,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_READONLY_FIELD_TYPE("BCE3986", "invalid.readonly.field.type"),
 
     CONTINUE_NOT_ALLOWED("BCE3987", "continue.not.allowed"),
-    BREAK_NOT_ALLOWED("BCE3988", "break.not.allowed")
+    BREAK_NOT_ALLOWED("BCE3988", "break.not.allowed"),
+
+    INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE39988", "intersection.not.allowed.with.type")
     ;
 
     private String diagnosticId;

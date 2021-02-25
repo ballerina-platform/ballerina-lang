@@ -63,7 +63,7 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
 
             this.requiredParams = this.typeSymbol.params.stream()
                     .map(symbol -> {
-                        ParameterKind parameterKind = symbol.defaultableParam ? DEFAULTABLE : REQUIRED;
+                        ParameterKind parameterKind = symbol.isDefaultable ? DEFAULTABLE : REQUIRED;
                         return symbolFactory.createBallerinaParameter(symbol, parameterKind);
                     })
                     .collect(Collectors.collectingAndThen(toList(), Collections::unmodifiableList));

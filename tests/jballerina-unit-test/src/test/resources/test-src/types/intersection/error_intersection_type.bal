@@ -127,28 +127,24 @@ type IntersectionOfDistinctAndInlineErrorTwo distinct DistinctErrorOne & error<D
 type IntersectionOfDistinctAndInlineErrorThree distinct DistinctErrorOne & error<DetailFour>;
 
 public function testIntersectionOfErrorWithInlineError() {
-    IntersectionOfInlineErrorOne eOne = error IntersectionOfInlineErrorOne("eOne", x = "ex", y = "wai");
+    IntersectionOfInlineErrorOne eOne = error IntersectionOfInlineErrorOne("eOne", x = "ex");
     assertEquality(eOne.message(), "eOne");
     assertEquality(eOne.detail().x, "ex");
-    assertEquality(eOne.detail()["y"], "wai");
 
-    IntersectionOfInlineErrorTwo eTwo = error IntersectionOfInlineErrorTwo("eTwo", x = "ex", y = "wai");
+    IntersectionOfInlineErrorTwo eTwo = error IntersectionOfInlineErrorTwo("eTwo", x = "ex");
     assertEquality(eTwo.message(), "eTwo");
     assertEquality(eTwo.detail().x, "ex");
-    assertEquality(eTwo.detail()["y"], "wai");
 
-    IntersectionOfInlineErrorThree eThree = error IntersectionOfInlineErrorThree("eThree", x = "ex", y = "wai");
+    IntersectionOfInlineErrorThree eThree = error IntersectionOfInlineErrorThree("eThree", x = "ex");
     assertEquality(eThree.message(), "eThree");
     assertEquality(eThree.detail().x, "ex");
-    assertEquality(eThree.detail()["y"], "wai");
 
     IntersectionOfInlineErrorOne eOneDash = eThree;
     assertEquality(eOneDash.message(), "eThree");
 
-    var dErrorOne = error IntersectionOfDistinctAndInlineErrorOne("eOne", x = "ex", y = "wai");
+    var dErrorOne = error IntersectionOfDistinctAndInlineErrorOne("eOne", x = "ex");
     assertEquality(dErrorOne.message(), "eOne");
     assertEquality(dErrorOne.detail().x, "ex");
-    assertEquality(dErrorOne.detail()["y"], "wai");
 
     DistinctErrorOne dOneDash = dErrorOne;
     assertEquality(dOneDash.message(), "eOne");
@@ -168,8 +164,6 @@ function getAnonymousRecord(IntersectionErrorThree err) returns record {Intersec
     return errRec;
 }
 
-const ASSERTION_ERROR_REASON = "AssertionError";
-
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
@@ -181,6 +175,6 @@ function assertEquality(any|error actual, any|error expected) {
 
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error(ASSERTION_ERROR_REASON,
+    panic error("AssertionError",
                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

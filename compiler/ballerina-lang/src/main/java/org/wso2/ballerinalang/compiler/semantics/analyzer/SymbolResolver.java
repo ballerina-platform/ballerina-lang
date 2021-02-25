@@ -1533,7 +1533,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
             if (param.expr != null) {
                 symbol.flags |= Flags.OPTIONAL;
-                symbol.defaultableParam = true;
+                symbol.isDefaultable = true;
             }
             params.add(symbol);
         }
@@ -1777,7 +1777,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             isErrorIntersection = true;
         }
 
-        BType potentialIntersectionType = getPotentialIntersection(typeOne, typeTwo, this.env);
+        BType potentialIntersectionType = getPotentialIntersection(
+                Types.IntersectionContext.from(dlog, bLangTypeOne.pos, bLangTypeTwo.pos),
+                typeOne, typeTwo, this.env);
         if (typeOne == potentialIntersectionType || typeTwo == potentialIntersectionType) {
             isAlreadyExistingType = true;
         }
@@ -1808,7 +1810,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return symTable.noType;
                 }
 
-                BType tempIntersectionType = getPotentialIntersection(potentialIntersectionType, type, this.env);
+                BType tempIntersectionType = getPotentialIntersection(
+                        Types.IntersectionContext.from(dlog, bLangTypeOne.pos, bLangTypeTwo.pos),
+                        potentialIntersectionType, type, this.env);
                 if (tempIntersectionType == symTable.semanticError) {
                     validIntersection = false;
                     break;
@@ -1945,7 +1949,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         return intersectionType;
     }
 
-    private BType getPotentialIntersection(BType lhsType, BType rhsType, SymbolEnv env) {
+    private BType getPotentialIntersection(Types.IntersectionContext intersectionContext,
+                                           BType lhsType, BType rhsType, SymbolEnv env) {
         if (lhsType == symTable.readonlyType) {
             return rhsType;
         }
@@ -1954,7 +1959,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return lhsType;
         }
 
-        return types.getTypeIntersection(lhsType, rhsType, env);
+        return types.getTypeIntersection(intersectionContext, lhsType, rhsType, env);
     }
 
     private static class ParameterizedTypeInfo {

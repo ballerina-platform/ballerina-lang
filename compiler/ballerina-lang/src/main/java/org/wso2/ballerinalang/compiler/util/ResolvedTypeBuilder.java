@@ -429,7 +429,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
             BVarSymbol param = symbol.params.get(i);
             String paramName = param.name.value;
-            if (param.defaultableParam && !paramValueTypes.containsKey(paramName)) {
+            if (param.isDefaultable && !paramValueTypes.containsKey(paramName)) {
                 paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
             }
         }
