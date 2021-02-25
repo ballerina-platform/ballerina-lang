@@ -170,9 +170,9 @@ public class BallerinaDocGenerator {
      * API to generate API docs using a Project to a given folder.
      *  @param project Ballerina project
      *  @param output Output path as a string
-     *  @param excludeUi Exclude UI elements being copied/generated
+     *  @param excludeUI Exclude UI elements being copied/generated
      */
-    public static void generateAPIDocs(Project project, String output, boolean excludeUi)
+    public static void generateAPIDocs(Project project, String output, boolean excludeUI)
             throws IOException {
         Map<String, ModuleDoc> moduleDocMap = generateModuleDocMap(project);
         DocPackage docPackage = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
@@ -193,11 +193,11 @@ public class BallerinaDocGenerator {
         if (!docPackage.modules.isEmpty()) {
             PackageLibrary packageLib = new PackageLibrary();
             packageLib.packages.add(docPackage);
-            writeAPIDocs(packageLib, Path.of(output), false, excludeUi);
+            writeAPIDocs(packageLib, Path.of(output), false, excludeUI);
         }
     }
 
-    private static void writeAPIDocs(PackageLibrary packageLib, Path output, boolean isMerge, boolean excludeUi) {
+    private static void writeAPIDocs(PackageLibrary packageLib, Path output, boolean isMerge, boolean excludeUI) {
         if (packageLib.packages.size() == 0) {
             return;
         }
@@ -211,7 +211,7 @@ public class BallerinaDocGenerator {
         try {
             Files.createDirectories(output);
             Files.createDirectories(output);
-            genApiDocsJson(packageLib, output, excludeUi);
+            genApiDocsJson(packageLib, output, excludeUI);
         } catch (IOException e) {
             log.error("API documentation generation failed:", e);
         }
@@ -237,7 +237,7 @@ public class BallerinaDocGenerator {
             }
         }
         // Copy docerina ui
-        if (!excludeUi) {
+        if (!excludeUI) {
             File source = Path.of(System.getProperty("ballerina.home"), "lib", "tools", "doc-ui").toFile();
             File dest;
             if (source.exists()) {
@@ -260,7 +260,7 @@ public class BallerinaDocGenerator {
         }
     }
 
-    private static void genApiDocsJson(PackageLibrary packageLib, Path destination, boolean excludeUi) {
+    private static void genApiDocsJson(PackageLibrary packageLib, Path destination, boolean excludeUI) {
 
         ApiDocsJson apiDocsJson = new ApiDocsJson();
         apiDocsJson.docsData = packageLib;
@@ -280,7 +280,7 @@ public class BallerinaDocGenerator {
             }
         }
         String json = gson.toJson(apiDocsJson);
-        if (!excludeUi) {
+        if (!excludeUI) {
             try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsFile),
                     StandardCharsets.UTF_8)) {
                 String js = "var apiDocsJson = " + json + ";";
