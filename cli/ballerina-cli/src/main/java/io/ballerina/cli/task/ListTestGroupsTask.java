@@ -51,7 +51,7 @@ public class ListTestGroupsTask implements Task {
     public void execute(Project project) {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
-            TestProcessor testProcessor = new TestProcessor();
+            TestProcessor testProcessor = new TestProcessor(null);
             Optional<TestSuite> suite = testProcessor.testSuite(module);
             if (displayWarning) {
                 out.println("\nWarning: Other flags are skipped when list-groups flag is provided.\n");

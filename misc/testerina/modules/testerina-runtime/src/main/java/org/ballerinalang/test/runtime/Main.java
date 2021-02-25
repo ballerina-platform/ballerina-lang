@@ -18,18 +18,21 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,7 +44,9 @@ import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Main class to init the test suit.
@@ -49,40 +54,69 @@ import java.util.List;
 public class Main {
     static TestReport testReport;
     static ClassLoader classLoader;
+    private static final PrintStream out = System.out;
 
     public static void main(String[] args) throws IOException {
-        String[] moduleNameList = args[0].split("#");
-        Path testCache = Paths.get(args[1]);
-        String target = args[2];
-        boolean report = Boolean.valueOf(args[3]);
-        boolean coverage = Boolean.valueOf(args[4]);
+        int exitStatus = 0;
+
+        Path testCache = Paths.get(args[0]);
+        String target = args[1];
+        boolean report = Boolean.valueOf(args[2]);
+        boolean coverage = Boolean.valueOf(args[3]);
 
         if (report || coverage) {
             testReport = new TestReport();
         }
 
-        int exitStatus = 1;
+        out.println();
+        out.print("Running Tests");
+        if (coverage) {
+            out.print(" with Coverage");
+        }
+        out.println();
 
-        for (String moduleName : moduleNameList) {
-            Path moduleCachePath = testCache.resolve(moduleName).resolve(TesterinaConstants.TESTERINA_TEST_SUITE);
-            Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
+        Path testSuiteCachePath = testCache.resolve(TesterinaConstants.TESTERINA_TEST_SUITE);
 
-            try (BufferedReader br = Files.newBufferedReader(moduleCachePath, StandardCharsets.UTF_8)) {
-                Gson gson = new Gson();
-                TestSuite testSuite = gson.fromJson(br, TestSuite.class);
-                String[] configArgs =
-                        new String[]{target, testSuite.getOrgName(), testSuite.getPackageName(), moduleName};
+        try (BufferedReader br = Files.newBufferedReader(testSuiteCachePath, StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            Map<String, TestSuite> testSuiteMap;
+
+            testSuiteMap = gson.fromJson(br, new TypeToken<Map<String, TestSuite>>() { }.getType());
+            testSuiteMap.isEmpty();
+
+            for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
+                String moduleName = entry.getKey();
+                TestSuite testSuite = entry.getValue();
+
+                List<String> configList = new ArrayList<>();
+                configList.add(target);
+                configList.add(testSuite.getOrgName());
+                configList.add(testSuite.getPackageName());
+                configList.add("\"" + moduleName + "\"");
+                configList.addAll(Lists.of(Arrays.copyOfRange(args, 4, args.length)));
+
+                String[] configArgs = configList.toArray(new String[0]);
+
                 LaunchUtils.initConfigurations(configArgs);
+
+                out.println();
+                out.println("\t" + moduleName.toString());
+
                 testSuite.setModuleName(moduleName);
                 List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
                 classLoader = createClassLoader(testExecutionDependencies);
-                exitStatus = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
+
+                Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
+                exitStatus += startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
                         classLoader);
-            } catch (Exception e) {
-                exitStatus = 1;
             }
+        } catch (Exception e) {
+            exitStatus = 1;
         }
 
+        if (exitStatus > 0) {
+            exitStatus = 1;
+        }
         Runtime.getRuntime().exit(exitStatus);
     }
 

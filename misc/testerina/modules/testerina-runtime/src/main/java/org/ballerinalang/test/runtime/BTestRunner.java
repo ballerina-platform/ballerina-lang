@@ -575,7 +575,7 @@ public class BTestRunner {
     private Path getConfigPath(TestSuite testSuite) {
         String moduleName = testSuite.getModuleName();
         Path configFilePath = Paths.get(testSuite.getSourceRootPath());
-        if (!moduleName.equals("")) {
+        if (!moduleName.equals(testSuite.getPackageName())) {
             configFilePath = configFilePath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
         }
         configFilePath = configFilePath.resolve(ProjectConstants.TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
