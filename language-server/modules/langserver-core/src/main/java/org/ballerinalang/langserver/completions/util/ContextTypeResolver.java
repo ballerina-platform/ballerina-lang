@@ -90,12 +90,16 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
-        Optional<Symbol> variableSymbol = this.getSymbolByName(node.name().text());
-        if (variableSymbol.isEmpty()) {
+        /* Here we extract the symbol from the name since we need to capture the type definition for the following
+        eg: TypeName xyz = ...
+        Otherwise this will capture the TypeReferenceType of TypeName which needs addition processing for handling 
+         */
+        Optional<Symbol> symbol = this.getSymbolByName(node.name().text());
+        if (symbol.isEmpty()) {
             return Optional.empty();
         }
 
-        return SymbolUtil.getTypeDescriptor(variableSymbol.get());
+        return SymbolUtil.getTypeDescriptor(symbol.get());
     }
 
     @Override
@@ -142,7 +146,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
         TypeDescriptorNode typeDescriptorNode = node.typedBindingPattern().typeDescriptor();
         if (typeDescriptorNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE
-                || typeDescriptorNode.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                && typeDescriptorNode.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
             Resolved by the variable name when the type desc is not a simple name ref or a qualified name ref
             eg: record {...} x = ...
