@@ -26,6 +26,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -127,6 +128,22 @@ public class ForeachTupleTests {
         BValue[] returns = BRunUtil.invoke(program, "testTupleWithNullElements");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:d0 1: 2:d2 3: ");
+    }
+
+    @Test(dataProvider = "dataToTestTupleWithRestDescriptorInForeach")
+    public void testTupleWithRestDescriptorInForeach(String functionName) {
+        BRunUtil.invoke(program, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestTupleWithRestDescriptorInForeach() {
+        return new Object[]{
+                "testTupleWithRestDescriptorInForeach1",
+                "testTupleWithRestDescriptorInForeach2",
+                "testTupleWithRestDescriptorInForeach3",
+                "testTupleWithRestDescriptorInForeach4",
+                "testTupleWithRestDescriptorInForeach5"
+        };
     }
 
     @Test
