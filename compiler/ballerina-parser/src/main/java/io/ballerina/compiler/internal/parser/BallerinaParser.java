@@ -4191,6 +4191,19 @@ public class BallerinaParser extends AbstractParser {
         }
 
         endContext();
+
+        if (!hasVarInit) {
+            SyntaxKind bindingPatternKind = ((STTypedBindingPatternNode) typedBindingPattern).bindingPattern.kind;
+            boolean hasComplexBP = bindingPatternKind != SyntaxKind.CAPTURE_BINDING_PATTERN &&
+                    bindingPatternKind != SyntaxKind.WILDCARD_BINDING_PATTERN;
+            if (hasComplexBP) {
+                assign = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.EQUAL_TOKEN,
+                        DiagnosticErrorCode.ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED);
+                STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                expr = STNodeFactory.createSimpleNameReferenceNode(identifier);
+            }
+        }
+
         if (isModuleVar) {
             return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr,
                     semicolon, isConfigurable, hasVarInit);
@@ -4228,23 +4241,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode createModuleVarDeclaration(STNode metadata, List<STNode> varDeclQuals,
                                               STNode typedBindingPattern, STNode assign, STNode expr, STNode semicolon,
                                               boolean isConfigurable, boolean hasVarInit) {
-        SyntaxKind bindingPatternKind = ((STTypedBindingPatternNode) typedBindingPattern).bindingPattern.kind;
-        boolean hasComplexBP = bindingPatternKind != SyntaxKind.CAPTURE_BINDING_PATTERN &&
-                bindingPatternKind != SyntaxKind.WILDCARD_BINDING_PATTERN;
-
-        if (hasVarInit) {
-            return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
-        }
-
-        if (hasComplexBP) {
-            assign = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.EQUAL_TOKEN,
-                    DiagnosticErrorCode.ERROR_MODULE_LEVEL_COMPLEX_VARIABLE_MUST_BE_INITIALIZED);
-            STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
-            expr = STNodeFactory.createSimpleNameReferenceNode(identifier);
-            return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
-        }
-
-        if (varDeclQuals.isEmpty()) {
+        if (hasVarInit || varDeclQuals.isEmpty()) {
             return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
         }
 
@@ -17099,10 +17096,12 @@ public class BallerinaParser extends AbstractParser {
         // We reach here for something like: "{ foo:bar[". But we started parsing the rhs component
         // starting with "bar". Hence if its a typed-binding-pattern, then merge the "foo:" with
         // the rest of the type-desc.
+        STTypedBindingPatternNode typedBP = (STTypedBindingPatternNode) typedBPOrExpr;
         STNode qualifiedNameRef = STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
-        STNode typeDesc = mergeQualifiedNameWithTypeDesc(qualifiedNameRef,
-                ((STTypedBindingPatternNode) typedBPOrExpr).typeDescriptor);
-        return parseVarDeclRhs(annots, varDeclQualifiers, typeDesc, false);
+        STNode typeDesc = mergeQualifiedNameWithTypeDesc(qualifiedNameRef, typedBP.typeDescriptor);
+
+        STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(typeDesc, typedBP.bindingPattern);
+        return parseVarDeclRhs(annots, varDeclQualifiers, typedBindingPattern, false);
     }
 
     /**

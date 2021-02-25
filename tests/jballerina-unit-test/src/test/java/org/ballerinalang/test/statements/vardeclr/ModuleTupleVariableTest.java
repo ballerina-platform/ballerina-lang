@@ -103,7 +103,7 @@ public class ModuleTupleVariableTest {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_tuple_var_decl.bal");
         int index = 0;
-        validateError(compileResult, index++, "module level complex variable must be initialized", 17, 18);
+        validateError(compileResult, index++, "complex variable must be initialized", 17, 18);
         assertEquals(compileResult.getErrorCount(), index);
     }
 }
