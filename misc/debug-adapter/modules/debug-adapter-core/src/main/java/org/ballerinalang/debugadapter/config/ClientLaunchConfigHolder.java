@@ -70,7 +70,7 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
         return Optional.ofNullable(ballerinaCommand);
     }
 
-    public boolean isNoDebug() {
+    public boolean isNoDebugMode() {
         if (noDebug == null) {
             Object noDebugObject = clientRequestArgs.get(ARG_NO_DEBUG);
             if (noDebugObject instanceof Boolean) {
