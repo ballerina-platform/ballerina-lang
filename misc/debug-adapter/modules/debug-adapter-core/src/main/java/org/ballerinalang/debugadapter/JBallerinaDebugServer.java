@@ -381,7 +381,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         context.getDebuggee().resume();
         ContinueResponse continueResponse = new ContinueResponse();
         continueResponse.setAllThreadsContinued(true);
-        context.setLastInstruction(DebugInstruction.CONTINUE);
         return CompletableFuture.completedFuture(continueResponse);
     }
 
@@ -389,7 +388,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> next(NextArguments args) {
         prepareFor(DebugInstruction.STEP_OVER);
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OVER);
-        context.setLastInstruction(DebugInstruction.STEP_OVER);
         return CompletableFuture.completedFuture(null);
     }
 
@@ -397,7 +395,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> stepIn(StepInArguments args) {
         prepareFor(DebugInstruction.STEP_IN);
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
-        context.setLastInstruction(DebugInstruction.STEP_IN);
         return CompletableFuture.completedFuture(null);
     }
 
@@ -410,7 +407,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     void stepOut(long threadId) {
         prepareFor(DebugInstruction.STEP_OUT);
         eventProcessor.sendStepRequest(threadId, StepRequest.STEP_OUT);
-        context.setLastInstruction(DebugInstruction.STEP_OUT);
     }
 
     public void sendOutput(String output, String category) {
@@ -943,7 +939,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      */
     private void attachToRemoteVM(String hostName, int portName) throws IOException,
             IllegalConnectorArgumentsException {
-        executionManager = new DebugExecutionManager();
+        executionManager = new DebugExecutionManager(this);
         VirtualMachine attachedVm = executionManager.attach(hostName, portName);
         context.setDebuggee(new VirtualMachineProxyImpl(attachedVm));
         EventRequestManager erm = context.getEventManager();
