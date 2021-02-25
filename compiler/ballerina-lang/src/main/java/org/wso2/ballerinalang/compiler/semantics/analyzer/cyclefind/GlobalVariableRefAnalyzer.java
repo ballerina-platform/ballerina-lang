@@ -210,7 +210,8 @@ public class GlobalVariableRefAnalyzer {
             return false;
         }
 
-        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) && globalVars.stream().anyMatch(v -> v.symbol == symbol);
+        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE)
+                && globalVars.stream().anyMatch(v -> v.symbol == symbol);
     }
 
     /**
