@@ -458,7 +458,7 @@ public class BallerinaParser extends AbstractParser {
                 alias = STNodeFactory.createEmptyNode();
                 break;
             default:
-                recover(peek(), ParserRuleContext.IMPORT_DECL_RHS, importKeyword, identifier);
+                recover(peek(), ParserRuleContext.IMPORT_DECL_ORG_OR_MODULE_NAME_RHS, importKeyword, identifier);
                 return parseImportDecl(importKeyword, identifier);
         }
 
@@ -516,8 +516,13 @@ public class BallerinaParser extends AbstractParser {
         moduleNameParts.add(moduleNameStart);
 
         STToken nextToken = peek();
-        while (!isEndOfImportModuleName(nextToken)) {
-            moduleNameParts.add(parseDotToken());
+        while (!isEndOfImportDecl(nextToken)) {
+            STNode moduleNameSeparator = parseModuleNameRhs();
+            if (moduleNameSeparator == null) {
+                break;
+            }
+
+            moduleNameParts.add(moduleNameSeparator);
             moduleNameParts.add(parseIdentifier(ParserRuleContext.IMPORT_MODULE_NAME));
             nextToken = peek();
         }
@@ -525,8 +530,18 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(moduleNameParts);
     }
 
-    private boolean isEndOfImportModuleName(STToken nextToken) {
-        return nextToken.kind != SyntaxKind.DOT_TOKEN && nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN;
+    private STNode parseModuleNameRhs() {
+        switch(peek().kind) {
+            case DOT_TOKEN:
+                return consume();
+            case AS_KEYWORD:
+            case VERSION_KEYWORD:
+            case SEMICOLON_TOKEN:
+                return null;
+            default:
+                recover(peek(), ParserRuleContext.AFTER_IMPORT_MODULE_NAME);
+                return parseModuleNameRhs();
+        }
     }
 
     private boolean isEndOfImportDecl(STToken nextToken) {

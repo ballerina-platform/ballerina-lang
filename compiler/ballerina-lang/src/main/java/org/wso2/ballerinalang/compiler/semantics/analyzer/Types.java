@@ -656,7 +656,9 @@ public class Types {
             return true;
         }
 
-        if (TypeTags.isXMLTypeTag(sourceTag) && (TypeTags.isXMLTypeTag(targetTag) || targetTag == TypeTags.STRING)) {
+        if (TypeTags.isXMLTypeTag(sourceTag) &&
+                (TypeTags.isXMLTypeTag(targetTag) ||
+                        targetTag == TypeTags.STRING || targetTag == TypeTags.CHAR_STRING)) {
             return isXMLTypeAssignable(source, target, unresolvedTypes);
         }
 
@@ -665,10 +667,6 @@ public class Types {
         }
 
         if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.XML_TEXT) {
-            return true;
-        }
-
-        if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.CHAR_STRING) {
             return true;
         }
 
@@ -687,10 +685,8 @@ public class Types {
             return true;
         }
 
-        if (targetTag == TypeTags.ANYDATA && !containsErrorType(source)) {
-            if (isAnydata(source)) {
-                return true;
-            }
+        if (targetTag == TypeTags.ANYDATA && !containsErrorType(source) && isAnydata(source)) {
+            return true;
         }
 
         if (targetTag == TypeTags.READONLY) {
@@ -983,7 +979,6 @@ public class Types {
                 && target.typeIdSet.isAssignableFrom(source.typeIdSet);
     }
 
-    // TODO: Recheck this to support finite types
     private boolean isXMLTypeAssignable(BType sourceType, BType targetType, Set<TypePair> unresolvedTypes) {
         int sourceTag = sourceType.tag;
         int targetTag = targetType.tag;
