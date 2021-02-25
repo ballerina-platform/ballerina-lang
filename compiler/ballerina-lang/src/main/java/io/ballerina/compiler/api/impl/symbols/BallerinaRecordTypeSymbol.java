@@ -101,7 +101,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
 
     @Override
     public String signature() {
-        // Treating every record as if they are closed records.
+        // Treating every record typedesc as exclusive record typedescs.
         StringJoiner joiner = new StringJoiner(" ", "{| ", " |}");
         for (RecordFieldSymbol fieldSymbol : this.fieldDescriptors().values()) {
             String ballerinaFieldSignature = fieldSymbol.signature() + ";";
