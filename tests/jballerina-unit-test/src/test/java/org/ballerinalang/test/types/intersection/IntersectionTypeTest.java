@@ -140,6 +140,18 @@ public class IntersectionTypeTest {
                 "invalid intersection type '$anonType$_4 & $anonType$_5 & ErrorX': no intersection", 76, 44);
         validateError(result, index++,
                 "invalid intersection: field 'x' contains a default value in type 'DetailX'", 76, 61);
+        validateError(result, index++,
+                "invalid intersection type 'error & ErrorX': no intersection", 78, 35);
+        validateError(result, index++,
+                "invalid intersection: field 'x' contains a default value in type 'DetailX'", 78, 43);
+        validateError(result, index++,
+                "invalid intersection type 'ErrorX & error': no intersection", 79, 36);
+        validateError(result, index++,
+                "invalid intersection: field 'x' contains a default value in type 'DetailX'", 79, 36);
+        validateError(result, index++,
+                "invalid intersection type 'E & ErrorX': no intersection", 82, 21);
+        validateError(result, index++,
+                "invalid intersection: field 'x' contains a default value in type 'DetailX'", 82, 25);
 
         assertEquals(result.getErrorCount(), index);
     }

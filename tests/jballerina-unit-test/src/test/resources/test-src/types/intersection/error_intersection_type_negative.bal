@@ -74,3 +74,9 @@ type IntersecDefaultValedDetail ErrorX & ErrorY;
 type IntersecDefaultValedDetailInline error<DetailX> & error<DetailY>;
 
 type IntersecDefaultValedDetailInlineMixed error<DetailY> & error<DetailX> & ErrorX;
+
+type CloseDetailWithBuildInDetail error & ErrorX;
+type CloseDetailWithBuildInDetail2 ErrorX & error;
+
+type E distinct error;
+type EDash distinct E & ErrorX;
