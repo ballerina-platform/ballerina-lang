@@ -54,7 +54,7 @@ public class XMLIterationTest {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 17);
+        Assert.assertEquals(negative.getErrorCount(), 19);
         int index = 0;
         BAssertUtil.validateError(negative, index++,
                                   "invalid list binding pattern: attempted to infer a list type, but found 'xml'",
@@ -109,8 +109,14 @@ public class XMLIterationTest {
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
                 72, 68);
         BAssertUtil.validateError(negative, index++,
+                "xml langlib functions does not support union types as their arguments",
+                72, 68);
+        BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
+                73, 68);
+        BAssertUtil.validateError(negative, index++,
+                "xml langlib functions does not support union types as their arguments",
                 73, 68);
     }
 
