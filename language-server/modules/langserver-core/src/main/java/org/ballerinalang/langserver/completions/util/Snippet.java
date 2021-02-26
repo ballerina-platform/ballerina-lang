@@ -212,6 +212,8 @@ public enum Snippet {
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
 
+    KW_CONFIGURABLE(SnippetGenerator.getConfigurableKeywordSnippet()),
+
     KW_FAIL(SnippetGenerator.getFailKeywordSnippet()),
 
     KW_REMOTE(SnippetGenerator.getRemoteKeywordSnippet()),
@@ -289,6 +291,10 @@ public enum Snippet {
     KW_SOURCE_LISTENER(SnippetGenerator.getKeywordSnippet("source listener")),
 
     KW_SOURCE_WORKER(SnippetGenerator.getKeywordSnippet("source worker")),
+
+    KW_TRUE(SnippetGenerator.getKeywordSnippet("true")),
+
+    KW_FALSE(SnippetGenerator.getKeywordSnippet("false")),
 
     // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),

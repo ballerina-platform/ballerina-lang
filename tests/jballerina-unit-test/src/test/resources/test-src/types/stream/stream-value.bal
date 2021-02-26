@@ -395,15 +395,15 @@ function testEmptyStreamConstructs() returns boolean {
     var emptyStream8 = new stream<int, never>();
     var emptyStream9 = new stream<int, error>();
 
-    testPassed = testPassed && (emptyStream1.next() == ());
-    testPassed = testPassed && (emptyStream2.next() == ());
-    testPassed = testPassed && (emptyStream3.next() == ());
-    testPassed = testPassed && (emptyStream4.next() == ());
-    testPassed = testPassed && (emptyStream5.next() == ());
-    testPassed = testPassed && (emptyStream6.next() == ());
-    testPassed = testPassed && (emptyStream7.next() == ());
-    testPassed = testPassed && (emptyStream8.next() == ());
-    testPassed = testPassed && (emptyStream9.next() == ());
+    testPassed = testPassed && (emptyStream1.next() === ());
+    testPassed = testPassed && (emptyStream2.next() === ());
+    testPassed = testPassed && (emptyStream3.next() === ());
+    testPassed = testPassed && (emptyStream4.next() === ());
+    testPassed = testPassed && (emptyStream5.next() === ());
+    testPassed = testPassed && (emptyStream6.next() === ());
+    testPassed = testPassed && (emptyStream7.next() === ());
+    testPassed = testPassed && (emptyStream8.next() === ());
+    testPassed = testPassed && (emptyStream9.next() === ());
 
     // test the assignability of stream<int> and stream<int, never>
     emptyStream1 = emptyStream5;

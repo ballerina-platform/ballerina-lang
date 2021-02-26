@@ -35,6 +35,7 @@ import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.runtime.entity.CoverageReport;
+import org.ballerinalang.test.runtime.entity.ModuleCoverage;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -60,7 +61,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -121,7 +124,9 @@ public class RunTestsTask implements Task {
             this.disableGroupList = disableGroupList;
         } else if (groupList != null) {
             this.groupList = groupList;
-        } else if (testList != null) {
+        }
+
+        if (testList != null) {
             isSingleTestExecution = true;
             singleExecTests = testList;
         }
@@ -238,7 +243,7 @@ public class RunTestsTask implements Task {
 
         try {
             if (hasTests) {
-                generateCoverage(project, jarResolver, target);
+                generateCoverage(project, jarResolver, jBallerinaBackend, target);
                 generateHtmlReport(project, this.out, testReport, target);
             }
         } catch (IOException e) {
@@ -255,15 +260,23 @@ public class RunTestsTask implements Task {
         cleanTempCache(project, cachesRoot);
     }
 
-    private void generateCoverage(Project project, JarResolver jarResolver, Target target) throws IOException {
+    private void generateCoverage(Project project, JarResolver jarResolver, JBallerinaBackend jBallerinaBackend,
+                                  Target target) throws IOException {
         // Generate code coverage
         if (!coverage) {
             return;
         }
+        Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             CoverageReport coverageReport = new CoverageReport(module);
-            testReport.addCoverage(module.moduleName().toString(), coverageReport.generateReport(jarResolver));
+            coverageReport.generateReport(jarResolver, moduleCoverageMap, jBallerinaBackend);
+        }
+        // Traverse coverage map and add module wise coverage to test report
+        for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
+            String moduleName = (String) mapElement.getKey();
+            ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
+            testReport.addCoverage(moduleName, moduleCoverage);
         }
     }
 
@@ -451,5 +464,20 @@ public class RunTestsTask implements Task {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             FileUtils.deleteDirectory(cachesRoot);
         }
+    }
+
+    /**
+     * Initialize coverage map used for aggregating module wise coverage.
+     *
+     * @param project Project
+     * @return Map<String, ModuleCoverage>
+     */
+    private Map<String, ModuleCoverage> initializeCoverageMap(Project project) {
+        Map<String, ModuleCoverage> moduleCoverageMap = new HashMap<>();
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            moduleCoverageMap.put(module.moduleName().toString(), new ModuleCoverage());
+        }
+        return moduleCoverageMap;
     }
 }

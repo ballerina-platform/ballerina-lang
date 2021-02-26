@@ -22,8 +22,8 @@ import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -76,7 +76,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
 
-        SimpleVariableNode variableNode = packageNode.getGlobalVariables().get(1);
+        VariableNode variableNode = packageNode.getGlobalVariables().get(1);
         Assert.assertNotNull(variableNode);
         BLangMarkdownDocumentation documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -151,9 +151,9 @@ public class MarkdownDocumentationTest {
 
         // Todo - need to come up with a proper way to document finite types
 
-        List<? extends SimpleVariableNode> globalVariables = packageNode.getGlobalVariables();
+        List<? extends VariableNode> globalVariables = packageNode.getGlobalVariables();
 
-        SimpleVariableNode variableNode = globalVariables.get(1);
+        VariableNode variableNode = globalVariables.get(1);
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -369,12 +369,12 @@ public class MarkdownDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 37);
+        Assert.assertEquals(compileResult.getWarnCount(), 46);
 
         int index = 0;
 
         BAssertUtil.validateWarning(compileResult, index++,
-                "invalid identifier in documentation reference '9invalidFunc'", 4, 13);
+                "invalid ballerina name reference '9invalidFunc'", 4, 13);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid reference in documentation 'invalidFunc' for type 'function'", 5, 3);
         BAssertUtil.validateWarning(compileResult, index++,
@@ -384,7 +384,7 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 11, 1);
         BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'cd'", 15, 5);
         BAssertUtil.validateWarning(compileResult, index++,
-                "invalid identifier in documentation reference '9invalidServ'", 21, 12);
+                "invalid ballerina name reference '9invalidServ'", 21, 12);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid reference in documentation 'invalidServ' for type 'service'", 22, 3);
         BAssertUtil.validateWarning(compileResult, index++,
@@ -395,7 +395,7 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "field 'path' already documented", 39, 5);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'path2'", 40, 5);
         BAssertUtil.validateWarning(compileResult, index++,
-                "invalid identifier in documentation reference '9invalidConst'", 41, 10);
+                "invalid ballerina name reference '9invalidConst'", 41, 10);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid reference in documentation 'invalidConst' for type 'const'", 42, 3);
         BAssertUtil.validateWarning(compileResult, index++,
@@ -408,7 +408,7 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'urls'", 77, 5);
         BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'url2'", 80, 3);
         BAssertUtil.validateWarning(compileResult, index++,
-                "invalid identifier in documentation reference '9invalidConst'", 85, 10);
+                "invalid ballerina name reference '9invalidConst'", 85, 10);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid reference in documentation 'invalidConst' for type 'const'", 86, 3);
         BAssertUtil.validateWarning(compileResult, index++,
@@ -420,10 +420,22 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 102, 5);
         BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 103, 1);
         BAssertUtil.validateWarning(compileResult, index++,
-                "invalid identifier in documentation reference '9function'", 108, 13);
+                "invalid ballerina name reference '9function'", 108, 13);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid reference in documentation 'filePath1' for type 'parameter'", 109, 3);
-        BAssertUtil.validateWarning(compileResult, index, "undocumented parameter 'filePath'", 110, 22);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented parameter 'filePath'", 110, 22);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'a'", 114, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 115, 1);
+        BAssertUtil.validateWarning(compileResult, index++,
+                "invalid usage of parameter reference outside of function definition 'invalidParameter'", 116, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'a'", 119, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 120, 1);
+        BAssertUtil.validateWarning(compileResult, index++,
+                "invalid usage of parameter reference outside of function definition 'invalidParameter'", 121, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'message'", 124, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 125, 1);
+        BAssertUtil.validateWarning(compileResult, index,
+                "invalid usage of parameter reference outside of function definition 'invalidParameter'", 126, 3);
     }
 
     @Test(description = "Test doc service")
@@ -581,9 +593,9 @@ public class MarkdownDocumentationTest {
                 packageNode.getGlobalVariables().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Example of a string template:\n" +
-                "  ``string s = string `hello ${name}`;``\n\n" +
+                "``string s = string `hello ${name}`;``\n\n" +
                 "Example for an xml literal:\n" +
-                "  ``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``");
+                "``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``");
 
         LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
         Assert.assertEquals(parameters.size(), 0);
@@ -592,7 +604,7 @@ public class MarkdownDocumentationTest {
         Assert.assertNull(returnParameter);
     }
 
-    @Test(description = "Test doc inline code with triple backtics.")
+    @Test(description = "Test doc inline code with triple backticks.")
     public void testInlineCodeEnclosedTripleBackTicks() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_doc_inline_triple.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -603,9 +615,9 @@ public class MarkdownDocumentationTest {
                 packageNode.getGlobalVariables().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Example of a string template:\n" +
-                "  ```string s = string `hello ${name}`;```\n" +
+                "```string s = string `hello ${name}`;```\n" +
                 "Example for an xml literal:\n" +
-                "  ```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```");
+                "```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```");
 
         LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
         Assert.assertEquals(parameters.size(), 0);
@@ -614,17 +626,19 @@ public class MarkdownDocumentationTest {
         Assert.assertNull(returnParameter);
         documentationAttachment = packageNode.getFunctions().get(0).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
-        Assert.assertEquals(documentationAttachment.getDocumentationLines().get(1).text, "``` Purpose of adding\n" +
-                " this documentation is\n" +
-                " to check backtic documentations ```");
+        Assert.assertEquals(documentationAttachment.getDocumentationLines().get(1).text, "```bal\n" +
+                "    # Purpose of adding\n" +
+                "    # this documentation is\n" +
+                "    # to check backtic documentations\n" +
+                "    # ```");
 
         documentationAttachment = packageNode.getFunctions().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentationLines().get(1).text, "```\n" +
-                " Purpose of adding\n" +
-                " this documentation is\n" +
-                " to check backtic documentations\n" +
-                " ```");
+                "    # Purpose of adding\n" +
+                "    # this documentation is\n" +
+                "    # to check backtic documentations\n" +
+                "    # ```");
     }
 
     @Test(description = "Test doc multiple.", groups = { "disableOnOldParser" })
@@ -698,18 +712,14 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(parameters.size(), 2);
         Assert.assertEquals(parameters.get(0).getParameterName().getValue(), "param1");
         Assert.assertEquals(parameters.get(0).getParameterDocumentation(), "param1 description line 1\n" +
-                "           param1 description line 2\n" +
-                "           param1 description line 3");
+                "param1 description line 2\nparam1 description line 3");
         Assert.assertEquals(parameters.get(1).getParameterName().getValue(), "param2");
         Assert.assertEquals(parameters.get(1).getParameterDocumentation(), "param2 description line 1\n" +
-                "           param2 description line 2\n" +
-                "           param2 description line 3");
-
+                "param2 description line 2\nparam2 description line 3");
         BLangMarkdownReturnParameterDocumentation returnParameter = documentationAttachment.getReturnParameter();
         Assert.assertNotNull(returnParameter);
         Assert.assertEquals(returnParameter.getReturnParameterDocumentation(), "return description line 1\n" +
-                "           return description line 2\n" +
-                "           return description line 3");
+                "return description line 2\nreturn description line 3");
     }
 
     @Test(description = "Test lambda in object init")

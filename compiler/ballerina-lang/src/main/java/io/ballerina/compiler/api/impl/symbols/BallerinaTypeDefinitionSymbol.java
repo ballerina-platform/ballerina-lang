@@ -23,9 +23,9 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -46,12 +46,9 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
     private final boolean deprecated;
     private final boolean readonly;
 
-    protected BallerinaTypeDefinitionSymbol(String name,
-                                            PackageID moduleID,
-                                            List<Qualifier> qualifiers,
-                                            TypeSymbol typeDescriptor,
-                                            BSymbol bSymbol) {
-        super(name, moduleID, SymbolKind.TYPE_DEFINITION, bSymbol);
+    protected BallerinaTypeDefinitionSymbol(String name, List<Qualifier> qualifiers, TypeSymbol typeDescriptor,
+                                            BSymbol bSymbol, CompilerContext context) {
+        super(name, SymbolKind.TYPE_DEFINITION, bSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.docAttachment = getDocAttachment(bSymbol);
@@ -61,7 +58,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
 
     @Override
     public String moduleQualifiedName() {
-        return this.moduleID().moduleName() + ":" + this.name();
+        return this.getModule().get().id().modulePrefix() + ":" + this.getName().get();
     }
 
     @Override
@@ -104,8 +101,8 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
-        public TypeDefSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
-            super(name, moduleID, SymbolKind.TYPE_DEFINITION, symbol);
+        public TypeDefSymbolBuilder(String name, BSymbol symbol, CompilerContext context) {
+            super(name, SymbolKind.TYPE_DEFINITION, symbol, context);
         }
 
         public TypeDefSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
@@ -120,8 +117,8 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
 
         @Override
         public BallerinaTypeDefinitionSymbol build() {
-            return new BallerinaTypeDefinitionSymbol(this.name, this.moduleID, this.qualifiers, this.typeDescriptor,
-                                                     this.bSymbol);
+            return new BallerinaTypeDefinitionSymbol(this.name, this.qualifiers, this.typeDescriptor,
+                                                     this.bSymbol, this.context);
         }
     }
 }

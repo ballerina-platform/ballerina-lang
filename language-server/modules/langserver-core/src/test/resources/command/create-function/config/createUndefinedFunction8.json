@@ -1,0 +1,34 @@
+{
+  "arguments": {
+    "node.position": {
+      "line": 16,
+      "character": 28
+    }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 34,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 34,
+                    "character": 0
+                  }
+                },
+                "newText": "\n\nfunction addAndPrintTwoIntegers(int a, int b) returns [int, string[][]] {\n    \n    return [0, [[]]];\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

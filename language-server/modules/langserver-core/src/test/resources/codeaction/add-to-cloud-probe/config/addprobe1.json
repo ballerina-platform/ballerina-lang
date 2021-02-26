@@ -1,0 +1,72 @@
+{
+    "line": 16,
+    "character": 30,
+    "expected": [
+        {
+            "title": "Document this",
+            "command": {
+                "title": "Document this",
+                "command": "ADD_DOC",
+                "arguments": [
+                    {
+                        "key": "node.range",
+                        "value": {
+                            "start": {
+                                "line": 16,
+                                "character": 4
+                            },
+                            "end": {
+                                "line": 27,
+                                "character": 5
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "title": "Document all",
+            "command": {
+                "title": "Document all",
+                "command": "ADD_ALL_DOC",
+                "arguments": []
+            }
+        },
+        {
+            "title": "Add as liveness probe",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 5,
+                            "character": 0
+                        },
+                        "end": {
+                            "line": 5,
+                            "character": 0
+                        }
+                    },
+                    "newText": "\n[cloud.deployment.probes.liveness]\nport \u003d 9090\npath \u003d \"/helloWorld/readyz\"\n"
+                }
+            ]
+        },
+        {
+            "title": "Add as readiness probe",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 5,
+                            "character": 0
+                        },
+                        "end": {
+                            "line": 5,
+                            "character": 0
+                        }
+                    },
+                    "newText": "\n[cloud.deployment.probes.readiness]\nport \u003d 9090\npath \u003d \"/helloWorld/readyz\"\n"
+                }
+            ]
+        }
+    ]
+}

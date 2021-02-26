@@ -6,13 +6,6 @@
   "source": "statement_context/source/worker_declaration_ctx_source6.bal",
   "items": [
     {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
@@ -28,14 +21,14 @@
     },
     {
       "label": "TestMap2",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "Map",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestMap3",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "Map",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
@@ -45,6 +38,27 @@
       "kind": "Interface",
       "detail": "Object",
       "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
+      "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "insertText": "ErrorTwo",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
     {
@@ -68,17 +82,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Listener",
-      "kind": "Interface",
-      "detail": "Class",
-      "insertText": "Listener",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
       "insertText": "TestClass1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Class",
+      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {

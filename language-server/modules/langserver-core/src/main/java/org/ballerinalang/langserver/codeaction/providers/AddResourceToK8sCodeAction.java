@@ -32,7 +32,7 @@ import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.projects.KubernetesToml;
+import io.ballerina.projects.CloudToml;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
@@ -42,6 +42,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
@@ -55,7 +56,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Code Action for resource into Kubernetes.toml.
+ * Code Action for adding a resource into Cloud.toml.
  *
  * @since 2.0.0
  */
@@ -70,21 +71,22 @@ public class AddResourceToK8sCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
-        NonTerminalNode matchedNode = context.positionDetails().matchedNode();
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                                    NodeBasedPositionDetails positionDetails) {
+        NonTerminalNode matchedNode = positionDetails.matchedTopLevelNode();
         if (matchedNode.kind() != SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
             return Collections.emptyList();
         }
 
-        Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve(ProjectConstants.KUBERNETES_TOML);
-        Optional<KubernetesToml> kubernetesToml =
-                context.workspace().project(context.filePath()).orElseThrow().currentPackage().kubernetesToml();
+        Path k8sPath = context.workspace().projectRoot(context.filePath()).resolve(ProjectConstants.CLOUD_TOML);
+        Optional<CloudToml> cloudToml =
+                context.workspace().project(context.filePath()).orElseThrow().currentPackage().cloudToml();
 
-        if (kubernetesToml.isEmpty()) {
+        if (cloudToml.isEmpty()) {
             return Collections.emptyList();
         }
 
-        SyntaxTree tomlSyntaxTree = kubernetesToml.get().tomlDocument().syntaxTree();
+        SyntaxTree tomlSyntaxTree = cloudToml.get().tomlDocument().syntaxTree();
         DocumentNode documentNode = tomlSyntaxTree.rootNode();
 
         List<ProbeType> probs = getAvailableProbes(documentNode);
@@ -103,7 +105,7 @@ public class AddResourceToK8sCodeAction extends AbstractCodeActionProvider {
             List<TextEdit> edits = Collections.singletonList(
                     new TextEdit(new Range(position, position), importText));
             CodeAction action = createQuickFixCodeAction("Add as " + probe.tableName + " probe", edits,
-                    k8sPath.toUri().toString());
+                                                         k8sPath.toUri().toString());
             codeActionList.add(action);
         }
         return codeActionList;

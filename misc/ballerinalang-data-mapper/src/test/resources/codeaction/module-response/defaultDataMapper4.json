@@ -26,7 +26,7 @@
           "character":1
         }
       },
-        "newText":"\nfunction mapStudentToGrades (Student student) returns module1:Grades {\n// Some record fields might be missing in the AI based mapping.\n\tmodule1:Grades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, physics: student.grades.physics};\n\treturn grades;\n}"
+        "newText":"\nfunction mapPersonToGrades (module2:Person person) returns module1:Grades {\n// Some record fields might be missing in the AI based mapping.\n\tmodule1:Grades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, physics: student.grades.physics};\n\treturn grades;\n}\n"
       }
     ]
   }

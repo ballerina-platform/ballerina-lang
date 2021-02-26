@@ -200,6 +200,111 @@ public class XMLQueryExpressionTest {
         Assert.assertEquals(returnValues[0].stringValue(), "<doc> <entry>Value</entry> </doc>");
     }
 
+    @Test(description = "Test query expression iterating over xml in from clause")
+    public void testQueryExpressionIteratingOverXMLInFrom() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLInFrom");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<foo>Hello<bar>World</bar></foo>");
+    }
+
+    @Test(description = "Test query expression iterating over xml:Text in from clause")
+    public void testQueryExpressionIteratingOverXMLTextInFrom() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLTextInFrom");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "hello text");
+    }
+
+    @Test(description = "Test query expression iterating over xml<xml:Element> in from clause")
+    public void testQueryExpressionIteratingOverXMLElementInFrom() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLElementInFrom");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<foo>Hello<bar>World</bar></foo>");
+    }
+
+    @Test(description = "Test query expression iterating over xml<xml:ProcessingInstruction> in from clause")
+    public void testQueryExpressionIteratingOverXMLPIInFrom() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLPIInFrom");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>");
+    }
+
+    @Test(description = "Test query expression iterating over xml<xml:Element> in from clause with other clauses")
+    public void testQueryExpressionIteratingOverXMLWithOtherClauses() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLWithOtherClauses");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<author>Dan Brown</author><author>Enid Blyton</author>");
+    }
+
+    @Test(description = "Test query expression iterating over xml<xml:Comment> in from clause with xml or nil result")
+    public void testQueryExpressionIteratingOverXMLInFromWithXMLOrNilResult() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLInFromWithXMLOrNilResult");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<!-- this is a comment text -->");
+    }
+
+    @Test(description = "Test query expression iterating over xml<xml:Element> in from clause in inner queries")
+    public void testQueryExpressionIteratingOverXMLInFromInInnerQueries() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLInFromInInnerQueries");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<author>Enid Blyton</author>" +
+                "<author>Sir Arthur Conan Doyle</author><author>Dan Brown</author>");
+    }
+
+    @Test(description = "Test XML template with query expression returning xml:Element")
+    public void testXMLTemplateWithQueryExpression() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testXMLTemplateWithQueryExpression");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<data><person country=\"Germany\">Mike</person>" +
+                "<person country=\"France\">Anne</person><person country=\"Russia\">John</person></data>");
+    }
+
+    @Test(description = "Test XML template with query expression returning xml:Comment")
+    public void testXMLTemplateWithQueryExpression2() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testXMLTemplateWithQueryExpression2");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<data>MikeAnneJohn</data>");
+    }
+
+    @Test(description = "Test XML template with query expression iterating over a stream returning xml")
+    public void testXMLTemplateWithQueryExpression3() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testXMLTemplateWithQueryExpression3");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<data><person country=\"Germany\">Mike</person>" +
+                "<person country=\"France\">Anne</person><person country=\"Russia\">John</person></data>");
+    }
+
+    @Test(description = "Test XML template with query expression iterating over a table returning xml")
+    public void testXMLTemplateWithQueryExpression4() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testXMLTemplateWithQueryExpression4");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<data><person country=\"Russia\">John</person>" +
+                "<person country=\"Germany\">Mike</person></data>");
+    }
+
+    @Test(description = "Test XML template with query expression iterating over xml with namespaces")
+    public void testQueryExpressionIteratingOverXMLWithNamespaces() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLWithNamespaces");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<fname xmlns:ns=\"foo\" " +
+                "ns:status=\"active\">Mike</fname>");
+    }
+
+    @Test(description = "Test XML template with query expression iterating over xml with namespaces")
+    public void testQueryExpressionIteratingOverTableReturningXML() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverTableReturningXML");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<person country=\"Russia\">John</person>" +
+                "<person country=\"Germany\">Mike</person>");
+    }
+
+    @Test(description = "Test XML template with query expression iterating over xml with namespaces")
+    public void testQueryExpressionIteratingOverStreamReturningXML() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverStreamReturningXML");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<person country=\"Russia\">John</person>" +
+                "<person country=\"Germany\">Mike</person>");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

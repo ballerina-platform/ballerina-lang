@@ -35,7 +35,7 @@ public class BallerinaTypeDescTypeSymbol extends AbstractTypeSymbol implements T
     private TypeSymbol typeParameter;
 
     public BallerinaTypeDescTypeSymbol(CompilerContext context, ModuleID moduleID, BTypedescType typedescType) {
-        super(context, TypeDescKind.TYPEDESC, moduleID, typedescType);
+        super(context, TypeDescKind.TYPEDESC, typedescType);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class BallerinaTypeDescTypeSymbol extends AbstractTypeSymbol implements T
     @Override
     public String signature() {
         if (this.typeParameter().isPresent()) {
-            return this.typeKind().name() + "<" + this.typeParameter().get().signature() + ">";
+            return this.typeKind().getName() + "<" + this.typeParameter().get().signature() + ">";
         }
         return this.typeKind().name();
     }

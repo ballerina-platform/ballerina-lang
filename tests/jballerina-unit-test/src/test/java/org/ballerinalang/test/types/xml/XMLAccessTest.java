@@ -223,11 +223,11 @@ public class XMLAccessTest {
                 " not support indexing", 21, 28);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(string|xml:Text)' does " +
                 "not support indexing", 22, 14);
-        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(xml:Element|xml<never> " +
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: union type '(xml:Element|xml<never> " +
                 "& readonly)' does not support xml navigation access", 25, 14);
-        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(xml:Comment|xml<never> " +
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: union type '(xml:Comment|xml<never> " +
                 "& readonly)' does not support xml navigation access", 27, 14);
-        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: union type " +
                 "'(xml:ProcessingInstruction|xml<never> & readonly)' does not support xml navigation access", 29, 15);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
                 "'(xml:Element|xml<never> & readonly)' does not support indexing", 31, 10);
@@ -235,10 +235,9 @@ public class XMLAccessTest {
                 "'(xml:Comment|xml<never> & readonly)' does not support indexing", 32, 10);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
                 "'(xml:ProcessingInstruction|xml<never> & readonly)' does not support indexing", 33, 11);
-        BAssertUtil.validateError(negativeResult, i++, "function invocation on type" +
-                " '(xml:Element|xml<never> & readonly)' is not supported", 35, 25);
+        BAssertUtil.validateError(negativeResult, i++, "xml langlib functions does not support " +
+                "union types as their arguments", 35, 25);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
-
     }
 
 

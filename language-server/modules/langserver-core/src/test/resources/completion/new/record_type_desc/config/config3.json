@@ -46,6 +46,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "Q",
+      "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "Q",
+      "insertText": "ErrorTwo",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
@@ -84,6 +100,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Client",
       "kind": "Interface",
       "detail": "Class",
@@ -103,14 +127,6 @@
       },
       "sortText": "K",
       "insertText": "Response",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Listener",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -94,7 +94,7 @@ public class SymbolBIRTest {
         assertList(symbolsInScope, expSymbolNames);
 
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
-                .filter(sym -> sym.name().equals("testproject")).findAny().get();
+                .filter(sym -> sym.getName().get().equals("testproject")).findAny().get();
         List<String> fooFunctions = getSymbolNames(fooPkgSymbol, SymTag.FUNCTION);
         SemanticAPITestUtils.assertList(fooModule.functions(), fooFunctions);
 
@@ -120,7 +120,7 @@ public class SymbolBIRTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -148,7 +148,8 @@ public class SymbolBIRTest {
         assertEquals(actualValues.size(), expectedValues.size());
 
         for (SymbolInfo val : expectedValues) {
-            assertTrue(actualValues.stream().anyMatch(sym -> val.equals(new SymbolInfo(sym.name(), sym.kind()))),
+            assertTrue(actualValues.stream()
+                               .anyMatch(sym -> val.equals(new SymbolInfo(sym.getName().get(), sym.kind()))),
                        "Symbol not found: " + val);
 
         }
@@ -177,7 +178,7 @@ public class SymbolBIRTest {
                         {"xml", MODULE}, {"testproject", MODULE}, {"object", MODULE}, {"error", MODULE},
                         {"boolean", MODULE}, {"decimal", MODULE}, {"typedesc", MODULE}, {"float", MODULE},
                         {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
-                        {"string", MODULE}, {"table", MODULE}
+                        {"string", MODULE}, {"table", MODULE}, {"transaction", MODULE}
                 });
     }
 

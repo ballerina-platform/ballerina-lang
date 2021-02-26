@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -89,10 +90,10 @@ public class SignatureHelpUtil {
         SignatureInfoModel signatureInfoModel = getSignatureInfoModel(functionSymbol.get(), context);
 
         // Override label for 'new' constructor
-        int initIndex = functionSymbol.get().name().indexOf(INIT_SYMBOL);
+        String functionName = functionSymbol.get().getName().get();
+        int initIndex = functionName.indexOf(INIT_SYMBOL);
         StringBuilder labelBuilder = initIndex > -1
-                ? new StringBuilder("new " + functionSymbol.get().name().substring(0, initIndex))
-                : new StringBuilder(functionSymbol.get().name());
+                ? new StringBuilder("new " + functionName.substring(0, initIndex)) : new StringBuilder(functionName);
 
         labelBuilder.append("(");
         // Join the function parameters to generate the function's signature
@@ -176,7 +177,8 @@ public class SignatureHelpUtil {
                 .forEach(param -> parameters.add(new Parameter(param, false, false, context)));
         Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
         restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
-        boolean skipFirstParam = functionSymbol.kind() == METHOD && CommonUtil.isLangLib(functionSymbol.moduleID());
+        boolean skipFirstParam = functionSymbol.kind() == METHOD
+                && CommonUtil.isLangLib(functionSymbol.getModule().get().id());
         // Create a list of param info models
         for (int i = 0; i < parameters.size(); i++) {
             if (i == 0 && skipFirstParam) {
@@ -314,7 +316,7 @@ public class SignatureHelpUtil {
      * Find the token at cursor.
      */
     private static Optional<NonTerminalNode> getTokenInfoAtCursor(SignatureContext context) {
-        Optional<Document> document = context.workspace().document(context.filePath());
+        Optional<Document> document = context.currentDocument();
         if (document.isEmpty()) {
             return Optional.empty();
         }
@@ -360,13 +362,15 @@ public class SignatureHelpUtil {
             if (nameReferenceNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 funcName = ((QualifiedNameReferenceNode) nameReferenceNode).identifier().text();
                 filteredContent = QNameReferenceUtil.getModuleContent(context,
-                        (QualifiedNameReferenceNode) nameReferenceNode,
-                        symbolPredicate.and(symbol -> symbol.name().equals(funcName)));
+                                                                      (QualifiedNameReferenceNode) nameReferenceNode,
+                                                                      symbolPredicate
+                                                                              .and(symbol -> symbol.getName().get()
+                                                                                      .equals(funcName)));
             } else {
                 funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
                 List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
                 filteredContent = visibleSymbols.stream()
-                        .filter(symbolPredicate.and(symbol -> symbol.name().equals(funcName)))
+                        .filter(symbolPredicate.and(symbol -> symbol.getName().get().equals(funcName)))
                         .collect(Collectors.toList());
             }
 
@@ -391,7 +395,7 @@ public class SignatureHelpUtil {
         }
 
         return getFunctionSymbolsForTypeDesc(typeDesc.get()).stream()
-                .filter(functionSymbol -> functionSymbol.name().equals(methodName))
+                .filter(functionSymbol -> functionSymbol.getName().get().equals(methodName))
                 .findAny();
     }
 
@@ -460,7 +464,7 @@ public class SignatureHelpUtil {
         String name = ((SimpleNameReferenceNode) referenceNode).name().text();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<Symbol> symbolRef = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(name))
+                .filter(symbol -> Objects.equals(symbol.getName().orElse(null), name))
                 .findFirst();
         if (symbolRef.isEmpty()) {
             return Optional.empty();
@@ -474,7 +478,7 @@ public class SignatureHelpUtil {
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION && symbol.getName().get().equals(fName))
                 .map(symbol -> (FunctionSymbol) symbol)
                 .findFirst();
         if (symbolRef.isEmpty()) {
@@ -499,7 +503,7 @@ public class SignatureHelpUtil {
             visibleMethods.addAll(((ObjectTypeSymbol) CommonUtil.getRawType(fieldTypeDesc.get())).methods().values());
         }
         Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
-                .filter(methodSymbol -> methodSymbol.name().equals(methodName))
+                .filter(methodSymbol -> Objects.equals(methodSymbol.getName().orElse(null), methodName))
                 .findFirst();
 
         if (filteredMethod.isEmpty()) {

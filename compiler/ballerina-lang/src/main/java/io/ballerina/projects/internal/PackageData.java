@@ -39,7 +39,7 @@ public class PackageData {
     private final DependencyGraph<ModuleId> moduleDependencyGraph;
     private final DocumentData ballerinaToml;
     private final DocumentData dependenciesToml;
-    private final DocumentData kubernetesToml;
+    private final DocumentData cloudToml;
     private final DocumentData packageMd;
 
 
@@ -50,7 +50,7 @@ public class PackageData {
                         DependencyGraph<ModuleId> moduleDependencyGraph,
                         DocumentData ballerinaToml,
                         DocumentData dependenciesToml,
-                        DocumentData kubernetesToml,
+                        DocumentData cloudToml,
                         DocumentData packageMd) {
         this.packagePath = packagePath;
         this.defaultModule = defaultModule;
@@ -60,7 +60,7 @@ public class PackageData {
         this.packageMd = packageMd;
         this.ballerinaToml = ballerinaToml;
         this.dependenciesToml = dependenciesToml;
-        this.kubernetesToml = kubernetesToml;
+        this.cloudToml = cloudToml;
     }
 
     public static PackageData from(Path packagePath,
@@ -68,10 +68,10 @@ public class PackageData {
                                    List<ModuleData> otherModules,
                                    DocumentData ballerinaToml,
                                    DocumentData dependenciesToml,
-                                   DocumentData kubernetesToml,
+                                   DocumentData cloudToml,
                                    DocumentData packageMd) {
         return new PackageData(packagePath, defaultModule, otherModules, DependencyGraph.emptyGraph(),
-                DependencyGraph.emptyGraph(), ballerinaToml, dependenciesToml, kubernetesToml, packageMd);
+                DependencyGraph.emptyGraph(), ballerinaToml, dependenciesToml, cloudToml, packageMd);
     }
 
     public static PackageData from(Path packagePath,
@@ -81,10 +81,10 @@ public class PackageData {
                                    DependencyGraph<ModuleId> moduleDependencyGraph,
                                    DocumentData ballerinaToml,
                                    DocumentData dependenciesToml,
-                                   DocumentData kubernetesToml,
+                                   DocumentData cloudToml,
                                    DocumentData packageMd) {
         return new PackageData(packagePath, defaultModule, otherModules, packageDesDependencyGraph,
-                moduleDependencyGraph, ballerinaToml, dependenciesToml, kubernetesToml, packageMd);
+                moduleDependencyGraph, ballerinaToml, dependenciesToml, cloudToml, packageMd);
     }
 
     public Path packagePath() {
@@ -115,8 +115,8 @@ public class PackageData {
         return Optional.ofNullable(dependenciesToml);
     }
 
-    public Optional<DocumentData> kubernetesToml() {
-        return Optional.ofNullable(kubernetesToml);
+    public Optional<DocumentData> cloudToml() {
+        return Optional.ofNullable(cloudToml);
     }
 
     public Optional<DocumentData> packageMd() {

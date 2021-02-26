@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Debug process related low-level task executor through JDI.
@@ -33,34 +34,31 @@ import java.util.Map;
 public class DebugExecutionManager {
 
     private VirtualMachine attachedVm;
+    private String host;
+    private Integer port;
+
+    public static final String LOCAL_HOST = "localhost";
     private static final String SOCKET_CONNECTOR_NAME = "com.sun.jdi.SocketAttach";
     private static final String CONNECTOR_ARGS_HOST = "hostname";
     private static final String CONNECTOR_ARGS_PORT = "port";
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugExecutionManager.class);
 
-    public DebugExecutionManager() {
-        attachedVm = null;
-    }
-
     public boolean isActive() {
         return attachedVm != null;
     }
 
-    /**
-     * Attaches to an existing JVM using an SocketAttachingConnector and returns the attached VM instance.
-     */
-    public VirtualMachine attach(String port) throws IOException, IllegalConnectorArgumentsException {
-        return attach("", port);
+    public Optional<String> getHost() {
+        return Optional.ofNullable(host);
+    }
+
+    public Optional<Integer> getPort() {
+        return Optional.ofNullable(port);
     }
 
     /**
      * Attaches to an existing JVM using an SocketAttachingConnector and returns the attached VM instance.
      */
-    public VirtualMachine attach(String hostName, String port) throws IOException, IllegalConnectorArgumentsException {
-        if (port == null || port.isEmpty()) {
-            throw new IllegalConnectorArgumentsException("Port is not defined.", "port");
-        }
-
+    public VirtualMachine attach(String hostName, int port) throws IOException, IllegalConnectorArgumentsException {
         AttachingConnector socketAttachingConnector = Bootstrap.virtualMachineManager().attachingConnectors().stream()
                 .filter(ac -> ac.name().equals(SOCKET_CONNECTOR_NAME))
                 .findFirst()
@@ -70,9 +68,14 @@ public class DebugExecutionManager {
         if (!hostName.isEmpty()) {
             connectorArgs.get(CONNECTOR_ARGS_HOST).setValue(hostName);
         }
-        connectorArgs.get(CONNECTOR_ARGS_PORT).setValue(port);
-        LOGGER.info(String.format("Debugger is attaching to: %s:%s", hostName, port));
+        connectorArgs.get(CONNECTOR_ARGS_PORT).setValue(String.valueOf(port));
+        LOGGER.info(String.format("Debugger is attaching to: %s:%d", hostName, port));
+
         attachedVm = socketAttachingConnector.attach(connectorArgs);
+        this.host = !hostName.isEmpty() ? hostName : LOCAL_HOST;
+        this.port = port;
+        // Todo - enable after implementing debug server client logger
+        // server.sendOutput(String.format("Connected to the target VM, address: '%s:%s'", host, port), STDOUT);
         return attachedVm;
     }
 }

@@ -65,7 +65,7 @@ function workerSendToDefault() returns int{
     @strand{thread:"any"}
     worker w1 {
         int x = 50;
-        x -> default;
+        x -> function;
     }
     int y = <- w1;
     return y + 1;
@@ -74,7 +74,7 @@ function workerSendToDefault() returns int{
 function workerSendFromDefault() returns int{
     @strand{thread:"any"}
     worker w1 returns int {
-        int y = <- default;
+        int y = <- function;
         return y;
     }
     int x = 50;
@@ -213,7 +213,7 @@ public function sendToDefaultWithPanicBeforeSendInWorker() returns int {
             error err = error("error: err from panic");
             panic err;
         }
-        i -> default;
+        i -> function;
     }
     wait w1;
     int res = <- w1;
@@ -224,7 +224,7 @@ public function sendToDefaultWithPanicBeforeSendInDefault() returns int {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i -> default;
+        i -> function;
     }
     wait w1;
     if(true) {
@@ -239,7 +239,7 @@ public function sendToDefaultWithPanicAfterSendInWorker() returns int {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i -> default;
+        i -> function;
         if(true) {
             error err = error("error: err from panic");
             panic err;
@@ -254,7 +254,7 @@ public function sendToDefaultWithPanicAfterSendInDefault() returns int {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i -> default;
+        i -> function;
     }
     int res = <- w1;
     if(true) {
@@ -268,7 +268,7 @@ public function receiveFromDefaultWithPanicAfterSendInDefault() {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i = <- default;
+        i = <- function;
     }
     int sq = 16;
     sq -> w1;
@@ -282,7 +282,7 @@ public function receiveFromDefaultWithPanicBeforeSendInDefault() {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i = <- default;
+        i = <- function;
     }
     if(true) {
         error err = error("error: err from panic");
@@ -300,7 +300,7 @@ public function receiveFromDefaultWithPanicBeforeReceiveInWorker() {
             error err = error("error: err from panic");
             panic err;
         }
-        i = <- default;
+        i = <- function;
     }
     int sq = 16;
     sq -> w1;
@@ -311,7 +311,7 @@ public function receiveFromDefaultWithPanicAfterReceiveInWorker() {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i = <- default;
+        i = <- function;
         if(true) {
             error err = error("error: err from panic");
             panic err;
@@ -350,7 +350,7 @@ public function receiveWithCheckForDefault() returns boolean|error {
             error err = error("err from panic");
             return err;
         }
-        i -> default;
+        i -> function;
         return false;
     }
 
@@ -365,7 +365,7 @@ public function receiveWithTrapForDefault() returns error|int {
            error err = error("error: err from panic");
            panic err;
        }
-       i -> default;
+       i -> function;
        return i;
    }
 
@@ -381,7 +381,7 @@ public function receiveDefaultWithCheckAndTrap() returns error|int {
            error err = error("error: err from panic");
            panic err;
        }
-       i -> default;
+       i -> function;
    }
 
    error|int j = check trap <- w1;
@@ -429,7 +429,7 @@ function workerTestWithLambda() returns int {
 function invokeTestFunc(int c) {
     @strand{thread:"any"}
     worker w1 returns int {
-        int a = <- default;
+        int a = <- function;
         return a;
     }
     int b = 9;
@@ -549,7 +549,7 @@ function singleAdd(int num) returns int{
 function innerWorkerPanicTest() {
    @strand{thread:"any"}
    worker w1 {
-       int k = <- default;
+       int k = <- function;
    }
 
    panicFunc();
@@ -564,7 +564,7 @@ function panicFunc() {
            error e = error("worker w5 panic");
            panic e;
        }
-       10 -> default;
+       10 -> function;
     }
     int k = <- w5;
 }
@@ -640,5 +640,5 @@ function testStartFunction() {
 }
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

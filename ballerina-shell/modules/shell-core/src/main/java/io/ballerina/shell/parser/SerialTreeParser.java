@@ -69,14 +69,12 @@ public class SerialTreeParser extends TrialTreeParser {
             } catch (ParserRejectedException e) {
                 errorMessage = "Invalid statement: " + e.getMessage();
                 break;
-            } catch (Exception e) {
-                errorMessage = "Invalid statement. Could not parse the expression: " + e.getMessage();
-            } catch (Error e) {
-                errorMessage = "Something severely went wrong: " + e.toString();
+            } catch (Throwable e) {
+                errorMessage = "Code contains syntax error(s).";
             }
         }
         addDiagnostic(Diagnostic.error(errorMessage));
-        addDiagnostic(Diagnostic.error("Parsing aborted because of errors."));
+        addDiagnostic(Diagnostic.error("Parsing aborted due to errors."));
         throw new TreeParserException();
     }
 }

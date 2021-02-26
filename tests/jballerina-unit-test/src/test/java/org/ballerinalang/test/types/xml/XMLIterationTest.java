@@ -57,7 +57,7 @@ public class XMLIterationTest {
         Assert.assertEquals(negative.getErrorCount(), 19);
         int index = 0;
         BAssertUtil.validateError(negative, index++,
-                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'xml'",
+                                  "invalid list binding pattern: attempted to infer a list type, but found 'xml'",
                                   13, 17);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
                 "'function ((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)) returns ()'," +
@@ -105,18 +105,18 @@ public class XMLIterationTest {
                 "incompatible types: '(xml<xml:Element>|xml<xml:Text>)' is not an iterable collection",
                 68, 44);
         BAssertUtil.validateError(negative, index++,
-                "function invocation on type '(xml:Element|xml:Text)' is not supported",
-                72, 68);
-        BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
                 72, 68);
         BAssertUtil.validateError(negative, index++,
-                "function invocation on type '(xml<xml:Element>|xml<xml:Text>)' is not supported",
+                "xml langlib functions does not support union types as their arguments",
+                72, 68);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
+                        "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
                 73, 68);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
-                        "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
+                "xml langlib functions does not support union types as their arguments",
                 73, 68);
     }
 

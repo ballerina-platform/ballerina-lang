@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.bindgen.model;
 
-import org.ballerinalang.bindgen.command.BindingsGenerator;
+import org.ballerinalang.bindgen.utils.BindgenEnv;
 
 import java.lang.reflect.Parameter;
 
@@ -53,12 +53,12 @@ public class JParameter {
     private Boolean isStringArray = false;
     private Boolean isPrimitiveArray = false;
 
-    JParameter(Class parameterClass, Class parentClass) {
+    JParameter(Class parameterClass, Class parentClass, BindgenEnv env) {
         this.parameterClass = parameterClass;
         this.parentClass = parentClass;
         type = parameterClass.getName();
         shortTypeName = getBallerinaParamType(parameterClass);
-        modulesFlag = BindingsGenerator.getModulesFlag();
+        modulesFlag = env.getModulesFlag();
 
         // Append the prefix "J" in front of bindings generated for Java exceptions.
         try {
@@ -98,8 +98,8 @@ public class JParameter {
         fieldName = "arg";
     }
 
-    JParameter(Parameter parameter, Class parentClass) {
-        this(parameter.getType(), parentClass);
+    JParameter(Parameter parameter, Class parentClass, BindgenEnv env) {
+        this(parameter.getType(), parentClass, env);
         fieldName = parameter.getName();
     }
 

@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
@@ -167,7 +166,7 @@ public class HomeBalaRepo implements Repo<Path> {
             }
         }
         // if a similar file is not found assume the default bala name
-        String balaFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" + versionStr +
+        String balaFileName = pkgName + "-" + orgName + "-" + platform + "-" + versionStr +
                 ".bala";
         return balaFilePath.resolve(balaFileName);
     }
