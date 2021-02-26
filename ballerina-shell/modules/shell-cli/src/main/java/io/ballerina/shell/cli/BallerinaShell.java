@@ -52,8 +52,6 @@ import static io.ballerina.shell.cli.PropertiesLoader.REPL_PROMPT;
  * @since 2.0.0
  */
 public class BallerinaShell {
-    private static final int INIT_WARNING_THRESH_S = 2;
-
     protected final BShellConfiguration configuration;
     protected final TerminalAdapter terminal;
     protected final Evaluator evaluator;
@@ -88,24 +86,23 @@ public class BallerinaShell {
         }
 
         Instant end = Instant.now();
-        // Output a warning if initialization took too long.
-        if (Duration.between(start, end).getSeconds() > INIT_WARNING_THRESH_S) {
-            terminal.warn("Compiler initialization took longer than expected.");
-        }
 
         while (isRunning) {
             Duration previousDuration = Duration.between(start, end);
             String rightPrompt = String.format("took %s ms", previousDuration.toMillis());
             rightPrompt = terminal.color(rightPrompt, TerminalAdapter.BRIGHT);
 
-            String source = terminal.readLine(leftPrompt, rightPrompt).trim();
-
-            start = Instant.now();
             try {
+                String source = terminal.readLine(leftPrompt, rightPrompt).trim();
+                start = Instant.now();
                 if (!commandHandler.handle(source)) {
                     String result = evaluator.evaluate(source);
                     terminal.result(result);
                 }
+            } catch (ShellExitException e) {
+                terminal.info("Bye!!!");
+                isRunning = false;
+                break;
             } catch (Exception e) {
                 if (!evaluator.hasErrors()) {
                     terminal.fatalError("Something went wrong: " + e.getMessage());
@@ -194,9 +191,5 @@ public class BallerinaShell {
         } catch (BallerinaShellException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void exit() {
-        this.isRunning = false;
     }
 }

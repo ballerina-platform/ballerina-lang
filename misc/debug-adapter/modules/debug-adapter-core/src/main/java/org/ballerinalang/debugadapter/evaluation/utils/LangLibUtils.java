@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation.utils;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -76,7 +77,7 @@ public class LangLibUtils {
             return new StringJoiner(".")
                     .add(LANG_LIB_ORG)
                     .add(encodeModuleName(LANG_LIB_PACKAGE_PREFIX + langLibName))
-                    .add(moduleSymbol.moduleID().version().replaceAll("\\.", "_"))
+                    .add(moduleSymbol.id().version().replaceAll("\\.", "_"))
                     .add(langLibName)
                     .toString();
         } catch (Exception ignored) {
@@ -91,10 +92,16 @@ public class LangLibUtils {
 
         return semanticContext.visibleSymbols(context.getDocument(), position)
                 .stream()
-                .filter(symbol -> symbol.kind() == MODULE
-                        && symbol.moduleID().orgName().equals(LANG_LIB_ORG)
-                        && symbol.moduleID().moduleName().startsWith(LANG_LIB_PACKAGE_PREFIX)
-                        && symbol.moduleID().moduleName().endsWith(langLibName))
+                .filter(symbol -> {
+                    if (symbol.kind() != MODULE) {
+                        return false;
+                    }
+
+                    ModuleID moduleID = ((ModuleSymbol) symbol).id();
+                    return moduleID.orgName().equals(LANG_LIB_ORG)
+                            && moduleID.moduleName().startsWith(LANG_LIB_PACKAGE_PREFIX)
+                            && moduleID.moduleName().endsWith(langLibName);
+                })
                 .findFirst()
                 .map(symbol -> (ModuleSymbol) symbol);
     }
@@ -103,7 +110,7 @@ public class LangLibUtils {
                                                                         ModuleSymbol langLibDef, String functionName) {
         return langLibDef.functions()
                 .stream()
-                .filter(functionSymbol -> modifyName(functionSymbol.name()).equals(functionName))
+                .filter(functionSymbol -> modifyName(functionSymbol.getName().get()).equals(functionName))
                 .findFirst();
     }
 

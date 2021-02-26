@@ -19,7 +19,6 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -51,10 +50,11 @@ public class PathVerificationTest extends BaseTestCase {
     @Test
     public void verifyMissingTestsDirectory() throws BallerinaTestException {
         String msg = "No tests found";
-        LogLeecher clientLeecher = new LogLeecher(msg);
         String[] args = mergeCoverageArgs(new String[]{"missing-tests-dir"});
-        balClient.runMain("test", args,
-                null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg)) {
+            AssertionUtils.assertForTestFailures(output, "missing test directory verification failure");
+        }
     }
 }

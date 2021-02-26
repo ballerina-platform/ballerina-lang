@@ -35,6 +35,7 @@ import java.nio.file.Paths;
  */
 public class TomlFileToManifestTest {
 
+    // TODO: Need to remove Manifest, it's utils and tests.
     @Test(description = "Test which covers all the attributes tested above")
     public void testTomlFile() throws URISyntaxException {
         URI ballerinaTomlURI = getClass().getClassLoader().getResource("Ballerina.toml").toURI();
@@ -50,17 +51,6 @@ public class TomlFileToManifestTest {
         Assert.assertEquals(manifest.getProject().getKeywords().get(0), "ballerina");
         Assert.assertEquals(manifest.getProject().getKeywords().get(2), "crypto");
         Assert.assertEquals(manifest.getProject().getKeywords().size(), 3);
-
-        Assert.assertEquals(manifest.getDependencies().size(), 2);
-        
-        Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "wso2/twitter");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "2.3.4");
-    
-        Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "wso2/github");
-        Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "1.2.3");
-        Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getPath().toString(),
-                "path/to/github.bala");
-        
     }
     
     @Test(description = "Test invalid Ballerina.toml", expectedExceptions = TomlException.class,

@@ -57,7 +57,7 @@ public class XMLIterationTest {
         Assert.assertEquals(negative.getErrorCount(), 19);
         int index = 0;
         BAssertUtil.validateError(negative, index++,
-                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'xml'",
+                                  "invalid list binding pattern: attempted to infer a list type, but found 'xml'",
                                   13, 17);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
                 "'function ((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)) returns ()'," +

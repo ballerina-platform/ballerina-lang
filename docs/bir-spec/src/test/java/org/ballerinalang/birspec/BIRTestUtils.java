@@ -88,11 +88,12 @@ class BIRTestUtils {
 
     static void validateBIRSpec(String testSource) {
         BCompileUtil.BIRCompileResult compileResult = BCompileUtil.generateBIR(testSource);
+        Assert.assertNotNull(compileResult, "Compilation may contain errors!");
+
         BIRNode.BIRPackage expectedBIRModule = compileResult.getExpectedBIR();
         byte[] actualBIRbinary = compileResult.getActualBIR();
         Bir kaitaiBir = new Bir(new ByteBufferKaitaiStream(actualBIRbinary));
 
-        Assert.assertNotNull(kaitaiBir, "Compilation may contain errors!");
 
         ArrayList<Bir.ConstantPoolEntry> constantPoolEntries = kaitaiBir.constantPool().constantPoolEntries();
         Bir.Module actualBIRModule = kaitaiBir.module();
@@ -424,7 +425,7 @@ class BIRTestUtils {
 
             // assert name
             assertConstantPoolEntry(constantPoolEntries.get(actualTypeDefinition.nameCpIndex()),
-                    expectedTypeDefinition.name.value);
+                    expectedTypeDefinition.internalName.value);
 
             // assert flags
             assertFlags(actualTypeDefinition.flags(), expectedTypeDefinition.flags);

@@ -72,6 +72,7 @@ public class CompileTask implements Task {
             if (diagnosticResult.hasErrors()) {
                 throw createLauncherException("compilation contains errors");
             }
+            project.save();
         } catch (ProjectException e) {
             throw createLauncherException("compilation failed: " + e.getMessage());
         }

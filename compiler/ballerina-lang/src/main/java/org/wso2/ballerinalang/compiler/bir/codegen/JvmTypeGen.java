@@ -69,6 +69,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -227,7 +228,7 @@ public class JvmTypeGen {
             BType bType = typeDef.type;
             if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
                     || bType.tag == TypeTags.UNION) {
-                String name = typeDef.name.value;
+                String name = typeDef.internalName.value;
                 generateTypeField(cw, name);
                 generateTypedescField(cw, name);
             }
@@ -278,7 +279,7 @@ public class JvmTypeGen {
 
         // Create the type
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            String name = optionalTypeDef.name.value;
+            String name = optionalTypeDef.internalName.value;
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.RECORD) {
                 createRecordType(mv, (BRecordType) bType);
@@ -326,7 +327,7 @@ public class JvmTypeGen {
                 continue;
             }
 
-            fieldName = getTypeFieldName(optionalTypeDef.name.value);
+            fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
             String methodName = String.format("$populate%s", fieldName);
             funcNames.add(methodName);
 
@@ -505,28 +506,20 @@ public class JvmTypeGen {
                                      PackageID moduleId, String typeOwnerClass, SymbolTable symbolTable,
                                      AsyncDataCollector asyncDataCollector) {
 
-        List<BIRTypeDefinition> recordTypeDefs = new ArrayList<>();
+        // due to structural type same name can appear twice, need to remove duplicates
+        Set<BIRTypeDefinition> recordTypeDefSet = new TreeSet<>(NAME_HASH_COMPARATOR);
         List<BIRTypeDefinition> objectTypeDefs = new ArrayList<>();
 
-        int i = 0;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.RECORD) {
-                recordTypeDefs.add(i, optionalTypeDef);
-                i += 1;
+                recordTypeDefSet.add(optionalTypeDef);
+            } else if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
+                objectTypeDefs.add(optionalTypeDef);
             }
         }
 
-        i = 0;
-        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
-            if (bType.tag == TypeTags.OBJECT &&
-                    Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
-                objectTypeDefs.add(i, optionalTypeDef);
-                i += 1;
-            }
-        }
-
+        ArrayList<BIRTypeDefinition> recordTypeDefs = new ArrayList<>(recordTypeDefSet);
         generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass, asyncDataCollector);
         generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass, symbolTable, asyncDataCollector);
     }
@@ -553,11 +546,11 @@ public class JvmTypeGen {
         int i = 0;
 
         for (BIRTypeDefinition optionalTypeDef : recordTypeDefs) {
-            String fieldName = getTypeFieldName(optionalTypeDef.name.value);
+            String fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            String className = getTypeValueClassName(moduleId, optionalTypeDef.name.value);
+            String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
@@ -622,11 +615,11 @@ public class JvmTypeGen {
         int i = 0;
 
         for (BIRTypeDefinition optionalTypeDef : objectTypeDefs) {
-            String fieldName = getTypeFieldName(optionalTypeDef.name.value);
+            String fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            String className = getTypeValueClassName(moduleId, optionalTypeDef.name.value);
+            String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));

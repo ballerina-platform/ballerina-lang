@@ -28,6 +28,10 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.ballerinalang.maven.Dependency;
+import org.ballerinalang.maven.MavenResolver;
+import org.ballerinalang.maven.Utils;
+import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
@@ -41,6 +45,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -202,10 +207,16 @@ public class JBallerinaBackend extends CompilerBackend {
 
         List<PlatformLibrary> platformLibraries = new ArrayList<>();
         for (Map<String, Object> dependency : javaPlatform.dependencies()) {
-            String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
             String artifactId = (String) dependency.get(JarLibrary.KEY_ARTIFACT_ID);
             String version = (String) dependency.get(JarLibrary.KEY_VERSION);
             String groupId = (String) dependency.get(JarLibrary.KEY_GROUP_ID);
+
+            String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
+            // If dependencyFilePath does not exists, resolve it using MavenResolver
+            if (dependencyFilePath == null || dependencyFilePath.isEmpty()) {
+                dependencyFilePath = getPlatformLibPath(groupId, artifactId, version);
+            }
+
             // If the path is relative we will covert to absolute relative to Ballerina.toml file
             Path jarPath = Paths.get(dependencyFilePath);
             if (!jarPath.isAbsolute()) {
@@ -470,6 +481,27 @@ public class JBallerinaBackend extends CompilerBackend {
                     "platform-specific library path: " + dependency.get(JarLibrary.KEY_PATH));
         }
         return scope;
+    }
+
+    /**
+     * Get platform lib path for given maven dependency.
+     *
+     * @param groupId    group id
+     * @param artifactId artifact id
+     * @param version    version
+     * @return platform lib path
+     */
+    private String getPlatformLibPath(String groupId, String artifactId, String version) {
+        String targetRepo =
+                this.packageContext.project().sourceRoot().toString() + File.separator + "target" + File.separator
+                        + "platform-libs";
+        MavenResolver resolver = new MavenResolver(targetRepo);
+        try {
+            Dependency dependency = resolver.resolve(groupId, artifactId, version, false);
+            return Utils.getJarPath(targetRepo, dependency);
+        } catch (MavenResolverException e) {
+            throw new ProjectException("cannot resolve " + artifactId + ": " + e.getMessage());
+        }
     }
 
     /**

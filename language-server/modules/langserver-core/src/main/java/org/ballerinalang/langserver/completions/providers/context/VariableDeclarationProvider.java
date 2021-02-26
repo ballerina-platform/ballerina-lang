@@ -31,12 +31,11 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -78,7 +77,6 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         completionItems.addAll(this.actionKWCompletions(context));
         completionItems.addAll(this.expressionCompletions(context));
         completionItems.addAll(getNewExprCompletionItems(context, typeDsc));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IS.get()));
 
         return completionItems;
     }
@@ -99,13 +97,15 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
             Stream<Symbol> classesAndTypes = Stream.concat(moduleSymbol.classes().stream(),
                     moduleSymbol.typeDefinitions().stream());
             classSymbol = classesAndTypes
-                    .filter(typeSymbol -> SymbolUtil.isClass(typeSymbol) && typeSymbol.name().equals(identifier))
+                    .filter(typeSymbol -> SymbolUtil.isClass(typeSymbol)
+                            && Objects.equals(typeSymbol.getName().orElse(null), identifier))
                     .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else if (typeDescriptorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) typeDescriptorNode).name().text();
             classSymbol = visibleSymbols.stream()
-                    .filter(symbol -> SymbolUtil.isClass(symbol) && symbol.name().equals(identifier))
+                    .filter(symbol -> SymbolUtil.isClass(symbol)
+                            && Objects.equals(symbol.getName().orElse(null), identifier))
                     .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else {

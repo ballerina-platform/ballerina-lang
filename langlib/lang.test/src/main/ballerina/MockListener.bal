@@ -23,6 +23,24 @@ public type ListenerConfiguration record {|
     boolean webSocketCompressionEnabled = true;
 |};
 
+public type TestServiceConfig record {|
+    string host = "b7a.default";
+    string basePath = "";
+|};
+
+public annotation TestServiceConfig ServiceConfig on service;
+
+public type TestResourceConfig record {|
+    string[] methods = [];
+    string path = "";
+    string body = "";
+    string[] consumes = [];
+    string[] produces = [];
+    boolean transactionInfectable = true;
+|};
+
+public annotation TestResourceConfig ResourceConfig on object function;
+
 public class MockListener {
 
     private int port = 0;

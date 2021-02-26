@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.bindgen.model;
 
+import org.ballerinalang.bindgen.utils.BindgenEnv;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -31,9 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.bindgen.command.BindingsGenerator.getBalPackageName;
-import static org.ballerinalang.bindgen.command.BindingsGenerator.getModulesFlag;
-import static org.ballerinalang.bindgen.command.BindingsGenerator.isDirectJavaClass;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setAllClasses;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ACCESS_FIELD;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MUTATE_FIELD;
@@ -51,6 +50,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicMethod;
  */
 public class JClass {
 
+    private BindgenEnv env;
     private String prefix;
     private String className;
     private String packageName;
@@ -74,7 +74,8 @@ public class JClass {
     private List<JConstructor> initFunctionList = new ArrayList<>();
     private Map<String, Integer> overloadedMethods = new HashMap<>();
 
-    public JClass(Class c) {
+    public JClass(Class c, BindgenEnv env) {
+        this.env = env;
         currentClass = c;
         className = c.getName();
         prefix = className.replace(".", "_").replace("$", "_");
@@ -82,8 +83,8 @@ public class JClass {
         packageName = c.getPackage().getName();
         shortClassName = getExceptionName(c, shortClassName);
         superClassNames.add(c.getName());
-        modulesFlag = getModulesFlag();
-        balPackageName = getBalPackageName();
+        modulesFlag = env.getModulesFlag();
+        balPackageName = env.getPackageName();
 
         setAllClasses(shortClassName);
         if (c.isInterface()) {
@@ -107,7 +108,7 @@ public class JClass {
         if (isAbstractClass(c)) {
             isAbstract = true;
         }
-        if (isDirectJavaClass()) {
+        if (env.getDirectJavaClass()) {
             isDirectClass = true;
             populateConstructors(c.getConstructors());
             populateInitFunctions();
@@ -131,7 +132,7 @@ public class JClass {
                 List<Method> methods = new ArrayList<>();
                 for (Map.Entry<Method, String> mapValue : methodClassMap.entrySet()) {
                     if (mapValue.getValue().equals(superclass)) {
-                        jMethods.add(new JMethod(mapValue.getKey(), currentClass));
+                        jMethods.add(new JMethod(mapValue.getKey(), currentClass, env));
                         methods.add(mapValue.getKey());
                     }
                 }
@@ -171,7 +172,7 @@ public class JClass {
     private void populateConstructors(Constructor[] constructors) {
         int i = 1;
         for (Constructor constructor : constructors) {
-            JConstructor jConstructor = new JConstructor(constructor);
+            JConstructor jConstructor = new JConstructor(constructor, env);
             if (modulesFlag) {
                 importedPackages.addAll(jConstructor.getImportedPackages());
             }
@@ -209,7 +210,7 @@ public class JClass {
     private void populateMethods(List<Method> declaredMethods) {
         for (Method method : declaredMethods) {
             if (isPublicMethod(method)) {
-                JMethod jMethod = new JMethod(method, currentClass);
+                JMethod jMethod = new JMethod(method, currentClass, env);
                 jMethod.setShortClassName(shortClassName);
                 if (jMethod.requireJavaArrays()) {
                     importJavaArraysModule = true;
@@ -232,13 +233,13 @@ public class JClass {
                 }
             }
             if (addField) {
-                JField jFieldGetter = new JField(field, ACCESS_FIELD);
+                JField jFieldGetter = new JField(field, ACCESS_FIELD, env);
                 fieldList.add(jFieldGetter);
                 if (jFieldGetter.requireJavaArrays()) {
                     importJavaArraysModule = true;
                 }
                 if (!isFinalField(field) && isPublicField(field)) {
-                    fieldList.add(new JField(field, MUTATE_FIELD));
+                    fieldList.add(new JField(field, MUTATE_FIELD, env));
                     if (modulesFlag) {
                         importedPackages.add(field.getDeclaringClass().getPackageName());
                     }

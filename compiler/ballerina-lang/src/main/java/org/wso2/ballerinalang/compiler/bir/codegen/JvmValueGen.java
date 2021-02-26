@@ -202,8 +202,8 @@ class JvmValueGen {
                 }
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
+                enrichWithDefaultableParamInits(birFunc, initMethodGen);
             }
-            enrichWithDefaultableParamInits(birFunc, initMethodGen);
         }
     }
 
@@ -1338,7 +1338,7 @@ class JvmValueGen {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
             BType bType = optionalTypeDef.type;
-            String className = getTypeValueClassName(packageName, optionalTypeDef.name.value);
+            String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
             if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
@@ -1350,7 +1350,7 @@ class JvmValueGen {
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, stringConstantsGen
                         , asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);
-                String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.name.value);
+                String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef);
                 jarEntries.put(typedescClass + ".class", bytes);
             }

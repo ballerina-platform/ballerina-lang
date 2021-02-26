@@ -27,6 +27,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -36,6 +38,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -64,7 +68,7 @@ public class AnnotationAttachmentTest {
     @Test
     public void testAnnotOnObjectType() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                ((BLangClassDefinition) ((BLangPackage) compileResult.getAST()).topLevelNodes.get(17))
+                ((BLangClassDefinition) ((BLangPackage) compileResult.getAST()).topLevelNodes.get(16))
                         .getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 2);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v1", "val", "v1 value object");
@@ -126,11 +130,12 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnListener() {
-        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                compileResult.getAST().getGlobalVariables().stream()
-                        .filter(globalVar -> globalVar.getName().getValue().equals("lis"))
-                        .findFirst()
-                        .get().getAnnotationAttachments();
+        List<BLangAnnotationAttachment> attachments = new ArrayList<>();
+        for (BLangVariable globalVar : compileResult.getAST().getGlobalVariables()) {
+            if (((BLangSimpleVariable) globalVar).getName().getValue().equals("lis")) {
+                attachments.addAll(globalVar.getAnnotationAttachments());
+            }
+        }
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v9", "val", "v91");
     }
@@ -208,13 +213,21 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnVar() {
-        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                compileResult.getAST().getGlobalVariables().stream()
-                        .filter(variableNode ->  variableNode.getName().toString().equals("i"))
-                        .findFirst()
-                        .get().getAnnotationAttachments();
-        Assert.assertEquals(attachments.size(), 1);
+        List<BLangAnnotationAttachment> attachments = new ArrayList<>();
+        List<String> targetVariables = new ArrayList<>(Arrays.asList("i", "intVar", "stringVar", "myA", "message",
+                "errorNo"));
+        for (BLangVariable globalVar : compileResult.getAST().getGlobalVariables()) {
+            if (targetVariables.contains(((BLangSimpleVariable) globalVar).getName().getValue())) {
+                attachments.addAll(globalVar.getAnnotationAttachments());
+            }
+        }
+        Assert.assertEquals(attachments.size(), 6);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v11", "val", 11L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(1), "v11", "val", 2L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(2), "v11", "val", 2L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(3), "v11", "val", 3L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(4), "v11", "val", 4L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(5), "v11", "val", 4L);
     }
 
     @Test

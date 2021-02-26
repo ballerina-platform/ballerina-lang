@@ -164,7 +164,7 @@ class InstructionEmitter {
             str += ":";
             str += ins.objectName;
         } else {
-            str += emitName(ins.def.name);
+            str += emitName(ins.def.internalName);
         }
         str += ";";
         return str;

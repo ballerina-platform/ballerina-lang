@@ -345,4 +345,23 @@ public class MemberAccessTest {
     public void testMemberAccessOnStructuralConstructs() {
         BRunUtil.invoke(result, "testMemberAccessOnStructuralConstructs");
     }
+
+    @Test
+    public void testMemberAccessOnStrings() {
+        BRunUtil.invoke(result, "testMemberAccessOnStrings");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
+                    + "index out of range: index: 5, size: 3\"\\}.*")
+    public void testInvalidMemberAccessOnStrings1() {
+        BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings1");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
+                    + "index out of range: index: 3, size: 1\"\\}.*")
+    public void testInvalidMemberAccessOnStrings2() {
+        BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings2");
+    }
 }

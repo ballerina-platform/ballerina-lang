@@ -31,6 +31,7 @@ import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
 import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -71,9 +72,9 @@ public abstract class BalaWriter {
 
     // Set the target as any for default bala.
     protected String target = "any";
-    protected String langSpecVersion = "2020r2";
-    protected String ballerinaVersion = "Ballerina 2.0.0";
-    protected String implemetationVendor = "WSO2";
+    private static final String IMPLEMENTATION_VENDOR = "WSO2";
+    private static final String BALLERINA_SHORT_VERSION = RepoUtils.getBallerinaShortVersion();
+    private static final String BALLERINA_SPEC_VERSION = RepoUtils.getBallerinaSpecVersion();
     protected PackageContext packageContext;
 
     protected BalaWriter() {
@@ -144,9 +145,9 @@ public abstract class BalaWriter {
         packageJson.setKeywords(packageManifest.keywords());
 
         packageJson.setPlatform(target);
-        packageJson.setLanguageSpecVersion(langSpecVersion);
-        packageJson.setBallerinaVersion(ballerinaVersion);
-        packageJson.setImplementationVendor(implemetationVendor);
+        packageJson.setBallerinaVersion(BALLERINA_SHORT_VERSION);
+        packageJson.setLanguageSpecVersion(BALLERINA_SPEC_VERSION);
+        packageJson.setImplementationVendor(IMPLEMENTATION_VENDOR);
 
         if (!platformLibs.isEmpty()) {
             packageJson.setPlatformDependencies(platformLibs.get());

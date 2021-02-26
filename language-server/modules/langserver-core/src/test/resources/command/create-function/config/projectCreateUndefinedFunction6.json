@@ -1,0 +1,34 @@
+{
+    "arguments": {
+        "node.position": {
+            "line": 4,
+            "character": 44
+        }
+    },
+    "expected": {
+        "result": {
+            "edit": {
+                "documentChanges": [
+                    {
+                        "edits": [
+                            {
+                                "range": {
+                                    "start": {
+                                        "line": 7,
+                                        "character": 0
+                                    },
+                                    "end": {
+                                        "line": 7,
+                                        "character": 0
+                                    }
+                                },
+                                "newText": "\nfunction createSchool([Grade] grades) returns School {\n    return {};\n}\n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "jsonrpc": "2.0"
+    }
+}

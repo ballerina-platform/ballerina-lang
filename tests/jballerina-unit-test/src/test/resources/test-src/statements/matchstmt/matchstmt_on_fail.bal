@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 
 function testStaticMatchPatternsWithFailStmt() returns string[] {
     string | int | boolean a1 = 12;
@@ -205,7 +205,7 @@ function barWithCheck(string | int | boolean a, string | int | boolean b) return
             "check" => {
                 match b {
                     "check" => {
-                        io:println("Inside inner chek");
+                        println("Inside inner chek");
                          string str = check getError();
                          return str;
                     }
@@ -218,10 +218,13 @@ function barWithCheck(string | int | boolean a, string | int | boolean b) return
                 return "Value is 'true'";
             }
         } on fail error e {
-            io:println("Inside error caught");
+            println("Inside error caught");
             return "Value is 'error'";
         }
 
         return "Value is 'Default'";
 }
 
+public function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

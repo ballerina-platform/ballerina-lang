@@ -1,6 +1,5 @@
 module io.ballerina.lang {
     requires java.compiler;
-    requires org.apache.commons.lang3;
     requires toml4j;
     requires gson;
     requires java.xml;

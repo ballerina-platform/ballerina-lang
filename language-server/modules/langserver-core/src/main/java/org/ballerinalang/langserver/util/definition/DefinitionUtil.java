@@ -18,15 +18,13 @@ package org.ballerinalang.langserver.util.definition;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.Document;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -46,8 +44,8 @@ public class DefinitionUtil {
      * @return {@link List} List of definition locations
      */
     public static List<Location> getDefinition(DocumentServiceContext context, Position position) {
-        Optional<Document> srcFile = context.workspace().document(context.filePath());
-        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
+        Optional<Document> srcFile = context.currentDocument();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
 
         if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             return Collections.emptyList();
@@ -65,34 +63,22 @@ public class DefinitionUtil {
     }
 
     private static Optional<Location> getLocation(Symbol symbol, DocumentServiceContext context) {
-        Path projectRoot = context.workspace().projectRoot(context.filePath());
-        Optional<Project> project = context.workspace().project(context.filePath());
-
-        if (project.isEmpty()) {
+        if (symbol.getLocation().isEmpty()) {
             return Optional.empty();
         }
 
-        LinePosition startLine = symbol.location().lineRange().startLine();
-        LinePosition endLine = symbol.location().lineRange().endLine();
+        io.ballerina.tools.diagnostics.Location symbolLocation = symbol.getLocation().get();
+        LinePosition startLine = symbolLocation.lineRange().startLine();
+        LinePosition endLine = symbolLocation.lineRange().endLine();
         Position start = new Position(startLine.line(), startLine.offset());
-
         Position end = new Position(endLine.line(), endLine.offset());
         Range range = new Range(start, end);
-        String uri;
 
-        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT && symbol.moduleID().moduleName().equals(".")) {
-            uri = projectRoot.toUri().toString();
-        } else if (!project.get().currentPackage().packageOrg().value().equals(symbol.moduleID().orgName())) {
+        if (symbol.getModule().isEmpty()) {
             return Optional.empty();
-        } else if (project.get().currentPackage().packageName().value().equals(symbol.moduleID().moduleName())) {
-            // Symbol is within the default module
-            uri = projectRoot.resolve(symbol.location().lineRange().filePath()).toUri().toString();
-        } else {
-            String moduleName = symbol.moduleID().modulePrefix();
-            String fileName = symbol.location().lineRange().filePath();
-            uri = projectRoot.resolve("modules").resolve(moduleName).resolve(fileName).toUri().toString();
         }
+        Optional<String> uri = CommonUtil.getSymbolUriInProject(context, symbol);
 
-        return Optional.of(new Location(uri, range));
+        return Optional.of(new Location(uri.orElseThrow(), range));
     }
 }

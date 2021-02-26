@@ -59,7 +59,7 @@ public class PackageCompilation {
     private final List<Diagnostic> pluginDiagnostics;
 
     private DiagnosticResult diagnosticResult;
-    private boolean compiled;
+    private volatile boolean compiled;
 
     private PackageCompilation(PackageContext rootPackageContext,
                                PackageResolution packageResolution) {
@@ -99,18 +99,12 @@ public class PackageCompilation {
     }
 
     public DiagnosticResult diagnosticResult() {
-        // TODO think about parallel invocations of this method
-        if (!compiled) {
-            compile();
-        }
+        compileIfRequired();
         return diagnosticResult;
     }
 
     public SemanticModel getSemanticModel(ModuleId moduleId) {
-        // TODO think about parallel invocations of this method
-        if (!compiled) {
-            compile();
-        }
+        compileIfRequired();
 
         ModuleContext moduleContext = this.rootPackageContext.moduleContext(moduleId);
         // We check whether the particular module compilation state equal to the typecheck phase here. 
@@ -139,17 +133,28 @@ public class PackageCompilation {
         return rootPackageContext;
     }
 
-    private void compile() {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
-            moduleContext.compile(compilerContext);
-            moduleContext.diagnostics().forEach(diagnostic ->
-                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
+    private void compileIfRequired() {
+        if (compiled) {
+            return;
         }
-        runPluginCodeAnalysis(diagnostics);
-        addOtherDiagnostics(diagnostics);
-        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
-        compiled = true;
+
+        synchronized (this.compilerContext) {
+            if (compiled) {
+                return;
+            }
+            
+            List<Diagnostic> diagnostics = new ArrayList<>();
+            for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
+                moduleContext.compile(compilerContext);
+                moduleContext.diagnostics()
+                        .forEach(diagnostic -> diagnostics
+                                .add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
+            }
+            runPluginCodeAnalysis(diagnostics);
+            addOtherDiagnostics(diagnostics);
+            diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+            compiled = true;
+        }
     }
 
     private void runPluginCodeAnalysis(List<Diagnostic> diagnostics) {
@@ -169,7 +174,7 @@ public class PackageCompilation {
         diagnostics.addAll(diagnosticResult.allDiagnostics);
     }
 
-    public List<Diagnostic> pluginDiagnostics() {
+    List<Diagnostic> pluginDiagnostics() {
         return pluginDiagnostics;
     }
 }

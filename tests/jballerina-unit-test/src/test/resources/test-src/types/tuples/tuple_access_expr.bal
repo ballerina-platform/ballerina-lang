@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/lang.'int as ints;
 
 function tupleAccessTest() returns string {
@@ -24,7 +23,7 @@ function tupleAccessTest() returns string {
     int index = 0;
     while index < 4 {
         int|string|boolean|() entry = tuple[index];
-        finalResult += io:sprintf("%s:", entry);
+        finalResult += entry.toString() + ":";
         if entry is () {
             finalResult += "()";
         }
@@ -66,15 +65,15 @@ function tupleAccessTestWithBehavioralValues() returns string {
     while index < 4 {
         Obj|(function (int) returns int)|string|json entry = tuple[index];
         if entry is Obj {
-            finalResult += io:sprintf("%s:", entry.getIntField());
+            finalResult += entry.getIntField().toString() + ":";
             finalResult += "object:";
         }
         if entry is function (int) returns int {
-            finalResult += io:sprintf("%s:", entry(4));
+            finalResult += entry(4).toString() + ":";
             finalResult += "function:";
         }
         if entry is string|json {
-            finalResult += io:sprintf("%s:", entry);
+            finalResult += entry.toString() + ":";
             finalResult += "string|json:";
         }
         index += 1;
@@ -85,7 +84,7 @@ function tupleAccessTestWithBehavioralValues() returns string {
 function tupleIndexAsFunction(string index) returns string {
     [string, float, boolean] tuple = ["string", 9.0, true];
     var result = tuple[getKey(index)];
-    return io:sprintf("%s", result);
+    return result.toString();
 }
 
 function getKey(string key) returns int {
@@ -195,14 +194,14 @@ function testTupleAccessToAnyAndAnydata() returns string {
     any a = tuple[index];
     if a is string {
         a = a + ":";
-        result += io:sprintf("string:%s", a);
+        result += "string:" + a.toString();
     } else {
         result += "failed";
     }
     index += 1;
     anydata b = tuple[index];
     if b is boolean {
-        result += io:sprintf("boolean:%s", b);
+        result += "boolean:" + b.toString();
     } else {
         result += "failed";
     }
@@ -235,7 +234,7 @@ function testTupleAccessUsingFiniteType() returns string {
         result += f1;
     }
     if f2 is boolean {
-        result += io:sprintf("%s", f2);
+        result += f2.toString();
     }
     if f3 is Bar {
         result += f3.fieldOne;

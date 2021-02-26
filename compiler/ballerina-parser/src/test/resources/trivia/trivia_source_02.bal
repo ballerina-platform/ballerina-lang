@@ -1,3 +1,3 @@
 function foo() {
-    😃invalidToken int a;
+     int a;
 }
