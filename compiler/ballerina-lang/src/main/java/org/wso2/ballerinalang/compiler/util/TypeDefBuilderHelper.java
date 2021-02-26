@@ -223,8 +223,7 @@ public class TypeDefBuilderHelper {
         return classDefNode;
     }
 
-    public static BLangErrorType createBLangErrorType(Location pos, BErrorType type,
-                                                      SymbolEnv env, Names names,
+    public static BLangErrorType createBLangErrorType(Location pos, BErrorType type, SymbolEnv env,
                                                       BLangAnonymousModelHelper anonymousModelHelper) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorType.type = type;
@@ -235,27 +234,13 @@ public class TypeDefBuilderHelper {
 
         BType  detailType = type.detailType;
 
-        // When the error detail type is a inline type decl, such as in `error<map<value:Cloneable>>` we need to
-        // add a explicit type decl for the detail type.
-        boolean userDefinedDetailTypeAvailable = detailType.tsymbol != null;
-        String typeName = userDefinedDetailTypeAvailable
+        String typeName = detailType.tsymbol != null
                 ? detailType.tsymbol.name.value
                 : anonymousModelHelper.getNextAnonymousIntersectionErrorDetailTypeName(env.enclPkg.packageID);
 
         userDefinedTypeNode.typeName = createIdentifier(pos, typeName);
         userDefinedTypeNode.type = detailType;
         errorType.detailType = userDefinedTypeNode;
-
-        // Add explicit type definition for this error detail
-        if (!userDefinedDetailTypeAvailable) {
-            BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE,
-                    Flags.asMask(EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS)),
-                    names.fromString(typeName), env.enclPkg.packageID, userDefinedTypeNode.type,
-                    env.enclPkg.symbol, pos, VIRTUAL);
-            addTypeDefinition(userDefinedTypeNode.type, typeSymbol, userDefinedTypeNode, env);
-            env.enclPkg.symbol.scope.define(typeSymbol.name, typeSymbol);
-            userDefinedTypeNode.type.tsymbol = typeSymbol;
-        }
 
         return errorType;
     }

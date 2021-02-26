@@ -3735,11 +3735,10 @@ public class Types {
         if (!intersectionContext.compilerInternalIntersectionTest) {
             BTypeSymbol errorTSymbol = intersectionErrorType.tsymbol;
             BLangErrorType bLangErrorType =
-                    TypeDefBuilderHelper.createBLangErrorType(
-                            symTable.builtinPos, intersectionErrorType, env, names, anonymousModelHelper);
+                    TypeDefBuilderHelper.createBLangErrorType(symTable.builtinPos, intersectionErrorType, env,
+                            anonymousModelHelper);
             BLangTypeDefinition errorTypeDefinition = TypeDefBuilderHelper.addTypeDefinition(
                     intersectionErrorType, errorTSymbol, bLangErrorType, env);
-            // todo: do we need this?
             errorTypeDefinition.pos = symTable.builtinPos;
         }
 
@@ -3769,6 +3768,7 @@ public class Types {
             BLangTypeDefinition recordTypeDef = TypeDefBuilderHelper.addTypeDefinition(
                     newType, newType.tsymbol, recordTypeNode, env);
             env.enclPkg.symbol.scope.define(newType.tsymbol.name, newType.tsymbol);
+            recordTypeDef.pos = symTable.builtinPos;
         }
 
         return newType;
@@ -4704,8 +4704,8 @@ public class Types {
         ContextOption contextOption;
         // Intersection test only care about intersection of types (ignoring default values).
         boolean compilerInternalIntersectionTest;
-        // Try to avoid creating new intersection types
-        public boolean preferNonGenerativeIntersection;
+        // Try to avoid creating new intersection types.
+        boolean preferNonGenerativeIntersection;
 
         private IntersectionContext(BLangDiagnosticLog diaglog, Location left, Location right) {
             this.dlog = diaglog;
@@ -4713,6 +4713,7 @@ public class Types {
             this.rhsPos = right;
             this.contextOption = ContextOption.NON;
             this.compilerInternalIntersectionTest = false;
+            this.preferNonGenerativeIntersection = false;
         }
 
         /**

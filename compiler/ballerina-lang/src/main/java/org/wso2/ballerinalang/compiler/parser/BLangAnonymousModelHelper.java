@@ -44,7 +44,7 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> tupleVarCount;
     private Map<PackageID, Integer> recordVarCount;
     private Map<PackageID, Integer> errorVarCount;
-    private Map<PackageID, Integer> anonIntersectionErrorDetailCount;
+    private Map<PackageID, Integer> anonIntersectionRecordCount;
     private Map<PackageID, Integer> anonIntersectionErrorCount;
 
     private static final String ANON_TYPE = "$anonType$";
@@ -56,7 +56,7 @@ public class BLangAnonymousModelHelper {
     private static final String FORK = "$fork$";
     private static final String ANON_TYPE_ID = "$anonTypeid$";
     private static final String RAW_TEMPLATE_TYPE = "$rawTemplate$";
-    private static final String ANON_INTERSECTION_ERROR_DETAIL = "$anonErrorDetail$";
+    private static final String ANON_INTERSECTION_RECORD = "$anonIntersectionRecordType$";
     private static final String ANON_INTERSECTION_ERROR_TYPE = "$anonErrorType$";
     private static final String TUPLE_VAR = "$tupleVar$";
     private static final String RECORD_VAR = "$recordVar$";
@@ -76,7 +76,7 @@ public class BLangAnonymousModelHelper {
         tupleVarCount = new HashMap<>();
         recordVarCount = new HashMap<>();
         errorVarCount = new HashMap<>();
-        anonIntersectionErrorDetailCount = new HashMap<>();
+        anonIntersectionRecordCount = new HashMap<>();
         anonIntersectionErrorCount = new HashMap<>();
     }
 
@@ -156,9 +156,9 @@ public class BLangAnonymousModelHelper {
     }
 
     public String getNextAnonymousIntersectionErrorDetailTypeName(PackageID packageID) {
-        Integer nextval = anonIntersectionErrorDetailCount.compute(packageID,
+        Integer nextval = anonIntersectionRecordCount.compute(packageID,
                 (packageID1, integer) -> integer != null ? integer + 1 : 0);
-        return ANON_INTERSECTION_ERROR_DETAIL + UNDERSCORE + nextval;
+        return ANON_INTERSECTION_RECORD + UNDERSCORE + nextval;
     }
 
     public String getNextAnonymousIntersectionErrorTypeName(PackageID packageID) {
