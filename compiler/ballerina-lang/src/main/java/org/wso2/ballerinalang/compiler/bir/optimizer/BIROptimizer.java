@@ -509,7 +509,6 @@ public class BIROptimizer {
         @Override
         public void visit(BIRNonTerminator.NewXMLSequence newXMLSequence) {
             this.optimizeNode(newXMLSequence.lhsOp, this.env);
-            this.optimizeNode(newXMLSequence.sequenceOp, this.env);
         }
 
         @Override

@@ -2136,14 +2136,11 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
-        BIROperand xmlSequenceIndex = this.env.targetOperand;
-
         BIRNonTerminator.NewXMLSequence newXMLSequence =
-                new BIRNonTerminator.NewXMLSequence(xmlSequenceLiteral.pos, toVarRef, xmlSequenceIndex,
+                new BIRNonTerminator.NewXMLSequence(xmlSequenceLiteral.pos, toVarRef,
                         Symbols.isFlagOn(xmlSequenceLiteral.type.flags, Flags.READONLY));
 
         setScopeAndEmit(newXMLSequence);
-
         populateXMLSequence(xmlSequenceLiteral, toVarRef);
         this.env.targetOperand = toVarRef;
     }

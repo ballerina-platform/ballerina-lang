@@ -575,13 +575,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      * @since alpha
      */
     public static class NewXMLSequence extends BIRNonTerminator {
-        public BIROperand sequenceOp;
         public boolean readonly;
 
-        public NewXMLSequence(Location location, BIROperand lhsOp, BIROperand sequenceOp, boolean readonly) {
+        public NewXMLSequence(Location location, BIROperand lhsOp, boolean readonly) {
             super(location, InstructionKind.NEW_XML_SEQUENCE);
             this.lhsOp = lhsOp;
-            this.sequenceOp = sequenceOp;
             this.readonly = readonly;
         }
 
@@ -592,7 +590,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         @Override
         public BIROperand[] getRhsOperands() {
-            return new BIROperand[]{sequenceOp};
+            return new BIROperand[0];
         }
     }
 
