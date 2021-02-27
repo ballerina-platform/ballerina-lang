@@ -7,8 +7,9 @@
   "items": [
     {
       "label": "url",
+      "kind": "Field",
       "detail": "string",
-      "sortText": "Q",
+      "sortText": "F",
       "insertText": "url",
       "insertTextFormat": "Snippet"
     },

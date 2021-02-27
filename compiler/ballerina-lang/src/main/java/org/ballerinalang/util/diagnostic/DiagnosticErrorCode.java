@@ -318,7 +318,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_TUPLE_BINDING_PATTERN("BCE2588", "invalid.tuple.binding.pattern"),
     INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION("BCE2589", "invalid.type.for.tuple.var.expr"),
     INVALID_TUPLE_BINDING_PATTERN_DECL("BCE2590", "invalid.tuple.binding.pattern.decl"),
-    INVALID_TUPLE_BINDING_PATTERN_INFERENCE("BCE2591", "invalid.tuple.binding.pattern.inference"),
+    INVALID_LIST_BINDING_PATTERN_INFERENCE("BCE2591", "invalid.list.binding.pattern.inference"),
     MISMATCHING_ARRAY_LITERAL_VALUES("BCE2592", "mismatching.array.literal.values"),
     SEALED_ARRAY_TYPE_NOT_INITIALIZED("BCE2593", "sealed.array.type.not.initialized"),
     INVALID_LIST_INDEX_EXPR("BCE2594", "invalid.list.index.expr"),
@@ -691,8 +691,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     CONTINUE_NOT_ALLOWED("BCE3987", "continue.not.allowed"),
     BREAK_NOT_ALLOWED("BCE3988", "break.not.allowed"),
+    TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3989", "type.does.not.support.xml.navigation.access"),
+    XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3990", "xml.function.does.not.support.argument.type"),
 
-    INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE39988", "intersection.not.allowed.with.type")
+    INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE3991", "intersection.not.allowed.with.type")
     ;
 
     private String diagnosticId;

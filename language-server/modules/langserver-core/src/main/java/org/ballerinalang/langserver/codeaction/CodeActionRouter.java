@@ -89,8 +89,7 @@ public class CodeActionRouter {
                         .isWithinRange(ctx.cursorPosition(), CommonUtil.toRange(diag.location().lineRange()))
                 )
                 .forEach(diagnostic -> {
-                    Range range = CommonUtil.toRange(diagnostic.location().lineRange());
-                    DiagBasedPositionDetails positionDetails = computePositionDetails(range, syntaxTree, ctx);
+                    DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, ctx);
                     codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx).forEach(provider -> {
                         try {
                             List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic,
