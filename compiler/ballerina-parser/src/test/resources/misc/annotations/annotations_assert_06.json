@@ -55,6 +55,10 @@
               ]
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
@@ -90,6 +94,23 @@
                       ]
                     }
                   ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true
                 }
               ]
             },
@@ -132,6 +153,10 @@
             {
               "kind": "IDENTIFIER_TOKEN",
               "value": "foo"
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_SIGNATURE",

@@ -84,22 +84,20 @@ dependencies {
 //    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
 //    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
 
-    dist project(':ballerina-cli-utils')
     dist project(':ballerina-core')
-    dist project(':ballerina-openapi')
     dist project(':ballerina-lang')
     dist project(':ballerina-logging')
     dist project(':ballerina-observability')
-    dist project(':ballerina-tool')
-    dist project(':ballerina-transactions')
-    dist project(':ballerina-java')
+    dist project(':ballerina-cli')
+    dist project(':ballerina-observability-internal')
+//    dist project(':ballerina-transactions')
+    dist project(':ballerina-lang:jballerina.java')
     dist project(':metrics-extensions:ballerina-metrics-extension')
-    dist project(':metrics-extensions:ballerina-prometheus-extension')
-    dist project(':tracing-extensions:ballerina-jaeger-extension')
 
     // Lang libs
-    dist project(':ballerina-lang:internal')
     dist project(':ballerina-lang:annotations')
+    dist project(':ballerina-lang:jballerina.java')
+    dist project(':ballerina-lang:internal')
     dist project(':ballerina-lang:array')
     dist project(':ballerina-lang:decimal')
     dist project(':ballerina-lang:error')
@@ -115,6 +113,7 @@ dependencies {
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
     dist project(':ballerina-lang:bool')
+    dist project(':ballerina-lang:runtime')
     dist project(':ballerina-lang:query')
     dist project(':ballerina-lang:transaction')
 

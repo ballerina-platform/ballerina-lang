@@ -54,7 +54,7 @@ public class BIntersectionType extends BType implements IntersectionType {
         }
     }
 
-    public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types, BType effectiveType, int flags) {
+    public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types, BType effectiveType, long flags) {
         super(TypeTags.INTERSECTION, tsymbol, flags);
         this.constituentTypes = toFlatTypeSet(types);
         this.effectiveType = effectiveType;
@@ -99,16 +99,6 @@ public class BIntersectionType extends BType implements IntersectionType {
         }
 
         return joiner.toString();
-    }
-
-    @Override
-    public boolean isAnydata() {
-        return this.effectiveType.isAnydata();
-    }
-
-    @Override
-    public boolean isPureType() {
-        return this.effectiveType.isPureType();
     }
 
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {

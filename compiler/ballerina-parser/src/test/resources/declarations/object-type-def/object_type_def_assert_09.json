@@ -56,6 +56,10 @@
               "hasDiagnostics": true,
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "INT_TYPE_DESC",
                   "children": [
                     {

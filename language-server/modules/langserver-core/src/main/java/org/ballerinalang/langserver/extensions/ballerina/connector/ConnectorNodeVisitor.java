@@ -17,89 +17,91 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
-import org.ballerinalang.langserver.common.LSNodeVisitor;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.TopLevelNode;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Common node visitor to override and remove assertion errors from BLangNodeVisitor methods.
  */
-public class ConnectorNodeVisitor extends LSNodeVisitor {
+public class ConnectorNodeVisitor extends NodeVisitor {
 
-    private String name;
-    private Map<PackageID, BLangImportPackage> packageMap = new HashMap<>();
-    private boolean found = false;
-    private List<BLangTypeDefinition> connectors;
-    private Map<String, BLangTypeDefinition> records;
+    private final String name;
+    private final List<ClassDefinitionNode> connectors;
+    private final Map<String, TypeDefinitionNode> records;
 
-    public ConnectorNodeVisitor(String name) {
+    private final SemanticModel semanticModel;
+
+    public ConnectorNodeVisitor(String name, SemanticModel semanticModel) {
         this.name = name;
-        connectors = new ArrayList<>();
-        records = new HashMap<>();
+        this.semanticModel = semanticModel;
+        this.connectors = new ArrayList<>();
+        this.records = new HashMap<>();
     }
 
     public String getName() {
         return name;
     }
 
-    public List<BLangTypeDefinition> getConnectors() {
+    public List<ClassDefinitionNode> getConnectors() {
         return connectors;
     }
 
-    public Map<String, BLangTypeDefinition> getRecords() {
+    public Map<String, TypeDefinitionNode> getRecords() {
         return records;
     }
 
-    @Override
-    public void visit(BLangPackage pkgNode) {
-        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
-        pkgNode.getImports().forEach(importPackage -> {
-            if (importPackage.symbol != null) {
-                this.packageMap.put(importPackage.symbol.pkgID, importPackage);
-            }
-        });
-        topLevelNodes.stream()
-                .filter(CommonUtil.checkInvalidTypesDefs())
-                .forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
-    }
-
-    @Override
-    public void visit(BLangCompilationUnit compUnit) {
-        if (!found) {
-            compUnit.getTopLevelNodes().forEach(n -> ((BLangNode) n).accept(this));
+    public void visit(ModulePartNode modulePartNode) {
+        for (int i = 0; i < modulePartNode.members().size(); i++) {
+            modulePartNode.members().get(i).accept(this);
         }
     }
 
-    @Override
-    public void visit(BLangTypeDefinition typeDefinition) {
-        if (typeDefinition.getTypeNode() instanceof BLangObjectTypeNode) {
-            if (((BLangObjectTypeNode) typeDefinition.getTypeNode()).flagSet.contains(Flag.CLIENT)) {
-                this.connectors.add(typeDefinition);
-                typeDefinition.getTypeNode().accept(this);
-            }
+    public void visit(ClassDefinitionNode classDefinitionNode) {
+        Optional<Symbol> symbol = this.semanticModel.symbol(classDefinitionNode);
 
-        } else if (typeDefinition.getTypeNode() instanceof BLangRecordTypeNode) {
-            this.records.put(((BLangRecordTypeNode) typeDefinition.getTypeNode()).symbol.type.toString(),
-                    typeDefinition);
-        } else if (typeDefinition.getTypeNode() instanceof BLangUnionTypeNode) {
-            this.records.put(((BLangUnionTypeNode) typeDefinition.getTypeNode()).type.toString(),
-                    typeDefinition);
+        if (symbol.isEmpty()) {
+            return;
+        }
+
+        ClassSymbol classSymbol = (ClassSymbol) symbol.get();
+        boolean isClient = classSymbol.qualifiers().contains(Qualifier.CLIENT);
+
+        if (isClient) {
+            this.connectors.add(classDefinitionNode);
         }
     }
 
+    public void visit(TypeDefinitionNode typeDefinitionNode) {
+        Optional<Symbol> typeSymbol = this.semanticModel.symbol(typeDefinitionNode);
+
+        if (typeSymbol.isPresent() && typeSymbol.get() instanceof TypeDefinitionSymbol) {
+            TypeSymbol rawType = getRawType(((TypeDefinitionSymbol) typeSymbol.get()).typeDescriptor());
+            String typeName = String.format("%s:%s", typeSymbol.get().getModule().get().id().toString(),
+                                            typeSymbol.get().getName().get());
+            if (rawType.typeKind() == TypeDescKind.RECORD || rawType.typeKind() == TypeDescKind.UNION) {
+                this.records.put(typeName, typeDefinitionNode);
+            }
+        }
+    }
+
+    private TypeSymbol getRawType(TypeSymbol typeDescriptor) {
+        return typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE
+                ? ((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor() : typeDescriptor;
+    }
 }

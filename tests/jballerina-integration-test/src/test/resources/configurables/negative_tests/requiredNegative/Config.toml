@@ -1,0 +1,3 @@
+[testOrg.main]
+intVar = 4
+floatVar = 32.3

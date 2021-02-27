@@ -7,4 +7,10 @@
         <Package name="org.ballerinalang.docgen.model"/>
         <Class name="org.ballerinalang.docgen.Generator"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.docgen.docs.utils.BallerinaDocUtils"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.docgen.docs.BallerinaDocGenerator"/>
+    </Match>
 </FindBugsFilter>

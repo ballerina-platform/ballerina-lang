@@ -15,28 +15,27 @@
  */
 package org.ballerinalang.langserver.diagnostic;
 
-import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Utilities for the diagnostics related operations.
@@ -44,95 +43,118 @@ import java.util.Map;
  * @since 0.983.0
  */
 public class DiagnosticsHelper {
-    private static final List<Diagnostic> EMPTY_DIAGNOSTIC_LIST = new ArrayList<>(0);
-    private static final DiagnosticsHelper INSTANCE = new DiagnosticsHelper();
+    private final List<Diagnostic> emptyDiagnosticList = new ArrayList<>(0);
+    private static final LanguageServerContext.Key<DiagnosticsHelper> DIAGNOSTICS_HELPER_KEY =
+            new LanguageServerContext.Key<>();
     /**
      * Holds last sent diagnostics for the purpose of clear-off when publishing new diagnostics.
      */
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
 
-    public static DiagnosticsHelper getInstance() {
-        return INSTANCE;
+    public static DiagnosticsHelper getInstance(LanguageServerContext serverContext) {
+        DiagnosticsHelper diagnosticsHelper = serverContext.get(DIAGNOSTICS_HELPER_KEY);
+        if (diagnosticsHelper == null) {
+            diagnosticsHelper = new DiagnosticsHelper(serverContext);
+        }
+
+        return diagnosticsHelper;
     }
 
-    private DiagnosticsHelper() {
+    private DiagnosticsHelper(LanguageServerContext serverContext) {
+        serverContext.put(DIAGNOSTICS_HELPER_KEY, this);
         this.lastDiagnosticMap = new HashMap<>();
     }
 
     /**
      * Compiles and publishes diagnostics for a source file.
      *
-     * @param client     Language server client
-     * @param context    LS context
-     * @param lsDoc {@link LSDocumentIdentifierImpl}
-     * @param docManager LS Document manager
-     * @throws CompilationFailedException throws a LS compiler exception
+     * @param client  Language server client
+     * @param context LS context
      */
-    public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, LSContext context,
-                                                       LSDocumentIdentifier lsDoc, WorkspaceDocumentManager docManager)
-            throws CompilationFailedException {
+    public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, DocumentServiceContext context) {
         // Compile diagnostics
-        List<BLangPackage> packages = LSModuleCompiler.getBLangPackages(context, docManager, true, true, true);
-        Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
-        for (BLangPackage pkg : packages) {
-            populateDiagnostics(diagnosticMap, pkg.packageID, pkg.getDiagnostics(), lsDoc);
+        Optional<Project> project = context.workspace().project(context.filePath());
+        if (project.isEmpty()) {
+            return;
         }
+        Map<String, List<Diagnostic>> diagnosticMap = getLatestDiagnostics(context);
 
         // If the client is null, returns
         if (client == null) {
             return;
         }
 
-        // Replace old entries with an empty list
-        lastDiagnosticMap.keySet().forEach((key) -> diagnosticMap.computeIfAbsent(key, value -> EMPTY_DIAGNOSTIC_LIST));
+        // Clear old entries with an empty list
+        lastDiagnosticMap.forEach((key, value) -> {
+            if (!diagnosticMap.containsKey(key)) {
+                client.publishDiagnostics(new PublishDiagnosticsParams(key, emptyDiagnosticList));
+            }
+        });
 
         // Publish diagnostics
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
-      
+
         // Replace old map
         lastDiagnosticMap = diagnosticMap;
     }
 
-    private void populateDiagnostics(Map<String, List<Diagnostic>> diagnosticsMap, PackageID pkgId,
-                                     List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics,
-                                     LSDocumentIdentifier lsDocument) {
-        for (io.ballerina.tools.diagnostics.Diagnostic diag : diagnostics) {
-            Path diagnosticRoot = lsDocument.getProjectRootPath();
-            Location location = diag.location();
-            String moduleName = pkgId.getName().getValue();
-            String fileName = location.lineRange().filePath();
-            if (lsDocument.isWithinProject()) {
-                diagnosticRoot = diagnosticRoot.resolve("src");
-            }
-            
-            if (!".".equals(moduleName)) {
-                diagnosticRoot = diagnosticRoot.resolve(moduleName);
-            }
-            String fileURI = diagnosticRoot.resolve(fileName).toUri().toString() + "";
-            diagnosticsMap.putIfAbsent(fileURI, new ArrayList<>());
+    public Map<String, List<Diagnostic>> getLatestDiagnostics(DocumentServiceContext context) {
+        WorkspaceManager workspace = context.workspace();
+        Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
 
-            LineRange lineRange = location.lineRange();
-            int startLine = lineRange.startLine().line() - 1; // LSP diagnostics range is 0 based
-            int startChar = lineRange.startLine().offset() - 1;
-            int endLine = lineRange.endLine().line() - 1;
-            int endChar = lineRange.endLine().offset() - 1;
+        Optional<Project> project = workspace.project(context.filePath());
+        if (project.isEmpty()) {
+            return diagnosticMap;
+        }
+        // NOTE: We are not using `project.sourceRoot()` since it provides the single file project uses a temp path and
+        // IDE requires the original path.
+        Path projectRoot = workspace.projectRoot(context.filePath());
+        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            projectRoot = projectRoot.getParent();
+        }
+        PackageCompilation compilation = workspace.waitAndGetPackageCompilation(context.filePath()).orElseThrow();
+        diagnosticMap.putAll(toDiagnosticsMap(compilation.diagnosticResult().diagnostics(), projectRoot));
+        return diagnosticMap;
+    }
+
+    private Map<String, List<Diagnostic>> toDiagnosticsMap(Collection<io.ballerina.tools.diagnostics.Diagnostic> diags,
+                                                           Path projectRoot) {
+        Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
+        for (io.ballerina.tools.diagnostics.Diagnostic diag : diags) {
+            LineRange lineRange = diag.location().lineRange();
+
+            int startLine = lineRange.startLine().line();
+            int startChar = lineRange.startLine().offset();
+            int endLine = lineRange.endLine().line();
+            int endChar = lineRange.endLine().offset();
 
             endLine = (endLine <= 0) ? startLine : endLine;
             endChar = (endChar <= 0) ? startChar + 1 : endChar;
 
             Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
-            Diagnostic diagnostic = new Diagnostic(range, diag.message());
+            Diagnostic diagnostic = new Diagnostic(range, diag.message(), null, null, diag.diagnosticInfo().code());
 
-            io.ballerina.tools.diagnostics.DiagnosticSeverity severity = diag.diagnosticInfo().severity();
-            if (severity == io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR) {
-                // set diagnostic log kind
-                diagnostic.setSeverity(DiagnosticSeverity.Error);
-            } else if (severity == io.ballerina.tools.diagnostics.DiagnosticSeverity.WARNING) {
-                diagnostic.setSeverity(DiagnosticSeverity.Warning);
+            switch (diag.diagnosticInfo().severity()) {
+                case ERROR:
+                    diagnostic.setSeverity(DiagnosticSeverity.Error);
+                    break;
+                case WARNING:
+                    diagnostic.setSeverity(DiagnosticSeverity.Warning);
+                    break;
+                case HINT:
+                    diagnostic.setSeverity(DiagnosticSeverity.Hint);
+                    break;
+                case INFO:
+                    diagnostic.setSeverity(DiagnosticSeverity.Information);
+                    break;
+                default:
+                    break;
             }
 
-            List<Diagnostic> clientDiagnostics = diagnosticsMap.get(fileURI);
+            String fileURI = projectRoot.resolve(lineRange.filePath()).toUri().toString();
+            List<Diagnostic> clientDiagnostics = diagnosticsMap.computeIfAbsent(fileURI, s -> new ArrayList<>());
             clientDiagnostics.add(diagnostic);
         }
+        return diagnosticsMap;
     }
 }

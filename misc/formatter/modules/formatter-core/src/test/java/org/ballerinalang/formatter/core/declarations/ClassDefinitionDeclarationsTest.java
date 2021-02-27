@@ -24,8 +24,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Test the formatting of class definition declarations.
@@ -49,16 +47,6 @@ public class ClassDefinitionDeclarationsTest extends FormatterTest {
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
-    }
-
-    /**
-     * Specify the file names to be skipped during the test execution.
-     *
-     * @return Skipping test scenarios for execution
-     */
-    @Override
-    public List<String> skipList() {
-        return Arrays.asList("class_definition_declaration_5.bal", "class_definition_declaration_8.bal");
     }
 
     /**

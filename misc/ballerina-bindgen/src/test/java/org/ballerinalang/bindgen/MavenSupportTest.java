@@ -61,13 +61,12 @@ public class MavenSupportTest extends CommandTest {
         }
     }
 
-    @Test(description = "Test the maven support in the Bindgen tool inside a project", enabled = false)
+    @Test(description = "Test the maven support in the Bindgen tool inside a project")
     public void testBindgenMvnCmd() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String moduleDir = Paths.get(projectDir, "src", "balModule1").toString();
         Path mavenRepoPath = Paths.get(projectDir, "target", "platform-libs");
         String jarName = "snakeyaml-1.25.jar";
-        String[] args = {"-mvn=org.yaml:snakeyaml:1.25", "-o=" + moduleDir, "org.yaml.snakeyaml.Yaml"};
+        String[] args = {"-mvn=org.yaml:snakeyaml:1.25", "-o=" + projectDir, "org.yaml.snakeyaml.Yaml"};
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
         new CommandLine(bindgenCommand).parseArgs(args);
 
@@ -83,14 +82,14 @@ public class MavenSupportTest extends CommandTest {
     @Test(description = "Test the maven support in the Bindgen tool to see if the Ballerina.toml is updated")
     public void testBindgenMvnToml() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String moduleDir = Paths.get(projectDir, "src", "balModule1").toString();
-        String[] args = {"-mvn=commons-logging:commons-logging:1.1.1", "-o=" + moduleDir, "org.yaml.snakeyaml.Yaml"};
+        String[] args = {"-mvn=commons-logging:commons-logging:1.1.1", "-o=" + projectDir,
+                "org.apache.commons.logging.LogFactory"};
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
         Assert.assertTrue(isTomlUpdated(Paths.get(projectDir, "Ballerina.toml").toString(),
-                Paths.get(testResources.toString(), "Ballerina.toml").toString()));
+                Paths.get(testResources.toString(), "assert-files", "Ballerina.toml").toString()));
     }
 
     private boolean isTomlUpdated(String updated, String expected) throws IOException {

@@ -16,13 +16,14 @@
  */
 package org.ballerinalang.test.types.stream;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -107,6 +108,18 @@ public class BStreamValueTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
+    @Test(description = "Test empty stream constructs")
+    public void testEmptyStreamConstructs() {
+        BValue[] values = BRunUtil.invoke(result, "testEmptyStreamConstructs", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test passing union of stream to a function which takes a stream as a argument")
+    public void testUnionOfStreamsAsFunctionParams() {
+        BValue[] values = BRunUtil.invoke(result, "testUnionOfStreamsAsFunctionParams", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
     @Test(description = "Test negative test scenarios of stream type")
     public void testStreamTypeNegative() {
         int i = 0;
@@ -128,60 +141,117 @@ public class BStreamValueTest {
                 "found '(record {| int value; |}|error)?'", 113, 35);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
                 "found '(record {| int value; |}|error)?'", 114, 31);
-        BAssertUtil.validateError(negativeResult, i++, "invalid expected stream type. 'itr' does not return an error",
-                137, 42);
-        BAssertUtil.validateError(negativeResult, i++, "invalid expected stream type. 'itr' does not return an error",
-                138, 38);
-        BAssertUtil.validateError(negativeResult, i++, "invalid expected stream type. 'itr' does not return an error",
-                139, 48);
-        BAssertUtil.validateError(negativeResult, i++, "invalid expected stream type. 'itr' does not return an error",
-                140, 44);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
-                "returns record {| int value; |}?'.", 159, 35);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
-                "returns record {| int value; |}?'.", 160, 31);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
-                "returns (record {| int value; |}|error)?'.", 161, 42);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
-                "returns (record {| int value; |}|error)?'.", 162, 38);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
-                "returns (record {| int value; |}|CustomError)?'.", 163, 48);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
-                "returns (record {| int value; |}|CustomError)?'.", 164, 44);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextA' must implement 'public function" +
-                " next() returns record {| int value; |}?'.", 178, 35);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextA' must implement 'public function" +
-                " next() returns record {| int value; |}?'.", 179, 31);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextA' must implement 'public function" +
-                " next() returns (record {| int value; |}|error)?'.", 180, 42);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextA' must implement 'public function" +
-                " next() returns (record {| int value; |}|error)?'.", 181, 38);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextA' must implement 'public function" +
-                " next() returns (record {| int value; |}|CustomError)?'.", 182, 48);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextA' must implement 'public function" +
-                " next() returns (record {| int value; |}|CustomError)?'.", 183, 44);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible mapping constructor expression for type '(record" +
-                " {| int val; |}|CustomError)?'", 191, 16);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextC' must implement 'public function" +
-                " next() returns (record {| int value; |}|error)?'.", 198, 42);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextC' must implement 'public function" +
-                " next() returns (record {| int value; |}|error)?'.", 199, 38);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextC' must implement 'public function" +
-                " next() returns (record {| string value; |}|error)?'.", 202, 45);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextC' must implement 'public function" +
-                " next() returns (record {| string value; |}|error)?'.", 203, 41);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextC' must implement 'public function" +
-                " next() returns (record {| string value; |}|CustomError)?'.", 204, 51);
-        BAssertUtil.validateError(negativeResult, i++, "'IteratorWithMismatchedNextC' must implement 'public function" +
-                " next() returns (record {| string value; |}|CustomError)?'.", 205, 47);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns record {| int value; |}?; }', but found " +
+                "'IteratorWithOutNext'", 159, 35);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns record {| int value; |}?; }', but found " +
+                "'IteratorWithOutNext'", 160, 31);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|error)?; }', but found " +
+                "'IteratorWithOutNext'", 161, 42);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|error)?; }', but found " +
+                "'IteratorWithOutNext'", 162, 38);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|CustomError)?; }', but found " +
+                "'IteratorWithOutNext'", 163, 48);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|CustomError)?; }', but found " +
+                "'IteratorWithOutNext'", 164, 44);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns record {| int value; |}?; }', but found " +
+                "'IteratorWithMismatchedNextA'", 178, 35);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns record {| int value; |}?; }', but found " +
+                "'IteratorWithMismatchedNextA'", 179, 31);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|error)?; }', but found " +
+                "'IteratorWithMismatchedNextA'", 180, 42);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|error)?; }', but found " +
+                "'IteratorWithMismatchedNextA'", 181, 38);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|CustomError)?; }', but found " +
+                "'IteratorWithMismatchedNextA'", 182, 48);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|CustomError)?; }', but found " +
+                "'IteratorWithMismatchedNextA'", 183, 44);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible mapping constructor expression for type '" +
+                "(record {| int val; |}|CustomError)?'", 191, 16);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|error)?; }', but found " +
+                "'IteratorWithMismatchedNextC'", 198, 42);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|error)?; }', but found " +
+                "'IteratorWithMismatchedNextC'", 199, 38);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| string value; |}|error)?; }', but found " +
+                "'IteratorWithMismatchedNextC'", 202, 45);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| string value; |}|error)?; }', but found " +
+                "'IteratorWithMismatchedNextC'", 203, 41);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| string value; |}|CustomError)?; }', but found " +
+                "'IteratorWithMismatchedNextC'", 204, 51);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| string value; |}|CustomError)?; }', but found " +
+                "'IteratorWithMismatchedNextC'", 205, 47);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(record {| string value; " +
                 "|}|CustomError1)?', found '(record {| int value; |}|CustomError)?'", 227, 52);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(record {| string value; " +
                 "|}|CustomError1)?', found '(record {| int value; |}|CustomError)?'", 228, 48);
-        BAssertUtil.validateError(negativeResult, i++, "invalid expected stream type. 'itr' does not " +
-                "return an error", 239, 48);
-        BAssertUtil.validateError(negativeResult, i, "invalid expected stream type. 'itr' does not " +
-                "return an error", 240, 44);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type"
+                , 246, 27);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type"
+                , 247, 27);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type"
+                , 248, 34);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type"
+                , 249, 34);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type"
+                , 250, 34);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type"
+                , 251, 34);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type"
+                , 252, 19);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type"
+                , 253, 19);
+        BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type"
+                , 254, 19);
+        BAssertUtil.validateError(negativeResult, i++, "invalid next method return type. expected: 'record {| int " +
+                "value; |}?'", 324, 7);
+        BAssertUtil.validateError(negativeResult, i++, "invalid next method return type. expected: 'record {| " +
+                "stream<int> value; |}?'", 332, 7);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|error)?; }', but found " +
+                "'IteratorWithNonIsolatedNext'", 350, 42);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|error)?; public isolated function " +
+                "close() returns error?; }', but found 'IteratorWithNonIsolatedNextAndIsolatedClose'", 351, 42);
+        BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
+                "public isolated function next() returns (record {| int value; |}|error)?; public isolated function " +
+                "close() returns error?; }', but found 'IteratorWithIsolatedNextAndNonIsolatedClose'", 352, 42);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 371, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 372, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 373, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', found " +
+                "'stream<int>'", 374, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 375, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 376, 20);
+        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'stream<int>', found " +
+                "'stream<int,error>'", 377, 20);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 
 }

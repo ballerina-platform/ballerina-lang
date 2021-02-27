@@ -15,50 +15,104 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Completion provider for {@link ModuleVariableDeclarationNode} context.
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ModuleVariableDeclarationNodeContext extends VariableDeclarationProvider<ModuleVariableDeclarationNode> {
     public ModuleVariableDeclarationNodeContext() {
         super(ModuleVariableDeclarationNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ModuleVariableDeclarationNode node) {
-        if (this.withinInitializerContext(context, node)) {
-            return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
-        }
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ModuleVariableDeclarationNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (withinServiceOnKeywordContext(context, node)) {
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+        TypeDescriptorNode tDescNode = node.typedBindingPattern().typeDescriptor();
+        if (this.withinInitializerContext(ctx, node)) {
+            completionItems.addAll(this.initializerContextCompletions(ctx, tDescNode));
+        } else if (tDescNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
+                && ModulePartNodeContextUtil.onServiceTypeDescContext(((SimpleNameReferenceNode) tDescNode).name(),
+                ctx)) {
+            /*
+            Covers the following cases
+            Eg
+            (1) service m<cursor>
+            (2) isolated service m<cursor>
+            
+            Bellow cases are being handled by ModulePartNodeContext
+            Eg:
+            (1) service <cursor>
+            (2) isolated service <cursor>
+             */
+            List<Symbol> objectSymbols = ModulePartNodeContextUtil.serviceTypeDescContextSymbols(ctx);
+            completionItems.addAll(this.getCompletionItemList(objectSymbols, ctx));
+            completionItems.addAll(this.getModuleCompletionItems(ctx));
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
+        } else if (withinServiceOnKeywordContext(ctx, node)) {
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
+        } else {
+            completionItems.addAll(this.getModulePartContextItems(ctx, node));
         }
+        this.sort(ctx, node, completionItems);
 
-        return new ArrayList<>();
+        return completionItems;
     }
 
-    private boolean withinServiceOnKeywordContext(LSContext context, ModuleVariableDeclarationNode node) {
+    private List<LSCompletionItem> getModulePartContextItems(BallerinaCompletionContext context,
+                                                             ModuleVariableDeclarationNode node) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            Predicate<Symbol> predicate =
+                    symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS;
+            List<Symbol> types = QNameReferenceUtil.getModuleContent(context,
+                    (QualifiedNameReferenceNode) nodeAtCursor, predicate);
+            return this.getCompletionItemList(types, context);
+        }
+
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        completionItems.addAll(ModulePartNodeContextUtil.getTopLevelItems(context));
+        completionItems.addAll(this.getTypeItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
+        this.sort(context, node, completionItems);
+
+        return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, ModuleVariableDeclarationNode node,
+                     List<LSCompletionItem> completionItems, Object... metaData) {
+        ModulePartNodeContextUtil.sort(completionItems);
+    }
+
+    private boolean withinServiceOnKeywordContext(BallerinaCompletionContext context,
+                                                  ModuleVariableDeclarationNode node) {
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
         TypeDescriptorNode typeDescriptor = typedBindingPattern.typeDescriptor();
 
@@ -66,24 +120,19 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
             return false;
         }
 
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position position = context.getCursorPosition();
         LineRange lineRange = typedBindingPattern.bindingPattern().lineRange();
         return (position.getLine() == lineRange.endLine().line()
                 && position.getCharacter() > lineRange.endLine().offset())
                 || position.getLine() > lineRange.endLine().line();
     }
 
-    private boolean withinInitializerContext(LSContext context, ModuleVariableDeclarationNode node) {
-        if (node.equalsToken() == null || node.equalsToken().isMissing()) {
+    private boolean withinInitializerContext(BallerinaCompletionContext context, ModuleVariableDeclarationNode node) {
+        if (node.equalsToken().isEmpty()) {
             return false;
         }
-        Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
-        TextRange equalTokenRange = node.equalsToken().textRange();
+        int textPosition = context.getCursorPositionInTree();
+        TextRange equalTokenRange = node.equalsToken().get().textRange();
         return equalTokenRange.endOffset() <= textPosition;
-    }
-
-    @Override
-    public boolean onPreValidation(LSContext context, ModuleVariableDeclarationNode node) {
-        return node.equalsToken() != null && !node.equalsToken().isMissing();
     }
 }

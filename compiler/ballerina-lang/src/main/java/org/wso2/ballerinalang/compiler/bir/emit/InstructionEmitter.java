@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.emit;
 
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -86,6 +87,7 @@ class InstructionEmitter {
             case OBJECT_STORE:
             case XML_ATTRIBUTE_LOAD:
             case XML_ATTRIBUTE_STORE:
+            case XML_SEQ_LOAD:
                 return emitInsFieldAccess((BIRNonTerminator.FieldAccess) ins, tabs);
             case TYPE_CAST:
                 return emitInsTypeCast((BIRNonTerminator.TypeCast) ins, tabs);
@@ -162,7 +164,7 @@ class InstructionEmitter {
             str += ":";
             str += ins.objectName;
         } else {
-            str += emitName(ins.def.name);
+            str += emitName(ins.def.internalName);
         }
         str += ";";
         return str;
@@ -409,7 +411,7 @@ class InstructionEmitter {
         str += "newType";
         str += emitSpaces(1);
         str += emitTypeRef(ins.type, 0);
-        str = emitClosureParams(ins.closureVars);
+        str += emitClosureParams(ins.closureVars);
         str += ";";
         return str;
     }
@@ -576,7 +578,7 @@ class InstructionEmitter {
         callStr.append("(");
         int i = 0;
         int argLength = term.args.size();
-        for (BIROperand ref : term.args) {
+        for (BIRArgument ref : term.args) {
             if (ref != null) {
                 callStr.append(emitVarRef(ref));
                 i += 1;
@@ -612,7 +614,7 @@ class InstructionEmitter {
         str.append("(");
         int i = 0;
         int argLength = term.args.size();
-        for (BIROperand ref : term.args) {
+        for (BIRArgument ref : term.args) {
             if (ref != null) {
                 str.append(emitVarRef(ref));
                 i += 1;
@@ -739,7 +741,7 @@ class InstructionEmitter {
         callStr.append("(");
         int i = 0;
         int argLength = term.args.size();
-        for (BIROperand ref : term.args) {
+        for (BIRArgument ref : term.args) {
             if (ref != null) {
                 callStr.append(emitVarRef(ref));
                 i += 1;

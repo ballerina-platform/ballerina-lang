@@ -17,18 +17,19 @@
  */
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * This contains methods to test limit clause in query expression and query action.
@@ -158,8 +159,14 @@ public class LimitClauseTest {
         negativeResult = BCompileUtil.compile("test-src/query/limit-clause-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int i = 0;
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 22, 19);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 62, 19);
-        validateError(negativeResult, i, "more clauses after select clause", 107, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 38, 19);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 78, 19);
+        validateError(negativeResult, i, "more clauses after select clause", 123, 13);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 }

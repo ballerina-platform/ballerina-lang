@@ -17,18 +17,18 @@
  */
 package org.ballerinalang.test.error;
 
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -151,8 +151,8 @@ public class ErrorTest {
 
         Assert.assertEquals(message,
                 "error: largeNumber {\"message\":\"large number\"}\n" +
-                        "\tat error_test:errorPanicCallee(error_test.bal:37)\n" +
-                        "\t   error_test:errorPanicTest(error_test.bal:31)");
+                        "\tat error_test:errorPanicCallee(error_test.bal:38)\n" +
+                        "\t   error_test:errorPanicTest(error_test.bal:32)");
     }
 
     @Test
@@ -187,14 +187,6 @@ public class ErrorTest {
     public void testErrorWithErrorConstructor() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testErrorWithErrorConstructor");
         Assert.assertEquals(returns[0].stringValue(), "test");
-    }
-
-    @Test(groups = { "disableOnOldParser" })
-    public void testGetCallStack() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
-        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
-                                                      "moduleName:\"ballerina.runtime.0_5_0.errors\"," +
-                                                      " fileName:\"errors.bal\", lineNumber:38}");
     }
 
     @Test
@@ -265,13 +257,13 @@ public class ErrorTest {
     public void testErrorNegative() {
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'map<any>', expected a subtype of 'map<(anydata|readonly)>'", 41, 28);
+                "invalid error detail type 'map<any>', expected a subtype of 'map<Cloneable>'", 41, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'boolean', expected a subtype of 'map<(anydata|readonly)>'", 42, 28);
+                "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 42, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error<Foo>', found 'error'", 45, 17);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'boolean', expected a subtype of 'map<(anydata|readonly)>'", 48, 11);
+                "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 48, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error<boolean>', found 'error'", 48, 24);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -279,14 +271,12 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 22);
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 36);
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e4'", 55, 34);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "missing mandatory error message argument in call to error constructor", 56, 27);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "missing mandatory error message argument in call to error constructor", 57, 19);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "missing mandatory error message argument in call to error constructor", 96, 18);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "missing mandatory error message argument in call to error constructor", 97, 21);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing arg within parenthesis", 56, 48);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing arg within parenthesis", 57, 32);
+        BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
+                "args 'other' when error detail type 'Bee' contains individual field descriptors", 95, 53);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 96, 32);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 97, 38);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'UserDefErrorTwoA', found 'error'", 110, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -367,10 +357,9 @@ public class ErrorTest {
 
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
-        Assert.assertEquals(message,
-                "error: array index out of range: index: 4, size: 2\n\t" +
-                        "at ballerina.lang_array.1_1_0:slice(array.bal:106)\n\t" +
-                        "   error_test:testStackTraceInNative(error_test.bal:280)");
+        Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
+                "at ballerina.lang.array.1_1_0:slice(array.bal:132)\n\t" +
+                "   error_test:testStackTraceInNative(error_test.bal:278)");
     }
 
     @Test
@@ -403,9 +392,9 @@ public class ErrorTest {
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:344}";
+                "lineNumber:342}";
         String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:348}";
+                "lineNumber:346}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);
@@ -434,5 +423,10 @@ public class ErrorTest {
     @Test
     public void testUnionErrorTypeDescriptionInferring() {
         BRunUtil.invoke(errorTestResult, "testUnionErrorTypeDescriptionInferring");
+    }
+
+    @Test
+    public void testErrorBindingPattern() {
+        BRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
     }
 }

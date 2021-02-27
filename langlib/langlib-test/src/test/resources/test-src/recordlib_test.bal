@@ -101,3 +101,34 @@ function testReduce() returns float {
     }, 0.0);
     return avg;
 }
+
+function testReadOnlyRecordFilter() {
+    Grade & readonly studentGrades = {maths: 54, physics: 85, chemistry: 25, ict: 76};
+    map<int> filteredGrades = studentGrades.filter(function(int d) returns boolean { return d > 50; });
+    assertEquals(filteredGrades.length(), 3);
+    filteredGrades.forEach(function(int value) {
+        assertTrue(value > 50);
+    });
+    assertFalse(filteredGrades.isReadOnly());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(boolean actual) {
+    assertEquals(true, actual);
+}
+
+function assertFalse(boolean actual) {
+    assertEquals(false, actual);
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if (expected == actual) {
+        return;
+    }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(ASSERTION_ERROR_REASON, message = msg);
+}

@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -54,5 +55,10 @@ public class BuiltinMethodTest {
         Assert.assertTrue(result[0] instanceof BMap);
         BMap bMap = (BMap) result[0];
         Assert.assertEquals(bMap.get("test").stringValue(), "sample");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

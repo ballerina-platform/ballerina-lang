@@ -18,13 +18,14 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -86,5 +87,10 @@ public class MultipleWhereClauseTest {
         Assert.assertEquals(person1.get("firstName").stringValue(), "Ranjan");
         Assert.assertEquals(person1.get("lastName").stringValue(), "Fonseka");
         Assert.assertEquals(((BFloat) person1.get("score")).floatValue(), 90.6);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

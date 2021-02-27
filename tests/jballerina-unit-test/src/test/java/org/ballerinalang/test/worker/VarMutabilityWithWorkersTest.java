@@ -16,13 +16,14 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -102,5 +103,10 @@ public class VarMutabilityWithWorkersTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testWithObjects");
         Assert.assertEquals(((BMap) returns[0]).size(), 3);
         Assert.assertEquals(((BMap) returns[0]).getMap().toString(), "{age=40, name=Adam, fullName=Adam Adam Page}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

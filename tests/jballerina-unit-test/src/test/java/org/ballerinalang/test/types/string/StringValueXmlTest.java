@@ -18,7 +18,8 @@
 
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -70,5 +71,10 @@ public class StringValueXmlTest extends BStringTestCommons {
     @Test
     public void testXmlInterpolation() {
         testAndAssert("testXmlInterpolation", 249);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

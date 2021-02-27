@@ -18,11 +18,12 @@
 
 package org.ballerinalang.stdlib.file.service.endpoint;
 
-import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.types.AttachedFunction;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.MemberFunctionType;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.stdlib.file.service.FSListener;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
@@ -44,29 +45,29 @@ import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.F
 
 public class Register {
 
-    public static Object register(BObject listener, BObject service, Object name) {
+    public static Object register(Environment env, BObject listener, BObject service, Object name) {
         BMap serviceEndpointConfig = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG);
         try {
-            final Map<String, AttachedFunction> resourceRegistry = getResourceRegistry(service);
+            final Map<String, MemberFunctionType> resourceRegistry = getResourceRegistry(service);
             final String events = String.join(",", resourceRegistry.keySet());
             final Map<String, String> paramMap = getParamMap(serviceEndpointConfig, events);
             LocalFileSystemConnectorFactory connectorFactory = new LocalFileSystemConnectorFactoryImpl();
             LocalFileSystemServerConnector serverConnector = connectorFactory
                     .createServerConnector(service.getType().getName(), paramMap,
-                            new FSListener(BRuntime.getCurrentRuntime(), service, resourceRegistry));
+                            new FSListener(env.getRuntime(), service, resourceRegistry));
             listener.addNativeData(DirectoryListenerConstants.FS_SERVER_CONNECTOR, serverConnector);
         } catch (LocalFileSystemServerConnectorException e) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
-                                               BStringUtils.fromString("Unable to initialize server connector: " +
+                                               StringUtils.fromString("Unable to initialize server connector: " +
                                                                                e.getMessage()));
         }
         return null;
     }
 
-    private static Map<String, AttachedFunction> getResourceRegistry(BObject service) {
-        Map<String, AttachedFunction> registry = new HashMap<>(5);
-        final AttachedFunction[] attachedFunctions = service.getType().getAttachedFunctions();
-        for (AttachedFunction resource : attachedFunctions) {
+    private static Map<String, MemberFunctionType> getResourceRegistry(BObject service) {
+        Map<String, MemberFunctionType> registry = new HashMap<>(5);
+        final MemberFunctionType[] attachedFunctions = service.getType().getAttachedFunctions();
+        for (MemberFunctionType resource : attachedFunctions) {
             switch (resource.getName()) {
                 case DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE:
                     registry.put(DirectoryListenerConstants.EVENT_CREATE, resource);
@@ -87,7 +88,7 @@ public class Register {
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE + " ,"
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY + ". " + "Parameter should be of type - "
                     + "file:" + FILE_SYSTEM_EVENT;
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException(msg);
+            throw ErrorCreator.createError(StringUtils.fromString(msg));
         }
         return registry;
     }

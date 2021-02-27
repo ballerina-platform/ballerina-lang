@@ -181,7 +181,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         try {
             Files.createDirectory(targetPath);
         } catch (IOException e) {
-            throw new BLangCompilerException("failed create directory '" + targetPath.toString() + "'");
+            throw new BLangCompilerException("failed to create directory '" + targetPath.toString() + "'");
         }
     }
 

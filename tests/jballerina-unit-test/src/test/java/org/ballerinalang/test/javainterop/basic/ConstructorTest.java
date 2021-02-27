@@ -17,16 +17,18 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.model.values.BHandleValue;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BHandleValue;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithDefaultConstructor;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithOneParamConstructor;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithTwoParamConstructor;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -43,9 +45,10 @@ public class ConstructorTest {
         result = BCompileUtil.compile("test-src/javainterop/basic/constructor_tests.bal");
     }
 
-    @Test(description = "Test invoking a java constructor that accepts nothing")
-    public void testAcceptNothing() {
-        BValue[] returns = BRunUtil.invoke(result, "testDefaultConstructor");
+    @Test(description = "Test invoking a java constructor that accepts nothing", dataProvider =
+            "AcceptNothingFunctionNamesProvider")
+    public void testAcceptNothing(String funcName) {
+        BValue[] returns = BRunUtil.invoke(result, funcName);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BHandleValue) returns[0]).getValue().getClass(), ClassWithDefaultConstructor.class);
@@ -54,26 +57,48 @@ public class ConstructorTest {
         Assert.assertEquals(createdClass.getValue().intValue(), 11);
     }
 
-    @Test(description = "Test invoking a java constructor that accepts one parameter")
-    public void testAcceptOneParam() {
+    @Test(description = "Test invoking a java constructor that accepts one parameter", dataProvider =
+            "AcceptOneParamFunctionNamesProvider")
+    public void testAcceptOneParam(String funcName) {
         BValue[] args = new BValue[1];
         args[0] = new BHandleValue("Ballerina");
-        BValue[] returns = BRunUtil.invoke(result, "testOneParamConstructor", args);
+        BValue[] returns = BRunUtil.invoke(result, funcName, args);
         Assert.assertEquals(returns.length, 1);
         ClassWithOneParamConstructor createdClass =
                 (ClassWithOneParamConstructor) ((BHandleValue) returns[0]).getValue();
         Assert.assertEquals(createdClass.getValue(), "Hello Ballerina");
     }
 
-    @Test(description = "Test invoking a java constructor that accepts two parameters")
-    public void testAcceptTowParam() {
+    @Test(description = "Test invoking a java constructor that accepts two parameters", dataProvider =
+            "AcceptTwoParamsFunctionNamesProvider")
+    public void testAcceptTowParam(String funcName) {
         BValue[] args = new BValue[2];
         args[0] = new BHandleValue("Bye ");
         args[1] = new BHandleValue("Ballerina");
-        BValue[] returns = BRunUtil.invoke(result, "testTwoParamConstructor", args);
+        BValue[] returns = BRunUtil.invoke(result, funcName, args);
         Assert.assertEquals(returns.length, 1);
         ClassWithTwoParamConstructor createdClass =
                 (ClassWithTwoParamConstructor) ((BHandleValue) returns[0]).getValue();
         Assert.assertEquals(createdClass.getValue(), "Bye Ballerina");
+    }
+
+    @DataProvider(name = "AcceptNothingFunctionNamesProvider")
+    public Object[] getAcceptNothingFunctionNames() {
+        return new String[]{"testDefaultConstructor", "testDefaultConstructorForClass"};
+    }
+
+    @DataProvider(name = "AcceptOneParamFunctionNamesProvider")
+    public Object[] getAcceptOneParamFunctionNames() {
+        return new String[]{"testOneParamConstructor", "testOneParamConstructorForClass"};
+    }
+
+    @DataProvider(name = "AcceptTwoParamsFunctionNamesProvider")
+    public Object[] getAcceptTwoParamsFunctionNames() {
+        return new String[]{"testTwoParamConstructor", "testTwoParamConstructorForClass"};
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.test.expressions;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -117,5 +118,10 @@ public class TemplateExpressionTest {
         String expected = "{\"intStrIndex0\":\"0\", \"intStrIndex1\":\"1\", "
                 + "\"boolStrIndex0\":\"true\", \"boolStrIndex1\":\"false\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

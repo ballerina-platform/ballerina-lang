@@ -115,7 +115,7 @@
           "kind": "REST_ARG",
           "hasDiagnostics": true,
           "diagnostics": [
-            "ERROR_ARG_FOLLOWED_BY_REST_ARG"
+            "ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG"
           ],
           "children": [
             {

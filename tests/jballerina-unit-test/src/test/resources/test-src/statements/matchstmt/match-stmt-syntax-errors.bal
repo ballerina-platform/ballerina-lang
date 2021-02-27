@@ -15,3 +15,9 @@ function func3() {
     string v = "";
     match
 }
+
+function func4(any v) {
+    match v {
+        {a} => {}
+    }
+}

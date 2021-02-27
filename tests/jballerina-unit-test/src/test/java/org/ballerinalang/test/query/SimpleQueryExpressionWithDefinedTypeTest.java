@@ -18,16 +18,17 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -360,5 +361,10 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
                 "deptAccess:\"XYZ\", address:{city:\"Colombo\", country:\"SL\"}}");
         Assert.assertEquals(person2.stringValue(), "{firstName:\"John\", lastName:\"David\", " +
                 "deptAccess:\"XYZ\", address:{city:\"Colombo\", country:\"SL\"}}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

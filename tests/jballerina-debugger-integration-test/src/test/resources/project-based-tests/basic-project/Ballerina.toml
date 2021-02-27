@@ -1,3 +1,4 @@
-[project]
-org-name = "debug_test_resources"
+[package]
+org = "debug_test_resources"
+name = "basic_package"
 version = "0.0.1"

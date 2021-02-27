@@ -20,6 +20,10 @@
       "value": "foo"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -212,21 +216,21 @@
                           "diagnostics": [
                             "ERROR_MISSING_COMMA_TOKEN"
                           ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "REST_BINDING_PATTERN",
-                      "children": [
-                        {
-                          "kind": "ELLIPSIS_TOKEN"
                         },
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "REST_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "b"
+                              "kind": "ELLIPSIS_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -291,25 +295,27 @@
                     },
                     {
                       "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "REST_BINDING_PATTERN",
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "ELLIPSIS_TOKEN"
-                        },
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "REST_BINDING_PATTERN",
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
+                              "kind": "ELLIPSIS_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_IDENTIFIER"
+                                  ]
+                                }
                               ]
                             }
                           ]
@@ -464,21 +470,21 @@
                                   "diagnostics": [
                                     "ERROR_MISSING_COMMA_TOKEN"
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "REST_BINDING_PATTERN",
-                              "children": [
-                                {
-                                  "kind": "ELLIPSIS_TOKEN"
                                 },
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "kind": "REST_BINDING_PATTERN",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "z"
+                                      "kind": "ELLIPSIS_TOKEN"
+                                    },
+                                    {
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "z"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -497,21 +503,21 @@
                               "value": " "
                             }
                           ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "REST_BINDING_PATTERN",
-                      "children": [
-                        {
-                          "kind": "ELLIPSIS_TOKEN"
                         },
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "REST_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "b"
+                              "kind": "ELLIPSIS_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                }
+                              ]
                             }
                           ]
                         }

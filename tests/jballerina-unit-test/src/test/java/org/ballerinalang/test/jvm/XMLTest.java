@@ -17,16 +17,18 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.model.values.BXMLSequence;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BXML;
+import org.ballerinalang.core.model.values.BXMLItem;
+import org.ballerinalang.core.model.values.BXMLSequence;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.util.BFileUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -135,7 +137,7 @@ public class XMLTest {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
         Assert.assertEquals(returns[0].stringValue(),
-                BCompileUtil.readFileAsString("src/test/resources/test-src/jvm/sampleXML.txt"));
+                BFileUtil.readFileAsString("src/test/resources/test-src/jvm/sampleXML.txt"));
     }
 
     @Test
@@ -200,5 +202,11 @@ public class XMLTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetGlobalXML");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<test><name>ballerina</name></test>");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        literalWithNamespacesResult = null;
     }
 }

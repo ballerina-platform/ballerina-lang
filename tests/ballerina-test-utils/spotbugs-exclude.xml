@@ -18,11 +18,15 @@
 
 <FindBugsFilter>
     <Match>
+        <Package name="org.ballerinalang.test"/>
+    </Match>
+
+    <Match>
         <Package name="org.ballerinalang.test.context"/>
     </Match>
 
     <Match>
-        <Package name="org.ballerinalang.test.balo"/>
+        <Package name="org.ballerinalang.test.bala"/>
     </Match>
 
     <Match>
@@ -39,5 +43,9 @@
 
     <Match>
         <Package name="org.ballerinalang.test.util.jvm"/>
+    </Match>
+
+    <Match>
+        <Class name="org.ballerinalang.test.agent.server.WebServer"/>
     </Match>
 </FindBugsFilter>

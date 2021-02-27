@@ -30,14 +30,6 @@ public interface ExperimentalClientCapabilities {
     boolean isIntrospectionEnabled();
 
     /**
-     * Returns whether the semantic syntax highlighting enabled or not.
-     *
-     * @return True when enabled, False otherwise
-     */
-    boolean isSemanticSyntaxEnabled();
-
-
-    /**
      * Returns whether the show text document enabled or not.
      *
      * @return True when enabled, False otherwise

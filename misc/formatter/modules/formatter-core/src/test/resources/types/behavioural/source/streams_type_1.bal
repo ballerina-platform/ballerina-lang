@@ -11,32 +11,6 @@ class OddNumberGenerator {
     }
 }
 
-type ResultValue record {|
-    int value;
-|};
-
-type Student record {
-    string firstName;
-    string lastName;
-    float score;
-};
-
-type StudentValue record {|
-    Student value;
-|};
-
-type FullName record {|
-    string firstName;
-    string lastName;
-|};
-
-type Subscription record {|
-    string firstName;
-    string lastName;
-    float score;
-    string degree;
-|};
-
 public function main() {
     OddNumberGenerator oddGen = new;
 
@@ -48,12 +22,6 @@ public function main() {
     if (oddNumber is ResultValue) {
         io:println("Retrieved odd number: ", oddNumber.value);
     }
-
-    io:println("Filter records and map them to a different type :");
-
-    Student s1 = {firstName: "Alex", lastName: "George", score: 1.5};
-    Student s2 = {firstName: "Ranjan", lastName: "Fonseka", score: 0.9};
-    Student s3 = {firstName: "John", lastName: "David", score: 1.2};
 
     Student[] studentList = [s1, s2, s3];
 

@@ -15,6 +15,10 @@
           "hasDiagnostics": true,
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
@@ -102,6 +106,10 @@
           "kind": "MODULE_VAR_DECL",
           "hasDiagnostics": true,
           "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
@@ -231,6 +239,10 @@
           "hasDiagnostics": true,
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -286,25 +298,25 @@
                               "value": " "
                             }
                           ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "REST_BINDING_PATTERN",
-                      "children": [
-                        {
-                          "kind": "ELLIPSIS_TOKEN"
                         },
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "REST_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "b",
-                              "trailingMinutiae": [
+                              "kind": "ELLIPSIS_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -357,6 +369,10 @@
           "kind": "MODULE_VAR_DECL",
           "hasDiagnostics": true,
           "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
@@ -568,6 +584,10 @@
               "value": "foo"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "children": [
                 {
@@ -660,6 +680,23 @@
                                   ]
                                 }
                               ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                          ]
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true
                             }
                           ]
                         },
@@ -786,6 +823,23 @@
                           ]
                         },
                         {
+                          "kind": "EQUAL_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                          ]
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true
+                            }
+                          ]
+                        },
+                        {
                           "kind": "SEMICOLON_TOKEN",
                           "trailingMinutiae": [
                             {
@@ -881,21 +935,21 @@
                                       "diagnostics": [
                                         "ERROR_MISSING_COMMA_TOKEN"
                                       ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "REST_BINDING_PATTERN",
-                                  "children": [
-                                    {
-                                      "kind": "ELLIPSIS_TOKEN"
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "REST_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "b"
+                                          "kind": "ELLIPSIS_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "b"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -905,6 +959,23 @@
                                   "kind": "CLOSE_BRACKET_TOKEN"
                                 }
                               ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                          ]
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true
                             }
                           ]
                         },
@@ -1077,6 +1148,23 @@
                                   "kind": "CLOSE_BRACKET_TOKEN"
                                 }
                               ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                          ]
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true
                             }
                           ]
                         },

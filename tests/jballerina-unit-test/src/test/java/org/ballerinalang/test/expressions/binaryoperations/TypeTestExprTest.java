@@ -16,13 +16,13 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -51,7 +51,7 @@ public class TypeTestExprTest {
     public void testTypeTestExprNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/expressions/binaryoperations/type-test-expr-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 37);
+        Assert.assertEquals(negativeResult.getErrorCount(), 42);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 19, 9);
@@ -125,9 +125,24 @@ public class TypeTestExprTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 246, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 9);
-        BAssertUtil.validateError(negativeResult, i,
+        BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(string|int)' will not be matched to '(float|boolean)'",
                 262, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'",
+                271, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'",
+                272, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'",
+                273, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'",
+                274, 9);
+        BAssertUtil.validateError(negativeResult, i,
+                "incompatible types: 'xml' will not be matched to 'string'",
+                275, 9);
     }
 
     @Test
@@ -361,6 +376,41 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+    }
+
+    @Test
+    public void testXMLNeverType() {
+        BRunUtil.invoke(result, "testXMLNeverType");
+    }
+
+    @Test
+    public void testXMLTextType() {
+        BRunUtil.invoke(result, "testXMLTextType");
+    }
+
+    @Test
+    public void testRestType() {
+        BRunUtil.invoke(result, "testRestType");
+    }
+
+    @Test
+    public void testUnionType() {
+        BRunUtil.invoke(result, "testUnionType");
+    }
+
+    @Test
+    public void testInferredArrayType() {
+        BRunUtil.invoke(result, "testInferredArrayType");
+    }
+
+    @Test
+    public void testClosedArrayType() {
+        BRunUtil.invoke(result, "testClosedArrayType");
+    }
+
+    @Test
+    public void testEmptyArrayType() {
+        BRunUtil.invoke(result, "testEmptyArrayType");
     }
 
     @Test
@@ -669,5 +719,10 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         returns = BRunUtil.invoke(result, "testFutureFalse");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testMapAsRecord() {
+        BRunUtil.invoke(result, "testMapAsRecord");
     }
 }

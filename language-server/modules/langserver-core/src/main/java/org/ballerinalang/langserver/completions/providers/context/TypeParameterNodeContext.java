@@ -15,24 +15,24 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class TypeParameterNodeContext extends AbstractCompletionProvider<TypeParameterNode> {
 
     public TypeParameterNodeContext() {
@@ -49,14 +49,15 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, TypeParameterNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TypeParameterNode node)
             throws LSCompletionException {
-        List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode refNode = ((QualifiedNameReferenceNode) nodeAtCursor);
-            List<Scope.ScopeEntry> moduleContent;
+            List<Symbol> moduleContent;
 
             if (node.parent().kind() == SyntaxKind.XML_TYPE_DESC) {
                 /*
@@ -64,8 +65,13 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
                 (1) xml<mod:*cursor*>
                 (2) xml<mod:x*cursor*>
                  */
-                Predicate<Scope.ScopeEntry> predicate = (scopeEntry -> scopeEntry.symbol instanceof BConstructorSymbol
-                        && ((BConstructorSymbol) scopeEntry.symbol).retType instanceof BXMLSubType);
+                Predicate<Symbol> predicate = (symbol -> {
+                    if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
+                        return false;
+                    }
+                    Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+                    return typeDescriptor.isPresent() && typeDescriptor.get().typeKind().isXMLType();
+                });
                 moduleContent = QNameReferenceUtil.getModuleContent(context, refNode, predicate);
             } else {
                 /*
@@ -76,40 +82,47 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
                 moduleContent = QNameReferenceUtil.getTypesInModule(context, refNode);
             }
 
-            return this.getCompletionItemList(moduleContent, context);
-        }
-
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
-
-        if (node.parent().kind() == SyntaxKind.XML_TYPE_DESC) {
-            /*
-            Covers the following
-            (1) xml<*cursor*>
-            (2) xml<x*cursor*>
-             */
-            // modules and the xml sub types are suggested
-            List<Scope.ScopeEntry> xmlSubTypes = visibleSymbols.stream()
-                    .filter(scopeEntry -> scopeEntry.symbol.type instanceof BXMLSubType)
-                    .collect(Collectors.toList());
-            completionItems.addAll(this.getCompletionItemList(xmlSubTypes, context));
+            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
-            /*
-            Covers the following
-            (1) [typedesc | map | future]<*cursor*>
-            (2) [typedesc | map | future]<x*cursor*>
-             */
-            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
+
+            if (node.parent().kind() == SyntaxKind.XML_TYPE_DESC) {
+                /*
+                Covers the following
+                (1) xml<*cursor*>
+                (2) xml<x*cursor*>
+                 */
+                // modules and the xml sub types are suggested
+                List<Symbol> xmlSubTypes = visibleSymbols.stream()
+                        .filter(symbol -> {
+                            if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
+                                return false;
+                            }
+                            Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+                            return typeDescriptor.isPresent() && typeDescriptor.get().typeKind().isXMLType();
+                        })
+                        .collect(Collectors.toList());
+                completionItems.addAll(this.getCompletionItemList(xmlSubTypes, context));
+            } else {
+                /*
+                Covers the following
+                (1) [typedesc | map | future]<*cursor*>
+                (2) [typedesc | map | future]<x*cursor*>
+                 */
+                completionItems.addAll(this.getTypeItems(context));
+            }
         }
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, TypeParameterNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    public boolean onPreValidation(BallerinaCompletionContext context, TypeParameterNode node) {
+        int cursor = context.getCursorPositionInTree();
         int gtToken = node.gtToken().textRange().endOffset();
         int ltToken = node.ltToken().textRange().startOffset();
-        
+
         return ltToken < cursor && gtToken > cursor;
     }
 }

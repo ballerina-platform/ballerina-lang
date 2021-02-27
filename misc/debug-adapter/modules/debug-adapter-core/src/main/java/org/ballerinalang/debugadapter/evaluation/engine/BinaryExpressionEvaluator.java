@@ -17,16 +17,48 @@
 package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.Value;
-import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_ADD_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BINARY_EXPR_HELPER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_AND_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_OR_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_XOR_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DIV_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_GT_EQUALS_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_GT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LEFT_SHIFT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LOGICAL_AND_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LOGICAL_OR_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LT_EQUALS_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_MOD_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_MUL_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SIGNED_RIGHT_SHIFT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SUB_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_UNSIGNED_RIGHT_SHIFT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_XML_FACTORY_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_XML_VALUE_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REF_EQUAL_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VALUE_EQUAL_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.XML_CONCAT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getGeneratedMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
  * Evaluator implementation for binary expressions.
@@ -78,32 +110,34 @@ public class BinaryExpressionEvaluator extends Evaluator {
 
         switch (operatorType) {
             case PLUS_TOKEN:
-                return add(lVar, rVar);
             case MINUS_TOKEN:
-                return sub(lVar, rVar);
             case ASTERISK_TOKEN:
-                return mul(lVar, rVar);
             case SLASH_TOKEN:
-                return div(lVar, rVar);
             case PERCENT_TOKEN:
-                return mod(lVar, rVar);
+                return performArithmeticOperation(lVar, rVar, operatorType);
             case LT_TOKEN:
             case GT_TOKEN:
             case LT_EQUAL_TOKEN:
             case GT_EQUAL_TOKEN:
                 return compare(lVar, rVar, operatorType);
             case BITWISE_AND_TOKEN:
-                return bitwiseAND(lVar, rVar);
             case PIPE_TOKEN:
-                return bitwiseOR(lVar, rVar);
             case BITWISE_XOR_TOKEN:
-                return bitwiseXOR(lVar, rVar);
+            case DOUBLE_LT_TOKEN:
+            case DOUBLE_GT_TOKEN:
+            case TRIPPLE_GT_TOKEN:
+                return performBitwiseOperation(lVar, rVar, operatorType);
             case LOGICAL_AND_TOKEN:
-                return logicalAND(lVar, rVar);
             case LOGICAL_OR_TOKEN:
-                return logicalOR(lVar, rVar);
+                return performLogicalOperation(lVar, rVar, operatorType);
             case ELVIS_TOKEN:
                 return conditionalReturn(lVar, rVar);
+            case DOUBLE_EQUAL_TOKEN:
+            case NOT_EQUAL_TOKEN:
+                return checkValueEquality(lVar, rVar, operatorType);
+            case TRIPPLE_EQUAL_TOKEN:
+            case NOT_DOUBLE_EQUAL_TOKEN:
+                return checkReferenceEquality(lVar, rVar, operatorType);
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operatorType);
         }
@@ -112,265 +146,137 @@ public class BinaryExpressionEvaluator extends Evaluator {
     /**
      * Performs addition/concatenation operation on the given ballerina variable values and returns the result.
      */
-    private BExpressionValue add(BVariable lVar, BVariable rVar) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
-            // int + int
-            long result = Long.parseLong(lVar.computeValue()) + Long.parseLong(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.FLOAT) {
-            // float + float
-            double result = Double.parseDouble(lVar.computeValue()) + Double.parseDouble(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if ((lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.FLOAT)
-                || (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.INT)) {
-            // int + float , float + int
-            double result = Double.parseDouble(lVar.computeValue()) + Double.parseDouble(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if (lVar.getBType() == BVariableType.DECIMAL || rVar.getBType() == BVariableType.DECIMAL) {
-            // Todo - Add support for
-            // decimal + decimal
-            // decimal + int , int + decimal
-            // decimal + float , float + decimal
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PLUS_TOKEN);
-        } else if (lVar.getBType() == BVariableType.STRING && rVar.getBType() == BVariableType.STRING) {
-            // string + string
-            String result = lVar.computeValue() + rVar.computeValue();
-            return EvaluationUtils.make(context, result);
-        } else if (lVar.getBType() == BVariableType.XML && rVar.getBType() == BVariableType.XML) {
-            // xml + xml
-            // Todo - Add support
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PLUS_TOKEN);
-        } else {
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PLUS_TOKEN);
-        }
-    }
+    private BExpressionValue performArithmeticOperation(BVariable lVar, BVariable rVar, SyntaxKind operator)
+            throws EvaluationException {
 
-    /**
-     * Performs subtraction operation on the given ballerina variable values and returns the result.
-     */
-    private BExpressionValue sub(BVariable lVar, BVariable rVar) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
-            // int - int
-            long result = Long.parseLong(lVar.computeValue()) - Long.parseLong(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.FLOAT) {
-            // float - float
-            double result = Double.parseDouble(lVar.computeValue()) - Double.parseDouble(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if ((lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.FLOAT)
-                || (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.INT)) {
-            // int - float , float - int
-            double result = Double.parseDouble(lVar.computeValue()) - Double.parseDouble(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if (lVar.getBType() == BVariableType.DECIMAL || rVar.getBType() == BVariableType.DECIMAL) {
-            // Todo - Add support for
-            // decimal - decimal
-            // decimal - int , int - decimal
-            // decimal - float , float - decimal
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.MINUS_TOKEN);
+        // XML concatenation.
+        if (lVar.getBType() == BVariableType.XML && rVar.getBType() == BVariableType.XML &&
+                operator == SyntaxKind.PLUS_TOKEN) {
+            // Prepares to invoke the JVM runtime util function which is responsible for XML concatenation.
+            List<Value> argList = new ArrayList<>();
+            argList.add(getValueAsObject(context, lVar));
+            argList.add(getValueAsObject(context, rVar));
+            List<String> argTypeNames = new ArrayList<>();
+            argTypeNames.add(B_XML_VALUE_CLASS);
+            argTypeNames.add(B_XML_VALUE_CLASS);
+            RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_XML_FACTORY_CLASS, XML_CONCAT_METHOD,
+                    argTypeNames);
+            runtimeMethod.setArgValues(argList);
+            Value result = runtimeMethod.invoke();
+            return new BExpressionValue(context, result);
         } else {
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.MINUS_TOKEN);
-        }
-    }
+            // Prepares to invoke the JVM runtime util function which is responsible for XML concatenation.
+            List<Value> argList = new ArrayList<>();
+            argList.add(getValueAsObject(context, lVar));
+            argList.add(getValueAsObject(context, rVar));
 
-    /**
-     * Performs multiplication operation on the given ballerina variable values and returns the result.
-     */
-    private BExpressionValue mul(BVariable lVar, BVariable rVar) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
-            // int * int
-            long result = Long.parseLong(lVar.computeValue()) * Long.parseLong(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.FLOAT) {
-            // float * float
-            double result = Double.parseDouble(lVar.computeValue()) * Double.parseDouble(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if ((lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.FLOAT)
-                || (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.INT)) {
-            // int * float , float * int
-            double result = Double.parseDouble(lVar.computeValue()) * Double.parseDouble(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if (lVar.getBType() == BVariableType.DECIMAL || rVar.getBType() == BVariableType.DECIMAL) {
-            // Todo - Add support for
-            // decimal * decimal
-            // decimal * int , int * decimal
-            // decimal * float , float * decimal
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.ASTERISK_TOKEN);
-        } else {
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.ASTERISK_TOKEN);
-        }
-    }
-
-    /**
-     * Performs division operation on the given ballerina variable values and returns the result.
-     */
-    private BExpressionValue div(BVariable lVar, BVariable rVar) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
-            // int / int
-            long result = Long.parseLong(lVar.computeValue()) / Long.parseLong(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.FLOAT) {
-            // float / float
-            double result = Double.parseDouble(lVar.computeValue()) / Double.parseDouble(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if ((lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.FLOAT)
-                || (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.INT)) {
-            // int / float , float / int
-            double result = Double.parseDouble(lVar.computeValue()) / Double.parseDouble(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if (lVar.getBType() == BVariableType.DECIMAL || rVar.getBType() == BVariableType.DECIMAL) {
-            // Todo - Add support for
-            // decimal / decimal
-            // decimal / int , int / decimal
-            // decimal / float , float / decimal
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.SLASH_TOKEN);
-        } else {
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.SLASH_TOKEN);
-        }
-    }
-
-    /**
-     * Performs modulus operation on the given ballerina variable values and returns the result.
-     */
-    private BExpressionValue mod(BVariable lVar, BVariable rVar) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
-            // int % int
-            long result = Long.parseLong(lVar.computeValue()) % Long.parseLong(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.FLOAT) {
-            // float % float
-            double result = Double.parseDouble(lVar.computeValue()) % Double.parseDouble(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if ((lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.FLOAT)
-                || (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.INT)) {
-            // int % float , float % int
-            double result = Double.parseDouble(lVar.computeValue()) % Double.parseDouble(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else if (lVar.getBType() == BVariableType.DECIMAL || rVar.getBType() == BVariableType.DECIMAL) {
-            // Todo - Add support for
-            // decimal % decimal
-            // decimal % int , int % decimal
-            // decimal % float , float % decimal
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
-        } else {
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+            GeneratedStaticMethod genMethod;
+            switch (operator) {
+                case PLUS_TOKEN:
+                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_ADD_METHOD);
+                    break;
+                case MINUS_TOKEN:
+                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_SUB_METHOD);
+                    break;
+                case ASTERISK_TOKEN:
+                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_MUL_METHOD);
+                    break;
+                case SLASH_TOKEN:
+                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_DIV_METHOD);
+                    break;
+                case PERCENT_TOKEN:
+                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_MOD_METHOD);
+                    break;
+                default:
+                    throw createUnsupportedOperationException(lVar, rVar, operator);
+            }
+            genMethod.setArgValues(argList);
+            Value result = genMethod.invoke();
+            return new BExpressionValue(context, result);
         }
     }
 
     private BExpressionValue compare(BVariable lVar, BVariable rVar, SyntaxKind operator) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
-            // int <=> int
-            boolean result;
-            switch (operator) {
-                case LT_TOKEN:
-                    result = Long.parseLong(lVar.computeValue()) < Long.parseLong(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-                case GT_TOKEN:
-                    result = Long.parseLong(lVar.computeValue()) > Long.parseLong(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-                case LT_EQUAL_TOKEN:
-                    result = Long.parseLong(lVar.computeValue()) <= Long.parseLong(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-                case GT_EQUAL_TOKEN:
-                    result = Long.parseLong(lVar.computeValue()) >= Long.parseLong(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-            }
-        } else if ((lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.FLOAT)
-                || (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.INT)
-                || lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.FLOAT) {
-            // int <=> float or float <=> float
-            boolean result;
-            switch (operator) {
-                case LT_TOKEN:
-                    result = Double.parseDouble(lVar.computeValue()) < Double.parseDouble(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-                case GT_TOKEN:
-                    result = Double.parseDouble(lVar.computeValue()) > Double.parseDouble(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-                case LT_EQUAL_TOKEN:
-                    result = Double.parseDouble(lVar.computeValue()) <= Double.parseDouble(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-                case GT_EQUAL_TOKEN:
-                    result = Double.parseDouble(lVar.computeValue()) >= Double.parseDouble(rVar.computeValue());
-                    return EvaluationUtils.make(context, result);
-            }
-        } else if (lVar.getBType() == BVariableType.DECIMAL || rVar.getBType() == BVariableType.DECIMAL) {
-            // Todo - Add support for
-            // decimal <=> decimal
-            // decimal <=>  int or int <=> decimal
-            // decimal <=> float or float <=> decimal
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+        List<Value> argList = new ArrayList<>();
+        argList.add(getValueAsObject(context, lVar));
+        argList.add(getValueAsObject(context, rVar));
+
+        GeneratedStaticMethod genMethod;
+        switch (operator) {
+            case LT_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LT_METHOD);
+                break;
+            case LT_EQUAL_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LT_EQUALS_METHOD);
+                break;
+            case GT_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_GT_METHOD);
+                break;
+            case GT_EQUAL_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_GT_EQUALS_METHOD);
+                break;
+            default:
+                throw createUnsupportedOperationException(lVar, rVar, operator);
         }
-        throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+        genMethod.setArgValues(argList);
+        Value result = genMethod.invoke();
+        return new BExpressionValue(context, result);
     }
 
-    /**
-     * Performs bitwise AND operation on the given ballerina variable values and returns the result.
-     */
-    private BExpressionValue bitwiseAND(BVariable lVar, BVariable rVar) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
-            // int + int
-            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
-            long result = Long.parseLong(lVar.computeValue()) & Long.parseLong(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else {
-            // Todo - Add support for signed and unsigned integers
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_AND_TOKEN);
+    private BExpressionValue performBitwiseOperation(BVariable lVar, BVariable rVar, SyntaxKind operator)
+            throws EvaluationException {
+        List<Value> argList = new ArrayList<>();
+        argList.add(getValueAsObject(context, lVar));
+        argList.add(getValueAsObject(context, rVar));
+
+        GeneratedStaticMethod genMethod;
+        switch (operator) {
+            case BITWISE_AND_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_BITWISE_AND_METHOD);
+                break;
+            case PIPE_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_BITWISE_OR_METHOD);
+                break;
+            case BITWISE_XOR_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_BITWISE_XOR_METHOD);
+                break;
+            case DOUBLE_LT_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LEFT_SHIFT_METHOD);
+                break;
+            case DOUBLE_GT_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_SIGNED_RIGHT_SHIFT_METHOD);
+                break;
+            case TRIPPLE_GT_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_UNSIGNED_RIGHT_SHIFT_METHOD);
+                break;
+            default:
+                throw createUnsupportedOperationException(lVar, rVar, operator);
         }
+        genMethod.setArgValues(argList);
+        Value result = genMethod.invoke();
+        return new BExpressionValue(context, result);
     }
 
-    /**
-     * Performs bitwise OR operation on the given ballerina variable values and returns the result.
-     */
-    private BExpressionValue bitwiseOR(BVariable lVar, BVariable rVar) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
-            // int + int
-            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
-            long result = Long.parseLong(lVar.computeValue()) | Long.parseLong(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else {
-            // Todo - Add support for signed and unsigned integers
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PIPE_TOKEN);
-        }
-    }
+    private BExpressionValue performLogicalOperation(BVariable lVar, BVariable rVar, SyntaxKind operator)
+            throws EvaluationException {
+        List<Value> argList = new ArrayList<>();
+        argList.add(getValueAsObject(context, lVar));
+        argList.add(getValueAsObject(context, rVar));
 
-    /**
-     * Performs bitwise XOR operation on the given ballerina variable values and returns the result.
-     */
-    private BExpressionValue bitwiseXOR(BVariable lVar, BVariable rVar) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
-            // int + int
-            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
-            long result = Long.parseLong(lVar.computeValue()) ^ Long.parseLong(rVar.computeValue());
-            return EvaluationUtils.make(context, result);
-        } else {
-            // Todo - Add support for signed and unsigned integers
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_XOR_TOKEN);
+        GeneratedStaticMethod genMethod;
+        switch (operator) {
+            case LOGICAL_AND_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LOGICAL_AND_METHOD);
+                break;
+            case LOGICAL_OR_TOKEN:
+                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LOGICAL_OR_METHOD);
+                break;
+            default:
+                throw createUnsupportedOperationException(lVar, rVar, operator);
         }
-    }
-
-    /**
-     * Performs logical AND operation on the given ballerina variable values and returns the result.
-     */
-    private BExpressionValue logicalAND(BVariable lVar, BVariable rVar) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.BOOLEAN && rVar.getBType() == BVariableType.BOOLEAN) {
-            return !Boolean.parseBoolean(lVar.computeValue()) ? EvaluationUtils.make(context, false)
-                    : EvaluationUtils.make(context, Boolean.parseBoolean(rVar.computeValue()));
-        } else {
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.LOGICAL_AND_TOKEN);
-        }
-    }
-
-    /**
-     * Performs logical OR operation on the given ballerina variable values and returns the result.
-     */
-    private BExpressionValue logicalOR(BVariable lVar, BVariable rVar) throws EvaluationException {
-        if (lVar.getBType() == BVariableType.BOOLEAN && rVar.getBType() == BVariableType.BOOLEAN) {
-            return Boolean.parseBoolean(lVar.computeValue()) ? EvaluationUtils.make(context, true)
-                    : EvaluationUtils.make(context, Boolean.parseBoolean(rVar.computeValue()));
-        } else {
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.LOGICAL_OR_TOKEN);
-        }
+        genMethod.setArgValues(argList);
+        Value result = genMethod.invoke();
+        return new BExpressionValue(context, result);
     }
 
     /**
@@ -385,6 +291,50 @@ public class BinaryExpressionEvaluator extends Evaluator {
         } else {
             return new BExpressionValue(context, rVar.getJvmValue());
         }
+    }
+
+    /**
+     * Checks for deep value equality.
+     */
+    private BExpressionValue checkValueEquality(BVariable lVar, BVariable rVar, SyntaxKind operatorType)
+            throws EvaluationException {
+        List<Value> argList = new ArrayList<>();
+        argList.add(getValueAsObject(context, lVar));
+        argList.add(getValueAsObject(context, rVar));
+
+        List<String> argTypeNames = new ArrayList<>();
+        argTypeNames.add(JAVA_OBJECT_CLASS);
+        argTypeNames.add(JAVA_OBJECT_CLASS);
+        RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, VALUE_EQUAL_METHOD,
+                argTypeNames);
+        runtimeMethod.setArgValues(argList);
+        Value result = runtimeMethod.invoke();
+        BVariable variable = VariableFactory.getVariable(context, result);
+        boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
+        booleanValue = operatorType == SyntaxKind.DOUBLE_EQUAL_TOKEN ? booleanValue : !booleanValue;
+        return VMUtils.make(context, booleanValue);
+    }
+
+    /**
+     * Checks for reference equality.
+     */
+    private BExpressionValue checkReferenceEquality(BVariable lVar, BVariable rVar, SyntaxKind operatorType)
+            throws EvaluationException {
+        List<Value> argList = new ArrayList<>();
+        argList.add(getValueAsObject(context, lVar));
+        argList.add(getValueAsObject(context, rVar));
+
+        List<String> argTypeNames = new ArrayList<>();
+        argTypeNames.add(JAVA_OBJECT_CLASS);
+        argTypeNames.add(JAVA_OBJECT_CLASS);
+        RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, REF_EQUAL_METHOD,
+                argTypeNames);
+        runtimeMethod.setArgValues(argList);
+        Value result = runtimeMethod.invoke();
+        BVariable variable = VariableFactory.getVariable(context, result);
+        boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
+        booleanValue = operatorType == SyntaxKind.TRIPPLE_EQUAL_TOKEN ? booleanValue : !booleanValue;
+        return VMUtils.make(context, booleanValue);
     }
 
     private EvaluationException createUnsupportedOperationException(BVariable lVar, BVariable rVar,

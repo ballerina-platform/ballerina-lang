@@ -4,8 +4,6 @@ readonly
         Foo
       {
     string  name ;
-
-
 }
 
 distinct           readonly

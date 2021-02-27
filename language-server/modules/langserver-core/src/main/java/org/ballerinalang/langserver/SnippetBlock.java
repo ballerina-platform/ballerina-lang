@@ -1,40 +1,41 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver;
 
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.completions.builder.CompletionItemBuilder;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represent an insert text block having both plain text and snippet format strings.
- * 
+ *
  * @since 0.982.0
  */
-public class SnippetBlock {
+public class SnippetBlock extends CompletionItemBuilder {
 
     private String label = "";
     private String detail = "";
@@ -68,32 +69,36 @@ public class SnippetBlock {
     /**
      * Create a given completionItem's insert text.
      *
-     * @param ctx   LS Context
+     * @param ctx LS Context
      * @return modified Completion Item
      */
-    public CompletionItem build(LSContext ctx) {
+    public CompletionItem build(BallerinaCompletionContext ctx) {
+        // Each time we build a new completion item to make the snippet aware of the latest sources (alias changes, etc)
         CompletionItem completionItem = new CompletionItem();
-        completionItem.setInsertText(this.snippet);
-        List<BLangImportPackage> currentDocImports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
+        String insertText = this.snippet;
         if (imports != null) {
             List<TextEdit> importTextEdits = new ArrayList<>();
             for (Pair<String, String> pair : imports) {
-                boolean pkgAlreadyImported = currentDocImports.stream()
-                        .anyMatch(importPkg -> importPkg.orgName.value.equals(pair.getLeft())
-                                && importPkg.alias.value.equals(pair.getRight()));
-                if (!pkgAlreadyImported) {
+                Optional<ImportDeclarationNode> matchedImport = CommonUtil.matchingImportedModule(ctx, pair.getLeft(),
+                        pair.getRight());
+                if (matchedImport.isEmpty()) {
                     importTextEdits.addAll(CommonUtil.getAutoImportTextEdits(pair.getLeft(), pair.getRight(), ctx));
+                } else if (matchedImport.get().prefix().isPresent()) {
+                    insertText = this.snippet.replace(pair.getRight() + ":",
+                            matchedImport.get().prefix().get().prefix().text() + ":");
                 }
             }
             completionItem.setAdditionalTextEdits(importTextEdits);
         }
+        completionItem.setInsertText(insertText);
         if (!label.isEmpty()) {
             completionItem.setLabel(label);
         }
         if (!detail.isEmpty()) {
             completionItem.setDetail(detail);
         }
-        completionItem.setKind(getCompletionItemKind());
+        completionItem.setKind(this.getKind(this));
+
         return completionItem;
     }
 
@@ -115,6 +120,8 @@ public class SnippetBlock {
         switch (kind) {
             case KEYWORD:
                 return CompletionItemKind.Keyword;
+            case TYPE:
+                return CompletionItemKind.Unit;
             case SNIPPET:
             case STATEMENT:
             default:
@@ -134,6 +141,6 @@ public class SnippetBlock {
      * Represents Snippet Types in B7a LS.
      */
     public enum Kind {
-        KEYWORD, SNIPPET, STATEMENT;
+        KEYWORD, SNIPPET, STATEMENT, TYPE;
     }
 }

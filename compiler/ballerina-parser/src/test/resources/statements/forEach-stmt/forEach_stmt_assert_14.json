@@ -30,6 +30,10 @@
       "value": "foo"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -113,13 +117,7 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "OPEN_BRACKET_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -176,13 +174,7 @@
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "vegetables",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "vegetables"
                                 }
                               ]
                             },
@@ -194,21 +186,21 @@
                                   "value": " "
                                 }
                               ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "REST_BINDING_PATTERN",
-                          "children": [
-                            {
-                              "kind": "ELLIPSIS_TOKEN"
                             },
                             {
-                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "kind": "REST_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "foobar"
+                                  "kind": "ELLIPSIS_TOKEN"
+                                },
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "foobar"
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -356,6 +348,12 @@
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": "        "
                                     }
+                                  ],
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
                                   ]
                                 }
                               ]
@@ -364,7 +362,13 @@
                               "kind": "PLUS_TOKEN"
                             },
                             {
-                              "kind": "EQUAL_TOKEN"
+                              "kind": "EQUAL_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "NUMERIC_LITERAL",
@@ -411,12 +415,6 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
-          "leadingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ],
           "trailingMinutiae": [
             {
               "kind": "END_OF_LINE_MINUTIAE",

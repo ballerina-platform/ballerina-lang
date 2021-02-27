@@ -39,6 +39,10 @@
               "value": "\u0027foo_\\u{2345}\\u{0376}"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "children": [
                 {

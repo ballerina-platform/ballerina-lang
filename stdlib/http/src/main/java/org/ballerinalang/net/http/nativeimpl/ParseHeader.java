@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BArray;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BTypes;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.TupleType;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.net.http.HttpUtil;
 
@@ -41,8 +41,8 @@ import static org.ballerinalang.net.http.HttpErrorType.GENERIC_CLIENT_ERROR;
  */
 public class ParseHeader {
 
-    private static final BTupleType parseHeaderTupleType = new BTupleType(
-            Arrays.asList(BTypes.typeString, BTypes.typeMap));
+    private static final TupleType parseHeaderTupleType = TypeCreator.createTupleType(
+            Arrays.asList(Types.TYPE_STRING, Types.TYPE_MAP));
 
     public static Object parseHeader(BString headerValue) {
         if (headerValue == null) {

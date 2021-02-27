@@ -17,20 +17,19 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FutureValue;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * TesterinaFunction entity class.
@@ -41,7 +40,6 @@ public class TesterinaFunction {
 
     private String bFunctionName;
     private Class<?> programFile;
-    private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
 
     // Annotation info
     private List<String> groups = new ArrayList<>();
@@ -66,8 +64,8 @@ public class TesterinaFunction {
      * @param types of the function parameters
      * @return output
      */
-    public Object directInvoke(Class[] types) {
-        return run(programFile, bFunctionName, scheduler, types);
+    public Object directInvoke(Class[] types, Object[] args) {
+        return run(programFile, bFunctionName, types, args);
     }
 
     public String getName() {
@@ -86,15 +84,14 @@ public class TesterinaFunction {
         this.groups = groups;
     }
 
-    private static Object run(Class<?> initClazz, String name, Scheduler scheduler,
-                              Class[] paramTypes) {
+    private static Object run(Class<?> initClazz, String name, Class[] paramTypes, Object[] args) {
         String funcName = cleanupFunctionName(name);
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
-            return method.invoke(null, new Object[]{});
+            return method.invoke(null, args);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new BallerinaException("Failed to invoke the function '" +
-                                                     funcName + " due to " + e.getMessage());
+            throw new BallerinaTestException("Failed to invoke the function '" +
+                                             funcName + " due to " + e.getMessage(), e);
         }
     }
 
@@ -110,33 +107,32 @@ public class TesterinaFunction {
                 } catch (InvocationTargetException e) {
                     return e.getTargetException();
                 } catch (IllegalAccessException e) {
-                    throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
+                    throw new BallerinaTestException("Error while invoking function '" + funcName + "'", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(params, func, null, null, null, BTypes.typeAny,
-                                                       null, null);
+            final BFuture out = scheduler.schedule(params, func, null, null, null, PredefinedTypes.TYPE_ANY,
+                                                   null, null);
             scheduler.start();
-            final Throwable t = out.panic;
-            final Object result = out.result;
-            if (result instanceof ErrorValue) {
-                throw new BallerinaException((ErrorValue) result);
+            final Throwable t = out.getPanic();
+            final Object result = out.getResult();
+            if (result instanceof BError) {
+                throw new BallerinaTestException((BError) result);
             }
             if (result instanceof Exception) {
-                throw new BallerinaException((Exception) result);
+                throw new BallerinaTestException((Exception) result);
             }
             if (t != null) {
-                throw new BallerinaException("Error while invoking function '" + funcName + "'", t.getMessage());
+                throw new BallerinaTestException("Error while invoking function '" + funcName + "'", t.getMessage());
             }
-            return out.result;
+            return out.getResult();
         } catch (NoSuchMethodException e) {
-            throw new BallerinaException("Error while invoking function '" + funcName + "'\n" +
+            throw new BallerinaTestException("Error while invoking function '" + funcName + "'\n" +
                     "If you are using data providers please check if types return from data provider " +
                     "match test function parameter types.", e);
         }
     }
 
     private static String cleanupFunctionName(String name) {
-        Matcher matcher = JVM_RESERVED_CHAR_SET.matcher(name);
-        return matcher.find() ? "$" + matcher.replaceAll("_") : name;
+        return IdentifierUtils.encodeFunctionIdentifier(name);
     }
 }

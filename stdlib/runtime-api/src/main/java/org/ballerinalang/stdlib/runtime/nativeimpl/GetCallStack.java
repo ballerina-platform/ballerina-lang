@@ -18,9 +18,16 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+
+import java.util.List;
 
 /**
  * Native implementation for get error's call stack.
@@ -29,7 +36,27 @@ import org.ballerinalang.jvm.values.ArrayValue;
  */
 public class GetCallStack {
 
-    public static ArrayValue getCallStack() {
-        return BErrorCreator.createError(BStringUtils.fromString("")).getCallStack();
+    public static BArray getCallStack() {
+        List<StackTraceElement> filteredStack = ErrorCreator.createError(StringUtils.fromString("")).getCallStack();
+        Type recordType = ValueCreator.createRecordValue(Constants.BALLERINA_RUNTIME_PKG_ID,
+                Constants.CALL_STACK_ELEMENT).getType();
+        BArray callStack = ValueCreator.createArrayValue(TypeCreator.createArrayType(recordType));
+        for (int i = 0; i < filteredStack.size(); i++) {
+            Object[] values = getStackFrame(filteredStack.get(i));
+            BMap<BString, Object> createRecordValue = ValueCreator.createRecordValue(ValueCreator.
+                            createRecordValue(Constants.BALLERINA_RUNTIME_PKG_ID, Constants.CALL_STACK_ELEMENT),
+                    values);
+            callStack.add(i, createRecordValue);
+        }
+        return callStack;
+    }
+
+    private static Object[] getStackFrame(StackTraceElement stackTraceElement) {
+        Object[] values = new Object[4];
+        values[0] = stackTraceElement.getMethodName();
+        values[1] = stackTraceElement.getClassName();
+        values[2] = stackTraceElement.getFileName();
+        values[3] = stackTraceElement.getLineNumber();
+        return values;
     }
 }

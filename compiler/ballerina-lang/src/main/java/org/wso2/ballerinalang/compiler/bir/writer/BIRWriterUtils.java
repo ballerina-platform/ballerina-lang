@@ -19,10 +19,9 @@
 
 package org.wso2.ballerinalang.compiler.bir.writer;
 
+import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Common functions used in BIR writers.
@@ -31,19 +30,19 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  */
 public class BIRWriterUtils {
 
-    public static void writePosition(DiagnosticPos pos, ByteBuf buf, ConstantPool cp) {
+    public static void writePosition(Location pos, ByteBuf buf, ConstantPool cp) {
         int sLine = Integer.MIN_VALUE;
         int eLine = Integer.MIN_VALUE;
         int sCol = Integer.MIN_VALUE;
         int eCol = Integer.MIN_VALUE;
         String sourceFileName = "";
         if (pos != null) {
-            sLine = pos.sLine;
-            eLine = pos.eLine;
-            sCol = pos.sCol;
-            eCol = pos.eCol;
-            if (pos.src != null) {
-                sourceFileName = pos.src.cUnitName;
+            sLine = pos.lineRange().startLine().line();
+            eLine = pos.lineRange().endLine().line();
+            sCol = pos.lineRange().startLine().offset();
+            eCol = pos.lineRange().endLine().offset();
+            if (pos.lineRange().filePath() != null) {
+                sourceFileName = pos.lineRange().filePath();
             }
         }
         buf.writeInt(addStringCPEntry(sourceFileName, cp));
@@ -57,18 +56,10 @@ public class BIRWriterUtils {
         return cp.addCPEntry(new CPEntry.StringCPEntry(value));
     }
 
-    public static int addPkgCPEntry(String orgName, String name, String version, ConstantPool cp) {
-        int orgCPIndex = addStringCPEntry(orgName, cp);
-        int nameCPIndex = addStringCPEntry(name, cp);
-        int versionCPIndex = addStringCPEntry(version, cp);
-        return cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
-    }
-
-    public static int addPkgCPEntry(BIRNode.BIRPackage birPackage, ConstantPool cp) {
-        return addPkgCPEntry(birPackage.org.value, birPackage.name.value, birPackage.version.value, cp);
-    }
-
     public static int addPkgCPEntry(PackageID packageID, ConstantPool cp) {
-        return addPkgCPEntry(packageID.orgName.value, packageID.name.value, packageID.version.value, cp);
+        int orgCPIndex = addStringCPEntry(packageID.orgName.getValue(), cp);
+        int nameCPIndex = addStringCPEntry(packageID.name.getValue(), cp);
+        int versionCPIndex = addStringCPEntry(packageID.version.getValue(), cp);
+        return cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
     }
 }

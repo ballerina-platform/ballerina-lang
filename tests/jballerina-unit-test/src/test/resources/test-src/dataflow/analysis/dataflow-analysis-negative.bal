@@ -14,7 +14,7 @@
  // specific language governing permissions and limitations
  // under the License.
  
-import ballerina/http;
+import ballerina/lang.test;
 
  
  function testDataflow_1() returns string {
@@ -356,20 +356,20 @@ function testMatch_1() returns string {
     return val;
 }
 
-listener http:MockListener echoEP = new(9090);
+listener test:MockListener echoEP = new(9090);
 
 string x = "x";
 string y = "sample value";
 
 service echo on echoEP {
 
-    resource function echo_1(http:Caller conn, http:Request request) {
+    resource function echo_1(string conn, string request) {
         string a = x;
         a = y;
         x = "init within echo_1";
     }
 
-    resource function echo_2(http:Caller conn, http:Request request) {
+    resource function echo_2(string conn, string request) {
         string a = x;
         a = y;
         x = "init within echo_2";
@@ -440,13 +440,13 @@ public type D record {
 };
 
 
-listener http:MockListener testEP = new(9092);
+listener test:MockListener testEP = new(9092);
 
 int a = 0;
 
 service testService on testEP {
 
-    resource function resource_1(http:Caller conn, http:Request request) {
+    resource function resource_1(string conn, string request) {
         a = 5;
         int b = a;
         int c;
@@ -460,7 +460,7 @@ service testService on testEP {
         int d = c;
     }
 
-    resource function resource_2(http:Caller conn, http:Request request) {
+    resource function resource_2(string conn, string request) {
         int b = a;
     }
 }

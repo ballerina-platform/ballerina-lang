@@ -19,9 +19,11 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
 
 /**
  * Test class containing tests related to test path verification.
@@ -34,25 +36,25 @@ public class PathVerificationTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = outsideTestsProjectPath.toString();
+        projectPath = projectBasedTestsPath.toString();
     }
 
     @Test
     public void verifyTestsOutsidePath() throws BallerinaTestException {
-        LogLeecher passingLeecher = new LogLeecher("2 passing");
-        LogLeecher failingLeecher = new LogLeecher("0 failing");
-        balClient.runMain("test", new String[]{"pathVerification"}, null, new String[0],
-                new LogLeecher[]{passingLeecher, failingLeecher}, projectPath);
-        passingLeecher.waitForText(20000);
-        failingLeecher.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"path-verification"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "outside path test failure");
     }
 
     @Test
     public void verifyMissingTestsDirectory() throws BallerinaTestException {
         String msg = "No tests found";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"missingTestsDirectory"},
-                null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"missing-tests-dir"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg)) {
+            AssertionUtils.assertForTestFailures(output, "missing test directory verification failure");
+        }
     }
 }

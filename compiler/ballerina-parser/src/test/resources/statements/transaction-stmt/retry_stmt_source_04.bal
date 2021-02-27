@@ -1,16 +1,16 @@
 function foo() {
     retry transaction 
     }
-    
-    retry<T transaction{
+
+    retry<T transaction {
     }
-    
-    retry<> transaction{
+
+    retry<> transaction {
     }
-    
-    retry(a, b transaction{
+
+    retry(a, b transaction {
     }
-    
-    retry<T a, b) transaction{
+
+    retry<T a, b) transaction {
     }
 }

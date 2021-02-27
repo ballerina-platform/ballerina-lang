@@ -17,8 +17,8 @@
 package org.ballerinalang.test.annotations;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -27,6 +27,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -36,6 +38,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -64,7 +68,7 @@ public class AnnotationAttachmentTest {
     @Test
     public void testAnnotOnObjectType() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                ((BLangClassDefinition) ((BLangPackage) compileResult.getAST()).topLevelNodes.get(17))
+                ((BLangClassDefinition) ((BLangPackage) compileResult.getAST()).topLevelNodes.get(16))
                         .getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 2);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v1", "val", "v1 value object");
@@ -126,11 +130,12 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnListener() {
-        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                compileResult.getAST().getGlobalVariables().stream()
-                        .filter(globalVar -> globalVar.getName().getValue().equals("lis"))
-                        .findFirst()
-                        .get().getAnnotationAttachments();
+        List<BLangAnnotationAttachment> attachments = new ArrayList<>();
+        for (BLangVariable globalVar : compileResult.getAST().getGlobalVariables()) {
+            if (((BLangSimpleVariable) globalVar).getName().getValue().equals("lis")) {
+                attachments.addAll(globalVar.getAnnotationAttachments());
+            }
+        }
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v9", "val", "v91");
     }
@@ -139,16 +144,17 @@ public class AnnotationAttachmentTest {
     public void testAnnotOnServiceOne() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
                 compileResult.getAST().getServices().stream()
-                        .filter(serviceNode -> serviceNode.getName().getValue().equals("ser"))
+                        .filter(serviceNode ->
+                                serviceNode.getAbsolutePath().stream().anyMatch(p -> p.getValue().contains("ser")))
                         .findFirst()
-                        .get().getAnnotationAttachments();
+                        .get().getServiceClass().getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v8", "val", "v8");
     }
 
     @Test
     public void testAnnotOnResourceOne() {
-        BLangFunction function = getFunction("ser$$service$0.res");
+        BLangFunction function = getFunction("$anonType$_1.$get$res");
         List<BLangAnnotationAttachment> attachments = function.annAttachments;
         Assert.assertEquals(attachments.size(), 2);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v3", "val", "v34");
@@ -168,8 +174,8 @@ public class AnnotationAttachmentTest {
     @Test
     public void testAnnotOnServiceTwo() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                compileResult.getAST().getServices().stream()
-                        .filter(serviceNode -> serviceNode.getName().getValue().equals("$anonService$1"))
+                compileResult.getAST().getClassDefinitions().stream()
+                        .filter(classNode -> classNode.getName().getValue().equals("$anonType$_3"))
                         .findFirst()
                         .get().getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);
@@ -178,7 +184,7 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnResourceTwo() {
-        BLangFunction function = getFunction("$anonService$1$$service$2.res");
+        BLangFunction function = getFunction("$anonType$_3.$get$res");
         List<BLangAnnotationAttachment> attachments = function.annAttachments;
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v5", "val", "542");
@@ -207,13 +213,21 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnVar() {
-        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                compileResult.getAST().getGlobalVariables().stream()
-                        .filter(variableNode ->  variableNode.getName().toString().equals("i"))
-                        .findFirst()
-                        .get().getAnnotationAttachments();
-        Assert.assertEquals(attachments.size(), 1);
+        List<BLangAnnotationAttachment> attachments = new ArrayList<>();
+        List<String> targetVariables = new ArrayList<>(Arrays.asList("i", "intVar", "stringVar", "myA", "message",
+                "errorNo"));
+        for (BLangVariable globalVar : compileResult.getAST().getGlobalVariables()) {
+            if (targetVariables.contains(((BLangSimpleVariable) globalVar).getName().getValue())) {
+                attachments.addAll(globalVar.getAnnotationAttachments());
+            }
+        }
+        Assert.assertEquals(attachments.size(), 6);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v11", "val", 11L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(1), "v11", "val", 2L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(2), "v11", "val", 2L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(3), "v11", "val", 3L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(4), "v11", "val", 4L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(5), "v11", "val", 4L);
     }
 
     @Test
@@ -290,11 +304,8 @@ public class AnnotationAttachmentTest {
     @Test
     public void testAnnotsWithConstLists() {
         CompileResult result = BCompileUtil.compile("test-src/annotations/annots_with_list_consts.bal");
-        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                result.getAST().getServices().stream()
-                        .filter(serviceNode -> serviceNode.getName().getValue().equals("$anonService$0"))
-                        .findFirst()
-                        .get().getAnnotationAttachments();
+        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>) result.getAST()
+                .getClassDefinitions().get(0).getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);
         BLangAnnotationAttachment attachment = attachments.get(0);
         Assert.assertEquals(attachment.annotationName.getValue(), "v1");

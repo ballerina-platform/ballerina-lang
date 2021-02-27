@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -152,10 +153,7 @@ public class SymbolEnv {
 
     public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol,
                                                    SymbolEnv env) {
-        if (objSymbol.methodScope == null) {
-            objSymbol.methodScope = new Scope(objSymbol);
-        }
-        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.methodScope, env);
+        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.scope, env);
         symbolEnv.envCount = env.envCount + 1;
         env.copyTo(symbolEnv);
         return symbolEnv;
@@ -163,10 +161,7 @@ public class SymbolEnv {
 
     public static SymbolEnv createClassMethodsEnv(BLangClassDefinition node, BObjectTypeSymbol objSymbol,
                                                    SymbolEnv env) {
-        if (objSymbol.methodScope == null) {
-            objSymbol.methodScope = new Scope(objSymbol);
-        }
-        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.methodScope, env);
+        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.scope, env);
         symbolEnv.envCount = env.envCount + 1;
         env.copyTo(symbolEnv);
         return symbolEnv;
@@ -227,13 +222,30 @@ public class SymbolEnv {
     }
 
     public static SymbolEnv createOnFailEnv(BLangOnFailClause node, SymbolEnv env) {
-        SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
+        Scope scope = node.body.scope;
+        if (scope == null) {
+            scope = new Scope(env.scope.owner);
+            node.body.scope = scope;
+        }
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
         env.copyTo(symbolEnv);
         symbolEnv.envCount = env.envCount + 1;
-        symbolEnv.enclEnv = env;
-        symbolEnv.enclInvokable = env.enclInvokable;
-        symbolEnv.node = node;
-        symbolEnv.enclPkg = env.enclPkg;
+        symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createPatternEnv(BLangMatchPattern pattern, SymbolEnv env) {
+        // Create a scope for the block node if one doesn't exists
+        Scope scope = pattern.scope;
+        if (scope == null) {
+            scope = new Scope(env.scope.owner);
+            pattern.scope = scope;
+        }
+
+        SymbolEnv symbolEnv = new SymbolEnv(pattern, scope);
+        env.copyTo(symbolEnv);
+        symbolEnv.envCount = env.envCount + 1;
+        symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
         return symbolEnv;
     }
 
@@ -333,7 +345,7 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv createStreamingInputEnv(BLangNode node, SymbolEnv env) {
+    public static SymbolEnv createLockEnv(BLangNode node, SymbolEnv env) {
         return createEnv(node, env);
     }
 
@@ -341,7 +353,6 @@ public class SymbolEnv {
         SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
         symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
-        symbolEnv.node = node;
         return symbolEnv;
     }
 

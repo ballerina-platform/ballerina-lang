@@ -15,8 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
@@ -25,7 +27,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -40,9 +41,9 @@ import java.util.TreeSet;
  * @since 0.980.0
  */
 public abstract class BIRNode {
-    public DiagnosticPos pos;
+    public final Location pos;
 
-    public BIRNode(DiagnosticPos pos) {
+    protected BIRNode(Location pos) {
         this.pos = pos;
     }
 
@@ -54,24 +55,19 @@ public abstract class BIRNode {
      * @since 0.980.0
      */
     public static class BIRPackage extends BIRNode {
-        public Name org;
-        public Name name;
-        public Name version;
-        public Name sourceFileName;
-        public List<BIRImportModule> importModules;
-        public List<BIRTypeDefinition> typeDefs;
-        public List<BIRGlobalVariableDcl> globalVars;
-        public List<BIRFunction> functions;
-        public List<BIRAnnotation> annotations;
-        public List<BIRConstant> constants;
+        public final PackageID packageID;
+        public final List<BIRImportModule> importModules;
+        public final List<BIRTypeDefinition> typeDefs;
+        public final List<BIRGlobalVariableDcl> globalVars;
+        public final List<BIRFunction> functions;
+        public final List<BIRAnnotation> annotations;
+        public final List<BIRConstant> constants;
+        public boolean isListenerAvailable;
 
-        public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version,
+        public BIRPackage(Location pos, Name org, Name name, Name version,
                           Name sourceFileName) {
             super(pos);
-            this.org = org;
-            this.name = name;
-            this.version = version;
-            this.sourceFileName = sourceFileName;
+            packageID = new PackageID(org, name, version, sourceFileName);
             this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();
@@ -84,10 +80,6 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
-
-        public Name getSourceFileName() {
-            return sourceFileName;
-        }
     }
 
     /**
@@ -96,15 +88,11 @@ public abstract class BIRNode {
      * @since 0.990.0
      */
     public static class BIRImportModule extends BIRNode {
-        public Name org;
-        public Name name;
-        public Name version;
+        public final PackageID packageID;
 
-        public BIRImportModule(DiagnosticPos pos, Name org, Name name, Name version) {
+        public BIRImportModule(Location pos, Name org, Name name, Name version) {
             super(pos);
-            this.org = org;
-            this.name = name;
-            this.version = version;
+            packageID = new PackageID(org, name, version);
         }
 
         @Override
@@ -132,7 +120,7 @@ public abstract class BIRNode {
         // Stores the scope of the current instruction with respect to local variables.
         public BirScope insScope;
 
-        public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope,
+        public BIRVariableDcl(Location pos, BType type, Name name, VarScope scope,
                               VarKind kind, String metaVarName) {
             super(pos);
             this.type = type;
@@ -185,9 +173,9 @@ public abstract class BIRNode {
      */
     public static class BIRParameter extends BIRNode {
         public Name name;
-        public int flags;
+        public long flags;
 
-        public BIRParameter(DiagnosticPos pos, Name name, int flags) {
+        public BIRParameter(Location pos, Name name, long flags) {
             super(pos);
             this.name = name;
             this.flags = flags;
@@ -208,11 +196,11 @@ public abstract class BIRNode {
         /**
          * Value represents Flags.
          */
-        public int flags;
+        public long flags;
         public PackageID pkgId;
         public SymbolOrigin origin;
 
-        public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type, PackageID pkgId, Name name,
+        public BIRGlobalVariableDcl(Location pos, long flags, BType type, PackageID pkgId, Name name,
                                     VarScope scope, VarKind kind, String metaVarName, SymbolOrigin origin) {
             super(pos, type, name, scope, kind, metaVarName);
             this.flags = flags;
@@ -234,7 +222,7 @@ public abstract class BIRNode {
     public static class BIRFunctionParameter extends BIRVariableDcl {
         public final boolean hasDefaultExpr;
 
-        public BIRFunctionParameter(DiagnosticPos pos, BType type, Name name,
+        public BIRFunctionParameter(Location pos, BType type, Name name,
                                     VarScope scope, VarKind kind, String metaVarName, boolean hasDefaultExpr) {
             super(pos, type, name, scope, kind, metaVarName);
             this.hasDefaultExpr = hasDefaultExpr;
@@ -261,7 +249,7 @@ public abstract class BIRNode {
         /**
          * Value represents flags.
          */
-        public int flags;
+        public long flags;
 
         /**
          * The origin of the function.
@@ -338,7 +326,36 @@ public abstract class BIRNode {
 
         public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
 
-        public BIRFunction(DiagnosticPos pos, Name name, int flags, BInvokableType type, Name workerName,
+        public BIRFunction(Location pos, Name name, long flags, SymbolOrigin origin, BInvokableType type,
+                           List<BIRParameter> requiredParams, BIRVariableDcl receiver, BIRParameter restParam,
+                           int argsCount, List<BIRVariableDcl> localVars,
+                           BIRVariableDcl returnVariable, Map<BIRFunctionParameter, List<BIRBasicBlock>> parameters,
+                           List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTable, Name workerName,
+                           ChannelDetails[] workerChannels, TaintTable taintTable,
+                           List<BIRAnnotationAttachment> annotAttachments,
+                           Set<BIRGlobalVariableDcl> dependentGlobalVars) {
+            super(pos);
+            this.name = name;
+            this.flags = flags;
+            this.origin = origin;
+            this.type = type;
+            this.requiredParams = requiredParams;
+            this.receiver = receiver;
+            this.restParam = restParam;
+            this.argsCount = argsCount;
+            this.localVars = localVars;
+            this.returnVariable = returnVariable;
+            this.parameters = parameters;
+            this.basicBlocks = basicBlocks;
+            this.errorTable = errorTable;
+            this.workerName = workerName;
+            this.workerChannels = workerChannels;
+            this.taintTable = taintTable;
+            this.annotAttachments = annotAttachments;
+            this.dependentGlobalVars = dependentGlobalVars;
+        }
+
+        public BIRFunction(Location pos, Name name, long flags, BInvokableType type, Name workerName,
                            int sendInsCount, TaintTable taintTable, SymbolOrigin origin) {
             super(pos);
             this.name = name;
@@ -415,14 +432,17 @@ public abstract class BIRNode {
      */
     public static class BIRTypeDefinition extends BIRDocumentableNode implements NamedNode {
 
-        /**
-         * Name of the type definition.
-         */
         public Name name;
+
+        /**
+         * internal name of the type definition.
+         * for anonTypes this will be something like $anonType2 while name will reflect the structure
+         */
+        public Name internalName;
 
         public List<BIRFunction> attachedFuncs;
 
-        public int flags;
+        public long flags;
 
         public BType type;
 
@@ -434,17 +454,18 @@ public abstract class BIRNode {
 
         public SymbolOrigin origin;
 
+        public List<BIRAnnotationAttachment> annotAttachments;
+
         /**
          * this is not serialized. it's used to keep the index of the def in the list.
          * otherwise the writer has to *find* it in the list.
          */
         public int index;
 
-        public BIRTypeDefinition(DiagnosticPos pos, Name name, int flags, boolean isLabel, boolean isBuiltin,
-                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
-
+        public BIRTypeDefinition(Location pos, Name internalName, long flags, boolean isLabel, boolean isBuiltin,
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin, Name name) {
             super(pos);
-            this.name = name;
+            this.internalName = internalName;
             this.flags = flags;
             this.isLabel = isLabel;
             this.isBuiltin = isBuiltin;
@@ -452,6 +473,13 @@ public abstract class BIRNode {
             this.attachedFuncs = attachedFuncs;
             this.referencedTypes = new ArrayList<>();
             this.origin = origin;
+            this.name = name;
+            this.annotAttachments = new ArrayList<>();
+        }
+
+        public BIRTypeDefinition(Location pos, Name name, long flags, boolean isLabel, boolean isBuiltin,
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
+            this(pos, name, flags, isLabel, isBuiltin, type, attachedFuncs, origin, name);
         }
 
         @Override
@@ -461,7 +489,7 @@ public abstract class BIRNode {
 
         @Override
         public String toString() {
-            return String.valueOf(type) + " " + String.valueOf(name);
+            return type + " " + internalName;
         }
 
         @Override
@@ -536,7 +564,7 @@ public abstract class BIRNode {
         /**
          * Value represents flags.
          */
-        public int flags;
+        public long flags;
 
         /**
          * The origin of the annotation.
@@ -553,7 +581,7 @@ public abstract class BIRNode {
          */
         public BType annotationType;
 
-        public BIRAnnotation(DiagnosticPos pos, Name name, int flags,
+        public BIRAnnotation(Location pos, Name name, long flags,
                              Set<AttachPoint> points, BType annotationType, SymbolOrigin origin) {
             super(pos);
             this.name = name;
@@ -584,7 +612,7 @@ public abstract class BIRNode {
         /**
          * Value for the Flags.
          */
-        public int flags;
+        public long flags;
 
         /**
          * Type of the constant symbol.
@@ -601,7 +629,7 @@ public abstract class BIRNode {
          */
         public SymbolOrigin origin;
 
-        public BIRConstant(DiagnosticPos pos, Name name, int flags,
+        public BIRConstant(Location pos, Name name, long flags,
                            BType type, ConstValue constValue, SymbolOrigin origin) {
             super(pos);
             this.name = name;
@@ -632,7 +660,7 @@ public abstract class BIRNode {
         // The length > 1 means that there are one or more attachments of this annotation
         public List<BIRAnnotationValue> annotValues;
 
-        public BIRAnnotationAttachment(DiagnosticPos pos, Name annotTagRef) {
+        public BIRAnnotationAttachment(Location pos, Name annotTagRef) {
             super(pos);
             this.annotTagRef = annotTagRef;
             this.annotValues = new ArrayList<>();
@@ -652,7 +680,7 @@ public abstract class BIRNode {
     public abstract static class BIRAnnotationValue {
         public BType type;
 
-        public BIRAnnotationValue(BType type) {
+        protected BIRAnnotationValue(BType type) {
             this.type = type;
         }
     }
@@ -737,7 +765,7 @@ public abstract class BIRNode {
     public abstract static class BIRDocumentableNode extends BIRNode {
         public MarkdownDocAttachment markdownDocAttachment;
 
-        public BIRDocumentableNode(DiagnosticPos pos) {
+        protected BIRDocumentableNode(Location pos) {
             super(pos);
         }
 

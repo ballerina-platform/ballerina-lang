@@ -52,11 +52,11 @@ class User {
     }
 }
 
-service ser = service {
+service object {} ser = service object {
 
 
 
-    resource function res(string name) {
+    resource function get res(string name) {
         xmlns "http://sample.com/wso2/a6" as ns;
         string name = "";
         xmlns "http://sample.com/wso2/a7" as ns;

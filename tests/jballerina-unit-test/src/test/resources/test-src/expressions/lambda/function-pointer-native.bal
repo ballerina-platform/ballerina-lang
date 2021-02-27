@@ -1,12 +1,10 @@
-import ballerina/time;
+function concatString(string a, string b) returns string {
+    return a + b;
+}
 
-function test1() returns (int){
-    function (string, string|time:TimeFormat) returns (time:Time|error) parseFunction = time:parse;
-    time:Time|error c = parseFunction("2017-07-20T00:00:00.000-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    if (c is time:Time) {
-        return c.time;
-    } else {
-        return 0;
-    }
+function test1() returns (string) {
+    function (string, string) returns (string) concatFunction = concatString;
+    string c = concatFunction("foo", "bar");
+    return c;
 }
 

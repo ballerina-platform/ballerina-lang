@@ -22,7 +22,7 @@ annotation map<int> v4 on source const, source external;
 annotation Foo v5 on source type;
 annotation Bar v6 on source listener, return;
 annotation Bar v7 on class, source function;
-annotation Bar v8 on source resource function, source parameter;
+annotation Bar v8 on source object function, source parameter;
 annotation map<string> v9 on source worker;
 
 type Foo record {

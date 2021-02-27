@@ -67,10 +67,10 @@ type AbstractClientObject client object {
     function defaultVisibiltyMethodOutsideDecl(string argOne, int argTwo);
     public function publicMethodOutsideDecl(string argOne, int argTwo, float defaultVisibilityFloatField) returns float;
     remote function defaultVisibiltyRemoteMethodDecl(string argOne, int argTwo);
-    public remote function publicRemoteMethodDecl(string argOne, int argTwo,
+    remote function publicRemoteMethodDecl(string argOne, int argTwo,
                                                   float defaultVisibilityFloatField) returns float;
     remote function remoteMethodOutsideDecl(string argOne, int argTwo) returns float;
-    public remote function publicRemoteMethodOutsideDecl(string argOne, int argTwo, float defaultVisibilityFloatField)
+    remote function publicRemoteMethodOutsideDecl(string argOne, int argTwo, float defaultVisibilityFloatField)
                                returns float;
 };
 
@@ -95,7 +95,7 @@ client class ObjReferenceToAbstractClientObject {
         self.defaultVisibilityFloatField += argTwo;
     }
 
-    public remote function publicRemoteMethodDecl(string argOne, int argTwo,
+    remote function publicRemoteMethodDecl(string argOne, int argTwo,
                                                   float defaultVisibilityFloatField) returns float {
         self.defaultVisibilityFloatField += defaultVisibilityFloatField + argTwo;
         return self.defaultVisibilityFloatField;
@@ -124,7 +124,7 @@ remote function ObjReferenceToAbstractClientObject.remoteMethodOutsideDecl(strin
     return self.defaultVisibilityFloatField;
 }
 
-public remote function ObjReferenceToAbstractClientObject.publicRemoteMethodOutsideDecl(
+remote function ObjReferenceToAbstractClientObject.publicRemoteMethodOutsideDecl(
                                                               string argOne, int argTwo, float
                                                               defaultVisibilityFloatField) returns float {
     self.defaultVisibilityFloatField += defaultVisibilityFloatField + argTwo;

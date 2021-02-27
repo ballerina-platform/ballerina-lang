@@ -34,3 +34,16 @@ function calculateExp2 (int x, int y) returns (int) {
     }
     return z;
 }
+
+function testContinueWithinInternalItr() {
+    int[] a = [1, 2, 3];
+    int[][] b = [a, a];
+
+    foreach int[] intArr in b {
+        intArr.forEach(function(int num) {
+            if num == -1 {
+                continue;
+            }
+        });
+    }
+}

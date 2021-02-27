@@ -18,47 +18,53 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BXml;
 
 /**
  * Native implementation of lang.xml.XMLIterator:next().
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION, functionName = "next",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "XMLIterator", structPackage = "ballerina/lang.xml"),
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml", functionName = "next",
+//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "XMLIterator", structPackage = "ballerina/lang
+//        .xml"),
+//        returnType = {@ReturnType(type = TypeKind.RECORD)},
+//        isPublic = true
+//)
 public class Next {
     //TODO: refactor hard coded values
-    public static Object next(Strand strand, ObjectValue m) {
-        IteratorValue xmlIterator = (IteratorValue) m.getNativeData("&iterator&");
+    public static Object next(BObject m) {
+        BIterator xmlIterator = (BIterator) m.getNativeData("&iterator&");
 
         if (xmlIterator == null) {
-            xmlIterator = ((XMLValue) m.get(BStringUtils.fromString("m"))).getIterator();
+            xmlIterator = ((BXml) m.get(StringUtils.fromString("m"))).getIterator();
             m.addNativeData("&iterator&", xmlIterator);
         }
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            return BValueCreator.createRecordValue(new MapValueImpl<>(BTypes.xmlItrNextReturnType), xmlValue);
+            switch (((BXml) xmlValue).getType().getTag()) {
+                case TypeTags.XML_ELEMENT_TAG:
+                    return ValueCreator.createRecordValue(ValueCreator.createMapValue
+                                    (PredefinedTypes.XML_ITR_NEXT_RETURN_ELEMENT_TYPE), xmlValue);
+                case TypeTags.XML_TEXT_TAG:
+                    return ValueCreator.createRecordValue(ValueCreator.createMapValue
+                            (PredefinedTypes.XML_ITR_NEXT_RETURN_TEXT_TYPE), xmlValue);
+                case TypeTags.XML_COMMENT_TAG:
+                    return ValueCreator.createRecordValue(ValueCreator.createMapValue
+                            (PredefinedTypes.XML_ITR_NEXT_RETURN_COMMENT_TYPE), xmlValue);
+                case TypeTags.XML_PI_TAG:
+                    return ValueCreator.createRecordValue(ValueCreator.createMapValue
+                            (PredefinedTypes.XML_ITR_NEXT_RETURN_PI_TYPE), xmlValue);
+            }
         }
-
         return null;
     }
 }

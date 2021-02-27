@@ -1,3 +1,3 @@
 function foo() {
-   x = y + (a -> b(c));
+    x = y + (a->b(c));
 }

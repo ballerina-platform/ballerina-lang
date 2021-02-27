@@ -15,15 +15,16 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.NodeList;
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ExplicitAnonymousFunctionExpressionNodeContext
         extends AbstractCompletionProvider<ExplicitAnonymousFunctionExpressionNode> {
 
@@ -44,17 +45,23 @@ public class ExplicitAnonymousFunctionExpressionNodeContext
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ExplicitAnonymousFunctionExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
+                                                 ExplicitAnonymousFunctionExpressionNode node)
+            throws LSCompletionException {
         if (this.onSuggestionsAfterQualifiers(context, node)) {
             // Currently we consider the isolated qualifier only
             return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        }
+        if (this.onSuggestionsWithinSignature(context, node)) {
+            return CompletionUtil.route(context, node.functionSignature());
         }
 
         return new ArrayList<>();
     }
 
-    private boolean onSuggestionsAfterQualifiers(LSContext context, ExplicitAnonymousFunctionExpressionNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context,
+                                                 ExplicitAnonymousFunctionExpressionNode node) {
+        int cursor = context.getCursorPositionInTree();
         NodeList<Token> qualifiers = node.qualifierList();
         Token functionKeyword = node.functionKeyword();
 
@@ -64,5 +71,16 @@ public class ExplicitAnonymousFunctionExpressionNodeContext
         Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
         return cursor > lastQualifier.textRange().endOffset()
                 && (functionKeyword.isMissing() || cursor < functionKeyword.textRange().startOffset());
+    }
+
+    private boolean onSuggestionsWithinSignature(BallerinaCompletionContext context,
+                                                 ExplicitAnonymousFunctionExpressionNode node) {
+        Token functionKeyword = node.functionKeyword();
+        if (functionKeyword.isMissing()) {
+            return false;
+        }
+        int cursor = context.getCursorPositionInTree();
+
+        return cursor > functionKeyword.textRange().endOffset();
     }
 }

@@ -16,12 +16,13 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -101,4 +102,9 @@ public class TupleDestructureTest {
                 "int]'", 46, 14);
     }
 
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
+    }
 }

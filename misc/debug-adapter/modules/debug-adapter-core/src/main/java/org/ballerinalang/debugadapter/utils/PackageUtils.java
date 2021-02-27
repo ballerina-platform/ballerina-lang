@@ -19,260 +19,253 @@ package org.ballerinalang.debugadapter.utils;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.debugadapter.DebugSourceType;
+import org.ballerinalang.debugadapter.ExecutionContext;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.toml.model.Manifest;
-import org.eclipse.lsp4j.debug.Breakpoint;
-import org.wso2.ballerinalang.util.TomlParserUtils;
 
+import java.io.Closeable;
 import java.io.File;
-import java.nio.file.Files;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.StringJoiner;
+
+import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 
 /**
  * Package Utils.
  */
 public class PackageUtils {
 
-    public static final String SRC_DIR_NAME = "src";
     public static final String BAL_FILE_EXT = ".bal";
-    public static final String MANIFEST_FILE_NAME = "Ballerina.toml";
-    private static final String MODULE_VERSION_REGEX = "\\d+_\\d+_\\d+";
-    private static final String SERVICE_REGEX = "(\\w+\\.){3}(\\$value\\$)(.*)(__service_)";
+    public static final String INIT_CLASS_NAME = "$_init";
+    public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
+    public static final String GENERATED_VAR_PREFIX = "$";
+    private static final String MODULE_DIR_NAME = "modules";
     private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
-
-    /**
-     * Find the project root by recursively up to the root.
-     *
-     * @param projectDir project path
-     * @return project root
-     */
-    public static Path findProjectRoot(Path projectDir) {
-        Path path = projectDir.resolve(MANIFEST_FILE_NAME);
-        if (Files.exists(path)) {
-            return projectDir;
-        }
-        Path parentsParent = projectDir.getParent();
-        if (null != parentsParent) {
-            return findProjectRoot(parentsParent);
-        }
-        return null;
-    }
-
-    /**
-     * Extracts relative path of the source file location from JDI class-reference mappings.
-     */
-    public static String getRelativeSourcePath(ReferenceType refType, Breakpoint bp)
-            throws AbsentInformationException {
-
-        List<String> sourcePaths = refType.sourcePaths("");
-        List<String> sourceNames = refType.sourceNames("");
-        if (sourcePaths.isEmpty() || sourceNames.isEmpty()) {
-            return "";
-        }
-        String sourcePath = sourcePaths.get(0);
-        String sourceName = sourceNames.get(0);
-
-        // Some additional processing is required here to rectify the source path, as the source name will be the
-        // relative path instead of the file name, for the ballerina module sources.
-        //
-        // Note: Directly using file separator as a regex will fail on windows.
-        String[] srcNames = getSourceNames(sourceName);
-        String fileName = srcNames[srcNames.length - 1];
-        String relativePath = getDirectoryRelativePath(sourcePath, refType.toString(), sourceName, fileName);
-
-        // Replaces org name with the ballerina src directory name, as the JDI path is prepended with the org name
-        // for the bal files inside ballerina modules.
-        Path projectRoot = findProjectRoot(Paths.get(bp.getSource().getPath()));
-        if (projectRoot != null) {
-            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-            String orgName = manifest.getProject().getOrgName();
-            if (!orgName.isEmpty() && relativePath.startsWith(orgName)) {
-                relativePath = relativePath.replaceFirst(orgName, "src");
-            }
-        }
-        // Removes module version part from the JDI reference source path.
-        relativePath = relativePath.replaceFirst(SEPARATOR_REGEX + MODULE_VERSION_REGEX, "");
-        return relativePath;
-    }
 
     /**
      * Some additional processing is required to rectify the source path, as the source name will be the
      * relative path instead of just the file name, for the ballerina module sources.
      */
-    public static String getRectifiedSourcePath(Location location, Path projectRoot) throws AbsentInformationException {
-        String sourcePath = location.sourcePath();
-        String sourceName = location.sourceName();
+    public static Path getRectifiedSourcePath(Location location, Project project, String projectRoot)
+            throws AbsentInformationException {
+        if (project instanceof SingleFileProject) {
+            DocumentId docId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
+            Document document = project.currentPackage().getDefaultModule().document(docId);
+            if (!document.name().equals(location.sourcePath()) || !document.name().equals(location.sourceName())) {
+                return null;
+            }
+            return Paths.get(projectRoot);
+        } else if (project instanceof BuildProject) {
+            String orgName = getOrgName(project);
+            String defaultModuleName = getDefaultModuleName(project);
+            String sourcePath = location.sourcePath();
+            String sourceName = location.sourceName();
+            String[] srcPaths = getNameParts(sourcePath);
 
-        // Note: directly using file separator as a regex will fail on windows.
-        String[] srcNames = getSourceNames(sourceName);
-        String fileName = srcNames[srcNames.length - 1];
-        String relativePath = getDirectoryRelativePath(sourcePath, location.toString(), sourceName, fileName);
+            if (!srcPaths[0].equals(orgName)) {
+                return null;
+            }
 
-        String orgName = getOrgName(projectRoot);
-        if (!orgName.isEmpty() && relativePath.startsWith(orgName)) {
-            relativePath = relativePath.replaceFirst(orgName, SRC_DIR_NAME);
+            String modulePart = decodeIdentifier(srcPaths[1]);
+            modulePart = modulePart.replaceFirst(defaultModuleName, "");
+            if (modulePart.startsWith(".")) {
+                modulePart = modulePart.replaceFirst("\\.", "");
+            }
+
+            if (modulePart.isBlank()) {
+                // default module.
+                return Paths.get(projectRoot, sourceName);
+            } else {
+                // other modules
+                return Paths.get(projectRoot, MODULE_DIR_NAME, modulePart, sourceName);
+            }
         }
-        // Removes module version part from the JDI reference source path.
-        relativePath = relativePath.replaceFirst(SEPARATOR_REGEX + MODULE_VERSION_REGEX, "");
-        return projectRoot + File.separator + relativePath;
+        return null;
     }
 
     /**
      * Returns the org name for a given ballerina project source.
      *
-     * @param balFilePath ballerina source path
+     * @param project ballerina project instance
      * @return organization name
      */
-    public static String getOrgName(String balFilePath) {
-        Path path = Paths.get(balFilePath);
-        Path projectRoot = findProjectRoot(path);
-        return getOrgName(projectRoot);
+    public static String getOrgName(Project project) {
+        if (project instanceof BuildProject) {
+            return project.currentPackage().packageOrg().value();
+        }
+        return "";
     }
 
     /**
-     * Returns the org name for a given ballerina project source.
+     * Returns the default module name for a given ballerina project source.
      *
-     * @param projectRoot ballerina source project root
+     * @param project ballerina project instance
      * @return organization name
      */
-    public static String getOrgName(Path projectRoot) {
-        if (projectRoot == null) {
-            return "";
+    public static String getDefaultModuleName(Project project) {
+        if (project instanceof BuildProject) {
+            return project.currentPackage().getDefaultModule().moduleName().toString();
         }
-        Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-        return manifest.getProject().getOrgName();
+        return "";
     }
 
     /**
-     * Returns the module version for a given ballerina project source.
+     * Returns all the module class names which belong to the current module that is being debugged.
      *
-     * @param projectRoot ballerina source project root
-     * @return module/project version
+     * @param context Suspended context
+     * @return All the module class names which belong to the current module that is being debugged.
      */
-    public static String getModuleVersion(Path projectRoot) {
-        if (projectRoot == null) {
-            return "";
-        }
-        Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-        return manifest.getProject().getVersion();
-    }
-
-    /**
-     * Returns all the module file names which belong to the current module that is being debugged.
-     *
-     * @param entryFilePath Current module file where the debug hit is occurred.
-     * @return All the module file names which belong to the current module that is being debugged.
-     */
-    public static List<String> getAllModuleFileNames(String entryFilePath) throws EvaluationException {
+    public static List<String> getModuleClassNames(SuspendedContext context) throws EvaluationException {
         try {
-            // Gets path of the module directory.
-            Path moduleDirPath = null;
-            String[] split = entryFilePath.split(SEPARATOR_REGEX);
-            for (int index = 0; index < split.length; index++) {
-                if (split[index].equals(SRC_DIR_NAME)) {
-                    String join = String.join(File.separator, Arrays.copyOfRange(split, index + 2, split.length));
-                    moduleDirPath = Paths.get(entryFilePath.replace(join, ""));
-                    break;
-                }
-            }
-            List<String> moduleFileNames = new ArrayList<>();
-            if (moduleDirPath == null) {
-                return moduleFileNames;
-            }
-            // Traverses the file system and retrieve all the bal source files available in the module directory.
-            String moduleDirPathString = moduleDirPath.toString();
-            Files.walk(moduleDirPath).filter(Files::isRegularFile).forEach(path ->
-                    moduleFileNames.add(path.toAbsolutePath().toString().replace(moduleDirPathString, "")));
-            return moduleFileNames;
+            // Todo - use bala reader to derive module class names by accessing module bala files.
+            return new ArrayList<>();
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to retrieve source file names of the current module."));
         }
     }
 
-    /**
-     * Returns the module name for a given ballerina module source.
-     *
-     * @param balFilePath ballerina source path
-     * @return module name
-     */
-    public static String getModuleName(String balFilePath) {
+    public static String getFileNameFrom(Path filePath) {
         try {
-            Path path = Paths.get(balFilePath);
-            Path projectRoot = findProjectRoot(path);
-            if (projectRoot == null) {
-                return "";
+            String[] split = filePath.toString().split(SEPARATOR_REGEX);
+            String fileName = split[split.length - 1];
+            if (fileName.endsWith(BAL_FILE_EXT)) {
+                return fileName.replace(BAL_FILE_EXT, "");
             }
-            Path relativePath = projectRoot.relativize(path);
-            String packagePath = relativePath.toString();
-            if (packagePath.startsWith(SRC_DIR_NAME)) {
-                packagePath = packagePath.replaceFirst(SRC_DIR_NAME + SEPARATOR_REGEX, "");
-            }
-            // Directly using file separator as a regex will fail on windows.
-            return packagePath.split(SEPARATOR_REGEX)[0];
+            return fileName;
         } catch (Exception e) {
-            return "";
+            return null;
         }
     }
 
-    public static String[] getSourceNames(String sourceName) {
+    /**
+     * Returns full-qualified class name for a given ballerina JVM generated class name.
+     *
+     * @param context   suspended context
+     * @param className class name
+     * @return full-qualified class name
+     */
+    public static String getQualifiedClassName(SuspendedContext context, String className) {
+        if (context.getSourceType() == DebugSourceType.SINGLE_FILE) {
+            return className;
+        }
+        StringJoiner classNameJoiner = new StringJoiner(".");
+        classNameJoiner.add(context.getPackageOrg().get())
+                .add(context.getModuleName().get())
+                .add(context.getPackageVersion().get().replace(".", "_"))
+                .add(className);
+        return classNameJoiner.toString();
+    }
+
+    /**
+     * Returns the derived full-qualified class name for a given ballerina source file.
+     *
+     * @param filePath file path
+     * @return full-qualified class name
+     */
+    public static String getQualifiedClassName(String filePath) {
+        Path path = Paths.get(filePath);
+        Project project = ProjectLoader.loadProject(path);
+        if (project instanceof SingleFileProject) {
+            DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
+            String docName = project.currentPackage().getDefaultModule().document(documentId).name();
+            if (docName.endsWith(BAL_FILE_EXT)) {
+                docName = docName.replace(BAL_FILE_EXT, "");
+            }
+            return docName;
+        }
+
+        DocumentId documentId = project.documentId(path);
+        Module module = project.currentPackage().module(documentId.moduleId());
+        Document document = module.document(documentId);
+
+        StringJoiner classNameJoiner = new StringJoiner(".");
+        classNameJoiner.add(document.module().packageInstance().packageOrg().value())
+                .add(encodeModuleName(document.module().moduleName().toString()))
+                .add(document.module().packageInstance().packageVersion().toString().replace(".", "_"))
+                .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".").replace("/", "."));
+        return classNameJoiner.toString();
+    }
+
+    /**
+     * Returns full-qualified class name for a given JDI class reference instance.
+     *
+     * @param context       Debug context
+     * @param referenceType JDI class reference instance
+     * @return full-qualified class name
+     */
+    public static String getQualifiedClassName(ExecutionContext context, ReferenceType referenceType) {
+        try {
+            List<String> paths = referenceType.sourcePaths(null);
+            List<String> names = referenceType.sourceNames(null);
+            if (paths.isEmpty() || names.isEmpty()) {
+                return referenceType.name();
+            }
+            String path = paths.get(0);
+            String name = names.get(0);
+            String[] nameParts = getNameParts(name);
+            String srcFileName = nameParts[nameParts.length - 1];
+
+            if (!path.endsWith(BAL_FILE_EXT) || (context.getSourceProject() instanceof BuildProject &&
+                    !path.startsWith(context.getSourceProject().currentPackage().packageOrg().value()))) {
+                return referenceType.name();
+            }
+
+            // Removes ".bal" extension if exists.
+            srcFileName = srcFileName.replaceAll(BAL_FILE_EXT + "$", "");
+            path = path.replaceAll(name + "$", srcFileName);
+            return replaceSeparators(path);
+        } catch (Exception e) {
+            return referenceType.name();
+        }
+    }
+
+    /**
+     * Closes the given Closeable and swallows any IOException that may occur.
+     *
+     * @param c Closeable to close, can be null.
+     */
+    public static void closeQuietly(final Closeable c) {
+        if (c != null) {
+            try {
+                c.close();
+            } catch (final IOException ignored) { // NOPMD
+            }
+        }
+    }
+
+    public static String[] getNameParts(String path) {
         String[] srcNames;
-        if (sourceName.contains("/")) {
-            srcNames = sourceName.split("/");
-        } else if (sourceName.contains("\\")) {
-            srcNames = sourceName.split("\\\\");
+        if (path.contains("/")) {
+            srcNames = path.split("/");
+        } else if (path.contains("\\")) {
+            srcNames = path.split("\\\\");
         } else {
-            srcNames = new String[]{sourceName};
+            srcNames = new String[]{path};
         }
         return srcNames;
     }
 
-    public static String getFileNameFrom(String filePath) {
-        try {
-            String[] split = filePath.split(SEPARATOR_REGEX);
-            String fileName = split[split.length - 1];
-            if (fileName.endsWith(".bal")) {
-                return fileName.replace(".bal", "");
-            }
-            return fileName;
-        } catch (Exception e) {
-            return "";
+    private static String replaceSeparators(String path) {
+        if (path.contains("/")) {
+            return path.replaceAll("/", ".");
+        } else if (path.contains("\\")) {
+            return path.replaceAll("\\\\", ".");
         }
-    }
-
-    public static boolean isBlank(String str) {
-        return str == null || str.isEmpty() || str.chars().allMatch(Character::isWhitespace);
-    }
-
-    /**
-     * Get relative path when a bal file is inside a directory.
-     *
-     * @param sourcePath source path
-     * @param reference  reference string
-     * @param sourceName source name
-     * @param fileName   file name
-     * @return relative path
-     */
-    private static String getDirectoryRelativePath(String sourcePath, String reference, String sourceName,
-                                                   String fileName) {
-        // When a bal file is inside a directory, the source path is constructed appropriately for services.
-        // But for non service bal files, [directory/file] path occurring twice in source path.
-        // We are handling this by using a service regex. If reference does not contain service regex,
-        // appropriate adjustment is made for source path else not.
-        Pattern pattern = Pattern.compile(SERVICE_REGEX);
-        Matcher matcher = pattern.matcher(reference);
-
-        if (matcher.find()) {
-            return sourcePath;
-        } else {
-            return sourcePath.replace(sourceName, fileName);
-        }
+        return path;
     }
 }

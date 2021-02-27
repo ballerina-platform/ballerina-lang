@@ -15,11 +15,10 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -27,7 +26,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,31 +34,28 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class NamedWorkerDeclarationNodeContext extends AbstractCompletionProvider<NamedWorkerDeclarationNode> {
     public NamedWorkerDeclarationNodeContext() {
         super(NamedWorkerDeclarationNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, NamedWorkerDeclarationNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, NamedWorkerDeclarationNode node)
             throws LSCompletionException {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
         boolean inReturnContext = this.withinReturnTypeContext(context, node);
+        if (!inReturnContext) {
+            return Collections.emptyList();
+        }
 
-        if (inReturnContext && !node.returnTypeDesc().isPresent()) {
+        if (node.returnTypeDesc().isEmpty()) {
             return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));
         }
-
-        if (inReturnContext && node.returnTypeDesc().isPresent()) {
-            return CompletionUtil.route(context, node.returnTypeDesc().get());
-        }
-
-        return completionItems;
+        return CompletionUtil.route(context, node.returnTypeDesc().get());
     }
 
-    private boolean withinReturnTypeContext(LSContext context, NamedWorkerDeclarationNode node) {
-        Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean withinReturnTypeContext(BallerinaCompletionContext context, NamedWorkerDeclarationNode node) {
+        int textPosition = context.getCursorPositionInTree();
         TextRange nameRange = node.workerName().textRange();
         TextRange bodyStart = node.workerBody().openBraceToken().textRange();
         return nameRange.endOffset() < textPosition && textPosition < bodyStart.startOffset();

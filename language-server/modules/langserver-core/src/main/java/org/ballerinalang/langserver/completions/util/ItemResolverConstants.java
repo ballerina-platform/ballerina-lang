@@ -32,6 +32,7 @@ public class ItemResolverConstants {
     public static final String FORK = "fork";
     public static final String WORKER = "worker";
     public static final String TRANSACTION = "transaction";
+    public static final String TRANSACTIONAL = "transactional";
     public static final String RETRY_TRANSACTION = "retry transaction";
     public static final String TRAP = "trap";
     public static final String WHILE = "while";
@@ -73,14 +74,17 @@ public class ItemResolverConstants {
     public static final String ANNOTATION = "annotation";
     public static final String XMLNS = "xmlns";
     public static final String CLASS = "class";
+    public static final String ENUM = "enum";
     public static final String DISTINCT = "distinct";
     public static final String HTTP_RESOURCE = "http resource";
     public static final String RESOURCE = "resource";
+    public static final String RESOURCE_FUNC_DEF = "function name . () {}";
     
     public static final String FROM_CLAUSE = "from clause";
     public static final String LET_CLAUSE = "let clause";
     public static final String JOIN_CLAUSE = "join clause";
     public static final String ON_FAIL_CLAUSE = "on fail clause";
+    public static final String ON_CONFLICT_CLAUSE = "on conflict";
 
     // End of Basic Constructs
 
@@ -109,6 +113,9 @@ public class ItemResolverConstants {
     public static final String CLOSED_RECORD_TYPE = "type <RecordName> closed record";
     public static final String CLOSED_RECORD_TYPE_DESC = "record {||}";
     public static final String TYPE_TYPE = "type";
+    public static final String TABLE_TYPE = "type TypeName table<>;";
+    public static final String TABLE_WITH_KEY_TYPE = "type TypeName table<> key";
+    public static final String STREAM_DEF = "stream<> streamName = new;";
     public static final String REMOTE_FUNCTION_TYPE = "remote function";
     public static final String NEW_OBJECT_INITIALIZER_TYPE = "init function";
     public static final String ATTACH_FUNCTION_TYPE = "attach function";
@@ -146,6 +153,7 @@ public class ItemResolverConstants {
     public static final String ISOLATED_KEYWORD = "isolated";
     public static final String PRIVATE_KEYWORD = "private";
     public static final String FINAL_KEYWORD = "final";
+    public static final String CONFIGURABLE_KEYWORD = "configurable";
     public static final String FAIL_KEYWORD = "fail";
     public static final String REMOTE_KEYWORD = "remote";
     public static final String CONST_KEYWORD = "const";

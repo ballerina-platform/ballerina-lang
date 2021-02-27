@@ -16,16 +16,17 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -374,9 +375,22 @@ public class WorkerTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/worker-in-lock.bal");
         int index = 0;
         BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 4, 20);
-        BAssertUtil.validateError(result, index++, "cannot use an async call inside a lock statement", 13, 19);
+        BAssertUtil.validateError(result, index++, "cannot use an async call inside a lock statement", 13, 13);
         BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 25, 20);
         BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 27, 28);
         BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 42, 20);
+    }
+
+    @Test
+    public void testMultipleReceiveAction() {
+        // Multiple receive action is not yet supported. This is to test the error message.
+        CompileResult result = BCompileUtil.compile("test-src/workers/multiple-receive-action.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "multiple receive action not yet supported", 23, 25);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

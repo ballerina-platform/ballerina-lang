@@ -23,15 +23,15 @@ listener http:Listener attachDetachEp = new (21029);
 service attachDetach on attachDetachEp {
     resource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) returns error?{
         if (data == "attach") {
-            var err = attachDetachEp.__attach(wsNoPath);
+            var err = attachDetachEp.attach(wsNoPath);
             handleError(err, caller);
-            err = attachDetachEp.__attach(wsWithPath);
+            err = attachDetachEp.attach(wsWithPath);
         } else if (data == "detach") {
-            var err = attachDetachEp.__detach(wsNoPath);
+            var err = attachDetachEp.detach(wsNoPath);
             handleError(err, caller);
-            err = attachDetachEp.__detach(wsWithPath);
+            err = attachDetachEp.detach(wsWithPath);
         } else if (data == "client_attach") {
-            var err = attachDetachEp.__attach(wsClientService);
+            var err = attachDetachEp.attach(wsClientService);
             handleError(err, caller);
         }
     }

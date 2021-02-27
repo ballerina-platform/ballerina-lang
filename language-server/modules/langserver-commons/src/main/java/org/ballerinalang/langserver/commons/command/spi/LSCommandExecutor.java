@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.commons.command.spi;
 
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 
 /**
@@ -24,18 +24,13 @@ import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
  * @since 0.983.0
  */
 public interface LSCommandExecutor {
-
-    String ARG_KEY = "argumentK";
-
-    String ARG_VALUE = "argumentV";
-
     /**
      * Execute the Command.
      * @param context           Language Server Context.
      * @return {@link Object}   Command Execution result
      * @throws LSCommandExecutorException exception while executing the code action
      */
-    Object execute(LSContext context) throws LSCommandExecutorException;
+    Object execute(ExecuteCommandContext context) throws LSCommandExecutorException;
 
     /**
      * Get the Command name as a String.

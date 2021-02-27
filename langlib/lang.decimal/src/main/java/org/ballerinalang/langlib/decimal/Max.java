@@ -18,34 +18,26 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.DECIMAL_VERSION;
+import io.ballerina.runtime.api.values.BDecimal;
 
 /**
  * Native implementation of lang.decimal:max(decimal, decimal...).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", version = DECIMAL_VERSION, functionName = "max",
-        args = {@Argument(name = "n", type = TypeKind.DECIMAL), @Argument(name = "ns", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.decimal", functionName = "max",
+//        args = {@Argument(name = "n", type = TypeKind.DECIMAL), @Argument(name = "ns", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
+//        isPublic = true
+//)
 public class Max {
 
-    public static DecimalValue max(Strand strand, DecimalValue n, ArrayValue ns) {
-        DecimalValue max = n;
-        int size = ns.size();
+    public static BDecimal max(BDecimal n, BDecimal[] ns) {
+        BDecimal max = n;
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            DecimalValue current = (DecimalValue) ns.get(i);
+            BDecimal current = ns[i];
             max = current.value().compareTo(max.value()) >= 0 ? current : max;
         }
         return max;

@@ -17,10 +17,17 @@
  */
 package org.ballerinalang.test.util;
 
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.CopyOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -118,19 +125,18 @@ public class BFileUtil {
     /**
      * Provides Qualified Class Name.
      *
-     * @param orgName     Org name
-     * @param packageName Package name
-     * @param version Package version
-     * @param className   Class name
+     * @param packageID Package id
+     * @param className Class name
      * @return Qualified class name
      */
-    public static String getQualifiedClassName(String orgName, String packageName, String version, String className) {
-        if (!Names.DEFAULT_PACKAGE.value.equals(packageName)) {
-            className = packageName.replace('.', '_') + "." + version.replace('.', '_') + "." + className;
+    public static String getQualifiedClassName(PackageID packageID, String className) {
+        if (!IdentifierUtils.encodeNonFunctionIdentifier(Names.DEFAULT_PACKAGE.value).equals(
+                packageID.name.getValue())) {
+            className = packageID.name + "." + packageID.version.getValue().replace('.', '_') + "." + className;
         }
 
-        if (!Names.ANON_ORG.value.equals(orgName)) {
-            className = orgName.replace('.', '_') + "." +  className;
+        if (!Names.ANON_ORG.value.equals(packageID.orgName.getValue())) {
+            className = packageID.orgName.getValue() + "." + className;
         }
 
         return className;
@@ -153,4 +159,40 @@ public class BFileUtil {
             BFileUtil.delete(file);
         }
     }
+
+    public static String readFileAsString(String path) throws IOException {
+        InputStream is = new FileInputStream(path);
+        InputStreamReader inputStreamREader = null;
+        BufferedReader br = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            inputStreamREader = new InputStreamReader(is, StandardCharsets.UTF_8);
+            br = new BufferedReader(inputStreamREader);
+            String content = br.readLine();
+            if (content == null) {
+                return sb.toString();
+            }
+
+            sb.append(content);
+
+            while ((content = br.readLine()) != null) {
+                sb.append('\n').append(content);
+            }
+        } finally {
+            if (inputStreamREader != null) {
+                try {
+                    inputStreamREader.close();
+                } catch (IOException ignore) {
+                }
+            }
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+        return sb.toString();
+    }
+
 }

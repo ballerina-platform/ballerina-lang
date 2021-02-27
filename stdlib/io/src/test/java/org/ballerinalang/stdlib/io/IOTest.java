@@ -18,15 +18,15 @@
 package org.ballerinalang.stdlib.io;
 
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.core.model.util.JsonParser;
+import org.ballerinalang.core.model.util.XMLUtils;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BXMLItem;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -360,7 +360,8 @@ public class IOTest {
         //Will initialize the channel
         BValue[] args = { new BString(sourceToWrite), new BString("UTF-8") };
         BRunUtil.invoke(characterInputOutputProgramFile, "initWritableChannel", args);
-        OMNode omNode = (OMNode) XMLFactory.stringToOM(content);
+
+        OMNode omNode = XMLUtils.stringToOM(content);
         args = new BValue[] { new BXMLItem(omNode) };
         BValue[] result = BRunUtil.invoke(characterInputOutputProgramFile, "writeXml", args);
 

@@ -15,8 +15,7 @@
  *
  */
 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -25,10 +24,10 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    // balaImplementation project(path: ':ballerina-runtime-api', configuration: 'balaImplementation')
 
-    baloCreat project(':lib-creator')
+
+    balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-logging')
@@ -39,12 +38,6 @@ dependencies {
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-file')
-
-    bir project(path: ':ballerina-lang:annotations', configuration: 'bir')
-}
-
-createBalo {
-    jvmTarget = 'true'
 }
 
 description = 'Ballerina - Time'
@@ -58,3 +51,15 @@ configurations {
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
+
+//ext.moduleName = 'time'
+//
+//compileJava {
+//    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}

@@ -20,6 +20,10 @@
       "value": "foo"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -306,7 +310,7 @@
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
-                          "kind": "DEFAULT_KEYWORD",
+                          "kind": "FUNCTION_KEYWORD",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -410,7 +414,7 @@
                           "kind": "SIMPLE_NAME_REFERENCE",
                           "children": [
                             {
-                              "kind": "DEFAULT_KEYWORD",
+                              "kind": "FUNCTION_KEYWORD",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",

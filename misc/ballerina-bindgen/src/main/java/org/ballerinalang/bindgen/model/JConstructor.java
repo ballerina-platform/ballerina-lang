@@ -17,11 +17,15 @@
  */
 package org.ballerinalang.bindgen.model;
 
+import org.ballerinalang.bindgen.utils.BindgenEnv;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setExceptionList;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTRUCTOR_INTEROP_TYPE;
@@ -34,6 +38,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
  */
 public class JConstructor implements Cloneable {
 
+    private Class parentClass;
     private String interopType;
     private String exceptionName;
     private String shortClassName;
@@ -49,8 +54,10 @@ public class JConstructor implements Cloneable {
 
     private List<JParameter> parameters = new ArrayList<>();
     private StringBuilder paramTypes = new StringBuilder();
+    private Set<String> importedPackages = new HashSet<>();
 
-    JConstructor(Constructor c) {
+    JConstructor(Constructor c, BindgenEnv env) {
+        parentClass = c.getDeclaringClass();
         shortClassName = getAlias(c.getDeclaringClass());
         constructorName = c.getName();
         interopType = CONSTRUCTOR_INTEROP_TYPE;
@@ -58,8 +65,9 @@ public class JConstructor implements Cloneable {
 
         // Loop through the parameters of the constructor to populate a list.
         for (Parameter param : c.getParameters()) {
-            JParameter parameter = new JParameter(param);
+            JParameter parameter = new JParameter(param, parentClass, env);
             parameters.add(parameter);
+            importedPackages.add(param.getType().getPackageName());
             paramTypes.append(getAlias(param.getType()).toLowerCase(Locale.ENGLISH));
             if (parameter.getIsPrimitiveArray() || param.getType().isArray()) {
                 javaArraysModule = true;
@@ -82,6 +90,10 @@ public class JConstructor implements Cloneable {
                     JError jError = new JError(exceptionType);
                     exceptionName = jError.getShortExceptionName();
                     exceptionConstName = jError.getExceptionConstName();
+                    if (env.getModulesFlag()) {
+                        exceptionName = getPackageAlias(exceptionName, exceptionType);
+                        exceptionConstName = getPackageAlias(exceptionConstName, exceptionType);
+                    }
                     setExceptionList(jError);
                     hasException = true;
                     handleException = true;
@@ -90,6 +102,13 @@ public class JConstructor implements Cloneable {
             } catch (ClassNotFoundException ignore) {
             }
         }
+    }
+
+    private String getPackageAlias(String shortClassName, Class objectType) {
+        if (objectType.getPackage() != parentClass.getPackage()) {
+            return objectType.getPackageName().replace(".", "") + ":" + shortClassName;
+        }
+        return shortClassName;
     }
 
     void setConstructorName(String name) {
@@ -118,5 +137,9 @@ public class JConstructor implements Cloneable {
 
     boolean requireJavaArrays() {
         return javaArraysModule;
+    }
+
+    Set<String> getImportedPackages() {
+        return importedPackages;
     }
 }

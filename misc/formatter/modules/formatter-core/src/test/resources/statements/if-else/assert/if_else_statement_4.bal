@@ -1,7 +1,7 @@
 public function main() {
     if (true) {
         int a = 6;
-        if(true) {
+        if (true) {
             int a = 6;
         } else {
             int a = 5;

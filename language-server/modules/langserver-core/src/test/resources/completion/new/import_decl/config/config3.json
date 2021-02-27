@@ -9,6 +9,7 @@
       "label": "lang.object",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'object;",
       "insertTextFormat": "Snippet"
     },
@@ -16,6 +17,7 @@
       "label": "lang.boolean",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'boolean;",
       "insertTextFormat": "Snippet"
     },
@@ -23,27 +25,47 @@
       "label": "lang.xml",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'xml;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "B",
+      "insertText": "lang.test;",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "lang.array",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "lang.'array;",
+      "sortText": "B",
+      "insertText": "lang.array;",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "lang.transaction",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'transaction;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "jballerina.java",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "lang.string",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'string;",
       "insertTextFormat": "Snippet"
     },
@@ -51,6 +73,7 @@
       "label": "lang.future",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'future;",
       "insertTextFormat": "Snippet"
     },
@@ -58,13 +81,15 @@
       "label": "lang.value",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "lang.'value;",
+      "sortText": "B",
+      "insertText": "lang.value;",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "lang.float",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'float;",
       "insertTextFormat": "Snippet"
     },
@@ -72,6 +97,7 @@
       "label": "lang.decimal",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'decimal;",
       "insertTextFormat": "Snippet"
     },
@@ -79,6 +105,7 @@
       "label": "lang.table",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'table;",
       "insertTextFormat": "Snippet"
     },
@@ -86,6 +113,7 @@
       "label": "lang.stream",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'stream;",
       "insertTextFormat": "Snippet"
     },
@@ -93,6 +121,7 @@
       "label": "lang.error",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'error;",
       "insertTextFormat": "Snippet"
     },
@@ -100,6 +129,7 @@
       "label": "lang.typedesc",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'typedesc;",
       "insertTextFormat": "Snippet"
     },
@@ -107,6 +137,7 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "A",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -114,6 +145,7 @@
       "label": "lang.map",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'map;",
       "insertTextFormat": "Snippet"
     },
@@ -121,14 +153,24 @@
       "label": "lang.query",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "lang.'query;",
+      "sortText": "B",
+      "insertText": "lang.query;",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "lang.int",
       "kind": "Module",
       "detail": "Module",
+      "sortText": "B",
       "insertText": "lang.'int;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "B",
+      "insertText": "lang.runtime;",
       "insertTextFormat": "Snippet"
     }
   ]

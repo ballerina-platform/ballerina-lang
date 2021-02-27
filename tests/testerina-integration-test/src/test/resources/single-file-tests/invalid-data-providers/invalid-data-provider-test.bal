@@ -19,7 +19,7 @@ import ballerina/test;
 // tests an invalid data provider
 
 @test:Config{
-    dataProvider:"invalidDataGen"
+    dataProvider: invalidDataGen
 }
 function testInvalidDataProvider(string result) {
     int|error resultErr = trap result.cloneWithType(int);

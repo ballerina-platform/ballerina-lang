@@ -1,1 +1,0 @@
-{{^isArray}}{{#if schemaType}} {{{schemaType.[0]}}}{{/if}}{{#if schemaProperties}}record { {{#each schemaProperties}}{{> nestedSchema this}}{{/each}} } {{/if}} {{#if schemaName}}{{{schemaName}}};{{/if}}{{/isArray}}{{^schemaType}}{{#if isArray}}{{#itemsSchema}}{{> nestedSchema}}{{/itemsSchema}}[] {{#if schemaName}}{{{schemaName}}};{{/if}}{{/if}}{{/schemaType}}

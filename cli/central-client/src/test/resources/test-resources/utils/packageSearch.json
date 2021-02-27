@@ -1,0 +1,28 @@
+{
+  "packages": [
+    {
+      "organization": "foo",
+      "name": "winery",
+      "version": "1.3.5",
+      "platform": "any",
+      "languageSpecificationVersion": "2020r2",
+      "URL": "/foo/winery/1.3.5",
+      "balaVersion": "1.0.0",
+      "balaURL": "https://fileserver.dev-central.ballerina.io/2.0/foo/winery/1.3.5/winery-2020r2-any-1.3.5.bala",
+      "readme": "Connects to Salewineryorce from Ballerina. \n\n# Package Overview\n\nHandle accounts with Salewineryorce.\n",
+      "template": false,
+      "licenses": [
+        "Apache-2.0"
+      ],
+      "authors": [
+        "WSO2"
+      ],
+      "sourceCodeLocation": "https://github.com/foo-connectors/module-winery",
+      "keywords": [],
+      "ballerinaVersion": "Ballerina 2.0.0",
+      "createdDate": 1604490703738,
+      "modules": []
+    }
+  ],
+  "count": 1
+}

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.services.dispatching;
 
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
 
 import java.io.File;

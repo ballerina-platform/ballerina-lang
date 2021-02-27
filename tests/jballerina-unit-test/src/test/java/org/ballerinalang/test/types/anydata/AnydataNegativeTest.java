@@ -18,11 +18,11 @@
 
 package org.ballerinalang.test.types.anydata;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -37,7 +37,7 @@ public class AnydataNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/types/anydata/anydata_negative_test.bal");
         int index = 0;
 
-        assertEquals(result.getErrorCount(), 31);
+        assertEquals(result.getErrorCount(), 32);
 
         // Invalid literal assignments to `anydata`
         validateError(result, index++, "ambiguous type '(anydata|map<int>)'", 36, 29);
@@ -107,7 +107,8 @@ public class AnydataNegativeTest {
         validateError(result, index++, "incompatible types: expected 'anydata', found " +
                 "'(int|float|string|boolean|byte|json|xml|Bar|map<anydata>|anydata[])'", 142, 21);
 
-        validateError(result, index, "incompatible types: expected 'anydata', found 'error'", 147, 18);
+        validateError(result, index++, "incompatible types: expected 'anydata', found 'error'", 147, 18);
+        validateError(result, index, "incompatible types: expected 'anydata', found '(anydata|error)[]'", 152, 18);
     }
 
     @Test(description = "Negative test cases for non-anydata closed record assignment")

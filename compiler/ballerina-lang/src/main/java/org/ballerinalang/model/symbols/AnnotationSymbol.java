@@ -20,6 +20,6 @@ package org.ballerinalang.model.symbols;
 /**
  * @since 0.94
  */
-public interface AnnotationSymbol extends Symbol {
+public interface AnnotationSymbol extends Annotatable {
 
 }

@@ -65,7 +65,7 @@ public cacheInserts function() -> () {
     %242(TEMP) int;
 
     bb0 {
-;
+        %2 = newType ballerina/cache:2.0.0:CacheConfig;
         %4 = ConstLoad capacity;
         %5 = ConstLoad 10;
         %6 = ConstLoad evictionFactor;

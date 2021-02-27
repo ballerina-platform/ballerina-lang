@@ -1,5 +1,0 @@
-{{#if hasChildElements}}
-type {{{schemaName}}} record { {{#if isComposedSchema}}{{#if isAllOf}}{{#each composedSchemaTypes}}
-    *{{{this}}};{{/each}}{{/if}}{{/if}}{{#each schemaProperties}}
-    {{> nestedSchema this}}{{/each}}
-};{{/if}}

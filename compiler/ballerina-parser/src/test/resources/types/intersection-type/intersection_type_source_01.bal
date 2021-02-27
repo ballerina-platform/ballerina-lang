@@ -1,4 +1,4 @@
-public function foo(){
+public function foo() {
     int & string a;
     int[] & string[] a;
     map<string> & T[] a;

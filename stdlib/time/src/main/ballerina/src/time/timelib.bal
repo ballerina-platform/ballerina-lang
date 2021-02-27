@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # Specifies the time format defined by the RFC-1123.
 public const TIME_FORMAT_RFC_1123 = "RFC_1123";
@@ -52,7 +52,7 @@ public type Time record {|
 public function toString(Time time) returns string = @java:Method {
     name: "toString",
     'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods",
-    paramTypes: ["org.ballerinalang.jvm.values.MapValue"]
+    paramTypes: ["io.ballerina.runtime.api.values.BMap"]
 } external;
 
 # Returns the formatted string representation of the given time.

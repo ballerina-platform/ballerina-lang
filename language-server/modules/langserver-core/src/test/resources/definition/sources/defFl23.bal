@@ -11,19 +11,19 @@ public type TestListener object {
 
     *lang:Listener;
     
-    public function __start() returns error? {
+    public function 'start() returns error? {
         return self.start();
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         return ();
     }
     
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         return self.stop();
     }
     
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
     }
 

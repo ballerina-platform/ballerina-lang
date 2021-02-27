@@ -20,6 +20,10 @@
       "value": "foo"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "hasDiagnostics": true,
       "children": [
@@ -423,7 +427,7 @@
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
+                                              "value": "            "
                                             }
                                           ],
                                           "trailingMinutiae": [
@@ -500,7 +504,7 @@
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
+                                              "value": "            "
                                             }
                                           ],
                                           "trailingMinutiae": [
@@ -581,7 +585,7 @@
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
+                                              "value": "            "
                                             }
                                           ],
                                           "trailingMinutiae": [
@@ -675,7 +679,7 @@
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "value": "        "
                             }
                           ]
                         }

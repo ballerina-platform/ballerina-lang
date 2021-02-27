@@ -28,8 +28,8 @@ function sensitiveF(@untainted Person p) {
 
 function driver() {
     Person p = getTaintedParson();
-    json jp = <json> p.cloneWithType(json);
-    Person sameP = <Person> jp.cloneWithType(Person);
+    json jp = checkpanic p.cloneWithType(json);
+    Person sameP = checkpanic jp.cloneWithType(Person);
     sensitiveF(sameP);
     sensitiveF(sameP.cloneReadOnly());
 }

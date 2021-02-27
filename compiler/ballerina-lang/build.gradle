@@ -22,27 +22,47 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-cli-module')
+    implementation project(':toml-parser')
+    implementation project(':central-client')
+    implementation project(':maven-resolver')
     implementation 'com.moandjiezana.toml:toml4j'
-    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.apache.commons:commons-compress:1.18'
     implementation 'io.netty:netty-buffer'
     implementation 'org.ow2.asm:asm'
     implementation 'org.ow2.asm:asm-util'
     implementation 'org.ow2.asm:asm-tree'
+    implementation 'commons-io:commons-io'
+    implementation 'com.github.zafarkhaja:java-semver'
     testCompile 'org.testng:testng'
 }
 
 description = 'Ballerina - Lang'
 
 checkstyleMain {
+    exclude 'io/ballerina/projects/internal/bala/BalaJson.java'
+    exclude 'io/ballerina/projects/internal/bala/PackageJson.java'
     exclude 'org/ballerinalang/toml/model/Module.java'
-    exclude 'org/ballerinalang/toml/model/Balo.java'
+    exclude 'org/ballerinalang/toml/model/Bala.java'
     exclude 'org/ballerinalang/toml/model/LockFile.java'
     exclude 'org/ballerinalang/toml/model/LockFileImport.java'
+    exclude 'io/ballerina/projects/internal/model/BalaJson.java'
+    exclude 'io/ballerina/projects/internal/model/PackageJson.java'
 }
-
 
 test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
+    }
+}
+
+ext.moduleName = 'ballerina.lang'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
     }
 }

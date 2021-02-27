@@ -31,6 +31,7 @@
 
         <classes>
             <class name="org.ballerinalang.langlib.test.TypeParamTest" />
+            <class name="org.ballerinalang.langlib.test.IsolatedParamTest" />
             <class name="org.ballerinalang.langlib.test.LangLibStringTest" />
             <class name="org.ballerinalang.langlib.test.LangLibIntTest" />
             <class name="org.ballerinalang.langlib.test.LangLibFloatTest" />
@@ -47,6 +48,7 @@
             <class name="org.ballerinalang.langlib.test.LangLibStreamTest" />
             <class name="org.ballerinalang.langlib.test.LangLibTableTest" />
             <class name="org.ballerinalang.langlib.test.LangLibSubTypeTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibRuntimeTest" />
 
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorBindingPatternsTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorHandlingTests"/>

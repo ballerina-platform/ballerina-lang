@@ -17,21 +17,23 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import org.ballerinalang.core.model.types.BArrayType;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -117,25 +119,25 @@ public class ArrayTest {
 
     @Test
     public void testArrayToString() {
-        String[] strArray = { "aaa", "bbb", "ccc" };
-        ArrayValue bStringArray = new ArrayValueImpl(strArray);
+        String[] strArray = {"aaa", "bbb", "ccc"};
+        ArrayValue bStringArray = new ArrayValueImpl(strArray, false);
         Assert.assertEquals(bStringArray.stringValue(null), "[\"aaa\",\"bbb\",\"ccc\"]");
 
         long[] longArray = { 6, 3, 8, 4 };
-        ArrayValue bIntArray = new ArrayValueImpl(longArray);
+        ArrayValue bIntArray = new ArrayValueImpl(longArray, false);
         Assert.assertEquals(bIntArray.stringValue(null), "[6,3,8,4]");
 
         double[] doubleArray = { 6.4, 3.7, 8.8, 7.4 };
-        ArrayValue bFloatArray = new ArrayValueImpl(doubleArray);
+        ArrayValue bFloatArray = new ArrayValueImpl(doubleArray, false);
         Assert.assertEquals(bFloatArray.stringValue(null), "[6.4,3.7,8.8,7.4]");
 
         boolean[] boolArray = { true, true, false };
-        ArrayValue bBooleanArray = new ArrayValueImpl(boolArray);
+        ArrayValue bBooleanArray = new ArrayValueImpl(boolArray, false);
         Assert.assertEquals(bBooleanArray.stringValue(null), "[true,true,false]");
 
-        XMLValue[] xmlArray = { XMLFactory.parse("<foo> </foo>"), XMLFactory.parse("<bar>hello</bar>") };
+        BXml[] xmlArray = { XmlFactory.parse("<foo> </foo>"), XmlFactory.parse("<bar>hello</bar>") };
         ArrayValue bXmlArray = new ArrayValueImpl(xmlArray,
-                new org.ballerinalang.jvm.types.BArrayType(org.ballerinalang.jvm.types.BTypes.typeXML));
+                new io.ballerina.runtime.internal.types.BArrayType(PredefinedTypes.TYPE_XML));
         Assert.assertEquals(bXmlArray.stringValue(null), "[`<foo> </foo>`,`<bar>hello</bar>`]");
     }
 
@@ -143,7 +145,7 @@ public class ArrayTest {
     public void testElementTypesWithoutImplicitInitVal() {
         BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testElementTypesWithoutImplicitInitVal");
         BValueArray arr = (BValueArray) retVals[0];
-        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED_SEALED);
+        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED);
         Assert.assertEquals(arr.stringValue(), "[1, 2]");
     }
 
@@ -152,7 +154,7 @@ public class ArrayTest {
         BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArrayFieldInRecord");
         BMap barRec = (BMap) retVals[0];
         BValueArray arr = (BValueArray) barRec.get("fArr");
-        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED_SEALED);
+        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED);
         Assert.assertEquals(arr.stringValue(), "[1, 2]");
     }
 
@@ -161,7 +163,7 @@ public class ArrayTest {
         BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArrayFieldInObject");
         BMap barRec = (BMap) retVals[0];
         BValueArray arr = (BValueArray) barRec.get("fArr");
-        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED_SEALED);
+        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED);
         Assert.assertEquals(arr.stringValue(), "[1, 2]");
     }
 
@@ -169,7 +171,7 @@ public class ArrayTest {
     public void testArraysAsFuncParams() {
         BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArraysAsFuncParams");
         BValueArray arr = (BValueArray) retVals[0];
-        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED_SEALED);
+        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED);
         Assert.assertEquals(arr.stringValue(), "[1, 3]");
     }
 
@@ -240,5 +242,10 @@ public class ArrayTest {
     @Test
     public void testUpdatingJsonTupleViaArrayTypedVar() {
         BRunUtil.invokeFunction(compileResult, "testUpdatingJsonTupleViaArrayTypedVar");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

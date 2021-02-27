@@ -1,3 +1,4 @@
-[project]
-org-name = "ballerina"
+[package]
+org = "ballerina"
+name = "lang.typedesc"
 version = "1.0.0"

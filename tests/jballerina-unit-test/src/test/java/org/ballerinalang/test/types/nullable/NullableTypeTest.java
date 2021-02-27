@@ -17,17 +17,18 @@
  */
 package org.ballerinalang.test.types.nullable;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * This class contains nullable types related test cases.
@@ -75,5 +76,10 @@ public class NullableTypeTest {
         CompileResult result = BCompileUtil.compile("test-src/types/nullable/nilable_types_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         validateError(result, 0, "incompatible types: expected '(()|any)', found '(()|any)?'", 33, 19);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

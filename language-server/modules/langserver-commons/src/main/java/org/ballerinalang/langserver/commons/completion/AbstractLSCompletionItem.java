@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langserver.commons.completion;
 
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 
@@ -29,9 +29,13 @@ import org.eclipse.lsp4j.InsertTextFormat;
 public abstract class AbstractLSCompletionItem implements LSCompletionItem {
 
     protected CompletionItem completionItem;
+    private final CompletionItemType itemType;
 
-    public AbstractLSCompletionItem(LSContext context, CompletionItem completionItem) {
+    public AbstractLSCompletionItem(BallerinaCompletionContext context,
+                                    CompletionItem completionItem,
+                                    CompletionItemType itemType) {
         this.completionItem = completionItem;
+        this.itemType = itemType;
         this.setInsertTextFormat(context);
     }
 
@@ -39,7 +43,12 @@ public abstract class AbstractLSCompletionItem implements LSCompletionItem {
     public CompletionItem getCompletionItem() {
         return completionItem;
     }
-    
+
+    @Override
+    public CompletionItemType getType() {
+        return this.itemType;
+    }
+
     /**
      * Convert the Snippet to a plain text snippet by removing the place holders.
      *
@@ -52,9 +61,8 @@ public abstract class AbstractLSCompletionItem implements LSCompletionItem {
                 .replaceAll("(\\$\\{\\d+\\})", "");
     }
 
-    private void setInsertTextFormat(LSContext context) {
-        boolean isSnippetSupported = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
-                .getSnippetSupport();
+    private void setInsertTextFormat(BallerinaCompletionContext context) {
+        boolean isSnippetSupported = context.getCapabilities().getCompletionItem().getSnippetSupport();
         if (!isSnippetSupported) {
             this.completionItem.setInsertText(this.getPlainTextSnippet(this.completionItem.getInsertText()));
             this.completionItem.setInsertTextFormat(InsertTextFormat.PlainText);

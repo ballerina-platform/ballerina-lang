@@ -8,13 +8,14 @@
     {
       "label": "TEST_INT_CONST1",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "1",
       "documentation": {
         "right": {
           "kind": "markdown",
           "value": ""
         }
       },
+      "sortText": "B",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     }

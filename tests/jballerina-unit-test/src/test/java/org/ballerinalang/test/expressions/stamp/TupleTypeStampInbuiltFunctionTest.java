@@ -17,19 +17,20 @@
 */
 package org.ballerinalang.test.expressions.stamp;
 
-import org.ballerinalang.model.types.BAnydataType;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BRecordType;
-import org.ballerinalang.model.types.BStringType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.types.BAnydataType;
+import org.ballerinalang.core.model.types.BMapType;
+import org.ballerinalang.core.model.types.BRecordType;
+import org.ballerinalang.core.model.types.BStringType;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -197,5 +198,10 @@ public class TupleTypeStampInbuiltFunctionTest {
         BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataTupleToBasicTypeTuple");
         Assert.assertEquals(((BInteger) results[0]).value().intValue(), 1);
         Assert.assertEquals(((BInteger) results[1]).value().intValue(), 2);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

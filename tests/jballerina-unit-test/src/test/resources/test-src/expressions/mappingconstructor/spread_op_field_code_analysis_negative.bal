@@ -31,3 +31,77 @@ function testDulpicateKeyWithSpreadOpField() {
     map<string|int|float> m = {s: "hello", ...b, f: 1.0, i: "bye"};
     map<anydata> n = {s: "hello", ...{s: "hi", i: 1}, f: 1.0, i: "bye"};
 }
+
+type Alpha record {|
+    int i?;
+|};
+
+function testDuplicateKeyWithOptionalField() {
+    Alpha alpha = {i:2};
+    map<int> m = {i:1, ...alpha};
+}
+
+type AlphaWithRest record {|
+    int...;
+|};
+
+function testClosedRecordWithRestField() {
+    AlphaWithRest a = {"i": 1, "k": 2};
+    map<int> m = {i: 1, ...a};
+}
+
+type Beta record {
+    int j;
+};
+
+function testInclusiveRecordWithSpreadOp1() {
+    Beta b = {j: 1, "i": 2};
+    map<anydata> m = {i: 0, ...b};
+}
+
+function testInclusiveRecordWithSpreadOp2() {
+    Beta b = {j: 1, "i": 2};
+    map<anydata> m = {...b, i:3};
+}
+
+function testMappWithSpreadOp1() {
+    map<string> m1 = {x: "aa", y: "bb"};
+    map<string> m2 = {...m1, y: "cc"};
+}
+
+function testMappWithSpreadOp2() {
+    map<string> m1 = {x: "aa", y: "bb"};
+    map<string> m2 = {y: "cc", ...m1};
+}
+
+type Beta2 record {
+    int i;
+};
+
+function testMultipleInclRecordsWithSpreadOp1() {
+    Beta b1 = {j: 1, "k": 4};
+    Beta2 b2 = {i: 2, "k": 4};
+    map<any|error> m = {...b1, ...b2};
+}
+
+type Beta3 record {
+    int i;
+};
+
+function testMultipleInclRecordsWithSpreadOp2() {
+    Beta2 b2 = {i: 2};
+    Beta3 b3 = {i: 3};
+    map<any|error> m = {...b2, ...b3};
+}
+
+function testMultipleMapSpreadField() {
+    map<int> m1 = {i: 1};
+    map<int> m2 = {i: 2};
+    map<int> mm = {...m1, ...m2};
+}
+
+function testMultipleMapIncRecordSpreadField() {
+    Beta2 beta = {i: 2};
+    map<int> m1 = {i: 2};
+    map<anydata> mm = {...m1, ...beta};
+}

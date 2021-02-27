@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "invalidautoimport"
+version = "1.0.0"

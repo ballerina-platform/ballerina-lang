@@ -16,6 +16,12 @@
  */
  
 apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+}
 
 dependencies {
     implementation 'info.picocli:picocli'
@@ -24,10 +30,11 @@ dependencies {
     implementation 'com.github.jknack:handlebars'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.apache.maven:maven-plugin-api'
-    implementation project(':ballerina-tool')
+    implementation project(':ballerina-cli')
     implementation project(':ballerina-lang')
     implementation project(':maven-resolver')
     implementation project(':ballerina-lang:annotations')
+    implementation 'com.moandjiezana.toml:toml4j'
     testCompile 'org.testng:testng'
 }
 

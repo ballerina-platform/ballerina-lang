@@ -17,21 +17,22 @@
 */
 package org.ballerinalang.test.expressions.stamp;
 
-import org.ballerinalang.model.types.BAnydataType;
-import org.ballerinalang.model.types.BErrorType;
-import org.ballerinalang.model.types.BJSONType;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BRecordType;
-import org.ballerinalang.model.types.BStringType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.types.BAnydataType;
+import org.ballerinalang.core.model.types.BErrorType;
+import org.ballerinalang.core.model.types.BJSONType;
+import org.ballerinalang.core.model.types.BMapType;
+import org.ballerinalang.core.model.types.BRecordType;
+import org.ballerinalang.core.model.types.BStringType;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -559,5 +560,10 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "'Person' value has cyclic reference");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

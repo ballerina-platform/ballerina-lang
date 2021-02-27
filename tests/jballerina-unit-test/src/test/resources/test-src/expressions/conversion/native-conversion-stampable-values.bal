@@ -66,3 +66,81 @@ function testConvertStampTupleToMap() returns [[string, Employee], [string, Empl
     tupleValue[0] = "Vinod";
     return [tupleValue, returnValue];
 }
+
+type OpenRecord record {
+
+};
+
+type OpenRecordWithUnionTarget record {|
+    string|decimal...;
+|};
+
+map<json> mp = {
+    name: "foo",
+    factor: 1.23d
+};
+
+function testConvertMapJsonWithDecimalToOpenRecord() {
+    var or = mp.cloneWithType(OpenRecord);
+
+    if (or is error) {
+        panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
+    }
+
+    OpenRecord castedValue = <OpenRecord> checkpanic or;
+    assert(castedValue["factor"], mp["factor"]);
+    assert(castedValue["name"], mp["name"]);
+}
+
+function testConvertMapJsonWithDecimalUnionTarget() {
+    var or = mp.cloneWithType(OpenRecordWithUnionTarget);
+
+    if (or is error) {
+        panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
+    }
+
+    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget> checkpanic or;
+    assert(castedValue["factor"], mp["factor"]);
+    assert(castedValue["name"], mp["name"]);
+}
+
+public type Scalar int|string|float|boolean;
+
+public type Argument record {|
+    Scalar value;
+|};
+
+public function testConvertToUnionWithActualType() {
+    json expectedJson = {"value": 132};
+
+    Argument expected = {"value": 132};
+    var actual = expectedJson.cloneWithType(Argument);
+
+    if (actual is error) {
+        panic error("`cloneWithType` returned an error.");
+    }
+
+    assert(actual, expected);
+}
+
+function assert(anydata|error actual, anydata|error expected) {
+    if (!isEqual(actual, expected)) {
+        typedesc<anydata|error> expT = typeof expected;
+        typedesc<anydata|error> actT = typeof actual;
+
+        string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+        string actualValAsString = actual is error ? actual.toString() : actual.toString();
+        string reason = "expected [" + expectedValAsString + "] of type [" + expT.toString()
+                            + "], but found [" + actualValAsString + "] of type [" + actT.toString() + "]";
+
+        panic error(reason);
+    }
+}
+
+isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
+    if (actual is anydata && expected is anydata) {
+        return (actual == expected);
+    } else {
+        return (actual === expected);
+    }
+}

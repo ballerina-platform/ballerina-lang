@@ -17,10 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +37,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
 
     public BIRBasicBlock thenBB;
 
-    public BIRTerminator(DiagnosticPos pos, InstructionKind kind) {
+    public BIRTerminator(Location pos, InstructionKind kind) {
         super(pos, kind);
         this.kind = kind;
     }
@@ -60,7 +60,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
 
         public BIRBasicBlock targetBB;
 
-        public GOTO(DiagnosticPos pos, BIRBasicBlock targetBB) {
+        public GOTO(Location pos, BIRBasicBlock targetBB) {
             super(pos, InstructionKind.GOTO);
             this.targetBB = targetBB;
         }
@@ -90,18 +90,19 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
         public boolean isVirtual;
-        public List<BIROperand> args;
+        public boolean transactional;
+        public List<BIRArgument> args;
         public Name name;
         public PackageID calleePkg;
         public List<BIRAnnotationAttachment> calleeAnnotAttachments;
         public Set<Flag> calleeFlags;
 
-        public Call(DiagnosticPos pos,
+        public Call(Location pos,
                     InstructionKind kind,
                     boolean isVirtual,
                     PackageID calleePkg,
                     Name name,
-                    List<BIROperand> args,
+                    List<BIRArgument> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB,
                     List<BIRAnnotationAttachment> calleeAnnotAttachments,
@@ -109,6 +110,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             super(pos, kind);
             this.lhsOp = lhsOp;
             this.isVirtual = isVirtual;
+            this.transactional = calleeFlags.contains(Flag.TRANSACTIONAL);
             this.args = args;
             this.thenBB = thenBB;
             this.name = name;
@@ -148,12 +150,12 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
     public static class AsyncCall extends Call {
         public List<BIRAnnotationAttachment> annotAttachments;
 
-        public AsyncCall(DiagnosticPos pos,
+        public AsyncCall(Location pos,
                          InstructionKind kind,
                          boolean isVirtual,
                          PackageID calleePkg,
                          Name name,
-                         List<BIROperand> args,
+                         List<BIRArgument> args,
                          BIROperand lhsOp,
                          BIRBasicBlock thenBB,
                          List<BIRAnnotationAttachment> annotAttachments,
@@ -183,13 +185,14 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class FPCall extends BIRTerminator {
         public BIROperand fp;
-        public List<BIROperand> args;
+        public List<BIRArgument> args;
         public boolean isAsync;
+        public boolean transactional;
 
-        public FPCall(DiagnosticPos pos,
+        public FPCall(Location pos,
                       InstructionKind kind,
                       BIROperand fp,
-                      List<BIROperand> args,
+                      List<BIRArgument> args,
                       BIROperand lhsOp,
                       boolean isAsync,
                       BIRBasicBlock thenBB) {
@@ -199,6 +202,18 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.args = args;
             this.isAsync = isAsync;
             this.thenBB = thenBB;
+        }
+
+        public FPCall(Location pos,
+                      InstructionKind kind,
+                      BIROperand fp,
+                      List<BIRArgument> args,
+                      BIROperand lhsOp,
+                      boolean isAsync,
+                      boolean transactional,
+                      BIRBasicBlock thenBB) {
+            this(pos, kind, fp, args, lhsOp, isAsync, thenBB);
+            this.transactional = transactional;
         }
 
         @Override
@@ -211,7 +226,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             BIROperand[] operands = new BIROperand[args.size() + 1];
             operands[0] = fp;
             int i = 1;
-            for (BIROperand operand : args) {
+            for (BIRArgument operand : args) {
                 operands[i++] = operand;
             }
             return operands;
@@ -232,7 +247,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class Return extends BIRTerminator {
 
-        public Return(DiagnosticPos pos) {
+        public Return(Location pos) {
             super(pos, InstructionKind.RETURN);
         }
 
@@ -264,7 +279,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public BIRBasicBlock trueBB;
         public BIRBasicBlock falseBB;
 
-        public Branch(DiagnosticPos pos, BIROperand op, BIRBasicBlock trueBB, BIRBasicBlock falseBB) {
+        public Branch(Location pos, BIROperand op, BIRBasicBlock trueBB, BIRBasicBlock falseBB) {
             super(pos, InstructionKind.BRANCH);
             this.op = op;
             this.trueBB = trueBB;
@@ -301,7 +316,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
 
         public Integer lockId = -1;
 
-        public Lock(DiagnosticPos pos, BIRBasicBlock lockedBB) {
+        public Lock(Location pos, BIRBasicBlock lockedBB) {
             super(pos, InstructionKind.LOCK);
             this.lockedBB = lockedBB;
         }
@@ -334,7 +349,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public String field;
         public final BIRBasicBlock lockedBB;
 
-        public FieldLock(DiagnosticPos pos, BIROperand localVar, String field, BIRBasicBlock lockedBB) {
+        public FieldLock(Location pos, BIROperand localVar, String field, BIRBasicBlock lockedBB) {
             super(pos, InstructionKind.FIELD_LOCK);
             this.localVar = localVar;
             this.field = field;
@@ -369,7 +384,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
 
         public BIRTerminator.Lock relatedLock;
 
-        public Unlock(DiagnosticPos pos, BIRBasicBlock unlockBB) {
+        public Unlock(Location pos, BIRBasicBlock unlockBB) {
             super(pos, InstructionKind.UNLOCK);
             this.unlockBB = unlockBB;
         }
@@ -401,7 +416,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
 
         public BIROperand errorOp;
 
-        public Panic(DiagnosticPos pos, BIROperand errorOp) {
+        public Panic(Location pos, BIROperand errorOp) {
             super(pos, InstructionKind.PANIC);
             this.errorOp = errorOp;
         }
@@ -432,7 +447,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
     public static class Wait extends BIRTerminator {
         public List<BIROperand> exprList;
 
-        public Wait(DiagnosticPos pos, List<BIROperand> exprList, BIROperand lhsOp, BIRBasicBlock thenBB) {
+        public Wait(Location pos, List<BIROperand> exprList, BIROperand lhsOp, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WAIT);
             this.exprList = exprList;
             this.lhsOp = lhsOp;
@@ -465,7 +480,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
     public static class Flush extends BIRTerminator {
         public ChannelDetails[] channels;
 
-        public Flush(DiagnosticPos pos, ChannelDetails[] channels, BIROperand lhsOp, BIRBasicBlock thenBB) {
+        public Flush(Location pos, ChannelDetails[] channels, BIROperand lhsOp, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.FLUSH);
             this.channels = channels;
             this.lhsOp = lhsOp;
@@ -499,7 +514,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public Name workerName;
         public boolean isSameStrand;
 
-        public WorkerReceive(DiagnosticPos pos, Name workerName, BIROperand lhsOp,
+        public WorkerReceive(Location pos, Name workerName, BIROperand lhsOp,
                              boolean isSameStrand, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WK_RECEIVE);
             this.workerName = workerName;
@@ -537,9 +552,9 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public boolean isSameStrand;
         public boolean isSync;
 
-        public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data, boolean isSameStrand, boolean isSync,
-                          BIROperand lhsOp, BIRBasicBlock thenBB) {
-            super(pos, InstructionKind.WK_SEND);
+        public WorkerSend(Location location, Name workerName, BIROperand data,
+                          boolean isSameStrand, boolean isSync, BIROperand lhsOp, BIRBasicBlock thenBB) {
+            super(location, InstructionKind.WK_SEND);
             this.channel = workerName;
             this.data = data;
             this.thenBB = thenBB;
@@ -575,7 +590,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public List<String> keys;
         public List<BIROperand> valueExprs;
 
-        public WaitAll(DiagnosticPos pos, BIROperand lhsOp, List<String> keys, List<BIROperand> valueExprs,
+        public WaitAll(Location pos, BIROperand lhsOp, List<String> keys, List<BIROperand> valueExprs,
                        BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WAIT_ALL);
             this.lhsOp = lhsOp;

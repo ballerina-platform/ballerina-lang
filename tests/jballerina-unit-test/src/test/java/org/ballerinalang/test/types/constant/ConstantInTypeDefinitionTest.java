@@ -18,16 +18,17 @@
 
 package org.ballerinalang.test.types.constant;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BDecimal;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -36,7 +37,7 @@ import org.testng.annotations.Test;
  */
 public class ConstantInTypeDefinitionTest {
 
-    private static CompileResult compileResult;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
@@ -146,5 +147,10 @@ public class ConstantInTypeDefinitionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringTypeWithoutType");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

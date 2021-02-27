@@ -15,19 +15,16 @@
  *
  */
 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+ 
+apply from: "$rootDir/gradle/ballerinaLangLibBuild.gradle"
 
 dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
-    baloCreat project(':lib-creator')
     implementation 'org.slf4j:slf4j-api'
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-}
 
-createBalo {
-    isBuiltin = 'true'
-    jvmTarget = 'true'
+    distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
 }
 
 description = 'ballerina/lang.__internal Implementation'

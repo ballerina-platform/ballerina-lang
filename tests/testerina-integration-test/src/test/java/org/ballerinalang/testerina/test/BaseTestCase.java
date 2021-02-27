@@ -27,6 +27,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Parent test class for all integration test cases. This will provide basic functionality for integration tests. This
@@ -36,14 +40,9 @@ public class BaseTestCase {
 
     public static BalServer balServer;
     Path tempProjectDirectory;
-    protected static Path singleFilesProjectPath;
-    static Path basicTestsProjectPath;
-    static Path mockProjectPath;
-    static Path mockProjectPath2;
-    static Path serviceProjectBuildPath;
-    static Path reportTestProjectPath;
-    static Path outsideTestsProjectPath;
-    static Path rerunFailedProjectPath;
+    protected static Path singleFileTestsPath;
+    static Path projectBasedTestsPath;
+    String[] coverageArgs = new String[]{"--code-coverage", "--includes=*"};
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {
@@ -51,49 +50,42 @@ public class BaseTestCase {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-testerina-project-");
 
         // copy TestProjects to a temp
-        Path originalSingleFilesProj = Paths.get("src", "test", "resources", "single-file-tests")
+        Path originalSingleFileTestsDir = Paths.get("src", "test", "resources", "single-file-tests")
                 .toAbsolutePath();
-        singleFilesProjectPath = tempProjectDirectory.resolve("single-file-tests");
-        FileUtils.copyFolder(originalSingleFilesProj, singleFilesProjectPath);
+        singleFileTestsPath = tempProjectDirectory.resolve("single-file-tests");
+        FileUtils.copyFolder(originalSingleFileTestsDir, singleFileTestsPath);
 
-        Path originalMultiModulesProj = Paths.get("src", "test", "resources", "project-based-tests",
-                "basic-tests").toAbsolutePath();
-        basicTestsProjectPath = tempProjectDirectory.resolve("basic-tests");
-        FileUtils.copyFolder(originalMultiModulesProj, basicTestsProjectPath);
-
-        Path originalMockProj = Paths.get("src", "test", "resources", "project-based-tests",
-                "mock-tests").toAbsolutePath();
-        mockProjectPath = tempProjectDirectory.resolve("mock-tests");
-        FileUtils.copyFolder(originalMockProj, mockProjectPath);
-
-        Path originalMockProj2 = Paths.get("src", "test", "resources", "project-based-tests",
-                "mocking-tests").toAbsolutePath();
-        mockProjectPath2 = tempProjectDirectory.resolve("mocking-tests");
-        FileUtils.copyFolder(originalMockProj2, mockProjectPath2);
-
-        Path serviceProjectPath = Paths.get("src", "test", "resources", "project-based-tests",
-                "services-tests").toAbsolutePath();
-        serviceProjectBuildPath = tempProjectDirectory.resolve("services-tests");
-        FileUtils.copyFolder(serviceProjectPath, serviceProjectBuildPath);
-
-        Path originalReportTestProj = Paths.get("src", "test", "resources", "project-based-tests",
-                "test-report-tests").toAbsolutePath();
-        reportTestProjectPath = tempProjectDirectory.resolve("test-report");
-        FileUtils.copyFolder(originalReportTestProj, reportTestProjectPath);
-
-        Path outsideTestsProj = Paths.get("src", "test", "resources", "project-based-tests",
-                "outside-tests").toAbsolutePath();
-        outsideTestsProjectPath = tempProjectDirectory.resolve("outside-tests");
-        FileUtils.copyFolder(outsideTestsProj, outsideTestsProjectPath);
-
-        Path rerunFailedProj = Paths.get("src", "test", "resources", "project-based-tests",
-                "rerun-failed-tests").toAbsolutePath();
-        rerunFailedProjectPath = tempProjectDirectory.resolve("rerun-failed-tests");
-        FileUtils.copyFolder(rerunFailedProj, rerunFailedProjectPath);
+        Path originalProjTestsDir = Paths.get("src", "test", "resources", "project-based-tests")
+                .toAbsolutePath();
+        projectBasedTestsPath = tempProjectDirectory.resolve("project-based-tests");
+        FileUtils.copyFolder(originalProjTestsDir, projectBasedTestsPath);
     }
 
     @AfterSuite(alwaysRun = true)
     public void destroy() {
         balServer.cleanup();
+    }
+
+    @AfterSuite
+    public void copyBallerinaExecFiles() {
+        List<Path> packageDirs;
+        try {
+            packageDirs = Files.walk(projectBasedTestsPath, 1)
+                    .filter(Files::isDirectory)
+                    .collect(Collectors.toList());
+            for (Path dir : packageDirs) {
+                try {
+                    FileUtils.copyBallerinaExec(dir, "");
+                } catch (IOException e) {
+                    // ignore exception
+                }
+            }
+        } catch (IOException e) {
+            // ignore exception
+        }
+    }
+
+    protected String[] mergeCoverageArgs(String[] cmdArgs) {
+        return Stream.concat(Arrays.stream(coverageArgs), Arrays.stream(cmdArgs)).toArray(String[]::new);
     }
 }

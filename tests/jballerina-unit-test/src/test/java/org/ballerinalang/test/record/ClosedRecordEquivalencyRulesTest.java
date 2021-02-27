@@ -18,14 +18,15 @@
 
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
@@ -49,8 +50,6 @@ public class ClosedRecordEquivalencyRulesTest {
         int i = 0;
         validateError(negative, i++, "incompatible types: expected 'AnotherPerson', found 'Person1'", 28, 24);
         validateError(negative, i++, "incompatible types: expected 'AnotherPerson', found 'Person2'", 38, 24);
-        validateError(negative, i++, "incompatible types: expected 'AnotherPerson3', found 'Person1'", 49, 25);
-        validateError(negative, i++, "incompatible types: expected 'AnotherPerson3', found 'Person1'", 55, 25);
         assertEquals(negative.getErrorCount(), i);
     }
 
@@ -112,5 +111,10 @@ public class ClosedRecordEquivalencyRulesTest {
                       25);
         validateError(openRecToClosedRec, index, "incompatible types: expected 'AnotherPerson4', found 'Person2'", 74,
                       25);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        closedRecToClosedRec = null;
     }
 }

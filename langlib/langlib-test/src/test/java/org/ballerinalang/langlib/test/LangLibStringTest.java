@@ -19,16 +19,16 @@
 package org.ballerinalang.langlib.test;
 
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -266,6 +266,18 @@ public class LangLibStringTest {
                 {"",        0, -1, "invalid substring range. Length:'0' requested: '0' to '-1'"},
                 {"abcdef",  3,  2, "invalid substring range. Length:'6' requested: '3' to '2'"},
         };
+    }
+
+    @Test
+    public void testIncludes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIncludes");
+        assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testChainedStringFunctions() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testChainedStringFunctions");
+        assertEquals(returns[0].stringValue(), "foo1foo2foo3foo4");
     }
 
 }

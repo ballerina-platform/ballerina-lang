@@ -14,21 +14,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test.expressions.builtinfunctions;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BDecimal;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -37,7 +38,7 @@ import org.testng.annotations.Test;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * This class tests the freeze() and isFrozen() builtin functions.
@@ -46,8 +47,6 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  */
 public class FreezeAndIsFrozenTest {
 
-    private static final String FREEZE_ERROR_OCCURRED_ERR_MSG =
-            "error occurred on freeze: 'freeze()' not allowed on 'PersonObj'";
     private static final String FREEZE_SUCCESSFUL = "freeze successful";
 
     private CompileResult result;
@@ -169,7 +168,7 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InvalidUpdate \\{\"message\"" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\"" +
                     ":\"modification not allowed on readonly value\".*",
             dataProvider = "frozenBasicTypeArrayModificationFunctions")
     public void testFrozenBasicTypeArrayModification(String frozenBasicTypeArrayModificationFunction) {
@@ -177,63 +176,63 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
                     "\"modification not allowed on readonly value.*")
     public void testFrozenDecimalArrayModification() {
         BRunUtil.invoke(result, "testFrozenDecimalArrayModification", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InvalidUpdate \\{\"message\":\"" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":\"" +
                     "modification not allowed on readonly value\"}.*")
     public void testFrozenJsonArrayModification() {
         BRunUtil.invoke(result, "testFrozenJsonArrayModification", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Invalid map insertion: modification not allowed on readonly value\".*")
     public void testFrozenJsonModification() {
         BRunUtil.invoke(result, "testFrozenJsonModification", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Invalid map insertion: modification not allowed on readonly value\".*")
     public void testAdditionToFrozenJson() {
         BRunUtil.invoke(result, "testAdditionToFrozenJson", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":\"Failed " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"Failed " +
                     "to remove element from map: modification not allowed on readonly value.*")
     public void testRemovalFromFrozenJson() {
         BRunUtil.invoke(result, "testRemovalFromFrozenJson", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Invalid map insertion: modification not allowed on readonly value\".*")
     public void testFrozenInnerJsonModification() {
         BRunUtil.invoke(result, "testFrozenInnerJsonModification", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Invalid map insertion: modification not allowed on readonly value\".*")
     public void testAdditionToFrozenInnerJson() {
         BRunUtil.invoke(result, "testAdditionToFrozenInnerJson", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Failed to remove element from map: modification not allowed on readonly value\".*")
     public void testRemovalFromFrozenInnerJson() {
         BRunUtil.invoke(result, "testRemovalFromFrozenInnerJson", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml}XMLOperationError \\{\"message\":" +
                     "\"Failed to set children to xml element: modification not allowed on readonly value\".*")
     public void testFrozenXmlSetChildren() {
         BRunUtil.invoke(result, "testFrozenXmlSetChildren", new BValue[0]);
@@ -241,105 +240,105 @@ public class FreezeAndIsFrozenTest {
 
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml}XMLOperationError \\{\"message\":" +
                     "\"Failed to set children to xml element: modification not allowed on readonly value\".*")
     public void testFrozenXmlSetChildrenDeep() {
         BRunUtil.invoke(result, "testFrozenXmlSetChildrenDeep", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":\"" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"" +
                     "Invalid map insertion: modification not allowed on readonly value\".*")
     public void testFrozenMapUpdate() {
         BRunUtil.invoke(result, "testFrozenMapUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":\"" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"" +
                     "Failed to remove element from map: modification not allowed on readonly value\".*")
     public void testFrozenMapRemoval() {
         BRunUtil.invoke(result, "testFrozenMapRemoval", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Failed to clear map: modification not allowed on readonly value\".*")
     public void testFrozenMapClear() {
         BRunUtil.invoke(result, "testFrozenMapClear", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\"" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\"" +
                     ":\"Invalid map insertion: modification not allowed on readonly value\".*")
     public void testFrozenInnerMapUpdate() {
         BRunUtil.invoke(result, "testFrozenInnerMapUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Failed to remove element from map: modification not allowed on readonly value\".*")
     public void testFrozenInnerMapRemoval() {
         BRunUtil.invoke(result, "testFrozenInnerMapRemoval", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Failed to clear map: modification not allowed on readonly value\".*")
     public void testFrozenInnerMapClear() {
         BRunUtil.invoke(result, "testFrozenInnerMapClear", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
                     "\"modification not allowed on readonly value\".*")
     public void testFrozenAnyArrayAddition() {
         BRunUtil.invoke(result, "testFrozenAnyArrayAddition", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
                     "\"modification not allowed on readonly value\".*")
     public void testFrozenAnyArrayUpdate() {
         BRunUtil.invoke(result, "testFrozenAnyArrayUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Invalid update of record field: modification not allowed on readonly value\".*")
     public void testFrozenAnyArrayElementUpdate() {
         BRunUtil.invoke(result, "testFrozenAnyArrayElementUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
                     "\"modification not allowed on readonly value\".*")
     public void testFrozenTupleUpdate() {
         BRunUtil.invoke(result, "testFrozenTupleUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":\"" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"" +
                     "Invalid update of record field: modification not allowed on readonly value\".*")
     public void testFrozenRecordUpdate() {
         BRunUtil.invoke(result, "testFrozenRecordUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Invalid update of record field: modification not allowed on readonly value\".*")
     public void testFrozenInnerRecordUpdate() {
         BRunUtil.invoke(result, "testFrozenInnerRecordUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InvalidUpdate message=Failed to add " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table}InvalidUpdate message=Failed to add " +
                     "data to the table: modification not allowed on readonly value.*", enabled = false)
     public void testFrozenTableAddition() {
         BRunUtil.invoke(result, "testFrozenTableAddition", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InvalidUpdate message=Failed to " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table}InvalidUpdate message=Failed to " +
                     "remove data from the table: modification not allowed on readonly value.*", enabled = false)
     public void testFrozenTableRemoval() {
         BRunUtil.invoke(result, "testFrozenTableRemoval", new BValue[0]);
@@ -443,58 +442,54 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testFreezeAndIsFrozenSemanticsNegativeCases() {
-        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 24);
+        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 22);
         int index = 0;
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'PersonObj', found 'anydata'", 19, 19);
+                "incompatible types: expected 'Cloneable', found 'PersonObj'", 19, 19);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 19, 19);
+                "incompatible types: expected 'Cloneable', found 'PersonObj'", 19, 19);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 19, 19);
+                "incompatible types: expected 'PersonObj', found 'Cloneable'", 19, 19);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'map<PersonObj>'", 24, 9);
+                "incompatible types: expected 'Cloneable', found 'map<PersonObj>'", 24, 9);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'PersonObj[]'", 29, 9);
+                "incompatible types: expected 'Cloneable', found 'PersonObj[]'", 29, 9);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '(PersonObjTwo|PersonObj)?[]'", 32, 10);
+                      "incompatible types: expected 'Cloneable', found '(PersonObjTwo|PersonObj)?[]'", 32, 10);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '[(PersonObj|PersonObjTwo),PersonObjTwo]'", 39,
-                9);
+                      "incompatible types: expected 'Cloneable', found '[(PersonObj|PersonObjTwo),PersonObjTwo]'",
+                39, 9);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'Department'", 44, 9);
+                "incompatible types: expected 'Cloneable', found 'Department'", 44, 9);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found 'map<(string|PersonObj)>'", 49, 32);
+                      "incompatible types: expected 'Cloneable', found 'map<(string|PersonObj)>'", 49, 32);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'map<[(string|PersonObj)," +
+                "incompatible types: expected 'Cloneable', found 'map<[(string|PersonObj)," +
                         "(FreezeAllowedDepartment|float)]>'", 52, 26);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '(boolean|PersonObj|float)?[]'", 55, 39);
+                      "incompatible types: expected 'Cloneable', found '(boolean|PersonObj|float)?[]'", 55, 39);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '(boolean|PersonObj|float)?[]'", 57, 16);
+                      "incompatible types: expected 'Cloneable', found '(boolean|PersonObj|float)?[]'", 57, 16);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found '[(string|PersonObj),"
+                "incompatible types: expected 'Cloneable', found '[(string|PersonObj),"
                 + "(FreezeAllowedDepartment|float)]'", 60, 60);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found 'FreezeAllowedDepartment'", 63, 35);
+                "incompatible types: expected 'Cloneable', found 'FreezeAllowedDepartment'", 63, 35);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found '(string|PersonObj)'", 66, 27);
+                "incompatible types: expected 'Cloneable', found '(string|PersonObj)'", 66, 27);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'any', found 'error'", 71, 9);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found 'error'", 71, 9);
+                "incompatible types: expected 'Cloneable', found 'map<(string|PersonObj)>'", 81, 39);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found 'map<(string|PersonObj)>'", 81, 39);
+                "incompatible types: expected 'Cloneable', found '(string|stream<int>|float)?[]'", 92, 47);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '(string|typedesc<anydata>|float)?[]'", 92, 53);
+                "incompatible types: expected 'Cloneable', found 'FreezeAllowedDepartment2'", 100, 42);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found 'FreezeAllowedDepartment2'", 100, 42);
+                "incompatible types: expected 'Cloneable', found '[int,(string|PersonObj|float),boolean]'",
+                106, 21);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '[int,(string|PersonObj|float),boolean]'", 106,
-                      21);
-        validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'anydata', found '(int|Department|PersonObj)'", 113, 42);
-        validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'anydata', found '(anydata|error)'", 120, 19);
+                "incompatible types: expected 'Cloneable', found '(int|Department|PersonObj)'", 113, 42);
         validateError(semanticsNegativeResult, index,
                 "incompatible types: expected 'anydata', found '(anydata|error)'", 120, 19);
     }

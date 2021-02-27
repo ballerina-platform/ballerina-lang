@@ -18,16 +18,17 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -201,5 +202,10 @@ public class TupleAccessExprTest {
                     "out of range: index: 6, size: 4.*")
     public void testTupleAccessUsingUnionWithFiniteTypesNegative() {
         BRunUtil.invoke(compileResult, "testTupleAccessUsingUnionWithFiniteTypesNegative");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

@@ -15,18 +15,16 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LinePosition;
-import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
@@ -41,19 +39,19 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class FunctionSignatureNodeContext extends AbstractCompletionProvider<FunctionSignatureNode> {
     public FunctionSignatureNodeContext() {
         super(FunctionSignatureNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, FunctionSignatureNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FunctionSignatureNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (withinReturnTypeDescContext(context, node)) {
-            if (!node.returnTypeDesc().isPresent()) {
+            if (node.returnTypeDesc().isEmpty()) {
                 /*
                 Covers the following cases.
                 (1) function test() <cursor>
@@ -67,13 +65,13 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 completionItems.addAll(CompletionUtil.route(context, node.returnTypeDesc().get()));
             }
         } else if (this.withinParameterContext(context, node)) {
-            NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+            NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
             // skip the node kind, REQUIRED_PARAM because that maps to the variable name
             if (nodeAtCursor.kind() == SyntaxKind.REQUIRED_PARAM) {
                 return completionItems;
             }
-            
+
             if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 /*
                 Covers the Following
@@ -93,19 +91,21 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 completionItems.addAll(this.getModuleCompletionItems(context));
             }
         }
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 
-    private boolean withinReturnTypeDescContext(LSContext context, FunctionSignatureNode node) {
-        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+    private boolean withinReturnTypeDescContext(BallerinaCompletionContext context, FunctionSignatureNode node) {
+        Position cursor = context.getCursorPosition();
         LinePosition closeParanPosition = node.closeParenToken().lineRange().endLine();
 
         return (closeParanPosition.line() == cursor.getLine() && closeParanPosition.offset() < cursor.getCharacter())
                 || closeParanPosition.line() < cursor.getLine();
     }
 
-    private boolean withinParameterContext(LSContext context, FunctionSignatureNode node) {
-        Integer cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean withinParameterContext(BallerinaCompletionContext context, FunctionSignatureNode node) {
+        int cursor = context.getCursorPositionInTree();
         int openParan = node.openParenToken().textRange().endOffset();
         int closeParan = node.closeParenToken().textRange().startOffset();
 
@@ -113,7 +113,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, FunctionSignatureNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, FunctionSignatureNode node) {
         // If the signature belongs to the function type descriptor, we skip this resolver
         return !node.openParenToken().isMissing() && !node.closeParenToken().isMissing()
                 && node.parent().kind() != SyntaxKind.FUNCTION_TYPE_DESC;

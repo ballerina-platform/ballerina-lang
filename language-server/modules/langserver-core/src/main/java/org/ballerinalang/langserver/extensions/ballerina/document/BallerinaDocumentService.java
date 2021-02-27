@@ -15,10 +15,11 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.document;
 
-import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
+import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -28,8 +29,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @JsonSegment("ballerinaDocument")
 public interface BallerinaDocumentService {
-    @JsonRequest
-    CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request);
 
     @JsonRequest
     CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTree(BallerinaSyntaxTreeRequest request);
@@ -38,23 +37,11 @@ public interface BallerinaDocumentService {
     CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeModify(BallerinaSyntaxTreeModifyRequest request);
 
     @JsonRequest
-    CompletableFuture<BallerinaASTResponse> astModify(BallerinaASTModifyRequest request);
-
-    @JsonRequest
-    CompletableFuture<BallerinaASTResponse> triggerModify(BallerinaTriggerModifyRequest request);
-
-    @JsonRequest
-    CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification);
-
-    @JsonRequest
-    CompletableFuture<BallerinaOASResponse> openApiDefinition(BallerinaOASRequest request);
-
-    @JsonNotification
-    void apiDesignDidChange(ApiDesignDidChangeParams params);
-
-    @JsonRequest
-    CompletableFuture<BallerinaServiceListResponse> serviceList(BallerinaServiceListRequest request);
+    CompletableFuture<BallerinaSyntaxTreeResponse> triggerModify(BallerinaTriggerModifyRequest request);
 
     @JsonRequest
     CompletableFuture<BallerinaProject> project(BallerinaProjectParams params);
+
+    @JsonRequest
+    CompletableFuture<List<PublishDiagnosticsParams>> diagnostics(BallerinaProjectParams params);
 }

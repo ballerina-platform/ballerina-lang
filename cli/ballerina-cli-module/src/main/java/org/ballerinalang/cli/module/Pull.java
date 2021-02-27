@@ -16,13 +16,13 @@
 
 package org.ballerinalang.cli.module;
 
+import io.ballerina.runtime.api.utils.JsonUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.cli.module.util.ErrorUtil;
 import org.ballerinalang.cli.module.util.Utils;
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.MapValue;
 
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
@@ -40,7 +40,6 @@ import java.nio.file.Paths;
 import javax.ws.rs.core.HttpHeaders;
 
 import static org.ballerinalang.cli.module.util.CliModuleConstants.BALLERINA_PLATFORM;
-import static org.ballerinalang.cli.module.util.CliModuleConstants.BAL_LANG_SPEC_VERSION;
 import static org.ballerinalang.cli.module.util.CliModuleConstants.IDENTITY;
 import static org.ballerinalang.cli.module.util.CliModuleConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.cli.module.util.Utils.convertToUrl;
@@ -66,7 +65,7 @@ public class Pull {
      * Execute pull command.
      *
      * @param url                   remote uri of the central
-     * @param modulePathInBaloCache module path in balo cache, user.home/.ballerina/balo_cache/org_name/module_name
+     * @param modulePathInBalaCache module path in bala cache, user.home/.ballerina/bala_cache/org_name/module_name
      * @param moduleNameWithOrg     module name with org, org_name/module_name
      * @param proxyHost             proxy host
      * @param proxyPort             proxy port
@@ -75,13 +74,12 @@ public class Pull {
      * @param supportedVersionRange supported version range
      * @param isBuild               pulling happens when building
      * @param isNightlyBuild        is nightly build
-     * @param langSpecVersion       lang spec version
      * @param platform              supported version
      * @param clientId              client version
      */
-    public static void execute(String url, String modulePathInBaloCache, String moduleNameWithOrg, String proxyHost,
+    public static void execute(String url, String modulePathInBalaCache, String moduleNameWithOrg, String proxyHost,
             int proxyPort, String proxyUsername, String proxyPassword, String supportedVersionRange, boolean isBuild,
-            boolean isNightlyBuild, String langSpecVersion, String platform, String clientId) {
+            boolean isNightlyBuild, String platform, String clientId) {
         if (isBuild) {
             logFormatter = new BuildLogFormatter();
         }
@@ -97,7 +95,6 @@ public class Pull {
 
             // Set headers
             conn.setRequestProperty(BALLERINA_PLATFORM, platform);
-            conn.setRequestProperty(BAL_LANG_SPEC_VERSION, langSpecVersion);
             conn.setRequestProperty(HttpHeaders.ACCEPT_ENCODING, IDENTITY);
             conn.setRequestProperty(HttpHeaders.USER_AGENT, clientId);
 
@@ -119,7 +116,7 @@ public class Pull {
                         proxyPassword);
                 conn.setRequestProperty(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
 
-                createBaloInHomeRepo(conn, modulePathInBaloCache, moduleNameWithOrg, isNightlyBuild, newUrl,
+                createBalaInHomeRepo(conn, modulePathInBalaCache, moduleNameWithOrg, isNightlyBuild, newUrl,
                         contentDisposition);
             }
         } catch (Exception e) {
@@ -133,16 +130,16 @@ public class Pull {
     }
 
     /**
-     * Create the balo in home repo.
+     * Create the bala in home repo.
      *
      * @param conn                  http connection
-     * @param modulePathInBaloCache module path in balo cache, <user.home>.ballerina/balo_cache/<org-name>/<module-name>
+     * @param modulePathInBalaCache module path in bala cache, <user.home>.ballerina/bala_cache/<org-name>/<module-name>
      * @param moduleNameWithOrg     module name with org, <org-name>/<module-name>
      * @param isNightlyBuild        is nightly build
      * @param newUrl                new redirect url
      * @param contentDisposition    content disposition header
      */
-    private static void createBaloInHomeRepo(HttpURLConnection conn, String modulePathInBaloCache,
+    private static void createBalaInHomeRepo(HttpURLConnection conn, String modulePathInBalaCache,
             String moduleNameWithOrg, boolean isNightlyBuild, String newUrl, String contentDisposition) {
         long responseContentLength = conn.getContentLengthLong();
         if (responseContentLength <= 0) {
@@ -156,43 +153,43 @@ public class Pull {
         String moduleVersion = uriParts[uriParts.length - 3];
 
         validateModuleVersion(moduleVersion);
-        String baloFile = getBaloFileName(contentDisposition, uriParts[uriParts.length - 1]);
-        Path baloCacheWithModulePath = Paths.get(modulePathInBaloCache, moduleVersion);
-        //<user.home>.ballerina/balo_cache/<org-name>/<module-name>/<module-version>
+        String balaFile = getBalaFileName(contentDisposition, uriParts[uriParts.length - 1]);
+        Path balaCacheWithModulePath = Paths.get(modulePathInBalaCache, moduleVersion);
+        //<user.home>.ballerina/bala_cache/<org-name>/<module-name>/<module-version>
 
-        Path baloPath = Paths.get(baloCacheWithModulePath.toString(), baloFile);
-        if (baloPath.toFile().exists()) {
-            createError("module already exists in the home repository: " + baloPath.toString());
+        Path balaPath = Paths.get(balaCacheWithModulePath.toString(), balaFile);
+        if (balaPath.toFile().exists()) {
+            createError("module already exists in the home repository: " + balaPath.toString());
         }
 
-        createBaloFileDirectory(baloCacheWithModulePath);
-        writeBaloFile(conn, baloPath, moduleNameWithOrg + ":" + moduleVersion, responseContentLength);
-        handleNightlyBuild(isNightlyBuild, baloCacheWithModulePath);
+        createBalaFileDirectory(balaCacheWithModulePath);
+        writeBalaFile(conn, balaPath, moduleNameWithOrg + ":" + moduleVersion, responseContentLength);
+        handleNightlyBuild(isNightlyBuild, balaCacheWithModulePath);
     }
 
     /**
-     * Write balo file to the home repo.
+     * Write bala file to the home repo.
      *
      * @param conn             http connection
-     * @param baloPath         path of the balo file
+     * @param balaPath         path of the bala file
      * @param fullModuleName   full module name, <org-name>/<module-name>:<module-version>
      * @param resContentLength response content length
      */
-    private static void writeBaloFile(HttpURLConnection conn, Path baloPath, String fullModuleName,
+    private static void writeBalaFile(HttpURLConnection conn, Path balaPath, String fullModuleName,
             long resContentLength) {
         try (InputStream inputStream = conn.getInputStream();
-                FileOutputStream outputStream = new FileOutputStream(baloPath.toString())) {
+                FileOutputStream outputStream = new FileOutputStream(balaPath.toString())) {
             writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullModuleName);
         } catch (IOException e) {
-            createError("error occurred copying the balo file: " + e.getMessage());
+            createError("error occurred copying the bala file: " + e.getMessage());
         }
     }
 
     /**
-     * Show progress of the writing the balo file.
+     * Show progress of the writing the bala file.
      *
      * @param inputStream    response input stream
-     * @param outputStream   home repo balo file output stream
+     * @param outputStream   home repo bala file output stream
      * @param totalSizeInKB  response input stream size in kb
      * @param fullModuleName full module name, <org-name>/<module-name>:<module-version>
      */
@@ -218,12 +215,12 @@ public class Pull {
      * Handle nightly build.
      *
      * @param isNightlyBuild          is nightly build
-     * @param baloCacheWithModulePath balo cache with module path
+     * @param balaCacheWithModulePath bala cache with module path
      */
-    private static void handleNightlyBuild(boolean isNightlyBuild, Path baloCacheWithModulePath) {
+    private static void handleNightlyBuild(boolean isNightlyBuild, Path balaCacheWithModulePath) {
         if (isNightlyBuild) {
             // If its a nightly build tag the file as a module from nightly
-            Path nightlyBuildMetaFile = Paths.get(baloCacheWithModulePath.toString(), "nightly.build");
+            Path nightlyBuildMetaFile = Paths.get(balaCacheWithModulePath.toString(), "nightly.build");
             if (!nightlyBuildMetaFile.toFile().exists()) {
                 createNightlyBuildMetaFile(nightlyBuildMetaFile);
             }
@@ -255,16 +252,16 @@ public class Pull {
     }
 
     /**
-     * Create balo file directory.
+     * Create bala file directory.
      *
-     * @param fullPathToStoreBalo full path to store the balo file
-     *                            <user.home>.ballerina/balo_cache/<org-name>/<module-name>/<module-version>
+     * @param fullPathToStoreBala full path to store the bala file
+     *                            <user.home>.ballerina/bala_cache/<org-name>/<module-name>/<module-version>
      */
-    private static void createBaloFileDirectory(Path fullPathToStoreBalo) {
+    private static void createBalaFileDirectory(Path fullPathToStoreBala) {
         try {
-            Files.createDirectory(fullPathToStoreBalo);
+            Files.createDirectory(fullPathToStoreBala);
         } catch (IOException e) {
-            createError("error creating directory for balo file");
+            createError("error creating directory for bala file");
         }
     }
 
@@ -284,8 +281,8 @@ public class Pull {
                 result.append(line);
             }
 
-            MapValue payload = (MapValue) JSONParser.parse(result.toString());
-            createError("error: " + payload.getStringValue(BStringUtils.fromString("message")));
+            BMap payload = (BMap) JsonUtils.parse(result.toString());
+            createError("error: " + payload.getStringValue(StringUtils.fromString("message")));
         } catch (IOException e) {
             createError("failed to pull the module '" + moduleFullName + "' from the remote repository '" + url + "'");
         }
@@ -301,17 +298,17 @@ public class Pull {
     }
 
     /**
-     * Get balo file name from content disposition header.
+     * Get bala file name from content disposition header.
      *
      * @param contentDisposition content disposition header value
-     * @param baloFile           balo file name taken from RESOLVED_REQUESTED_URI
-     * @return balo file name
+     * @param balaFile           bala file name taken from RESOLVED_REQUESTED_URI
+     * @return bala file name
      */
-    private static String getBaloFileName(String contentDisposition, String baloFile) {
+    private static String getBalaFileName(String contentDisposition, String balaFile) {
         if (contentDisposition != null && !contentDisposition.equals("")) {
             return contentDisposition.substring("attachment; filename=".length());
         } else {
-            return baloFile;
+            return balaFile;
         }
     }
 }

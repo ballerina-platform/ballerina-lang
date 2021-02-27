@@ -197,23 +197,23 @@ int i = 0;
 
 class Listener {
 
-    public function __attach(service s, string? name) returns error? {
+    public function attach(service object {} s, string[]|string? name) returns error? {
 
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
 
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
 
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
 
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
 
     }
 }
@@ -223,6 +223,6 @@ class Listener {
 # # Deprecated parameters
 # + x - deprecated x
 # # Deprecated
-service s on new Listener() {
+service /s on new Listener() {
 
 }

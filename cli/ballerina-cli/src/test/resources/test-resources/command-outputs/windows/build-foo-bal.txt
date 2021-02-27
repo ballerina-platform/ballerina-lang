@@ -1,0 +1,6 @@
+
+Compiling source
+	hello_world.bal
+
+Generating executable
+	foo.jar

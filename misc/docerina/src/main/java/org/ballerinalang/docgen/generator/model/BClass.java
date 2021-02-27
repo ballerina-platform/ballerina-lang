@@ -36,16 +36,21 @@ public class BClass extends Construct {
     public Function initMethod;
     @Expose
     public List<Function> otherMethods;
-
+    @Expose
+    public boolean isReadOnly;
+    @Expose
+    public boolean isIsolated;
 
     public BClass(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-                  List<Function> methods) {
+                  List<Function> methods, boolean isReadOnly, boolean isIsolated) {
         super(name, description, isDeprecated);
         this.fields = fields;
         this.methods = methods;
         Optional<Function> initMethod = getInitMethod(methods);
         this.initMethod = initMethod.isPresent() ? getInitMethod(methods).get() : null;
         this.otherMethods = getOtherMethods(methods);
+        this.isReadOnly = isReadOnly;
+        this.isIsolated = isIsolated;
     }
 
     public Optional<Function> getInitMethod(List<Function> methods) {

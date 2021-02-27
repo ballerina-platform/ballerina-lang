@@ -1,0 +1,114 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    distributionBala
+    distributionBirJar
+    balRt
+    testRt
+    testCore
+}
+
+dependencies {
+
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-runtime')
+    implementation project(':ballerina-tools-api')
+    implementation project(':central-client')
+    implementation 'info.picocli:picocli'
+    implementation 'org.apache.commons:commons-compress:1.18'
+    implementation 'com.google.code.gson:gson:2.7'
+    implementation project(':docerina')
+    implementation project(':testerina:testerina-core')
+    implementation project(':testerina:testerina-runtime')
+    implementation project(':maven-resolver')
+    implementation project(':ballerina-shell:shell-cli')
+
+    testCompile 'org.testng:testng'
+    testCompile 'org.mockito:mockito-all'
+    testImplementation 'org.powermock:powermock-mockito-release-full'
+    testImplementation 'org.powermock:powermock-module-testng-common'
+
+    distributionBala project(path: ':ballerina-langlib:test', configuration: 'distributionBala')
+    distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
+    distributionBirJar project(path: ':testerina:testerina-core', configuration: 'distributionBirJar')
+
+    testRuntime project(":ballerina-lang-test")
+    balRt project(':ballerina-rt')
+    testRt project(':testerina:testerina-runtime')
+    testCore project(':testerina:testerina-core')
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-core')
+}
+
+task createTestDistributionCache(type: Copy) {
+    dependsOn configurations.distributionBala
+    from configurations.distributionBala
+    into "$buildDir/repo"
+}
+
+task createTestBre(type: Copy) {
+    from configurations.balRt
+    from configurations.testRt
+    from configurations.testCore
+    from configurations.distributionBirJar
+    into "$buildDir/bre/lib"
+}
+
+test {
+    dependsOn createTestDistributionCache
+    dependsOn createTestBre
+
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    systemProperty "ballerina.home", "$buildDir"
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
+processResources {
+    include 'META-INF/services/*'
+    include '**/tool.properties'
+    include 'cli-help/*'
+    include 'create_cmd_templates/**'
+    include 'new_cmd_defaults/**'
+    include 'package_md_defaults/**'
+    filter { String line -> line.replace('${project.version}', "${project.version}")}
+    filter { String line -> line.replace('${short.version}', "${project.shortVersion}")}
+    filter { String line -> line.replace('${display.text}', "${project.versionDisplayText}")}
+    filter { String line -> line.replace('${spec.version}', "${project.specVersion}")}
+}
+
+description = 'Ballerina - CLI'
+
+ext.moduleName = 'ballerina-cli'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

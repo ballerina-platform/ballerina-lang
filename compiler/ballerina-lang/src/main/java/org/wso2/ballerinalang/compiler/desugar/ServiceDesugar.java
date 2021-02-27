@@ -17,37 +17,51 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.BlockNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
 /**
  * Service De-sugar.
@@ -58,15 +72,17 @@ public class ServiceDesugar {
 
     private static final CompilerContext.Key<ServiceDesugar> SERVICE_DESUGAR_KEY = new CompilerContext.Key<>();
 
-    private static final String START_METHOD = "__start";
-    private static final String GRACEFUL_STOP = "__gracefulStop";
-    private static final String ATTACH_METHOD = "__attach";
+    private static final String START_METHOD = "start";
+    private static final String GRACEFUL_STOP = "gracefulStop";
+    private static final String ATTACH_METHOD = "attach";
     private static final String LISTENER = "$LISTENER";
 
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
     private HttpFiltersDesugar httpFiltersDesugar;
+    private TransactionDesugar transactionDesugar;
+    private final Types types;
 
     public static ServiceDesugar getInstance(CompilerContext context) {
         ServiceDesugar desugar = context.get(SERVICE_DESUGAR_KEY);
@@ -83,41 +99,47 @@ public class ServiceDesugar {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
+        this.transactionDesugar = TransactionDesugar.getInstance(context);
+        this.types = Types.getInstance(context);
     }
 
-    void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env, BLangFunction startFunction,
+    void rewriteListeners(List<BLangVariable> variables, SymbolEnv env, BLangFunction startFunction,
                           BLangFunction stopFunction) {
-        variables.stream().filter(varNode -> Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER))
-                .forEach(varNode -> rewriteListener(varNode, env, startFunction, stopFunction));
+        for (BLangVariable varNode : variables) {
+            if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
+                rewriteListener(varNode, env, startFunction, stopFunction);
+            }
+        }
     }
 
-    private void rewriteListener(BLangSimpleVariable variable, SymbolEnv env, BLangFunction startFunction,
+    private void rewriteListener(BLangVariable variable, SymbolEnv env, BLangFunction startFunction,
                                  BLangFunction stopFunction) {
         rewriteListenerLifeCycleFunction(startFunction, variable, env, START_METHOD);
         rewriteListenerLifeCycleFunction(stopFunction, variable, env, GRACEFUL_STOP);
     }
 
-    private void rewriteListenerLifeCycleFunction(BLangFunction lifeCycleFunction, BLangSimpleVariable variable,
+    private void rewriteListenerLifeCycleFunction(BLangFunction lifeCycleFunction, BLangVariable variable,
             SymbolEnv env, String method) {
         // This method will generate and add following statement to give life cycle function.
         //
-        //  _ = [check] var.__start/__stop();
+        //  _ = [check] var.start/stop();
         //
 
-        final DiagnosticPos pos = variable.pos;
+        final Location pos = variable.pos;
 
         // Find correct symbol.
+        BTypeSymbol listenerTypeSymbol = getListenerType(variable.type).tsymbol;
         final Name functionName = names
-                .fromString(Symbols.getAttachedFuncSymbolName(variable.type.tsymbol.name.value, method));
+                .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, method));
         BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver
-                .lookupMemberSymbol(pos, ((BObjectTypeSymbol) variable.type.tsymbol).methodScope, env, functionName,
+                .lookupMemberSymbol(pos, listenerTypeSymbol.scope, env, functionName,
                         SymTag.INVOKABLE);
 
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, variable.symbol);
 
         // Create method invocation
-        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), Collections.emptyList(),
-                            (BLangBlockFunctionBody) lifeCycleFunction.body);
+        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(),
+                (BLangBlockFunctionBody) lifeCycleFunction.body);
     }
 
     BLangBlockStmt rewriteServiceVariables(List<BLangService> services, SymbolEnv env) {
@@ -127,16 +149,15 @@ public class ServiceDesugar {
     }
 
     void rewriteServiceVariable(BLangService service, SymbolEnv env, BLangBlockStmt attachments) {
-        // service x on y { ... }
+        // service x [/abs/Path] on y { ... }
         //
         // after desugar :
-        //      if y is anonymous (globalVar)   ->      y = y(expr)
         //      (init)                          ->      y.__attach(x, {});
 
-        if (service.isAnonymousService()) {
-            return;
-        }
-        final DiagnosticPos pos = service.pos;
+        final Location pos = service.pos;
+
+        ASTBuilderUtil.defineVariable(service.serviceVariable, env.enclPkg.symbol, names);
+        env.enclPkg.globalVars.add(service.serviceVariable);
 
         int count = 0;
         for (BLangExpression attachExpr : service.attachedExprs) {
@@ -147,7 +168,8 @@ public class ServiceDesugar {
             } else {
                 // Define anonymous listener variable.
                 BLangSimpleVariable listenerVar = ASTBuilderUtil
-                        .createVariable(pos, LISTENER + service.name.value + count++, attachExpr.type, attachExpr,
+                        .createVariable(pos, generateServiceListenerVarName(service) + count, attachExpr.type,
+                                attachExpr,
                                 null);
                 ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
                 listenerVar.symbol.flags |= Flags.LISTENER;
@@ -155,33 +177,99 @@ public class ServiceDesugar {
                 listenerVarRef = ASTBuilderUtil.createVariableRef(pos, listenerVar.symbol);
             }
 
+            if (types.containsErrorType(listenerVarRef.type)) {
+                BLangCheckedExpr listenerCheckExpr = ASTBuilderUtil.createCheckExpr(pos, listenerVarRef,
+                        getListenerType(listenerVarRef.type));
+                listenerCheckExpr.equivalentErrorTypeList.add(symTable.errorType);
+                BLangSimpleVariable listenerWithoutErrors = ASTBuilderUtil.createVariable(pos,
+                        generateServiceListenerVarName(service)  + "$CheckTemp" + count++,
+                        getListenerTypeWithoutError(listenerVarRef.type),
+                        listenerCheckExpr,
+                        null);
+                ASTBuilderUtil.defineVariable(listenerWithoutErrors, env.enclPkg.symbol, names);
+                env.enclPkg.globalVars.add(listenerWithoutErrors);
+                BLangSimpleVarRef checkedRef = ASTBuilderUtil.createVariableRef(pos, listenerWithoutErrors.symbol);
+                listenerVarRef = checkedRef;
+            }
+
             //      (.<init>)              ->      y.__attach(x, {});
             // Find correct symbol.
+            BTypeSymbol listenerTypeSymbol = getListenerType(listenerVarRef.type).tsymbol;
             final Name functionName = names
-                    .fromString(Symbols.getAttachedFuncSymbolName(attachExpr.type.tsymbol.name.value, ATTACH_METHOD));
+                    .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, ATTACH_METHOD));
             BInvokableSymbol methodRef = (BInvokableSymbol) symResolver
-                    .lookupMemberSymbol(pos, ((BObjectTypeSymbol) listenerVarRef.type.tsymbol).methodScope, env,
-                            functionName, SymTag.INVOKABLE);
+                    .lookupMemberSymbol(pos, listenerTypeSymbol.scope, env, functionName, SymTag.INVOKABLE);
 
             // Create method invocation
             List<BLangExpression> args = new ArrayList<>();
-            args.add(ASTBuilderUtil.createVariableRef(pos, service.variableNode.symbol));
+            args.add(ASTBuilderUtil.createVariableRef(pos, service.serviceVariable.symbol));
 
-            BLangLiteral serviceName = ASTBuilderUtil.createLiteral(pos, symTable.stringType, service.name.value);
-            List<BLangNamedArgsExpression> namedArgs = Collections.singletonList(
-                    ASTBuilderUtil.createNamedArg("name", serviceName));
+            if (service.getServiceNameLiteral() == null) {
+                BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
+                        ASTBuilderUtil.createEmptyArrayLiteral(service.getPosition(), symTable.arrayStringType);
+                for (IdentifierNode path : service.getAbsolutePath()) {
+                    var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType,
+                            path.getValue());
+                    arrayLiteral.exprs.add(literal);
+                }
+                args.add(arrayLiteral);
+            } else {
+                args.add((BLangExpression) service.getServiceNameLiteral());
+            }
 
-            addMethodInvocation(pos, listenerVarRef, methodRef, args, namedArgs, attachments);
+            addMethodInvocation(pos, listenerVarRef, methodRef, args, attachments);
         }
     }
 
-    private void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
-                                     List<BLangExpression> args, List<BLangNamedArgsExpression> namedArgs,
+    private String generateServiceListenerVarName(BLangService service) {
+        return LISTENER + service.name.value + UNDERSCORE;
+    }
+
+    private BType getListenerTypeWithoutError(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            LinkedHashSet<BType> members = new LinkedHashSet<>();
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (types.isAssignable(memberType, symTable.errorType)) {
+                    continue;
+                }
+                members.add(memberType);
+            }
+            return BUnionType.create(null, members);
+        }
+        return type;
+    }
+
+    private BType getListenerType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (types.checkListenerCompatibility(memberType)) {
+                    return memberType;
+                }
+            }
+        }
+        return type;
+    }
+
+    private void addMethodInvocation(Location pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
+                                     List<BLangExpression> args,
                                      BlockNode body) {
         // Create method invocation
         final BLangInvocation methodInvocation =
                 ASTBuilderUtil.createInvocationExprForMethod(pos, methodRefSymbol, args, symResolver);
-        methodInvocation.expr = varRef;
+
+        // If listener contain errors we need to cast this to a listener type so that, attached function invocation
+        // call is generated in BIRGen. Casting to the first listener type should be fine as actual method invocation
+        // is based on the value rather than the type.
+        BType listenerType = getListenerType(varRef.type);
+        if (!types.isSameType(listenerType, varRef.type)) {
+            BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+            castExpr.expr = varRef;
+            castExpr.type = listenerType;
+            castExpr.targetType = castExpr.type;
+            methodInvocation.expr = castExpr;
+        } else {
+            methodInvocation.expr = varRef;
+        }
 
         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, methodInvocation, symTable.nilType);
         checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
@@ -192,12 +280,38 @@ public class ServiceDesugar {
     }
 
     void engageCustomServiceDesugar(BLangService service, SymbolEnv env) {
+        List<BType> expressionTypes = service.attachedExprs.stream().map(expression -> expression.type)
+                .collect(Collectors.toList());
         service.serviceClass.functions.stream().filter(fun -> Symbols.isFlagOn(fun.symbol.flags, Flags.RESOURCE))
-                .forEach(func -> engageCustomResourceDesugar(func, env));
+                .forEach(func -> engageCustomResourceDesugar(func, env, expressionTypes));
     }
 
-    private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env) {
-        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
-        httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
+    private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env, List<BType> expressionTypes) {
+        if (Symbols.isFlagOn(functionNode.symbol.flags, Flags.TRANSACTIONAL)) {
+            BLangExpressionStmt stmt = new BLangExpressionStmt(transactionDesugar
+                    .createBeginParticipantInvocation(functionNode.pos));
+            ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
+        }
+        if (httpFiltersDesugar.isHttpPackage(expressionTypes)) {
+            List<BLangStatement> statements = getFunctionBodyStatementList(functionNode);
+            httpFiltersDesugar.addFilterStatements((BLangResourceFunction) functionNode, env, statements);
+        }
+    }
+
+    private List<BLangStatement> getFunctionBodyStatementList(BLangFunction functionNode) {
+        List<BLangStatement> statements = null;
+        if (functionNode.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
+            BLangExprFunctionBody exprFunctionBody = (BLangExprFunctionBody) functionNode.body;
+            BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(functionNode.getPosition());
+            statements = blockStmt.stmts;
+
+            BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(
+                            blockStmt,
+                            exprFunctionBody.expr);
+            exprFunctionBody.expr = statementExpression;
+        } else {
+            statements = ((BLangBlockFunctionBody) functionNode.body).stmts;
+        }
+        return statements;
     }
 }

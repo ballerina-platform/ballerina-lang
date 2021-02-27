@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.bindingpattern.BindingPatternNode;
 /**
  * The interface with the APIs to implement the var-binding-pattern match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public interface VarBindingPatternMatchPatternNode extends Node {
 

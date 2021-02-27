@@ -42,8 +42,11 @@ public class BTypeIdSet {
     }
 
     public BTypeIdSet(Set<BTypeId> primary) {
-        this.primary = primary;
-        this.secondary = emptySet;
+        this(primary, new HashSet<>());
+    }
+
+    public BTypeIdSet() {
+        this(new HashSet<>(), new HashSet<>());
     }
 
     public static BTypeIdSet from(PackageID packageID, String typeId, boolean publicId) {
@@ -58,6 +61,13 @@ public class BTypeIdSet {
 
         HashSet<BTypeId> secondarySet = new HashSet<>(secondary.primary);
         secondarySet.addAll(secondary.secondary);
+
+        return new BTypeIdSet(primarySet, secondarySet);
+    }
+
+    public static BTypeIdSet from(PackageID packageID, String typeId, boolean publicId, Set<BTypeId> secondarySet) {
+        HashSet<BTypeId> primarySet = new HashSet<>();
+        primarySet.add(new BTypeId(packageID, typeId, publicId));
 
         return new BTypeIdSet(primarySet, secondarySet);
     }

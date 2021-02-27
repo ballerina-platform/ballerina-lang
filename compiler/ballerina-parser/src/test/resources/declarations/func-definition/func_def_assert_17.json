@@ -26,6 +26,10 @@
       ]
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "hasDiagnostics": true,
       "children": [

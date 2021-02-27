@@ -18,11 +18,11 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.4
  */
-@Test(enabled = false)
 public class ForeachErrorBindingPatternsTests {
 
     private CompileResult program, negative;
@@ -43,7 +42,7 @@ public class ForeachErrorBindingPatternsTests {
         negative = BCompileUtil.compile("test-src/statements/foreach/foreach_errors_negative.bal");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testArrayWithErrors() {
         BValue[] returns = BRunUtil.invoke(program, "testArrayWithErrors");
         Assert.assertEquals(returns.length, 3);
@@ -55,7 +54,7 @@ public class ForeachErrorBindingPatternsTests {
                 "Error One:Error Two:Error Three:Error One:Error Two:Error Three:");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMapWithErrors() {
         BValue[] returns = BRunUtil.invoke(program, "testMapWithErrors");
         Assert.assertEquals(returns.length, 3);

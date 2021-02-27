@@ -18,20 +18,20 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -156,7 +156,7 @@ public class LangLibTableTest {
 
     @Test
     public void testCompilerNegativeCases() {
-        assertEquals(negativeResult.getErrorCount(), 13);
+        assertEquals(negativeResult.getErrorCount(), 14);
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'table<Employee> " +
                 "key(name)', found 'table<Person> key<string>'", 68, 36);
@@ -165,7 +165,7 @@ public class LangLibTableTest {
         validateError(negativeResult, index++, "incompatible types: expected " +
                         "'object { public function next () returns (record {| Employee value; |}?); }', found " +
                         "'object { public function next () returns (record {| Person value; |}?); }'",
-                77, 83);
+                77, 92);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
                 "key<int>', found 'table<Person> key(name)'", 84, 12);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
@@ -184,8 +184,10 @@ public class LangLibTableTest {
                 "found 'record {| string name; int age; |}'", 148, 21);
         validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
                 "found 'record {| string name; int age; |}'", 157, 21);
-        validateError(negativeResult, index, "incompatible types: expected 'Employee', " +
+        validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
                 "found 'record {| string name; int age; |}'", 166, 21);
+        validateError(negativeResult, index, "cannot update 'table<Person> key(name)' with member " +
+                        "access expression", 177, 5);
     }
 
     @Test
@@ -427,5 +429,10 @@ public class LangLibTableTest {
     public void testPutValidDataToKeylessTbl() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidDataToKeylessTbl");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testReadOnlyTableFilter() {
+        BRunUtil.invoke(compileResult, "testReadOnlyTableFilter");
     }
 }

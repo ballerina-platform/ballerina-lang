@@ -1,8 +1,0 @@
-dist
-out
-node_modules
-.vscode-test/
-*.vsix
-resources/composer
-!.vscode
-coverage

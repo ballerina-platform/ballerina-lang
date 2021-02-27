@@ -31,11 +31,11 @@ configurations {
 }
 
 dependencies {
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 
-    baloCreat project(':lib-creator')
+    balaImplementation project(path: ':ballerina-runtime-api', configuration: 'balaImplementation')
+    balaImplementation project(path: ':ballerina-time', configuration: 'balaImplementation')
+
+    balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
@@ -51,7 +51,7 @@ dependencies {
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
 }
 
-createBalo {
+createBala {
     jvmTarget = 'true'
 }
 

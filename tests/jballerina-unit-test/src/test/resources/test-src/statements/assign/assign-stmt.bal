@@ -61,19 +61,19 @@ function testBinaryExpressionIntAndFloatStmt (int a) returns float {
 }
 
 public client class Client {
-    public remote function foo() returns [int, int] {
+    remote function foo() returns [int, int] {
         return [0, 0];
     }
 
-    public remote function foo1() returns record { string a; } {
+    remote function foo1() returns record { string a; } {
         return { a: "a" };
     }
 
-    public remote function foo2() returns error {
+    remote function foo2() returns error {
         return error("the error reason");
     }
 
-    public remote function foo3() returns error {
+    remote function foo3() returns error {
         return error("foo3 error", failedAttempts = 3);
     }
 }
@@ -119,7 +119,6 @@ function assignAnyToUnionWithErrorAndAny() {
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
-type AssertionError error;
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
@@ -130,7 +129,10 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
 
 function assertTrue(any|error actual) {

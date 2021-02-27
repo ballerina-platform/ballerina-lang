@@ -16,18 +16,19 @@
  */
 package org.ballerinalang.test.statements.assign;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Class to test lvalues of assignments.
@@ -77,7 +78,7 @@ public class LValueTest {
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 9);
         int i = 0;
         validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 13);
-        validateError(semanticsNegativeResult, i++, "undefined field 'y' in object 'A'", 27, 6);
+        validateError(semanticsNegativeResult, i++, "undefined field 'y' in object 'A'", 27, 7);
         validateError(semanticsNegativeResult, i++, "invalid operation: type 'A' does not support indexing", 28, 5);
         validateError(semanticsNegativeResult, i++, "invalid expr in compound assignment lhs", 38, 10);
         validateError(semanticsNegativeResult, i++, "invalid expr in compound assignment lhs", 39, 10);
@@ -216,5 +217,12 @@ public class LValueTest {
                     " 'l'\"\\}\n.*")
     public void testFillingReadOnRecordNegativeMemberAccessLvExpr() {
         BRunUtil.invoke(result, "testFillingReadOnRecordNegativeMemberAccessLvExpr");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
+        semanticsNegativeResult = null;
     }
 }

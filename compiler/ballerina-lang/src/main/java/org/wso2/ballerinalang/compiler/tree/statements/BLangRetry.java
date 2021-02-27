@@ -33,8 +33,8 @@ public class BLangRetry extends BLangStatement implements RetryNode {
 
     public BLangRetrySpec retrySpec;
     public BLangBlockStmt retryBody;
-    public boolean retryBodyReturns;
     public BLangOnFailClause onFailClause;
+    public BLangStatement commonStmtForRetries;
 
     public BLangRetrySpec getRetrySpec() {
         return retrySpec;

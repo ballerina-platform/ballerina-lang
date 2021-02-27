@@ -18,16 +18,17 @@
 
 package org.ballerinalang.test.expressions.literals;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -167,7 +168,7 @@ public class IdentifierLiteralTest {
                 BCompileUtil.compile("test-src/expressions/literals/identifierliteral/invalid_IL_special_char.bal");
         Assert.assertEquals(resultNeg.getErrorCount(), 12);
         BAssertUtil.validateError(resultNeg, 0, "no new variables on left side", 18, 5);
-        BAssertUtil.validateError(resultNeg, 1, "invalid intersection type '$missingNode$0 & *%_var = ': no " +
+        BAssertUtil.validateError(resultNeg, 1, "invalid intersection type '$missingNode$_0 & *%_var = ': no " +
                 "intersection", 18, 14);
         BAssertUtil.validateError(resultNeg, 2, "missing semicolon token", 18, 14);
         BAssertUtil.validateError(resultNeg, 3, "missing type desc", 18, 14);
@@ -204,11 +205,14 @@ public class IdentifierLiteralTest {
     public void testInvalidILUnicodeChar() {
         CompileResult resultNeg =
                 BCompileUtil.compile("test-src/expressions/literals/identifierliteral/invalid_IL_unicode_char.bal");
-        Assert.assertEquals(resultNeg.getErrorCount(), 4);
-        BAssertUtil.validateError(resultNeg, 0, "invalid token 'whiteSpace'", 18, 28);
-        BAssertUtil.validateError(resultNeg, 1, "undefined symbol ''", 19, 12);
-        BAssertUtil.validateError(resultNeg, 2, "missing plus token", 19, 17);
-        BAssertUtil.validateError(resultNeg, 3, "undefined symbol 'whiteSpace'", 19, 17);
+        Assert.assertEquals(resultNeg.getErrorCount(), 7);
+        BAssertUtil.validateError(resultNeg, 0, "incomplete quoted identifier", 18, 12);
+        BAssertUtil.validateError(resultNeg, 1, "missing semicolon token", 18, 17);
+        BAssertUtil.validateError(resultNeg, 2, "undefined symbol 'whiteSpace'", 18, 17);
+        BAssertUtil.validateError(resultNeg, 3, "incomplete quoted identifier", 19, 12);
+        BAssertUtil.validateError(resultNeg, 4, "undefined symbol ''", 19, 12);
+        BAssertUtil.validateError(resultNeg, 5, "missing plus token", 19, 17);
+        BAssertUtil.validateError(resultNeg, 6, "undefined symbol 'whiteSpace'", 19, 17);
     }
 
     @Test
@@ -266,4 +270,13 @@ public class IdentifierLiteralTest {
         BRunUtil.invoke(result, "testImmutableTypeIL");
     }
 
+    @Test(description = "Test IL with table type with quoted IL as key")
+    public void testILInTableType() {
+        BRunUtil.invoke(result, "testILInTableType");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+    }
 }

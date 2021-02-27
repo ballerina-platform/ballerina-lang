@@ -29,6 +29,10 @@
       "value": "foo"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -628,10 +632,6 @@
                       "value": "x",
                       "leadingMinutiae": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        },
-                        {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
                         },
@@ -692,10 +692,6 @@
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": " "
-                                    },
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
                                     }
                                   ]
                                 }
@@ -712,13 +708,7 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "name",
-                                          "leadingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "                "
-                                            }
-                                          ]
+                                          "value": "name"
                                         }
                                       ]
                                     },
@@ -806,10 +796,6 @@
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": " "
-                                            },
-                                            {
-                                              "kind": "END_OF_LINE_MINUTIAE",
-                                              "value": "\n"
                                             }
                                           ]
                                         }
@@ -828,13 +814,7 @@
                                           "children": [
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
-                                              "value": "xmlns",
-                                              "leadingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": "                "
-                                                }
-                                              ]
+                                              "value": "xmlns"
                                             }
                                           ]
                                         },
@@ -871,13 +851,7 @@
                                           ]
                                         },
                                         {
-                                          "kind": "DOUBLE_QUOTE_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "END_OF_LINE_MINUTIAE",
-                                              "value": "\n"
-                                            }
-                                          ]
+                                          "kind": "DOUBLE_QUOTE_TOKEN"
                                         }
                                       ]
                                     }
@@ -886,13 +860,7 @@
                               ]
                             },
                             {
-                              "kind": "SLASH_TOKEN",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "             "
-                                }
-                              ]
+                              "kind": "SLASH_TOKEN"
                             },
                             {
                               "kind": "GT_TOKEN"

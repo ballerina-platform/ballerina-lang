@@ -17,19 +17,20 @@
 */
 package org.ballerinalang.test.expressions.stamp;
 
-import org.ballerinalang.model.types.BAnydataType;
-import org.ballerinalang.model.types.BJSONType;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BRecordType;
-import org.ballerinalang.model.types.BStringType;
-import org.ballerinalang.model.types.BXMLType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.types.BAnydataType;
+import org.ballerinalang.core.model.types.BJSONType;
+import org.ballerinalang.core.model.types.BMapType;
+import org.ballerinalang.core.model.types.BRecordType;
+import org.ballerinalang.core.model.types.BStringType;
+import org.ballerinalang.core.model.types.BXMLType;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -228,5 +229,10 @@ public class AnydataStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.get("status").stringValue(), "single");
         Assert.assertEquals(mapValue.get("status").getType().getClass(), BStringType.class);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

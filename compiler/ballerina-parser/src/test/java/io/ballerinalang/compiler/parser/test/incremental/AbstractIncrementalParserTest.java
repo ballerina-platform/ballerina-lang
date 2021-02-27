@@ -17,15 +17,15 @@
  */
 package io.ballerinalang.compiler.parser.test.incremental;
 
+import io.ballerina.compiler.internal.parser.tree.STNode;
+import io.ballerina.compiler.internal.syntax.SyntaxUtils;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch;
 
 import java.nio.file.Path;

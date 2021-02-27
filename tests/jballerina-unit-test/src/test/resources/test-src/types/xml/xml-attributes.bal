@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 import ballerina/lang.'xml;
 
 xmlns "http://sample.com/wso2/a1" as ns0;
@@ -222,5 +222,9 @@ function mapOperationsOnXmlAttribute() returns [int?, string[]?, boolean] {
 function testPrintAttribMap() {
     xml x1 = xml `<Person name="Foo" />`;
     var attrMap = let var x2 = <'xml:Element> x1 in x2.getAttributes();
-    io:print(attrMap);
+    print(attrMap);
 }
+
+public function print(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

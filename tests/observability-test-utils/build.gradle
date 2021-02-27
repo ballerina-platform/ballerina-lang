@@ -15,28 +15,40 @@
  *
  */
 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
-
-configurations.all {
-    resolutionStrategy.preferProjectModules()
+configurations {
+    all {
+        resolutionStrategy.preferProjectModules()
+    }
+    jballerinaTools
+    testUtils {
+        transitive false
+    }
 }
 
 dependencies {
-    baloCreat project(':lib-creator')
+    balaCreat project(':lib-creator')
 
     shadow 'com.google.code.gson:gson'
     shadow project(':ballerina-core')
     shadow project(':ballerina-lang')
     shadow project(':ballerina-lang:annotations')
 
+    implementation 'io.netty:netty-codec-http'
     implementation 'io.opentracing:opentracing-mock'
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-java')
+    implementation project(':ballerina-lang:jballerina.java')
 
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
+
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-jdk14'
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
+
+    testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
+    jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
 }
 
 description = 'Ballerina - Observability - Tracing Test Utils'
@@ -54,6 +66,37 @@ shadowJar {
     }
 }
 
-createBalo {
-    jvmTarget = 'true'
+task updateVersion {
+    ant.replaceregexp(
+            file: "${projectDir}/src/main/ballerina/Ballerina.toml",
+            match: "${project.name}-(.*).jar",
+            replace: "${project.name}-${project.version}.jar"
+    )
+}
+
+ballerinaLangLibBuild {
+    pkgName = 'testobserve'
+    dependsOn compileJava
+    dependsOn updateVersion
+}
+
+test {
+    // make sure ballerina zip is built before test run
+    dependsOn ballerinaLangLibBuild
+    dependsOn ':jballerina-tools:build'
+    dependsOn shadowJar
+    systemProperty 'enableJBallerinaTests', 'true'
+
+    systemProperty 'basedir', "$buildDir"
+    systemProperty 'libdir', "$buildDir"
+    systemProperty 'server.zip', configurations.jballerinaTools.asPath
+    systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
+    systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
+    systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
+    systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
+    systemProperty 'observability.test.utils.bala', "$buildDir/ballerina-src/target/testobserve.zip"
+    systemProperty 'observability.test.utils.jar', tasks.shadowJar.archiveFile.get().asFile
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }

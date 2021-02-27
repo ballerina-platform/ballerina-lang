@@ -80,3 +80,82 @@ type UserData2 record {|
     int index;
     *Data;
 |};
+
+type Rec1 record {|
+    int i;
+    string...;
+|};
+
+type IncludingRec1 record {|
+    boolean b;
+    *Rec1;
+|};
+
+type Rec2 record {|
+    float f;
+    error...;
+|};
+
+type IncludingRec2 record {| // cannot use type inclusion with more than one open record
+    *Rec1;
+    *Rec2;
+|};
+
+type Rec3 record {|
+    int i;
+    string...;
+|};
+
+type Rec4 record {|
+    int j;
+    string...;
+|};
+
+type IncludingRec3 record {|
+    int k;
+    *Rec3;
+    *Rec4;
+|};
+
+type Rec5 record {
+    int i;
+};
+
+type Rec6 record {
+    int j;
+};
+
+type IncludingRec4 record {|
+    int k;
+    *Rec5;
+    *Rec6;
+|};
+
+function testRestTypeOverridingNegative() {
+    IncludingRec1 rec1 = {i: 1, b: false, "s": "str", "f": 3.02}; // incompatible types: expected 'string', found 'float'
+    IncludingRec3 rec2 = {i: 1, j: 2, k: 3, "s": error("Message")}; // incompatible types: expected 'string', found 'error'
+    IncludingRec4 rec3 = {i: 1, j: 2, k: 3, "s": error("Message")}; // incompatible types: expected 'anydata', found 'error'
+}
+
+type Rec7 record {|
+   int x;
+   string...;
+|};
+
+type Rec8 record {|
+   int y;
+   string...;
+|};
+
+type Rec9 record {|
+  Rec7...;
+|};
+
+type Rec10 record {|
+  Rec8...;
+|};
+
+type Baz record {| // // cannot use type inclusion with more than one open record
+  *Rec9;
+  *Rec10;
+|};

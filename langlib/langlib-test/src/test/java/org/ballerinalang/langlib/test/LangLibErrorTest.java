@@ -19,14 +19,14 @@
 package org.ballerinalang.langlib.test;
 
 
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BRefType;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -84,15 +84,15 @@ public class LangLibErrorTest {
         assertEquals(returns[0].getType().getTag(), TypeTags.OBJECT_TYPE_TAG);
         BRefType<?>[] callStacks = ((BValueArray) ((BMap) returns[0]).get("callStack")).getValues();
         assertEquals(callStacks[0].stringValue(), "{callableName:\"getError\", moduleName:\"errorlib_test\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:43}");
+                "fileName:\"errorlib_test.bal\", lineNumber:44}");
         assertEquals(callStacks[1].stringValue(), "{callableName:\"stack2\", moduleName:\"errorlib_test\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:86}");
+                "fileName:\"errorlib_test.bal\", lineNumber:87}");
         assertEquals(callStacks[2].stringValue(), "{callableName:\"stack1\", moduleName:\"errorlib_test\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:82}");
+                "fileName:\"errorlib_test.bal\", lineNumber:83}");
         assertEquals(callStacks[3].stringValue(), "{callableName:\"stack0\", moduleName:\"errorlib_test\", " +
-                "fileName:\"errorlib_test.bal\", lineNumber:78}");
+                "fileName:\"errorlib_test.bal\", lineNumber:79}");
         assertEquals(callStacks[4].stringValue(), "{callableName:\"getErrorStackTrace\", " +
-                "moduleName:\"errorlib_test\", fileName:\"errorlib_test.bal\", lineNumber:90}");
+                "moduleName:\"errorlib_test\", fileName:\"errorlib_test.bal\", lineNumber:91}");
     }
 
     @Test

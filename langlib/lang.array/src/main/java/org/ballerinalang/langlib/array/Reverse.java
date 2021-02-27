@@ -18,39 +18,41 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import org.ballerinalang.langlib.array.utils.ArrayUtils;
 
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.array:reverse((any|error)[]).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "reverse",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-        isPublic = true
-)
 public class Reverse {
 
-    public static ArrayValue reverse(Strand strand, ArrayValue arr) {
-        ArrayValue reversedArr = new ArrayValueImpl((BArrayType) arr.getType());
-        int elemTypeTag = reversedArr.getElementType().getTag();
-        int size = arr.size();
-
-        for (int i = size - 1, j = 0; i >= 0; i--, j++) {
+    public static BArray reverse(BArray arr) {
+        Type arrType = arr.getType();
+        BArray reversedArr;
+        switch (arrType.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                reversedArr = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
+                break;
+            case TypeTags.TUPLE_TAG:
+                reversedArr = ArrayUtils.createEmptyArrayFromTuple(arr);
+                break;
+            default:
+                throw createOpNotSupportedError(arrType, "reverse()");
+        }
+        for (int i = arr.size() - 1, j = 0; i >= 0; i--, j++) {
             reversedArr.add(j, arr.get(i));
         }
-
         return reversedArr;
+    }
+
+    private Reverse() {
     }
 }

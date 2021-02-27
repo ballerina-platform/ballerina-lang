@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'xml;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 type ItemType 'xml:Element|'xml:Comment|'xml:ProcessingInstruction|'xml:Text;
 
@@ -157,13 +157,13 @@ class PersonObj {
     function getObjectValueWithTypeDescParam(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
         name: "getObjectValue",
         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-        paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc"]
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
     } external;
 
     function getObjectValueWithParamTypes(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
         name: "getObjectValue",
         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-        paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.api.values.BTypedesc"]
+        paramTypes: ["io.ballerina.runtime.internal.values.ObjectValue", "io.ballerina.runtime.api.values.BTypedesc"]
     } external;
 }
 
@@ -236,94 +236,285 @@ function testFunctionAssignment() {
 function getValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getValue",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getRecord(typedesc<anydata> td = Person) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getRecord",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function query(string q, typedesc<anydata> rowType = int) returns map<rowType> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "query",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BString", "org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BString", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getTuple(typedesc<int|string> td1, typedesc<record {}> td2, typedesc<float|boolean> td3 = float) returns [td1, td2, td3] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTuple",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getVariedUnion(int x, typedesc<int|string> td1, typedesc<record{ string name; }> td2) returns (td1|td2) = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getVariedUnion",
-    paramTypes: ["long", "org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["long", "io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getArray(typedesc<anydata> td) returns td[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getArray",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getInvalidValue(typedesc<int|Person> td1, typedesc<Person> td2) returns td1 = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getInvalidValue",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getXML(typedesc<ItemType> td, xml value) returns xml<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getXML",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BXML"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BXml"]
 } external;
 
 function getStream(stream<anydata> value, typedesc<anydata> td) returns stream<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getStream",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BStream"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BStream"]
 } external;
 
 function getTable(table<anydata> value, typedesc<anydata> td) returns table<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTable",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.values.TableValue"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.internal.values.TableValue"]
 } external;
 
 function getFunction(function (string|int) returns anydata fn, typedesc<anydata> param, typedesc<anydata> ret)
                                                                 returns function (param) returns ret = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getFunction",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BTypedesc",
-                    "org.ballerinalang.jvm.api.values.BFunctionPointer"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc",
+                    "io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
 function getTypedesc(typedesc<anydata> td) returns typedesc<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTypedesc",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getFuture(future<anydata> f, typedesc<anydata> td) returns future<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getFuture",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BFuture"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BFuture"]
 } external;
 
 function echo(any val, typedesc<any> td) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "echo",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BValue"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BValue"]
 } external;
 
 function getValue2(typedesc<int|string> aTypeVar) returns aTypeVar = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getValue",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
+
+public type OutParameter object {
+    // This is OK, referencing classes/object constructors should have 'external' implementations.
+    public function get(typedesc<anydata> td) returns td|error;
+};
+
+public class OutParameterClass {
+    *OutParameter;
+
+    int a;
+    string b;
+    error c = error("not a nor b");
+
+    function init() {
+        self.a = 1234;
+        self.b = "hello world";
+    }
+
+    public function get(typedesc<anydata> td) returns td|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+var outParameterObject = object OutParameter {
+
+    int i = 321;
+
+    public isolated function get(typedesc<anydata> td) returns td|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getIntFieldOrDefault",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+};
+
+function testDependentlyTypedMethodsWithObjectTypeInclusion() {
+    OutParameterClass c1 = new;
+    int|error v1 = c1.get(int);
+    assert(1234, <int> checkpanic v1);
+    assertSame(c1.c, c1.get(float));
+    assert("hello world", <string> checkpanic c1.get(string));
+
+    assert(321, <int> checkpanic outParameterObject.get(int));
+    decimal|error v2 = outParameterObject.get(decimal);
+    assert(23.45d, <decimal> checkpanic v2);
+}
+
+public class Bar {
+    int i = 1;
+
+    public function get(typedesc<anydata> td) returns td|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getIntFieldOrDefault",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+public class Baz {
+    int i = 2;
+
+    public function get(typedesc<anydata> td) returns anydata|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getIntFieldOrDefault",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+public class Qux {
+    int i = 3;
+
+    public function get(typedesc<anydata> td) returns td|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getIntFieldOrDefault",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+public class Quux {
+    int i = 4;
+
+    public function get(typedesc<any> td) returns td|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getIntFieldOrDefault",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+class Corge {
+    int i = 100;
+
+    function get(typedesc<anydata> td2, typedesc<anydata> td) returns td2|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getValueForParamOne",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+class Grault {
+    int i = 200;
+
+    function get(typedesc<anydata> td, typedesc<anydata> td2) returns td|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getValueForParamOne",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+class Garply {
+    int i = 300;
+
+    function get(typedesc<anydata> td, typedesc<anydata> td2) returns td2|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getValueForParamOne",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
+}
+
+public function testSubtypingWithDependentlyTypedMethods() {
+    Bar bar = new;
+    Baz baz = new;
+    Qux qux = new;
+
+    assert(1, <int> checkpanic bar.get(int));
+    assert(2, <int> checkpanic baz.get(int));
+    assert(3, <int> checkpanic qux.get(int));
+    decimal|error v2 = bar.get(decimal);
+    assert(23.45d, <decimal> checkpanic v2);
+    anydata|error v3 = baz.get(decimal);
+    assert(23.45d, <decimal> checkpanic v3);
+    v2 = qux.get(decimal);
+    assert(23.45d, <decimal> checkpanic v2);
+
+    Baz baz1 = bar;
+    Bar bar1 = qux;
+    assert(1, <int> checkpanic baz1.get(int));
+    assert(3, <int> checkpanic bar1.get(int));
+
+    assert(true, <any> bar is Baz);
+    assert(true, <any> qux is Bar);
+    assert(true, <any> bar is Qux);
+    assert(false, <any> baz is Bar);
+    assert(false, <any> new Quux() is Qux);
+    assert(false, <any> qux is Quux);
+
+    Corge corge = new Grault();
+    assert(200, <int> checkpanic corge.get(int, string));
+    assert("Hello World!", <string> checkpanic corge.get(string, int));
+
+    Grault grault = new Corge();
+    assert(100, <int> checkpanic grault.get(int, string));
+    assert("Hello World!", <string> checkpanic grault.get(string, float));
+
+    assert(true, <any> new Corge() is Grault);
+    assert(true, <any> new Grault() is Corge);
+    assert(false, <any> new Corge() is Garply);
+    assert(false, <any> new Garply() is Corge);
+    assert(false, <any> new Grault() is Garply);
+    assert(false, <any> new Garply() is Grault);
+}
+
+function getWithDefaultableParams(int|string x, int|string y = 1, typedesc<int|string> z = int) returns z =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getWithDefaultableParams"
+    } external;
+
+function testDependentlyTypedFunctionWithDefaultableParams() {
+    int a = getWithDefaultableParams(1);
+    assert(2, a);
+
+    int b = getWithDefaultableParams("1");
+    assert(2, b);
+
+    string c = getWithDefaultableParams("hello", z = string);
+    assert("hello1", c);
+
+    string d = getWithDefaultableParams("hello", z = string, y = " world");
+    assert("hello world", d);
+
+    string e = getWithDefaultableParams(z = string, y = " world", x = "hello again");
+    assert("hello again world", e);
+
+    int f = getWithDefaultableParams(1, 2);
+    assert(3, f);
+
+    int g = getWithDefaultableParams(2, 2, int);
+    assert(4, g);
+
+    int h = getWithDefaultableParams(z = int, x = 101);
+    assert(102, h);
+}
 
 // Util functions
 function assert(anydata expected, anydata actual) {
@@ -336,10 +527,10 @@ function assert(anydata expected, anydata actual) {
     }
 }
 
-function assertSame(any expected, any actual) {
+function assertSame(any|error expected, any|error actual) {
     if (expected !== actual) {
-        typedesc<any> expT = typeof expected;
-        typedesc<any> actT = typeof actual;
+        typedesc<any|error> expT = typeof expected;
+        typedesc<any|error> actT = typeof actual;
         string detail = "expected value of type [" + expT.toString() + "] is not the same as actual value" +
                                 " of type [" + actT.toString() + "]";
         panic error("{AssertionError}", message = detail);

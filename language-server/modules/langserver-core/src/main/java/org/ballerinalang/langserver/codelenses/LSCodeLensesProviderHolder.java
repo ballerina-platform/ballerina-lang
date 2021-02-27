@@ -15,8 +15,11 @@
  */
 package org.ballerinalang.langserver.codelenses;
 
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
-import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
+import org.ballerinalang.langserver.config.ClientConfigListener;
+import org.ballerinalang.langserver.config.LSClientConfig;
+import org.ballerinalang.langserver.config.LSClientConfigHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,31 +27,49 @@ import java.util.ServiceLoader;
 
 /**
  * Loads and provides the Code Lenses Providers.
- * 
+ *
  * @since 0.990.3
  */
 public class LSCodeLensesProviderHolder {
-
-    private static final List<LSCodeLensesProvider> providers = new ArrayList<>();
-
-    private static final LSCodeLensesProviderHolder INSTANCE = new LSCodeLensesProviderHolder();
+    private static final List<LSCodeLensesProvider> codeLenses = new ArrayList<>();
+    private static final LanguageServerContext.Key<LSCodeLensesProviderHolder> CODE_LENSES_PROVIDER_HOLDER_KEY =
+            new LanguageServerContext.Key<>();
+    private final LanguageServerContext serverContext;
 
     private boolean isEnabled = true;
 
-    private LSCodeLensesProviderHolder() {
-        ServiceLoader<LSCodeLensesProvider> providers = ServiceLoader.load(LSCodeLensesProvider.class);
-        for (LSCodeLensesProvider executor : providers) {
-            if (executor != null && executor.isEnabled()) {
-                LSCodeLensesProviderHolder.providers.add(executor);
+    private LSCodeLensesProviderHolder(LanguageServerContext serverContext) {
+        serverContext.put(CODE_LENSES_PROVIDER_HOLDER_KEY, this);
+        loadServices();
+        LSClientConfigHolder.getInstance(serverContext).register(new ClientConfigListener() {
+            @Override
+            public void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig) {
+                isEnabled = newConfig.getCodeLens().getAll().isEnabled();
             }
-        }
-        LSClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
-            this.isEnabled = newConfig.getCodeLens().getAll().isEnabled();
         });
+        this.serverContext = serverContext;
     }
 
-    public static LSCodeLensesProviderHolder getInstance() {
-        return INSTANCE;
+    private void loadServices() {
+        if (!LSCodeLensesProviderHolder.codeLenses.isEmpty()) {
+            return;
+        }
+        ServiceLoader<LSCodeLensesProvider> providers = ServiceLoader.load(LSCodeLensesProvider.class);
+        for (LSCodeLensesProvider codeLens : providers) {
+            if (codeLens == null) {
+                continue;
+            }
+            LSCodeLensesProviderHolder.codeLenses.add(codeLens);
+        }
+    }
+
+    public static LSCodeLensesProviderHolder getInstance(LanguageServerContext serverContext) {
+        LSCodeLensesProviderHolder lsCodeLensesProviderHolder = serverContext.get(CODE_LENSES_PROVIDER_HOLDER_KEY);
+        if (lsCodeLensesProviderHolder == null) {
+            lsCodeLensesProviderHolder = new LSCodeLensesProviderHolder(serverContext);
+        }
+
+        return lsCodeLensesProviderHolder;
     }
 
     /**
@@ -67,8 +88,8 @@ public class LSCodeLensesProviderHolder {
      */
     public List<LSCodeLensesProvider> getProviders() {
         List<LSCodeLensesProvider> activeProviders = new ArrayList<>();
-        for (LSCodeLensesProvider provider : providers) {
-            if (provider != null && provider.isEnabled()) {
+        for (LSCodeLensesProvider provider : this.codeLenses) {
+            if (provider != null && provider.isEnabled(this.serverContext)) {
                 activeProviders.add(provider);
             }
         }

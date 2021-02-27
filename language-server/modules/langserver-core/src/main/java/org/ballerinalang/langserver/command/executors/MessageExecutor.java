@@ -15,12 +15,10 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
@@ -40,21 +38,21 @@ public class MessageExecutor implements LSCommandExecutor {
 
     /**
      * {@inheritDoc}
+     *
+     * @param context
      */
     @Override
-    public Object execute(LSContext context) throws LSCommandExecutorException {
+    public Object execute(ExecuteCommandContext context) {
         // Derive message type and message
         MessageType messageType = null;
         String message = "";
-        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
-            String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
-            String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
-            switch (argKey) {
+        for (CommandArgument arg : context.getArguments()) {
+            switch (arg.key()) {
                 case CommandConstants.ARG_KEY_MESSAGE_TYPE:
-                    messageType = MessageType.forValue(Integer.parseInt(argVal));
+                    messageType = MessageType.forValue(arg.valueAs(Integer.class));
                     break;
                 case CommandConstants.ARG_KEY_MESSAGE:
-                    message = argVal;
+                    message = arg.valueAs(String.class);
                     break;
                 default:
             }
@@ -63,7 +61,7 @@ public class MessageExecutor implements LSCommandExecutor {
         if (messageType == null || message.isEmpty()) {
             return new Object();
         }
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
+        LanguageClient client = context.getLanguageClient();
         client.showMessage(new MessageParams());
         notifyClient(client, messageType, message);
         return new Object();

@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -36,12 +37,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * A test implementation of the {@link org.ballerinalang.compiler.plugins.CompilerPlugin} interface.
  */
 @SupportedAnnotationPackages(
-        value = {"testOrg/functions", "testOrg/services", "testOrg/types"}
+        value = {"test/proj"}
 )
 public class TestCompilerPlugin extends AbstractCompilerPlugin {
 
@@ -58,7 +60,9 @@ public class TestCompilerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.SERVICE_ANN, serviceNode.getName().getValue(), annotations.size());
+        StringJoiner sb = new StringJoiner("/", "/", "");
+        ((BLangService) serviceNode).absoluteResourcePath.stream().map(i -> i.getValue()).forEach(sb::add);
+        addEvent(TestEvent.Kind.SERVICE_ANN, sb.toString(), annotations.size());
     }
 
     @Override

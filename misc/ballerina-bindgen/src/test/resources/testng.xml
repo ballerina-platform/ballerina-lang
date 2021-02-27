@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-bindgen-test-suit">
-    <test name="ballerina-bindgen-tests" preserve-order="true" parallel="true">
+    <test name="ballerina-bindgen-tests" preserve-order="true" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>

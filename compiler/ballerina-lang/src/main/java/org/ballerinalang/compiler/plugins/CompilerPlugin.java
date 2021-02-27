@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.compiler.plugins;
 
+import io.ballerina.projects.Project;
+import io.ballerina.projects.internal.model.Target;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
@@ -31,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -124,6 +128,17 @@ public interface CompilerPlugin {
     void process(AnnotationNode annotationNode, List<AnnotationAttachmentNode> annotations);
 
     /**
+     * Analyse Project.
+     * This triggers after the project gets compiled.
+     *
+     * @param project Project instance
+     * @return
+     */
+    default List<Diagnostic> codeAnalyze(Project project) {
+        return Collections.emptyList();
+    }
+
+    /**
      * Notifies when the code generated phase is completed.
      *
      * @param packageID  packageId of the generated code
@@ -131,6 +146,15 @@ public interface CompilerPlugin {
      */
     void codeGenerated(PackageID packageID, Path binaryPath);
 
+    /**
+     * Notifies when the code generated phase is completed.
+     *
+     * @param project Project instance
+     * @param target Target directory
+     */
+    default void codeGenerated(Project project, Target target) {
+
+    }
 
     /**
      * Notifies when the compiler starts executing compiler plugins for a particular module.

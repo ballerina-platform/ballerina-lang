@@ -17,16 +17,11 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
 
 import java.util.ArrayList;
 
@@ -35,14 +30,14 @@ import java.util.ArrayList;
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0",
-        functionName = "getElements",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML),
-                @Argument(name = "elemNames", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.__internal",
+//        functionName = "getElements",
+//        args = {@Argument(name = "BXML", type = TypeKind.XML),
+//                @Argument(name = "elemNames", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class GetElements {
 
 
@@ -53,12 +48,11 @@ public class GetElements {
      * Expected element name format.
      * elemNames: {nsUrl}elemName | elemName | {nsUrl}* | *
      *
-     * @param strand the stand
      * @param xmlVal the XML value
      * @param elemNames element names to select
      * @return sequence of elements matching given element names
      */
-    public static XMLValue getElements(Strand strand, XMLValue xmlVal, ArrayValue elemNames) {
+    public static BXml getElements(BXml xmlVal, BString[] elemNames) {
 
         ArrayList<String> nsList = new ArrayList<>();
         ArrayList<String> localNameList = new ArrayList<>();
@@ -69,14 +63,14 @@ public class GetElements {
             if (matchFilters(elemNames, nsList, localNameList, xmlVal.getElementName())) {
                 return xmlVal;
             }
-            return new XMLSequence();
+            return ValueCreator.createXmlSequence();
         }
 
-        ArrayList<BXML> selectedElements = new ArrayList<>();
-        if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
-            XMLSequence sequence = (XMLSequence) xmlVal;
-            for (BXML child : sequence.getChildrenList()) {
-                if (child.getNodeType() != XMLNodeType.ELEMENT) {
+        ArrayList<BXml> selectedElements = new ArrayList<>();
+        if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE) {
+            BXmlSequence sequence = (BXmlSequence) xmlVal;
+            for (BXml child : sequence.getChildrenList()) {
+                if (child.getNodeType() != XmlNodeType.ELEMENT) {
                     continue;
                 }
                 if (matchFilters(elemNames, nsList, localNameList, child.getElementName())) {
@@ -85,14 +79,14 @@ public class GetElements {
             }
         }
 
-        return new XMLSequence(selectedElements);
+        return ValueCreator.createXmlSequence(selectedElements);
     }
 
-    public static void destructureFilters(ArrayValue elemNames,
+    public static void destructureFilters(BString[] elemNames,
                                           ArrayList<String> nsList, ArrayList<String> localNameList) {
-        int filterCount = elemNames.size();
+        int filterCount = elemNames.length;
         for (int i = 0; i < filterCount; i++) {
-            String fullName = elemNames.getString(i);
+            String fullName = elemNames[i].getValue();
             int lastIndexOf = fullName.lastIndexOf('}');
             if (lastIndexOf < 0) {
                 nsList.add(EMPTY);
@@ -104,9 +98,9 @@ public class GetElements {
         }
     }
 
-    public static boolean matchFilters(ArrayValue elemNames,
+    public static boolean matchFilters(BString[] elemNames,
                                         ArrayList<String> nsList, ArrayList<String> elemList, String elementName) {
-        int filterCount = elemNames.size();
+        int filterCount = elemNames.length;
         for (int i = 0; i < filterCount; i++) {
             String ns = nsList.get(i);
             String eName = elemList.get(i);
@@ -122,7 +116,7 @@ public class GetElements {
                 }
             }
             // .<ns:foo> or .<foo>
-            if (elementName.equals(elemNames.getString(i))) {
+            if (elementName.equals(elemNames[i].getValue())) {
                 return true;
             }
         }

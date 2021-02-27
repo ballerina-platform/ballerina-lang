@@ -1,0 +1,63 @@
+{
+  "source": {
+    "file": "projectls/defmodsource2.bal"
+  },
+  "position": {
+    "line": 4,
+    "character": 17
+  },
+  "result": [
+    {
+      "uri": "projectls/modules/lsmod2/lsmod2.bal",
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 16
+        },
+        "end": {
+          "line": 2,
+          "character": 29
+        }
+      }
+    },
+    {
+      "uri": "projectls/modules/lsmod1/lsmod1.bal",
+      "range": {
+        "start": {
+          "line": 7,
+          "character": 11
+        },
+        "end": {
+          "line": 7,
+          "character": 24
+        }
+      }
+    },
+    {
+      "uri": "projectls/modules/lsmod3/lsmod3.bal",
+      "range": {
+        "start": {
+          "line": 4,
+          "character": 11
+        },
+        "end": {
+          "line": 4,
+          "character": 24
+        }
+      }
+    },
+    {
+      "uri": "projectls/defmodsource2.bal",
+      "range": {
+        "start": {
+          "line": 4,
+          "character": 11
+        },
+        "end": {
+          "line": 4,
+          "character": 24
+        }
+      }
+    }
+  ]
+}

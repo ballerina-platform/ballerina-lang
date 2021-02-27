@@ -17,19 +17,20 @@
 */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.TupleValueImpl;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -45,7 +46,8 @@ public class FunctionSignatureTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/functions/different-function-signatures.bal");
-        pkgResult = BCompileUtil.compile(this, "test-src/functions/TestProj", "a.b");
+//        pkgResult = BCompileUtil.compile("test-src/functions/TestProj", "a.b");
+        pkgResult = BCompileUtil.compile("test-src/functions/testproj");
     }
 
     @Test
@@ -381,7 +383,8 @@ public class FunctionSignatureTest {
 
     @Test()
     public void testOptionalArgsInNativeFunc() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/functions/TestProj", "foo.bar");
+//        CompileResult result = BCompileUtil.compile("test-src/functions/TestProj", "foo.bar");
+        CompileResult result = BCompileUtil.compile("test-src/functions/testproj");
         BValue[] returns = BRunUtil.invoke(result, "testOptionalArgsInNativeFunc");
 
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -433,10 +436,11 @@ public class FunctionSignatureTest {
     }
 
     public static ArrayValue mockedNativeFuncWithOptionalParams(long a, double b,
-                                                                org.ballerinalang.jvm.api.values.BString c, long d,
-                                                                org.ballerinalang.jvm.api.values.BString e) {
+                                                                io.ballerina.runtime.api.values.BString c, long d,
+                                                                io.ballerina.runtime.api.values.BString e) {
         BTupleType tupleType = new BTupleType(
-                Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
+                Arrays.asList(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_STRING,
+                              PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
         ArrayValue tuple = new TupleValueImpl(tupleType);
         tuple.add(0, Long.valueOf(a));
         tuple.add(1, Double.valueOf(b));
@@ -454,5 +458,11 @@ public class FunctionSignatureTest {
     @Test(description = "Test2: function signature which has a function typed param with only rest param")
     public void testFunctionWithFunctionTypedParamWithOnlyRestParam2() {
         BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithRest2");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        pkgResult = null;
     }
 }

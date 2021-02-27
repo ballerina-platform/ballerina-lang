@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 
@@ -45,6 +46,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
@@ -58,7 +60,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
     public List<BLangConstant> constants;
-    public List<BLangSimpleVariable> globalVars;
+    public List<BLangVariable> globalVars;
     public List<BLangService> services;
     public List<BLangFunction> functions;
     public List<BLangTypeDefinition> typeDefinitions;
@@ -71,6 +73,9 @@ public class BLangPackage extends BLangNode implements PackageNode {
     // Queue to maintain lambda functions so that we can visit all lambdas at the end of the semantic phase
     public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
     public List<BLangClassDefinition> classDefinitions;
+
+    // Hold global variable dependencies identified in DataflowAnalyzer.
+    public Map<BSymbol, Set<BVarSymbol>> globalVariableDependencies;
 
     public PackageID packageID;
     public BPackageSymbol symbol;
@@ -129,7 +134,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<BLangSimpleVariable> getGlobalVariables() {
+    public List<BLangVariable> getGlobalVariables() {
         return globalVars;
     }
 
@@ -228,7 +233,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
      * @return testable package
      */
     public BLangTestablePackage getTestablePkg() {
-        return testablePkgs.stream().findAny().get();
+        return testablePkgs.stream().findAny().orElse(null);
     }
 
     /**

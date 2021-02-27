@@ -18,23 +18,16 @@ package org.ballerinalang.datamapper.codeaction;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.ballerinalang.datamapper.util.FileUtils;
 import org.ballerinalang.datamapper.util.TestUtil;
-import org.ballerinalang.datamapper.utils.HttpClientRequest;
-import org.ballerinalang.datamapper.utils.HttpResponse;
-import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.eclipse.lsp4j.CodeActionContext;
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.testng.PowerMockTestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -43,63 +36,72 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
-import static org.mockito.Matchers.any;
+import static org.ballerinalang.datamapper.util.DataMapperTestUtils.getCodeActionResponse;
+
 
 /**
  * Test Cases for CodeActions.
  *
  * @since 2.0.0
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(HttpClientRequest.class)
-public class CodeActionTest extends PowerMockTestCase {
+public class CodeActionTest {
 
-    private Endpoint serviceEndpoint;
-
-    private JsonParser parser = new JsonParser();
-
-    private Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
-
+    private static Endpoint serviceEndpoint;
     private static final Logger log = LoggerFactory.getLogger(CodeActionTest.class);
-    private static final int HTTP_200_OK = 200;
-    private static final int HTTP_422_UN_PROCESSABLE_ENTITY = 422;
-    private static final int HTTP_500_INTERNAL_SERVER_ERROR = 500;
+    private static Server server;
 
     @BeforeClass
-    private void init() {
-        this.serviceEndpoint = TestUtil.initializeLanguageSever();
-        String startConfigPath = "codeaction" + File.separator + "config" + File.separator + "startConfig.json";
+    private void init() throws Exception {
+        serviceEndpoint = TestUtil.initializeLanguageSever();
+        String startConfigPath = "codeaction" + File.separator + "config" + File.separator +
+                "startConfig.json";
         JsonObject configs = FileUtils.fileContentAsObject(startConfigPath);
         TestUtil.setWorkspaceConfig(serviceEndpoint, configs);
+
+        class HelloWorldHandler extends AbstractHandler {
+
+            String responseData = "{\"answer\":{\"maths\":\"student.grades.maths\",\"chemistry\":" +
+                    "\"student.grades.chemistry\",\"physics\":\"student.grades.physics\"}}";
+
+            int responseCode = 200;
+
+            @Override
+            public void handle(String target, Request jettyRequest, HttpServletRequest request,
+                               HttpServletResponse response) throws IOException {
+                // Mark the request as handled by this Handler.
+                jettyRequest.setHandled(true);
+
+                response.setStatus(responseCode);
+                response.setContentType("text/html; charset=UTF-8");
+                response.getWriter().print(responseData);
+            }
+        }
+
+        server = new Server(8080);
+        Connector connector = new ServerConnector(server);
+        server.addConnector(connector);
+
+        // Set the Hello World Handler.
+        server.setHandler(new HelloWorldHandler());
+        server.start();
     }
 
     @Test(dataProvider = "codeAction-data-mapper-data-provider")
     public void testDataMapperCodeAction(String config, String source) throws Exception {
-        // Mocking server response
-        String responseData = "{\"answer\":\"\\nfunction mapStudentToGrades (Student student) " +
-                "returns Grades {\\n// Some record fields might be missing in the AI based mapping.\\n\\t" +
-                "Grades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, " +
-                "physics: student.grades.physics};\\n\\treturn grades;\\n}\"}";
-        HttpResponse httpResponse = new HttpResponse(responseData, HTTP_200_OK);
-        PowerMockito.spy(HttpClientRequest.class);
-        PowerMockito.doReturn(httpResponse).when(HttpClientRequest.class, "doPost", any(String.class),
-                any(String.class), any(Map.class));
 
         // Read expected results
         String configJsonPath = "codeaction" + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
-        String title = expectedResponse.get("title").getAsString();
 
         // Get code action from language server
-        JsonObject responseJson = getCodeActionResponse(source, configJsonObject);
+        JsonObject responseJson = getCodeActionResponse(source, configJsonObject, serviceEndpoint);
+
+        JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
+        String title = expectedResponse.get("title").getAsString();
 
         int numberOfDataMappingCodeAction = 0;
         boolean codeActionFound = false;
@@ -121,27 +123,21 @@ public class CodeActionTest extends PowerMockTestCase {
         if (codeActionFound && numberOfDataMappingCodeAction == 1) {
             codeActionFoundOnlyOnce = true;
         }
-        Assert.assertTrue(codeActionFoundOnlyOnce,
-                "Cannot find expected Code Action for: " + title);
+        Assert.assertTrue(
+                codeActionFoundOnlyOnce, "Cannot find expected Code Action for: " + title);
     }
 
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-un-processable-data")
-    public void testDataMapperCodeActionWithUnProcessableData(String config, String source) throws Exception {
-        // Mocking server response
-        String responseData = "";
-        HttpResponse httpResponse = new HttpResponse(responseData, HTTP_422_UN_PROCESSABLE_ENTITY);
-        PowerMockito.spy(HttpClientRequest.class);
-        PowerMockito.doReturn(httpResponse).when(HttpClientRequest.class, "doPost", any(String.class),
-                any(String.class), any(Map.class));
-
+    @Test(dataProvider = "restricted-codeAction-data-mapper-data-provider")
+    public void testRestrictedDataMapperCodeAction(String config, String source) throws Exception {
         // Read expected results
         String configJsonPath = "codeaction" + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
-        String title = expectedResponse.get("title").getAsString();
 
         // Get code action from language server
-        JsonObject responseJson = getCodeActionResponse(source, configJsonObject);
+        JsonObject responseJson = getCodeActionResponse(source, configJsonObject, serviceEndpoint);
+
+        JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
+        String title = expectedResponse.get("title").getAsString();
 
         boolean codeActionFound = false;
         for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
@@ -154,96 +150,53 @@ public class CodeActionTest extends PowerMockTestCase {
                 codeActionFound = true;
             }
         }
-        Assert.assertFalse(codeActionFound, "Returned an invalid code action");
+        Assert.assertFalse(
+                codeActionFound, "Cannot find expected Code Action for: " + title);
     }
 
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-server-error")
-    public void testDataMapperCodeActionWithServerError(String config, String source) throws Exception {
-        // Mocking server response
-        String responseData = "";
-        HttpResponse httpResponse = new HttpResponse(responseData, HTTP_500_INTERNAL_SERVER_ERROR);
-        PowerMockito.spy(HttpClientRequest.class);
-        PowerMockito.doReturn(httpResponse).when(HttpClientRequest.class, "doPost", any(String.class),
-                any(String.class), any(Map.class));
-
-        // Read expected results
-        String configJsonPath = "codeaction" + File.separator + config;
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
-        String title = expectedResponse.get("title").getAsString();
-
-        // Get code action from language server
-        JsonObject responseJson = getCodeActionResponse(source, configJsonObject);
-
-        boolean codeActionFound = false;
-        for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
-            JsonElement right = jsonElement.getAsJsonObject().get("right");
-            JsonElement editText = right.getAsJsonObject().get("edit");
-            if (editText == null) {
-                continue;
-            }
-            if (right.getAsJsonObject().get("title").getAsString().equals(title)) {
-                codeActionFound = true;
-            }
-        }
-        Assert.assertFalse(codeActionFound,
-                "Returned an invalid code action");
-    }
 
     @DataProvider(name = "codeAction-data-mapper-data-provider")
     public Object[][] codeActionDataMapperDataProvider() {
         log.info("Test textDocument/codeAction QuickFixes");
         return new Object[][]{
                 {"dataMapper1.json", "dataMapper1.bal"},
-                {"dataMapper1.json", "dataMapper1.bal"},
                 {"dataMapper2.json", "dataMapper2.bal"},
+                {"dataMapper3.json", "dataMapper3.bal"},
                 {"dataMapper4.json", "dataMapper4.bal"},
                 {"dataMapper5.json", "dataMapper5.bal"},
+                {"dataMapper7.json", "dataMapper7.bal"},
+                {"dataMapper8.json", "dataMapper8.bal"},
+                {"dataMapper9.json", "dataMapper9.bal"},
+                {"dataMapper10.json", "dataMapper10.bal"},
+                {"module-response/defaultDataMapper1.json", "datamapper-module-test/defaultDataMapper1.bal"},
+                {"module-response/defaultDataMapper2.json", "datamapper-module-test/defaultDataMapper2.bal"},
+                {"module-response/defaultDataMapper3.json", "datamapper-module-test/defaultDataMapper3.bal"},
+                {"module-response/defaultDataMapper4.json", "datamapper-module-test/defaultDataMapper4.bal"},
+                {"module-response/moduleDataMapper1.json",
+                        "datamapper-module-test/modules/module1/moduleDataMapper1.bal"},
+                {"module-response/moduleDataMapper2.json",
+                        "datamapper-module-test/modules/module2/moduleDataMapper2.bal"},
+                {"module-response/moduleDataMapper3.json",
+                        "datamapper-module-test/modules/module3/moduleDataMapper3.bal"},
         };
     }
 
-    @DataProvider(name = "codeAction-data-mapper-data-provider-un-processable-data")
-    public Object[][] codeActionDataMapperDataProviderUnProcessableData() {
+    @DataProvider(name = "restricted-codeAction-data-mapper-data-provider")
+    public Object[][] restrictedCodeActionDataMapperDataProvider() {
         log.info("Test textDocument/codeAction QuickFixes");
         return new Object[][]{
-                {"dataMapper3.json", "dataMapper3.bal"},
+                {"dataMapper6.json", "dataMapper6.bal"},
         };
     }
 
-    @DataProvider(name = "codeAction-data-mapper-data-provider-server-error")
-    public Object[][] codeActionDataMapperDataProviderServerError() {
-        log.info("Test textDocument/codeAction QuickFixes");
-        return new Object[][]{
-                {"dataMapper3.json", "dataMapper3.bal"},
-        };
-    }
-
-
-        @AfterClass
+    @AfterClass
     private void cleanupLanguageServer() {
-        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
-    }
-
-    private JsonObject getResponseJson(String response) {
-        JsonObject responseJson = parser.parse(response).getAsJsonObject();
-        responseJson.remove("id");
-        return responseJson;
-    }
-
-    private JsonObject getCodeActionResponse(String source, JsonObject configJsonObject) throws IOException,
-            CompilationFailedException {
-        Position position = new Position(configJsonObject.get("line").getAsInt(),
-                configJsonObject.get("character").getAsInt());
-        Range range = new Range(position, position);
-        Path sourcePath = sourcesPath.resolve("source").resolve(source);
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-        List<Diagnostic> diagnostics = new ArrayList<>(
-                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath)));
-        CodeActionContext codeActionContext = new CodeActionContext(diagnostics);
-        String response =
-                TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
-
-        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
-        return this.getResponseJson(response);
+        TestUtil.shutdownLanguageServer(serviceEndpoint);
+        try {
+            server.stop();
+            server.destroy();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 }

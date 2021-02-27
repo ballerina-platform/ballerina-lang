@@ -57,5 +57,6 @@ public class DoStatementTest extends AbstractStatementTest {
     @Test
     public void testDoWithMissingDoKeyword() {
         testFile("do-stmt/do_stmt_source_07.bal", "do-stmt/do_stmt_assert_07.json");
+        testFile("do-stmt/do_stmt_source_08.bal", "do-stmt/do_stmt_assert_08.json");
     }
 }

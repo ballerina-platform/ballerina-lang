@@ -20,7 +20,9 @@ package org.ballerinalang.test.runtime.entity;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Final test report with coverage (if enabled).
@@ -75,8 +77,10 @@ public class TestReport {
     }
 
     public void addCoverage(String moduleName, ModuleCoverage coverage) {
-        coverage.setName(moduleName);
-        this.moduleCoverage.add(coverage);
+        if (coverage != null) {
+            coverage.setName(moduleName);
+            this.moduleCoverage.add(coverage);
+        }
     }
 
     public void setOrgName(String orgName) {
@@ -111,9 +115,35 @@ public class TestReport {
                 missedLines += modCov.getMissedLines();
                 float coverageVal = (float) coveredLines / (coveredLines + missedLines) * 100;
                 coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
-
             }
         }
+
+        // For each module coverage, check if there is a module status as well
+        // If module status doesnt exist, it doesnt show up in the HTML report
+        for (ModuleCoverage modCov : moduleCoverage) {
+            boolean doesExist = false;
+
+            for (ModuleStatus modStatus : moduleStatus) {
+                if (modCov.getName().equals(modStatus.getName())) {
+                    doesExist = true;
+                }
+            }
+
+            if (!doesExist) {
+                ModuleStatus missingModuleStatus = new ModuleStatus();
+                missingModuleStatus.setName(modCov.getName());
+                moduleStatus.add(missingModuleStatus);
+            }
+        }
+
+        // sort the module list to be in the alphabetical order
+        moduleStatus = moduleStatus.stream()
+                .sorted(Comparator.comparing(ModuleStatus::getName))
+                .collect(Collectors.toList());
+
+        moduleCoverage = moduleCoverage.stream()
+                .sorted(Comparator.comparing(ModuleCoverage::getName))
+                .collect(Collectors.toList());
     }
 
     public float getCoveragePercentage() {

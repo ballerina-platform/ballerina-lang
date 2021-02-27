@@ -17,15 +17,16 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
-import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -38,14 +39,17 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -54,7 +58,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,7 +91,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private final Types types;
     private BLangDiagnosticLog dlog;
 
-    private DiagnosticPos defaultPos;
+    private Location defaultPos;
     private CompilerContext context;
     private List<CompilerPlugin> pluginList;
     private Map<DefinitionID, Set<CompilerPlugin>> processorMap;
@@ -128,6 +131,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public BLangPackage runPlugins(BLangPackage pkgNode) {
+        this.dlog.setCurrentPackageId(pkgNode.packageID);
         this.defaultPos = pkgNode.pos;
         loadPlugins();
         pkgNode.accept(this);
@@ -167,7 +171,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         try {
             consumer.accept(arg);
         } catch (Throwable e) {
-            dlog.warning(pkgNode.pos, DiagnosticCode.COMPILER_PLUGIN_ERROR);
+            dlog.warning(pkgNode.pos, DiagnosticWarningCode.COMPILER_PLUGIN_ERROR);
             printErrorLog(e);
             failedPlugins.add(plugin);
         }
@@ -223,6 +227,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
+        // Skip service classes generated for service-decl as they are processed via service annot.
+        if (classDefinition.isServiceDecl) {
+            return;
+        }
         List<BLangAnnotationAttachment> attachmentList = classDefinition.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(classDefinition, list));
     }
@@ -230,6 +238,21 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         List<BLangAnnotationAttachment> attachmentList = varNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(varNode, list));
+    }
+
+    @Override
+    public void visit(BLangTupleVariable tupleVariableNode) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        /* ignore */
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
@@ -325,7 +348,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             try {
                 notifier.accept(processor, Collections.unmodifiableList(list));
             } catch (Throwable e) {
-                dlog.warning((DiagnosticPos) list.get(0).getPosition(), DiagnosticCode.COMPILER_PLUGIN_ERROR);
+                dlog.warning(list.get(0).getPosition(), DiagnosticWarningCode.COMPILER_PLUGIN_ERROR);
                 printErrorLog(e);
                 failedPlugins.add(processor);
             }

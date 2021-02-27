@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.AttachPoint;
-import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -89,13 +88,4 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
         this.expr = (BLangExpression) expression;
     }
 
-    @Override
-    public Symbol getSymbol() {
-        return this.annotationSymbol;
-    }
-
-    @Override
-    public void setSymbol(Symbol symbol) {
-        this.annotationSymbol = (BAnnotationSymbol) symbol;
-    }
 }

@@ -1,4 +1,5 @@
 var objCreatedViaConstructor = object
-    int n;
-    function foo() {}
-;
+                                   int n;
+                                   function foo() {
+                                   }
+                               ;

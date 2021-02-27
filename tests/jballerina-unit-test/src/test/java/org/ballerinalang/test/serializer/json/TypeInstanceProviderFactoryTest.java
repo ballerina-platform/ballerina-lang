@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.serializer.json;
 
-import org.ballerinalang.model.util.serializer.TypeInstanceProvider;
-import org.ballerinalang.model.util.serializer.TypeInstanceProviderFactory;
+import org.ballerinalang.core.model.util.serializer.TypeInstanceProvider;
+import org.ballerinalang.core.model.util.serializer.TypeInstanceProviderFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

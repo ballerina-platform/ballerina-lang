@@ -15,50 +15,57 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.BalFuture;
-import org.ballerinalang.jvm.api.values.BDecimal;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BFuture;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BTypedesc;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.BmpStringValue;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.jvm.values.ListInitialValueEntry;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.StringValue;
-import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.jvm.values.TupleValueImpl;
-import org.ballerinalang.jvm.values.TypedescValue;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Future;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.BmpStringValue;
+import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.HandleValue;
+import io.ballerina.runtime.internal.values.ListInitialValueEntry;
+import io.ballerina.runtime.internal.values.MapValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.internal.values.StringValue;
+import io.ballerina.runtime.internal.values.TableValue;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
+import io.ballerina.runtime.internal.values.TypedescValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -70,10 +77,11 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class StaticMethods {
 
-    private static final BArrayType intArrayType = new BArrayType(BTypes.typeInt);
-    private static final BArrayType jsonArrayType = new BArrayType(BTypes.typeJSON);
+    private static final BArrayType intArrayType = new BArrayType(PredefinedTypes.TYPE_INT);
+    private static final BArrayType jsonArrayType = new BArrayType(PredefinedTypes.TYPE_JSON);
     private static final BTupleType tupleType = new BTupleType(
-            Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
+            Arrays.asList(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_STRING,
+                          PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
 
     private StaticMethods() {
     }
@@ -107,7 +115,7 @@ public class StaticMethods {
 
     // This scenario is for map value to be passed to interop and return array value.
     public static ArrayValue getArrayValueFromMap(BString key, MapValue mapValue) {
-        ArrayValue arrayValue = (ArrayValue) BValueCreator.createArrayValue(intArrayType);
+        ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);
         long fromMap = (long) mapValue.get(key);
         arrayValue.add(1, fromMap);
@@ -116,14 +124,14 @@ public class StaticMethods {
 
     public static BMap<BString, Object> acceptRefTypesAndReturnMap(ObjectValue a, ArrayValue b, Object c,
                                                                    ErrorValue d, Object e, Object f, MapValue g) {
-        BMap<BString, Object> mapValue = BValueCreator.createMapValue();
-        mapValue.put(BStringUtils.fromString("a"), a);
-        mapValue.put(BStringUtils.fromString("b"), b);
-        mapValue.put(BStringUtils.fromString("c"), c);
+        BMap<BString, Object> mapValue = ValueCreator.createMapValue();
+        mapValue.put(StringUtils.fromString("a"), a);
+        mapValue.put(StringUtils.fromString("b"), b);
+        mapValue.put(StringUtils.fromString("c"), c);
 //        mapValue.put("d", d);
-        mapValue.put(BStringUtils.fromString("e"), e);
-        mapValue.put(BStringUtils.fromString("f"), f);
-        mapValue.put(BStringUtils.fromString("g"), g);
+        mapValue.put(StringUtils.fromString("e"), e);
+        mapValue.put(StringUtils.fromString("f"), f);
+        mapValue.put(StringUtils.fromString("g"), g);
         return mapValue;
     }
 
@@ -132,7 +140,7 @@ public class StaticMethods {
     }
 
     public static BError acceptStringErrorReturn(BString msg) {
-        return BErrorCreator.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return ErrorCreator.createError(msg, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
     public static Object acceptIntUnionReturn(int flag) {
@@ -149,16 +157,16 @@ public class StaticMethods {
     }
 
     public static ObjectValue acceptObjectAndObjectReturn(ObjectValue p, int newVal) {
-        p.set(BStringUtils.fromString("age"), newVal);
+        p.set(StringUtils.fromString("age"), newVal);
         return p;
     }
 
     public static int acceptObjectAndReturnField(ObjectValue p) {
-        return ((Long) p.get(BStringUtils.fromString("age"))).intValue();
+        return ((Long) p.get(StringUtils.fromString("age"))).intValue();
     }
 
     public static MapValue acceptRecordAndRecordReturn(MapValue e, BString newVal) {
-        e.put(BStringUtils.fromString("name"), newVal);
+        e.put(StringUtils.fromString("name"), newVal);
         return e;
     }
 
@@ -229,7 +237,7 @@ public class StaticMethods {
 
     public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(BString key, MapValue mapValue)
             throws JavaInteropTestCheckedException {
-        ArrayValue arrayValue = (ArrayValue) BValueCreator.createArrayValue(intArrayType);
+        ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);
         long fromMap = mapValue.getIntValue(key);
         arrayValue.add(1, fromMap);
@@ -242,19 +250,19 @@ public class StaticMethods {
                                                                                               Object f,
                                                                                               MapValue g)
             throws JavaInteropTestCheckedException {
-        BMap<BString, Object> mapValue = BValueCreator.createMapValue();
-        mapValue.put(BStringUtils.fromString("a"), a);
-        mapValue.put(BStringUtils.fromString("b"), b);
-        mapValue.put(BStringUtils.fromString("c"), c);
-        mapValue.put(BStringUtils.fromString("e"), e);
-        mapValue.put(BStringUtils.fromString("f"), f);
-        mapValue.put(BStringUtils.fromString("g"), g);
+        BMap<BString, Object> mapValue = ValueCreator.createMapValue();
+        mapValue.put(StringUtils.fromString("a"), a);
+        mapValue.put(StringUtils.fromString("b"), b);
+        mapValue.put(StringUtils.fromString("c"), c);
+        mapValue.put(StringUtils.fromString("e"), e);
+        mapValue.put(StringUtils.fromString("f"), f);
+        mapValue.put(StringUtils.fromString("g"), g);
         return mapValue;
     }
 
     public static BError acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
             throws JavaInteropTestCheckedException {
-        return BErrorCreator.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return ErrorCreator.createError(msg, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
@@ -273,41 +281,46 @@ public class StaticMethods {
 
     public static ObjectValue acceptObjectAndObjectReturnWhichThrowsCheckedException(ObjectValue p, int newVal)
             throws JavaInteropTestCheckedException {
-        p.set(BStringUtils.fromString("age"), newVal);
+        p.set(StringUtils.fromString("age"), newVal);
         return p;
     }
 
     public static MapValue acceptRecordAndRecordReturnWhichThrowsCheckedException(
             MapValue<BString, Object> e, BString newVal) throws JavaInteropTestCheckedException {
-        e.put(BStringUtils.fromString("name"), newVal);
+        e.put(StringUtils.fromString("name"), newVal);
         return e;
     }
 
     public static BMap getMapOrError(BString swaggerFilePath, MapValue apiDef)
             throws JavaInteropTestCheckedException {
-        BString finalBasePath = BStringUtils.fromString("basePath");
+        BString finalBasePath = StringUtils.fromString("basePath");
         AtomicLong runCount = new AtomicLong(0L);
-        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BValueCreator.createRecordValue(new BPackage(
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(ValueCreator.createRecordValue(new Module(
                 "", "."), "ResourceDefinition").getType()));
-        BMap apiDefinitions = BValueCreator.createRecordValue(new BPackage("",
-                                                                           "."), "ApiDefinition");
-        BMap resource = BValueCreator.createRecordValue(new BPackage("",
-                                                                             "."), "ResourceDefinition");
-        resource.put(BStringUtils.fromString("path"), finalBasePath);
-        resource.put(BStringUtils.fromString("method"), BStringUtils.fromString("Method string"));
+        BMap apiDefinitions = ValueCreator.createRecordValue(new Module("",
+                                                                        "."), "ApiDefinition");
+        BMap resource = ValueCreator.createRecordValue(new Module("",
+                                                                  "."), "ResourceDefinition");
+        resource.put(StringUtils.fromString("path"), finalBasePath);
+        resource.put(StringUtils.fromString("method"), StringUtils.fromString("Method string"));
         arrayValue.add(runCount.getAndIncrement(), resource);
-        apiDefinitions.put(BStringUtils.fromString("resources"), arrayValue);
+        apiDefinitions.put(StringUtils.fromString("resources"), arrayValue);
         return apiDefinitions;
+    }
+
+    public static Object returnObjectOrError() {
+        return ErrorCreator.createError(StringUtils.fromString("some reason"),
+                                        new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
     public static TupleValueImpl getArrayValue() throws BallerinaException {
         String name = null;
         String type = null;
         try {
-            return new TupleValueImpl(new String[]{name, type}, new BTupleType(new ArrayList<BType>() {
+            return new TupleValueImpl(new String[]{name, type}, new BTupleType(new ArrayList<Type>() {
                 {
-                    add(BTypes.typeString);
-                    add(BTypes.typeString);
+                    add(PredefinedTypes.TYPE_STRING);
+                    add(PredefinedTypes.TYPE_STRING);
                 }
             }));
         } catch (BallerinaException e) {
@@ -347,7 +360,7 @@ public class StaticMethods {
 
     public static TupleValueImpl mockedNativeFuncWithOptionalParams(long a, double b, String c,
                                                                     long d, String e) {
-        TupleValueImpl tuple = (TupleValueImpl) BValueCreator.createTupleValue(tupleType);
+        TupleValueImpl tuple = (TupleValueImpl) ValueCreator.createTupleValue(tupleType);
         tuple.add(0, Long.valueOf(a));
         tuple.add(1, Double.valueOf(b));
         tuple.add(2, (Object) c);
@@ -362,19 +375,19 @@ public class StaticMethods {
     }
 
     public static Object getJson() {
-        MapValueImpl<BString, Object> map = new MapValueImpl<>(BTypes.typeJSON);
-        map.put(BStringUtils.fromString("name"), BStringUtils.fromString("John"));
+        MapValueImpl<BString, Object> map = new MapValueImpl<>(PredefinedTypes.TYPE_JSON);
+        map.put(StringUtils.fromString("name"), StringUtils.fromString("John"));
         return map;
     }
 
     public static MapValueImpl<BString, Object> getJsonObject() {
-        MapValueImpl<BString, Object> map = new MapValueImpl<>(BTypes.typeJSON);
-        map.put(BStringUtils.fromString("name"), BStringUtils.fromString("Doe"));
+        MapValueImpl<BString, Object> map = new MapValueImpl<>(PredefinedTypes.TYPE_JSON);
+        map.put(StringUtils.fromString("name"), StringUtils.fromString("Doe"));
         return map;
     }
 
     public static ArrayValue getJsonArray() {
-        ArrayValue array = (ArrayValue) BValueCreator.createArrayValue(jsonArrayType);
+        ArrayValue array = (ArrayValue) ValueCreator.createArrayValue(jsonArrayType);
         array.add(0, (Object) "John");
         return array;
     }
@@ -426,8 +439,8 @@ public class StaticMethods {
         }
 
         return new ArrayValueImpl(new BArrayType(new BUnionType(new ArrayList(2) {{
-            add(BTypes.typeInt);
-            add(BTypes.typeString);
+            add(PredefinedTypes.TYPE_INT);
+            add(PredefinedTypes.TYPE_STRING);
         }}), length, true), length, entries);
     }
 
@@ -443,22 +456,22 @@ public class StaticMethods {
         return value.getBooleanValue(key);
     }
 
-    public static void addTwoNumbersSlowAsyncVoidSig(BalEnv env, long a, long b) {
-        BalFuture balFuture = env.markAsync();
+    public static void addTwoNumbersSlowAsyncVoidSig(Environment env, long a, long b) {
+        Future balFuture = env.markAsync();
         new Thread(() -> {
             sleep();
             balFuture.complete(a + b);
         }).start();
     }
 
-    public static void addTwoNumbersFastAsyncVoidSig(BalEnv env, long a, long b) {
-        BalFuture balFuture = env.markAsync();
+    public static void addTwoNumbersFastAsyncVoidSig(Environment env, long a, long b) {
+        Future balFuture = env.markAsync();
         balFuture.complete(a + b);
     }
 
 
-    public static long addTwoNumbersSlowAsync(BalEnv env, long a, long b) {
-        BalFuture balFuture = env.markAsync();
+    public static long addTwoNumbersSlowAsync(Environment env, long a, long b) {
+        Future balFuture = env.markAsync();
         new Thread(() -> {
             sleep();
             balFuture.complete(a + b);
@@ -467,16 +480,41 @@ public class StaticMethods {
         return -38263;
     }
 
-    public static long addTwoNumbersFastAsync(BalEnv env, long a, long b) {
-        BalFuture balFuture = env.markAsync();
+    public static long addTwoNumbersFastAsync(Environment env, long a, long b) {
+        Future balFuture = env.markAsync();
         balFuture.complete(a + b);
 
         return -282619;
     }
 
-    public static void addTwoNumbersBuggy(BalEnv env, long a, long b) {
+    public static Object returnNullString(boolean nullVal) {
+        return nullVal ? null : StringUtils.fromString("NotNull");
+    }
+
+    public static void addTwoNumbersBuggy(Environment env, long a, long b) {
         // Buggy because env.markAsync() is not called
         // TODO: see if we can verify this
+    }
+
+    public static BString getCurrentModule(Environment env, long b) {
+        Module callerModule = env.getCurrentModule();
+        return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
+                                              callerModule.getVersion() + "#" + b);
+    }
+
+    public static BString getCurrentModuleForObject(Environment env, ObjectValue a, long b) {
+        Module callerModule = env.getCurrentModule();
+        return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
+                                              callerModule.getVersion() + "#" +
+                                              a.get(StringUtils.fromString("age")) + "#" + b);
+    }
+
+    public static long getDefaultValueWithBEnv(Environment env, long b) {
+        return b;
+    }
+
+    public static long getDefaultValueWithBEnvForObject(Environment env, ObjectValue a, long b) {
+        return b;
     }
 
     private static void sleep() {
@@ -488,7 +526,7 @@ public class StaticMethods {
     }
 
     public static Object acceptAndReturnReadOnly(Object value) {
-        BType type = TypeChecker.getType(value);
+        Type type = TypeChecker.getType(value);
 
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
@@ -498,9 +536,9 @@ public class StaticMethods {
                 return value;
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
-                return ((MapValue) value).get(BStringUtils.fromString("first"));
+                return ((MapValue) value).get(StringUtils.fromString("first"));
         }
-        return BStringUtils.fromString("other");
+        return StringUtils.fromString("other");
     }
 
     public static void getNilAsReadOnly() {
@@ -546,7 +584,7 @@ public class StaticMethods {
         return h;
     }
 
-    public static BXML getXmlAsReadOnly(BXML x) {
+    public static BXml getXmlAsReadOnly(BXml x) {
         return x;
     }
 
@@ -560,5 +598,50 @@ public class StaticMethods {
 
     public static TableValue getTableAsReadOnly(TableValue tb) {
         return tb;
+    }
+
+    public static Object getValue() {
+        return StringUtils.fromString("Ballerina");
+    }
+
+
+    public static BMap<BString, Object> createStudentUsingType() {
+        Module module = new Module("$anon", ".", "0.0.0");
+        BMap<BString, Object> bmap = ValueCreator.createRecordValue(module, "(Student & readonly)");
+        BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("name"), StringUtils.fromString("Riyafa")), ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("birth"), "Sri Lanka")};
+        return ValueCreator.createMapValue(bmap.getType(), mapInitialValueEntries);
+    }
+
+    public static BMap<BString, Object> createStudent() {
+        Module module = new Module("$anon", ".", "0.0.0");
+        Map<String, Object> mapInitialValueEntries = new HashMap<>();
+        mapInitialValueEntries.put("name", StringUtils.fromString("Riyafa"));
+        mapInitialValueEntries.put("birth", StringUtils.fromString("Sri Lanka"));
+        return ValueCreator.createReadonlyRecordValue(module, "Student", mapInitialValueEntries);
+    }
+
+    public static BMap<BString, Object> createDetails() {
+        Module module = new Module("$anon", ".", "0.0.0");
+        Map<String, Object> mapInitialValueEntries = new HashMap<>();
+        mapInitialValueEntries.put("name", StringUtils.fromString("Riyafa"));
+        mapInitialValueEntries.put("id", 123);
+        return ValueCreator.createReadonlyRecordValue(module, "Details", mapInitialValueEntries);
+    }
+
+    public static BMap<BString, Object> createRawDetails() {
+        Module module = new Module("$anon", ".", "0.0.0");
+        Map<String, Field> fieldMap = new HashMap<>();
+        fieldMap.put("name", TypeCreator
+                .createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
+        fieldMap.put("id", TypeCreator
+                .createField(PredefinedTypes.TYPE_INT, "id", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
+        RecordType recordType = TypeCreator.createRecordType("Details", module, SymbolFlags.READONLY
+                , fieldMap, null, true, 0);
+        BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("name"), StringUtils.fromString("aee")), ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("id"), 123L)};
+        return ValueCreator.createMapValue(recordType, mapInitialValueEntries);
     }
 }

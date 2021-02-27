@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface InvokableSymbol extends Symbol {
+public interface InvokableSymbol extends Annotatable {
 
     List<? extends VariableSymbol> getParameters();
 

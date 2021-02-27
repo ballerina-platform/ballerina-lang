@@ -1,0 +1,51 @@
+[
+  {
+    "description": "Define Functions.",
+    "code": "function multiply(int x, int y) returns int { println(string `Multiplying ${x} * ${y}`); return x * y;\n}"
+  },
+  {
+    "description": "Define Case 1.",
+    "code": "function case1() {\n println(\"--- case 1 ---\"); future<int> f1 = start multiply(1, 2);\n println(\"Before the wait action\"); int result = wait f1; println(\"After the wait action\\n\");\n}"
+  },
+  {
+    "description": "Define Case 2.",
+    "code": "function case2() {\n println(\"--- case 2 ---\"); future<int> f1 = @strand {thread: \"any\"} start multiply(1, 2);\n println(\"Before the wait action\"); int result = wait f1; println(\"After the wait action\\n\");\n}"
+  },
+  {
+    "description": "Define Case 3.",
+    "code": "function case3() { println(\"--- case 3 ---\"); future<int> f1 = @strand {thread: \"any\"} start multiply(1, 2); future<int> f2 = @strand {thread: \"any\"} start multiply(4, 5);\n println(\"Before the wait action\"); map<int> results = wait {f1, f2}; println(\"After the wait action\\n\");\n}"
+  },
+  {
+    "description": "Define Case 4.",
+    "code": "function case4() { println(\"--- case 4 ---\"); future<int> f1 = @strand {thread: \"any\"} start multiply(1, 2); future<int> f2 = start multiply(4, 5);\n println(\"Before the wait action\"); map<int> results = wait {f1, f2}; println(\"After the wait action\\n\");\n}"
+  },
+  {
+    "description": "Define Case 5.",
+    "code": "function case5() { println(\"--- case 5 ---\"); future<int> f1 = start multiply(1, 2); future<int> f2 = start multiply(4, 5);\n println(\"Before the wait action\"); map<int> results = wait {f1, f2}; println(\"After the wait action\\n\");\n}"
+  },
+  {
+    "description": "Use case 1.",
+    "code": "case1();",
+    "stdout": "--- case 1 ---\nBefore the wait action\nMultiplying 1 * 2\nAfter the wait action\n\n"
+  },
+  {
+    "description": "Use case 2.",
+    "code": "case1();",
+    "stdout": "--- case 2 ---\nMultiplying 1 * 2\nBefore the wait action\nAfter the wait action\n\n"
+  },
+  {
+    "description": "Use case 3.",
+    "code": "case1();",
+    "stdout": "--- case 3 ---\nMultiplying 1 * 2\nMultiplying 4 * 5\nBefore the wait action\nAfter the wait action\n\n"
+  },
+  {
+    "description": "Use case 4.",
+    "code": "case1();",
+    "stdout": "--- case 4 ---\nMultiplying 1 * 2\nBefore the wait action\nMultiplying 4 * 5\nAfter the wait action\n\n"
+  },
+  {
+    "description": "Use case 5.",
+    "code": "case1();",
+    "stdout": "--- case 5 ---\nBefore the wait action\nMultiplying 4 * 5\nMultiplying 1 * 2\nAfter the wait action\n\n"
+  }
+]

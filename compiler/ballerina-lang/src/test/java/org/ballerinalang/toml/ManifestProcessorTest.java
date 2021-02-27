@@ -132,16 +132,16 @@ public class ManifestProcessorTest {
     @Test(description = "One dependency added to the dependencies section has an effect")
     public void testSingleDependencies() throws TomlException, IOException {
         Path tmpDir = Files.createTempDirectory("manifest-test-");
-        Path baloPath = tmpDir.resolve("string_utils.balo");
-        Files.createFile(baloPath);
+        Path balaPath = tmpDir.resolve("string_utils.bala");
+        Files.createFile(balaPath);
         
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
-                "string-utils = {path = '" + baloPath + "', version = \"1.1.5\"} \n");
+                "string-utils = {path = '" + balaPath + "', version = \"1.1.5\"} \n");
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.1.5");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(), baloPath.toString());
+        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(), balaPath.toString());
         
-        Files.delete(baloPath);
+        Files.delete(balaPath);
         Files.delete(tmpDir);
     }
 
@@ -149,17 +149,17 @@ public class ManifestProcessorTest {
             "has an effect")
     public void testDependenciesIrregularPath() throws TomlException, IOException {
         Path tmpDir = Files.createTempDirectory("manifest-test-");
-        Path baloPath = tmpDir.resolve("string_utils.balo");
-        Files.createFile(baloPath);
+        Path balaPath = tmpDir.resolve("string_utils.bala");
+        Files.createFile(balaPath);
 
-        if (baloPath.toString().contains("\\")) {
-            baloPath = Paths.get(baloPath.toString().replace("\\", "/"));
+        if (balaPath.toString().contains("\\")) {
+            balaPath = Paths.get(balaPath.toString().replace("\\", "/"));
         } else {
-            baloPath = Paths.get(baloPath.toString().replace("/", "\\"));
+            balaPath = Paths.get(balaPath.toString().replace("/", "\\"));
         }
 
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
-                "string-utils = {path = '" + baloPath + "', version = \"1.1.5\"} \n");
+                "string-utils = {path = '" + balaPath + "', version = \"1.1.5\"} \n");
         Path manifestPath = manifest.getDependencies().get(0).getMetadata().getPath();
         if (manifestPath.toString().contains("\\")) {
             manifestPath = Paths.get(manifestPath.toString().replace("\\", "/"));
@@ -169,7 +169,7 @@ public class ManifestProcessorTest {
 
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.1.5");
-        Assert.assertEquals(manifestPath.toString(), baloPath.toString());
+        Assert.assertEquals(manifestPath.toString(), balaPath.toString());
     }
 
     @Test(description = "Empty dependency added to the dependencies section has no effect")
@@ -183,19 +183,19 @@ public class ManifestProcessorTest {
             "has an effect")
     public void testMultipleDependencies() throws TomlException, IOException {
         Path tmpDir = Files.createTempDirectory("manifest-test-");
-        Path baloPath = tmpDir.resolve("string_utils.balo");
-        Files.createFile(baloPath);
+        Path balaPath = tmpDir.resolve("string_utils.bala");
+        Files.createFile(balaPath);
         
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
-                "string-utils = { path = '" + baloPath + "', version = \"1.0.5\" } \n " +
+                "string-utils = { path = '" + balaPath + "', version = \"1.0.5\" } \n " +
                 "jquery = { version = \"2.2.3\" } \n");
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.0.5");
         Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "jquery");
         Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "2.2.3");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(), baloPath.toString());
+        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(), balaPath.toString());
 
-        Files.delete(baloPath);
+        Files.delete(balaPath);
         Files.delete(tmpDir);
     }
 
@@ -204,19 +204,19 @@ public class ManifestProcessorTest {
     public void testDependencyWithWindowsAbsolutePath() throws TomlException, IOException {
         if (OS.contains("win")) {
             Path tmpDir = Files.createTempDirectory("manifest-test-");
-            Path baloPath = tmpDir.resolve("string_utils.balo").toAbsolutePath();
-            Files.createFile(baloPath);
+            Path balaPath = tmpDir.resolve("string_utils.bala").toAbsolutePath();
+            Files.createFile(balaPath);
             Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
-                    "[dependencies] \n " + "string-utils = { path = '" + baloPath + "', version = \"1.0.5\" } \n " +
+                    "[dependencies] \n " + "string-utils = { path = '" + balaPath + "', version = \"1.0.5\" } \n " +
                     "jquery = { version = \"2.2.3\" } \n");
             Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
             Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.0.5");
             Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "jquery");
             Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "2.2.3");
             Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(),
-                    baloPath.toString());
+                    balaPath.toString());
 
-            Files.delete(baloPath);
+            Files.delete(balaPath);
             Files.delete(tmpDir);
         }
     }
@@ -229,7 +229,7 @@ public class ManifestProcessorTest {
         Files.createFile(libPath);
 
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
-                "[platform] \n target = \"java8\" \n \n " +
+                "[platform] \n target = \"java11\" \n \n " +
                 "[[platform.libraries]] \n " +
                 "artifactId = \"utils\" \n path = '" + libPath + "'\n groupId = \"wso2\" \n " +
                 "modules = [\"mymodule\"] ");
@@ -251,7 +251,7 @@ public class ManifestProcessorTest {
             libPath = Paths.get(libPath.toString().replace("/", "\\"));
         }
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
-                "[platform] \n target = \"java8\" \n \n " +
+                "[platform] \n target = \"java11\" \n \n " +
                 "[[platform.libraries]] \n " +
                 "artifactId = \"utils\" \n path = '" + libPath + "'\n groupId = \"wso2\" \n " +
                 "modules = [\"mymodule\"] ");

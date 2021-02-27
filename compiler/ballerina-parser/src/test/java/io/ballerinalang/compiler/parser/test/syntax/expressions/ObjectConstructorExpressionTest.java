@@ -44,9 +44,11 @@ public class ObjectConstructorExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testObjectConstructorWithClientKeyword() {
+    public void testObjectConstructorQualifiers() {
         testFile("object-constructor/object-constructor-with-client-keyword.bal",
                 "object-constructor/object-constructor-with-client-keyword.json");
+        testFile("object-constructor/object_constructor_source_04.bal",
+                "object-constructor/object_constructor_assert_04.json");
     }
 
     @Test
@@ -65,6 +67,20 @@ public class ObjectConstructorExpressionTest extends AbstractExpressionsTest {
     public void testObjectFieldsWithFinalQualifier() {
         testFile("object-constructor/object_constructor_source_08.bal",
                 "object-constructor/object_constructor_assert_08.json");
+    }
+
+    @Test
+    public void testServiceObjectConstructor() {
+        testFile("object-constructor/service_object_constructor_source_01.bal",
+                "object-constructor/service_object_constructor_assert_01.json");
+        testFile("object-constructor/service_object_constructor_source_02.bal",
+                "object-constructor/service_object_constructor_assert_02.json");
+    }
+
+    @Test
+    public void testObjectConstructorAsArgument() {
+        testFile("object-constructor/object_constructor_source_10.bal",
+                "object-constructor/object_constructor_assert_10.json");
     }
 
     // Recovery tests
@@ -86,11 +102,9 @@ public class ObjectConstructorExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testObjectConstructorForObjectKeywordRecovery() {
+    public void testRecoveryForObjectKeywordOnly() {
         testFile("object-constructor/object_constructor_source_03.bal",
                 "object-constructor/object_constructor_assert_03.json");
-        testFile("object-constructor/object_constructor_source_04.bal",
-                "object-constructor/object_constructor_assert_04.json");
     }
 
     @Test

@@ -17,17 +17,18 @@
  */
 package org.ballerinalang.test.types.handle;
 
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BHandleValue;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BHandleValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -225,5 +226,10 @@ public class OpaqueHandleTypeTest {
         BValue[] returns = BRunUtil.invoke(result, "testCreateObjectWithHandleValues", args);
         Assert.assertEquals(((BHandleValue) returns[0]).getValue(),
                 ((BHandleValue) args[1]).getValue());
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

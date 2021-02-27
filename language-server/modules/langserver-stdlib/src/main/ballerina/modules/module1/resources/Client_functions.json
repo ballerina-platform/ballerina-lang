@@ -1,0 +1,1 @@
+{"ballerina/module1:0.1.0" : [{"function":{"name":"post","requiredParams":[{"path":"string"},{"message":"(string|xml|json|byte[])"},{"targetType":"string"}],"returnType":"ballerina/module1:0.1.0:Response"}}]}

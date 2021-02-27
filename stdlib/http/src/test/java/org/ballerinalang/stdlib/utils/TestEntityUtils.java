@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.stdlib.utils;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;

@@ -5,7 +5,7 @@ type Student record {|
 
     record {
         string name
-        int age  50;
+        int age 50;
         *B
     } parent;
 

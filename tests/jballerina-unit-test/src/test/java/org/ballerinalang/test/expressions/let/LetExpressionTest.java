@@ -17,10 +17,11 @@
  */
 package org.ballerinalang.test.expressions.let;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -53,9 +54,13 @@ public class LetExpressionTest {
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'x'", 19, 21);
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'y'", 23, 27);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 27, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 28, 13);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 28, 39);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 29, 28);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'string', found 'int'", 30, 16);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 30, 42);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 41, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 46, 48);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 48, 14);
+        BAssertUtil.validateError(negativeResult, i, "too many arguments in call to 'new()'", 57, 37);
     }
 
     @Test(description = "Test cases for scenarios where let expression is not yet supported")
@@ -101,6 +106,16 @@ public class LetExpressionTest {
 //                {"testLetExpressionErrorBindingSimple"},
 //                {"testLetExpressionErrorBindingVar"},
 //                {"testLetExpressionRecordConstrainedErrorBinding"},
+                {"testAnonymousRecordWithLetExpression"},
+                {"testRecordWithLetExpression"},
+                {"testLetWithClass"}
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        negativeResult = null;
+        notSupportedResult = null;
     }
 }

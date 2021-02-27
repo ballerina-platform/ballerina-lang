@@ -1,0 +1,26 @@
+skinparam ParticipantBackgroundColor #cccaa5
+skinparam ParticipantBorderColor Black
+skinparam databaseBackgroundColor #cccaa5
+skinparam databaseBorderColor Black
+skinparam ArrowColor Black
+
+participant Application
+participant Invoker
+participant Ballerina as "Generated\nBallerina Code"
+database Memory
+
+Application -> Invoker : New snippet
+Invoker->Invoker : Generate the .bal file \n with variable save/load codes \n and new snippet
+Invoker->Invoker : Compile .bal file
+Invoker -> Ballerina : Execute Ballerina file
+
+group Execution
+Ballerina -> Memory : Fetch the variable values
+Memory --> Ballerina
+Ballerina -> Ballerina : Run the snippet \n and display output
+Ballerina -> Memory : Save the variable values
+Memory --> Ballerina
+end
+
+Ballerina --> Invoker
+Invoker --> Application

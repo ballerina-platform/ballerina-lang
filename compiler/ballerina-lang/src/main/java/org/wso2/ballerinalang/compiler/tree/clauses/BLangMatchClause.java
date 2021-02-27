@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchGuard;
 import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -31,18 +33,21 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class BLangMatchClause extends BLangNode implements MatchClauseNode {
 
     public List<BLangMatchPattern> matchPatterns = new ArrayList<>();
     public BLangMatchGuard matchGuard;
     public BLangBlockStmt blockStmt;
-    public boolean isLastClause;
     public BLangExpression expr; // This is used to keep the expression of match statement.
+    public Map<String, BVarSymbol> declaredVars = new HashMap<>();
+    public BType patternsType;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -82,16 +87,6 @@ public class BLangMatchClause extends BLangNode implements MatchClauseNode {
     @Override
     public void addMatchPattern(MatchPatternNode matchPattern) {
         matchPatterns.add((BLangMatchPattern) matchPattern);
-    }
-
-    @Override
-    public boolean isLastClause() {
-        return isLastClause;
-    }
-
-    @Override
-    public void setLastClause() {
-        this.isLastClause = true;
     }
 
     @Override

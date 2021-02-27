@@ -38,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.test.context.Constant.BALLERINA_AGENT_PATH;
-import static org.ballerinalang.test.context.Constant.JACOCO_AGENT_ARG_LINE;
 
 /**
  * This class hold the server information and manage the a server instance.
@@ -86,11 +85,12 @@ public class BServerInstance implements BServer {
         agentArgs = "-javaagent:" + balAgent + "=host=" + agentHost + ",port=" + agentPort
                 + ",exitStatus=1,timeout=15000,killStatus=5 ";
 
-        String jacocoArgLine = System.getProperty(JACOCO_AGENT_ARG_LINE);
-        if (jacocoArgLine == null || jacocoArgLine.isEmpty()) {
-            log.warn("Running integration test without jacoco test coverage");
-            return;
-        }
+        // add jacoco agent
+        String jacocoArgLine = "-javaagent:" + Paths.get(balServer.getServerHome())
+                .resolve("bre").resolve("lib").resolve("jacocoagent.jar").toString() + "=destfile=" +
+                Paths.get(System.getProperty("user.dir"))
+                        .resolve("build").resolve("jacoco").resolve("test.exec");
+
         agentArgs = jacocoArgLine + " " + agentArgs + " ";
     }
 
@@ -150,7 +150,7 @@ public class BServerInstance implements BServer {
             runBalSource(newArgs, envProperties);
         } else {
             buildBalSource(newArgs);
-            runJar(balFile, runtimeArgs, envProperties);
+            runJar(balFile, runtimeArgs, envProperties, requiredPorts);
         }
     }
 
@@ -180,9 +180,8 @@ public class BServerInstance implements BServer {
     public void startServer(String sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
                             Map<String, String> envProperties, int[] requiredPorts, boolean useBallerinaRunCommand)
             throws BallerinaTestException {
-        if (sourceRoot == null || sourceRoot.isEmpty() || packagePath == null || packagePath.isEmpty()) {
-            throw new IllegalArgumentException("Invalid ballerina program file provided, sourceRoot - "
-                    + sourceRoot + " packagePath - " + packagePath);
+        if (sourceRoot == null || sourceRoot.isEmpty()) {
+            throw new IllegalArgumentException("Invalid ballerina program file provided, sourceRoot - " + sourceRoot);
         }
 
         if (buildArgs == null) {
@@ -198,13 +197,13 @@ public class BServerInstance implements BServer {
         }
         addJavaAgents(envProperties);
 
-        String[] newArgs = new String[] { "--sourceroot", sourceRoot, packagePath };
+        String[] newArgs = new String[] { sourceRoot };
         newArgs = ArrayUtils.addAll(buildArgs, newArgs);
         if (useBallerinaRunCommand) {
             runBalSource(newArgs, envProperties);
         } else {
             buildBalSource(newArgs);
-            runJar(sourceRoot, packagePath, runtimeArgs, envProperties);
+            runJar(sourceRoot, packagePath, runtimeArgs, envProperties, requiredPorts);
         }
     }
 
@@ -256,28 +255,12 @@ public class BServerInstance implements BServer {
     }
 
     private void cleanupServer() {
-        process.destroy();
-        serverInfoLogReader.stop();
-        serverErrorLogReader.stop();
-        process = null;
         //wait until port to close
         Utils.waitForPortsToClose(requiredPorts, 30000);
         log.info("Server Stopped Successfully");
-
-        if (serverInfoLogReader != null) {
-            serverInfoLogReader.stop();
-            serverErrorLogReader.removeAllLeechers();
-            serverInfoLogReader = null;
-        }
-
-        if (serverErrorLogReader != null) {
-            serverErrorLogReader.stop();
-            serverErrorLogReader.removeAllLeechers();
-            serverErrorLogReader = null;
-        }
     }
 
-    private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+    private synchronized void addJavaAgents(Map<String, String> envProperties) {
         if (agentsAdded) {
             return;
         }
@@ -439,13 +422,15 @@ public class BServerInstance implements BServer {
      * @param packageName   package name
      * @param args          command line arguments to pass when executing the sh or bat file
      * @param envProperties environmental properties to be appended to the environment
+     * @param requiredPorts ports required for the server instance
      * @throws BallerinaTestException if starting services failed
      */
-    private void runJar(String sourceRoot, String packageName, String[] args, Map<String, String> envProperties)
+    private void runJar(String sourceRoot, String packageName, String[] args, Map<String, String> envProperties,
+                        int[] requiredPorts)
             throws BallerinaTestException {
         File commandDir = new File(balServer.getServerHome());
         executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
-                       args, envProperties, commandDir);
+                       args, envProperties, commandDir, requiredPorts);
     }
 
     /**
@@ -454,15 +439,16 @@ public class BServerInstance implements BServer {
      * @param balFile       path to bal file
      * @param args          command line arguments to pass when executing the sh or bat file
      * @param envProperties environmental properties to be appended to the environment
+     * @param requiredPorts ports required for the server instance
      * @throws BallerinaTestException if starting services failed
      */
-    private void runJar(String balFile, String[] args, Map<String, String> envProperties)
+    private void runJar(String balFile, String[] args, Map<String, String> envProperties, int[] requiredPorts)
             throws BallerinaTestException {
         File commandDir = new File(balServer.getServerHome());
         String balFileName = Paths.get(balFile).getFileName().toString();
         String jarPath = Paths.get(commandDir.getAbsolutePath(), balFileName.substring(0, balFileName.length() -
                 4) + ".jar").toString();
-        executeJarFile(jarPath, args, envProperties, commandDir);
+        executeJarFile(jarPath, args, envProperties, commandDir, requiredPorts);
     }
 
     /**
@@ -472,18 +458,20 @@ public class BServerInstance implements BServer {
      * @param args          command line arguments to pass when executing the sh or bat file
      * @param envProperties environmental properties to be appended to the environment
      * @param commandDir    where to execute the command
+     * @param requiredPorts ports required for the server instance
      * @throws BallerinaTestException if starting services failed
      */
     private void executeJarFile(String jarPath, String[] args, Map<String, String> envProperties, 
-                                File commandDir) throws BallerinaTestException {
+                                File commandDir, int[] requiredPorts) throws BallerinaTestException {
         try {
-            if (requiredPorts == null) {
-                requiredPorts = new int[]{};
+            if (this.requiredPorts == null) {
+                this.requiredPorts = new int[]{};
             }
-            this.requiredPorts = ArrayUtils.addAll(requiredPorts, agentPort);
+            this.requiredPorts = ArrayUtils.addAll(this.requiredPorts, requiredPorts);
+            this.requiredPorts = ArrayUtils.addAll(this.requiredPorts, agentPort);
 
             //Check whether agent port is available.
-            Utils.checkPortsAvailability(requiredPorts);
+            Utils.checkPortsAvailability(this.requiredPorts);
 
             log.info("Starting Ballerina server..");
 

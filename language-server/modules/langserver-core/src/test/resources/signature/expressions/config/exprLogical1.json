@@ -12,23 +12,29 @@
                     "parameters": [
                         {
                             "label": {
-                                "left": "float a"
+                                "right": {
+                                    "first": 11,
+                                    "second": 12
+                                }
                             },
                             "documentation": {
                                 "right": {
                                     "kind": "markdown",
-                                    "value": "**Parameter**  \n**`float`a**: "
+                                    "value": "**Parameter**  \n**`float`a**"
                                 }
                             }
                         },
                         {
                             "label": {
-                                "left": "boolean b"
+                                "right": {
+                                    "first": 22,
+                                    "second": 23
+                                }
                             },
                             "documentation": {
                                 "right": {
                                     "kind": "markdown",
-                                    "value": "**Parameter**  \n**`boolean`b**: "
+                                    "value": "**Parameter**  \n**`boolean`b**"
                                 }
                             }
                         }

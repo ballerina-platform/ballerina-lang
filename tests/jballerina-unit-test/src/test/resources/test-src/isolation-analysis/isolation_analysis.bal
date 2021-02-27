@@ -73,25 +73,23 @@ isolated function testIsolatedObjectMethods() {
 
 public class Listener {
 
-    *'object:Listener;
+    public function attach(service object {} s, string[]|string? name = ()) returns error? { }
 
-    public function __attach(service s, string? name = ()) returns error? { }
+    public function detach(service object {} s) returns error? { }
 
-    public function __detach(service s) returns error? { }
+    public function 'start() returns error? { }
 
-    public function __start() returns error? { }
+    public function gracefulStop() returns error? { }
 
-    public function __gracefulStop() returns error? { }
-
-    public function __immediateStop() returns error? { }
+    public function immediateStop() returns error? { }
 }
 
-service s1 on new Listener() {
-    isolated resource function res1(map<int> j) {
+service /s1 on new Listener() {
+    isolated resource function get res1(map<int> j) {
         int x = i + <int> j["val"];
     }
 
-    resource isolated function res2(string str) returns error? {
+    resource isolated function get res2(string str) returns error? {
         self.res3();
         return error(str + <string> ms["first"]);
     }
@@ -101,12 +99,12 @@ service s1 on new Listener() {
     }
 }
 
-service s2 = service {
-    isolated resource function res1(map<int> j) {
+service object {} s2 = service object {
+    isolated resource function get res1(map<int> j) {
         int x = i + <int> j["val"];
     }
 
-    resource isolated function res2(string str) returns error? {
+    resource isolated function get res2(string str) returns error? {
         self.res3();
         return error(str + <string> ms["first"]);
     }
@@ -170,7 +168,7 @@ isolated function testIsolatedFunctionPointerInvocation() {
     assertEquality(fn1(101, {first: 123, second: 234}), 226);
 }
 
-isolated function () returns int fn3 = isolated function () returns int {
+IsolatedFunction fn3 = isolated function () returns int {
     return 15;
 };
 
@@ -321,6 +319,144 @@ isolated function testIsolationAnalysisWithRemoteMethods() {
     assertEquality(14, x);
 }
 
+final map<int> & readonly intMap = {a: 1, b: 2};
+
+isolated function testIsolatedFunctionWithDefaultableParams() {
+    isolatedFunctionWithDefaultableParams();
+    
+    // https://github.com/ballerina-platform/ballerina-lang/issues/10639#issuecomment-699952927
+    //assertEquality(<int[]> [2, 3, 4, 1, 2], isolatedAnonFunctionWithDefaultableParams(true));
+    //assertEquality(<int[]> [1, 2], isolatedAnonFunctionWithDefaultableParams(false, y = [1, 2]));
+    //assertEquality(<int[]> [1, 2, 1, 2], isolatedAnonFunctionWithDefaultableParams(true, y = [1, 2]));
+
+    assertEquality(<int[]> [1, 2, 3, 4], isolatedAnonFunctionWithDefaultableParams(true, [1, 2], {c: 3, d: 4}));
+}
+
+isolated function isolatedFunctionWithDefaultableParams(int w = i, int[] x = getIntArray()) {
+    assertEquality(1, w);
+    assertEquality(<int[]> [1, 2, 3], x);
+}
+
+var isolatedAnonFunctionWithDefaultableParams =
+    isolated function (boolean b, int[] y = getMutableIntArray(), map<int> z = intMap) returns any {
+        if b {
+            foreach var val in z {
+                y.push(val);
+            }
+        }
+        return y;
+    };
+
+isolated class IsolatedClass {
+    final string a = "hello";
+    private int[] b = [1, 2];
+
+    isolated function getArray() returns int[] {
+        lock {
+            int[] x = self.b.clone();
+            x.push(self.a.length());
+            return x.clone();
+        }
+    }
+}
+
+final IsolatedClass isolatedObject = new;
+
+isolated function testAccessingFinalIsolatedObjectInIsolatedFunction() {
+    IsolatedClass cl = isolatedObject;
+    int[] arr = isolatedObject.getArray();
+
+    assertEquality(<int[]> [1, 2, 5], arr);
+    assertEquality(<int[]> [1, 2, 5], cl.getArray());
+}
+
+final (map<int> & readonly)|isolated object {} unionOne = {a: 1, b: 2};
+final (map<int> & readonly)|IsolatedClass unionTwo = isolatedObject;
+
+isolated function testIsolatedFuncAccessingSubTypeOfReadOnlyOrIsolatedObjectUnion() {
+    var x = unionOne;
+    var y = unionTwo;
+}
+
+isolated function getIntArray() returns int[] => arr;
+
+isolated function getMutableIntArray() returns int[] => [2, 3, 4];
+
+isolated class IsolatedClassWithIsolatedMethod {
+    private int i = 0;
+
+    isolated function foo(int i) returns int {
+        lock {
+            int j = i + self.i;
+            self.i += 1;
+            return j;
+        }
+    }
+}
+
+isolated class IsolatedClassWithIsolatedMethodTwo {
+    isolated function foo(int i) returns int => i;
+}
+
+class NonIsolatedClassWithIsolatedMethod {
+    int i = 0;
+
+    isolated function foo(int i) returns int {
+        int j = i + self.i;
+        self.i += 1;
+        return j;
+    }
+}
+
+function testIsolationOfBoundMethods() {
+    IsolatedClassWithIsolatedMethod ob1 = new;
+    isolated function (int) returns int func1 = ob1.foo;
+    assertEquality(true, <any> func1 is isolated function (int) returns int);
+    assertEquality(1, func1(1));
+    assertEquality(3, func1(2));
+
+    NonIsolatedClassWithIsolatedMethod ob2 = new;
+    function (int) returns int func2 = ob2.foo;
+    assertEquality(true, <any> func2 is function (int) returns int);
+    assertEquality(false, <any> func2 is isolated function (int) returns int);
+    assertEquality(1, func2(1));
+    assertEquality(3, func2(2));
+
+    // See https://github.com/ballerina-platform/ballerina-lang/issues/26726
+    //IsolatedClassWithIsolatedMethod|IsolatedClassWithIsolatedMethodTwo ob3 = new IsolatedClassWithIsolatedMethodTwo();
+    //isolated function (int) returns int func3 = ob3.foo;
+    //assertEquality(true, <any> func3 is isolated function (int) returns int);
+    //assertEquality(1, func3(1));
+    //assertEquality(2, func3(2));
+    //
+    //IsolatedClassWithIsolatedMethodTwo|NonIsolatedClassWithIsolatedMethod ob4 = new NonIsolatedClassWithIsolatedMethod();
+    //function (int) returns int func4 = ob4.foo;
+    //assertEquality(true, <any> func4 is function (int) returns int);
+    //assertEquality(false, <any> func4 is isolated function (int) returns int);
+    //assertEquality(1, func4(1));
+    //assertEquality(3, func4(2));
+    //
+    //IsolatedClassWithIsolatedMethodTwo|NonIsolatedClassWithIsolatedMethod ob5 = new IsolatedClassWithIsolatedMethodTwo();
+    //function (int) returns int func5 = ob5.foo;
+    //assertEquality(true, <any> func5 is function (int) returns int);
+    //assertEquality(false, <any> func5 is isolated function (int) returns int);
+    //assertEquality(1, func5(1));
+    //assertEquality(2, func5(2));
+}
+
+service readonly class ReadOnlyService {
+    int[] x = [1, 2, 3];
+
+    resource function get foo() returns int[] => self.x;
+}
+
+final ReadOnlyService s = new;
+
+isolated function testFinalReadOnlyServiceAccessInIsolatedFunction() {
+    ReadOnlyService rs = s;
+    assertEquality(<int[]> [1, 2, 3], rs.x);
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
@@ -330,5 +466,9 @@ isolated function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(string `expected '${expectedValAsString}', found '${actualValAsString}'`);
 }
+
+type IsolatedFunction isolated function () returns int;

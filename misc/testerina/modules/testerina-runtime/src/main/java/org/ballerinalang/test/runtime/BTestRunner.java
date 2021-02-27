@@ -19,34 +19,37 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BBooleanType;
-import org.ballerinalang.jvm.types.BByteType;
-import org.ballerinalang.jvm.types.BDecimalType;
-import org.ballerinalang.jvm.types.BFloatType;
-import org.ballerinalang.jvm.types.BIntegerType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BStringType;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BXMLType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.BooleanType;
+import io.ballerina.runtime.api.types.ByteType;
+import io.ballerina.runtime.api.types.DecimalType;
+import io.ballerina.runtime.api.types.FloatType;
+import io.ballerina.runtime.api.types.IntegerType;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.StringType;
+import io.ballerina.runtime.api.types.TupleType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.XmlType;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.MapValue;
+import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
 import org.ballerinalang.test.runtime.entity.TesterinaReport;
 import org.ballerinalang.test.runtime.entity.TesterinaResult;
+import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 
@@ -57,11 +60,11 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -74,6 +77,14 @@ public class BTestRunner {
 
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
+    private static final String INIT_FUNCTION_NAME = ".<init>";
+    private static final String START_FUNCTION_NAME = ".<start>";
+    private static final String STOP_FUNCTION_NAME = ".<stop>";
+    private static final String TEST_INIT_FUNCTION_NAME = ".<testinit>";
+    private static final String TEST_START_FUNCTION_NAME = ".<teststart>";
+    private static final String TEST_STOP_FUNCTION_NAME = ".<teststop>";
+    private static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
+    private static final String CONFIG_FILE_NAME = "Config.toml";
 
     private PrintStream errStream;
     private PrintStream outStream;
@@ -97,8 +108,6 @@ public class BTestRunner {
      * @param suite test meta data for module
      */
     public void runTest(TestSuite suite)  {
-        // validate test suite
-        validateTestSuite(suite);
         int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
         suite.setTests(sortedTests);
@@ -112,44 +121,6 @@ public class BTestRunner {
             sortedTests.add(tests.get(idx));
         }
         return sortedTests;
-    }
-
-    /**
-     * Resolve function names to {@link TesterinaFunction}s.
-     *
-     * @param suite {@link TestSuite} whose functions to be resolved.
-     */
-    private static void validateTestSuite(TestSuite suite) {
-        Set<String> functionNames = suite.getTestUtilityFunctions().keySet();
-        for (Test test : suite.getTests()) {
-            if (test.getBeforeTestFunction() != null) {
-                if (!functionNames.contains(test.getBeforeTestFunction())) {
-                    String msg = String.format("Cannot find the specified before function : [%s] for testerina " +
-                            "function : [%s]", test.getBeforeTestFunction(), test.getTestName());
-                    throw new BallerinaException(msg);
-                }
-            }
-            if (test.getAfterTestFunction() != null) {
-                if (!functionNames.contains(test.getAfterTestFunction())) {
-                    String msg = String.format("Cannot find the specified after function : [%s] for testerina " +
-                            "function : [%s]", test.getAfterTestFunction(), test.getTestName());
-                    throw new BallerinaException(msg);
-                }
-            }
-
-            if (test.getDataProvider() != null && !functionNames.contains(test.getDataProvider())) {
-                String dataProvider = test.getDataProvider();
-                String message = String.format("Data provider function [%s] cannot be found.", dataProvider);
-                throw new BallerinaException(message);
-            }
-
-            for (String dependsOnFn : test.getDependsOnTestFunctions()) {
-                if (functionNames.stream().noneMatch(func -> func.equals(dependsOnFn))) {
-                    throw new BallerinaException("Cannot find the specified dependsOn function : "
-                            + dependsOnFn);
-                }
-            }
-        }
     }
 
     private static int[] checkCyclicDependencies(List<Test> tests) {
@@ -171,9 +142,9 @@ public class BTestRunner {
                 for (String dependsOnFn : test.getDependsOnTestFunctions()) {
                     int idx = testNames.indexOf(dependsOnFn);
                     if (idx == -1) {
-                        String message = String.format("Test [%s] depends on function [%s], but it couldn't be found" +
-                                ".", test, dependsOnFn);
-                        throw new BallerinaException(message);
+                        String message = String.format("Test [%s] depends on function [%s], but it is either " +
+                                "disabled or not included.", test, dependsOnFn);
+                        throw new BallerinaTestException(message);
                     }
                     dependencyMatrix[i].add(idx);
                 }
@@ -220,7 +191,7 @@ public class BTestRunner {
         // Check if there was a cycle
         if (cnt != numberOfNodes) {
             String message = "Cyclic test dependency detected";
-            throw new BallerinaException(message);
+            throw new BallerinaTestException(message);
         }
 
         i = numberOfNodes - 1;
@@ -242,6 +213,7 @@ public class BTestRunner {
             outStream.println("\tNo tests found\n");
             return;
         }
+
         AtomicBoolean shouldSkip = new AtomicBoolean();
         AtomicBoolean shouldSkipAfterSuite = new AtomicBoolean();
         AtomicBoolean shouldSkipAfterGroups = new AtomicBoolean();
@@ -256,7 +228,16 @@ public class BTestRunner {
         try {
             initClazz = classLoader.loadClass(initClassName);
         } catch (Throwable e) {
-            throw new BallerinaException("failed to load init class :" + initClassName);
+            throw new BallerinaTestException("failed to load init class :" + initClassName);
+        }
+        Class<?> configClazz;
+        String configClassName = TesterinaUtils
+                .getQualifiedClassName(suite.getOrgName(), suite.getPackageID(), suite.getVersion(),
+                        CONFIGURATION_CLASS_NAME);
+        try {
+            configClazz = classLoader.loadClass(configClassName);
+        } catch (Throwable e) {
+            throw new BallerinaTestException("failed to load configuration class :" + configClassName);
         }
         Scheduler scheduler = new Scheduler(4, false);
         Scheduler initScheduler = new Scheduler(4, false);
@@ -270,12 +251,8 @@ public class BTestRunner {
             try {
                 testInitClazz = classLoader.loadClass(testClassName);
             } catch (Throwable e) {
-                throw new BallerinaException("failed to load Test init class :" + testClassName);
+                throw new BallerinaTestException("failed to load Test init class :" + testClassName);
             }
-            outStream.println("\t" + packageName);
-        } else {
-            // If there is a source file name print it and then execute the tests
-            outStream.println("\t" + suite.getSourceFileName());
         }
         shouldSkip.set(false);
         shouldSkipAfterSuite.set(false);
@@ -284,7 +261,7 @@ public class BTestRunner {
         tReport.setReportRequired(suite.isReportRequired());
         // Initialize the test suite.
         // This will init and start the test module.
-        startSuite(suite, initScheduler, initClazz, testInitClazz, hasTestablePackage);
+        startSuite(suite, initScheduler, initClazz, testInitClazz, configClazz, hasTestablePackage);
         // Run Before suite functions
         executeBeforeSuiteFunctions(suite, classLoader, scheduler, shouldSkip, shouldSkipAfterSuite);
         // Run Tests
@@ -462,11 +439,8 @@ public class BTestRunner {
         }
 
         if (!packageName.equals(TesterinaConstants.DOT)) {
-            Path sourceRootPath = Paths.get(suite.getSourceRootPath()).resolve(TesterinaConstants.TARGET_DIR_NAME)
-                    .resolve(TesterinaConstants.CACHES_DIR_NAME).resolve(TesterinaConstants.JSON_CACHE_DIR_NAME);
-            Path rerunJson = sourceRootPath.resolve(suite.getOrgName()).resolve(suite.getPackageID())
-                    .resolve(suite.getVersion());
-            Path jsonPath = Paths.get(rerunJson.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
+            Path sourceRootPath = Paths.get(suite.getSourceRootPath()).resolve(TesterinaConstants.TARGET_DIR_NAME);
+            Path jsonPath = Paths.get(sourceRootPath.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
             File jsonFile = new File(jsonPath.toString());
             writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
         }
@@ -552,18 +526,34 @@ public class BTestRunner {
     }
 
     private void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz, Class<?> testInitClazz,
-                            boolean hasTestablePackage) {
-        TesterinaFunction init = new TesterinaFunction(initClazz, suite.getInitFunctionName(), initScheduler);
-        TesterinaFunction start = new TesterinaFunction(initClazz, suite.getStartFunctionName(), initScheduler);
+                            Class<?> configClazz, boolean hasTestablePackage) {
+        TesterinaFunction init = new TesterinaFunction(initClazz, INIT_FUNCTION_NAME, initScheduler);
+        TesterinaFunction start = new TesterinaFunction(initClazz, START_FUNCTION_NAME, initScheduler);
+        TesterinaFunction configInit = new TesterinaFunction(configClazz, "$configureInit", initScheduler);
         // As the init function we need to use $moduleInit to initialize all the dependent modules
         // properly.
+
+        Object response = configInit.directInvoke(new Class[]{Path.class}, new Object[]{getConfigPath(suite)});
+        if (response instanceof Throwable) {
+            throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
+                    response.toString(), (Throwable) response);
+        }
+
         init.setName("$moduleInit");
-        init.invoke();
+        response = init.invoke();
+        if (response instanceof Throwable) {
+            throw new BallerinaTestException("Dependant module initialization for test suite failed due to " +
+                    response.toString(), (Throwable) response);
+        }
         // Now we initialize the init of testable module.
         if (hasTestablePackage) {
             TesterinaFunction testInit =
-                    new TesterinaFunction(testInitClazz, suite.getTestInitFunctionName(), initScheduler);
-            testInit.invoke();
+                    new TesterinaFunction(testInitClazz, TEST_INIT_FUNCTION_NAME, initScheduler);
+            response = testInit.invoke();
+            if (response instanceof Throwable) {
+                throw new BallerinaTestException("Test module initialization for test suite failed due to " +
+                        response.toString(), (Throwable) response);
+            }
         }
         // As the start function we need to use $moduleStart to start all the dependent modules
         // properly.
@@ -572,28 +562,42 @@ public class BTestRunner {
         // Invoke start function of the testable module
         if (hasTestablePackage) {
             TesterinaFunction testStart =
-                    new TesterinaFunction(testInitClazz, suite.getTestStartFunctionName(), initScheduler);
+                    new TesterinaFunction(testInitClazz, TEST_START_FUNCTION_NAME, initScheduler);
             testStart.invoke();
         }
         // Once the start function finish we will re start the scheduler with immortal true
-        initScheduler.immortal = true;
+        initScheduler.setImmortal(true);
         Thread immortalThread = new Thread(initScheduler::start, "module-start");
         immortalThread.setDaemon(true);
         immortalThread.start();
     }
 
+    private Path getConfigPath(TestSuite testSuite) {
+        String moduleName = testSuite.getModuleName();
+        Path configFilePath = Paths.get(testSuite.getSourceRootPath());
+        if (!moduleName.equals("")) {
+            configFilePath = configFilePath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
+        }
+        configFilePath = configFilePath.resolve(ProjectConstants.TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
+        if (!Files.exists(configFilePath)) {
+            configFilePath = Paths.get(RuntimeUtils.USER_DIR).resolve(CONFIG_FILE_NAME);
+        }
+        return configFilePath;
+    }
+
     private void stopSuite(TestSuite suite, Scheduler scheduler, Class<?> initClazz, Class<?> testInitClazz,
                            boolean hasTestablePackage) {
-        TesterinaFunction stop = new TesterinaFunction(initClazz, suite.getStopFunctionName(), scheduler);
+        TesterinaFunction stop = new TesterinaFunction(initClazz, STOP_FUNCTION_NAME, scheduler);
         // Invoke stop function of the testable module.
         if (hasTestablePackage) {
             TesterinaFunction testStop =
-                    new TesterinaFunction(testInitClazz, suite.getTestStopFunctionName(), scheduler);
+                    new TesterinaFunction(testInitClazz, TEST_STOP_FUNCTION_NAME, scheduler);
             testStop.scheduler = scheduler;
             testStop.invoke();
         }
         stop.setName("$moduleStop");
-        stop.directInvoke(new Class<?>[]{});
+        stop.directInvoke(new Class<?>[]{Scheduler.ListenerRegistry.class},
+                new Object[]{scheduler.getListenerRegistry()});
     }
 
     private Object invokeTestFunction(TestSuite suite, String functionName, ClassLoader classLoader,
@@ -612,17 +616,17 @@ public class BTestRunner {
 
     private String formatErrorMessage(Throwable e) {
         String message;
-        if (e.getCause() instanceof ErrorValue) {
+        if (e.getCause() instanceof BError) {
             try {
-                message = ((ErrorValue) e.getCause()).getPrintableStackTrace();
+                message = ((BError) e.getCause()).getPrintableStackTrace();
             } catch (ClassCastException castException) {
                 // throw the exception to top
-                throw new BallerinaException(e);
+                throw new BallerinaTestException(e);
             }
-        } else if (e instanceof BallerinaException) {
-            throw (BallerinaException) e;
+        } else if (e instanceof BallerinaTestException) {
+            throw (BallerinaTestException) e;
         } else {
-            throw new BallerinaException(e);
+            throw new BallerinaTestException(e);
         }
         return message;
     }
@@ -640,17 +644,17 @@ public class BTestRunner {
     private List<Object[]> extractArguments(Object valueSets) {
         List<Object[]> argsList = new ArrayList<>();
 
-        if (valueSets instanceof ArrayValue) {
-            ArrayValue arrayValue = (ArrayValue) valueSets;
-            if (arrayValue.getElementType() instanceof BArrayType) {
+        if (valueSets instanceof BArray) {
+            BArray bArray = (BArray) valueSets;
+            if (bArray.getElementType() instanceof ArrayType) {
                 // Ok we have an array of an array
-                for (int i = 0; i < arrayValue.size(); i++) {
+                for (int i = 0; i < bArray.size(); i++) {
                     // Iterate array elements and set parameters
-                    setTestFunctionParams(argsList, (ArrayValue) arrayValue.get(i));
+                    setTestFunctionParams(argsList, (BArray) bArray.get(i));
                 }
             } else {
                 // Iterate array elements and set parameters
-                setTestFunctionParams(argsList, arrayValue);
+                setTestFunctionParams(argsList, bArray);
             }
         }
         return argsList;
@@ -664,16 +668,16 @@ public class BTestRunner {
     private static Class<?>[] extractArgumentTypes(Object valueSets) {
         List<Class<?>> typeList = new ArrayList<>();
         typeList.add(Strand.class);
-        if (valueSets instanceof ArrayValue) {
-            ArrayValue arrayValue = (ArrayValue) valueSets;
-            if (arrayValue.getElementType() instanceof BArrayType) {
+        if (valueSets instanceof BArray) {
+            BArray bArray = (BArray) valueSets;
+            if (bArray.getElementType() instanceof ArrayType) {
                 // Ok we have an array of an array
                 // Get the first entry
                 // Iterate elements and get class types.
-                setTestFunctionSignature(typeList, (ArrayValue) arrayValue.get(0));
+                setTestFunctionSignature(typeList, (BArray) bArray.get(0));
             } else {
                 // Iterate elements and get class types.
-                setTestFunctionSignature(typeList, arrayValue);
+                setTestFunctionSignature(typeList, bArray);
             }
         }
         Class<?>[] typeListArray = new Class[typeList.size()];
@@ -681,9 +685,9 @@ public class BTestRunner {
         return typeListArray;
     }
 
-    private static void setTestFunctionSignature(List<Class<?>> typeList, ArrayValue arrayValue) {
-        Class<?> type = getArgTypeToClassMapping(arrayValue.getElementType());
-        for (int i = 0; i < arrayValue.size(); i++) {
+    private static void setTestFunctionSignature(List<Class<?>> typeList, BArray bArray) {
+        Class<?> type = getArgTypeToClassMapping(bArray.getElementType());
+        for (int i = 0; i < bArray.size(); i++) {
             // Add the param type.
             typeList.add(type);
             // This is in jvm function signature to tel if args is passed or not.
@@ -691,41 +695,41 @@ public class BTestRunner {
         }
     }
 
-    private static void setTestFunctionParams(List<Object[]> valueList, ArrayValue arrayValue) {
+    private static void setTestFunctionParams(List<Object[]> valueList, BArray bArray) {
         List<Object> params = new ArrayList<>();
         // Add a place holder to Strand
         params.add(new Object());
-        for (int i = 0; i < arrayValue.size(); i++) {
+        for (int i = 0; i < bArray.size(); i++) {
             // Add the param type.
-            params.add(arrayValue.get(i));
+            params.add(bArray.get(i));
             // This is in jvm function signature to tel if args is passed or not.
             params.add(Boolean.TRUE);
         }
         valueList.add(params.toArray());
     }
 
-    private static Class<?> getArgTypeToClassMapping(BType elementType) {
+    private static Class<?> getArgTypeToClassMapping(Type elementType) {
         Class<?> type;
         // Refer jvm_method_gen.bal getArgTypeSignature for proper type matching
-        if (elementType instanceof BStringType) {
+        if (elementType instanceof StringType) {
             type = BString.class;
-        } else if (elementType instanceof BIntegerType) {
+        } else if (elementType instanceof IntegerType) {
             type = Long.TYPE;
-        } else if (elementType instanceof BBooleanType) {
+        } else if (elementType instanceof BooleanType) {
             type = Boolean.TYPE;
-        } else if (elementType instanceof BDecimalType) {
+        } else if (elementType instanceof DecimalType) {
             type = DecimalValue.class;
-        } else if (elementType instanceof BByteType) {
+        } else if (elementType instanceof ByteType) {
             type = Integer.TYPE;
-        } else if (elementType instanceof BArrayType || elementType instanceof BTupleType) {
+        } else if (elementType instanceof ArrayType || elementType instanceof TupleType) {
             type = ArrayValue.class;
-        } else if (elementType instanceof BFloatType) {
+        } else if (elementType instanceof FloatType) {
             type = Double.TYPE;
-        } else if (elementType instanceof BMapType || elementType instanceof BRecordType) {
+        } else if (elementType instanceof MapType || elementType instanceof RecordType) {
             type = MapValue.class;
-        } else if (elementType instanceof BXMLType) {
-            type = XMLValue.class;
-        } else if (elementType instanceof BObjectType) {
+        } else if (elementType instanceof XmlType) {
+            type = XmlValue.class;
+        } else if (elementType instanceof ObjectType) {
             type = ObjectValue.class;
         } else {
             // default case
@@ -757,10 +761,9 @@ public class BTestRunner {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
             errorMsg = "Could not write to Rerun Test json. Rerunning tests will not work";
-            errStream.println(errorMsg);
+            errStream.println(errorMsg + ":" + e.getMessage());
         }
 
     }
 
 }
-

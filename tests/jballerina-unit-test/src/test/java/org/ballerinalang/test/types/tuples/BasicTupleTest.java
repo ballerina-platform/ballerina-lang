@@ -16,16 +16,18 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -174,7 +176,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 30);
+        Assert.assertEquals(resultNegative.getErrorCount(), 33);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++, "tuple and expression size does not match", 18, 32);
@@ -240,5 +242,37 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, i++,
                                   "invalid list index expression: value space '(3|4|5|6)' out of range", 158, 19);
         BAssertUtil.validateError(resultNegative, i, "list index out of range: index: '-1'", 165, 19);
+    }
+
+    @Test(dataProvider = "dataToTestTupleDeclaredWithVar", description = "Test tuple declared with var")
+    public void testModuleLevelTupleVarDecl(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestTupleDeclaredWithVar() {
+        return new Object[]{
+                "testTupleDeclaredWithVar1",
+                "testTupleDeclaredWithVar2",
+                "testTupleDeclaredWithVar3",
+                "testTupleDeclaredWithVar4"
+        };
+    }
+
+    @Test(description = "Test invalid var declaration with tuples")
+    public void testInvalidTupleDeclaredWithVar() {
+        int i = 30;
+        BAssertUtil.validateError(resultNegative, i++, "invalid tuple binding pattern; member variable count mismatch" +
+                " with member type count", 172, 9);
+        BAssertUtil.validateError(resultNegative, i++, "invalid tuple binding pattern; member variable count mismatch" +
+                " with member type count", 173, 9);
+        BAssertUtil.validateError(resultNegative, i, "invalid tuple binding pattern; member variable count mismatch" +
+                " with member type count", 174, 9);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

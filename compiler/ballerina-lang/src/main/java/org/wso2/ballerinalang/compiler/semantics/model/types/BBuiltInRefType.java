@@ -40,7 +40,7 @@ public class BBuiltInRefType extends BType implements ReferenceType {
         super(tag, tsymbol);
     }
 
-    public BBuiltInRefType(int tag, BTypeSymbol tsymbol, int flags) {
+    public BBuiltInRefType(int tag, BTypeSymbol tsymbol, long flags) {
         super(tag, tsymbol, flags);
     }
 

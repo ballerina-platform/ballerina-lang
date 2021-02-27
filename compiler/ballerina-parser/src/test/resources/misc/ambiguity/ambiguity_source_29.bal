@@ -1,3 +1,3 @@
 function foo() {
-    (a public| b) => a+b -> w;
+    (a public| b) => a + b -> w;
 }

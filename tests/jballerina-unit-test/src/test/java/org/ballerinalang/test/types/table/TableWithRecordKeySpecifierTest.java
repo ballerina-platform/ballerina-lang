@@ -16,11 +16,10 @@
  */
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.testng.Assert;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -53,25 +52,24 @@ public class TableWithRecordKeySpecifierTest {
         BRunUtil.invoke(result, "testKeylessTable");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
-                    "find key '\\{\"fname\":\"Sanjiva\",\"lname\":\"Clark\"}'.*")
+    @Test(description = "Test invalid member access in table with a single key field")
     public void testMemberAccessWithInvalidSingleKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidSingleKey");
-        Assert.fail();
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot " +
-                    "find key '18 \\{\"fname\":\"Sanjiva\",\"lname\":\"Clark\"}'.*")
+    @Test(description = "Test invalid member access in table with multiple key fields")
     public void testMemberAccessWithInvalidMultiKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
-        Assert.fail();
     }
 
     @Test(description = "Test Table with var type")
     public void testTableWithVarType() {
         BRunUtil.invoke(result, "runTableTestcasesWithVarType");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }
 

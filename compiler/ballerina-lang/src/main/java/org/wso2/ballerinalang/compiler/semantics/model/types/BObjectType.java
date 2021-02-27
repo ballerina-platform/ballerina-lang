@@ -46,13 +46,13 @@ public class BObjectType extends BStructureType implements ObjectType {
     public BIntersectionType immutableType;
     public BObjectType mutableType = null;
 
-    public BTypeIdSet typeIdSet = BTypeIdSet.emptySet();
+    public BTypeIdSet typeIdSet = new BTypeIdSet();
 
     public BObjectType(BTypeSymbol tSymbol) {
         super(TypeTags.OBJECT, tSymbol);
     }
 
-    public BObjectType(BTypeSymbol tSymbol, int flags) {
+    public BObjectType(BTypeSymbol tSymbol, long flags) {
         super(TypeTags.OBJECT, tSymbol, flags);
     }
 
@@ -73,12 +73,17 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public String toString() {
-
-        if (shouldPrintShape(tsymbol.name)) {
+        if (shouldPrintShape()) {
             StringBuilder sb = new StringBuilder();
+
+            var symbolFlags = tsymbol.flags;
+            if (Symbols.isFlagOn(symbolFlags, Flags.ISOLATED)) {
+                sb.append("isolated ");
+            }
+
             sb.append(OBJECT).append(SPACE).append(LEFT_CURL);
             for (BField field : fields.values()) {
-                int flags = field.symbol.flags;
+                var flags = field.symbol.flags;
                 if (Symbols.isFlagOn(flags, Flags.PUBLIC)) {
                     sb.append(SPACE).append(PUBLIC);
                 } else if (Symbols.isFlagOn(flags, Flags.PRIVATE)) {
@@ -102,7 +107,7 @@ public class BObjectType extends BStructureType implements ObjectType {
             }
             sb.append(SPACE).append(RIGHT_CURL);
 
-            if (Symbols.isFlagOn(tsymbol.flags, Flags.READONLY)) {
+            if (Symbols.isFlagOn(symbolFlags, Flags.READONLY)) {
                 sb.append(" & readonly");
             }
 

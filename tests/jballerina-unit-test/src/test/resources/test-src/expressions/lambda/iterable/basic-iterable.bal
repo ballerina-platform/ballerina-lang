@@ -1,6 +1,5 @@
 import ballerina/lang.'float as floats;
 import ballerina/lang.'int as ints;
-import ballerina/lang.'xml;
 
 int add = 0;
 int index = 0;
@@ -145,12 +144,9 @@ function xmlTest() returns [int, int, xml] {
     xml ch = xdata.getChildren().elements()[1];
     'xml:Element che = <'xml:Element> ch;
     xml m = che.getChildren().elements()
-                             .'map(function ('xml:Element|'xml:Text x) returns ('xml:Element|'xml:Text) {
+                             .'map(function ('xml:Element x) returns ('xml:Element) {
                                 index += 1;
-                                if x is 'xml:Element {
-                                    return x;
-                                }
-                                return "*ws*";
+                                return x;
                      });
     return [nodeCount, elementCount, m];
 }

@@ -17,30 +17,23 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.ERROR_VERSION;
+import io.ballerina.runtime.api.values.BError;
 
 /**
  * Get error cause.
  *
  * @since 2.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
-        functionName = "cause",
-        args = {@Argument(name = "value", type = TypeKind.ERROR)},
-        returnType = {@ReturnType(type = TypeKind.UNION)})
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
+//        functionName = "cause",
+//        args = {@Argument(name = "value", type = TypeKind.ERROR)},
+//        returnType = {@ReturnType(type = TypeKind.UNION)})
 public class Cause {
 
 
     @Deprecated
-    public static Object cause(Strand strand, ErrorValue value) {
+    public static Object cause(BError value) {
         return value.getCause();
     }
 }

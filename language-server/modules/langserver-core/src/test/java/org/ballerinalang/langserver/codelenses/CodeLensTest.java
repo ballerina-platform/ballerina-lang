@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.codelenses;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
-import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CodeLens;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -59,11 +57,6 @@ public class CodeLensTest {
         TestUtil.openDocument(serviceEndpoint, functionsBalPath);
     }
 
-    @BeforeMethod
-    public void clearPackageCache() {
-        LSContextManager.getInstance().clearAllContexts();
-    }
-
     @Test(description = "Test Code Lenses for functions", dataProvider = "codeLensFunctionPositions")
     public void codeLensForBuiltInFunctionTest(String expectedConfigName) throws IOException {
         String response = TestUtil.getCodeLensesResponse(functionsBalPath.toString(), serviceEndpoint);
@@ -75,7 +68,7 @@ public class CodeLensTest {
         String response = TestUtil.getCodeLensesResponse(servicesBalPath.toString(), serviceEndpoint);
         testCodeLenses(expectedConfigName, response);
     }
-    
+
     private void testCodeLenses(String expectedConfigName, String response) throws IOException {
         String expected = getExpectedValue(expectedConfigName);
 

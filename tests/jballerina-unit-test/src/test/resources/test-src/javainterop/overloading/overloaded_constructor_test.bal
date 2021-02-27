@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public function testOverloadedConstructorsWithOneParam() returns [handle, handle] {
     handle bufferStrValue = java:fromString("string buffer value");
@@ -68,7 +68,7 @@ function newString(handle bytes) returns handle = @java:Constructor {
 function getString(string str) returns handle = @java:Method {
     name: "moveTo",
     'class: "org.ballerinalang.test.javainterop.overloading.pkg.Vehicle",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BString"]
+    paramTypes: ["io.ballerina.runtime.api.values.BString"]
 } external;
 
 function getIntString(int val) returns handle = @java:Method {
@@ -86,6 +86,9 @@ function assertEquality(any|error expected, any|error actual) {
     if expected === actual {
         return;
     }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

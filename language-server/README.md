@@ -32,6 +32,9 @@ You can find the Language server integrated VSCode plugin for Ballerina at [mark
 ## User Guide
 You can find the Language Server User Guide [here](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/docs/UserGuide.md)
 
+## Language Server Extensions Development Guide
+You can find the Language Server Extensions Development Guide [here](https://github.com/ballerina-platform/ballerina-lang/blob/master/language-server/docs/ExtensionsGuide.md)
+
 ## How to Contribute
 Ballerina Language Server is currently work in progress and feel free to follow the [issue tracker](https://github.com/ballerina-platform/ballerina-lang/issues?q=is%3Aopen+is%3Aissue+label%3AComponent%2FLanguageServer) for up coming features and feature requests.
 

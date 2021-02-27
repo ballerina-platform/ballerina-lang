@@ -43,11 +43,11 @@ public class BStream extends BSimpleVariable {
     public String computeValue() {
         try {
             Optional<Value> constraintType = getFieldValue(jvmValue, FIELD_CONSTRAINT_TYPE);
-            if (!constraintType.isPresent()) {
+            if (constraintType.isEmpty()) {
                 return UNKNOWN_VALUE;
             }
             Optional<Value> constraintTypeName = getFieldValue(constraintType.get(), FIELD_TYPENAME);
-            if (!constraintTypeName.isPresent()) {
+            if (constraintTypeName.isEmpty()) {
                 return UNKNOWN_VALUE;
             }
             return String.format("stream<%s>", getStringFrom(constraintTypeName.get()));

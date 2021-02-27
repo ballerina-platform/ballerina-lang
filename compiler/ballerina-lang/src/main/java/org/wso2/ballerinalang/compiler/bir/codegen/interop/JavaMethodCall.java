@@ -17,11 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
@@ -38,11 +38,10 @@ public class JavaMethodCall extends BIRTerminator {
     public String jMethodVMSig;
     public String name;
 
-    public JavaMethodCall(DiagnosticPos pos, InstructionKind kind, List<BIROperand> args,
+    public JavaMethodCall(Location pos, InstructionKind kind, List<BIROperand> args,
                           BIROperand lhsOp, String jClassName, String jMethodVMSig, String name, BIRBasicBlock thenBB) {
 
         super(pos, kind);
-        this.pos = pos;
         this.args = args;
         this.kind = kind;
         this.lhsOp = lhsOp;

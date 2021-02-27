@@ -1,5 +1,3 @@
-import ballerina/io;
-
 function testFloatArrayLength(float[] arg) returns [int, int]{
     float[] defined;
     defined = [10.1, 11.1];
@@ -44,7 +42,7 @@ function testJSONArrayLength() returns [int, int]{
 
 function testArrayWithNilElement() returns string {
     string?[] ar = ["abc", "d", (), "s"];
-    return io:sprintf("%s", ar);
+    return ar.toString();
 }
 
 type Foo 1|2|3;
@@ -239,8 +237,11 @@ function assertEquality(any|error expected, any|error actual) {
     if expected === actual {
         return;
     }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
 
 function testUpdatingJsonTupleViaArrayTypedVar() {

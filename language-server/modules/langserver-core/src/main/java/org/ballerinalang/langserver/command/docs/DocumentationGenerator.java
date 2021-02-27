@@ -15,33 +15,39 @@
  */
 package org.ballerinalang.langserver.command.docs;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.MetadataNode;
+import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.RestParameterNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.eclipse.lsp4j.Range;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * This class provides functionality for generating documentation.
@@ -54,296 +60,253 @@ public class DocumentationGenerator {
     }
 
     /**
-     * Get the documentation edit attachment info for a given particular node.
+     * Checks whether the node has documentation.
      *
-     * @param node Node given
-     * @return Doc Attachment Info
+     * @param node documentatable {@link NonTerminalNode}
+     * @return returns True if has documentation False otherwise
      */
-    public static DocAttachmentInfo getDocumentationEditForNode(Node node) {
-        DocAttachmentInfo docAttachmentInfo = null;
-        switch (node.getKind()) {
-            case FUNCTION:
-                if (((BLangFunction) node).markdownDocumentationAttachment == null) {
-                    docAttachmentInfo = getFunctionNodeDocumentation((BLangFunction) node);
-                }
+    public static boolean hasDocs(NonTerminalNode node) {
+        for (Node next : node.children()) {
+            if (next.kind() == SyntaxKind.METADATA && ((MetadataNode) next).documentationString().isPresent()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns range of current documentation.
+     *
+     * @param node documentatable {@link NonTerminalNode}
+     * @return returns {@link Range}
+     */
+    public static Optional<Range> getDocsRange(NonTerminalNode node) {
+        for (Node next : node.children()) {
+            if (next.kind() == SyntaxKind.METADATA && ((MetadataNode) next).documentationString().isPresent()) {
+                return Optional.of(CommonUtil.toRange(next.lineRange()));
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Generate documentation for non-terminal node.
+     *
+     * @param node       non-terminal node
+     * @param syntaxTree syntaxTree {@link SyntaxTree}
+     * @return optional documentation
+     */
+    public static Optional<DocAttachmentInfo> getDocumentationEditForNode(NonTerminalNode node,
+                                                                          SyntaxTree syntaxTree) {
+        switch (node.kind()) {
+            case FUNCTION_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
+            case OBJECT_METHOD_DEFINITION: {
+                return Optional.of(generateFunctionDocumentation((FunctionDefinitionNode) node, syntaxTree));
+            }
+            case METHOD_DECLARATION: {
+                return Optional.of(generateMethodDocumentation((MethodDeclarationNode) node, syntaxTree));
+            }
+            case SERVICE_DECLARATION: {
+                return Optional.of(generateServiceDocumentation((ServiceDeclarationNode) node, syntaxTree));
+            }
+            case TYPE_DEFINITION: {
+                return Optional.of(generateRecordOrObjectDocumentation((TypeDefinitionNode) node, syntaxTree));
+            }
+            case CLASS_DEFINITION: {
+                return Optional.of(generateClassDocumentation((ClassDefinitionNode) node, syntaxTree));
+            }
+            default:
                 break;
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<Symbol> getDocumentableSymbol(NonTerminalNode node, SemanticModel semanticModel) {
+        switch (node.kind()) {
+            case FUNCTION_DEFINITION:
+            case OBJECT_METHOD_DEFINITION:
+            case METHOD_DECLARATION:
+//            case SERVICE_DECLARATION: {
+//                ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) node;
+//                return semanticModel.symbol(fileName, serviceDeclrNode.typeDescriptor().map(s->s.lineRange()
+//                .startLine()).);
+//            }
             case TYPE_DEFINITION:
-                if (((BLangTypeDefinition) node).markdownDocumentationAttachment == null
-                        && (((BLangTypeDefinition) node).typeNode instanceof BLangRecordTypeNode
-                        || ((BLangTypeDefinition) node).typeNode instanceof BLangObjectTypeNode)) {
-                    docAttachmentInfo = getRecordOrObjectDocumentation((BLangTypeDefinition) node);
-                }
-                break;
-            case SERVICE:
-                if (((BLangService) node).markdownDocumentationAttachment == null) {
-                    BLangService bLangService = (BLangService) node;
-                    docAttachmentInfo = getServiceNodeDocumentation(bLangService);
-                }
-                break;
+            case CLASS_DEFINITION:
+                return semanticModel.symbol(node);
             default:
                 break;
         }
-
-        return docAttachmentInfo;
+        return Optional.empty();
     }
 
     /**
-     * Get Documentation edit for node at a given position.
+     * Generate documentation for service node.
      *
-     * @param topLevelNodeType  top level node type
-     * @param bLangPkg          BLang package
-     * @param line              position to be compared with
-     * @param context           Language server context
-     * @return Document attachment info
+     * @param serviceDeclrNode service declaration node
+     * @param syntaxTree       syntaxTree {@link SyntaxTree}
+     * @return generated doc attachment
      */
-    public static DocAttachmentInfo getDocumentationEditForNodeByPosition(String topLevelNodeType,
-                                                                          BLangPackage bLangPkg, int line,
-                                                                          LSContext context) {
-        DocAttachmentInfo docAttachmentInfo = null;
-        CodeActionNodeType codeActionNodeType = CodeActionNodeType.getNodeTypeByName(topLevelNodeType);
-        switch (codeActionNodeType) {
-            case FUNCTION:
-            case OBJECT_FUNCTION:
-                docAttachmentInfo = getFunctionDocumentationByPosition(bLangPkg, line, context);
-                break;
-            case SERVICE:
-                docAttachmentInfo = getServiceDocumentationByPosition(bLangPkg, line, context);
-                break;
-            case RESOURCE:
-                docAttachmentInfo = getResourceDocumentationByPosition(bLangPkg, line, context);
-                break;
-            case RECORD:
-            case OBJECT:
-                docAttachmentInfo = getTypeNodeDocumentationByPosition(bLangPkg, line, context);
-                break;
-            default:
-                break;
+    private static DocAttachmentInfo generateServiceDocumentation(ServiceDeclarationNode serviceDeclrNode,
+                                                                  SyntaxTree syntaxTree) {
+        MetadataNode metadata = serviceDeclrNode.metadata().orElse(null);
+        Position docStart = CommonUtil.toRange(serviceDeclrNode.lineRange()).getStart();
+        if (metadata != null && !metadata.annotations().isEmpty()) {
+            docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
-
-        return docAttachmentInfo;
-    }
-
-    private static DocAttachmentInfo getServiceNodeDocumentation(BLangService bLangService) {
-        DiagnosticPos servicePos = CommonUtil.toZeroBasedPosition(bLangService.getPosition());
-        List<BLangAnnotationAttachment> annotations = bLangService.getAnnotationAttachments();
-        Position docStart = getDocumentationStartPosition(bLangService.getPosition(), annotations);
-        return new DocAttachmentInfo(getDocumentationAttachment(null, servicePos.getStartColumn()), docStart);
+        String desc = String.format("Description%n");
+        return new DocAttachmentInfo(desc, docStart, getPadding(serviceDeclrNode, syntaxTree));
     }
 
     /**
-     * Get the Documentation attachment for the function.
+     * Generate documentation for function definition node.
      *
-     * @param pkg           BLangPackage built
-     * @param line          Start line of the function in the source
-     * @param ctx           Language server operation context
-     * @return {@link DocAttachmentInfo}   Documentation attachment for the function
+     * @param bLangFunction function definition node
+     * @param syntaxTree    syntaxTree {@link SyntaxTree}
+     * @return generated doc attachment
      */
-    private static DocAttachmentInfo getFunctionDocumentationByPosition(BLangPackage pkg, int line, LSContext ctx) {
-        List<BLangFunction> filteredFunctions = new ArrayList<>();
-        for (TopLevelNode topLevelNode : CommonUtil.getCurrentFileTopLevelNodes(pkg, ctx)) {
-            if (topLevelNode instanceof BLangFunction) {
-                filteredFunctions.add((BLangFunction) topLevelNode);
-            } else if (topLevelNode instanceof BLangTypeDefinition
-                    && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangObjectTypeNode) {
-                filteredFunctions
-                        .addAll(((BLangObjectTypeNode) (((BLangTypeDefinition) topLevelNode).typeNode)).getFunctions());
-            }
-        }
-
-        for (BLangFunction filteredFunction : filteredFunctions) {
-            DiagnosticPos functionPos = CommonUtil.toZeroBasedPosition(filteredFunction.getPosition());
-            int functionStart = functionPos.getStartLine();
-            if (functionStart == line) {
-                return getFunctionNodeDocumentation(filteredFunction);
-            }
-        }
-
-        return null;
+    private static DocAttachmentInfo generateFunctionDocumentation(FunctionDefinitionNode bLangFunction,
+                                                                   SyntaxTree syntaxTree) {
+        return getFunctionNodeDocumentation(bLangFunction.functionSignature(),
+                                            bLangFunction.metadata().orElse(null),
+                                            CommonUtil.toRange(bLangFunction.lineRange()),
+                                            syntaxTree);
     }
 
     /**
-     * Get resource documentation by position.
+     * Generate documentation for method declaration node.
      *
-     * @param pkg           Current BLangPackage
-     * @param line          cursor line
-     * @param ctx           Language server context
-     * @return {@link DocAttachmentInfo} generated doc attachment information
+     * @param methodDeclrNode method declaration node
+     * @param syntaxTree      syntaxTree {@link SyntaxTree}
+     * @return
      */
-    private static DocAttachmentInfo getResourceDocumentationByPosition(BLangPackage pkg, int line, LSContext ctx) {
-        List<BLangFunction> filteredFunctions = new ArrayList<>();
-        CommonUtil.getCurrentFileTopLevelNodes(pkg, ctx).stream()
-                .filter(topLevelNode -> topLevelNode instanceof BLangService)
-                .map(topLevelNode -> (BLangService) topLevelNode)
-                .forEach(bLangService -> {
-                    filteredFunctions.addAll(bLangService.serviceClass.getFunctions());
+    private static DocAttachmentInfo generateMethodDocumentation(MethodDeclarationNode methodDeclrNode,
+                                                                 SyntaxTree syntaxTree) {
+        return getFunctionNodeDocumentation(methodDeclrNode.methodSignature(),
+                                            methodDeclrNode.metadata().orElse(null),
+                                            CommonUtil.toRange(methodDeclrNode.lineRange()),
+                                            syntaxTree);
+    }
+
+    /**
+     * Generate documentation for record or object type definition node.
+     *
+     * @param typeDefNode type definition node
+     * @param syntaxTree  syntaxTree {@link SyntaxTree}
+     * @return generated doc attachment
+     */
+    private static DocAttachmentInfo generateRecordOrObjectDocumentation(TypeDefinitionNode typeDefNode,
+                                                                         SyntaxTree syntaxTree) {
+        MetadataNode metadata = typeDefNode.metadata().orElse(null);
+        Position docStart = CommonUtil.toRange(typeDefNode.lineRange()).getStart();
+        if (metadata != null && !metadata.annotations().isEmpty()) {
+            docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
+        }
+        io.ballerina.compiler.syntax.tree.Node typeDesc = typeDefNode.typeDescriptor();
+        String desc = String.format("Description%n");
+        Map<String, String> parameters = new HashMap<>();
+        switch (typeDesc.kind()) {
+            case RECORD_TYPE_DESC:
+                RecordTypeDescriptorNode recordTypeDescNode = (RecordTypeDescriptorNode) typeDesc;
+                recordTypeDescNode.fields().forEach(field -> {
+                    Optional<Token> paramName = Optional.empty();
+                    if (field.kind() == SyntaxKind.RECORD_FIELD) {
+                        paramName = Optional.of(((RecordFieldNode) field).fieldName());
+                    } else if (field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
+                        paramName = Optional.of(((RecordFieldWithDefaultValueNode) field).fieldName());
+                    }
+                    paramName.ifPresent(param -> parameters.put(param.text(), "Parameter Description"));
                 });
-        for (BLangFunction bLangFunction : filteredFunctions) {
-            List<BLangAnnotationAttachment> annotations = bLangFunction.annAttachments;
-            int firstAnnotationStart = -1;
-            DiagnosticPos resourcePosition = CommonUtil.toZeroBasedPosition(bLangFunction.getPosition());
-            if (!annotations.isEmpty()) {
-                firstAnnotationStart = CommonUtil
-                        .toZeroBasedPosition(annotations.get(0).getPosition()).getStartLine();
-            }
-
-            if ((annotations.isEmpty() && line == resourcePosition.getStartLine())
-                    || (!annotations.isEmpty() && line >= firstAnnotationStart
-                    && line <= resourcePosition.getEndLine())) {
-                return getFunctionNodeDocumentation(bLangFunction);
-            }
+                break;
+            case OBJECT_TYPE_DESC:
+                ObjectTypeDescriptorNode objectTypeDescNode = (ObjectTypeDescriptorNode) typeDesc;
+                objectTypeDescNode.members().forEach(field -> {
+                    if (field.kind() == SyntaxKind.OBJECT_FIELD &&
+                            ((ObjectFieldNode) field).visibilityQualifier().isPresent()) {
+                        ObjectFieldNode fieldNode = (ObjectFieldNode) field;
+                        if (fieldNode.visibilityQualifier().get().kind() == SyntaxKind.PUBLIC_KEYWORD) {
+                            parameters.put(fieldNode.fieldName().text(), "Parameter Description");
+                        }
+                    }
+                });
+                break;
+            default:
+                break;
         }
-        return null;
-    }
-
-    private static DocAttachmentInfo getFunctionNodeDocumentation(BLangFunction bLangFunction) {
-        List<String> attributes = new ArrayList<>();
-        DiagnosticPos functionPos = CommonUtil.toZeroBasedPosition(bLangFunction.getPosition());
-        List<BLangAnnotationAttachment> annotations = bLangFunction.getAnnotationAttachments();
-        Position docStart = getDocumentationStartPosition(bLangFunction.getPosition(), annotations);
-        int offset = functionPos.getStartColumn();
-
-        List<BLangVariable> params = new ArrayList<>(bLangFunction.getParameters());
-        if (bLangFunction.getRestParameters() != null) {
-            params.add((BLangVariable) bLangFunction.getRestParameters());
-        }
-        params.sort(new FunctionArgsComparator());
-
-        params.forEach(param -> attributes.add(getDocAttributeFromBLangVariable((BLangSimpleVariable) param, offset)));
-        if (bLangFunction.symbol.retType.getKind() != TypeKind.NIL) {
-            attributes.add(getReturnFieldDescription(offset));
-        }
-
-        return new DocAttachmentInfo(getDocumentationAttachment(attributes, functionPos.getStartColumn()), docStart);
-    }
-
-    private static DocAttachmentInfo getRecordOrObjectDocumentation(BLangTypeDefinition typeDef) {
-        List<String> attributes = new ArrayList<>();
-        List<BLangSimpleVariable> fields = new ArrayList<>();
-        DiagnosticPos structPos = CommonUtil.toZeroBasedPosition(typeDef.getPosition());
-        List<BLangAnnotationAttachment> annotations = typeDef.getAnnotationAttachments();
-        Position docStart = getDocumentationStartPosition(typeDef.getPosition(), annotations);
-
-        if (typeDef.typeNode instanceof BLangObjectTypeNode) {
-            fields.addAll(((BLangObjectTypeNode) typeDef.typeNode).fields);
-        } else if (typeDef.typeNode instanceof BLangRecordTypeNode) {
-            fields.addAll(((BLangRecordTypeNode) typeDef.typeNode).fields);
-        }
-        int offset = structPos.getStartColumn();
-        fields.forEach(bLangVariable ->
-                               attributes.add(getDocAttributeFromBLangVariable(bLangVariable, offset)));
-        return new DocAttachmentInfo(getDocumentationAttachment(attributes, structPos.getStartColumn()), docStart);
+        return new DocAttachmentInfo(desc, parameters, null, docStart, getPadding(typeDefNode, syntaxTree));
     }
 
     /**
-     * Get the Documentation attachment for the service.
+     * Generate documentation for class definition node.
      *
-     * @param pkg           BLangPackage built
-     * @param line          Start line of the service in the source
-     * @param ctx           Language server context
-     * @return {@link DocAttachmentInfo}   Documentation attachment for the service
+     * @param classDefNode class definition node
+     * @param syntaxTree   {@link SyntaxTree}
+     * @return generated doc attachment
      */
-    private static DocAttachmentInfo getServiceDocumentationByPosition(BLangPackage pkg, int line, LSContext ctx) {
-        for (TopLevelNode topLevelNode : CommonUtil.getCurrentFileTopLevelNodes(pkg, ctx)) {
-            if (topLevelNode instanceof BLangService && topLevelNode.getPosition().getStartLine() - 1 == line) {
-                BLangService serviceNode = (BLangService) topLevelNode;
-                return getServiceNodeDocumentation(serviceNode);
+    private static DocAttachmentInfo generateClassDocumentation(ClassDefinitionNode classDefNode,
+                                                                SyntaxTree syntaxTree) {
+        MetadataNode metadata = classDefNode.metadata().orElse(null);
+        Position docStart = CommonUtil.toRange(classDefNode.lineRange()).getStart();
+        if (metadata != null && !metadata.annotations().isEmpty()) {
+            docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
+        }
+        String desc = String.format("Description%n");
+        Map<String, String> parameters = new HashMap<>();
+        classDefNode.members().forEach(field -> {
+            if (field.kind() == SyntaxKind.OBJECT_FIELD &&
+                    ((ObjectFieldNode) field).visibilityQualifier().isPresent()) {
+                ObjectFieldNode fieldNode = (ObjectFieldNode) field;
+                if (fieldNode.visibilityQualifier().get().kind() == SyntaxKind.PUBLIC_KEYWORD) {
+                    parameters.put(fieldNode.fieldName().text(), "Parameter Description");
+                }
             }
-        }
-
-        return null;
+        });
+        return new DocAttachmentInfo(desc, parameters, null, docStart, getPadding(classDefNode, syntaxTree));
     }
 
-    /**
-     * Get the Documentation attachment for the type nodes.
-     *
-     * @param pkg           BLangPackage built
-     * @param line          Start line of the type node in the source
-     * @param ctx           Language server context
-     * @return {@link DocAttachmentInfo}   Documentation attachment for the type node
-     */
-    private static DocAttachmentInfo getTypeNodeDocumentationByPosition(BLangPackage pkg, int line, LSContext ctx) {
-        for (TopLevelNode topLevelNode : CommonUtil.getCurrentFileTopLevelNodes(pkg, ctx)) {
-            if (!(topLevelNode instanceof BLangTypeDefinition)) {
-                continue;
+
+    private static DocAttachmentInfo getFunctionNodeDocumentation(FunctionSignatureNode signatureNode,
+                                                                  MetadataNode metadata, Range functionRange,
+                                                                  SyntaxTree syntaxTree) {
+        Position docStart = functionRange.getStart();
+        boolean hasDeprecated = false;
+        if (metadata != null && !metadata.annotations().isEmpty()) {
+            for (AnnotationNode annotationNode : metadata.annotations()) {
+                io.ballerina.compiler.syntax.tree.Node annotReference = annotationNode.annotReference();
+                if (annotReference.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
+                        "deprecated".equals(((SimpleNameReferenceNode) annotReference).name().text())) {
+                    hasDeprecated = true;
+                }
             }
-            BLangTypeDefinition typeDef = (BLangTypeDefinition) topLevelNode;
-            DiagnosticPos typeNodePos = CommonUtil.toZeroBasedPosition(typeDef.getPosition());
-            if ((typeDef.symbol.kind == SymbolKind.OBJECT || typeDef.symbol.kind == SymbolKind.RECORD)
-                    && typeNodePos.getStartLine() == line) {
-                return getTypeNodeDocumentation((BLangTypeDefinition) topLevelNode);
+            docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
+        }
+        String desc = String.format("Description%n");
+        Map<String, String> parameters = new HashMap<>();
+        signatureNode.parameters().forEach(param -> {
+            Optional<Token> paramName = Optional.empty();
+            if (param.kind() == SyntaxKind.REQUIRED_PARAM) {
+                paramName = ((RequiredParameterNode) param).paramName();
+            } else if (param.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
+                paramName = ((DefaultableParameterNode) param).paramName();
+            } else if (param.kind() == SyntaxKind.REST_PARAM) {
+                paramName = ((RestParameterNode) param).paramName();
             }
-        }
-
-        return null;
+            paramName.ifPresent(token -> parameters.put(token.text(), "Parameter Description"));
+        });
+        String returnDesc = signatureNode.returnTypeDesc().isPresent() ? "Return Value Description" : null;
+        //TODO: Handle deprecated documentation blocks, currently Documentation interface does not support it
+        return new DocAttachmentInfo(desc, parameters, returnDesc, docStart,
+                                     getPadding(signatureNode.parent(), syntaxTree));
     }
 
-    private static DocAttachmentInfo getTypeNodeDocumentation(BLangTypeDefinition typeNode) {
-        List<String> attributes = new ArrayList<>();
-        DiagnosticPos typeNodePos = CommonUtil.toZeroBasedPosition(typeNode.getPosition());
-        int offset = typeNodePos.getStartColumn();
-        List<BLangAnnotationAttachment> annotations = typeNode.getAnnotationAttachments();
-        Position docStart = getDocumentationStartPosition(typeNode.getPosition(), annotations);
-        List<VariableNode> publicFields = new ArrayList<>();
-        if (typeNode.symbol.kind == SymbolKind.OBJECT) {
-            publicFields.addAll(((BLangObjectTypeNode) typeNode.typeNode).getFields()
-                                        .stream()
-                                        .filter(field -> field.getFlags().contains(Flag.PUBLIC))
-                                        .collect(Collectors.toList()));
-
-        } else if (typeNode.symbol.kind == SymbolKind.RECORD) {
-            publicFields.addAll(((BLangRecordTypeNode) typeNode.typeNode).getFields());
-        }
-
-        publicFields.forEach(variableNode ->
-                                     attributes.add(getDocAttributeFromBLangVariable((BLangSimpleVariable) variableNode,
-                                                                                     offset)));
-
-        return new DocAttachmentInfo(getDocumentationAttachment(attributes, offset), docStart);
-    }
-
-    private static String getDocAttributeFromBLangVariable(BLangSimpleVariable bLangVariable, int offset) {
-        return getDocumentationAttribute(bLangVariable.getName().getValue(), offset);
-    }
-
-    private static String getDocumentationAttribute(String field, int offset) {
-        String offsetStr = String.join("", Collections.nCopies(offset, " "));
-        return String.format("%s# + %s - %s Parameter Description", offsetStr, field, field);
-    }
-
-    private static String getReturnFieldDescription(int offset) {
-        String offsetStr = String.join("", Collections.nCopies(offset, " "));
-        return String.format("%s# + return - Return Value Description", offsetStr);
-    }
-
-    private static String getDocumentationAttachment(List<String> attributes, int offset) {
-        String offsetStr = String.join("", Collections.nCopies(offset, " "));
-        if (attributes == null || attributes.isEmpty()) {
-            return String.format("# Description%n%s", offsetStr);
-        }
-
-        String joinedList = String.join(" \r\n", attributes);
-        return String.format("# Description%n%s#%n%s%n%s", offsetStr, joinedList, offsetStr);
-    }
-
-    private static Position getDocumentationStartPosition(DiagnosticPos nodePos,
-                                                          List<BLangAnnotationAttachment> annotations) {
-        DiagnosticPos startPos;
-        if (annotations.isEmpty()) {
-            startPos = CommonUtil.toZeroBasedPosition(nodePos);
-        } else {
-            startPos = CommonUtil.toZeroBasedPosition(annotations.get(0).getPosition());
-        }
-
-        return new Position(startPos.getStartLine(), startPos.getStartColumn());
-    }
-
-    private static class FunctionArgsComparator implements Serializable, Comparator<BLangVariable> {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public int compare(BLangVariable arg1, BLangVariable arg2) {
-            return arg1.getPosition().getStartColumn() - arg2.getPosition().getStartColumn();
-        }
+    private static String getPadding(NonTerminalNode bLangFunction, SyntaxTree syntaxTree) {
+        LinePosition position = bLangFunction.location().lineRange().startLine();
+        TextDocument textDocument = syntaxTree.textDocument();
+        int prevCharIndex = textDocument.textPositionFrom(LinePosition.from(position.line(), position.offset()));
+        int lineStartIndex = textDocument.textPositionFrom(LinePosition.from(position.line(), 0));
+        String sourceCode = syntaxTree.toSourceCode();
+        String padding = sourceCode.substring(lineStartIndex, prevCharIndex);
+        return padding.isBlank() ? padding : " ";
     }
 }

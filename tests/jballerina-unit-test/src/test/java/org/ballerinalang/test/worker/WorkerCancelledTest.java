@@ -16,10 +16,11 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -54,5 +55,10 @@ public class WorkerCancelledTest {
         } finally {
             System.setOut(defaultOut);
         }
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

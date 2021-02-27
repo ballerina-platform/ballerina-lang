@@ -19,6 +19,10 @@
       "value": "foo"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -141,26 +145,14 @@
                           "kind": "INTERPOLATION",
                           "children": [
                             {
-                              "kind": "INTERPOLATION_START_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
                               "kind": "STRING_LITERAL",
                               "children": [
                                 {
                                   "kind": "STRING_LITERAL_TOKEN",
-                                  "value": "Hello, World! ",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "Hello, World! "
                                 }
                               ]
                             },
@@ -238,13 +230,7 @@
                                   "kind": "INTERPOLATION",
                                   "children": [
                                     {
-                                      "kind": "INTERPOLATION_START_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "INTERPOLATION_START_TOKEN"
                                     },
                                     {
                                       "kind": "INDEXED_EXPRESSION",
@@ -301,13 +287,7 @@
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACKET_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "CLOSE_BRACKET_TOKEN"
                                         }
                                       ]
                                     },
@@ -329,13 +309,7 @@
                                   "kind": "INTERPOLATION",
                                   "children": [
                                     {
-                                      "kind": "INTERPOLATION_START_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "INTERPOLATION_START_TOKEN"
                                     },
                                     {
                                       "kind": "BINARY_EXPRESSION",
@@ -369,13 +343,7 @@
                                           "children": [
                                             {
                                               "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                                              "value": "3",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "value": "3"
                                             }
                                           ]
                                         }
@@ -390,13 +358,7 @@
                                   "kind": "INTERPOLATION",
                                   "children": [
                                     {
-                                      "kind": "INTERPOLATION_START_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "INTERPOLATION_START_TOKEN"
                                     },
                                     {
                                       "kind": "XML_TEMPLATE_EXPRESSION",
@@ -475,13 +437,7 @@
                                           ]
                                         },
                                         {
-                                          "kind": "BACKTICK_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "BACKTICK_TOKEN"
                                         }
                                       ]
                                     },

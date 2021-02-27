@@ -141,10 +141,10 @@ function testLetExprInUnion() {
 
 function testLetExprInJSON() returns error? {
     json j = {fname:"Jhon", lname:"Doe", age:let int x = 4 in 2 * x * globalVar};
-    assertTrue(j.age == 16, "j.age == 16");
+    assertTrue(j.age === 16, "j.age == 16");
 
     json k = {fname:"Jhon", lname:"Doe", age:check let json x = {age: 16} in x.age};
-    assertTrue(k.age == 16, "k.age == 16");
+    assertTrue(k.age === 16, "k.age == 16");
 }
 
 function testLetExpresionInArrays() {
@@ -298,7 +298,7 @@ type SampleErrorData record {
 type SampleError error<SampleErrorData>;
 
 function getSampleError() returns SampleError {
-    SampleError e = SampleError("Sample Error", info = "Detail Msg", fatal = true);
+    SampleError e = error SampleError("Sample Error", info = "Detail Msg", fatal = true);
     return e;
 }
 
@@ -312,8 +312,53 @@ type Foo record {|
 type FooError error<Foo>;
 
 function getRecordConstrainedError() returns FooError {
-    FooError e = FooError("Some Error", detailMsg = "Failed Message", isFatal = true);
+    FooError e = error FooError("Some Error", detailMsg = "Failed Message", isFatal = true);
     return e;
+}
+
+public function testAnonymousRecordWithLetExpression() {
+    record {
+        int i;
+        int j?;
+    } rec = let int v = 1 in {i: v};
+    
+    assert(1, rec.i);
+    
+    rec.j = 5;
+    assert(5, rec?.j);
+}
+
+type Rec record {|
+    int i;
+    int j = 100;
+|};
+    
+public function testRecordWithLetExpression() {
+    Rec rec1 = let int v = 160 in {i: v};
+    assert(160, rec1.i);
+    assert(100, rec1.j);
+    
+    Rec rec2 = let int v = 161 in {i: v, j: v};
+    assert(161, rec2.i);
+    assert(161, rec2.j);
+}
+
+class FooClass {
+    int m;
+    
+    public function init(int m) {
+        self.m = m;
+    }
+}
+
+function testLetWithClass() {
+    FooClass foo = let int m = 5 in new (m);
+    assert(5, foo.m);
+    
+    FooClass foo2 = new (let var arr = [1, 2, 3] in arr.reduce(function(int sum, int x) returns int {
+                                                                                return sum + x;
+                                                                            }, 0));
+    assert(6, foo2.m);
 }
 
 //// Util functions

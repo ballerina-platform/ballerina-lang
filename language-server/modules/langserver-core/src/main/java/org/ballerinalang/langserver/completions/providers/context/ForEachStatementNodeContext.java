@@ -15,16 +15,15 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.tools.text.LinePosition;
-import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
-import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -38,14 +37,14 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForEachStatementNode> {
     public ForEachStatementNodeContext() {
         super(ForEachStatementNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ForEachStatementNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ForEachStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -59,11 +58,12 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
             completionItems.addAll(this.actionKWCompletions(context));
             completionItems.addAll(this.expressionCompletions(context));
         }
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
 
-    private boolean withinTypeDescContext(LSContext context, ForEachStatementNode node) {
+    private boolean withinTypeDescContext(BallerinaCompletionContext context, ForEachStatementNode node) {
         /*
         Check whether the following is satisfied
         (1) foreach <cursor>typedesc ...
@@ -76,12 +76,12 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
         }
         TypeDescriptorNode typeDescriptorNode = typedBindingPatternNode.typeDescriptor();
         LinePosition typeDescEnd = typeDescriptorNode.lineRange().endLine();
-        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position cursor = context.getCursorPosition();
         return (cursor.getLine() < typeDescEnd.line())
                 || (cursor.getLine() == typeDescEnd.line() && cursor.getCharacter() <= typeDescEnd.offset());
     }
 
-    private boolean withinActionOrExpressionContext(LSContext context, ForEachStatementNode node) {
+    private boolean withinActionOrExpressionContext(BallerinaCompletionContext context, ForEachStatementNode node) {
         /*
         Check whether the following is satisfied
         (1) foreach typedesc name in <cursor> ...
@@ -92,7 +92,7 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
             return false;
         }
         LinePosition inKWEnd = inKeyword.lineRange().endLine();
-        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position cursor = context.getCursorPosition();
         return (cursor.getLine() < inKWEnd.line())
                 || (cursor.getLine() == inKWEnd.line() && cursor.getCharacter() > inKWEnd.offset());
     }

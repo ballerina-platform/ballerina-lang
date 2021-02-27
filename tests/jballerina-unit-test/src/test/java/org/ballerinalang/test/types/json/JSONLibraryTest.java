@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.test.types.json;
 
-import org.ballerinalang.model.util.JsonGenerator;
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.model.util.JsonGenerator;
+import org.ballerinalang.core.model.util.JsonParser;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -139,8 +139,8 @@ public class JSONLibraryTest {
                 "    \"guid\": \"a8d6d338-5fb4-4775-a14f-30aa631c539f\",\n    \"isActive\": false,\n" +
                 "    \"balance\": \"$3,656.67\",\n \"picture\": \"http://placehold.it/32x32\",\n" +
                 "    \"age\": 32,\n \"eyeColor\": \"green\",\n \"name\": \"Knapp Price\",\n" +
-                "    \"gender\": \"male\",\n \"company\": \"BALOOBA\",\n" +
-                "    \"email\": \"knappprice@balooba.com\",\n \"phone\": \"+1 (994) 584-2832\",\n" +
+                "    \"gender\": \"male\",\n \"company\": \"BALAOBA\",\n" +
+                "    \"email\": \"knappprice@balaoba.com\",\n \"phone\": \"+1 (994) 584-2832\",\n" +
                 "    \"address\": \"806 Grand Street, Bedias, Virgin Islands, 274\",\n" +
                 "    \"about\": \"Consequat ex veniam voluptate eu commodo minim nulla aliqua"
                 + " enim magna dolore cillum velit. Voluptate eiusmod proident cillum qui enim"

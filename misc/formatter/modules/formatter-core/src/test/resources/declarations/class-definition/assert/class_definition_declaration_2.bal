@@ -1,7 +1,9 @@
 class Person {
     *A;
     public int age = 10;
+
     function foo() returns int {
+
         int a = 12345;
         return a;
     }
@@ -12,6 +14,5 @@ class Person {
         string b = "bar";
         return b;
     }
-
     string month = "february";
 }

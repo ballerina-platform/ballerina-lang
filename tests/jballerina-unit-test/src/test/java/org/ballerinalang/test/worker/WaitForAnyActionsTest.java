@@ -16,13 +16,14 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -216,5 +217,10 @@ public class WaitForAnyActionsTest {
         Assert.assertEquals(vals.length, 1);
         Assert.assertTrue(vals[0] instanceof BError);
         Assert.assertEquals(((BError) vals[0]).getReason(), "A hazardous error occurred!!! Abort immediately!!");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

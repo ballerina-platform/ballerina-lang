@@ -29,7 +29,7 @@ public function testErrorDestructure() returns [string, string, boolean, string,
 }
 
 function getSampleError() returns SampleError {
-    SampleError e = SampleError("Sample Error", info = "Detail Info", fatal = true);
+    SampleError e = error SampleError("Sample Error", info = "Detail Info", fatal = true);
     return e;
 }
 

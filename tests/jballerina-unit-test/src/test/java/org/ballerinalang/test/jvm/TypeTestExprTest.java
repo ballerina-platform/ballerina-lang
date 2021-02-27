@@ -17,13 +17,14 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -125,5 +126,20 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+    }
+
+    @Test
+    public void testIsLikeForTupleWithRestDescriptor() {
+        BRunUtil.invoke(compileResult, "testIsLikeForTupleWithRestDescriptor");
+    }
+
+    @Test
+    public void testIsLikeForTupleWithOutRestDescriptor() {
+        BRunUtil.invoke(compileResult, "testIsLikeForTupleWithOutRestDescriptor");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

@@ -101,13 +101,16 @@ public class EndpointFindVisitor extends LSNodeVisitor {
         node.accept(this);
     }
 
+    @Deprecated
     private List<BLangSimpleVariable> resolveEndpoints(BLangSimpleVariable variable) {
-        List<BLangSimpleVariable> list = new ArrayList<>();
-        boolean isClientObj = CommonUtil.isClientObject(variable.symbol);
-        if (isClientObj) {
-            list.add(variable);
-        }
-        return list;
+//        List<BLangSimpleVariable> list = new ArrayList<>();
+//        boolean isClientObj = CommonUtil.isClientObject(variable.symbol);
+//        if (isClientObj) {
+//            list.add(variable);
+//        }
+//        return list;
+        
+        return new ArrayList<>();
     }
 
     @Override

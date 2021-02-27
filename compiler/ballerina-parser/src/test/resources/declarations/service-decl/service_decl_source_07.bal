@@ -1,2 +1,2 @@
-service echoService {
+service echoService /foo/bar {
 }

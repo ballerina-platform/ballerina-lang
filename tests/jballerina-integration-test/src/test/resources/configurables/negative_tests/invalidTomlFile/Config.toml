@@ -1,0 +1,3 @@
+[testOrg..main.file..]
+intVar = 42
+booleanVar = true

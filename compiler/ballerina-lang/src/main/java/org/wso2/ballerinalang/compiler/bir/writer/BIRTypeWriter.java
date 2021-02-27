@@ -26,8 +26,12 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -54,7 +58,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -83,6 +86,8 @@ public class BIRTypeWriter implements TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
+    private static IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
+    private static IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
@@ -92,8 +97,11 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visitType(BType type) {
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
-        buff.writeInt(type.flags);
-        buff.writeInt(TypeFlags.asMask(type.isNullable(), type.isAnydata(), type.isPureType()));
+        buff.writeLong(type.flags);
+        isPureTypeUniqueVisitor.reset();
+        isAnydataUniqueVisitor.reset();
+        buff.writeInt(TypeFlags.asMask(type.isNullable(), isAnydataUniqueVisitor.visit(type),
+                isPureTypeUniqueVisitor.visit(type)));
         type.accept(this);
     }
 
@@ -161,7 +169,7 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BFiniteType bFiniteType) {
         BTypeSymbol tsymbol = bFiniteType.tsymbol;
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
-        buff.writeInt(tsymbol.flags);
+        buff.writeLong(tsymbol.flags);
         buff.writeInt(bFiniteType.getValueSpace().size());
         for (BLangExpression valueLiteral : bFiniteType.getValueSpace()) {
             if (!(valueLiteral instanceof BLangLiteral)) {
@@ -218,6 +226,7 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BParameterizedType type) {
         writeTypeCpIndex(type.paramValueType);
+        buff.writeInt(type.paramIndex);
     }
 
     @Override
@@ -255,17 +264,6 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
-    public void visit(BServiceType bServiceType) {
-        //This is to say this is an object, this is a temporary fix object - 1, service - 0,
-        // ideal fix would be to use the type tag to
-        // differentiate. TODO fix later
-        buff.writeByte(1);
-
-        writeObjectAndServiceTypes(bServiceType);
-        writeTypeIds(bServiceType.typeIdSet);
-    }
-
-    @Override
     public void visit(BStructureType bStructureType) {
         throwUnimplementedError(bStructureType);
     }
@@ -286,10 +284,46 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BUnionType bUnionType) {
+        buff.writeBoolean(bUnionType.isCyclic);
+        BTypeSymbol tsymbol = bUnionType.tsymbol;
+        if (bUnionType.isCyclic && (tsymbol != null && !tsymbol.name.getValue().isEmpty())) {
+            buff.writeBoolean(true);
+            writePackageIndex(tsymbol);
+            buff.writeInt(addStringCPEntry(bUnionType.tsymbol.name.value));
+        } else {
+            buff.writeBoolean(false);
+        }
         buff.writeInt(bUnionType.getMemberTypes().size());
         for (BType memberType : bUnionType.getMemberTypes()) {
             writeTypeCpIndex(memberType);
         }
+
+        if (tsymbol instanceof BEnumSymbol) {
+            buff.writeBoolean(true);
+            writeEnumSymbolInfo((BEnumSymbol) tsymbol);
+        } else {
+            buff.writeBoolean(false);
+        }
+    }
+
+    private void writeEnumSymbolInfo(BEnumSymbol symbol) {
+        writePackageIndex(symbol);
+
+        buff.writeInt(addStringCPEntry(symbol.name.value));
+
+        buff.writeInt(symbol.members.size());
+        for (BConstantSymbol member : symbol.members) {
+            buff.writeInt(addStringCPEntry(member.name.value));
+        }
+    }
+
+    private void writePackageIndex(BTypeSymbol tsymbol) {
+
+        int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
+        int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
+        int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
     }
 
     @Override
@@ -307,11 +341,7 @@ public class BIRTypeWriter implements TypeVisitor {
         BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) bRecordType.tsymbol;
 
         // Write the package details in the form of constant pool entry TODO find a better approach
-        int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
-        int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
-        int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
-        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
-        buff.writeInt(pkgIndex);
+        writePackageIndex(tsymbol);
 
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeBoolean(bRecordType.sealed);
@@ -321,7 +351,7 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BField field : bRecordType.fields.values()) {
             BSymbol symbol = field.symbol;
             buff.writeInt(addStringCPEntry(symbol.name.value));
-            buff.writeInt(symbol.flags);
+            buff.writeLong(symbol.flags);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
@@ -334,8 +364,10 @@ public class BIRTypeWriter implements TypeVisitor {
 
         buff.writeByte(1);
         buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
-        buff.writeInt(initializerFunc.symbol.flags);
+        buff.writeLong(initializerFunc.symbol.flags);
         writeTypeCpIndex(initializerFunc.type);
+
+        writeTypeInclusions(bRecordType.typeInclusions);
     }
 
     @Override
@@ -343,7 +375,11 @@ public class BIRTypeWriter implements TypeVisitor {
         //This is to say this is an object, this is a temporary fix object - 1, service - 0,
         // ideal fix would be to use the type tag to
         // differentiate. TODO fix later
-        buff.writeByte(0);
+        if ((bObjectType.flags & Flags.SERVICE) == Flags.SERVICE) {
+            buff.writeByte(1);
+        } else {
+            buff.writeByte(0);
+        }
         writeObjectAndServiceTypes(bObjectType);
         writeTypeIds(bObjectType.typeIdSet);
     }
@@ -352,11 +388,7 @@ public class BIRTypeWriter implements TypeVisitor {
         BTypeSymbol tSymbol = bObjectType.tsymbol;
 
         // Write the package details in the form of constant pool entry TODO find a better approach
-        int orgCPIndex = addStringCPEntry(tSymbol.pkgID.orgName.value);
-        int nameCPIndex = addStringCPEntry(tSymbol.pkgID.name.value);
-        int versionCPIndex = addStringCPEntry(tSymbol.pkgID.version.value);
-        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
-        buff.writeInt(pkgIndex);
+        writePackageIndex(tSymbol);
 
         buff.writeInt(addStringCPEntry(tSymbol.name.value));
         //TODO below two line are a temp solution, introduce a generic concept
@@ -366,7 +398,7 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BField field : bObjectType.fields.values()) {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
-            buff.writeInt(field.symbol.flags);
+            buff.writeLong(field.symbol.flags);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
@@ -395,11 +427,13 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BAttachedFunction attachedFunc : attachedFuncs) {
             writeAttachFunction(attachedFunc);
         }
+
+        writeTypeInclusions(bObjectType.typeInclusions);
     }
 
     private void writeAttachFunction(BAttachedFunction attachedFunc) {
         buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
-        buff.writeInt(attachedFunc.symbol.flags);
+        buff.writeLong(attachedFunc.symbol.flags);
         writeTypeCpIndex(attachedFunc.type);
     }
 
@@ -512,5 +546,12 @@ public class BIRTypeWriter implements TypeVisitor {
         int length = byteBuf.nioBuffer().limit();
         buff.writeInt(length);
         buff.writeBytes(byteBuf.nioBuffer().array(), 0, length);
+    }
+
+    private void writeTypeInclusions(List<BType> inclusions) {
+        buff.writeInt(inclusions.size());
+        for (BType inclusion : inclusions) {
+            writeTypeCpIndex(inclusion);
+        }
     }
 }

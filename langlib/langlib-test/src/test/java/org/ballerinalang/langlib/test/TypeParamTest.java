@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -40,8 +40,6 @@ public class TypeParamTest {
         CompileResult result = BCompileUtil.compile("test-src/type-param/type_param_test_negative.bal");
         int err = 0;
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean[]', found 'int[]'", 21, 20);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'anydata', found 'function (string) " +
-                "returns ()[]'", 25, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'float[]', found 'function (string) " +
                 "returns ()[]'", 25, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'float', found 'string'", 31, 16);

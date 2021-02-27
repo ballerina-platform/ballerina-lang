@@ -17,11 +17,11 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -50,7 +50,7 @@ public class NodeTransformerTest extends AbstractSyntaxTreeAPITest {
         TokenWrapper deepestToken = syntaxTree.rootNode().apply(deepestTokenFinder);
 
         Assert.assertEquals(deepestToken.depth, 11);
-        Assert.assertEquals(deepestToken.token.toString(), "a");
+        Assert.assertEquals(deepestToken.token.toString(), "a ");
     }
 
     /**

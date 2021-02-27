@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.test.runtime.util;
 
-import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.util.RuntimeUtils;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,9 +30,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static io.ballerina.runtime.api.utils.IdentifierUtils.encodeNonFunctionIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
@@ -76,9 +77,8 @@ public class TesterinaUtils {
             if (testRunner.getTesterinaReport().isFailure()) {
                 throw new RuntimeException("there are test failures");
             }
-        } catch (BallerinaException e) {
+        } catch (BallerinaTestException e) {
             errStream.println("error: " + e.getMessage());
-            errStream.println(BLangConstants.INTERNAL_ERROR_MESSAGE);
             RuntimeUtils.silentlyLogBadSad(e);
             throw e;
         } catch (Throwable e) {
@@ -95,12 +95,18 @@ public class TesterinaUtils {
      */
     public static String formatError(String errorMsg) {
         StringBuilder newErrMsg = new StringBuilder();
-        errorMsg = errorMsg.replaceAll("\n", "\n\t    ");
+        errorMsg = errorMsg.replaceAll("\n", "\n\t");
         List<String> msgParts = Arrays.asList(errorMsg.split("\n"));
+        boolean stackTraceStartFlag = true;
 
         for (String msg : msgParts) {
             if (msgParts.indexOf(msg) != 0 && !msg.equals("\t    ")) {
-                msg = "\t    \t" + msg.trim();
+                String prefix = "\t\t    \t";
+                if (msg.startsWith("\t\t") && stackTraceStartFlag) {
+                    prefix = "\n" + prefix;
+                    stackTraceStartFlag = false;
+                }
+                msg = prefix + msg.trim();
             }
             if (!msg.equals("\t    ")) {
                 newErrMsg.append(msg).append("\n");
@@ -121,10 +127,10 @@ public class TesterinaUtils {
     public static String getQualifiedClassName(String orgName, String packageName,
                                                String version, String className) {
         if (!DOT.equals(packageName)) {
-            className = packageName.replace('.', '_') + "." + version.replace('.', '_') + "." + className;
+            className = encodeNonFunctionIdentifier(packageName) + "." + version.replace('.', '_') + "." + className;
         }
         if (!ANON_ORG.equals(orgName)) {
-            className = orgName.replace('.', '_') + "." +  className;
+            className = encodeNonFunctionIdentifier(orgName) + "." +  className;
         }
         return className;
     }
@@ -198,12 +204,41 @@ public class TesterinaUtils {
     /**
      * Provides the updated test functions for single Execution after adding the dependent tests.
      *
-     * @param currentTests the tests available in current test suite
-     * @param functions    the list of test functions provided by user
+     * @param suite         current test suite
+     * @param functions     the list of test functions provided by user
      * @return updated list of test functions
      */
-    public static List<Test> getSingleExecutionTests(List<Test> currentTests, List<String> functions) {
-        List<String> updatedFunctionList = getUpdatedFunctionList(currentTests, functions);
+    public static List<Test> getSingleExecutionTests(TestSuite suite, List<String> functions) {
+        List<String> filteredList = new ArrayList<>();
+
+        // Go through each function in the functionsList
+        for (String function : functions) {
+            if (function.contains(":")) {
+                String[] functionDetail = function.split(":");
+                try {
+                    if (functionDetail[0].equals(suite.getPackageID())) {
+                        if (functionDetail[1].equals(TesterinaConstants.WILDCARD)) {
+                            handleWildCard(filteredList, suite.getTests());
+                        } else if (functionDetail[1].endsWith(TesterinaConstants.WILDCARD)) {
+                            handleEndingWithWildCard(filteredList, suite.getTests(), functionDetail[1]);
+                        } else {
+                            filteredList.add(functionDetail[1]);
+                        }
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                    errStream.println("Error occured while executing tests. Test list cannot be empty");
+                }
+            } else {
+                if (function.endsWith(TesterinaConstants.WILDCARD)) {
+                    handleEndingWithWildCard(filteredList, suite.getTests(), function);
+                } else {
+                    filteredList.add(function);
+                }
+            }
+        }
+
+        List<Test> currentTests = suite.getTests();
+        List<String> updatedFunctionList = getUpdatedFunctionList(currentTests, filteredList);
         List<Test> updatedTestList = new ArrayList<>();
         for (Test test : currentTests) {
             if (updatedFunctionList.contains(test.getTestName())) {
@@ -211,6 +246,26 @@ public class TesterinaUtils {
             }
         }
         return updatedTestList;
+    }
+
+    private static void handleWildCard(List<String> filteredList, List<Test> suiteTests) {
+        for (Test test : suiteTests) {
+            filteredList.add(test.getTestName());
+        }
+    }
+
+    private static void handleEndingWithWildCard(List<String> filteredList, List<Test> suiteTests, String function) {
+        String fn = function.replace(TesterinaConstants.WILDCARD, "");
+        for (Test test : suiteTests) {
+            if (test.getTestName().startsWith(fn)) {
+                filteredList.add(test.getTestName());
+            }
+        }
+    }
+
+    public static List<org.ballerinalang.test.runtime.entity.Test> getSingleExecutionTestsOld(
+            List<org.ballerinalang.test.runtime.entity.Test> currentTests, List<String> functions) {
+        return Collections.emptyList();
     }
 
 }

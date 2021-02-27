@@ -2,4 +2,5 @@
 # + x - one thing to be added
 # + y - another thing to be added
 # + return - the sum of them
-function foo() { }
+function foo() {
+}

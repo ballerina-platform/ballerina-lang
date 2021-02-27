@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/records;
+import testorg/foo.records;
 
 // TESTS FOR RECORDS WHERE THE REFERENCED TYPE ONLY HAS VALUE TYPE FIELDS
 
@@ -148,7 +148,7 @@ function testReferenceChains() returns Foo4 {
     return f;
 }
 
-function testTypeReferencingInBALOs() returns records:BClosedManager {
+function testTypeReferencingInBALAs() returns records:BClosedManager {
     records:BClosedManager m = {name:"John Doe", age:25, adr:{city:"Colombo", country:"Sri Lanka"}, company:"WSO2", dept:"Engineering"};
     return m;
 }
@@ -176,7 +176,98 @@ function testDefaultValueInit() returns ManagerRec {
     return mgr;
 }
 
-function testDefaultValueInitInBALOs() returns records:BClosedManager {
+function testDefaultValueInitInBALAs() returns records:BClosedManager {
     records:BClosedManager mgr = {};
     return mgr;
+}
+
+// Test overriding rest descriptor.
+
+type Rec1 record {|
+    int i;
+    string...;
+|};
+
+type Rec2 record {|
+    string s;
+    any|error...;
+|};
+
+type IncludingRec1 record {|
+    boolean b;
+    *Rec1;
+|};
+
+type IncludingRec2 record {|
+    *Rec1;
+    boolean...;
+|};
+
+type IncludingRec3 record {|
+    int i;
+    *Rec2;
+|};
+
+type Rec3 record {
+    int i;
+};
+
+type Rec4 record {
+    int j;
+};
+
+type IncludingRec4 record {|
+    int k;
+    *Rec3;
+    *Rec4;
+|};
+
+type Rec5 record {|
+    int i;
+    string...;
+|};
+
+type Rec6 record {|
+    int j;
+    string...;
+|};
+
+type IncludingRec5 record {|
+    int k;
+    *Rec5;
+    *Rec6;
+|};
+
+function testRestTypeOverriding() {
+    IncludingRec1 r1 = {b: false, i: 1, "s": "str"};
+    assertEquality("str", r1["s"]);
+    IncludingRec2 r2 = {i: 1, "b": false};
+    assertEquality(false, r2["b"]);
+    IncludingRec3 r3 = {i: 1, s: "str", "e": error("Message")};
+    assertEquality(true, r3["e"] is error);
+    error e = <error> r3["e"];
+    assertEquality("Message", e.message());
+    IncludingRec4 r4 = {i: 1, j: 2, k: 3, "s": "str"};
+    assertEquality("str", r4["s"]);
+    IncludingRec4 r5 = {i: 1, j: 2, k: 3, "s": "str", "b": false};
+    assertEquality(false, r5["b"]);
+    IncludingRec5 r6 = {i: 1, j: 2, k: 3, "s1": "str1", "s2": "str2"};
+    assertEquality("str2", r6["s2"]);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

@@ -181,7 +181,7 @@ function testLaxUnionFieldAccessPositive() returns boolean {
     map<map<json>> m = { a: { b: i }, c: { d: "string value" } };
     map<map<json>>|json mj = m;
     json|error jv = mj.a.b;
-    return jv == i;
+    return isEqual(jv, i);
 }
 
 function testLaxUnionFieldAccessNegative1() returns boolean {
@@ -207,15 +207,19 @@ function testLaxUnionFieldAccessNegative3() returns boolean {
 
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
-        return je.message() == "{ballerina}JSONOperationError" && je.detail()["message"].toString() == "JSON value is not a mapping";
+        var detailMessage = je.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        return je.message() == "{ballerina}JSONOperationError" && detailMessageString == "JSON value is not a mapping";
     }
     return false;
 }
 
 function assertKeyNotFoundError(json|error je, string key) returns boolean {
     if (je is error) {
+        var detailMessage = je.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
         return je.message() == "{ballerina/lang.map}KeyNotFound" &&
-                                je.detail()["message"].toString() == "Key '" + key + "' not found in JSON mapping";
+                                detailMessageString == "Key '" + key + "' not found in JSON mapping";
     }
     return false;
 }
@@ -268,9 +272,22 @@ function testFieldAccessOnInvocation() returns boolean {
 
 function testJsonFieldAccessOnInvocation() returns boolean {
     json|error v = getJson().x.y;
-    return v == 1;
+    return isEqual(v, 1);
 }
 
 function getJson() returns json {
     return { x: { y: 1 } };
+}
+
+function testFieldAccessOnMapConstruct() returns boolean {
+    string name = ({name: "Sanjiva", employer: (), id: 1}).name;
+    return "Sanjiva" == name;
+}
+
+isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {
+    if (val1 is anydata && val2 is anydata) {
+        return (val1 == val2);
+    } else {
+        return (val1 === val2);
+    }
 }

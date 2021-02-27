@@ -76,7 +76,7 @@ function testCharLangLib() {
         test:assertNotError(result); // Should fail.
     }
 
-    s:Char h = <s:Char> result;
+    s:Char h = <s:Char> checkpanic result;
     test:assertValueEqual("h", h);
 
     int y = h.toCodePointInt();

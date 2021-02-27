@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 import ballerina/task;
 import ballerina/time;
 
@@ -45,8 +45,8 @@ type CacheEntry record {|
 boolean cleanupInProgress = false;
 
 // Cleanup service which cleans the cache entries periodically.
-service cleanupService = service {
-    resource function onTrigger(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
+service class CleanupService {
+    remote function onTrigger(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
         // This check will skip the processes triggered while the clean up in progress.
         if (!cleanupInProgress) {
             cleanupInProgress = true;
@@ -54,7 +54,7 @@ service cleanupService = service {
             cleanupInProgress = false;
         }
     }
-};
+}
 
 # The `cache:Cache` object, which is used for all the cache-related operations. It is not recommended to insert `()`
 # as the value of the cache since it doesn't make any sense to cache a nil.
@@ -62,7 +62,7 @@ public class Cache {
 
     *AbstractCache;
 
-    private int capacity;
+    private int capacity_;
     private AbstractEvictionPolicy evictionPolicy;
     private float evictionFactor;
     private int defaultMaxAgeInSeconds;
@@ -72,13 +72,13 @@ public class Cache {
     #
     # + cacheConfig - Configurations for the `cache:Cache` object
     public function init(CacheConfig cacheConfig = {}) {
-        self.capacity = cacheConfig.capacity;
+        self.capacity_ = cacheConfig.capacity;
         self.evictionPolicy = cacheConfig.evictionPolicy;
         self.evictionFactor = cacheConfig.evictionFactor;
         self.defaultMaxAgeInSeconds = cacheConfig.defaultMaxAgeInSeconds;
 
         // Cache capacity must be a positive value.
-        if (self.capacity <= 0) {
+        if (self.capacity_ <= 0) {
             panic prepareError("Capacity must be greater than 0.");
         }
         // Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).
@@ -96,7 +96,7 @@ public class Cache {
             tail: ()
         };
 
-        externInit(self, self.capacity);
+        externInit(self, self.capacity_);
 
         int? cleanupIntervalInSeconds = cacheConfig?.cleanupIntervalInSeconds;
         if (cleanupIntervalInSeconds is int) {
@@ -105,7 +105,7 @@ public class Cache {
                 initialDelayInMillis: cleanupIntervalInSeconds
             };
             task:Scheduler cleanupScheduler = new(timerConfiguration);
-            task:SchedulerError? result = cleanupScheduler.attach(cleanupService, self, self.list, self.evictionPolicy);
+            task:SchedulerError? result = cleanupScheduler.attach(new CleanupService(), self, self.list, self.evictionPolicy);
             if (result is task:SchedulerError) {
                 panic prepareError("Failed to create the cache cleanup task.", result);
             }
@@ -130,8 +130,8 @@ public class Cache {
                                 logLevel = LOG_LEVEL_DEBUG);
         }
         // If the current cache is full (i.e. size = capacity), evict cache.
-        if (self.size() == self.capacity) {
-            evict(self, self.list, self.evictionPolicy, self.capacity, self.evictionFactor);
+        if (self.size() == self.capacity_) {
+            evict(self, self.list, self.evictionPolicy, self.capacity_, self.evictionFactor);
         }
 
         // Calculate the `expTime` of the cache entry based on the `maxAgeInSeconds` property and
@@ -240,7 +240,7 @@ public class Cache {
     #
     # + return - The capacity of the cache
     public function capacity() returns int {
-        return self.capacity;
+        return self.capacity_;
     }
 }
 

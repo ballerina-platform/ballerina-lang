@@ -16,16 +16,17 @@
  */
 package org.ballerinalang.test.expressions.lambda;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BFunctionPointer;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -66,12 +67,12 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "incompatible types: expected '[other,other]', found 'string[]'",
                 48, 18);
         BAssertUtil.validateError(negative, index++,
-                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'other'",
+                                  "invalid list binding pattern: attempted to infer a list type, but found 'other'",
                                   48, 18);
         BAssertUtil.validateError(negative, index++, "invalid operation: type 'string' does not support field access",
                 49, 35);
         BAssertUtil.validateError(negative, index++, "too many arguments in call to 'length()'", 55, 9);
-        BAssertUtil.validateError(negative, index++, "missing required parameter 'func' in call to 'filter'()", 56, 5);
+        BAssertUtil.validateError(negative, index++, "missing required parameter 'func' in call to 'filter()'", 56, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
                 "returns ()', found 'int'", 58, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected '[string,string,string]', found " +
@@ -291,5 +292,11 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns[0].getType().toString(), "function (int) returns (boolean)");
         Assert.assertEquals(returns[1].getType().toString(), "function (int) returns (boolean)");
         Assert.assertEquals(returns[2].getType().toString(), "function (int) returns (boolean)");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        basic = null;
+        negative = null;
     }
 }

@@ -1,0 +1,4 @@
+[package]
+org = "test_globalcycle"
+name = "viaFuncProject"
+version = "1.0.0"

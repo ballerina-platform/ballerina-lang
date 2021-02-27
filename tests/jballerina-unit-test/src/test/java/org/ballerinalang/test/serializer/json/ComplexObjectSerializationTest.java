@@ -17,17 +17,18 @@
  */
 package org.ballerinalang.test.serializer.json;
 
-import org.ballerinalang.model.types.BRecordType;
-import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.util.serializer.JsonSerializer;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.types.BRecordType;
+import org.ballerinalang.core.model.types.BTupleType;
+import org.ballerinalang.core.model.util.serializer.JsonSerializer;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -190,5 +191,10 @@ public class ComplexObjectSerializationTest {
             resolved = true;
             return this;
         }
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

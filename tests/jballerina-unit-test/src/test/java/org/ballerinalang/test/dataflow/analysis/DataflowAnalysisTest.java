@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.dataflow.analysis;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 @Test
 public class DataflowAnalysisTest {
 
-    @Test(description = "Test uninitialized variables")
+    @Test(description = "Test uninitialized variables", enabled = false)
     public void testSemanticsOfUninitializedVariables() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/dataflow/analysis/dataflow-analysis-semantics-negative.bal");
@@ -41,7 +41,7 @@ public class DataflowAnalysisTest {
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
-    @Test(description = "Test uninitialized variables")
+    @Test(description = "Test uninitialized variables", enabled = false)
     public void testUninitializedVariables() {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-negative.bal");
         int i = 0;
@@ -92,6 +92,30 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 718, 13);
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 723, 28);
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 723, 41);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test(description = "Test uninitialized variables in error-constructor-expr")
+    public void testUninitializedVariablesInErrorConstructorExpr() {
+        CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-error-constructor" +
+                "-expr.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "variable 'message' is not initialized", 21, 24);
+        BAssertUtil.validateError(result, i++, "variable 'message' is not initialized", 22, 32);
+        BAssertUtil.validateError(result, i++, "variable 'x' is not initialized", 22, 45);
+        BAssertUtil.validateError(result, i++, "variable 'message' is not initialized", 24, 49);
+        BAssertUtil.validateError(result, i++, "variable 'x' is not initialized", 24, 62);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test(description = "Test uninitialized local complex variable")
+    public void testUninitializedLocalTupleVar() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/dataflow/analysis/uninitialized_local_complex_variables.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "complex variable must be initialized", 18, 46);
+        BAssertUtil.validateError(result, i++, "complex variable must be initialized", 31, 62);
+        BAssertUtil.validateError(result, i++, "complex variable must be initialized", 44, 83);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

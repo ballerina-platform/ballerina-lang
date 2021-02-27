@@ -38,7 +38,7 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
         this.constraint = constraint;
     }
 
-    public BMapType(int tag, BType constraint, BTypeSymbol tsymbol, int flags) {
+    public BMapType(int tag, BType constraint, BTypeSymbol tsymbol, long flags) {
         super(tag, tsymbol, flags);
         this.constraint = constraint;
     }
@@ -69,10 +69,6 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    public final boolean isAnydata() {
-        return this.constraint.isPureType();
     }
 
     @Override

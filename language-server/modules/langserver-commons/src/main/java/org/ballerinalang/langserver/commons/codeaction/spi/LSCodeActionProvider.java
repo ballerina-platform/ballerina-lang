@@ -15,10 +15,11 @@
  */
 package org.ballerinalang.langserver.commons.codeaction.spi;
 
-import org.ballerinalang.langserver.commons.LSContext;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
 
 import java.util.List;
 
@@ -30,44 +31,56 @@ import java.util.List;
 public interface LSCodeActionProvider {
 
     /**
+     * Returns priority to be listed the code-action.
+     *
+     * @return lower the number higher the priority
+     */
+    default int priority() {
+        return 1000;
+    }
+
+    /**
      * Returns True if code action is enabled.
-     * @return  True if code action is enabled, False otherwise
+     *
+     * @return True if code action is enabled, False otherwise
      */
-    boolean isEnabled();
+    default boolean isEnabled(LanguageServerContext serverContext) {
+        return true;
+    }
 
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
-     * @param nodeType           code action node type
-     * @param lsContext          language server context
-     * @param allDiagnostics     diagnostics list of the module
+     * @param context         language server context
+     * @param posDetails
      * @return list of Code Actions
      */
-    List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                    List<Diagnostic> allDiagnostics);
+    List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                             NodeBasedPositionDetails posDetails);
 
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
-     * @param nodeType           code action node type
-     * @param lsContext          language server context
-     * @param diagnosticsOfRange diagnostics list of the cursor range
-     * @param allDiagnostics     diagnostics list of the module
+     * @param diagnostic diagnostic to evaluate
+     * @param positionDetails   {@link DiagBasedPositionDetails}
+     * @param context    language server context
      * @return list of Code Actions
      */
-    List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                             List<Diagnostic> diagnosticsOfRange,
-                                             List<Diagnostic> allDiagnostics);
+    List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                             DiagBasedPositionDetails positionDetails,
+                                             CodeActionContext context);
 
     /**
      * Returns True of node type based code actions are supported.
-     * @return  True of node type based code actions are supported, False otherwise
+     *
+     * @return True of node type based code actions are supported, False otherwise
      */
     boolean isNodeBasedSupported();
 
     /**
      * Returns True of code diagnostics type based code actions are supported.
-     * @return  True of code diagnostics based code actions are supported, False otherwise
+     *
+     * @return True of code diagnostics based code actions are supported, False otherwise
      */
     boolean isDiagBasedSupported();
 

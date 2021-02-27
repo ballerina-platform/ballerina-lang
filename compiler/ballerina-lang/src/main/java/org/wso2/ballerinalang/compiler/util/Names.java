@@ -45,9 +45,11 @@ public class Names {
     public static final Name DOT = new Name(".");
     public static final Name DEFAULT_PACKAGE = DOT;
     public static final Name BALLERINA_ORG = new Name("ballerina");
+    public static final Name BALLERINA_INTERNAL_ORG = new Name("ballerinai");
     public static final Name LANG = new Name("lang");
     public static final Name INTERNAL = new Name("__internal");
     public static final Name ANNOTATIONS = new Name("annotations");
+    public static final Name JAVA = new Name("jballerina.java");
     public static final Name ARRAY = new Name("array");
     public static final Name DECIMAL = new Name("decimal");
     public static final Name ERROR = new Name("error");
@@ -59,12 +61,16 @@ public class Names {
     public static final Name OBJECT = new Name("object");
     public static final Name STREAM = new Name("stream");
     public static final Name QUERY = new Name("query");
+    public static final Name RUNTIME = new Name("runtime");
     public static final Name TRANSACTION = new Name("transaction");
+    public static final Name OBSERVE = new Name("observe");
     public static final Name TABLE = new Name("table");
     public static final Name TYPEDESC = new Name("typedesc");
     public static final Name STRING = new Name("string");
     public static final Name VALUE = new Name("value");
     public static final Name XML = new Name("xml");
+    public static final Name JSON = new Name("json");
+    public static final Name ANYDATA = new Name("anydata");
     public static final Name UTILS_PACKAGE = new Name("utils");
     public static final Name BUILTIN_ORG = new Name("ballerina");
     public static final Name RUNTIME_PACKAGE = new Name("runtime");
@@ -88,6 +94,7 @@ public class Names {
     public static final Name ALIAS_SEPARATOR = VERSION_SEPARATOR;
     public static final Name ANNOTATION_TYPE_PARAM = new Name("typeParam");
     public static final Name ANNOTATION_BUILTIN_SUBTYPE = new Name("builtinSubtype");
+    public static final Name ANNOTATION_ISOLATED_PARAM = new Name("isolatedParam");
 
     public static final Name BIR_BASIC_BLOCK_PREFIX = new Name("bb");
     public static final Name BIR_LOCAL_VAR_PREFIX = new Name("%");
@@ -98,6 +105,10 @@ public class Names {
 
     public static final Name NEVER = new Name("never");
     public static final Name RAW_TEMPLATE = new Name("RawTemplate");
+    public static final Name CLONEABLE = new Name("Cloneable");
+    public static final Name CLONEABLE_INTERNAL = new Name("__Cloneable");
+    public static final Name CLONEABLE_INTERNAL1 = new Name("__Cloneable1");
+    public static final Name CLONEABLE_INTERNAL2 = new Name("__Cloneable2");
 
     // Subtypes
     public static final Name SIGNED32 = new Name(STRING_SIGNED32);
@@ -124,14 +135,21 @@ public class Names {
     public static final Name END_TRANSACTION = new Name("endTransaction");
     public static final Name GET_AND_CLEAR_FAILURE_TRANSACTION = new Name("getAndClearFailure");
     public static final Name CLEAN_UP_TRANSACTION = new Name("cleanupTransactionContext");
+    public static final Name BEGIN_REMOTE_PARTICIPANT = new Name("beginRemoteParticipant");
+    public static final Name START_TRANSACTION_COORDINATOR = new Name("startTransactionCoordinator");
 
+    // Names related to streams
     public static final Name CONSTRUCT_STREAM = new Name("construct");
+    public static final Name ABSTRACT_ITERATOR = new Name("_Iterator");
+    public static final Name ABSTRACT_CLOSEABLE_ITERATOR = new Name("_CloseableIterator");
 
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
+    public static final Name JAVA_VERSION = new Name(BLangCompilerConstants.JAVA_VERSION);
     public static final Name INTERNAL_VERSION = new Name(BLangCompilerConstants.INTERNAL_VERSION);
     public static final Name ANNOTATIONS_VERSION = new Name(BLangCompilerConstants.ANNOTATIONS_VERSION);
     public static final Name ARRAY_VERSION = new Name(BLangCompilerConstants.ARRAY_VERSION);
+    public static final Name CONFIG_VERSION = new Name(BLangCompilerConstants.CONFIG_VERSION);
     public static final Name DECIMAL_VERSION = new Name(BLangCompilerConstants.DECIMAL_VERSION);
     public static final Name ERROR_VERSION = new Name(BLangCompilerConstants.ERROR_VERSION);
     public static final Name FLOAT_VERSION = new Name(BLangCompilerConstants.FLOAT_VERSION);
@@ -147,7 +165,12 @@ public class Names {
     public static final Name XML_VERSION = new Name(BLangCompilerConstants.XML_VERSION);
     public static final Name BOOLEAN_VERSION = new Name(BLangCompilerConstants.BOOLEAN_VERSION);
     public static final Name QUERY_VERSION = new Name(BLangCompilerConstants.QUERY_VERSION);
+    public static final Name RUNTIME_VERSION = new Name(BLangCompilerConstants.RUNTIME_VERSION);
     public static final Name TRANSACTION_VERSION = new Name(BLangCompilerConstants.TRANSACTION_VERSION);
+    public static final Name TRANSACTION_INTERNAL_VERSION =
+            new Name(BLangCompilerConstants.TRANSACTION_INTERNAL_VERSION);
+    public static final Name OBSERVE_INTERNAL_VERSION = new Name(BLangCompilerConstants.OBSERVE_INTERNAL_VERSION);
+    public static final Name OBSERVE_VERSION = new Name(BLangCompilerConstants.OBSERVE_VERSION);
 
     public CompilerContext context;
 
@@ -185,7 +208,7 @@ public class Names {
     }
 
     public Name merge(Name... names) {
-        StringBuilder builder = new StringBuilder("");
+        StringBuilder builder = new StringBuilder();
         for (Name name : names) {
             builder.append(name.value);
         }

@@ -105,6 +105,10 @@
                   ]
                 },
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "INT_TYPE_DESC",
                   "hasDiagnostics": true,
                   "children": [

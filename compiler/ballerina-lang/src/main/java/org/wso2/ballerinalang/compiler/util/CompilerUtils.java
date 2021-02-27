@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.util;
 
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 
@@ -43,4 +44,10 @@ public class CompilerUtils {
     public static boolean isMainFunction(BLangFunction funcNode) {
         return MAIN_FUNCTION_NAME.equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol);
     }
+
+    public static boolean getBooleanValueIfSet(CompilerOptions compilerOptions, CompilerOptionName optionName) {
+
+        return compilerOptions.isSet(optionName) && Boolean.parseBoolean(compilerOptions.get(optionName));
+    }
+
 }

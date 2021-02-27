@@ -25,14 +25,13 @@ const DETACH_METHOD_INCREMENT_VALUE = 5;
 // The Listener type is defined as follows.
 //
 // abstract object {
-//    function __attach (service s, string? name = ()) returns error?;
-//    function __detach (service s) returns error?;
-//    function __start () returns error?;
-//    function __gracefulStop() returns error?;
-//    function __immediateStop() returns error?;
+//    function attach (service s, string? name = ()) returns error?;
+//    function detach (service s) returns error?;
+//    function start () returns error?;
+//    function gracefulStop() returns error?;
+//    function immediateStop() returns error?;
 // }
 type CustomListener object {
-    *'object:Listener;
 
     private string listenerName;
 
@@ -40,19 +39,19 @@ type CustomListener object {
         self.listenerName = name;
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
         globalVar += START_METHOD_INCREMENT_VALUE;
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         return ();
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         return ();
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service s, string? name = ()) returns error? {
         globalVar += ATTACH_METHOD_INCREMENT_VALUE;
     }
 

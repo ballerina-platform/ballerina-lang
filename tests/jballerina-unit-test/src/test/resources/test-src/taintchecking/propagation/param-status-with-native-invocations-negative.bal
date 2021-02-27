@@ -14,12 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/config;
-
 public function main(string... args) returns error? {
     string key = args[0];
-    io:println(key);
-    boolean b = config:contains(key);
+    boolean b = contains(key);
     return;
+}
+
+
+public function contains(@untainted any key) returns boolean {
+    return false;
 }

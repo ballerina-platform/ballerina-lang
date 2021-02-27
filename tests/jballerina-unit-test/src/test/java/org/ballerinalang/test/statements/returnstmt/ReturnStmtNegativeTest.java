@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.statements.returnstmt;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -42,7 +42,7 @@ public class ReturnStmtNegativeTest {
         BAssertUtil.validateError(result, 0, "incompatible types: expected '[string,string]', found 'string'", 2, 12);
     }
 
-    @Test(description = "Test not enough arguments to return", groups = { "disableOnOldParser" })
+    @Test(description = "Test not enough arguments to return")
     public void testNotEnoughArgsToReturn3() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-3.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
@@ -52,7 +52,7 @@ public class ReturnStmtNegativeTest {
         BAssertUtil.validateError(result, 2, "invalid token ','", 2, 31);
     }
 
-    @Test(description = "Test too many arguments to return", groups = { "disableOnOldParser" })
+    @Test(description = "Test too many arguments to return")
     public void testTooManyArgsToReturn1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/too-many-args-to-return-1.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
@@ -188,8 +188,8 @@ public class ReturnStmtNegativeTest {
 
     @Test(description = "Test return statement in resource with mismatching types")
     public void testReturnInResourceWithMismatchingTypes() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-in-resource-with-" +
-                "mismatching-types.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/statements/returnstmt/return-in-resource-with-mismatching-types.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "incompatible types: expected 'error?', found 'int'", 22, 16);
         BAssertUtil.validateError(result, 1, "incompatible types: expected '()', found 'string'", 26, 16);

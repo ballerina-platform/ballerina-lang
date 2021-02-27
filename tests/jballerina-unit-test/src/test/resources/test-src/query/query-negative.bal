@@ -1,3 +1,19 @@
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 type Person record {|
    string firstName;
    string lastName;
@@ -250,25 +266,6 @@ function testReassignValueInLet() returns FullName[]{
     return  outputNameList;
 }
 
-function testQueryExprForXML() returns xml {
-    xml book1 = xml `<book>
-                           <name>Sherlock Holmes</name>
-                           <author>Sir Arthur Conan Doyle</author>
-                     </book>`;
-
-    xml book2 = xml `<book>
-                           <name>The Da Vinci Code</name>
-                           <author>Dan Brown</author>
-                    </book>`;
-
-    xml book = book1 + book2;
-
-    xml books = from var x in book/<name>
-                select x;
-
-    return  books;
-}
-
 function testQueryExprForString() returns string {
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
@@ -387,4 +384,29 @@ public function testMethodParamInQuery(int age) {
                    lastName: lastName,
                    age: age
              };
+}
+
+type TableRecord record {
+    readonly string name;
+    int id;
+};
+
+function testTableWithNonMappingType() {
+
+    table<TableRecord> key(name) t = table [
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
+
+    table<int> ids = from var x in t select x.id;
+}
+
+function testTableWithNonMappingTypeWithBindingPatterns() {
+
+    table<TableRecord> key(name) t = table [
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
+
+    table<int> ids = from var {id} in t select id;
 }

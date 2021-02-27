@@ -18,27 +18,21 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+import io.ballerina.runtime.api.values.BArray;
 
 /**
  * Native implementation of lang.array:setLength((any|error)[], int).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "setLength",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "i", type = TypeKind.INT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "setLength",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "i", type = TypeKind.INT)},
+//        isPublic = true
+//)
 public class SetLength {
 
-    public static void setLength(Strand strand, ArrayValue arr, long i) {
+    public static void setLength(BArray arr, long i) {
         arr.setLength(i);
     }
 }

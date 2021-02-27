@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "subtyping"
+version = "1.0.0"

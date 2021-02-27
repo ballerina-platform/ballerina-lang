@@ -18,20 +18,33 @@
 
 package org.ballerinalang.testerina.core;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeChecker;
 
 /**
  * Type check function ballerina/test#getBallerinaType.
  */
 public class BallerinaTypeCheck {
+
+    /**
+     * Mark the constructor as private.
+     */
     private BallerinaTypeCheck() {
     }
 
+    /**
+     * Get the Ballerina type of an object.
+     * @param value Object
+     * @return BString
+     */
     public static BString getBallerinaType(Object value) {
-        BType bType = TypeChecker.getType(value);
-        return BStringUtils.fromString(bType.getName());
+        Type bType = TypeChecker.getType(value);
+        String typeName = bType.getName();
+        if (typeName == null) {
+            typeName = "";
+        }
+        return StringUtils.fromString(typeName);
     }
 }

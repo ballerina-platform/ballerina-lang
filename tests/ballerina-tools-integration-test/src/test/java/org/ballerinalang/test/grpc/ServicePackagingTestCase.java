@@ -61,7 +61,7 @@ public class ServicePackagingTestCase extends BaseTest {
             Paths.get(projectPath.resolve("foo").toString(), "nested_type_service.bal"));
         Files.deleteIfExists(projectPath.resolve("foo").resolve("hello_service.bal"));
 
-        // perform ballerina build and generate balx file.
+        // perform bal build and generate balx file.
         ballerinaBuildServer.runMain("build", new String[0], getEnvVariables(), new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");

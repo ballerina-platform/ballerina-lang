@@ -18,12 +18,11 @@
 
 package org.ballerinalang.net.http.caching;
 
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.Map;
 import java.util.StringJoiner;
@@ -51,7 +50,7 @@ public class ResponseCacheControlObj {
 
     private BObject responseCacheControl;
 
-    public ResponseCacheControlObj(BPackage bPackage, String objectTypeName) {
+    public ResponseCacheControlObj(Module bPackage, String objectTypeName) {
         responseCacheControl = BValueCreator.createObjectValue(bPackage, objectTypeName);
         init();
     }
@@ -140,7 +139,7 @@ public class ResponseCacheControlObj {
                     if (value != null) {
                         value = value.replace("\"", "");
                         responseCacheControl.set(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD,
-                                                         new ArrayValueImpl(value.split(",")));
+                                                         BValueCreator.createArrayValue(value.split(",")));
                     }
                     break;
                 case NO_STORE:
@@ -154,7 +153,7 @@ public class ResponseCacheControlObj {
                     if (value != null) {
                         value = value.replace("\"", "");
                         responseCacheControl.set(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD,
-                                                         new ArrayValueImpl(value.split(",")));
+                                                         BValueCreator.createArrayValue(value.split(",")));
                     }
                     break;
                 case PUBLIC:
@@ -195,7 +194,7 @@ public class ResponseCacheControlObj {
 
         if (getBooleanValue(responseCacheControl, RES_CACHE_CONTROL_NO_CACHE_FIELD) == TRUE) {
             directivesBuilder.add("no-cache" + appendFields(
-                    (ArrayValue) responseCacheControl.get(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD)));
+                    (BArray) responseCacheControl.get(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD)));
         }
 
         if (getBooleanValue(responseCacheControl, RES_CACHE_CONTROL_NO_STORE_FIELD) == TRUE) {
@@ -208,7 +207,7 @@ public class ResponseCacheControlObj {
 
         if (getBooleanValue(responseCacheControl, RES_CACHE_CONTROL_IS_PRIVATE_FIELD) == TRUE) {
             directivesBuilder.add("private" + appendFields(
-                    (ArrayValue) responseCacheControl.get(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD)));
+                    (BArray) responseCacheControl.get(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD)));
         } else {
             directivesBuilder.add("public");
         }
@@ -228,7 +227,7 @@ public class ResponseCacheControlObj {
         return directivesBuilder.toString();
     }
 
-    private String appendFields(ArrayValue values) {
+    private String appendFields(BArray values) {
         if (values.size() > 0) {
             StringJoiner joiner = new StringJoiner(",");
 

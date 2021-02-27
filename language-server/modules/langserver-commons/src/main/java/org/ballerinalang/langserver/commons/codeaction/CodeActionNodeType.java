@@ -21,11 +21,16 @@ package org.ballerinalang.langserver.commons.codeaction;
  * @since 1.0.2
  */
 public enum CodeActionNodeType {
+    LOCAL_VARIABLE,
+    MODULE_VARIABLE,
+    ASSIGNMENT,
     FUNCTION,
     OBJECT_FUNCTION,
+    CLASS_FUNCTION,
     RESOURCE,
     SERVICE,
     OBJECT,
+    CLASS,
     RECORD,
     IMPORTS,
     NONE;

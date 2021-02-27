@@ -18,14 +18,15 @@
 
 package org.ballerinalang.test.expressions.literals;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,8 +41,8 @@ public class IdentifierLiteralPackageTest {
     @BeforeClass
     public void setup() {
 
-        result = BCompileUtil.compile(this, "test-src/expressions/literals/identifierliteral/TestProject",
-                "pkg.main");
+        result = BCompileUtil.compile("test-src/expressions/literals/identifierliteral/testproject/" +
+                                        "identifier-literal-pkg.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
@@ -70,5 +71,10 @@ public class IdentifierLiteralPackageTest {
         Assert.assertEquals(returns[0].stringValue(), "Harry");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
 
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

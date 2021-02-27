@@ -22,15 +22,9 @@ import org.testng.Assert;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -72,70 +66,6 @@ public class PackerinaTestUtils {
         Map<String, String> retMap = new HashMap<>();
         envVarMap.forEach(retMap::put);
         return retMap;
-    }
-
-    /**
-     * Generate random module name.
-     *
-     * @param count number of characters required
-     * @return generated name
-     */
-    public static String randomModuleName(int count) {
-        String upperCaseAlpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        String lowerCaseAlpha = "abcdefghijklmnopqrstuvwxyz";
-        String alpha = upperCaseAlpha + lowerCaseAlpha;
-        StringBuilder builder = new StringBuilder();
-        while (count-- != 0) {
-            int character = (int) (Math.random() * alpha.length());
-            builder.append(alpha.charAt(character));
-        }
-        return builder.toString();
-    }
-
-    /**
-     * Get token of ballerina-central-bot required to push the module.
-     *
-     * @return token required to push the module.
-     */
-    public static String getToken() {
-        // staging and dev both has the same access token
-        return new String(Base64.getDecoder().decode("YWYwMjkyODgtNjhkZC0zOTVmLTk5MzQtYTgyYWRjM2NlYzZi"));
-    }
-
-    /**
-     * Create Settings.toml inside the home repository.
-     *
-     * @throws IOException i/o exception when writing to file
-     */
-    public static void createSettingToml(Path dirPath) throws IOException {
-        String content = "[central]\n accesstoken = \"" + getToken() + "\"";
-        Files.write(dirPath.resolve("Settings.toml"), content.getBytes(), StandardOpenOption.CREATE,
-                StandardOpenOption.TRUNCATE_EXISTING);
-    }
-    
-    
-    
-    /**
-     * Update the organization name by changing the default organization name.
-     * @param projectRootPath The project root.
-     * @param orgName The organization name.
-     * @throws IOException Error when writing to Ballerina.toml
-     */
-    protected static void updateManifestOrgName(Path projectRootPath, String orgName) throws IOException {
-        String guessOrgName = System.getProperty("user.name");
-        if (guessOrgName == null) {
-            guessOrgName = "my_org";
-        } else {
-            guessOrgName = guessOrgName.toLowerCase(Locale.getDefault());
-        }
-        
-        Path tomlPath = projectRootPath.resolve("Ballerina.toml");
-        Stream<String> lines = Files.lines(tomlPath);
-        String finalGuessOrgName = guessOrgName;
-        List<String> replaced = lines.map(line -> line.replaceAll(finalGuessOrgName, orgName))
-                .collect(Collectors.toList());
-        Files.write(tomlPath, replaced);
-        lines.close();
     }
 
     /**

@@ -20,6 +20,10 @@
       "value": "foo"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -30,7 +34,13 @@
           "children": []
         },
         {
-          "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -108,15 +118,10 @@
                   ]
                 },
                 {
-                  "kind": "FUNCTION_CALL",
+                  "kind": "ERROR_CONSTRUCTOR",
                   "children": [
                     {
-                      "kind": "ERROR_TYPE_DESC",
-                      "children": [
-                        {
-                          "kind": "ERROR_KEYWORD"
-                        }
-                      ]
+                      "kind": "ERROR_KEYWORD"
                     },
                     {
                       "kind": "OPEN_PAREN_TOKEN"

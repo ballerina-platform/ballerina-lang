@@ -33,7 +33,7 @@
           "kind": "OBJECT_KEYWORD",
           "hasDiagnostics": true,
           "diagnostics": [
-            "ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT"
+            "ERROR_QUALIFIER_NOT_ALLOWED"
           ],
           "leadingMinutiae": [
             {
@@ -74,6 +74,10 @@
             {
               "kind": "OBJECT_FIELD",
               "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
                 {
                   "kind": "STRING_TYPE_DESC",
                   "children": [

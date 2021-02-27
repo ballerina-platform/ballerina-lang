@@ -18,12 +18,12 @@
 
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Negative test cases for table.
@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 21);
+        Assert.assertEquals(compileResult.getErrorCount(), 25);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -51,9 +51,9 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "member access is not supported for keyless table " +
                 "'customerTable'", 45, 21);
         validateError(compileResult, index++, "invalid constraint type. expected subtype of " +
-                "'map<any|error>' but 'int'", 47, 7);
-        validateError(compileResult, index++, "multi key member access is not supported for " +
-                "type 'map'. only support for subtype of 'table'", 52, 13);
+                "'map<any|error>' but found 'int'", 47, 7);
+        validateError(compileResult, index++, "invalid member access with 'map': member access with " +
+                "multi-key expression is only allowed with subtypes of 'table'", 52, 13);
         validateError(compileResult, index++, "field 'name' used in key specifier must be a readonly " +
                 "field", 62, 34);
         validateError(compileResult, index++, "field 'name' used in key specifier must be a required " +
@@ -68,17 +68,25 @@ public class TableNegativeTest {
                 "key<string>', found 'table<Customer> key<int>'", 95, 56);
         validateError(compileResult, index++, "field name 'no' used in key specifier is not " +
                 "found in table constraint type 'record {| int id; string name; string lname?; " +
-                "string address?; |}'", 98, 21);
+                "string address?; |}'", 102, 21);
         validateError(compileResult, index++, "field 'address' used in key specifier must be a " +
-                "readonly field", 104, 21);
+                "readonly field", 108, 21);
         validateError(compileResult, index++, "table with constraint of type map cannot have key " +
-                "specifier or key type constraint", 110, 21);
+                "specifier or key type constraint", 114, 21);
         validateError(compileResult, index++, "table with constraint of type map cannot have key " +
-                "specifier or key type constraint", 116, 21);
-        validateError(compileResult, index++, "member access is not supported for keyless table 'tab'", 120, 26);
+                "specifier or key type constraint", 120, 21);
+        validateError(compileResult, index++, "member access is not supported for keyless table 'tab'", 124, 26);
         validateError(compileResult, index++, "cannot infer the member type from table constructor. " +
-                "field 'id' type is ambiguous", 125, 14);
-        validateError(compileResult, index, "cannot infer the member type from table constructor; " +
-                "no values are provided in table constructor", 130, 25);
+                "field 'id' type is ambiguous", 129, 14);
+        validateError(compileResult, index++, "cannot infer the member type from table constructor; " +
+                "no values are provided in table constructor", 134, 25);
+        validateError(compileResult, index++, "incompatible types: expected 'Customer', found 'Customer?'",
+                141, 25);
+        validateError(compileResult, index++, "incompatible types: expected 'User', found '(User|Customer)?'",
+                147, 17);
+        validateError(compileResult, index++, "incompatible types: expected 'Customer', found 'Customer?'",
+                154, 25);
+        validateError(compileResult, index, "field 'name' used in key specifier must be a readonly field",
+                162, 36);
     }
 }

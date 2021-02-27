@@ -18,7 +18,7 @@ import ballerina/test;
 
 // This test should not run
 @test:Config{
-    enable:false
+    enable:false //test comment
 }
 function testDisableFunc1 () {
     test:assertTrue(false, msg = "this test is not expected to run");

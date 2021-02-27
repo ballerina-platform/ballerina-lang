@@ -105,13 +105,13 @@ public class TypedBindingPatternsTest extends AbstractMiscTest {
     }
 
     @Test
-    public void testFunctionalBindingPattern() {
+    public void testErrorBindingPattern() {
         testFile("typed-binding-patterns/typed_binding_patterns_source_20.bal",
                 "typed-binding-patterns/typed_binding_patterns_assert_20.json");
     }
 
     @Test
-    public void testFunctionalBindingPatternInLetVarDecl() {
+    public void testErrorBindingPatternInLetVarDecl() {
         testFile("typed-binding-patterns/typed_binding_patterns_source_21.bal",
                 "typed-binding-patterns/typed_binding_patterns_assert_21.json");
     }

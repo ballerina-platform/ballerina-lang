@@ -16,5 +16,7 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-
+    <Match>
+        <Package name="org.ballerinalang.stdlib.utils"/>
+    </Match>
 </FindBugsFilter>

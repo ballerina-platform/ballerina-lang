@@ -26,6 +26,10 @@ public class BallerinaProject {
 
     private String author;
 
+    private String packageName;
+
+    private String kind;
+
     public String getPath() {
         return path;
     }
@@ -48,5 +52,21 @@ public class BallerinaProject {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public String getPackageName() {
+        return this.packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
     }
 }

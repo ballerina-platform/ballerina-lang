@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 function testIntWithoutArgs() returns int {
    int b = 7;
    return b;
@@ -155,29 +153,6 @@ function tupleTest() returns int {
    // var (_, r1) = ret;
 
    return 10;
-}
-
-public function testRestType() {
-    [int...] x = [1, 2];
-    any y = x;
-    assertEquality(y is string[], false);
-}
-
-public function testEmptyArrayType() {
-    var x = [];
-    any a = x;
-    assertEquality(a is int[2], false);
-    assertEquality(a is int[], true);
-
-    string[] sa = [];
-    any arr = sa;
-    assertEquality(arr is string[], true);
-    assertEquality(arr is int[], false);
-
-    int[0] ia = [];
-    any iarr = ia;
-    assertEquality(iarr is int[0], true);
-    assertEquality(iarr is int[], true);
 }
 
 function divideBy([int,int] d) returns [int, int] {
@@ -330,7 +305,7 @@ function testGetString () returns [string, string] {
     string j1String;
     string j2String;
     j1String = <string> j1;
-    j2String = <string> j2.name;
+    j2String = <string> checkpanic j2.name;
     return [j1String, j2String];
 }
 
@@ -340,21 +315,21 @@ function testGetInt () returns [int, int] {
     int j1Int;
     int j2Int;
     j1Int = <int>j1;
-    j2Int = <int>j2.age;
+    j2Int = <int> checkpanic j2.age;
     return [j1Int, j2Int];
 }
 
 function testGetFloat () returns (float) {
     json j = {score:9.73};
     float jFloat;
-    jFloat = <float>j.score;
+    jFloat = <float> checkpanic j.score;
     return jFloat;
 }
 
 function testGetBoolean () returns (boolean) {
     json j = {pass:true};
     boolean jBoolean;
-    jBoolean = <boolean>j.pass;
+    jBoolean = <boolean> checkpanic j.pass;
     return jBoolean;
 }
 
@@ -496,10 +471,10 @@ function testGetNestedJsonElement () returns [string, string, string, string] {
     string cityString2;
     string cityString3;
     string cityString4;
-    cityString1 = <string>j.address.city;
-    cityString2 = <string>j.address.city;
-    cityString3 = <string>j.address.city;
-    cityString4 = <string>j.address.city;
+    cityString1 = <string> checkpanic j.address.city;
+    cityString2 = <string> checkpanic j.address.city;
+    cityString3 = <string> checkpanic j.address.city;
+    cityString4 = <string> checkpanic j.address.city;
     return [cityString1, cityString2, cityString3, cityString4];
 }
 
@@ -512,9 +487,9 @@ function testJsonExprAsIndex () returns (string) {
     //Moving index expression into another line since with new changes, it is a unsafe cast,
     //which returns a error value if any.
     string key;
-    key = <string>j.address.area;
+    key = <string> checkpanic j.address.area;
     string value;
-    map<json> adr = <map<json>>j.address;
+    map<json> adr = <map<json>> checkpanic j.address;
     value = <string>adr[key];
     return value;
 }
@@ -608,9 +583,9 @@ function testJsonArrayToJsonCasting () returns (json) {
     return j2;
 }
 
-function testGetFromNull () returns (string) {
+function testGetFromNull() returns (string) {
     json j2 = {age:43, name:null};
-    string value = <string>j2.name.fname;
+    string value = <string> checkpanic j2.name.fname;
     return value;
 }
 
@@ -624,7 +599,7 @@ function testAddToNull () returns (json) {
 
 function testJsonIntToFloat () returns (float) {
     json j = {score:4};
-    float jFloat = <float>j.score;
+    float jFloat = <float> checkpanic j.score;
     return jFloat;
 }
 
@@ -758,10 +733,8 @@ function testTupleArrayTypeToString() {
 function testTypeDescValuePrint() {
 	map<int|string> m1 = { one: 1, two: 2 };
     typedesc<map<anydata>> t1 = typeof m1;
-    io:print(t1);
+    assertEquality("typedesc map<int|string>", t1.toString());
 }
-
-type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -774,5 +747,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                    message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

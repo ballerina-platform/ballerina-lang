@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -79,5 +80,10 @@ public class StringValueBasicsTest extends BStringTestCommons {
     public void testCastToString() {
         testAndAssert("anyToStringCasting", 6);
         testAndAssert("anydataToStringCast", 6);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

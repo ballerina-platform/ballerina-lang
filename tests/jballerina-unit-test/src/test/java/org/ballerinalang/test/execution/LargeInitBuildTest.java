@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.execution;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -33,7 +33,8 @@ public class LargeInitBuildTest {
     public void testFileWithLargeInitMethod() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/large_init.bal");
 
-        Assert.assertEquals(compileResult.toString(), "Compilation Successful");
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
     }
 }
 

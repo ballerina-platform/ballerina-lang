@@ -18,21 +18,20 @@
 
 package org.ballerinalang.langlib.test;
 
-
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.types.BMapType;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BDecimal;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -100,11 +99,6 @@ public class LangLibMapTest {
         assertEquals(map.size(), 2);
         assertEquals(map.get("lk").stringValue(), "Sri Lanka");
         assertEquals(map.get("us").stringValue(), "USA");
-    }
-
-    @Test
-    public void testRemoveIfHasKey() {
-        BRunUtil.invoke(compileResult, "testRemoveIfHasKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -181,36 +175,6 @@ public class LangLibMapTest {
     }
 
     @Test
-    public void testBasicToArray() {
-        BRunUtil.invoke(compileResult, "testBasicToArray");
-    }
-
-    @Test
-    public void testLargeMapToArray() {
-        BRunUtil.invoke(compileResult, "testLargeMapToArray");
-    }
-
-    @Test
-    public void testRecordToArray() {
-        BRunUtil.invoke(compileResult, "testRecordToArray");
-    }
-
-    @Test
-    public void testOpenRecordToArray() {
-        BRunUtil.invoke(compileResult, "testOpenRecordToArray");
-    }
-
-    @Test
-    public void testMapOfUnionToArray() {
-        BRunUtil.invoke(compileResult, "testMapOfUnionToArray");
-    }
-
-    @Test
-    public void testRecordWithSameTypeFieldsToArray() {
-        BRunUtil.invoke(compileResult, "testRecordWithSameTypeFieldsToArray");
-    }
-
-    @Test
     public void testAsyncFpArgsWithMaps() {
         BValue[] results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithMaps");
         assertTrue(results[0] instanceof BInteger);
@@ -225,6 +189,25 @@ public class LangLibMapTest {
         return new Object[][]{
                 {new BString("lk"), true},
                 {new BString("invalid"), false}
+        };
+    }
+
+    @Test(dataProvider = "FunctionList")
+    public void testMapFunctions(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
+    }
+
+    @DataProvider(name = "FunctionList")
+    public Object[] testFunctions() {
+        return new Object[]{
+                "testRemoveIfHasKey",
+                "testBasicToArray",
+                "testLargeMapToArray",
+                "testRecordToArray",
+                "testOpenRecordToArray",
+                "testMapOfUnionToArray",
+                "testRecordWithSameTypeFieldsToArray",
+                "testReadOnlyMapFilter"
         };
     }
 }

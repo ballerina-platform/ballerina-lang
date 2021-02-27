@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -37,7 +38,7 @@ public class ClosedRecordEquivalencyTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/record/record-project", "closed-rec-equiv");
+        compileResult = BCompileUtil.compile("test-src/record/record_project_closed_rec_equiv");
     }
 
     @Test(description = "Test equivalence of records that are in the same package")
@@ -131,5 +132,10 @@ public class ClosedRecordEquivalencyTest {
         Assert.assertEquals(((BInteger) foo.get("d")).intValue(), 10);
         Assert.assertEquals(((BFloat) foo.get("e")).floatValue(), 0.0D);
         Assert.assertNull(foo.get("p"));
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

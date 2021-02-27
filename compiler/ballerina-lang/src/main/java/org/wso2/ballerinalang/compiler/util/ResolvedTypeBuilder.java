@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -45,7 +44,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -221,7 +222,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BStreamType originalType, BType newType) {
         BType newConstraint = originalType.constraint.accept(this, null);
-        BType newError = originalType.error != null ? originalType.error.accept(this, null) : null;
+        BType newError = originalType.error.accept(this, null);
 
         if (newConstraint == originalType.constraint && newError == originalType.error) {
             return originalType;
@@ -246,6 +247,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         newTableType.keyTypeConstraint = newKeyTypeConstraint;
         newTableType.fieldNameList = originalType.fieldNameList;
         newTableType.constraintPos = originalType.constraintPos;
+        newTableType.isTypeInlineDefined = originalType.isTypeInlineDefined;
         newTableType.keyPos = originalType.keyPos;
         setFlags(newTableType, originalType.flags);
         return newTableType;
@@ -289,7 +291,14 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         boolean hasNewType = false;
         LinkedHashSet<BType> newMemberTypes = new LinkedHashSet<>();
 
+        if (!visitedTypes.add(originalType)) {
+            return originalType;
+        }
+
         for (BType member : originalType.getMemberTypes()) {
+            if (this.visitedTypes.contains(member)) {
+                continue;
+            }
             BType newMember = member.accept(this, null);
             newMemberTypes.add(newMember);
 
@@ -350,12 +359,8 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BFiniteType originalType, BType newType) {
-        // Not applicable for finite types since the descriptor has to be defined before using in the return type.
-        return originalType;
-    }
 
-    @Override
-    public BType visit(BServiceType originalType, BType newType) {
+        // Not applicable for finite types since the descriptor has to be defined before using in the return type.
         return originalType;
     }
 
@@ -401,27 +406,41 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
         int nArgs = invocation.requiredArgs.size();
         int nParams = symbol.params.size();
-        BVarSymbol param;
+
+        int argIndex = 0;
 
         for (int i = 0; i < nParams; i++) {
-            param = symbol.params.get(i);
+            if (argIndex < nArgs) {
+                BLangExpression arg = invocation.requiredArgs.get(argIndex);
 
-            if (param.defaultableParam &&
-                    (i >= nArgs || invocation.requiredArgs.get(i).getKind() == NodeKind.IGNORE_EXPR)) {
-                paramValueTypes.put(param.name.value, symbol.paramDefaultValTypes.get(param.name.value));
+                NodeKind kind = arg.getKind();
+                if (kind == NodeKind.NAMED_ARGS_EXPR) {
+                    paramValueTypes.put(((BLangNamedArgsExpression) arg).name.value, arg.type);
+                } else if (kind == NodeKind.IGNORE_EXPR) {
+                    String paramName = symbol.params.get(i).name.value;
+                    paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
+                } else {
+                    paramValueTypes.put(symbol.params.get(i).name.value, arg.type);
+                }
+
+                argIndex++;
                 continue;
             }
 
-            paramValueTypes.put(param.name.value, invocation.requiredArgs.get(i).type);
+            BVarSymbol param = symbol.params.get(i);
+            String paramName = param.name.value;
+            if (param.defaultableParam && !paramValueTypes.containsKey(paramName)) {
+                paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
+            }
         }
     }
 
-    private void setFlags(BType type, int originalFlags) {
+    private void setFlags(BType type, long originalFlags) {
         type.flags |= originalFlags & (~Flags.PARAMETERIZED);
     }
 
     private void reset() {
-        this.visitedTypes = null;
+        this.visitedTypes = new HashSet<>();
         this.paramValueTypes = null;
         this.isInvocation = false;
     }

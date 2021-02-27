@@ -25,7 +25,7 @@ type CustomError1 distinct error<CustomErrorData>;
 
 class Iterator {
     int i = 0;
-    public function next() returns record {| int value; |}? {
+    public isolated function next() returns record {| int value; |}? {
         self.i += 1;
         return { value: self.i };
     }
@@ -43,10 +43,10 @@ function testIterator() {
 
 class IteratorWithCustomError {
     int i = 0;
-    public function next() returns record {| int value; |}|CustomError? {
+    public isolated function next() returns record {| int value; |}|CustomError? {
         self.i += 1;
         if (self.i == 2) {
-            CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 1);
+            CustomError e = error CustomError("CustomError", message = "custom error occured", accountID = 1);
             return e;
         } else {
             return { value: self.i };
@@ -81,7 +81,7 @@ function testIteratorWithCustomError() {
 class IteratorWithGenericError {
     int i = 0;
 
-    public function next() returns record {| int value; |}|error? {
+    public isolated function next() returns record {| int value; |}|error? {
         self.i += 1;
         if (self.i == 2) {
             return error("GenericError", message = "generic error occured");
@@ -117,7 +117,7 @@ function testIteratorWithGenericError() {
 class IteratorWithOutError {
     int i = 0;
 
-    public function next() returns record {| int value; |}? {
+    public isolated function next() returns record {| int value; |}? {
         self.i += 1;
         return { value: self.i };
     }
@@ -186,7 +186,7 @@ function testIteratorWithMismatchedNextA() {
 class IteratorWithMismatchedNextC {
     int i = 0;
 
-    public function next() returns record {| int val; |}|CustomError? {
+    public isolated function next() returns record {| int val; |}|CustomError? {
         self.i += 1;
         return { value: self.i };
     }
@@ -208,7 +208,7 @@ function testIteratorWithMismatchedNextC() {
 class IteratorWithMismatchedError {
     int i = 0;
 
-    public function next() returns record {| int value; |}|CustomError? {
+    public isolated function next() returns record {| int value; |}|CustomError? {
         self.i += 1;
         return { value: self.i };
     }
@@ -238,4 +238,141 @@ function testInvalidStreamConstructor() {
     // incorrect (`IteratorWithOutError` does not return an error from next() method)
     var streamC = new stream<int, CustomError>(itr);
     stream<int, CustomError> streamD = new(itr);
+}
+
+
+function testInvalidStreamConstructs() returns boolean {
+    IteratorWithOutError itr = new();
+    stream<int> stream1 = new(itr, itr);
+    stream<int> stream2 = new stream<int>(itr, itr);
+    stream<int, never> stream3 = new(itr, itr);
+    stream<int, error> stream4 = new(itr, itr);
+    stream<int, never> stream5 = new stream<int, never>(itr, itr);
+    stream<int, error> stream6 = new stream<int, error>(itr, itr);
+    var stream7 = new stream<int>(itr, itr);
+    var stream8 = new stream<int, never>(itr, itr);
+    var stream9 = new stream<int, error>(itr, itr);
+}
+
+class IteratorWithIsolatedNext {
+    int i = 0;
+    public isolated function next() returns record {|int value;|}|error? {
+        if (self.i == 5) {
+            return ();
+        }
+        self.i += 1;
+        return {value: self.i};
+    }
+}
+
+class IteratorWithIsolatedNextAndIsolatedClose {
+    int i = 0;
+    public isolated function next() returns record {|int value;|}|error? {
+        if (self.i == 5) {
+            return ();
+        }
+        self.i += 1;
+        return {value: self.i};
+    }
+
+    public isolated function close() returns error? {
+
+    }
+}
+
+class IteratorWithNonIsolatedNext {
+    int i = 0;
+    public function next() returns record {|int value;|}|error? {
+        if (self.i == 5) {
+            return ();
+        }
+        self.i += 1;
+        return {value: self.i};
+    }
+}
+
+class IteratorWithNonIsolatedNextAndIsolatedClose {
+    int i = 0;
+    public function next() returns record {|int value;|}|error? {
+        if (self.i == 5) {
+            return ();
+        }
+        self.i += 1;
+        return {value: self.i};
+    }
+
+    public isolated function close() returns error? {
+
+    }
+}
+
+class IteratorWithIsolatedNextAndNonIsolatedClose {
+    int i = 0;
+    public isolated function next() returns record {|int value;|}|error? {
+        if (self.i == 5) {
+            return ();
+        }
+        self.i += 1;
+        return {value: self.i};
+    }
+
+    public function close() returns error? {
+
+    }
+}
+
+class InvalidNumberGenerator {
+    int i = 0;
+    public isolated function next() returns record {| int value; |} {
+        self.i += 1;
+        return {value: self.i};
+    }
+}
+
+class InvalidNumberStreamGenerator {
+    int i = 0;
+    public isolated function next() returns record {| stream<int> value;|} {
+        self.i += 1;
+        InvalidNumberGenerator numGen = new();
+        stream<int> numberStream = new(numGen);
+        return {value: numberStream};
+    }
+}
+
+public function main() returns @tainted error? {
+    IteratorWithIsolatedNext itr1 = new;
+    IteratorWithIsolatedNextAndIsolatedClose itr2 = new;
+    IteratorWithNonIsolatedNext itr3 = new;
+    IteratorWithNonIsolatedNextAndIsolatedClose itr4 = new;
+    IteratorWithIsolatedNextAndNonIsolatedClose itr5 = new;
+    var intStr1 = new stream<int, error>(itr1);
+    var intStr2 = new stream<int, error>(itr2);
+    var intStr3 = new stream<int, error>(itr3);
+    var intStr4 = new stream<int, error>(itr4);
+    var intStr5 = new stream<int, error>(itr5);
+
+    InvalidNumberStreamGenerator n = new ();
+    stream<stream<int>> numberStream = new (n);
+    var x = numberStream.next();
+}
+
+function testAssignabilityOfStreams() {
+    // test the negative assignability of stream<int> and stream<int, never>
+    stream<int> emptyStream1 = new;
+    stream<int> emptyStream2 = new stream<int>();
+    stream<int, never> emptyStream3 = new;
+    stream<int, error> emptyStream4 = new;
+    stream<int, never> emptyStream5 = new stream<int, never>();
+    stream<int, error> emptyStream6 = new stream<int, error>();
+    var emptyStream7 = new stream<int>();
+    var emptyStream8 = new stream<int, never>();
+    var emptyStream9 = new stream<int, error>();
+
+    emptyStream1 = emptyStream6;
+    emptyStream2 = emptyStream9;
+    emptyStream3 = emptyStream6;
+    emptyStream4 = emptyStream1;
+    emptyStream5 = emptyStream6;
+    emptyStream7 = emptyStream9;
+    emptyStream8 = emptyStream9;
 }

@@ -89,7 +89,7 @@ types:
       - id: name_index
         type: s4
       - id: type_flag
-        type: s4
+        type: s8
       - id: type_special_flag
         type: s4
       - id: type_structure
@@ -160,7 +160,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: value_space_size
         type: s4
       - id: finite_values
@@ -211,6 +211,8 @@ types:
     seq:
       - id: param_value_type_cp_index
         type: s4
+      - id: param_index
+        type: s4
   type_future:
     seq:
       - id: constraint_type_cp_index
@@ -249,6 +251,12 @@ types:
         type: object_attached_function
         repeat: expr
         repeat-expr: object_attached_functions_count
+      - id: type_inclusions_count
+        type: s4
+      - id: type_inclusions_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: type_inclusions_count
       - id: type_ids
         type: type_id
   object_field:
@@ -256,7 +264,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: doc
         type: markdown
       - id: type_cp_index
@@ -266,17 +274,43 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: type_cp_index
         type: s4
   type_union:
     seq:
+      - id: is_cyclic
+        type: u1
+      - id: has_name
+        type: s1
+      - id: pkd_id_cp_index
+        type: s4
+        if: has_name == 1
+      - id: name_cp_index
+        type: s4
+        if: has_name == 1
       - id: member_types_count
         type: s4
       - id: member_type_cp_index
         type: s4
         repeat: expr
         repeat-expr: member_types_count
+      - id: is_enum_type
+        type: u1
+      - id: pkg_cp_index
+        type: s4
+        if: is_enum_type == 1
+      - id: enum_name
+        type: s4
+        if: is_enum_type == 1
+      - id: enum_members_size
+        type: s4
+        if: is_enum_type == 1
+      - id: enum_members
+        type: s4
+        repeat: expr
+        repeat-expr: enum_members_size
+        if: is_enum_type == 1
   type_tuple:
     seq:
       - id: tuple_types_count
@@ -347,12 +381,18 @@ types:
       - id: record_init_function
         type: record_init_function
         if: has_init_function == 1
+      - id: type_inclusions_count
+        type: s4
+      - id: type_inclusions_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: type_inclusions_count
   record_field:
     seq:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: doc
         type: markdown
       - id: type_cp_index
@@ -362,7 +402,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: type_cp_index
         type: s4
   module:
@@ -418,7 +458,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: origin
         type: s1
       - id: doc
@@ -432,13 +472,15 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: label
         type: s1
       - id: origin
         type: s1
       - id: doc
         type: markdown
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
       - id: type_cp_index
         type: s4
   type_definition_body:
@@ -460,7 +502,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: origin
         type: s1
       - id: position
@@ -486,7 +528,7 @@ types:
       - id: name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: origin
         type: s1
       - id: position
@@ -603,7 +645,7 @@ types:
       - id: worker_name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
       - id: origin
         type: s1
       - id: type_cp_index
@@ -734,7 +776,7 @@ types:
       - id: param_name_cp_index
         type: s4
       - id: flags
-        type: s4
+        type: s8
   reciever:
     seq:
       - id: kind

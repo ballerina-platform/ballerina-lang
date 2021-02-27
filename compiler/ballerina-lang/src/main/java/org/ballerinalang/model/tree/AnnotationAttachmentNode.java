@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 /**
  * @since 0.94
  */
-public interface AnnotationAttachmentNode extends Node, IdentifiableNode {
+public interface AnnotationAttachmentNode extends Node {
 
     IdentifierNode getPackageAlias();
 

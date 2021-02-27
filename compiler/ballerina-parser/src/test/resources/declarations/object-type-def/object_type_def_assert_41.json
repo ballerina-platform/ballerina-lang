@@ -59,7 +59,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "     "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -92,6 +92,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "foo"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",
@@ -134,7 +138,7 @@
                         },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "     "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -158,6 +162,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "foo0"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",
@@ -200,7 +208,7 @@
                         },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "     "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -224,6 +232,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "foo1"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",
@@ -267,7 +279,7 @@
                     },
                     {
                       "kind": "WHITESPACE_MINUTIAE",
-                      "value": "     "
+                      "value": "    "
                     }
                   ],
                   "trailingMinutiae": [
@@ -280,6 +292,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "foo2"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",

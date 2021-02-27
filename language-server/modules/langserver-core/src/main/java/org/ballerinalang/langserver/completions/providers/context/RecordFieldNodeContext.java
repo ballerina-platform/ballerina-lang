@@ -15,10 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -31,7 +30,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class RecordFieldNodeContext extends AbstractCompletionProvider<RecordFieldNode> {
 
     public RecordFieldNodeContext() {
@@ -39,7 +38,8 @@ public class RecordFieldNodeContext extends AbstractCompletionProvider<RecordFie
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, RecordFieldNode node) throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RecordFieldNode node)
+            throws LSCompletionException {
         if (this.onTypeNameContext(context, node)) {
             /*
             If the type name has a particular resolver implemented, then the completion will be handled by the type
@@ -53,14 +53,15 @@ public class RecordFieldNodeContext extends AbstractCompletionProvider<RecordFie
              */
             return CompletionUtil.route(context, node.typeName());
         }
-        
+
         return CompletionUtil.route(context, node.parent());
     }
 
-    private boolean onTypeNameContext(LSContext context, RecordFieldNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onTypeNameContext(BallerinaCompletionContext context, RecordFieldNode node) {
+        int cursor = context.getCursorPositionInTree();
         int typeEnd = node.typeName().textRange().endOffset();
+        int typeStart = node.typeName().textRange().startOffset();
 
-        return cursor >= typeEnd;
+        return cursor >= typeStart && cursor <= typeEnd;
     }
 }

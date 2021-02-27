@@ -17,10 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
+import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
@@ -47,7 +49,6 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.HashSet;
 import java.util.List;
@@ -267,7 +268,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birCall.name.getValue()));
         buf.writeInt(birCall.args.size());
-        for (BIROperand arg : birCall.args) {
+        for (BIRArgument arg : birCall.args) {
             arg.accept(this);
         }
         if (birCall.lhsOp != null) {
@@ -281,7 +282,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRTerminator.FPCall fpCall) {
         fpCall.fp.accept(this);
         buf.writeInt(fpCall.args.size());
-        for (BIROperand arg : fpCall.args) {
+        for (BIRArgument arg : fpCall.args) {
             arg.accept(this);
         }
         if (fpCall.lhsOp != null) {
@@ -421,6 +422,10 @@ public class BIRInstructionWriter extends BIRVisitor {
         }
     }
 
+    public void visit(BIRArgument birArgument) {
+        birArgument.accept(this);
+    }
+
     public void visit(BIRNonTerminator.NewError birNewError) {
         writeType(birNewError.type);
         birNewError.lhsOp.accept(this);
@@ -509,13 +514,12 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     // Positions
-    void writePosition(DiagnosticPos pos) {
+    void writePosition(Location pos) {
         BIRWriterUtils.writePosition(pos, this.buf, this.cp);
     }
 
     int addPkgCPEntry(PackageID packageID) {
-        return BIRWriterUtils
-                .addPkgCPEntry(packageID.orgName.value, packageID.name.value, packageID.version.value, this.cp);
+        return BIRWriterUtils.addPkgCPEntry(packageID, this.cp);
     }
 
     // private methods

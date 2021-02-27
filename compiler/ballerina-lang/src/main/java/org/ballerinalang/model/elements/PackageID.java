@@ -36,12 +36,17 @@ import static org.wso2.ballerinalang.compiler.util.Names.FLOAT_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.FUTURE_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.INTERNAL_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.INT_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.JAVA_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.MAP_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.OBJECT_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.OBSERVE_INTERNAL_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.OBSERVE_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.QUERY_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.RUNTIME_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.STREAM_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.STRING_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.TABLE_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.TRANSACTION_INTERNAL_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.TRANSACTION_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.TYPEDESC_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.VALUE_VERSION;
@@ -65,8 +70,12 @@ public class PackageID {
     // Visible Lang modules.
     public static final PackageID ANNOTATIONS = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.ANNOTATIONS), ANNOTATIONS_VERSION);
+    public static final PackageID JAVA = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.JAVA), JAVA_VERSION);
     public static final PackageID ARRAY = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.ARRAY), ARRAY_VERSION);
+    public static final PackageID CONFIG = new PackageID(Names.BALLERINA_ORG, Lists.of(Names.LANG, Names.RUNTIME),
+                                                         RUNTIME_VERSION);
     public static final PackageID DECIMAL = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.DECIMAL), DECIMAL_VERSION);
     public static final PackageID ERROR = new PackageID(Names.BALLERINA_ORG,
@@ -97,17 +106,27 @@ public class PackageID {
             Lists.of(Names.LANG, Names.BOOLEAN), BOOLEAN_VERSION);
     public static final PackageID QUERY = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.QUERY), QUERY_VERSION);
+    public static final PackageID RUNTIME = new PackageID(Names.BALLERINA_ORG, Lists.of(Names.LANG, Names.RUNTIME),
+                                                          RUNTIME_VERSION);
     public static final PackageID TRANSACTION = new PackageID(Names.BALLERINA_ORG,
-            Lists.of(Names.LANG, Names.TRANSACTION), TRANSACTION_VERSION);
+                                                              Lists.of(Names.LANG, Names.TRANSACTION),
+                                                              TRANSACTION_VERSION);
+    public static final PackageID TRANSACTION_INTERNAL = new PackageID(Names.BALLERINA_INTERNAL_ORG,
+                                                                       Lists.of(Names.TRANSACTION),
+                                                                       TRANSACTION_INTERNAL_VERSION);
+    public static final PackageID OBSERVE_INTERNAL = new PackageID(Names.BALLERINA_INTERNAL_ORG,
+            Lists.of(Names.OBSERVE), OBSERVE_INTERNAL_VERSION);
+    public static final PackageID OBSERVE = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.OBSERVE), OBSERVE_VERSION);
 
-    public final Name orgName;
+    public Name orgName;
     public Name name;
-    public Name version = DEFAULT_VERSION;
+    public Name version;
 
-    public boolean isUnnamed = false;
-    public Name sourceFileName = null;
+    public final boolean isUnnamed;
+    public final Name sourceFileName;
 
-    public List<Name> nameComps;
+    public final List<Name> nameComps;
 
     public PackageID(Name orgName, List<Name> nameComps, Name version) {
         this.orgName = orgName;
@@ -117,18 +136,33 @@ public class PackageID {
                         .map(Name::getValue)
                         .collect(Collectors.joining(".")));
         this.version = version;
+        isUnnamed = false;
+        sourceFileName = null;
     }
 
     public PackageID(Name orgName, Name name, Name version) {
         this.orgName = orgName;
         this.name = name;
         this.version = version;
+        this.nameComps = createNameComps(name);
+        isUnnamed = false;
+        sourceFileName = null;
+    }
+
+    public PackageID(Name orgName, Name name, Name version, Name sourceFileName) {
+        this.orgName = orgName;
+        this.name = name;
+        this.version = version;
+        this.nameComps = createNameComps(name);
+        isUnnamed = false;
+        this.sourceFileName = sourceFileName;
+    }
+
+    private List<Name> createNameComps(Name name) {
         if (name == Names.DEFAULT_PACKAGE) {
-            this.nameComps = Lists.of(Names.DEFAULT_PACKAGE);
-        } else {
-            this.nameComps = Arrays.stream(name.value.split("\\."))
-                    .map(Name::new).collect(Collectors.toList());
+            return Lists.of(Names.DEFAULT_PACKAGE);
         }
+        return Arrays.stream(name.value.split("\\.")).map(Name::new).collect(Collectors.toList());
     }
 
     /**
@@ -154,13 +188,12 @@ public class PackageID {
      */
     public PackageID(String sourceFileName) {
         this.orgName = Names.ANON_ORG;
-//        this.name = new Name(Names.DOT + sourceFileName);
         this.name = Names.DEFAULT_PACKAGE;
-        this.nameComps = new ArrayList<Name>(1) {{
-            add(name);
-        }};
+        this.nameComps = new ArrayList<>(1);
+        nameComps.add(name);
         this.isUnnamed = true;
         this.sourceFileName = new Name(sourceFileName);
+        this.version = DEFAULT_VERSION;
     }
 
     public Name getName() {
@@ -213,16 +246,16 @@ public class PackageID {
             return this.name.value;
         }
 
-        String orgName = "";
+        String org = "";
         if (this.orgName != null && !this.orgName.equals(Names.ANON_ORG)) {
-            orgName = this.orgName + Names.ORG_NAME_SEPARATOR.value;
+            org = this.orgName + Names.ORG_NAME_SEPARATOR.value;
         }
 
         if (version.equals(Names.EMPTY)) {
-            return orgName + this.name.value;
+            return org + this.name.value;
         }
 
-        return orgName + this.name + Names.VERSION_SEPARATOR.value + this.version;
+        return org + this.name + Names.VERSION_SEPARATOR.value + this.version;
     }
 
     public Name getOrgName() {
@@ -234,6 +267,7 @@ public class PackageID {
         if (!packageID.getOrgName().equals(Names.BALLERINA_ORG)) {
             return false;
         }
-        return packageID.nameComps.size() > 1 && packageID.nameComps.get(0).equals(Names.LANG);
+        return packageID.nameComps.size() > 1 && packageID.nameComps.get(0).equals(Names.LANG) ||
+                packageID.name.equals(Names.JAVA);
     }
 }

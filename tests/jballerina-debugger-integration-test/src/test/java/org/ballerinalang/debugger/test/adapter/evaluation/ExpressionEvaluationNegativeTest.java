@@ -19,19 +19,12 @@
 package org.ballerinalang.debugger.test.adapter.evaluation;
 
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Test implementation for debug expression evaluation negative scenarios.
  */
 public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTest {
-
-    @BeforeClass
-    public void setup() throws BallerinaTestException {
-        prepareForEvaluation();
-    }
 
     @Override
     @Test
@@ -54,7 +47,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void stringTemplateEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // incompatible result types from expressions.
+        debugTestRunner.assertEvaluationError(context, "string `json: ${" + JSON_VAR + "}`",
+                String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(), "(int|float|decimal|string|boolean)",
+                        "json", "${jsonVar}"));
     }
 
     @Override
@@ -102,13 +98,42 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void functionCallEvaluationTest() throws BallerinaTestException {
-        // Todo
+
+        debugTestRunner.assertEvaluationError(context, "calculate(5, 6)", EvaluationExceptionKind.PREFIX +
+                "missing required parameter 'c'.");
+
+        debugTestRunner.assertEvaluationError(context, "calculate(5, x = 6, 7)", String.format(EvaluationExceptionKind
+                .SYNTAX_ERROR.getString(), "named arg followed by positional arg"));
+
+        debugTestRunner.assertEvaluationError(context, "calculate(5, 6, 7, 8)", EvaluationExceptionKind.PREFIX +
+                "too many arguments in call to 'calculate'.");
+
+        debugTestRunner.assertEvaluationError(context, "calculate(5, 6, 7, d = 8)", EvaluationExceptionKind.PREFIX +
+                "undefined defaultable parameter 'd'.");
+
+        debugTestRunner.assertEvaluationError(context, "calculate(5, ...b, 7)", String.format(EvaluationExceptionKind
+                .SYNTAX_ERROR.getString(), "rest arg followed by another arg"));
+
+        debugTestRunner.assertEvaluationError(context, "calculate(5, ...b, c = 7)",
+                String.format(EvaluationExceptionKind.SYNTAX_ERROR.getString(), "rest arg followed by another arg"));
+
+        debugTestRunner.assertEvaluationError(context, "calculate(5, b = 6, ...c)", EvaluationExceptionKind.PREFIX +
+                "rest args are not allowed after named args.");
     }
 
     @Override
     @Test
     public void methodCallEvaluationTest() throws BallerinaTestException {
-        // Todo
+
+        // Todo - Enable after semantic API fixes (https://github.com/ballerina-platform/ballerina-lang/issues/27520)
+        // undefined object methods.
+        // debugTestRunner.assertEvaluationError(context, OBJECT_VAR + ".calculate()",
+        // EvaluationExceptionKind.PREFIX + "Undefined function 'calculate' in type 'object'");
+
+        // Todo - Enable after semantic API fixes (https://github.com/ballerina-platform/ballerina-lang/issues/27520)
+        // undefined lang library methods.
+        // debugTestRunner.assertEvaluationError(context, INT_VAR + ".foo()",
+        // EvaluationExceptionKind.PREFIX + "Undefined function 'foo' in type 'int'");
     }
 
     @Override
@@ -132,7 +157,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void typeCastEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertEvaluationError(context, String.format("<boolean>%s", ANYDATA_VAR),
+                "{ballerina}TypeCastError");
+        debugTestRunner.assertEvaluationError(context, String.format("<boolean|string>%s", ANY_VAR),
+                "{ballerina}TypeCastError");
     }
 
     @Override
@@ -144,25 +172,46 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void unaryExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertEvaluationError(context, String.format("+%s", STRING_VAR),
+                "operator '+' not defined for 'string'");
+        debugTestRunner.assertEvaluationError(context, String.format("-%s", STRING_VAR),
+                "operator '-' not defined for 'string'");
+        debugTestRunner.assertEvaluationError(context, String.format("~%s", STRING_VAR),
+                "operator '~' not defined for 'string'");
+        debugTestRunner.assertEvaluationError(context, String.format("!%s", STRING_VAR),
+                "operator '!' not defined for 'string'");
     }
 
     @Override
     @Test
     public void multiplicativeExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // semantically incorrect expressions (multiplication between int and string)
+        debugTestRunner.assertEvaluationError(context, String.format("%s * %s", INT_VAR, STRING_VAR),
+                "operator '*' not defined for 'int' and 'string'.");
+        // runtime error (divide by zero)
+        debugTestRunner.assertEvaluationError(context, String.format("%s / 0", INT_VAR), "{ballerina}DivisionByZero");
     }
 
     @Override
     @Test
     public void additiveExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // semantically incorrect expressions (addition between int and string)
+        debugTestRunner.assertEvaluationError(context, String.format("%s + %s", INT_VAR, STRING_VAR),
+                "operator '+' not defined for 'int' and 'string'.");
     }
 
     @Override
     @Test
     public void shiftExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // left shift
+        debugTestRunner.assertEvaluationError(context, String.format("%s << %s", INT_VAR, STRING_VAR),
+                "operator '<<' not defined for 'int' and 'string'.");
+        // signed right shift
+        debugTestRunner.assertEvaluationError(context, String.format("%s >> %s", INT_VAR, STRING_VAR),
+                "operator '>>' not defined for 'int' and 'string'.");
+        // unsigned right shift
+        debugTestRunner.assertEvaluationError(context, String.format("%s >>> %s", INT_VAR, STRING_VAR),
+                "operator '>>>' not defined for 'int' and 'string'.");
     }
 
     @Override
@@ -174,13 +223,17 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void comparisonEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // semantically incorrect expressions (multiplication between int and string)
+        debugTestRunner.assertEvaluationError(context, String.format("%s < %s", INT_VAR, STRING_VAR),
+                "operator '<' not defined for 'int' and 'string'.");
     }
 
     @Override
     @Test
     public void typeTestEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertEvaluationError(context, String.format("%s is NotDefinedClass", OBJECT_VAR),
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                        "failed to resolve type 'NotDefinedClass'."));
     }
 
     @Override
@@ -192,13 +245,26 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void binaryBitwiseEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // bitwise AND
+        debugTestRunner.assertEvaluationError(context, String.format("%s & %s", INT_VAR, STRING_VAR),
+                "operator '&' not defined for 'int' and 'string'.");
+        // bitwise OR
+        debugTestRunner.assertEvaluationError(context, String.format("%s | %s", INT_VAR, STRING_VAR),
+                "operator '|' not defined for 'int' and 'string'.");
+        // bitwise XOR
+        debugTestRunner.assertEvaluationError(context, String.format("%s ^ %s", INT_VAR, STRING_VAR),
+                "operator '^' not defined for 'int' and 'string'.");
     }
 
     @Override
     @Test
     public void logicalEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Logical AND
+        debugTestRunner.assertEvaluationError(context, String.format("%s && %s", INT_VAR, STRING_VAR),
+                "operator '&&' not defined for 'int' and 'string'.");
+        // Logical OR
+        debugTestRunner.assertEvaluationError(context, String.format("%s || %s", INT_VAR, STRING_VAR),
+                "operator '||' not defined for 'int' and 'string'.");
     }
 
     @Override
@@ -232,32 +298,52 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Test
-    public void expressionEvaluationNegativeTest() throws BallerinaTestException {
+    public void invalidInputEvaluationTest() throws BallerinaTestException {
         // empty expressions
-        assertEvaluationError(context, "  ", EvaluationExceptionKind.EMPTY.getString());
-        // unsupported expressions
-        assertEvaluationError(context, "~x", String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION
-                .getString(), "~x - UNARY_EXPRESSION"));
-        // syntactically incorrect expressions (additional semi-colon)
-        assertEvaluationError(context, "x + 5;;", String.format(EvaluationExceptionKind.SYNTAX_ERROR
-                .getString(), "invalid token ';'"));
-        // semantically incorrect expressions (addition between int + string)
-        assertEvaluationError(context, String.format("%s + %s", INT_VAR, STRING_VAR),
-                String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
-                        "'+' operation is not supported for types: 'int' and 'string'"));
-        // undefined object methods
-        assertEvaluationError(context, OBJECT_VAR + ".undefined()",
-                String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(), "undefined"));
-        // Todo - Enable
-        // assignment statements
-        // assertEvaluationError(context, "int x = 5;", "");
+        debugTestRunner.assertEvaluationError(context, "  ", EvaluationExceptionKind.EMPTY.getString());
 
-        // Todo - Add negative tests for function invocations related errors. (invalid argument validation, etc.).
+        // Ballerina documentation lines
+        debugTestRunner.assertEvaluationError(context, "# This is a documentation line",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Documentation is not allowed."));
+
+        // Line comments
+        debugTestRunner.assertEvaluationError(context, "// This is a comment",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Empty expressions cannot be " +
+                        "evaluated."));
     }
 
-    @AfterClass
-    private void cleanup() {
-        terminateDebugSession();
-        this.context = null;
+    @Test
+    public void unsupportedInputEvaluationTest() throws BallerinaTestException {
+        // import statements
+        debugTestRunner.assertEvaluationError(context, "import ballerina/http;",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Import declaration evaluation is not" +
+                        " supported."));
+        debugTestRunner.assertEvaluationError(context, "import ballerina/log",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Import declaration evaluation is not" +
+                        " supported."));
+
+        // Top-level definitions
+        debugTestRunner.assertEvaluationError(context, "function foo() {}",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Top-level declaration evaluation is" +
+                        " not supported."));
+        debugTestRunner.assertEvaluationError(context, "class Person { int name = \"John\"; }",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Top-level declaration evaluation is" +
+                        " not supported."));
+
+        // statement(s)
+        debugTestRunner.assertEvaluationError(context, "int a = 1; int b = 5;",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Statement evaluation is" +
+                        " not supported."));
+        debugTestRunner.assertEvaluationError(context, "if(true) { boolean isTrue = true; }",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Statement evaluation is" +
+                        " not supported."));
+        debugTestRunner.assertEvaluationError(context, "int a = 1;",
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Statement evaluation is" +
+                        " not supported."));
+
+        // unsupported expressions
+        debugTestRunner.assertEvaluationError(context, "new()",
+                String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
+                        "'new()' - IMPLICIT_NEW_EXPRESSION"));
     }
 }

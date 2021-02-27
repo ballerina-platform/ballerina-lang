@@ -8,14 +8,16 @@
     {
       "label": "w1",
       "kind": "Variable",
-      "detail": "future<()>",
+      "detail": "worker",
+      "sortText": "B",
       "insertText": "w1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "w3",
       "kind": "Variable",
-      "detail": "future<()>",
+      "detail": "worker",
+      "sortText": "B",
       "insertText": "w3",
       "insertTextFormat": "Snippet"
     },
@@ -23,6 +25,7 @@
       "label": "default",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "default",
       "insertTextFormat": "Snippet"
     }

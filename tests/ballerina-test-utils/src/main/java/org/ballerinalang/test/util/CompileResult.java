@@ -33,7 +33,9 @@ import java.util.List;
  * Represents the result of a ballerina file compilation.
  *
  * @since 0.94
+ * @deprecated use {@link org.ballerinalang.test.CompileResult} instead
  */
+@Deprecated
 public class CompileResult {
 
     private PackageNode pkgNode;

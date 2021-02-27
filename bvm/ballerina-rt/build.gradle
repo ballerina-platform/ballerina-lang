@@ -29,34 +29,37 @@ configurations {
 }
 
 dependencies {
-    
+
     // Lang lib Bir
-    dist project(path: ':ballerina-lang:internal', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:annotations', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:array', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:decimal', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:error', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:floatingpoint', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:future', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:integer', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:map', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:object', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:stream', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:table', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:string', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:typedesc', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:value', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:xml', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:bool', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:query', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:transaction', configuration: 'birJar')
-    dist project(path: ':ballerina-observability', configuration: 'birJar')
-    dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:internal', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:array', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:config', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:decimal', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:error', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:future', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:integer', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:map', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:object', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:stream', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:table', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:string', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:typedesc', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:value', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:xml', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:bool', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:runtime', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:query', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:transaction', configuration: 'distributionBirJar')
+//    dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'distributionBirJar')
 
     // Lang libs
     dist project(':ballerina-lang:internal')
     dist project(':ballerina-lang:annotations')
     dist project(':ballerina-lang:array')
+    dist project(':ballerina-lang:config')
     dist project(':ballerina-lang:decimal')
     dist project(':ballerina-lang:error')
     dist project(':ballerina-lang:floatingpoint')
@@ -71,16 +74,21 @@ dependencies {
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
     dist project(':ballerina-lang:bool')
+    dist project(':ballerina-lang:runtime')
     dist project(':ballerina-lang:query')
     dist project(':ballerina-lang:transaction')
+    dist project(':ballerina-lang:jballerina.java')
     dist project(':ballerina-observability')
-    
+    dist project(':ballerina-observability-internal')
+    dist project(':ballerina-shell:shell-rt')
+
     // Third party jars
     // config
     dist 'org.slf4j:slf4j-jdk14:1.7.22'
     dist 'org.slf4j:slf4j-api:1.7.22'
-    dist 'com.moandjiezana.toml:toml4j:0.7.2'
     dist 'org.apache.commons:commons-lang3:3.8.1'
+    dist 'org.apache.commons:commons-text:1.9'
+    dist 'com.moandjiezana.toml:toml4j:0.7.2'
     dist 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
     dist 'org.codehaus.woodstox:stax2-api:4.2'
 
@@ -91,32 +99,37 @@ dependencies {
     dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'commons-logging:commons-logging:1.1.1'
     dist 'io.opentracing:opentracing-api:0.31.0'
-    dist 'io.opentracing:opentracing-util:0.31.0'
+    dist 'io.opentracing:opentracing-noop:0.31.0'
     dist 'org.awaitility:awaitility:3.1.6'
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
     dist 'com.h2database:h2:1.4.199'
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
-    
+
     // observability extensions
     //// metrics
     dist project(':metrics-extensions:ballerina-metrics-extension')
-    dist project(':metrics-extensions:ballerina-prometheus-extension')
-    //// tracing
-    dist project(':tracing-extensions:ballerina-jaeger-extension')
-    dist 'io.jaegertracing:jaeger-core:0.31.0'
-    dist 'io.jaegertracing:jaeger-thrift:0.31.0'
-    dist 'org.apache.thrift:libthrift:0.12.0'
-    dist 'com.squareup.okhttp3:okhttp:3.14.0'
-    dist 'com.squareup.okio:okio:2.2.2'
 
     // Temporary adding . Need to Remove once fix #17878
     dist 'com.google.code.gson:gson:2.7'
+
+    // Transaction related third party jars
+    dist 'com.atomikos:transactions-jta:5.0.8'
+    dist 'com.atomikos:atomikos-util:5.0.8'
+    dist 'com.atomikos:transactions-api:5.0.8'
+    dist 'com.atomikos:transactions-jdbc:5.0.8'
+    dist 'com.atomikos:transactions:5.0.8'
+    dist 'javax.transaction:javax.transaction-api:1.3'
+
+    // debugger runtime helpers
+    dist project(path: ':debug-adapter:debug-adapter-runtime', configuration: 'distributionBirJar')
 
     // Other Runtime Libs
     dist project(':ballerina-runtime')
     dist project(':ballerina-core')
     dist project(':ballerina-config')
     dist project(':ballerina-logging')
+    dist project(':toml-parser')
+    dist project(':ballerina-tools-api')
 
 }
 

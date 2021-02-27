@@ -17,15 +17,16 @@
  */
 package org.ballerinalang.test.expressions.mappingconstructor;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Test cases for mapping constructor expressions.
@@ -167,16 +168,42 @@ public class MappingConstructorExprTest {
     public void testSpreadOpFieldCodeAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/spread_op_field_code_analysis_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 7);
-        validateError(result, 0, "invalid usage of record literal: duplicate key 'i' via spread operator '...f'", 30,
+        Assert.assertEquals(result.getErrorCount(), 19);
+        int i = 0;
+        validateError(result, i++, "invalid usage of record literal: duplicate key 'i' via spread operator '...f'", 30,
                       31);
-        validateError(result, 1, "invalid usage of record literal: duplicate key 's'", 30, 34);
-        validateError(result, 2, "invalid usage of map literal: duplicate key 's' via spread operator '...b'", 31, 47);
-        validateError(result, 3, "invalid usage of map literal: duplicate key 'f'", 31, 50);
-        validateError(result, 4, "invalid usage of map literal: duplicate key 'i'", 31, 58);
-        validateError(result, 5, "invalid usage of map literal: duplicate key 's' via spread operator '... {s: hi,i: " +
-                "1}'", 32, 38);
-        validateError(result, 6, "invalid usage of map literal: duplicate key 'i'", 32, 63);
+        validateError(result, i++, "invalid usage of record literal: duplicate key 's'", 30, 34);
+        validateError(result, i++, "invalid usage of map literal: duplicate key 's' via spread operator " +
+                "'...b'", 31, 47);
+        validateError(result, i++, "invalid usage of map literal: duplicate key 'f'", 31, 50);
+        validateError(result, i++, "invalid usage of map literal: duplicate key 'i'", 31, 58);
+        validateError(result, i++, "invalid usage of map literal: duplicate key 's' via spread operator " +
+                "'... {s: hi,i: 1}'", 32, 38);
+        validateError(result, i++, "invalid usage of map literal: duplicate key 'i'", 32, 63);
+        validateError(result, i++, "invalid usage of map literal: duplicate key 'i' via spread " +
+                "operator '...alpha'", 41, 27);
+        validateError(result, i++, "invalid usage of mapping constructor expression: spread field " +
+                "'a' may have already specified keys", 50, 28);
+        validateError(result, i++, "invalid usage of mapping constructor expression: spread field " +
+                "'b' may have already specified keys", 59, 32);
+        validateError(result, i++, "invalid usage of mapping constructor expression: key 'i' may " +
+                "duplicate a key specified via spread field '...b'", 64, 29);
+        validateError(result, i++, "invalid usage of mapping constructor expression: key 'y' may " +
+                "duplicate a key specified via spread field '...m1'", 69, 30);
+        validateError(result, i++, "invalid usage of mapping constructor expression: spread field 'm1' may" +
+                " have already specified keys", 74, 35);
+        validateError(result, i++, "invalid usage of mapping constructor expression: multiple " +
+                "spread fields of inclusive mapping types are not allowed", 84, 35);
+        validateError(result, i++, "invalid usage of mapping constructor expression: spread field 'b2' " +
+                "may have already specified keys", 84, 35);
+        validateError(result, i++, "invalid usage of map literal: duplicate key 'i' via spread operator " +
+                "'...b3'", 94, 35);
+        validateError(result, i++, "invalid usage of mapping constructor expression: multiple spread " +
+                "fields of inclusive mapping types are not allowed", 94, 35);
+        validateError(result, i++, "invalid usage of mapping constructor expression: multiple " +
+                "spread fields of inclusive mapping types are not allowed", 100, 30);
+        validateError(result, i, "invalid usage of mapping constructor expression: multiple " +
+                "spread fields of inclusive mapping types are not allowed", 106, 34);
     }
 
     @Test
@@ -207,12 +234,11 @@ public class MappingConstructorExprTest {
                 { "testMapRefAsSpreadOp" },
                 { "testMapValueViaFuncAsSpreadOp" },
                 { "testRecordRefAsSpreadOp" },
+                { "testRecordRefWithNeverType" },
                 { "testRecordValueViaFuncAsSpreadOp" },
                 { "testSpreadOpInConstMap" },
                 { "testSpreadOpInGlobalMap" },
                 { "testMappingConstrExprAsSpreadExpr" },
-                { "testOrderWithSpreadOp" },
-                { "testInherentTypeViolationViaSpreadOp" }
         };
     }
 
@@ -273,7 +299,7 @@ public class MappingConstructorExprTest {
         };
     }
 
-    @Test(dataProvider = "readOnlyFieldTests", groups = "disableOnOldParser")
+    @Test(dataProvider = "readOnlyFieldTests")
     public void testReadOnlyFields(String test) {
         BRunUtil.invoke(readOnlyFieldResult, test);
     }
@@ -361,5 +387,14 @@ public class MappingConstructorExprTest {
                 "expected a string literal or an expression", 39, 9);
 
         Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        varNameFieldResult = null;
+        inferRecordResult = null;
+        spreadOpFieldResult = null;
+        readOnlyFieldResult = null;
     }
 }

@@ -1,7 +1,7 @@
 function foo() {
     object {
         public int a;
-        
+
         object {
             int a;
 

@@ -25,8 +25,9 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    baloCreat project(':lib-creator')
+    balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-time')
@@ -34,12 +35,12 @@ dependencies {
     implementation project(':ballerina-io')
     implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system'
 
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    balaImplementation project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
+    balaImplementation project(path: ':ballerina-runtime-api', configuration: 'balaImplementation')
+    balaImplementation project(path: ':ballerina-time', configuration: 'balaImplementation')
+    balaImplementation project(path: ':ballerina-lang:internal', configuration: 'balaImplementation')
+
+    balaImplementation project(path: ':ballerina-io', configuration: 'balaImplementation')
 
     interopImports project(':ballerina-time')
     interopImports 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
@@ -49,9 +50,11 @@ dependencies {
     testCompile project(':ballerina-core')
     testCompile 'org.testng:testng:6.13.1'
     testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
+    testCompile 'commons-io:commons-io'
+    testCompile 'org.awaitility:awaitility'
 }
 
-createBalo {
+createBala {
     jvmTarget = 'true'
 }
 
@@ -66,3 +69,15 @@ description = 'Ballerina - File'
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
+
+//ext.moduleName = 'file'
+//
+//compileJava {
+//    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}

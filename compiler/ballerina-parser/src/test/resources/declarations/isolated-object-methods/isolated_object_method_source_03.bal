@@ -1,9 +1,9 @@
 client class Foo {
-    isolated function () {
+    public isolated function () {
 
     }
 
-    public remote isolated transactional function (int i) returns string {
+    remote isolated transactional function (int i) returns string {
 
     }
 }

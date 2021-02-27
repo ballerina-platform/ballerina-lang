@@ -15,19 +15,21 @@
  */
 package org.ballerinalang.langserver.common;
 
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
  * This class provides imports acceptor and its functionalities.
@@ -36,16 +38,16 @@ import java.util.function.BiConsumer;
  */
 public class ImportsAcceptor {
     private final Set<String> newImports;
-    private final List<BLangImportPackage> currentModuleImports;
+    private final List<ImportDeclarationNode> currentModuleImports;
     private final BiConsumer<String, String> onExistCallback;
 
-    public ImportsAcceptor(LSContext context) {
+    public ImportsAcceptor(DocumentServiceContext context) {
         this(context, null);
     }
 
-    public ImportsAcceptor(LSContext context, BiConsumer<String, String> onExistCallback) {
+    public ImportsAcceptor(DocumentServiceContext context, BiConsumer<String, String> onExistCallback) {
         this.newImports = new HashSet<>();
-        this.currentModuleImports = CommonUtil.getCurrentModuleImports(context);
+        this.currentModuleImports = context.currentDocImports();
         this.onExistCallback = onExistCallback;
     }
 
@@ -58,10 +60,13 @@ public class ImportsAcceptor {
         return (orgName, alias) -> {
             boolean notFound = currentModuleImports.stream().noneMatch(
                     pkg -> {
-                        String importAlias = pkg.symbol.pkgID.name.value;
+                        String importAlias = pkg.moduleName().stream()
+                                .map(Token::text)
+                                .collect(Collectors.joining("."));
                         String escapedName = importAlias.replace(".", ".'");
                         boolean aliasMatched = importAlias.equals(alias) || escapedName.equals(alias);
-                        return pkg.symbol.pkgID.orgName.value.equals(orgName) && aliasMatched;
+                        return pkg.orgName().isPresent() && pkg.orgName().get().orgName().text().equals(orgName)
+                                && aliasMatched;
                     }
             );
             if (notFound) {
@@ -97,15 +102,15 @@ public class ImportsAcceptor {
     }
 
     private TextEdit createImportTextEdit(String pkgName) {
-        DiagnosticPos pos = null;
+        Location pos = null;
 
         if (!currentModuleImports.isEmpty()) {
-            BLangImportPackage lastImport = CommonUtil.getLastItem(currentModuleImports);
-            pos = lastImport.getPosition();
+            ImportDeclarationNode lastImport = CommonUtil.getLastItem(currentModuleImports);
+            pos = lastImport.location();
         }
 
         int endCol = 0;
-        int endLine = pos == null ? 0 : pos.getEndLine();
+        int endLine = pos == null ? 0 : pos.lineRange().endLine().line();
 
         String editText = "import " + pkgName + ";\n";
         Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));

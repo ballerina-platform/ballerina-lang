@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.test.types.json;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -81,5 +82,10 @@ public class RecordToJSONTest {
     @Test
     public void testRecursiveCheckAgainstJson() {
         BRunUtil.invoke(compileResult, "testRecursiveCheckAgainstJson");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

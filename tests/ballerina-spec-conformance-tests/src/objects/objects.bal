@@ -50,14 +50,14 @@ public client class PublicClientObject {
         return self.counter;
     }
 
-    public remote function publicRemoteMethodDefn(string argOne) returns int {
+    remote function publicRemoteMethodDefn(string argOne) returns int {
         self.publicStringField = argOne;
         self.counter += 10;
         return self.counter;
     }
 
     public function publicMethodDecl() returns int;
-    public remote function publicRemoteMethodDecl() returns int;
+    remote function publicRemoteMethodDecl() returns int;
 }
 
 public function PublicClientObject.publicMethodDecl() returns int {
@@ -65,7 +65,7 @@ public function PublicClientObject.publicMethodDecl() returns int {
     return self.counter;
 }
 
-public remote function PublicClientObject.publicRemoteMethodDecl() returns int {
+remote function PublicClientObject.publicRemoteMethodDecl() returns int {
     self.counter += 10;
     return self.counter;
 }
@@ -106,9 +106,9 @@ public type AbstractClientObject client object {
     public string publicStringField;
 
     public function publicMethodDecl() returns int;
-    public remote function publicRemoteMethodDecl(string argOne) returns int;
+    remote function publicRemoteMethodDecl(string argOne) returns int;
     public function publicMethodDeclaredOutside() returns int;
-    public remote function publicRemoteMethodDeclaredOutside() returns int;
+    remote function publicRemoteMethodDeclaredOutside() returns int;
 };
 
 public client class ObjReferenceToAbstractClientObject {
@@ -124,7 +124,7 @@ public client class ObjReferenceToAbstractClientObject {
         return self.counter;
     }
 
-    public remote function publicRemoteMethodDecl(string argOne) returns int {
+    remote function publicRemoteMethodDecl(string argOne) returns int {
         self.publicStringField = argOne;
         self.counter += 10;
         return self.counter;
@@ -141,7 +141,7 @@ public function ObjReferenceToAbstractClientObject.publicMethodDeclaredOutside()
     return self.counter;
 }
 
-public remote function ObjReferenceToAbstractClientObject.publicRemoteMethodDeclaredOutside() returns int {
+remote function ObjReferenceToAbstractClientObject.publicRemoteMethodDeclaredOutside() returns int {
     self.counter += 10;
     return self.counter;
 }

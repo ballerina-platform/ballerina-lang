@@ -17,26 +17,26 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Package name="io.ballerinalang.compiler.internal.parser.tree" />
+        <Package name="io.ballerina.compiler.internal.parser.tree" />
     </Match>
     <Match>
-        <Package name="io.ballerinalang.compiler.syntax.tree" />
+        <Package name="io.ballerina.compiler.syntax.tree" />
     </Match>
     <Match>
-        <Package name="io.ballerinalang.compiler.text" />
+        <Package name="io.ballerina.compiler.text" />
     </Match>
     <Match>
-        <Class name="io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler" />
+        <Class name="io.ballerina.compiler.internal.parser.BallerinaParserErrorHandler" />
         <Method name="getNextRuleForCloseBrace" />
         <Bug pattern="SF_SWITCH_FALLTHROUGH" />
     </Match>
     <Match>
-        <Class name="io.ballerinalang.compiler.internal.parser.BallerinaParser" />
+        <Class name="io.ballerina.compiler.internal.parser.BallerinaParser" />
         <Method name="parseFunctionBodyBlock" />
         <Bug pattern="SF_SWITCH_FALLTHROUGH" />
     </Match>
     <Match>
-        <Class name="io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler" />
+        <Class name="io.ballerina.compiler.internal.parser.BallerinaParserErrorHandler" />
         <Method name="getNextRuleForComma" />
         <Bug pattern="SF_SWITCH_FALLTHROUGH" />
     </Match>

@@ -1,7 +1,7 @@
-function foo() {
-    var obj = client
-    int n;
-    function bar() {
-        int i = 10;
-    }
-}
+var obj = isolated object { };
+
+var obj = client object { };
+
+var obj = isolated client object { };
+
+var obj = client isolated object { };

@@ -18,10 +18,11 @@
 
 package org.ballerinalang.test.types.map;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -47,5 +48,10 @@ public class ConstrainedMapNegativeTest {
     public void testMapAnyDataClosedRecordAssignmentNegative() {
 
         BRunUtil.invoke(negativeRunTimeResult, "testMapAnyDataClosedRecordAssignmentNegative");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        negativeRunTimeResult = null;
     }
 }

@@ -24,11 +24,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 
 /**
- * @since Swan Lake
+ * Represent var-binding-pattern.
+ *
+ * @since 2.0.0
  */
 public class BLangVarBindingPatternMatchPattern extends BLangMatchPattern implements VarBindingPatternMatchPatternNode {
-
     BLangBindingPattern bindingPattern;
+    public boolean matchesAll;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -37,7 +39,6 @@ public class BLangVarBindingPatternMatchPattern extends BLangMatchPattern implem
 
     @Override
     public NodeKind getKind() {
-
         return NodeKind.VAR_BINDING_PATTERN_MATCH_PATTERN;
     }
 

@@ -14,7 +14,5 @@ function somefunction() returns never {
 public function foo() {
     xml<never> xmlValue = <xml<never>>'xml:concat();
     map<never> someMap = {};
-    table<Person> key<never> personTable = table [{
-        name : "John"
-    }];
+    table<Person> key<never> personTable = table [{name: "John"}];
 }

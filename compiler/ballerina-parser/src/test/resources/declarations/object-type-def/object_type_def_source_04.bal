@@ -3,6 +3,5 @@ type Foo object {
 
     function getName();
 
-    public remote function get();
-
+    remote function get();
 };

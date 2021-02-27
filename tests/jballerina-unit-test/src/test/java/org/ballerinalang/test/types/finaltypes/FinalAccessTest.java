@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.test.types.finaltypes;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -39,15 +40,15 @@ public class FinalAccessTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/finaltypes/TestProject", "final-field-test");
+        compileResult = BCompileUtil.compile("test-src/types/finaltypes/TestProject");
         finalLocalNoInitVarResult = BCompileUtil.compile("test-src/types/finaltypes/test_final_local_no_init_var.bal");
     }
 
-    @Test(description = "Test negative cases for implicitly final params/variables")
-    public void testImplicitlyFinalNegative() {
+    @Test(description = "Test final field access failures")
+    public void testFinalFailCase() {
         CompileResult compileResultNegative = BCompileUtil.compile(
                 "test-src/types/finaltypes/test_implicitly_final_negative.bal");
-        Assert.assertEquals(compileResultNegative.getErrorCount(), 9);
+        Assert.assertEquals(compileResultNegative.getErrorCount(), 8);
         BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to function argument 'a'", 11, 5);
         BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to function argument 'a'", 17, 5);
         BAssertUtil.validateError(compileResultNegative, 2, "cannot assign a value to function argument 'f'", 22, 5);
@@ -57,8 +58,6 @@ public class FinalAccessTest {
         BAssertUtil.validateError(compileResultNegative, 6, "cannot assign a value to function argument 'a'", 38, 5);
         BAssertUtil.validateError(compileResultNegative, 7, "invalid assignment: 'listener' declaration is final",
                                   45, 5);
-        BAssertUtil.validateError(compileResultNegative, 8, "invalid assignment: 'service' declaration is final",
-                                  51, 5);
     }
 
     @Test
@@ -169,5 +168,11 @@ public class FinalAccessTest {
                 {"testSubsequentInitializationOfFinalVar"},
                 {"testSubsequentInitializationOfFinalVarInBranches"}
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        finalLocalNoInitVarResult = null;
     }
 }

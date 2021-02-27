@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 // Simple decimal literal - positive.
 function testDecimalValue() returns (decimal) {
     decimal d;
@@ -155,6 +153,5 @@ function decimalInferenceInLiterals() returns [decimal, decimal, decimal, decima
 // Test decimal array value load
 public function decimalArrayLoad() returns decimal {
     decimal[] a = [1.0, 2.0];
-    io:println(a[0]);
     return a[1];
 }

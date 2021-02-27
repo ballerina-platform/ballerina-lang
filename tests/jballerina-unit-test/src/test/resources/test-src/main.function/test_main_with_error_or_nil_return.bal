@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
+import ballerina/jballerina.java;
 
 const ERR_REASON = "const error reason";
 
@@ -26,7 +26,7 @@ type ErrorRecord record {
 type USER_DEF_ERROR distinct error<ErrorRecord>;
 
 public function main(string s, int code) returns error? {
-    io:print("error? returning main invoked");
+    print("error? returning main invoked");
     match s {
         "error" => {
             error e = error("generic error", statusCode = code);
@@ -36,9 +36,13 @@ public function main(string s, int code) returns error? {
             return;
         }
         "user_def_error" => {
-            USER_DEF_ERROR e = USER_DEF_ERROR(ERR_REASON, message = "error message", statusCode = code);
+            USER_DEF_ERROR e = error USER_DEF_ERROR(ERR_REASON, message = "error message", statusCode = code);
             return e;
         }
     }
     panic error("expected to have returned within match");
 }
+
+public function print(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

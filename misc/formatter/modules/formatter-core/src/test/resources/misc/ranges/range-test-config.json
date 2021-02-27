@@ -1,0 +1,247 @@
+[
+  {
+    "filename": "ranges_1.bal",
+    "positions":  [
+      {
+        "startPos": {
+          "lineNo": 5,
+          "colNo": 30
+        },
+        "endPos": {
+          "lineNo": 9,
+          "colNo": 34
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 12,
+          "colNo": 31
+        },
+        "endPos": {
+          "lineNo": 16,
+          "colNo": 29
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 16,
+          "colNo": 20
+        },
+        "endPos": {
+          "lineNo": 22,
+          "colNo": 38
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 24,
+          "colNo": 10
+        },
+        "endPos": {
+          "lineNo": 31,
+          "colNo": 36
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 31,
+          "colNo": 53
+        },
+        "endPos": {
+          "lineNo": 31,
+          "colNo": 88
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 37,
+          "colNo": 26
+        },
+        "endPos": {
+          "lineNo": 37,
+          "colNo": 33
+        }
+      }
+    ]
+  },
+  {
+    "filename": "ranges_2.bal",
+    "positions": [
+      {
+        "startPos": {
+          "lineNo": 0,
+          "colNo": 1
+        },
+        "endPos": {
+          "lineNo": 1,
+          "colNo": 0
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 2,
+          "colNo": 52
+        },
+        "endPos": {
+          "lineNo": 14,
+          "colNo": 12
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 7,
+          "colNo": 22
+        },
+        "endPos": {
+          "lineNo": 25,
+          "colNo": 8
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 27,
+          "colNo": 18
+        },
+        "endPos": {
+          "lineNo": 27,
+          "colNo": 94
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 35,
+          "colNo": 12
+        },
+        "endPos": {
+          "lineNo": 31,
+          "colNo": 88
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 32,
+          "colNo": 7
+        },
+        "endPos": {
+          "lineNo": 32,
+          "colNo": 25
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 34,
+          "colNo": 12
+        },
+        "endPos": {
+          "lineNo": 40,
+          "colNo": 7
+        }
+      }
+    ]
+  },
+  {
+    "filename": "ranges_3.bal",
+    "positions": [
+      {
+        "startPos": {
+          "lineNo": 0,
+          "colNo": 6
+        },
+        "endPos": {
+          "lineNo": 9,
+          "colNo": 16
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 5,
+          "colNo": 15
+        },
+        "endPos": {
+          "lineNo": 27,
+          "colNo": 8
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 26,
+          "colNo": 37
+        },
+        "endPos": {
+          "lineNo": 35,
+          "colNo": 30
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 45,
+          "colNo": 4
+        },
+        "endPos": {
+          "lineNo": 48,
+          "colNo": 12
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 48,
+          "colNo": 4
+        },
+        "endPos": {
+          "lineNo": 48,
+          "colNo": 44
+        }
+      }
+    ]
+  },
+  {
+    "filename": "ranges_4.bal",
+    "positions": [
+      {
+        "startPos": {
+          "lineNo": 2,
+          "colNo": 14
+        },
+        "endPos": {
+          "lineNo": 12,
+          "colNo": 25
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 9,
+          "colNo": 15
+        },
+        "endPos": {
+          "lineNo": 23,
+          "colNo": 8
+        }
+      },
+      {
+        "startPos": {
+          "lineNo": 18,
+          "colNo": 8
+        },
+        "endPos": {
+          "lineNo": 22,
+          "colNo": 1
+        }
+      }
+    ]
+  },
+  {
+    "filename": "ranges_5.bal",
+    "positions": [
+      {
+        "startPos": {
+          "lineNo": 1,
+          "colNo": 1
+        },
+        "endPos": {
+          "lineNo": 129,
+          "colNo": 1
+        }
+      }
+    ]
+  }
+]

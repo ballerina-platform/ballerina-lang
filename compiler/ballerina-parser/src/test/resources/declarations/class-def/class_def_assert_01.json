@@ -86,6 +86,10 @@
                   "kind": "OBJECT_FIELD",
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "INT_TYPE_DESC",
                       "children": [
                         {
@@ -181,6 +185,10 @@
                   "kind": "OBJECT_FIELD",
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "STRING_TYPE_DESC",
                       "children": [
                         {
@@ -232,6 +240,10 @@
                           "value": " "
                         }
                       ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "INT_TYPE_DESC",
@@ -305,6 +317,10 @@
                       ]
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "FLOAT_TYPE_DESC",
                       "children": [
                         {
@@ -372,6 +388,10 @@
                     {
                       "kind": "IDENTIFIER_TOKEN",
                       "value": "init"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "FUNCTION_SIGNATURE",
@@ -496,6 +516,10 @@
                       "value": "getName"
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "FUNCTION_SIGNATURE",
                       "children": [
                         {
@@ -558,7 +582,7 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "PRIVATE_KEYWORD",
+                          "kind": "REMOTE_KEYWORD",
                           "leadingMinutiae": [
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
@@ -569,15 +593,6 @@
                               "value": "    "
                             }
                           ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "REMOTE_KEYWORD",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -599,6 +614,10 @@
                     {
                       "kind": "IDENTIFIER_TOKEN",
                       "value": "get"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "FUNCTION_SIGNATURE",
@@ -663,6 +682,10 @@
                 {
                   "kind": "OBJECT_FIELD",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "OBJECT_TYPE_DESC",
                       "children": [
@@ -737,6 +760,10 @@
                               "kind": "OBJECT_FIELD",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
                                     {
@@ -774,6 +801,10 @@
                             {
                               "kind": "OBJECT_FIELD",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "STRING_TYPE_DESC",
                                   "children": [
@@ -828,6 +859,10 @@
                                   ]
                                 },
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
                                     {
@@ -873,6 +908,10 @@
                                       "value": " "
                                     }
                                   ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
                                 },
                                 {
                                   "kind": "FLOAT_TYPE_DESC",
@@ -942,6 +981,10 @@
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "init"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
                                 },
                                 {
                                   "kind": "FUNCTION_SIGNATURE",
@@ -1034,6 +1077,10 @@
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "getName"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
                                 },
                                 {
                                   "kind": "FUNCTION_SIGNATURE",

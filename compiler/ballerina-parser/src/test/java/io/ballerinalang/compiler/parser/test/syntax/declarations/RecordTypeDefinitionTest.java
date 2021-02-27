@@ -82,6 +82,11 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
         test("record-type-def/record_type_def_source_22.bal", "record-type-def/record_type_def_assert_22.json");
         test("record-type-def/record_type_def_source_23.bal", "record-type-def/record_type_def_assert_23.json");
     }
+
+    @Test
+    public void testRestDescriptorInsideOpenRecord() {
+        testFile("record-type-def/record_type_def_source_27.bal", "record-type-def/record_type_def_assert_27.json");
+    }
     
     // Recovery tests
 
@@ -133,5 +138,10 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testIncompleteQualifiedIdentifier() {
         test("record-type-def/record_type_def_source_24.bal", "record-type-def/record_type_def_assert_24.json");
+    }
+
+    @Test
+    public void testInvalidComplexTypeInTypeInclusion() {
+        test("record-type-def/record_type_def_source_26.bal", "record-type-def/record_type_def_assert_26.json");
     }
 }

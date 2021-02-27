@@ -15,22 +15,23 @@
  *
  */
 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+ 
+apply from: "$rootDir/gradle/ballerinaLangLibBuild.gradle"
 
 dependencies {
+    implementation ('org.apache.ws.commons.axiom:axiom-api') {
+        exclude group: 'org.apache.geronimo.specs', module: 'geronimo-stax-api_1.0_spec'
+        exclude group: 'jaxen', module: 'jaxen'
+    }
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:internal')
-    baloCreat project(':lib-creator')
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
+
+    distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:internal', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
 
     implementation 'org.slf4j:slf4j-api'
-}
-
-createBalo {
-    isBuiltin = 'true'
-    jvmTarget = 'true'
 }
 
 description = 'ballerina/lang.xml Implementation'

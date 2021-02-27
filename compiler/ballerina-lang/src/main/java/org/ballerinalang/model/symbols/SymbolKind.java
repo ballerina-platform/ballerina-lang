@@ -37,6 +37,7 @@ public enum SymbolKind {
     PACKAGE_VARIABLE,
     TRANSFORMER,
     TYPE_DEF,
+    ENUM,
     ERROR,
 
     PARAMETER,
@@ -51,9 +52,6 @@ public enum SymbolKind {
     XMLNS,
     SCOPE,
     OTHER,
-
-    ERROR_CONSTRUCTOR,
-    FUNCTIONAL_CONSTRUCTOR,
 
     INVOKABLE_TYPE
 }

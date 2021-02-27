@@ -49,7 +49,7 @@ function getXML() returns xml[] {
 
 function testFromString() returns xml|error {
     string s = catalog.toString();
-    xml x = <xml> 'xml:fromString(s);
+    xml x = <xml> checkpanic 'xml:fromString(s);
     return x/<CD>/<TITLE>;
 }
 
@@ -59,7 +59,26 @@ function emptyConcatCall() returns xml {
 
 function testConcat() returns xml {
     xml x = xml `<hello>xml content</hello>`;
-    return 'xml:concat(x, <xml> testFromString(), "hello from String");
+    return 'xml:concat(x, <xml> checkpanic testFromString(), "hello from String");
+}
+
+function testConcatWithXMLSequence() {
+    string a = "string one";
+    string b = "string two";
+    'xml:Element catalogClone = catalog.clone();
+
+    xml c = 'xml:concat(catalog, a, b);
+    assert(c.length(), 2);
+    assert(catalog, catalogClone);
+
+    xml d = 'xml:concat();
+    foreach var x in catalog/<CD> {
+        d = 'xml:concat(d, x);
+    }
+    assert(d.length(), 3);
+
+    xml e = 'xml:concat(c, d);
+    assert(e.length(), 5);
 }
 
 function testIsElement() returns [boolean, boolean, boolean] {
@@ -154,16 +173,26 @@ function testCreateComment() returns xml {
     return 'xml:createComment("This text should be wraped in xml comment");
 }
 
-function testForEach() returns xml {
+function testCreateText() {
+    'xml:Text text1 = 'xml:createText("This is xml text");
+    'xml:Text text2 = 'xml:createText("");
+    'xml:Text text3 = 'xml:createText("T");
+    'xml:Text text4 = 'xml:createText("Thisisxmltext");
+    'xml:Text text5 = 'xml:createText("XML\ntext");
+
+    assert(<string>text1, "This is xml text");
+    assert(<string>text2, "");
+    assert(<string>text3, "T");
+    assert(<string>text4, "Thisisxmltext");
+    assert(<string>text5, "XML\ntext");
+}
+
+function testForEach() {
     xml r = 'xml:concat();
     foreach var x in catalog/* {
-        if (x is xml) {
-            if (x is 'xml:Element) {
-                r = 'xml:concat(r, x);
-            }
-        }
+        r = 'xml:concat(r, x);
     }
-    return r;
+    assert(r.length(), 7);
 }
 
 function testSlice() returns [xml, xml, xml] {
@@ -244,21 +273,21 @@ function testAsyncFpArgsWithXmls() returns [int, xml] {
 
     int sum = 0;
     ((bookstore/*).elements()).forEach(function (xml x) {
-      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      int value = <int> checkpanic langint:fromString((x/<year>/*).toString()) ;
       future<int> f1 = start getRandomNumber(value);
       int result = wait f1;
       sum = sum + result;
     });
 
     var filter = ((bookstore/*).elements()).filter(function (xml x) returns boolean {
-      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      int value =   <int> checkpanic langint:fromString((x/<year>/*).toString()) ;
       future<int> f1 = start getRandomNumber(value);
       int result = wait f1;
       return result > 2000;
     });
 
     var filter2 = (filter).map(function (xml x) returns xml {
-      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      int value =   <int> checkpanic langint:fromString((x/<year>/*).toString()) ;
       future<int> f1 = start getRandomNumber(value);
       int result = wait f1;
       return xml `<year>${result}</year>`;
@@ -368,6 +397,53 @@ function testElementChildrenNS() {
     assert(toNoNs.toString(), "<to>Irshad</to><to>Irshad</to>");
 }
 
+function testXMLIteratorInvocation() {
+    xml a = xml `<!--first-->`;
+    xml<'xml:Comment> seq1 = <xml<'xml:Comment>> a.concat(xml `<!--second-->`);
+
+    object {
+        public isolated function next() returns record {| 'xml:Comment value; |}?;
+    } iter1 = seq1.iterator();
+
+    assert((iter1.next()).toString(), "{\"value\":`<!--first-->`}");
+
+    xml b = xml `<one>first</one>`;
+    xml<'xml:Element> seq2 = <xml<'xml:Element>> b.concat(xml `<two>second</two>`);
+
+    object {
+            public isolated function next() returns record {| 'xml:Element value; |}?;
+    } iter2 = seq2.iterator();
+
+    assert((iter2.next()).toString(), "{\"value\":`<one>first</one>`}");
+
+    xml c = xml `bit of text1`;
+    xml<'xml:Text> seq3 = <xml<'xml:Text>> c.concat(xml ` bit of text2`);
+
+    object {
+        public isolated function next() returns record {| 'xml:Text value; |}?;
+    } iter3 = seq3.iterator();
+
+    assert((iter3.next()).toString(), "{\"value\":`bit of text1`}");
+
+    xml d = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
+    xml<'xml:ProcessingInstruction> seq4 = <xml<'xml:ProcessingInstruction>> d.concat(xml `<?pi-node type="cont"?>`);
+
+    object {
+        public isolated function next() returns record {| 'xml:ProcessingInstruction value; |}?;
+    } iter4 = seq4.iterator();
+
+    assert((iter4.next()).toString(), "{\"value\":`<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>`}");
+
+    xml e = xml `<one>first</one>`;
+    xml<'xml:Element|'xml:Text> seq5 = <xml<'xml:Element|'xml:Text>> e.concat(xml `<two>second</two>`);
+
+    object {
+        public isolated function next() returns record {| 'xml:Element|'xml:Text value; |}?;
+    } iter5 = seq5.iterator();
+
+    assert((iter5.next()).toString(), "{\"value\":`<one>first</one>`}");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
@@ -379,50 +455,5 @@ function assert(anydata actual, anydata expected) {
     }
 }
 
-function testXMLFunctionalCtor() {
-    'xml:Element x = 'xml:Element("hello");
-    'xml:Element y = xml `<hello></hello>`;
-    assertValueEquality(y, x);
-}
 
-function testXMLFunctionalConstructorWithAttributes() {
-    'xml:Element x = 'xml:Element("element", { "attr": "attrVal", "two": "Val2"});
-    'xml:Element y = xml `<element attr="attrVal" two="Val2"/>`;
-    assertValueEquality(y, x);
-}
-
-function testXMLFunctionalConstructorWithAChild() {
-    'xml:Element x = 'xml:Element("element", {attr: "hello"}, 'xml:Element("child"));
-    'xml:Element y = xml `<element attr="hello"><child/></element>`;
-    assertValueEquality(y, x);
-}
-
-function testXMLCommentCtor() {
-    'xml:Comment x = 'xml:Comment("comment content");
-    'xml:Comment y = xml `<!--comment content-->`;
-    assertValueEquality(y, x);
-}
-
-function testXMLPICtor() {
-    'xml:ProcessingInstruction x = 'xml:ProcessingInstruction("DONOT", "print this");
-    'xml:ProcessingInstruction y = xml `<?DONOT print this?>`;
-    assertValueEquality(y, x);
-}
-
-function testXMLTextCtor() {
-    'xml:Text x = 'xml:Text("this is a charactor sequence");
-    'xml:Text y = xml `this is a charactor sequence`;
-    assertValueEquality(y, x);
-}
-
-const ASSERTION_ERROR_REASON = "AssertionError";
-
-function assertValueEquality(anydata|error expected, anydata|error actual) {
-    if expected == actual {
-        return;
-    }
-
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
-}
 

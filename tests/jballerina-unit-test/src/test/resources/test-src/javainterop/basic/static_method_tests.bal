@@ -14,10 +14,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
-import ballerina/java;
+import ballerina/jballerina.java;
 import ballerina/lang.'value;
 import ballerina/test;
+
+public class Person {
+    int age = 9;
+    public function init(int age) {
+        self.age = age;
+    }
+}
+
+public type ResourceDefinition record {|
+    string path;
+    string method;
+|};
+
+public type ApiDefinition record {|
+    ResourceDefinition[] resources;
+|};
+
+public type MyType byte[]|string|int|float;
 
 function testAcceptNothingAndReturnNothing() {
     acceptNothingAndReturnNothing();
@@ -57,12 +74,12 @@ function testFuncWithAsyncDefaultParamExpression() returns int {
 }
 
 function asyncRet() returns int {
-    runtime:sleep(50);
+    sleep(50);
     return 10;
 }
 
 function asyncRetWithVal(int a = 30) returns int {
-    runtime:sleep(50);
+    sleep(50);
     return a + 20;
 }
 
@@ -73,11 +90,70 @@ function testUsingParamValues() returns int {
 function testDecimalParamAndReturn(decimal a1) returns decimal {
     return decimalParamAndReturn(a1);
 }
-
 function testStaticResolve() {
+    // When instance and static methods have the same name resolve static method based on the parameter type
     int val = hashCode(2);
     test:assertEquals(val, 2);
 }
+
+public function testBalEnvSlowAsyncVoidSig() {
+    int added = addTwoNumbersSlowAsyncVoidSig(1, 2);
+    test:assertEquals(3, added);
+}
+
+public function testUnionReturn() returns string {
+    ResourceDefinition resourceDef = {path:"path", method:"method"};
+    ResourceDefinition[] resources = [resourceDef];
+    ApiDefinition apiDef = {resources:resources};
+    return value:toString(checkpanic getMapOrError("swagger", apiDef));
+}
+
+public function testBalEnvFastAsyncVoidSig() {
+    int added = addTwoNumbersFastAsyncVoidSig(1, 2);
+    test:assertEquals(3, added);
+}
+
+public function testBalEnvSlowAsync() {
+    int added = addTwoNumbersSlowAsync(1, 2);
+    test:assertEquals(3, added);
+}
+
+public function testBalEnvFastAsync() {
+    int added = addTwoNumbersFastAsync(1, 2);
+    test:assertEquals(3, added);
+}
+
+public function testReturnNullString() {
+    string concat = "some" + (returnNullString(true) ?: "");
+    test:assertEquals("some", concat);
+}
+
+public function testReturnNotNullString() {
+    string concat = "some" + (returnNullString(false) ?: "");
+    test:assertEquals("someNotNull", concat);
+}
+
+public function testStringCast() {
+    any result = getValue();
+    string s = <string> result;
+    test:assertEquals("Ballerina", s);
+}
+
+public function testGetCurrentModule() {
+     string moduleString =  getCurrentModule(4);
+     test:assertEquals(moduleString, "$anon#.#0.0.0#4");
+}
+
+public function testGetDefaultValueWithBEnv() {
+     int defaultValue =  getDefaultValueWithBEnv();
+     test:assertEquals(defaultValue, 2021);
+}
+
+function hashCode(int receiver) returns int = @java:Method {
+    name: "hashCode",
+    'class: "java.lang.Byte",
+    paramTypes: ["byte"]
+} external;
 
 // Interop functions
 public function acceptNothingAndReturnNothing() = @java:Method {
@@ -161,36 +237,13 @@ public function acceptSomethingReturnSomethingAndThrowsUncheckedException(handle
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-public class Person {
-    int age = 9;
-    public function init(int age) {
-        self.age = age;
-    }
-}
-
-public type ResourceDefinition record {|
-    string path;
-    string method;
-|};
-
-public type ApiDefinition record {|
-    ResourceDefinition[] resources;
-|};
-
-public function testUnionReturn() returns string {
-    ResourceDefinition resourceDef = {path:"path", method:"method"};
-    ResourceDefinition[] resources = [resourceDef];
-    ApiDefinition apiDef = {resources:resources};
-    return value:toString(getMapOrError("swagger", apiDef));
-}
-
 function getMapOrError(string swaggerFilePath, ApiDefinition apiDef) returns ApiDefinition | error  = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public function getObjectOrError() returns Person|error = @java:Method {
     name: "returnObjectOrError",
-    'class: "org.ballerinalang.test.javainterop.basic.StaticMethodTest"
+    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function getArrayValue() returns [string, string] | error = @java:Method {
@@ -209,57 +262,88 @@ function decimalParamAndReturn(decimal a1) returns decimal = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
- public function addTwoNumbersSlowAsyncVoidSig(int a, int b) returns int = @java:Method {
+public function addTwoNumbersSlowAsyncVoidSig(int a, int b) returns int = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
- public function addTwoNumbersFastAsyncVoidSig(int a, int b) returns int = @java:Method {
+public function addTwoNumbersFastAsyncVoidSig(int a, int b) returns int = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
- public function addTwoNumbersSlowAsync(int a, int b) returns int = @java:Method {
+public function addTwoNumbersSlowAsync(int a, int b) returns int = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+    paramTypes: ["long" ,"long"]
+} external;
+
+public function addTwoNumbersFastAsync(int a, int b) returns int = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
- public function addTwoNumbersFastAsync(int a, int b) returns int = @java:Method {
+function getCurrentModule(int a) returns string  = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getDefaultValueWithBEnv(int a = 2021) returns int  = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function returnNullString(boolean nullVal) returns string? = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-public function testBalEnvSlowAsyncVoidSig() {
-    int added = addTwoNumbersSlowAsyncVoidSig(1, 2);
-    assertEquality(3, added);
-}
-
-public function testBalEnvFastAsyncVoidSig() {
-    int added = addTwoNumbersFastAsyncVoidSig(1, 2);
-    assertEquality(3, added);
-}
-
-public function testBalEnvSlowAsync() {
-    int added = addTwoNumbersSlowAsync(1, 2);
-    assertEquality(3, added);
-}
-
-public function testBalEnvFastAsync() {
-    int added = addTwoNumbersFastAsync(1, 2);
-    assertEquality(3, added);
-}
-
-function hashCode(int receiver) returns int = @java:Method {
-    name: "hashCode",
-    'class: "java.lang.Byte",
-    paramTypes: ["byte"]
+function getValue() returns MyType = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-const ASSERTION_ERROR_REASON = "AssertionError";
 
-function assertEquality(any|error expected, any|error actual) {
-    if expected is anydata && actual is anydata && expected == actual {
-        return;
-    }
-    if expected === actual {
-        return;
-    }
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;
+
+
+
+type Details record {
+    string name;
+    int id;
+};
+
+public function testCreateRawDetails() {
+    Details val = createRawDetails();
+    val.name = "riyafa";
 }
+
+function createRawDetails() returns Details = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+
+public function testCreateDetails() {
+    Details val = createDetails();
+    val.name = "riyafa";
+}
+
+function createDetails() returns Details = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+type Student record {
+    string name;
+    string birth;
+};
+
+public function testCreateStudent() {
+    (Student & readonly) val = createStudent();
+    test:assertEquals(val.name, "Riyafa");
+}
+
+function createStudent() returns (Student & readonly) = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function testCreateStudentUsingType() {
+    (Student & readonly) val = createStudentUsingType();
+}
+
+function createStudentUsingType() returns (Student & readonly) = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;

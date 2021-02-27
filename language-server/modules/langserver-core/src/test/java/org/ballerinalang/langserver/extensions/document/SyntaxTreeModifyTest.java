@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
-import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -217,45 +216,6 @@ public class SyntaxTreeModifyTest {
 //        Assert.assertEquals(astModifyResponse.getSyntaxTree(), astResponse.getSyntaxTree());
 //        TestUtil.closeDocument(this.serviceEndpoint, tempFile);
 //    }
-
-    @Test(description = "Main content insert.")
-    public void testMainInsert() throws IOException {
-        skipOnWindows();
-        Path tempFile = createTempFile(emptyFile);
-        TestUtil.openDocument(serviceEndpoint, tempFile);
-
-        Gson gson = new Gson();
-        ASTModification modification1 = new ASTModification(1, 1, 1, 1, "MAIN_START",
-                gson.fromJson("{\"COMMENT\":\"\"}", JsonObject.class));
-        ASTModification modification2 = new ASTModification(1, 1, 1, 1, "MAIN_END",
-                gson.fromJson("{}", JsonObject.class));
-
-        BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
-                .modifyAndGetBallerinaAST(tempFile.toString(),
-                        new ASTModification[]{modification1, modification2}, this.serviceEndpoint);
-        Assert.assertTrue(astModifyResponse.isParseSuccess());
-
-        ASTModification modification3 = new ASTModification(1, 1, 1, 1, "IMPORT",
-                gson.fromJson("{\"TYPE\":\"ballerina/http\"}", JsonObject.class));
-        ASTModification modification4 = new ASTModification(2, 1, 2, 1, "DECLARATION",
-                gson.fromJson("{\"TYPE\":\"http:Client\", \"VARIABLE\":\"clientEndpoint\"," +
-                        "\"PARAMS\": [\"\\\"http://postman-echo.com\\\"\"]}", JsonObject.class));
-        ASTModification modification5 = new ASTModification(2, 1, 2, 1,
-                "REMOTE_SERVICE_CALL_CHECK",
-                gson.fromJson("{\"TYPE\":\"http:Response\", \"VARIABLE\":\"response\"," +
-                        "\"CALLER\":\"clientEndpoint\", \"FUNCTION\":\"get\"," +
-                        "\"PARAMS\": [\"\\\"/get?test=123\\\"\"]}", JsonObject.class));
-
-        BallerinaSyntaxTreeResponse astModifyResponse2 = LSExtensionTestUtil
-                .modifyAndGetBallerinaSyntaxTree(tempFile.toString(),
-                        new ASTModification[]{modification3, modification4, modification5}, this.serviceEndpoint);
-        Assert.assertTrue(astModifyResponse2.isParseSuccess());
-
-        BallerinaSyntaxTreeResponse astResponse = LSExtensionTestUtil.getBallerinaSyntaxTree(
-                mainHttpCallFile.toString(), this.serviceEndpoint);
-        Assert.assertEquals(astModifyResponse2.getSyntaxTree(), astResponse.getSyntaxTree());
-        TestUtil.closeDocument(this.serviceEndpoint, tempFile);
-    }
 
 //    @Test(description = "Service.")
 //    public void testService() throws IOException {

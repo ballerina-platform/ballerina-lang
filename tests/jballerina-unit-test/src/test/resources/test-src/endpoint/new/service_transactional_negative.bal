@@ -1,4 +1,4 @@
-service foo on bar {
+service /foo on bar {
 
     @annot9{
     

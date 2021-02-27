@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.test.enums;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -39,8 +40,10 @@ public class EnumTest {
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/enums/enums.bal");
         negativeTest = BCompileUtil.compile("test-src/enums/enums-negative.bal");
-        accessTest = BCompileUtil.compile(this, "test-src/enums/access", "main");
-        accessTestNegative = BCompileUtil.compile(this, "test-src/enums/access", "main2");
+
+        BCompileUtil.compileAndCacheBala("test-src/enums/TestEnumDefinitionProject");
+        accessTest = BCompileUtil.compile("test-src/enums/enum-access.bal");
+        accessTestNegative = BCompileUtil.compile("test-src/enums/enum-access-negative.bal");
     }
 
     @Test(description = "Positive tests for enums", dataProvider = "FunctionList")
@@ -83,9 +86,17 @@ public class EnumTest {
         validateError(accessTestNegative, i++, "undefined symbol 'PF'", 21, 23);
         validateError(accessTestNegative, i++, "attempt to refer to non-accessible symbol 'Bands'", 22, 4);
         validateError(accessTestNegative, i++, "unknown type 'Bands'", 22, 4);
-        validateError(accessTestNegative, i++, "undefined symbol 'Queen'", 22, 19);
+        validateError(accessTestNegative, i++, "undefined symbol 'Queen'", 22, 23);
         validateError(accessTestNegative, i++, "attempt to refer to non-accessible symbol 'PF'", 23, 4);
         validateError(accessTestNegative, i++, "unknown type 'PF'", 23, 4);
         assertEquals(accessTestNegative.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        negativeTest = null;
+        accessTest = null;
+        accessTestNegative = null;
     }
 }

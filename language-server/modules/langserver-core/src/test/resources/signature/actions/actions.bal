@@ -114,7 +114,7 @@ public client class Stub {
 
     # Send a message
     # + msg - message
-    public remote function send(string msg) {
+    remote function send(string msg) {
 
     }
 

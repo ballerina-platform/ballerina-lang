@@ -18,11 +18,11 @@
 
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueType;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -206,5 +206,10 @@ public class FunctionNilReturnTest {
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableUnionArray")[0]);
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTupleArray")[0]);
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTypedescArray")[0]);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

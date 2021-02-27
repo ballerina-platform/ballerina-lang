@@ -37,7 +37,7 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
         super(tag, null, name, 0);
     }
 
-    public BXMLSubType(int tag, Name name, int flags) {
+    public BXMLSubType(int tag, Name name, long flags) {
 
         super(tag, null, name, flags);
     }

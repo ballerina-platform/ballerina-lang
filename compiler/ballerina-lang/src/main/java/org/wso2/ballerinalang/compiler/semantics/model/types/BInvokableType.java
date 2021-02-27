@@ -57,6 +57,10 @@ public class BInvokableType extends BType implements InvokableType {
         return retType;
     }
 
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.FUNCTION;
+    }
 
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
@@ -65,11 +69,15 @@ public class BInvokableType extends BType implements InvokableType {
 
     @Override
     public String toString() {
+        String flagStr = "";
         if (Symbols.isFlagOn(flags, Flags.ISOLATED)) {
-            return "isolated function " + getTypeSignature();
+            flagStr = "isolated ";
+        }
+        if (Symbols.isFlagOn(flags, Flags.TRANSACTIONAL)) {
+            flagStr += "transactional ";
         }
 
-        return "function " + getTypeSignature();
+        return flagStr + "function " + getTypeSignature();
     }
 
     @Override
@@ -81,6 +89,10 @@ public class BInvokableType extends BType implements InvokableType {
             return false;
         }
         BInvokableType that = (BInvokableType) o;
+
+        if (this.flags != that.flags) {
+            return false;
+        }
 
         if (paramTypes != null ? !paramTypes.equals(that.paramTypes) : that.paramTypes != null) {
             return false;

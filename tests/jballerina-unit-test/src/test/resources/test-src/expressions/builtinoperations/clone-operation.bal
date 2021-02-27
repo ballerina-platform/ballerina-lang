@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/lang.'xml;
+import ballerina/lang.value;
 
 public type Person record {|
     int id;
@@ -123,18 +124,18 @@ public function cloneMap() returns [map<any>, map<any>, map<any>] {
     return [a, x, y];
 }
 
-public function cloneTable() returns [Employee[], Employee[], Employee[]] {
+public function cloneTable() returns [Employee?[], Employee?[], Employee?[]] {
 
     Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
     Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
     Employee e3 = { id: 3, name: "John", salary: 400.50 };
     table<Employee> key(id) a = table [];
-    a[1] = e1;
-    a[2] = e2;
+    a.add(e1);
+    a.add(e2);
     table<Employee> key(id) x = a.clone();
     table<Employee> key(id) y = a.clone();
-    a[3] = e3;
-    y[3] = e3;
+    a.add(e3);
+    y.add(e3);
     return [[a[1], a[2], a[3]], [x[1], x[2]], [y[1], y[2], y[3]]];
 }
 
@@ -354,7 +355,7 @@ public function cloneNilAnydata() returns [any, any] {
     return [x, y];
 }
 
-type MyError error<record {| string message?; error cause?; string...; |}>;
+type MyError error<record {| string message?; error cause?; string one?; string two?; |}>;
 
 string reason1 = "err reason 1";
 string reason2 = "err reason 2";
@@ -364,8 +365,8 @@ string[*] reasonArray = [reason1, reason2, reason3, reason4];
 
 error err1 = error(reason1);
 error err2 = error(reason2, one = 1, two = "2");
-MyError err3 = MyError(reason3, one = "first");
-MyError err4 = MyError(reason4, one = "first", two = "second");
+MyError err3 = error MyError(reason3, one = "first");
+MyError err4 = error MyError(reason4, one = "first", two = "second");
 
 public function testCloneArrayWithError() returns boolean {
     error[*] errArray = [err1, err2, err3, err4];
@@ -390,19 +391,19 @@ public function testCloneMapWithError() returns boolean {
         e4: err4
     };
 
-    map<anydata> ma = {
+    map<value:Cloneable> ma = {
         one: 1,
         two: "two",
         errMap: errMap
     };
-    map<error> errMapFromValue = <map<error>> ma["errMap"];
+    map<error> errMapFromValue = <map<error>> checkpanic ma["errMap"];
 
-    map<anydata> clonedMap = <map<anydata>> ma.clone();
+    map<value:Cloneable> clonedMap = ma.clone();
 
-    boolean cloneSuccessful = ma !== clonedMap && <int> ma["one"] == <int> clonedMap["one"] &&
-                                <string> ma["two"] == <string> clonedMap["two"];
+    boolean cloneSuccessful = ma !== clonedMap && <int> checkpanic ma["one"] == <int> checkpanic clonedMap["one"] &&
+                                <string> checkpanic ma["two"] == <string> checkpanic clonedMap["two"];
 
-    map<error> clonedErrorMap = <map<error>> clonedMap["errMap"];
+    map<error> clonedErrorMap = <map<error>> checkpanic clonedMap["errMap"];
     foreach [string, error] [x, y] in errMapFromValue.entries() {
         cloneSuccessful = cloneSuccessful && y === clonedErrorMap[x];
     }

@@ -15,26 +15,22 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.OnFailClauseNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -44,7 +40,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailClauseNode> {
 
     public OnFailClauseNodeContext() {
@@ -52,49 +48,48 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, OnFailClauseNode node) {
-        if (this.onSuggestTypeDescriptors(context, node)) {
-            NonTerminalNode symbolAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-            Predicate<Scope.ScopeEntry> errorPredicate = entry -> {
-                BSymbol bSymbol = entry.symbol;
-                return ((bSymbol instanceof BConstructorSymbol && bSymbol.type != null
-                        && bSymbol.type.getKind() == TypeKind.ERROR));
-            };
-            if (symbolAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                QualifiedNameReferenceNode qRef = (QualifiedNameReferenceNode) symbolAtCursor;
-                return this.getCompletionItemList(QNameReferenceUtil.getModuleContent(context, qRef, errorPredicate),
-                        context);
-            }
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, OnFailClauseNode node) {
+        if (!this.onSuggestTypeDescriptors(context, node)) {
+            return Collections.emptyList();
+        }
 
-            List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-            List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
-            List<Scope.ScopeEntry> errEntries = visibleSymbols.stream()
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        NonTerminalNode symbolAtCursor = context.getNodeAtCursor();
+        
+        Predicate<Symbol> errorPredicate = SymbolUtil::isError;
+        if (symbolAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qRef = (QualifiedNameReferenceNode) symbolAtCursor;
+            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qRef, errorPredicate);
+            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+        } else {
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            List<Symbol> errEntries = visibleSymbols.stream()
                     .filter(errorPredicate)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(errEntries, context));
-            completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
-
-            return completionItems;
         }
-        
-        return new ArrayList<>();
+        this.sort(context, node, completionItems);
+
+        return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, OnFailClauseNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, OnFailClauseNode node) {
         return !node.onKeyword().isMissing();
     }
-    
-    private boolean onSuggestTypeDescriptors(LSContext context, OnFailClauseNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+
+    private boolean onSuggestTypeDescriptors(BallerinaCompletionContext context, OnFailClauseNode node) {
+        int cursor = context.getCursorPositionInTree();
         BlockStatementNode blockStatement = node.blockStatement();
         Token failKeyword = node.failKeyword();
-        
+
         if (failKeyword.isMissing()) {
             return false;
         }
 
-        return cursor > failKeyword.textRange().endOffset() && (blockStatement.isMissing()
+        return cursor > failKeyword.textRange().endOffset()
+                && (blockStatement.isMissing()
                 || cursor < blockStatement.openBraceToken().textRange().endOffset());
     }
 }

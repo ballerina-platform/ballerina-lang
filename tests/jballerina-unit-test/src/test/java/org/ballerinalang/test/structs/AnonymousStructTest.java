@@ -17,13 +17,14 @@
 */
 package org.ballerinalang.test.structs;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -38,7 +39,7 @@ public class AnonymousStructTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/structs/proj/src/default/anon-struct.bal");
+        compileResult = BCompileUtil.compile("test-src/structs/ObjectWithPrivateFieldsTestProject/anon-struct.bal");
     }
 
     @Test(description = "Test Anonymous struct in a function parameter declaration")
@@ -71,5 +72,10 @@ public class AnonymousStructTest {
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "JAN:12 Gemba St APT 134:CA:sam");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

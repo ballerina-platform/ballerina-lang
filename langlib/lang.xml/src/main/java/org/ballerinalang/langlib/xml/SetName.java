@@ -17,47 +17,40 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlItem;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import javax.xml.namespace.QName;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Change the name of element `xmlVal` to `newName`.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "setName",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML),
-                @Argument(name = "newName", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.NIL)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "setName",
+//        args = {@Argument(name = "BXML", type = TypeKind.XML),
+//                @Argument(name = "newName", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.NIL)},
+//        isPublic = true
+//)
 public class SetName {
     private static final String OPERATION = "set element name in xml";
 
 
-    public static void setName(Strand strand, XMLValue xmlVal, BString newNameBStr) {
+    public static void setName(BXml xmlVal, BString newNameBStr) {
         String newName = newNameBStr.getValue();
-        if (!IsElement.isElement(strand, xmlVal)) {
+        if (!IsElement.isElement(xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "setName", "element");
         }
 
         try {
-            if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
+            if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {
                 QName newQName;
                 if (newName.startsWith("{")) {
                     int endCurly = newName.indexOf('}');
@@ -68,7 +61,7 @@ public class SetName {
                     newQName = new QName(newName);
                 }
 
-                ((XMLItem) xmlVal).setQName(newQName);
+                ((BXmlItem) xmlVal).setQName(newQName);
             }
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);

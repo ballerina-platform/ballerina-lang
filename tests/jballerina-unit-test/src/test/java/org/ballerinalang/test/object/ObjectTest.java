@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -440,7 +440,8 @@ public class ObjectTest {
     public void testSelfReferenceType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cyclic type reference in " + "'[Person, Employee, Foo, Bar]'", 32, 5);
+        BAssertUtil.validateError(result, 0, "invalid cyclic type reference in " + "'[Person, Employee, Foo, Bar]'",
+                32, 5);
     }
 
     @Test(description = "Negative test to test self reference types")
@@ -517,32 +518,32 @@ public class ObjectTest {
 
     @Test(description = "Negative test to test object visibility modifiers")
     public void testObjectVisibilityModifiers() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/object/ObjectProject", "mod");
+        CompileResult result = BCompileUtil.compile("test-src/object/test_pkg2");
         Assert.assertEquals(result.getErrorCount(), 12);
         int index = 0;
 
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 34, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/mod:1.0.0:Employee'",
-                                  34, 21);
+        BAssertUtil.validateError(result, index++,
+                                  "undefined field 'name' in object 'testorg/test_pkg2:1.0.0:Employee'", 34, 22);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
                                   38, 14);
-        BAssertUtil.validateError(result, index++, "undefined method 'getAge' in object 'testorg/mod:1.0.0:Employee'",
-                                  38, 19);
+        BAssertUtil.validateError(result, index++,
+                                  "undefined method 'getAge' in object 'testorg/test_pkg2:1.0.0:Employee'", 38, 19);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 45, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/pkg1:1.0.0:Employee'", 45,
-                                    21);
+        BAssertUtil.validateError(result, index++,
+                                  "undefined field 'name' in object 'testorg/test_pkg2.pkg1:1.0.0:Employee'", 45, 22);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'email'", 46, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'email' in object 'testorg/pkg1:1.0.0:Employee'",
-                                46, 21);
+        BAssertUtil.validateError(result, index++,
+                                  "undefined field 'email' in object 'testorg/test_pkg2.pkg1:1.0.0:Employee'", 46, 22);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
                                   49, 14);
-        BAssertUtil.validateError(result, index++, "undefined method 'getAge' in object " +
-                                                   "'testorg/pkg1:1.0.0:Employee'",
+        BAssertUtil.validateError(result, index++, "undefined method 'getAge' " +
+                        "in object 'testorg/test_pkg2.pkg1:1.0.0:Employee'",
                                   49, 19);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol " + "'Employee" +
                 ".getEmail'", 50, 17);
         BAssertUtil.validateError(result, index, "undefined method 'getEmail' in object " +
-                                                   "'testorg/pkg1:1.0.0:Employee'",
+                                                   "'testorg/test_pkg2.pkg1:1.0.0:Employee'",
                                   50, 22);
     }
 
@@ -698,7 +699,7 @@ public class ObjectTest {
 
     @Test(description = "Test invoking object inits with union params in another object's function")
     public void testObjectInitFunctionWithDefaultableParams() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/test_pkg1");
         BValue[] result = BRunUtil.invoke(compileResult, "testObjectInitFunctionWithDefaultableParams");
         Assert.assertEquals(((BInteger) result[0]).intValue(), 900000);
         Assert.assertEquals(((BInteger) result[1]).intValue(), 10000);
@@ -709,7 +710,7 @@ public class ObjectTest {
 
     @Test(description = "Test invoking object inits with union params in another object's function")
     public void testObjectInitFunctionWithDefaultableParams2() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/test_pkg1");
         BValue[] result = BRunUtil.invoke(compileResult, "testObjectInitFunctionWithDefaultableParams2");
         Assert.assertEquals(((BFloat) result[0]).floatValue(), 1.1);
         Assert.assertEquals(((BInteger) result[1]).intValue(), 1);
@@ -726,7 +727,7 @@ public class ObjectTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected '(PersonRec|EmployeeRec)', found 'string'", 71, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "missing required parameter 'i' in call to 'new'()", 114, 38);
+                "missing required parameter 'i' in call to 'new()'", 114, 38);
         BAssertUtil.validateError(resultNegative, i++,
                 "positional argument not allowed after named arguments", 114, 53);
         BAssertUtil.validateError(resultNegative, i++,
@@ -746,31 +747,18 @@ public class ObjectTest {
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
-    @Test(description = "Test field name and method name in different namespaces")
+    @Test(description = "Negative test for field name and method name being same")
     public void testFieldWithSameNameAsMethod() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "test-src/object/object_field_with_same_name_as_method.bal");
-        BValue[] result = BRunUtil.invoke(compileResult, "testFieldWithSameNameAsMethod");
-        Assert.assertEquals(((BInteger) result[0]).intValue(), 13);
-        Assert.assertEquals(((BInteger) result[1]).intValue(), 23);
-        Assert.assertEquals(((BInteger) result[2]).intValue(), 23);
-        Assert.assertEquals(((BFloat) result[3]).floatValue(), 1.1);
-        Assert.assertEquals(((BFloat) result[4]).floatValue(), 2.2);
-        Assert.assertEquals(((BFloat) result[5]).floatValue(), 1.1);
-        Assert.assertEquals(((BFloat) result[6]).floatValue(), 2.2);
-    }
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/object/object_field_with_same_name_as_method_neg.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'ObjectA.someInt'", 21, 14);
+        BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'ObjectA.someFloat'", 26, 14);
+        BAssertUtil.validateError(resultNegative, i++, "undefined method 'someFloat' in object 'ObjectA'", 36, 25);
+        BAssertUtil.validateError(resultNegative, i++, "undefined method 'someInt' in object 'ObjectA'", 44, 17);
+        BAssertUtil.validateError(resultNegative, i++, "undefined method 'someFloat' in object 'ObjectA'", 49, 19);
 
-    @Test(description = "Test field name and method name in different namespaces from balo")
-    public void testFieldWithSameNameAsMethodFromBalo() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
-        BValue[] result = BRunUtil.invoke(compileResult, "testBaloWithFieldWithSameNameAsMethod");
-        Assert.assertEquals(((BInteger) result[0]).intValue(), 13);
-        Assert.assertEquals(((BInteger) result[1]).intValue(), 23);
-        Assert.assertEquals(((BInteger) result[2]).intValue(), 23);
-        Assert.assertEquals(((BFloat) result[3]).floatValue(), 1.1);
-        Assert.assertEquals(((BFloat) result[4]).floatValue(), 2.2);
-        Assert.assertEquals(((BFloat) result[5]).floatValue(), 1.1);
-        Assert.assertEquals(((BFloat) result[6]).floatValue(), 2.2);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @Test(description = "Test object attach func returning tuple with non blocking call")

@@ -17,12 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLElementFilter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.Set;
 
@@ -31,14 +31,16 @@ import java.util.Set;
  */
 public class BLangXMLElementFilter extends BLangExpression implements XMLElementFilter {
 
-    public final DiagnosticPos elemNamePos;
-    public final DiagnosticPos nsPos;
+    public final Location elemNamePos;
+    public final Location nsPos;
     public final String namespace;
     public final String name;
     public BSymbol namespaceSymbol;
 
-    public BLangXMLElementFilter(DiagnosticPos pos, Set<Whitespace> ws, String ns, DiagnosticPos nsPos,
-                                 String elementName, DiagnosticPos elemNamePos) {
+    public BLangXMLElementFilter(Location pos, Set<Whitespace> ws, String ns,
+                                 Location nsPos,
+                                 String elementName,
+                                 Location elemNamePos) {
         this.namespace = ns;
         this.name = elementName;
         this.pos = pos;

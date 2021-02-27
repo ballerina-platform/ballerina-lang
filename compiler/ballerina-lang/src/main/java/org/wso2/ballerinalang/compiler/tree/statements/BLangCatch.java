@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
  *
  * @deprecated since 0.983.0, use trap instead.
  */
+@Deprecated
 public class BLangCatch extends BLangNode implements CatchNode {
     public BLangSimpleVariable param;
     public BLangBlockStmt body;

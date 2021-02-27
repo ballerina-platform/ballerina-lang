@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -89,22 +89,24 @@ public class ForeachJSONTypedBindingPatternsTests {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'json'.*")
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"Key 'random' not found in JSON " +
+                            "mapping\"\\}\n" +
+                            "\tat foreach-json-typed-binding-patterns" +
+                            ":testDirectAccessInvalidElementWithoutType\\(foreach-json-typed-binding-patterns.bal" +
+                            ":120\\)")
     public void testDirectAccessInvalidElementWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}ConversionError {\"message\":\"cannot convert " 
-                + "'null' value to type 'map<json>'\"}");
+        BRunUtil.invoke(program, "testDirectAccessInvalidElementWithoutType");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'json'.*")
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"Key 'random' not found in JSON " +
+                            "mapping\"\\}\n" +
+                            "\tat foreach-json-typed-binding-patterns" +
+                            ":testDirectAccessInvalidElementWithType\\(foreach-json-typed-binding-patterns.bal:133\\)")
     public void testDirectAccessInvalidElementWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}ConversionError {\"message\":\"cannot convert 'null'" 
-                + " " +
-                "value to type 'map<json>'\"}");
+        BRunUtil.invoke(program, "testDirectAccessInvalidElementWithType");
     }
 
     @Test

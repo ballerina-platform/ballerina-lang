@@ -1,9 +1,9 @@
 function foo() {
-    service s;
+    service object { } s;
 
 service echoService1 on someListner1 {
-    function bar()
-    
+    function bar() {
+}
 
 service on someListner2 {
 }

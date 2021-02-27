@@ -39,4 +39,38 @@ function testNonIsolatedMethodAsIsolatedMethodNegative() {
 
 function () returns int foo = () => 1;
 
-isolated function () returns int bar = foo;
+type IsolatedFunction isolated function () returns int;
+
+IsolatedFunction bar = foo;
+
+int val = 2;
+
+class Foo {
+    isolated function func(int i) returns int => i;
+}
+
+isolated class Bar {
+    function func() returns int => val;
+}
+
+class Baz {
+    function func() returns int => val;
+}
+
+isolated class Quux {
+    isolated function func(int i) returns int => i;
+}
+
+public function testNonIsolatedBoundMethods() {
+    Foo foo = new;
+    isolated function (int) returns int fooFunc = foo.func;
+
+    Bar bar = new;
+    isolated function () returns int barFunc = bar.func;
+
+    Baz baz = new;
+    isolated function () returns int bazFunc = baz.func;
+
+    Foo|Quux fooQuux = new Quux();
+    isolated function (int i) returns int fooQuuxFunc = fooQuux.func;
+}

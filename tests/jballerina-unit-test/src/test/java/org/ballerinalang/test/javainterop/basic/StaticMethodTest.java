@@ -15,23 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BHandleValue;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BDecimal;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BHandleValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Date;
@@ -49,24 +48,19 @@ public class StaticMethodTest {
         result = BCompileUtil.compile("test-src/javainterop/basic/static_method_tests.bal");
     }
 
-    @Test(description = "Test invoking a java static function that accepts and return nothing")
-    public void testAcceptNothingAndReturnNothing() {
-        BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnNothing");
-
-
-
-        Assert.assertEquals(returns.length, 1);
+    @Test(dataProvider = "nullReturnFunctions")
+    public void testReturnNothing(String funcName, int length) {
+        BValue[] returns = BRunUtil.invoke(result, funcName);
+        Assert.assertEquals(returns.length, length);
         Assert.assertNull(returns[0]);
     }
 
-    @Test(description = "Test invoking a java static function that accepts and return nothing")
-    public void testInteropFunctionWithDifferentName() {
-        BValue[] returns = BRunUtil.invoke(result, "testInteropFunctionWithDifferentName");
-
-
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNull(returns[0]);
+    @DataProvider(name = "nullReturnFunctions")
+    public Object[] getNullReturnFunctions() {
+        return new Object[][]{
+                {"testAcceptNothingAndReturnNothing", 1}, {"testInteropFunctionWithDifferentName", 1},
+                {"testErrorOrTupleReturn", 2}
+        };
     }
 
     @Test(description = "Test invoking a java static function that accepts nothing and returns a Date")
@@ -137,19 +131,6 @@ public class StaticMethodTest {
         BValue[] returns = BRunUtil.invoke(result, "testUnionReturn");
         Assert.assertEquals(returns[0].stringValue(),
                 "{\"resources\":[{\"path\":\"basePath\",\"method\":\"Method string\"}]}");
-
-    }
-
-    public static Object returnObjectOrError() {
-        return BErrorCreator.createError(BStringUtils.fromString("some reason"),
-                                         new MapValueImpl<>(BTypes.typeErrorDetail));
-    }
-
-    @Test(description = "Test tuple return with null values")
-    public void testTupleReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorOrTupleReturn");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertNull(returns[0]);
     }
 
     @Test
@@ -175,29 +156,35 @@ public class StaticMethodTest {
         Assert.assertEquals(returns[0].stringValue(), "199.7");
     }
 
-    @Test
-    public void testBalEnvSlowAsyncVoidSig() {
-        BRunUtil.invoke(result, "testBalEnvSlowAsyncVoidSig");
+    @Test(expectedExceptions = org.ballerinalang.core.util.exceptions.BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Invalid update of record field: modification not allowed on readonly " +
+                  "value.*")
+    public void testCreateRawDetails() {
+        BRunUtil.invoke(result, "testCreateRawDetails");
     }
 
-    @Test
-    public void testBalEnvFastAsyncVoidSig() {
-        BRunUtil.invoke(result, "testBalEnvFastAsyncVoidSig");
+    @Test(expectedExceptions = org.ballerinalang.core.util.exceptions.BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Invalid update of record field: modification not allowed on readonly " +
+                  "value.*")
+    public void testCreateDetails() {
+        BRunUtil.invoke(result, "testCreateDetails");
     }
 
-    @Test
-    public void testBalEnvSlowAsync() {
-        BRunUtil.invoke(result, "testBalEnvSlowAsync");
+    @Test(dataProvider = "functionNamesProvider")
+    public void testInvokeFunctions(String funcName) {
+        BRunUtil.invoke(result, funcName);
     }
 
-    @Test
-    public void testBalEnvFastAsync() {
-        BRunUtil.invoke(result, "testBalEnvFastAsync");
+    @DataProvider(name = "functionNamesProvider")
+    public Object[] getFunctionNames() {
+        return new String[]{"testBalEnvSlowAsyncVoidSig", "testBalEnvFastAsyncVoidSig", "testBalEnvSlowAsync",
+                "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve",
+                "testStringCast", "testGetCurrentModule", "testGetDefaultValueWithBEnv", "testCreateStudentUsingType",
+                "testCreateStudent"};
     }
 
-    @Test(description = "When instance and static methods have the same name resolve static method based on the " +
-            "parameter type")
-    public void testStaticResolve() {
-        BRunUtil.invoke(result, "testStaticResolve");
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

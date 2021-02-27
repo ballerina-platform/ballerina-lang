@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/time;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # The key algorithms supported by the Crypto module.
 public type KeyAlgorithm RSA;

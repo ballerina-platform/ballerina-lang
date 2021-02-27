@@ -26,40 +26,55 @@ import java.util.Set;
  * @since 0.94
  */
 public class Flags {
-    public static final int PUBLIC = 1;
-    public static final int NATIVE = PUBLIC << 1;
-    public static final int FINAL = NATIVE << 1;
-    public static final int ATTACHED = FINAL << 1;
-    public static final int DEPRECATED = ATTACHED << 1;
-    public static final int READONLY = DEPRECATED << 1;
-    public static final int FUNCTION_FINAL = READONLY << 1;
-    public static final int INTERFACE = FUNCTION_FINAL << 1;
-    public static final int REQUIRED = INTERFACE << 1; // Marks as a field for which the user MUST provide a value
-    public static final int RECORD = REQUIRED << 1;
-    public static final int PRIVATE = RECORD << 1;
-    public static final int ANONYMOUS = PRIVATE << 1;
-    public static final int OPTIONAL = ANONYMOUS << 1;
-    public static final int TESTABLE = OPTIONAL << 1;
-    public static final int CONSTANT = TESTABLE << 1;
-    public static final int REMOTE = CONSTANT << 1;
-    public static final int CLIENT = REMOTE << 1;
-    public static final int RESOURCE = CLIENT << 1;
-    public static final int SERVICE = RESOURCE << 1;
-    public static final int LISTENER = SERVICE << 1;
-    public static final int LAMBDA = LISTENER << 1;
-    public static final int TYPE_PARAM = LAMBDA << 1;
-    public static final int LANG_LIB = TYPE_PARAM << 1;
-    public static final int WORKER = LANG_LIB << 1;
-    public static final int FORKED = WORKER << 1;
-    public static final int TRANSACTIONAL = FORKED << 1;
-    public static final int PARAMETERIZED = TRANSACTIONAL << 1;
-    public static final int DISTINCT = PARAMETERIZED << 1;
-    public static final int CLASS = DISTINCT << 1;
-    public static final int ISOLATED = CLASS << 1;
-    public static final int INFER = ISOLATED << 1;
 
-    public static int asMask(Set<Flag> flagSet) {
-        int mask = 0;
+    public static final long PUBLIC = 1;                                        //  0
+    public static final long NATIVE = PUBLIC << 1;                              //  1
+    public static final long FINAL = NATIVE << 1;                               //  2
+    public static final long ATTACHED = FINAL << 1;                             //  3
+
+    public static final long DEPRECATED = ATTACHED << 1;                        //  4
+    public static final long READONLY = DEPRECATED << 1;                        //  5
+    public static final long FUNCTION_FINAL = READONLY << 1;                    //  6
+    public static final long INTERFACE = FUNCTION_FINAL << 1;                   //  7
+
+    // Marks as a field for which the user MUST provide a value
+    public static final long REQUIRED = INTERFACE << 1;                         //  8
+
+    public static final long RECORD = REQUIRED << 1;                            //  9
+    public static final long PRIVATE = RECORD << 1;                             //  10
+    public static final long ANONYMOUS = PRIVATE << 1;                          //  11
+
+    public static final long OPTIONAL = ANONYMOUS << 1;                         //  12
+    public static final long TESTABLE = OPTIONAL << 1;                          //  13
+    public static final long CONSTANT = TESTABLE << 1;                          //  14
+    public static final long REMOTE = CONSTANT << 1;                            //  15
+
+    public static final long CLIENT = REMOTE << 1;                              //  16
+    public static final long RESOURCE = CLIENT << 1;                            //  17
+    public static final long SERVICE = RESOURCE << 1;                           //  18
+    public static final long LISTENER = SERVICE << 1;                           //  19
+
+    public static final long LAMBDA = LISTENER << 1;                            //  20
+    public static final long TYPE_PARAM = LAMBDA << 1;                          //  21
+    public static final long LANG_LIB = TYPE_PARAM << 1;                        //  22
+    public static final long WORKER = LANG_LIB << 1;                            //  23
+
+    public static final long FORKED = WORKER << 1;                              //  24
+    public static final long TRANSACTIONAL = FORKED << 1;                       //  25
+    public static final long PARAMETERIZED = TRANSACTIONAL << 1;                //  26
+    public static final long DISTINCT = PARAMETERIZED << 1;                     //  27
+
+    public static final long CLASS = DISTINCT << 1;                             //  28
+    public static final long ISOLATED = CLASS << 1;                             //  29
+    public static final long ISOLATED_PARAM = ISOLATED << 1;                    //  30
+    public static final long CONFIGURABLE = ISOLATED_PARAM << 1;                //  31
+    public static final long OBJECT_CTOR = CONFIGURABLE << 1;                   //  32
+    public static final long ENUM = OBJECT_CTOR << 1;                           //  33
+    public static final long INCLUDED = ENUM << 1;                              //  34
+    public static final long INFER = INCLUDED << 1;                             //  35
+
+    public static long asMask(Set<Flag> flagSet) {
+        long mask = 0;
         for (Flag flag : flagSet) {
             switch (flag) {
                 case PUBLIC:
@@ -146,14 +161,26 @@ public class Flags {
                 case ISOLATED:
                     mask |= ISOLATED;
                     break;
+                case CONFIGURABLE:
+                    mask |= CONFIGURABLE;
+                    break;
+                case OBJECT_CTOR:
+                    mask |= OBJECT_CTOR;
+                    break;
+                case ENUM:
+                    mask |= ENUM;
+                    break;
+                case INCLUDED:
+                    mask |= INCLUDED;
+                    break;
             }
         }
         return mask;
     }
 
-    public static Set<Flag> unMask(int mask) {
+    public static Set<Flag> unMask(long mask) {
         Set<Flag> flagSet = new HashSet<>();
-        int flagVal;
+        long flagVal;
         for (Flag flag : Flag.values()) {
             switch (flag) {
                 case PUBLIC:
@@ -234,6 +261,18 @@ public class Flags {
                 case ISOLATED:
                     flagVal = ISOLATED;
                     break;
+                case CONFIGURABLE:
+                    flagVal = CONFIGURABLE;
+                    break;
+                case OBJECT_CTOR:
+                    flagVal = OBJECT_CTOR;
+                    break;
+                case ENUM:
+                    flagVal = ENUM;
+                    break;
+                case INCLUDED:
+                    flagVal = INCLUDED;
+                    break;
                 default:
                     continue;
             }
@@ -242,11 +281,11 @@ public class Flags {
         return flagSet;
     }
 
-    public static int unset(int mask, int flag) {
+    public static long unset(long mask, long flag) {
         return mask & (~flag);
     }
 
-    private static void addIfFlagOn(Set<Flag> flagSet, int mask, int flagVal, Flag flag) {
+    private static void addIfFlagOn(Set<Flag> flagSet, long mask, long flagVal, Flag flag) {
         if ((mask & flagVal) == flagVal) {
             flagSet.add(flag);
         }

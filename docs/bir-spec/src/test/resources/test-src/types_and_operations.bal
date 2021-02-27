@@ -17,37 +17,34 @@
 import ballerina/lang.'xml;
 import ballerina/lang.'int;
 import ballerina/lang.'string;
-import ballerina/lang.'object as lang;
 
 listener Listener testListener = new;
 
-service hello on testListener {
+service /hello on testListener {
 
-    resource function res(int intVal) returns error? {
+    resource function get res(int intVal) returns error? {
         return;
     }
 }
 
 class Listener {
-    *lang:Listener;
-
     public function init() {
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string|string[]? name = ()) returns error? {
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         return ();
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         return ();
     }
 }
@@ -198,11 +195,11 @@ function inherentlyImmutableBasicTypes() {
     error err = error("Reason", message = "error message");
     any|error h = err;
 
-    error myError = AssertionError(ASSERTION_ERROR_REASON, message = "second error message");
+    error myError = error AssertionError(ASSERTION_ERROR_REASON, message = "second error message");
     any|error i = myError;
 
-    service ser = service {
-        resource function res() {
+    service object {} ser = service object {
+        resource function get res() {
 
         }
     };
@@ -305,7 +302,7 @@ public function functionWithQueryExpression() {
 class OddNumberGenerator {
     int i = 1;
 
-    public function next() returns record {|int value;|}|error? {
+    public isolated function next() returns record {|int value;|}|error? {
         self.i += 2;
         return {value: self.i};
     }
@@ -481,7 +478,7 @@ public function functionWithFork() {
 int count = 0;
 
 client class ClientObject {
-    public remote function remoteFunc(string arg) returns int|error {
+    remote function remoteFunc(string arg) returns int|error {
         return 1;
     }
 }
@@ -731,3 +728,5 @@ function functionWithUnaryOps() {
     a = -b;
     c = ~b;
 }
+
+function dependentlyTypedFunction(typedesc<anydata> td, string[] arr) returns td = external;

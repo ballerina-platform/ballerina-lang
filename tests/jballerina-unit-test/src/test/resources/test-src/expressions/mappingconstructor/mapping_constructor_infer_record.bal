@@ -226,35 +226,26 @@ class Bar {
     }
 }
 
-type Rec1 record {
-    int i;
-    boolean b;
-};
-
-type Rec2 record {
-    string i?;
+type Rec1 record {|
+    string i;
     float f?;
-};
+|};
 
 function testInferredRecordTypeWithOptionalTypeFieldViaSpreadOp() {
-    Rec1 rec1 = {i: 1, b: true};
-    Rec2 rec2 = {i: "str"};
+    Rec1 rec1 = {i: "str"};
 
     var r1 = {
-        ...rec1,
         a: 0.1d,
-        ...rec2
+        ...rec1
     };
 
     record {
-        int|string i;
-        boolean b;
         decimal a;
+        string i;
         float f?;
     } r2 = r1;
 
     assertEquality("str", r2.i);
-    assertEquality(true, r2.b);
     assertEquality(0.1d, r2.a);
     assertEquality((), r2?.f);
 }
@@ -301,7 +292,7 @@ function testInferringForReadOnly() {
     |} rec1 = <readonly & record {|
                    int i;
                    string str;
-               |}> rd1;
+               |}> checkpanic rd1;
 
     var fn = function() {
         rec1.i = 12;
@@ -345,7 +336,7 @@ function testInferringForReadOnly() {
                           Person & readonly pn;
                           Person & readonly pnDup;
                           (Person & readonly)|record {|boolean b;|}...;
-                      |} & readonly> rd2;
+                      |} & readonly> checkpanic rd2;
 
     fn = function() {
         rec2.pn = pn;
@@ -392,7 +383,7 @@ function testInferringForReadOnlyInUnion() {
                           Person & readonly pn;
                           Person & readonly pnDup;
                           (Person & readonly)|record {|boolean b;|}...;
-                      |} & readonly> rd;
+                      |} & readonly> checkpanic rd;
 
     var fn = function() {
         rec.pn = pn;
@@ -406,6 +397,14 @@ function testInferringForReadOnlyInUnion() {
 }
 
 function testValidReadOnlyWithDifferentFieldKinds() {
+    record {|
+            int[] x;
+            int[] y;
+        |} & readonly rec = {
+           x: [1, 2],
+           y: [3]
+        };
+
     map<int[]> & readonly a = {
         "x": [1, 2],
         "y": [3]
@@ -414,15 +413,15 @@ function testValidReadOnlyWithDifferentFieldKinds() {
     boolean[] & readonly b = [true, false];
 
     readonly x = {
-        ...a,
         b,
+        ...rec,
         c: {
             d: a
         }
     };
 
     // This should represent the inferred type.
-    assertEquality(true, <any> x is record {|
+    assertEquality(true, <any> checkpanic x is record {|
                                         boolean[] b;
                                         record {| map<int[]> & readonly d; |} c;
                                         int[] & readonly...;
@@ -432,7 +431,7 @@ function testValidReadOnlyWithDifferentFieldKinds() {
                 boolean[] b;
                 record {| map<int[]> d; |} c;
                 int[] & readonly...;
-            |}> x;
+            |}> checkpanic x;
 
     assertEquality(true, y.b.isReadOnly());
     assertEquality(<boolean[2]> [true, false], y.b);
@@ -449,9 +448,12 @@ function testValidReadOnlyWithDifferentFieldKinds() {
 }
 
 function testValidReadOnlyInUnionWithDifferentFieldKinds() {
-    map<int[]> & readonly a = {
-        "x": [1, 2],
-        "y": [3]
+    record {|
+        int[] x;
+        int[] y;
+    |} & readonly a = {
+       x: [1, 2],
+       y: [3]
     };
 
     boolean[] & readonly b = [true, false];
@@ -473,7 +475,7 @@ function testValidReadOnlyInUnionWithDifferentFieldKinds() {
                 boolean[] b;
                 string c;
                 int[] & readonly...;
-            |}> x;
+            |}> checkpanic x;
 
     assertEquality(true, y.b.isReadOnly());
     assertEquality(<boolean[2]> [true, false], y.b);
@@ -495,7 +497,7 @@ function testValidReadOnlyInUnionWithDifferentFieldKinds() {
 
     assertEquality(true, x2 is record {|boolean[] b; int[]...;|});
 
-    var y2 = <record {|boolean[] b; int[]...;|}> x2;
+    var y2 = <record {|boolean[] b; int[]...;|}> checkpanic x2;
 
     assertEquality(false, y2["c"].isReadOnly());
 
@@ -514,6 +516,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

@@ -17,17 +17,18 @@
  */
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * This contains methods to test query expression with query construct type.
@@ -171,17 +172,17 @@ public class QueryExprWithQueryConstructTypeTest {
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
-                38, 35);
+                54, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'Customer[]', " +
                         "found '(table<Customer> key(id, name)|error)'",
-                55, 32);
+                71, 32);
         validateError(negativeResult, index++, "incompatible types: expected " +
                         "'table<Customer> key(id, name)', found '(table<Customer> key(id, name)|error)'",
-                70, 35);
+                86, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'error', found 'boolean'",
-                91, 21);
+                107, 21);
         validateError(negativeResult, index, "type 'error' not allowed here; expected " +
-                "an 'error' or a subtype of 'error'.", 91, 21);
+                "an 'error' or a subtype of 'error'.", 107, 21);
     }
 
     @Test(description = "Test semantic negative scenarios for query expr with query construct type")
@@ -190,5 +191,12 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(semanticsNegativeResult, 0, "on conflict can only be used with queries which produce tables " +
                         "with key specifiers",
                 39, 13);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
+        semanticsNegativeResult = null;
     }
 }

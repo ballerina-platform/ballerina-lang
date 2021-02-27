@@ -17,16 +17,17 @@
  */
 package org.ballerinalang.test.types.map;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -124,7 +125,7 @@ public class MapInitializerExprTest {
 
     @Test()
     public void testMapInitWithPackageVars() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/types/map/pkgvars", "a.b");
+        CompileResult result = BCompileUtil.compile("test-src/types/map/MapAccessProject");
         BValue[] returns = BRunUtil.invoke(result, "testMapInitWithPackageVars");
 
         Assert.assertEquals(returns.length, 1);
@@ -176,5 +177,10 @@ public class MapInitializerExprTest {
 
         returns = BRunUtil.invoke(compileResult, "testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -387,11 +386,6 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     @Override
-    public BType visit(BServiceType originalType, BType expType) {
-        return originalType;
-    }
-
-    @Override
     public BType visit(BTypedescType originalType, BType expType) {
         BType expConstraint = isDifferentTypeKind(originalType, expType) ?
                 null : ((BTypedescType) expType).constraint;
@@ -466,7 +460,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
     }
 
-    private void setFlags(BType type, int originalFlags) {
+    private void setFlags(BType type, long originalFlags) {
         type.flags = originalFlags & (~Flags.PARAMETERIZED);
     }
 

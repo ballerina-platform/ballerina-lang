@@ -15,25 +15,23 @@
  *
  */
 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+ 
+apply from: "$rootDir/gradle/ballerinaLangLibBuild.gradle"
 
 dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
-    baloCreat project(':lib-creator')
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
-    implementation 'org.slf4j:slf4j-api'
-}
 
-createBalo {
-    isBuiltin = 'true'
-    jvmTarget = 'true'
+    distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:internal', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:array', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:map', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:string', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:value', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:error', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
+
+    implementation 'org.slf4j:slf4j-api'
 }
 
 description = 'ballerina/lang.transaction Implementation'

@@ -38,7 +38,7 @@ public class BArrayType extends BType implements ArrayType {
 
     public int size = -1;
 
-    public BArrayState state = BArrayState.UNSEALED;
+    public BArrayState state = BArrayState.OPEN;
 
     public BArrayType(BType elementType) {
         super(TypeTags.ARRAY, null);
@@ -57,7 +57,7 @@ public class BArrayType extends BType implements ArrayType {
         this.state = state;
     }
 
-    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state, int flags) {
+    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state, long flags) {
         super(TypeTags.ARRAY, tsymbol, flags);
         this.eType = elementType;
         this.size = size;
@@ -92,26 +92,21 @@ public class BArrayType extends BType implements ArrayType {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(eType.toString());
-        String tempSize = (state == BArrayState.OPEN_SEALED) ? "*" : String.valueOf(size);
+        String tempSize = (state == BArrayState.INFERRED) ? "*" : String.valueOf(size);
         if (eType.tag == TypeTags.ARRAY) {
-            if (state != BArrayState.UNSEALED) {
+            if (state != BArrayState.OPEN) {
                 sb.insert(sb.indexOf("["), "[" + tempSize + "]");
             } else {
                 sb.insert(sb.indexOf("["), "[]");
             }
         } else {
-            if (state != BArrayState.UNSEALED) {
+            if (state != BArrayState.OPEN) {
                 sb.append("[").append(tempSize).append("]");
             } else {
                 sb.append("[]");
             }
         }
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? sb.toString() : sb.append(" & readonly").toString();
-    }
-
-    @Override
-    public final boolean isAnydata() {
-        return this.eType.isPureType();
     }
 
     @Override

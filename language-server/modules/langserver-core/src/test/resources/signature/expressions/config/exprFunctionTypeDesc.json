@@ -1,0 +1,49 @@
+{
+    "position": {
+        "line": 398,
+        "character": 11
+    },
+    "source": "expressions/expressions.bal",
+    "expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "concat(string, string)",
+                    "parameters": [
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 7,
+                                    "second": 13
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`string`**"
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 15,
+                                    "second": 21
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`string`**"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 0
+        },
+        "jsonrpc": "2.0"
+    }
+}

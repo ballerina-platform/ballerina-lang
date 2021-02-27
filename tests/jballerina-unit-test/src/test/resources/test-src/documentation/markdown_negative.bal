@@ -1,4 +1,4 @@
-import ballerina/http;
+import ballerina/lang.test;
 
 # Documentation for Test annotation
 # function `9invalidFunc`
@@ -87,21 +87,14 @@ type TestConnector record {
 # parameter `invalidParameter`
 # + conn - HTTP connection.
 # + return - description
-@http:ServiceConfig {
-    basePath:"/hello"
-}
-service PizzaService on new http:MockListener(9090) {
+service /PizzaService on new test:MockListener(9090) {
 
     # Check orderPizza resource.
     # + req - In request.
     # + req - In request.
     # + reqest - In request.
-    @http:ResourceConfig {
-        path:"/"
-    }
-    resource function orderPizza(http:Caller conn, http:Request req) {
-        http:Response res = new;
-        checkpanic conn->respond(res);
+    resource function get orderPizza(string conn, string req) {
+
     }
 }
 
@@ -117,3 +110,18 @@ final string testConsts = "TestConstantDocumentation";
 public function load(string filePath) {
 
 }
+
+# + a - parameter a
+# + return - `float` return parameter is float
+# # parameter `invalidParameter`
+[int, float, string] [a, b, c] = [1, 2.5, "Mac"];
+
+# + a - parameter a
+# + return - `float` return parameter is float
+# parameter `invalidParameter`
+record {int a;} {a:myA} = {a:5};
+
+# + message - parameter message
+# + return - `float` return parameter is float
+# parameter `invalidParameter`
+error error(message) = error ("stack over flow");

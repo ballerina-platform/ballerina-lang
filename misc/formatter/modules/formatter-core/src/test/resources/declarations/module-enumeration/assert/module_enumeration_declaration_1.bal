@@ -1,16 +1,16 @@
 public enum Color {
-    RED, 
-    GREEN, 
+    RED,
+    GREEN,
     BLUE
 }
 
 public enum Language {
-    EN = "English", 
+    EN = "English",
     TA = "Tamil"
 }
 
 public enum Bands {
-    QUEEN, 
+    QUEEN,
     PF = "Pink " + "Floyd"
 }
 

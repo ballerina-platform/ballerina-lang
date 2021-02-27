@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 
 /**
  * This error indicates Ballerina Java interoperability related error.

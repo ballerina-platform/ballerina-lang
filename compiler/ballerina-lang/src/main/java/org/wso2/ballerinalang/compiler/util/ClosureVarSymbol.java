@@ -17,8 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.util;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Class to track the closure variable symbols of lambads and arrow function expression with their positions which will
@@ -28,10 +28,10 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  */
 public class ClosureVarSymbol {
     public BSymbol bSymbol;
-    public DiagnosticPos diagnosticPos;
+    public Location diagnosticLocation;
 
-    public ClosureVarSymbol(BSymbol bSymbol, DiagnosticPos diagnosticPos) {
+    public ClosureVarSymbol(BSymbol bSymbol, Location diagnosticLocation) {
         this.bSymbol = bSymbol;
-        this.diagnosticPos = diagnosticPos;
+        this.diagnosticLocation = diagnosticLocation;
     }
 }

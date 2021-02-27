@@ -17,23 +17,24 @@
  */
 package org.ballerinalang.langserver.common.utils.completion;
 
-import org.ballerinalang.langserver.common.CommonKeys;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,41 +52,43 @@ public class BLangRecordLiteralUtil {
     private BLangRecordLiteralUtil() {
     }
 
-    public static List<LSCompletionItem> getSpreadCompletionItems(LSContext context, BType evalType) {
+    public static List<LSCompletionItem> getSpreadCompletionItems(BallerinaCompletionContext context,
+                                                                  TypeSymbol evalType) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<BType> typeList = getTypeListForMapAndRecords(evalType);
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
+        List<TypeSymbol> typeList = getTypeListForMapAndRecords(evalType);
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
 
-        for (Scope.ScopeEntry visibleSymbol : visibleSymbols) {
-            BSymbol symbol = visibleSymbol.symbol;
+        for (Symbol symbol : visibleSymbols) {
             getSpreadableCompletionItem(context, symbol, typeList).ifPresent(completionItems::add);
         }
 
         return completionItems;
     }
 
-    private static Optional<LSCompletionItem> getSpreadableCompletionItem(LSContext context, BSymbol bSymbol,
-                                                                          List<BType> refTypeList) {
-        BType bType;
-        if (bSymbol instanceof BInvokableSymbol && !(bSymbol instanceof BConstructorSymbol)) {
-            bType = ((BInvokableSymbol) bSymbol).retType;
-        } else if (bSymbol instanceof BVarSymbol && !(bSymbol instanceof BConstructorSymbol)) {
-            bType = bSymbol.type;
-        } else {
+    private static Optional<LSCompletionItem> getSpreadableCompletionItem(BallerinaCompletionContext context,
+                                                                          Symbol symbol, List<TypeSymbol> refTypeList) {
+        Optional<TypeSymbol> typeDescriptor = Optional.empty();
+        if (symbol.kind() == SymbolKind.FUNCTION) {
+            FunctionTypeSymbol fTypeDesc = ((FunctionSymbol) symbol).typeDescriptor();
+            typeDescriptor = fTypeDesc.returnTypeDescriptor();
+        } else if (symbol.kind() == SymbolKind.VARIABLE) {
+            typeDescriptor = Optional.of(((VariableSymbol) symbol).typeDescriptor());
+        }
+
+        if (typeDescriptor.isEmpty()) {
             return Optional.empty();
         }
 
-        List<BType> symbolTypeList = getTypeListForMapAndRecords(bType);
+        List<TypeSymbol> symbolTypeList = getTypeListForMapAndRecords(typeDescriptor.get());
         // if bType is not a map or record, then the symbol type list is empty 
         boolean canSpread = !symbolTypeList.isEmpty() && refTypeList.containsAll(symbolTypeList);
 
         CompletionItem cItem;
-        if (canSpread && bSymbol instanceof BInvokableSymbol) {
-            cItem = BFunctionCompletionItemBuilder.build((BInvokableSymbol) bSymbol, context);
+        if (canSpread && symbol.kind() == SymbolKind.FUNCTION) {
+            cItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
         } else if (canSpread) {
-            cItem = BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol, bSymbol.name.getValue(),
-                    CommonUtil.getBTypeName(bType, context, false));
+            cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbol.getName().get(),
+                    CommonUtil.getModifiedTypeName(context, typeDescriptor.get()));
         } else {
             return Optional.empty();
         }
@@ -93,26 +96,29 @@ public class BLangRecordLiteralUtil {
         // TODO: Fix
         modifySpreadCompletionItem(context, cItem);
 
-        return Optional.of(new SymbolCompletionItem(context, bSymbol, cItem));
+        return Optional.of(new SymbolCompletionItem(context, symbol, cItem));
     }
 
-    private static List<BType> getTypeListForMapAndRecords(BType bType) {
-        if (bType instanceof BMapType) {
-            BType constraint = ((BMapType) bType).constraint;
-            if (constraint instanceof BUnionType) {
-                return new ArrayList<>(((BUnionType) constraint).getMemberTypes());
+    private static List<TypeSymbol> getTypeListForMapAndRecords(TypeSymbol typeDesc) {
+        if (typeDesc.typeKind() == TypeDescKind.MAP) {
+            Optional<TypeSymbol> memberType = ((MapTypeSymbol) typeDesc).typeParameter();
+            if (memberType.isEmpty()) {
+                return new ArrayList<>();
             }
-            return Collections.singletonList(constraint);
-        } else if (bType instanceof BRecordType) {
-            return ((BRecordType) bType).fields.values().stream()
-                    .map(bField -> bField.type)
+            if (memberType.get().typeKind() == TypeDescKind.UNION) {
+                return new ArrayList<>(((UnionTypeSymbol) memberType.get()).memberTypeDescriptors());
+            }
+            return Collections.singletonList(memberType.get());
+        } else if (typeDesc.typeKind() == TypeDescKind.RECORD) {
+            return ((RecordTypeSymbol) typeDesc).fieldDescriptors().values().stream()
+                    .map(RecordFieldSymbol::typeDescriptor)
                     .collect(Collectors.toList());
         }
 
         return new ArrayList<>();
     }
 
-    private static void modifySpreadCompletionItem(LSContext context, CompletionItem cItem) {
+    private static void modifySpreadCompletionItem(BallerinaCompletionContext context, CompletionItem cItem) {
         // TODO: Fix 
 //        List<CommonToken> commonTokens = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
 //        String lastToken = (commonTokens.isEmpty()) ? "" : commonTokens.get(commonTokens.size() - 1).getText();

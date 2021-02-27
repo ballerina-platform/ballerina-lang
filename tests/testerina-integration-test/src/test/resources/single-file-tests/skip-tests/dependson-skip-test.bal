@@ -28,21 +28,21 @@ public function test1() {
 
 // This test should fail and the consecutive depends on tests will be skipped
 @test:Config {
-    dependsOn:["test1"]
+    dependsOn: [test1]
 }
 public function test2() {
     int i = 12/0;
 }
 
 @test:Config {
-    dependsOn:["test2"]
+    dependsOn: [test2]
 }
 public function test3() {
     j = j+1;
 }
 
 @test:Config {
-    dependsOn:["test3"]
+    dependsOn: [test3]
 }
 public function test4() {
     j = j+1;

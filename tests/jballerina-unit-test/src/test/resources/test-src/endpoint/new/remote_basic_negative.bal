@@ -23,11 +23,11 @@ remote function test1(string value) {
 }
 
 // remote modifier not allowed in non-object attached functions
-public remote function test2(string value) {
+remote function test2(string value) {
 }
 
 // remote modifier not allowed in non-object attached functions
-public remote function test3(string value) returns int = external;
+remote function test3(string value) returns int = external;
 
 
 client class Foo {

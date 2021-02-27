@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.ballerina.compiler.api.impl.symbols;
+
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
+
+/**
+ * Represents an error type descriptor.
+ *
+ * @since 2.0.0
+ */
+public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements ErrorTypeSymbol {
+
+    private TypeSymbol detail;
+    private String signature;
+
+    public BallerinaErrorTypeSymbol(CompilerContext context, ModuleID moduleID, BErrorType errorType) {
+        super(context, TypeDescKind.ERROR, errorType);
+    }
+
+    /**
+     * Get the detail type descriptor.
+     *
+     * @return {@link TypeSymbol} detail
+     */
+    @Override
+    public TypeSymbol detailTypeDescriptor() {
+        if (this.detail == null) {
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            this.detail = typesFactory.getTypeDescriptor(((BErrorType) this.getBType()).getDetailType());
+        }
+        return this.detail;
+    }
+
+    @Override
+    public String signature() {
+        if (this.signature != null) {
+            return this.signature;
+        }
+
+        String definitionName = getBType().tsymbol.name.value;
+
+        if (this.getModule().isEmpty()) {
+            this.signature = definitionName;
+            return this.signature;
+        }
+
+        ModuleID moduleID = this.getModule().get().id();
+        if ("lang.annotations".equals(moduleID.moduleName()) && "ballerina".equals(moduleID.orgName())) {
+            this.signature = definitionName;
+        } else {
+            this.signature = moduleID.orgName() + Names.ORG_NAME_SEPARATOR + moduleID.moduleName() +
+                    Names.VERSION_SEPARATOR + moduleID.version() + ":" + definitionName;
+        }
+
+        return this.signature;
+    }
+}

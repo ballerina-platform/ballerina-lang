@@ -21,23 +21,19 @@ configurations {
     dist {
         transitive false
     }
-    reportTools {
-        transitive false
-    }
 }
 
 dependencies {
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-config')
+    implementation project(':ballerina-tools-api')
     implementation 'com.google.code.gson:gson'
-    dist 'com.google.code.gson:gson:2.7'
-    dist 'org.jacoco:org.jacoco.core:0.8.5'
-    dist 'org.jacoco:org.jacoco.report:0.8.5'
-    dist 'org.ow2.asm:asm:7.2'
-    dist 'org.ow2.asm:asm-commons:7.2'
-    dist 'org.ow2.asm:asm-tree:7.2'
-
-    reportTools project(path: ':testerina:report-tools', configuration: 'reportTpl')
+    implementation 'com.google.code.gson:gson:2.7'
+    implementation 'org.jacoco:org.jacoco.core:0.8.5'
+    implementation 'org.jacoco:org.jacoco.report:0.8.5'
+    implementation 'org.ow2.asm:asm:7.2'
+    implementation 'org.ow2.asm:asm-commons:7.2'
+    implementation 'org.ow2.asm:asm-tree:7.2'
 
     compile group: 'org.jacoco', name: 'org.jacoco.core', version: '0.8.5'
     compile group: 'org.jacoco', name: 'org.jacoco.report', version: '0.8.5'
@@ -46,14 +42,22 @@ dependencies {
     compile group: 'org.ow2.asm', name: 'asm-tree', version: '7.2'
 
     jar {
-        dependsOn ':testerina:report-tools:build'
         from {
             configurations.dist.collect { it.isDirectory() ? it : zipTree(it) }
-        }
-        from {
-            configurations.reportTools.collect {it}
         }
     }
 }
 
 description = 'Ballerina - Test Executer'
+
+ext.moduleName = 'io.ballerina.testerina.runtime'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

@@ -19,8 +19,9 @@
 package org.ballerinalang.debugger.test.adapter;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
+import org.ballerinalang.debugger.test.BaseTestCase;
 import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
@@ -30,136 +31,155 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.Map;
+
+import static org.ballerinalang.debugger.test.utils.DebugTestRunner.DebugResumeKind;
+import static org.ballerinalang.debugger.test.utils.DebugTestRunner.VariableScope;
 
 /**
  * Test class for control flow related debug scenarios.
  */
-public class ControlFlowDebugTest extends DebugAdapterBaseTestCase {
+public class ControlFlowDebugTest extends BaseTestCase {
 
-    Comparator<Variable> compareByName = Comparator.comparing(Variable::getName);
+    DebugTestRunner debugTestRunner;
 
     @BeforeClass
     public void setup() {
-        testProjectName = "breakpoint-tests";
-        testModuleName = "controlFlow";
-        testModuleFileName = "mainControlFlow.bal";
-        testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
-        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
+        String testProjectName = "control-flow-tests";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testControlFlowDebugScenarios() throws BallerinaTestException {
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 9));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 17));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 23));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 31));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 38));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 46));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 56));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 65));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 62));
-        initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 8));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 16));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 22));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 30));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 35));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 40));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 49));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 59));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 63));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 65));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         // Test for debug engage in 'if' statement
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
 
         // Test for debug engage inside 'if' statement when condition is true.
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 10));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 9));
 
         // Test for debug engage in 'else' statement
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(1));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(1));
 
         // Test for debug engage in 'else-if' statement
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(2));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(2));
 
         // Test for debug engage inside 'else-if' statement when condition is true.
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 24));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 23));
 
         // Test for debug engage in 'while' loop
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(3));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(3));
 
         // Test for debug engage inside 'while' loop when condition is true.
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 32));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 31));
+
+        // Test for 'while' loop iterations.
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 35));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 31));
+
+        // Test for stepping over on the break statements inside 'while' loops.
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 32));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 39));
 
         // Test for debug engage in 'foreach' loop
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(4));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(5));
 
         // Test for debug engage inside 'foreach' loop when condition is true.
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 39));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 41));
+
+        // Test for 'foreach' loop iterations.
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 42));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 41));
 
         // Test for debug engage in 'match' statement
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(5));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(6));
 
         // Test for debug engage inside 'match' statement when condition is true.
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 47));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 50));
 
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 48));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 51));
 
         // Test for debug engage in lambda - iterable arrow operation
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(6));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(7));
 
         // Test for debug engage in Asynchronous function call - Non-blocking calls
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(7));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(8));
 
         // Prepare variables for visibility test by adding a debug point at the end of the .bal file.
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
 
-        Variable[] variables = fetchDebugHitVariables(debugHitInfo.getRight());
-        Arrays.sort(variables, compareByName);
-
+        Map<String, Variable> variables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
         // Variable visibility test inside 'match' statement
-        assertVariable(variables[6], "v07_intVar", "7", "int");
-
+        debugTestRunner.assertVariable(variables, "v07_intVar", "7", "int");
         // Variable visibility test for lambda - iterable arrow operation
-        assertVariable(variables[8], "v09_animals", "map", "map");
+        debugTestRunner.assertVariable(variables, "v09_animals", "map", "map");
 
         // Variable visibility test for lambda child variables
-        Variable[] lamdaChildVariables = getChildVariable(variables[8]);
-        Arrays.sort(lamdaChildVariables, compareByName);
-        assertVariable(lamdaChildVariables[0], "a", "ANT", "string");
+        Map<String, Variable> lamdaChildVariables = debugTestRunner.fetchChildVariables(variables.get("v09_animals"));
+        debugTestRunner.assertVariable(lamdaChildVariables, "a", "ANT", "string");
 
         // Variable visibility test for Asynchronous function call (Non-blocking calls)
-        assertVariable(variables[9], "v10_future", "future", "future");
+        debugTestRunner.assertVariable(variables, "v10_future", "future", "future");
 
         // Variable visibility test for Asynchronous function call child variables
-        Variable[] asyncChildVariables = getChildVariable(variables[9]);
-        Arrays.sort(lamdaChildVariables, compareByName);
-        assertVariable(asyncChildVariables[1], "result", "90", "int");
+        Map<String, Variable> asyncChildVariables = debugTestRunner.fetchChildVariables(variables.get("v10_future"));
+        debugTestRunner.assertVariable(asyncChildVariables, "result", "90", "int");
     }
 
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
-        terminateDebugSession();
+        debugTestRunner.terminateDebugSession();
     }
 }

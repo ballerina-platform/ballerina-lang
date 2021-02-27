@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
+
 /**
  * {@link BLangAnonymousModelHelper} is a util for holding the number of anonymous constructs found so far in the
  * current package.
@@ -39,9 +41,12 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> anonForkCount;
     private Map<PackageID, Integer> errorTypeIdCount;
     private Map<PackageID, Integer> rawTemplateTypeCount;
+    private Map<PackageID, Integer> tupleVarCount;
+    private Map<PackageID, Integer> recordVarCount;
+    private Map<PackageID, Integer> errorVarCount;
 
     private static final String ANON_TYPE = "$anonType$";
-    private static final String LAMBDA = "$lambda$";
+    public static final String LAMBDA = "$lambda$";
     private static final String SERVICE = "$$service$";
     private static final String ANON_SERVICE = "$anonService$";
     private static final String BUILTIN_ANON_TYPE = "$anonType$builtin$";
@@ -49,6 +54,9 @@ public class BLangAnonymousModelHelper {
     private static final String FORK = "$fork$";
     private static final String ANON_TYPE_ID = "$anonTypeid$";
     private static final String RAW_TEMPLATE_TYPE = "$rawTemplate$";
+    private static final String TUPLE_VAR = "$tupleVar$";
+    private static final String RECORD_VAR = "$recordVar$";
+    private static final String ERROR_VAR = "$errorVar$";
 
     private static final CompilerContext.Key<BLangAnonymousModelHelper> ANONYMOUS_MODEL_HELPER_KEY =
             new CompilerContext.Key<>();
@@ -61,6 +69,9 @@ public class BLangAnonymousModelHelper {
         anonForkCount = new HashMap<>();
         errorTypeIdCount = new HashMap<>();
         rawTemplateTypeCount = new HashMap<>();
+        tupleVarCount = new HashMap<>();
+        recordVarCount = new HashMap<>();
+        errorVarCount = new HashMap<>();
     }
 
     public static BLangAnonymousModelHelper getInstance(CompilerContext context) {
@@ -75,33 +86,33 @@ public class BLangAnonymousModelHelper {
         Integer nextValue = Optional.ofNullable(anonTypeCount.get(packageID)).orElse(0);
         anonTypeCount.put(packageID, nextValue + 1);
         if (PackageID.ANNOTATIONS.equals(packageID)) {
-            return BUILTIN_ANON_TYPE + nextValue;
+            return BUILTIN_ANON_TYPE + UNDERSCORE + nextValue;
         }
-        return ANON_TYPE + nextValue;
+        return ANON_TYPE + UNDERSCORE + nextValue;
     }
 
     String getNextAnonymousServiceTypeKey(PackageID packageID, String serviceName) {
         Integer nextValue = Optional.ofNullable(anonServiceCount.get(packageID)).orElse(0);
         anonServiceCount.put(packageID, nextValue + 1);
-        return serviceName + SERVICE + nextValue;
+        return serviceName + SERVICE + UNDERSCORE + nextValue;
     }
 
     String getNextAnonymousServiceVarKey(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(anonServiceCount.get(packageID)).orElse(0);
         anonServiceCount.put(packageID, nextValue + 1);
-        return ANON_SERVICE + nextValue;
+        return ANON_SERVICE + UNDERSCORE + nextValue;
     }
 
     public String getNextAnonymousFunctionKey(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(anonFunctionCount.get(packageID)).orElse(0);
         anonFunctionCount.put(packageID, nextValue + 1);
-        return LAMBDA + nextValue;
+        return LAMBDA + UNDERSCORE + nextValue;
     }
 
     public String getNextAnonymousForkKey(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(anonFunctionCount.get(packageID)).orElse(0);
         anonFunctionCount.put(packageID, nextValue + 1);
-        return FORK + nextValue;
+        return FORK + UNDERSCORE + nextValue;
     }
 
     public String getNextDistinctErrorId(PackageID packageID) {
@@ -113,7 +124,25 @@ public class BLangAnonymousModelHelper {
     public String getNextRawTemplateTypeKey(PackageID packageID, Name rawTemplateTypeName) {
         Integer nextValue = rawTemplateTypeCount.getOrDefault(packageID, 0);
         rawTemplateTypeCount.put(packageID, nextValue + 1);
-        return RAW_TEMPLATE_TYPE + rawTemplateTypeName.value + "$" + nextValue;
+        return RAW_TEMPLATE_TYPE + rawTemplateTypeName.value + "$" + UNDERSCORE + nextValue;
+    }
+
+    public String getNextTupleVarKey(PackageID packageID) {
+        Integer nextValue = tupleVarCount.getOrDefault(packageID, 0);
+        tupleVarCount.put(packageID, nextValue + 1);
+        return TUPLE_VAR + UNDERSCORE + nextValue;
+    }
+
+    public String getNextRecordVarKey(PackageID packageID) {
+        Integer nextValue = recordVarCount.getOrDefault(packageID, 0);
+        recordVarCount.put(packageID, nextValue + 1);
+        return RECORD_VAR + UNDERSCORE + nextValue;
+    }
+
+    public String getNextErrorVarKey(PackageID packageID) {
+        Integer nextValue = errorVarCount.getOrDefault(packageID, 0);
+        errorVarCount.put(packageID, nextValue + 1);
+        return ERROR_VAR + UNDERSCORE + nextValue;
     }
 
     public boolean isAnonymousType(BSymbol symbol) {

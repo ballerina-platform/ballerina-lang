@@ -17,9 +17,9 @@
 
 package org.ballerinalang.test.taintchecking;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -43,6 +43,6 @@ public class ListenerServiceTaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 3);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'p'", 26, 23);
         BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'p'", 27, 23);
-        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'p'", 40, 23);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'p'", 35, 23);
     }
 }

@@ -1,5 +1,0 @@
-[project]
-org-name= "service-tests"
-version= "0.1.0"
-
-[dependencies]

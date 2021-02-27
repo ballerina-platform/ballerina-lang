@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.test.statements.retrystmt;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -50,8 +51,8 @@ public class RetryStmtTest {
     public void testRetryManagerNegativeCases() {
         Assert.assertEquals(managerNegative.getErrorCount(), 2);
         int index = 0;
-        BAssertUtil.validateError(managerNegative, index++, "unknown type 'MyRetryMgr'", 10, 11);
-        BAssertUtil.validateError(managerNegative, index++, "undefined symbol 'value'", 16, 28);
+        BAssertUtil.validateError(managerNegative, index++, "unknown type 'MyRetryMgr'", 8, 11);
+        BAssertUtil.validateError(managerNegative, index++, "undefined symbol 'value'", 14, 28);
     }
 
     @Test(description = "Test retry statement with errors")
@@ -59,7 +60,14 @@ public class RetryStmtTest {
         Assert.assertEquals(retryStmtNegative.getErrorCount(), 2);
         int index = 0;
         BAssertUtil.validateError(retryStmtNegative, index++, "no implementation found for the function " +
-                "'shouldRetry' of non-abstract object 'CustomRetryManager'", 16, 10);
-        BAssertUtil.validateError(retryStmtNegative, index++, "unreachable code", 27, 5);
+                "'shouldRetry' of non-abstract object 'CustomRetryManager'", 14, 10);
+        BAssertUtil.validateError(retryStmtNegative, index++, "unreachable code", 25, 5);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        programFile = null;
+        managerNegative = null;
+        retryStmtNegative = null;
     }
 }

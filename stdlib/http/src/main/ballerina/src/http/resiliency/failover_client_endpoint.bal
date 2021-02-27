@@ -76,7 +76,7 @@ public client class FailoverClient {
     # + message - HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function post(string path, RequestMessage message) returns Response|ClientError {
+    remote function post(string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_POST, self);
         if (result is HttpFuture) {
@@ -92,7 +92,7 @@ public client class FailoverClient {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function head(string path, RequestMessage message = ()) returns Response|ClientError {
+    remote function head(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_HEAD, self);
         if (result is HttpFuture) {
@@ -108,7 +108,7 @@ public client class FailoverClient {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function patch(string path, RequestMessage message) returns Response|ClientError {
+    remote function patch(string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_PATCH, self);
         if (result is HttpFuture) {
@@ -124,7 +124,7 @@ public client class FailoverClient {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function put(string path, RequestMessage message) returns Response|ClientError {
+    remote function put(string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_PUT, self);
         if (result is HttpFuture) {
@@ -140,7 +140,7 @@ public client class FailoverClient {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function options(string path, RequestMessage message = ()) returns Response|ClientError {
+    remote function options(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_OPTIONS, self);
         if (result is HttpFuture) {
@@ -155,7 +155,7 @@ public client class FailoverClient {
     # + path - Resource path
     # + request - An HTTP request
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function forward(string path, Request request) returns Response|ClientError {
+    remote function forward(string path, Request request) returns Response|ClientError {
         var result = performFailoverAction(path, request, HTTP_FORWARD, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -171,7 +171,7 @@ public client class FailoverClient {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function execute(string httpVerb, string path, RequestMessage message) returns
+    remote function execute(string httpVerb, string path, RequestMessage message) returns
                                                                                        Response|ClientError {
         Request req = buildRequest(message);
         var result = performExecuteAction(path, req, httpVerb, self);
@@ -188,7 +188,7 @@ public client class FailoverClient {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function delete(string path, RequestMessage message = ()) returns Response|ClientError {
+    remote function delete(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_DELETE, self);
         if (result is HttpFuture) {
@@ -204,7 +204,7 @@ public client class FailoverClient {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function get(string path, RequestMessage message = ()) returns Response|ClientError {
+    remote function get(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_GET, self);
         if (result is HttpFuture) {
@@ -224,7 +224,7 @@ public client class FailoverClient {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `http:HttpFuture` that represents an asynchronous service invocation or else an `http:ClientError` if the submission
     #            fails
-    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
+    remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         Request req = buildRequest(message);
         var result = performExecuteAction(path, req, "SUBMIT", self, verb = httpVerb);
         if (result is Response) {
@@ -238,7 +238,7 @@ public client class FailoverClient {
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
     # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
+    remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         Client foClient = getLastSuceededClientEP(self);
         return foClient->getResponse(httpFuture);
     }
@@ -247,7 +247,7 @@ public client class FailoverClient {
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
     # + return - A `boolean`, which represents whether an `http:PushPromise` exists
-    public remote function hasPromise(HttpFuture httpFuture) returns boolean {
+    remote function hasPromise(HttpFuture httpFuture) returns boolean {
         return false;
     }
 
@@ -255,7 +255,7 @@ public client class FailoverClient {
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
     # + return - An `http:PushPromise` message or else an `http:ClientError` if the invocation fails
-    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
+    remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         return UnsupportedActionError("Failover client not supported for getNextPromise action");
     }
 
@@ -263,7 +263,7 @@ public client class FailoverClient {
     #
     # + promise - The related `http:PushPromise`
     # + return - A promised `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
+    remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return UnsupportedActionError("Failover client not supported for getPromisedResponse action");
     }
 
@@ -271,7 +271,7 @@ public client class FailoverClient {
     # response using the rejected promise.
     #
     # + promise - The Push Promise to be rejected
-    public remote function rejectPromise(PushPromise promise) {
+    remote function rejectPromise(PushPromise promise) {
     }
 }
 

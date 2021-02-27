@@ -18,12 +18,13 @@
 
 package org.ballerinalang.test.taintchecking;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import io.ballerina.runtime.api.utils.StringUtils;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -47,7 +48,7 @@ public class FunctionCallTest {
 
     @Test
     public void testFuncCall() {
-        BRunUtil.invoke(result, "main", new Object[]{1L, BStringUtils.fromString("str"), true, false});
+        BRunUtil.invoke(result, "main", new Object[]{1L, StringUtils.fromString("str"), true, false});
     }
 
     @Test(groups = "disableOnOldParser")
@@ -97,4 +98,8 @@ public class FunctionCallTest {
         Assert.assertEquals(i, negativeResult.getDiagnostics().length);
     }
 
+    @AfterClass
+    public void tearDown() {
+        result = null;
+    }
 }

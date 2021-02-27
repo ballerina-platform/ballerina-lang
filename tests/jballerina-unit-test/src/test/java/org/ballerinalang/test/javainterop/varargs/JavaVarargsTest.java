@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.test.javainterop.varargs;
 
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BHandleValue;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BHandleValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -145,14 +145,14 @@ public class JavaVarargsTest {
     public void testIntArrayTypeVararg() {
         BValue[] returns = BRunUtil.invoke(result, "testIntArrayTypeVararg");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[[[7,2]], [[8]]]");
+        Assert.assertEquals(returns[0].stringValue(), "[[7,2], [8]]");
     }
 
     @Test
     public void testRefArrayTypeVararg() {
         BValue[] returns = BRunUtil.invoke(result, "testRefArrayTypeVararg");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[[[error(\"error one\")]], [[error(\"error two\")]]]");
+        Assert.assertEquals(returns[0].stringValue(), "[[error(\"error one\")], [error(\"error two\")]]");
     }
 
     // Java methods for interop
@@ -216,7 +216,7 @@ public class JavaVarargsTest {
     public static String getArrayTypeVararg(ArrayValue... values) {
         StringJoiner sj = new StringJoiner(", ", "[", "]");
         for (ArrayValue value : values) {
-            sj.add("[" + value.toString() + "]");
+            sj.add(value.toString());
         }
         return sj.toString();
     }

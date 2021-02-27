@@ -1,0 +1,10 @@
+[package]
+org = "ballerina"
+name = "benchmark"
+version = "0.5.0"
+
+[[platform.java11.dependency]]
+path = "../../../build/libs/jballerina-benchmark-test.jar"
+groupId = "ballerina"
+artifactId = "benchmark"
+version = "0.5.0"

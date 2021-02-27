@@ -16,13 +16,13 @@
 
 package org.ballerinalang.cli.module;
 
+import io.ballerina.runtime.api.utils.JsonUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.cli.module.util.ErrorUtil;
 import org.ballerinalang.cli.module.util.Utils;
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.MapValue;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -73,10 +73,10 @@ public class Push {
      * @param orgName       org name
      * @param moduleName    module name
      * @param version       module version
-     * @param baloPath      path to the balo
+     * @param balaPath      path to the bala
      */
     public static void execute(String url, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword,
-            String accessToken, String orgName, String moduleName, String version, Path baloPath) {
+            String accessToken, String orgName, String moduleName, String version, Path balaPath) {
         initializeSsl();
         HttpURLConnection conn = createHttpUrlConnection(convertToUrl(url), proxyHost, proxyPort, proxyUsername,
                 proxyPassword);
@@ -92,13 +92,13 @@ public class Push {
         conn.setChunkedStreamingMode(BUFFER_SIZE);
 
         try (DataOutputStream outputStream = new DataOutputStream(conn.getOutputStream())) {
-            // Send balo content by 1 kb chunks
+            // Send bala content by 1 kb chunks
             byte[] buffer = new byte[BUFFER_SIZE];
             int count;
             try (ProgressBar progressBar = new ProgressBar(
                     orgName + "/" + moduleName + ":" + version + " [project repo -> central]",
-                    getTotalFileSizeInKB(baloPath), 1000, outStream, ProgressBarStyle.ASCII, " KB", 1);
-                    FileInputStream fis = new FileInputStream(baloPath.toFile())) {
+                    getTotalFileSizeInKB(balaPath), 1000, outStream, ProgressBarStyle.ASCII, " KB", 1);
+                    FileInputStream fis = new FileInputStream(balaPath.toFile())) {
                 while ((count = fis.read(buffer)) > 0) {
                     outputStream.write(buffer, 0, count);
                     outputStream.flush();
@@ -106,7 +106,7 @@ public class Push {
                 }
             }
         } catch (IOException e) {
-            throw ErrorUtil.createCommandException("error occurred while uploading balo to central: " + e.getMessage());
+            throw ErrorUtil.createCommandException("error occurred while uploading bala to central: " + e.getMessage());
         }
 
         handleResponse(conn, orgName, moduleName, version);
@@ -139,8 +139,8 @@ public class Push {
                         result.append(line);
                     }
 
-                    MapValue payload = (MapValue) JSONParser.parse(result.toString());
-                    String message = payload.getStringValue(BStringUtils.fromString("message")).getValue();
+                    BMap payload = (BMap) JsonUtils.parse(result.toString());
+                    String message = payload.getStringValue(StringUtils.fromString("message")).getValue();
                     if (message.contains("module md file cannot be empty")) {
                         errStream.println(message);
                     } else {
@@ -168,12 +168,12 @@ public class Push {
      * @return size of the file in kb
      */
     private static long getTotalFileSizeInKB(Path filePath) {
-        byte[] baloContent;
+        byte[] balaContent;
         try {
-            baloContent = Files.readAllBytes(filePath);
-            return baloContent.length / 1024;
+            balaContent = Files.readAllBytes(filePath);
+            return balaContent.length / 1024;
         } catch (IOException e) {
-            throw ErrorUtil.createCommandException("cannot read the balo content");
+            throw ErrorUtil.createCommandException("cannot read the bala content");
         }
     }
 }

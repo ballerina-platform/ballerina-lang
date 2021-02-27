@@ -14,9 +14,8 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -25,28 +24,28 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    baloCreat project(':lib-creator')
+    balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-java')
+
     implementation 'org.slf4j:slf4j-api'
-    testCompile project(':ballerina-tool')
+    testCompile project(':ballerina-cli')
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
 
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
-
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-core')
-    testCompile project(':ballerina-file')
-
-    bir project(path: ':ballerina-lang:annotations', configuration: 'bir')
 }
 
-createBalo {
-    jvmTarget = 'true'
+task updateVersion {
+    ant.replaceregexp(
+            file: "${projectDir}/src/main/ballerina/Ballerina.toml",
+            match: "${project.name}-(.*).jar",
+            replace: "${project.name}-${project.version}.jar"
+    )
 }
+
 
 description = 'Ballerina - Runtime API'
 

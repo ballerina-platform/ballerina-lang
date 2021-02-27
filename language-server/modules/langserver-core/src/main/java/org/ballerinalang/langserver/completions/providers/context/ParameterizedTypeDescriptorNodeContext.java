@@ -15,17 +15,16 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ParameterizedTypeDescriptorNodeContext
         extends AbstractCompletionProvider<ParameterizedTypeDescriptorNode> {
 
@@ -44,17 +43,19 @@ public class ParameterizedTypeDescriptorNodeContext
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ParameterizedTypeDescriptorNode node) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            List<Scope.ScopeEntry> typesInModule = QNameReferenceUtil.getTypesInModule(context,
-                    (QualifiedNameReferenceNode) nodeAtCursor);
-            return this.getCompletionItemList(typesInModule, context);
-        }
-
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ParameterizedTypeDescriptorNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(this.getTypeItems(context));
+        NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
+
+        if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(ctx,
+                    (QualifiedNameReferenceNode) nodeAtCursor);
+            completionItems.addAll(this.getCompletionItemList(typesInModule, ctx));
+        } else {
+            completionItems.addAll(this.getModuleCompletionItems(ctx));
+            completionItems.addAll(this.getTypeItems(ctx));
+        }
+        this.sort(ctx, node, completionItems);
 
         return completionItems;
     }

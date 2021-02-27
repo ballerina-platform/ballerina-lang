@@ -55,6 +55,10 @@
               ]
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "SIMPLE_NAME_REFERENCE",
               "children": [
                 {

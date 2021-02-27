@@ -23,7 +23,6 @@ import org.ballerinalang.model.types.ValueType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
@@ -51,7 +50,7 @@ public class BType implements ValueType {
     // sometimes we loose type param information down the line. which is a problem.
     // TODO: Refactor this after JBallerina 1.0.
     public Name name;
-    public int flags;
+    public long flags;
 
     public BType(int tag, BTypeSymbol tsymbol) {
         this.tag = tag;
@@ -60,14 +59,14 @@ public class BType implements ValueType {
         this.flags = 0;
     }
 
-    public BType(int tag, BTypeSymbol tsymbol, int flags) {
+    public BType(int tag, BTypeSymbol tsymbol, long flags) {
         this.tag = tag;
         this.tsymbol = tsymbol;
         this.name = Names.EMPTY;
         this.flags = flags;
     }
 
-    public BType(int tag, BTypeSymbol tsymbol, Name name, int flags) {
+    public BType(int tag, BTypeSymbol tsymbol, Name name, long flags) {
         this.tag = tag;
         this.tsymbol = tsymbol;
         this.name = name;
@@ -146,13 +145,5 @@ public class BType implements ValueType {
         public String toString() {
             return "(" + trueType + ", " + falseType + ")";
         }
-    }
-
-    public boolean isAnydata() {
-        return this.tag <= TypeTags.ANYDATA;
-    }
-
-    public boolean isPureType() {
-        return this.tag == TypeTags.ERROR || this.isAnydata();
     }
 }

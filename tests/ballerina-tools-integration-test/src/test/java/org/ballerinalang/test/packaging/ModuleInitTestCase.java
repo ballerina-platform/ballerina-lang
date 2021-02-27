@@ -70,7 +70,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
 
-        // Test ballerina build
+        // Test bal build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
@@ -101,7 +101,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(serviceBalPath));
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("hello_service_test.bal")));
 
-        // Test ballerina build
+        // Test bal build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
@@ -134,7 +134,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("bar").resolve("tests").resolve("hello_service_test.bal")));
 
-        // Test ballerina build
+        // Test bal build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
@@ -192,7 +192,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("main.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
 
-        // Test ballerina build
+        // Test bal build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("main.balx");
@@ -218,7 +218,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Assert.assertTrue(Files.exists(modulePath.resolve("tests").resolve("main_test.bal")));
 
-        // Test ballerina build
+        // Test bal build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
@@ -247,7 +247,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("main.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
 
-        // Test ballerina build
+        // Test bal build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("newpkg.balx")));
@@ -279,7 +279,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("anotherpkg").resolve("main.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("anotherpkg").resolve("tests").resolve("main_test.bal")));
 
-        // Test ballerina build
+        // Test bal build
         balClient.runMain("build", new String[]{"anotherpkg"}, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("anotherpkg.balx")));
@@ -351,7 +351,7 @@ public class ModuleInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Assert.assertTrue(Files.exists(projectPath.resolve("foobar").resolve("tests").resolve("main_test.bal")));
 
-        // Test ballerina build
+        // Test bal build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foobar.balx");
@@ -377,7 +377,7 @@ public class ModuleInitTestCase extends BaseTest {
         balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
                 projectPath.toString());
 
-        // Test ballerina build
+        // Test bal build
         balClient.runMain("build", new String[]{"foo"}, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
 

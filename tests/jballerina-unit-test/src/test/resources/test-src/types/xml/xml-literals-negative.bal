@@ -1,4 +1,3 @@
-
 import ballerina/math as x;
 
 function testRestrictedElementPrefix() returns (xml) {
@@ -71,4 +70,14 @@ function testXmlNsInterpolation() returns xml {
     string ns = "http://wso2.com/";
     xml x = xml `<foo xmlns="${ns}" xmlns:foo="${ns}">hello</foo>`;
     return x;
+}
+
+function testXMLLiteralWithEscapeSequence() {
+    xml x1 = xml `hello &lt; &gt; &amp;`;
+    string[] strs = [];
+    foreach xml e in x1 {
+        if e is string {
+            strs.push(e);
+        }
+    }
 }

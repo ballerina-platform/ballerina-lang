@@ -58,8 +58,8 @@ function testReturningStringTemplate() {
 
 // Test returning service constructor exprs.
 function testReturningServiceConstructors() {
-    var fn = function () returns service => service {
-        resource function greet() {
+    var fn = function () returns service object {} => service object {
+        resource function get greet() {
         }
     };
     var s = fn();

@@ -17,35 +17,29 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BIterator;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.model.values.BXMLSequence;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
-import org.ballerinalang.test.services.testutils.MessageUtils;
-import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.XmlFactory;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BIterator;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BXML;
+import org.ballerinalang.core.model.values.BXMLItem;
+import org.ballerinalang.core.model.values.BXMLSequence;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Test class for XML literal.
  *
  * @since 0.94
  */
-@Test(groups = { "disableOnOldParser" })
 public class XMLLiteralTest {
 
     private CompileResult result;
@@ -100,6 +94,10 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 72, 29);
         BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 72, 47);
         Assert.assertEquals(index, negativeResult.getErrorCount());
+
+        // XML iterator return type
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'xml' will not be matched to 'string'",
+                81, 29);
     }
 
     @Test
@@ -222,9 +220,8 @@ public class XMLLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testXMLLiteralWithEscapeSequence");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "hello &lt; &gt; &amp;"); // BXMLItem.toString()
-        Assert.assertEquals(arrayToString(returns[1]), "hello < > &");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
-        Assert.assertEquals(arrayToString(returns[3]), "");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+        Assert.assertEquals(arrayToString(returns[2]), "");
     }
 
     private String arrayToString(BValue aReturn) {
@@ -275,17 +272,6 @@ public class XMLLiteralTest {
                 "<ns1:student xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:student>");
     }
 
-    @Test(groups = "brokenOnJBallerina")
-    // todo: enable this once we fix the method too large issue on jBallerina
-    public void testLargeXMLLiteral() {
-        BCompileUtil.compile("test-src/types/xml/xml_inline_large_literal.bal");
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
-        HttpCarbonMessage response = Services.invoke(9091, cMsg);
-        Assert.assertNotNull(response);
-        BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertTrue(xml.stringValue().contains("<line2>Sigiriya</line2>"));
-    }
-
     @Test (description = "Test sequence of brackets in content of XML")
     public void testBracketSequenceInXMLLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testBracketSequenceInXMLLiteral");
@@ -313,7 +299,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLToString() {
-        XMLValue xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+        BXml xml = XmlFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }

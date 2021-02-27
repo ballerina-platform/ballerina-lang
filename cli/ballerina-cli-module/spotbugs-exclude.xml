@@ -20,4 +20,8 @@
         <Class name="org.ballerinalang.cli.utils.ExecutorUtils"/>
         <Bug pattern="DE_MIGHT_IGNORE"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.cli.module.Pull"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    </Match>
 </FindBugsFilter>

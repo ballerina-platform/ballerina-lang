@@ -15,16 +15,12 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,23 +28,18 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class OptionalFieldAccessExpressionNodeContext extends FieldAccessContext<OptionalFieldAccessExpressionNode> {
     public OptionalFieldAccessExpressionNodeContext() {
         super(OptionalFieldAccessExpressionNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, OptionalFieldAccessExpressionNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, OptionalFieldAccessExpressionNode node)
             throws LSCompletionException {
-        ExpressionNode expression = node.expression();
-        ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        List<Scope.ScopeEntry> entries = getEntries(context, visibleSymbols, expression);
-        return this.getCompletionItemList(entries, context);
-    }
+        List<LSCompletionItem> completionItems = getEntries(ctx, node.expression());
+        this.sort(ctx, node, completionItems);
 
-    @Override
-    protected boolean removeOptionalFields() {
-        return false;
+        return completionItems;
     }
 }

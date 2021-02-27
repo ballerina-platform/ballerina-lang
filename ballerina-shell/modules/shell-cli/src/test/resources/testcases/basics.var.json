@@ -1,0 +1,24 @@
+[
+  {
+    "description": "Define var variable.",
+    "code": "var k = 5;"
+  },
+  {
+    "description": "Use var variable.",
+    "code": "10 + k",
+    "expr": "15"
+  },
+  {
+    "description": "Define string var variable.",
+    "code": "var strVar = \"Hello!\";"
+  },
+  {
+    "description": "Print var variable.",
+    "code": "println(strVar);",
+    "stdout": "Hello!\n"
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

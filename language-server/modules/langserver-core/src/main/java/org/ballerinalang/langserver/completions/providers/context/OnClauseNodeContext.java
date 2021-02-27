@@ -15,34 +15,33 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.OnClauseNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Completion provider for {@link OnClauseNode} context.
  * Following rule is addressed,
- * 
+ * <p>
  * {@code join typed-binding-pattern in expression on expression equals expression}
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode> {
 
     public OnClauseNodeContext() {
@@ -50,40 +49,42 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, OnClauseNode node) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, OnClauseNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onSuggestEqualsKeyword(context, node)) {
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_EQUALS.get()));
-        }
-
-        /*
-         * Covers the remaining rule content,
-         * (1) on <cursor>
-         * (2) on e<cursor>
-         * (3) on expr equals <cursor>
-         * (4) on expr equals e<cursor>
-         * (5) on expr equals module:<cursor>
-         */
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_EQUALS.get()));
+        } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            /*
+             * Covers the remaining rule content,
+             * (1) on <cursor>
+             * (2) on e<cursor>
+             * (3) on expr equals <cursor>
+             * (4) on expr equals e<cursor>
+             * (5) on expr equals module:<cursor>
+             */
             /*
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Scope.ScopeEntry> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-            return this.getCompletionItemList(exprEntries, context);
+            List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
         }
-
-        return this.expressionCompletions(context);
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, OnClauseNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, OnClauseNode node) {
         return !node.onKeyword().isMissing();
     }
 
-    private boolean onSuggestEqualsKeyword(LSContext context, OnClauseNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onSuggestEqualsKeyword(BallerinaCompletionContext context, OnClauseNode node) {
+        int cursor = context.getCursorPositionInTree();
         ExpressionNode lhs = node.lhsExpression();
         ExpressionNode rhs = node.rhsExpression();
         Token equalsKeyword = node.equalsKeyword();

@@ -17,14 +17,15 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -159,5 +160,10 @@ public class ArrayInitializerExprTest {
         Assert.assertEquals(arrayValue.getFloat(0), 2.0);
         Assert.assertEquals(arrayValue.getFloat(1), 4.0);
         Assert.assertEquals(arrayValue.getFloat(2), 5.0);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

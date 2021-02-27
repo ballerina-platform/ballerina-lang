@@ -15,113 +15,113 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.Snippet;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Completion provider for {@link RecordFieldWithDefaultValueNode} context.
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class RecordFieldWithDefaultValueNodeContext extends
         AbstractCompletionProvider<RecordFieldWithDefaultValueNode> {
-    
+
     public RecordFieldWithDefaultValueNodeContext() {
         super(RecordFieldWithDefaultValueNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, RecordFieldWithDefaultValueNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, RecordFieldWithDefaultValueNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (this.onQualifiedNameIdentifier(context, node.expression())) {
+        if (this.onQualifiedNameIdentifier(ctx, node.expression())) {
             /*
             Captures the following cases
             (1) [module:]TypeName c = module:<cursor>
             (2) [module:]TypeName c = module:a<cursor>
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.expression();
-            Predicate<Scope.ScopeEntry> filter = scopeEntry -> {
-                BSymbol symbol = scopeEntry.symbol;
-                return symbol instanceof BVarSymbol && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
-            };
-            List<Scope.ScopeEntry> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
-            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            Predicate<Symbol> modSymbolFilter = symbol -> symbol instanceof VariableSymbol;
+            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(ctx, qNameRef, modSymbolFilter);
+            completionItems.addAll(this.getCompletionItemList(moduleContent, ctx));
         } else {
             /*
             Captures the following cases
             (1) [module:]TypeName c = <cursor>
             (2) [module:]TypeName c = a<cursor>
              */
-            completionItems.addAll(this.actionKWCompletions(context));
-            completionItems.addAll(this.expressionCompletions(context));
-            completionItems.addAll(getNewExprCompletionItems(context, node.typeName()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IS.get()));
+            completionItems.addAll(this.actionKWCompletions(ctx));
+            completionItems.addAll(this.expressionCompletions(ctx));
+            completionItems.addAll(getNewExprCompletionItems(ctx, node.typeName()));
         }
+        this.sort(ctx, node, completionItems);
 
         return completionItems;
     }
 
-    private List<LSCompletionItem> getNewExprCompletionItems(LSContext context, Node typeNameNode) {
+    private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context, Node typeNameNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        Optional<Scope.ScopeEntry> objectType;
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        Optional<ClassSymbol> objectType;
         if (this.onQualifiedNameIdentifier(context, typeNameNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeNameNode));
-            Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context, modulePrefix);
-            if (!module.isPresent()) {
+            Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, modulePrefix);
+            if (module.isEmpty()) {
                 return completionItems;
             }
             String identifier = ((QualifiedNameReferenceNode) typeNameNode).identifier().text();
-            objectType = module.get().symbol.scope.entries.values().stream()
-                    .filter(scopeEntry -> scopeEntry.symbol instanceof BObjectTypeSymbol
-                            && scopeEntry.symbol.getName().getValue().equals(identifier))
+            ModuleSymbol moduleSymbol = module.get();
+            Stream<Symbol> classesAndTypes = Stream.concat(moduleSymbol.classes().stream(),
+                    moduleSymbol.typeDefinitions().stream());
+            objectType = classesAndTypes
+                    .filter(symbol -> SymbolUtil.isClass(symbol)
+                            && Objects.equals(symbol.getName().orElse(null), identifier))
+                    .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else if (typeNameNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) typeNameNode).name().text();
             objectType = visibleSymbols.stream()
-                    .filter(scopeEntry -> scopeEntry.symbol instanceof BObjectTypeSymbol
-                            && scopeEntry.symbol.getName().getValue().equals(identifier))
+                    .filter(symbol -> SymbolUtil.isClass(symbol)
+                            && Objects.equals(symbol.getName().orElse(null), identifier))
+                    .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else {
             objectType = Optional.empty();
         }
 
-        objectType.ifPresent(scopeEntry ->
-                completionItems.add(this.getImplicitNewCompletionItem((BObjectTypeSymbol) scopeEntry.symbol, context)));
+        objectType.ifPresent(objectTypeDesc ->
+                completionItems.add(this.getImplicitNewCompletionItem(objectTypeDesc, context)));
 
         return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, RecordFieldWithDefaultValueNode node) {
-        Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    public boolean onPreValidation(BallerinaCompletionContext context, RecordFieldWithDefaultValueNode node) {
+        Integer textPosition = context.getCursorPositionInTree();
         TextRange equalTokenRange = node.equalsToken().textRange();
         return equalTokenRange.endOffset() <= textPosition;
     }

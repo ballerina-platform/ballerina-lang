@@ -17,12 +17,12 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.testng.Assert;
 
 import java.nio.file.Path;

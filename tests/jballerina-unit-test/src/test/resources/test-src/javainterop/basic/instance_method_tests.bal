@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
-import ballerina/test;
+import ballerina/jballerina.java;
 
 function testAcceptNothingAndReturnNothing(handle receiver) {
     increaseCounterByOne(receiver);
@@ -83,7 +82,17 @@ function testUnionWithErrorReturnHandle(handle receiver) returns error|int|boole
 
 function testInstanceResolve() {
     int val = hashCode(newByte(2));
-    test:assertEquals(val, 2);
+    assertEquals(val, 2);
+}
+
+public function testGetCurrentModule(handle receiver) {
+     string moduleString =  getCurrentModule(receiver, 4);
+     assertEquals(moduleString, "$anon#.#0.0.0#4");
+     // calling overloaded method using self as a parameter.
+     moduleString =  getCurrentModuleAndOverloadParams(receiver, 4);
+     assertEquals(moduleString, "$anon#.#0.0.0#8");
+     moduleString =  getCurrentModuleAndOverloadParamsWithReceiver(receiver, receiver, 4);
+     assertEquals(moduleString, "$anon#.#0.0.0#16");
 }
 
 // Interop functions
@@ -181,6 +190,23 @@ public function uncheckedErrorDetail(handle receiver) returns int = @java:Method
     'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 
+function getCurrentModule(handle receiver, int a) returns string  = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods",
+     paramTypes: ["long"]
+} external;
+
+function getCurrentModuleAndOverloadParams(handle receiver, int a) returns string  = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods",
+     paramTypes: ["long"]
+} external;
+
+function getCurrentModuleAndOverloadParamsWithReceiver(handle receiver, handle receiverParam, int a)
+                                                        returns string  =  @java:Method {
+    name : "getCurrentModuleAndOverloadParams",
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods",
+    paramTypes: ["org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods", "long"]
+} external;
+
 function hashCode(handle receiver) returns int = @java:Method {
     name: "hashCode",
     'class: "java.lang.Byte",
@@ -191,3 +217,20 @@ function newByte(int val) returns handle = @java:Constructor {
    'class: "java.lang.Byte"
 } external;
 
+function assertEquals(anydata|error expected, anydata|error actual) {
+    if isEqual(actual, expected) {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
+    if (actual is anydata && expected is anydata) {
+        return (actual == expected);
+    } else {
+        return (actual === expected);
+    }
+}

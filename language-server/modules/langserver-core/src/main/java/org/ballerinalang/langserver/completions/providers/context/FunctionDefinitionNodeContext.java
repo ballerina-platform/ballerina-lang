@@ -15,17 +15,15 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
@@ -40,14 +38,14 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<FunctionDefinitionNode> {
     public FunctionDefinitionNodeContext() {
         super(FunctionDefinitionNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, FunctionDefinitionNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FunctionDefinitionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -64,24 +62,26 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
         }
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 
-    private boolean canCheckWithinFunctionSignature(LSContext context, FunctionDefinitionNode node) {
+    private boolean canCheckWithinFunctionSignature(BallerinaCompletionContext context, FunctionDefinitionNode node) {
         FunctionSignatureNode functionSignatureNode = node.functionSignature();
         if (functionSignatureNode.isMissing()) {
             return false;
         }
         LinePosition signatureEndLine = functionSignatureNode.lineRange().endLine();
-        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position cursor = context.getCursorPosition();
 
         return (signatureEndLine.line() == cursor.getLine() && signatureEndLine.offset() < cursor.getCharacter())
                 || signatureEndLine.line() < cursor.getLine();
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, FunctionDefinitionNode node) {
-        Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    public boolean onPreValidation(BallerinaCompletionContext context, FunctionDefinitionNode node) {
+        int textPosition = context.getCursorPositionInTree();
         Token functionKeyword = node.functionKeyword();
         if (functionKeyword.isMissing()) {
             return true;

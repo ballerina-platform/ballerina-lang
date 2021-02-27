@@ -17,13 +17,12 @@
 */
 package org.ballerinalang.test.types.xml;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -215,27 +214,36 @@ public class XMLAccessTest {
     @Test(groups = { "disableOnOldParser" })
     public void testInvalidXMLAccessWithIndex() {
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 5, 5);
-        BAssertUtil.validateError(negativeResult, i++, "invalid expr in assignment lhs", 13, 10);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 15);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 19, 15);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 20, 15);
-
+        BAssertUtil.validateError(negativeResult, i++, "invalid expr in assignment lhs", 4, 10);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 9, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 10, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 11, 15);
+        BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 18, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(string|xml:Text)' does" +
+                " not support indexing", 21, 28);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(string|xml:Text)' does " +
+                "not support indexing", 22, 14);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: union type '(xml:Element|xml<never> " +
+                "& readonly)' does not support xml navigation access", 25, 14);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: union type '(xml:Comment|xml<never> " +
+                "& readonly)' does not support xml navigation access", 27, 14);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: union type " +
+                "'(xml:ProcessingInstruction|xml<never> & readonly)' does not support xml navigation access", 29, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
+                "'(xml:Element|xml<never> & readonly)' does not support indexing", 31, 10);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
+                "'(xml:Comment|xml<never> & readonly)' does not support indexing", 32, 10);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
+                "'(xml:ProcessingInstruction|xml<never> & readonly)' does not support indexing", 33, 11);
+        BAssertUtil.validateError(negativeResult, i++, "xml langlib functions does not support " +
+                "union types as their arguments", 35, 25);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
+
     @Test
     public void testXMLAccessWithIndex() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLAccessWithIndex");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(),
-                "<root><!-- comment node--><name>supun</name><city>colombo</city></root>");
-
-        Assert.assertTrue(returns[1] instanceof BXML);
-        Assert.assertEquals(returns[1].stringValue(), "<!-- comment node-->");
-
-        Assert.assertTrue(returns[2] instanceof BXML);
-        Assert.assertEquals(returns[2].stringValue(), "<name>supun</name>");
+        BRunUtil.invoke(result, "testXMLAccessWithIndex");
     }
 
     @Test

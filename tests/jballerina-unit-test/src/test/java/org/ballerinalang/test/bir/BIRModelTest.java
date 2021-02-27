@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.bir;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -34,7 +34,7 @@ public class BIRModelTest {
 
     @Test(description = "Test AST to BIR lowering")
     public void testBIRGen() {
-        CompileResult result = BCompileUtil.compileAndGetBIR("test-src/bir/bir_model.bal");
+        CompileResult result = BCompileUtil.compile("test-src/bir/bir_model.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
 
         BIRNode.BIRPackage birPackage = ((BLangPackage) result.getAST()).symbol.bir;

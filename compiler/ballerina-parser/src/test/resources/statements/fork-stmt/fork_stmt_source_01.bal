@@ -8,10 +8,9 @@ public function foo() {
 
         worker w2 returns int {
             int f = 10;
-            f+=5;
+            f += 5;
 
             return f;
         }
     }
-
 }

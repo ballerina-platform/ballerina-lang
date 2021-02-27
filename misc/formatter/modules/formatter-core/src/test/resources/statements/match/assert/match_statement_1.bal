@@ -3,16 +3,12 @@ public function foo() {
     foreach string animal in animals {
         match animal {
             "Mouse" => {
-
             }
             "Dog"|"Canine" => {
-
             }
             "Cat"|"Feline" => {
-
             }
             _ => {
-
             }
         }
     }

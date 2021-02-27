@@ -18,16 +18,17 @@
  */
 package org.ballerinalang.test.expressions.lambda;
 
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BFunctionPointer;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -138,5 +139,11 @@ public class IterableArrowExprTest {
                 "incompatible types: expected 'string[]', found 'map<string>'", 34, 24);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'string[]', found 'int'", 35, 20);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        basic = null;
+        resultNegative = null;
     }
 }

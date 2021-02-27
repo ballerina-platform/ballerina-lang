@@ -60,7 +60,7 @@ client class ClientObject {
     private function privateMethodDecl(string argOne, int argTwo);
     function defaultVisibiltyMethodDecl(string argOne, int argTwo) returns float;
 
-    public remote function publicRemoteMethodDecl(string argOne, int argTwo) returns float;
+    remote function publicRemoteMethodDecl(string argOne, int argTwo) returns float;
     private remote function privateRemoteMethodDecl(string argOne, int argTwo);
     remote function defaultVisibiltyRemoteMethodDecl(string argOne, int argTwo);
 
@@ -81,7 +81,7 @@ client class ClientObject {
         return self.defaultVisibilityFloatField + argTwo;
     }
 
-    public remote function publicRemoteMethodDefn(string argOne, int argTwo,
+    remote function publicRemoteMethodDefn(string argOne, int argTwo,
                                                   float defaultVisibilityFloatField) returns float {
         if (defaultVisibilityFloatField == self.defaultVisibilityFloatField) {
             return 0.0;
@@ -115,7 +115,7 @@ function ClientObject.defaultVisibiltyMethodDecl(string argOne, int argTwo) retu
     return self.defaultVisibilityFloatField;
 }
 
-public remote function ClientObject.publicRemoteMethodDecl(string argOne, int argTwo) returns float {
+remote function ClientObject.publicRemoteMethodDecl(string argOne, int argTwo) returns float {
     self.publicStringField = argOne;
     self.defaultVisibilityFloatField += argTwo;
     return self.defaultVisibilityFloatField;

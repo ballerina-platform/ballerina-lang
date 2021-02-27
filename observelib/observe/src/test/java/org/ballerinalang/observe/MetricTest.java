@@ -17,13 +17,10 @@
  */
 package org.ballerinalang.observe;
 
-import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
-import org.ballerinalang.jvm.observability.metrics.MetricRegistry;
+import io.ballerina.runtime.observability.metrics.DefaultMetricRegistry;
+import io.ballerina.runtime.observability.metrics.MetricRegistry;
 import org.ballerinalang.observe.metrics.extension.defaultimpl.DefaultMetricProvider;
 import org.testng.annotations.BeforeSuite;
-
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 
 /**
  * This is the bases test class which enables the metrics reporting.
@@ -34,8 +31,6 @@ public class MetricTest {
 
     @BeforeSuite
     public void init() {
-        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        configRegistry.addConfiguration(CONFIG_METRICS_ENABLED, String.valueOf(Boolean.TRUE));
         DefaultMetricProvider metricProvider = new DefaultMetricProvider();
         metricProvider.init();
         DefaultMetricRegistry.setInstance(new MetricRegistry(metricProvider));

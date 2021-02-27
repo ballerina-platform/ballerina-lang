@@ -1,8 +1,6 @@
+import ballerina/test;
+import ballerina/test;
 
-
-import ballerina/math;
-import ballerina/math;
-
-function testFunc() {
-  math:pow(2,2);
+@test:BeforeSuite
+function beforeSuiteFunc () {
 }

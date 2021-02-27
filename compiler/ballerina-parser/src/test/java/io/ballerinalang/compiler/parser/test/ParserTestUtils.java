@@ -21,22 +21,22 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.ballerina.compiler.internal.parser.BallerinaParser;
+import io.ballerina.compiler.internal.parser.ParserFactory;
+import io.ballerina.compiler.internal.parser.ParserRuleContext;
+import io.ballerina.compiler.internal.parser.tree.STIdentifierToken;
+import io.ballerina.compiler.internal.parser.tree.STInvalidNodeMinutiae;
+import io.ballerina.compiler.internal.parser.tree.STMinutiae;
+import io.ballerina.compiler.internal.parser.tree.STNode;
+import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
+import io.ballerina.compiler.internal.parser.tree.STNodeList;
+import io.ballerina.compiler.internal.parser.tree.STToken;
+import io.ballerina.compiler.internal.syntax.SyntaxUtils;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
-import io.ballerinalang.compiler.internal.parser.BallerinaParser;
-import io.ballerinalang.compiler.internal.parser.ParserFactory;
-import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
-import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
-import io.ballerinalang.compiler.internal.parser.tree.STInvalidNodeMinutiae;
-import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
-import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.testng.Assert;
 
 import java.io.BufferedWriter;
@@ -48,7 +48,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
-import static io.ballerinalang.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
+import static io.ballerina.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.DIAGNOSTICS_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.HAS_DIAGNOSTICS;
@@ -358,7 +358,6 @@ public class ParserTestUtils {
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
             case PARAMETER_NAME:
-            case BACKTICK_CONTENT:
             case DEPRECATION_LITERAL:
             case INVALID_TOKEN:
                 return token.text();
@@ -367,6 +366,7 @@ public class ParserTestUtils {
             case TEMPLATE_STRING:
             case DOCUMENTATION_DESCRIPTION:
             case DOCUMENTATION_STRING:
+            case CODE_CONTENT:
                 return cleanupText(token.text());
             default:
                 return token.kind.toString();
@@ -608,8 +608,6 @@ public class ParserTestUtils {
                 return SyntaxKind.START_KEYWORD;
             case "FLUSH_KEYWORD":
                 return SyntaxKind.FLUSH_KEYWORD;
-            case "DEFAULT_KEYWORD":
-                return SyntaxKind.DEFAULT_KEYWORD;
             case "WAIT_KEYWORD":
                 return SyntaxKind.WAIT_KEYWORD;
             case "DO_KEYWORD":
@@ -646,6 +644,8 @@ public class ParserTestUtils {
                 return SyntaxKind.EQUALS_KEYWORD;
             case "OUTER_KEYWORD":
                 return SyntaxKind.OUTER_KEYWORD;
+            case "CONFIGURABLE_KEYWORD":
+                return SyntaxKind.CONFIGURABLE_KEYWORD;
 
             // Documentation reference
             case "TYPE_DOC_REFERENCE_TOKEN":
@@ -770,6 +770,10 @@ public class ParserTestUtils {
                 return SyntaxKind.RIGHT_ARROW_TOKEN;
             case "BACKTICK_TOKEN":
                 return SyntaxKind.BACKTICK_TOKEN;
+            case "DOUBLE_BACKTICK_TOKEN":
+                return SyntaxKind.DOUBLE_BACKTICK_TOKEN;
+            case "TRIPLE_BACKTICK_TOKEN":
+                return SyntaxKind.TRIPLE_BACKTICK_TOKEN;
             case "DOUBLE_QUOTE_TOKEN":
                 return SyntaxKind.DOUBLE_QUOTE_TOKEN;
             case "SINGLE_QUOTE_TOKEN":
@@ -872,8 +876,6 @@ public class ParserTestUtils {
                 return SyntaxKind.CONDITIONAL_EXPRESSION;
             case "TRANSACTIONAL_EXPRESSION":
                 return SyntaxKind.TRANSACTIONAL_EXPRESSION;
-            case "SERVICE_CONSTRUCTOR_EXPRESSION":
-                return SyntaxKind.SERVICE_CONSTRUCTOR_EXPRESSION;
             case "BYTE_ARRAY_LITERAL":
                 return SyntaxKind.BYTE_ARRAY_LITERAL;
             case "XML_FILTER_EXPRESSION":
@@ -884,6 +886,12 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_NAME_PATTERN_CHAIN;
             case "XML_ATOMIC_NAME_PATTERN":
                 return SyntaxKind.XML_ATOMIC_NAME_PATTERN;
+            case "REQUIRED_EXPRESSION":
+                return SyntaxKind.REQUIRED_EXPRESSION;
+            case "OBJECT_CONSTRUCTOR":
+                return SyntaxKind.OBJECT_CONSTRUCTOR;
+            case "ERROR_CONSTRUCTOR":
+                return SyntaxKind.ERROR_CONSTRUCTOR;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -998,8 +1006,6 @@ public class ParserTestUtils {
                 return SyntaxKind.RECORD_TYPE_DESC;
             case "OBJECT_TYPE_DESC":
                 return SyntaxKind.OBJECT_TYPE_DESC;
-            case "OBJECT_CONSTRUCTOR":
-                return SyntaxKind.OBJECT_CONSTRUCTOR;
             case "UNION_TYPE_DESC":
                 return SyntaxKind.UNION_TYPE_DESC;
             case "ERROR_TYPE_DESC":
@@ -1042,6 +1048,8 @@ public class ParserTestUtils {
                 return SyntaxKind.EXTERNAL_FUNCTION_BODY;
             case "REQUIRED_PARAM":
                 return SyntaxKind.REQUIRED_PARAM;
+            case "INCLUDED_RECORD_PARAM":
+                return SyntaxKind.INCLUDED_RECORD_PARAM;
             case "DEFAULTABLE_PARAM":
                 return SyntaxKind.DEFAULTABLE_PARAM;
             case "REST_PARAM":
@@ -1072,8 +1080,6 @@ public class ParserTestUtils {
                 return SyntaxKind.COMPUTED_NAME_FIELD;
             case "SPREAD_FIELD":
                 return SyntaxKind.SPREAD_FIELD;
-            case "SERVICE_BODY":
-                return SyntaxKind.SERVICE_BODY;
             case "ARRAY_DIMENSION":
                 return SyntaxKind.ARRAY_DIMENSION;
             case "METADATA":
@@ -1174,8 +1180,8 @@ public class ParserTestUtils {
                 return SyntaxKind.MAPPING_MATCH_PATTERN;
             case "FIELD_MATCH_PATTERN":
                 return SyntaxKind.FIELD_MATCH_PATTERN;
-            case "FUNCTIONAL_MATCH_PATTERN":
-                return SyntaxKind.FUNCTIONAL_MATCH_PATTERN;
+            case "ERROR_MATCH_PATTERN":
+                return SyntaxKind.ERROR_MATCH_PATTERN;
             case "NAMED_ARG_MATCH_PATTERN":
                 return SyntaxKind.NAMED_ARG_MATCH_PATTERN;
             case "ON_CONFLICT_CLAUSE":
@@ -1186,6 +1192,14 @@ public class ParserTestUtils {
                 return SyntaxKind.JOIN_CLAUSE;
             case "ON_CLAUSE":
                 return SyntaxKind.ON_CLAUSE;
+            case "RESOURCE_ACCESSOR_DEFINITION":
+                return SyntaxKind.RESOURCE_ACCESSOR_DEFINITION;
+            case "RESOURCE_ACCESSOR_DECLARATION":
+                return SyntaxKind.RESOURCE_ACCESSOR_DECLARATION;
+            case "RESOURCE_PATH_SEGMENT_PARAM":
+                return SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM;
+            case "RESOURCE_PATH_REST_PARAM":
+                return SyntaxKind.RESOURCE_PATH_REST_PARAM;
 
             // XML template
             case "XML_ELEMENT":
@@ -1240,18 +1254,24 @@ public class ParserTestUtils {
                 return SyntaxKind.MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE;
             case "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE":
                 return SyntaxKind.MARKDOWN_DEPRECATION_DOCUMENTATION_LINE;
+            case "MARKDOWN_CODE_LINE":
+                return SyntaxKind.MARKDOWN_CODE_LINE;
             case "DOCUMENTATION_DESCRIPTION":
                 return SyntaxKind.DOCUMENTATION_DESCRIPTION;
-            case "DOCUMENTATION_REFERENCE":
-                return SyntaxKind.DOCUMENTATION_REFERENCE;
+            case "BALLERINA_NAME_REFERENCE":
+                return SyntaxKind.BALLERINA_NAME_REFERENCE;
             case "PARAMETER_NAME":
                 return SyntaxKind.PARAMETER_NAME;
-            case "BACKTICK_CONTENT":
-                return SyntaxKind.BACKTICK_CONTENT;
             case "DEPRECATION_LITERAL":
                 return SyntaxKind.DEPRECATION_LITERAL;
             case "DOCUMENTATION_STRING":
                 return SyntaxKind.DOCUMENTATION_STRING;
+            case "CODE_CONTENT":
+                return SyntaxKind.CODE_CONTENT;
+            case "INLINE_CODE_REFERENCE":
+                return SyntaxKind.INLINE_CODE_REFERENCE;
+            case "MARKDOWN_CODE_BLOCK":
+                return SyntaxKind.MARKDOWN_CODE_BLOCK;
 
             // Trivia
             case "EOF_TOKEN":

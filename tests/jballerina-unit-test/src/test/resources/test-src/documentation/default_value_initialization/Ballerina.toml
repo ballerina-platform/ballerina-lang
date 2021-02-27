@@ -1,3 +1,4 @@
-[project]
-org-name="test_org"
-version="1.0.0"
+[package]
+org = "test_org"
+name = "default_value_initialization"
+version = "1.0.0"

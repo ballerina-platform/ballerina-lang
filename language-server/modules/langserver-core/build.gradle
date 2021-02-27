@@ -15,8 +15,8 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations.all {
     resolutionStrategy {
@@ -32,6 +32,7 @@ configurations {
         transitive false
     }
     libs
+    distributionBala
 }
 
 dependencies {
@@ -41,17 +42,15 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-parser')
     implementation project(':formatter:formatter-core')
+    implementation project(':diagram-util')
     implementation project(':language-server:language-server-commons')
-    implementation project(':language-server:language-server-compiler')
-    implementation project(':openapi-ballerina:openapi-validator')
-    implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
-    implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
+    implementation project(':toml-parser')
 
     // Standard libs
     implementation project(':ballerina-lang:annotations')
     implementation project(':language-server:language-server-stdlib')
 
-    implementation project(':ballerina-tool')
+    implementation project(':ballerina-cli')
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
@@ -63,35 +62,29 @@ dependencies {
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'commons-io:commons-io'
-    implementation 'io.swagger:swagger-core'
-    implementation 'io.swagger:swagger-models'
-    implementation 'io.swagger:swagger-parser'
-    implementation 'io.swagger.core.v3:swagger-core'
-    implementation 'io.swagger.core.v3:swagger-models'
-    implementation 'io.swagger.parser.v3:swagger-parser'
+    implementation('io.swagger:swagger-core') {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+        exclude group: 'org.yaml', module: 'snakeyaml'
+        exclude group: 'com.fasterxml.jackson.datatype', module: 'jackson-datatype-joda'
+        exclude group: 'io.swagger', module: 'swagger-annotations'
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
+    implementation('io.swagger.core.v3:swagger-core')
+    implementation 'io.swagger.core.v3:swagger-models:2.1.4'
     implementation 'io.swagger.parser.v3:swagger-parser-core'
-    implementation 'io.swagger.parser.v3:swagger-parser-v2-converter'
-    implementation 'io.swagger.parser.v3:swagger-parser-v3'
+    implementation('io.swagger.parser.v3:swagger-parser-v2-converter') {
+        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
     implementation 'com.github.jknack:handlebars:4.0.6'
     implementation 'com.moandjiezana.toml:toml4j'
-
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':language-server:language-server-stdlib', configuration: 'baloImplementation')
+    
+    distributionBala project(path: ':language-server:language-server-stdlib', configuration: 'distributionBala')
 
     dependency 'com.h2database:h2:1.4.199'
-    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.8.1'
-    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.8.1'
+    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.10.0'
+    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.10.0'
     dependency 'commons-io:commons-io:2.6'
-    dependency 'io.swagger:swagger-core:2.0.0-rc0'
-    dependency 'io.swagger:swagger-models:2.0.0-rc0'
-    dependency 'io.swagger:swagger-parser:2.0.0-rc1'
-    dependency 'io.swagger.core.v3:swagger-core:2.1.1'
-    dependency 'io.swagger.core.v3:swagger-models:2.1.1'
-    dependency 'io.swagger.parser.v3:swagger-parser:2.0.17'
-    dependency 'io.swagger.parser.v3:swagger-parser-core:2.0.17'
-    dependency 'io.swagger.parser.v3:swagger-parser-v2-converter:2.0.17'
-    dependency 'io.swagger.parser.v3:swagger-parser-v3:2.0.17'
-
     testCompile 'org.testng:testng'
 }
 
@@ -128,7 +121,8 @@ createJavadoc {
 }
 
 test {
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/main/"
+    dependsOn loadDistributionCache
+    systemProperty "ballerina.home", "$buildDir/"
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
     useTestNG() {
@@ -139,7 +133,7 @@ test {
 task buildAndCopy(type: Copy) {
     dependsOn build
     from 'build/libs/language-server-core-' + project.version + '.jar'
-    into  project(':jballerina-tools').projectDir.absolutePath +
+    into project(':jballerina-tools').projectDir.absolutePath +
             '/build/extracted-distributions/jballerina-tools-' + project.version +
             '/bre/lib';
 }

@@ -19,17 +19,17 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 dependencies {
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    balaImplementation project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
 
-    baloCreat project(':lib-creator')
+
+    balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-java')
+
 }
 
-createBalo {
+createBala {
     jvmTarget = 'true'
 }
 

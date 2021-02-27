@@ -18,14 +18,15 @@
 
 package org.ballerinalang.test.types.decimaltype;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BDecimal;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -80,5 +81,10 @@ public class BDecimalBFloatComparisonTest {
         BBoolean result2 = (BBoolean) returns[1];
         // Expected: true
         Assert.assertTrue(result2.booleanValue(), "Invalid result returned.");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -15,16 +15,15 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.QueryPipelineNode;
+import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -32,7 +31,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPipelineNode> {
 
     public QueryPipelineNodeContext() {
@@ -40,7 +39,9 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, QueryPipelineNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, QueryPipelineNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         if (node.fromClause().isMissing() || node.fromClause().fromKeyword().isMissing()) {
             /*
             Covers the following
@@ -48,10 +49,11 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
             (2) var test = stream f<cursor>
             This particular section hits when there is at least one statement below (1) and (2)
              */
-            return Arrays.asList(new SnippetCompletionItem(context, Snippet.KW_FROM.get()),
-                    new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
         }
+        this.sort(context, node, completionItems);
 
-        return new ArrayList<>();
+        return completionItems;
     }
 }

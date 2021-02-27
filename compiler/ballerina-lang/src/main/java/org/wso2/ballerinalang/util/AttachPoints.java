@@ -31,8 +31,8 @@ public class AttachPoints {
     public static final int OBJECT = TYPE << 1;
     public static final int FUNCTION = OBJECT << 1;
     public static final int OBJECT_METHOD = FUNCTION << 1;
-    public static final int RESOURCE = OBJECT_METHOD << 1;
-    public static final int PARAMETER = RESOURCE << 1;
+    public static final int SERVICE_REMOTE = OBJECT_METHOD << 1;
+    public static final int PARAMETER = SERVICE_REMOTE << 1;
     public static final int RETURN = PARAMETER << 1;
     public static final int SERVICE = RETURN << 1;
     public static final int FIELD = SERVICE << 1;
@@ -62,8 +62,8 @@ public class AttachPoints {
                 case OBJECT_METHOD:
                     mask |= OBJECT_METHOD;
                     break;
-                case RESOURCE:
-                    mask |= RESOURCE;
+                case SERVICE_REMOTE:
+                    mask |= SERVICE_REMOTE;
                     break;
                 case PARAMETER:
                     mask |= PARAMETER;

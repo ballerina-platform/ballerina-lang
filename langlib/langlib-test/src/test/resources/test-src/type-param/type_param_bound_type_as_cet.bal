@@ -172,15 +172,28 @@ function assertTrue(any|error actual) {
         return;
     }
 
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'true', found '" + actual.toString () + "'");
-}
-
-function assertValueEquality(anydata|error expected, anydata|error actual) {
-    if expected == actual {
-        return;
+    string actualValAsString = "";
+    if (actual is error) {
+        actualValAsString = actual.toString();
+    } else {
+        actualValAsString = actual.toString();
     }
 
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected 'true', found '" + actualValAsString + "'");
+}
+
+function assertValueEquality(anydata|error expected, anydata|error actual) {
+    if isEqual(expected, actual) {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {
+    return val1 is anydata && val2 is anydata && val1 == val2 || val1 === val2;
 }

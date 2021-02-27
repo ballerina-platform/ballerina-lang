@@ -15,15 +15,14 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,7 +30,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class VariableDeclarationNodeContext extends VariableDeclarationProvider<VariableDeclarationNode> {
 
     public VariableDeclarationNodeContext() {
@@ -39,21 +38,25 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, VariableDeclarationNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, VariableDeclarationNode node)
             throws LSCompletionException {
-        if (!node.initializer().isPresent()) {
-            return new ArrayList<>();
+        if (node.initializer().isEmpty()) {
+            return Collections.emptyList();
         }
 
-        return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
+        List<LSCompletionItem> completionItems
+                = this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
+        this.sort(context, node, completionItems);
+        
+        return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, VariableDeclarationNode node) {
-        if (!node.equalsToken().isPresent()) {
+    public boolean onPreValidation(BallerinaCompletionContext context, VariableDeclarationNode node) {
+        if (node.equalsToken().isEmpty()) {
             return false;
         }
-        Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int textPosition = context.getCursorPositionInTree();
         TextRange equalTokenRange = node.equalsToken().get().textRange();
         return equalTokenRange.endOffset() <= textPosition;
     }

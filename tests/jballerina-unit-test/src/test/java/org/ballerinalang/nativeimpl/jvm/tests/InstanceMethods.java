@@ -17,9 +17,13 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.values.BmpStringValue;
-import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.values.BmpStringValue;
+import io.ballerina.runtime.internal.values.HandleValue;
+import io.ballerina.runtime.internal.values.ObjectValue;
 
 /**
  * This class contains a set of utility instance methods required for interoperability testing.
@@ -172,4 +176,21 @@ public class InstanceMethods {
     public int getRandomInt() {
         return 123;
     }
+
+    public BString getCurrentModule(Environment env, long b) {
+        Module callerModule = env.getCurrentModule();
+        return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
+                                              callerModule.getVersion() + "#" + b);
+    }
+
+    public BString getCurrentModuleAndOverloadParams(Environment env, long b) {
+        Module callerModule = env.getCurrentModule();
+        return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
+                                              callerModule.getVersion() + "#" + b * 2);
+    }
+
+    public BString getCurrentModuleAndOverloadParams(Environment env, InstanceMethods instanceMethods, long b) {
+        return instanceMethods.getCurrentModule(env, b * 4);
+    }
+
 }

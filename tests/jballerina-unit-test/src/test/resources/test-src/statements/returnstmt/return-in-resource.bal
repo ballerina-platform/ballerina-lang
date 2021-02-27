@@ -14,20 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-service helloWorld = service {
-    resource function sayHelloWithString(string x) returns error? {
+service object {} helloWorld = service object {
+    resource function get sayHelloWithString(string x) returns error? {
         return error("dummy err");
     }
 
-    resource function sayHelloWithInt(int x) returns error? {
+    resource function get sayHelloWithInt(int x) returns error? {
         return;
     }
 
-    resource function sayHelloWithNil1(string x) {
+    resource function get sayHelloWithNil1(string x) {
         return;
     }
 
-    resource function sayHelloWithNil2(string x) returns () {
+    resource function get sayHelloWithNil2(string x) returns () {
         return;
     }
 };

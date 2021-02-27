@@ -15,94 +15,216 @@
  */
 package org.ballerinalang.langserver.hover;
 
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.Documentable;
+import io.ballerina.compiler.api.symbols.Documentation;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.projects.Document;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
-import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.MarkdownDocAttachment;
-import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.langserver.commons.HoverContext;
 import org.eclipse.lsp4j.Hover;
-import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.util.Flags;
+import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for Hover functionality of language server.
  */
 public class HoverUtil {
+
     /**
-     * Get Hover from documentation attachment.
+     * Get the hover content.
      *
-     * @param docAttachment Documentation attachment
-     * @param symbol        hovered symbol
-     * @param ctx           LS Context
-     * @return {@link Hover}    hover object.
+     * @param context Hover operation context
+     * @return {@link Hover} Hover content
      */
-    public static Hover getHoverFromDocAttachment(MarkdownDocAttachment docAttachment, BSymbol symbol, LSContext ctx) {
+    public static Hover getHover(HoverContext context) {
+        Optional<Document> srcFile = context.currentDocument();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty() || srcFile.isEmpty()) {
+            return HoverUtil.getDefaultHoverObject();
+        }
+
+        Position cursorPosition = context.getCursorPosition();
+        LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
+        Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(), linePosition);
+        if (symbolAtCursor.isEmpty()) {
+            return HoverUtil.getDefaultHoverObject();
+        }
+
+        switch (symbolAtCursor.get().kind()) {
+            case FUNCTION:
+                return getFunctionHoverMarkupContent((FunctionSymbol) symbolAtCursor.get(), context);
+            case METHOD:
+                return getFunctionHoverMarkupContent((MethodSymbol) symbolAtCursor.get(), context);
+            case TYPE_DEFINITION:
+                return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) symbolAtCursor.get(), context);
+            case CLASS:
+                return getClassHoverMarkupContent((ClassSymbol) symbolAtCursor.get(), context);
+            case CONSTANT:
+            case ANNOTATION:
+            case ENUM:
+            case VARIABLE:
+                return getDescriptionOnlyHoverObject(symbolAtCursor.get());
+            case TYPE:
+                if (((TypeSymbol) symbolAtCursor.get()).typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                    return getTypeRefHoverMarkupContent((TypeReferenceTypeSymbol) symbolAtCursor.get(),
+                            semanticModel.get(), srcFile.get(), context);
+                }
+                return getDefaultHoverObject();
+            default:
+                return HoverUtil.getDefaultHoverObject();
+        }
+    }
+
+    private static Hover getObjectHoverMarkupContent(Documentation documentation, ObjectTypeSymbol classSymbol,
+                                                     HoverContext context) {
+        List<String> hoverContent = new ArrayList<>();
+        if (documentation.description().isPresent()) {
+            hoverContent.add(documentation.description().get());
+        }
+
+        Map<String, String> paramsMap = documentation.parameterMap();
+        if (!paramsMap.isEmpty()) {
+            List<String> params = new ArrayList<>();
+            params.add(header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
+
+            params.addAll(classSymbol.fieldDescriptors().entrySet().stream()
+                    .map(fieldEntry -> {
+                        String desc = paramsMap.get(fieldEntry.getKey());
+                        String modifiedTypeName =
+                                CommonUtil.getModifiedTypeName(context, fieldEntry.getValue().typeDescriptor());
+                        return quotedString(modifiedTypeName) + " " + italicString(boldString(fieldEntry.getKey()))
+                                + " : " + desc;
+                    }).collect(Collectors.toList()));
+
+            hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
+        }
+
+        List<String> methods = new ArrayList<>();
+        classSymbol.methods().forEach((name, method) -> {
+            StringBuilder methodInfo = new StringBuilder();
+            Optional<Documentation> methodDoc = method.documentation();
+            methodInfo.append(quotedString(CommonUtil.getModifiedTypeName(context, method.typeDescriptor())));
+            if (methodDoc.isPresent() && methodDoc.get().description().isPresent()) {
+                methodInfo.append(CommonUtil.MD_LINE_SEPARATOR).append(methodDoc.get().description().get());
+            }
+            methods.add(bulletItem(methodInfo.toString()));
+        });
+
+        if (!methods.isEmpty()) {
+            methods.add(0, header(3, ContextConstants.METHOD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
+            hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, methods));
+        }
+
+        Hover hover = new Hover();
         MarkupContent hoverMarkupContent = new MarkupContent();
-        if (docAttachment == null) {
-            Hover hover = new Hover();
-            List<Either<String, MarkedString>> contents = new ArrayList<>();
-            contents.add(Either.forLeft(""));
-            hover.setContents(contents);
-            return hover;
-        }
         hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
-        StringBuilder content = new StringBuilder();
-        Map<String, List<MarkdownDocAttachment.Parameter>> filterAttributes =
-                filterDocumentationAttributes(docAttachment, symbol);
+        hoverMarkupContent.setValue(hoverContent.stream().collect(Collectors.joining(getHorizontalSeparator())));
+        hover.setContents(hoverMarkupContent);
 
-        if (docAttachment.description != null && !docAttachment.description.isEmpty()) {
-            String description =
-                    CommonUtil.MD_LINE_SEPARATOR + docAttachment.description.trim() + CommonUtil.MD_LINE_SEPARATOR;
-            content.append(getFormattedHoverDocContent(ContextConstants.DESCRIPTION, description));
+        return hover;
+    }
+
+    private static Hover getTypeDefHoverMarkupContent(TypeDefinitionSymbol symbol, HoverContext context) {
+        TypeSymbol rawType = CommonUtil.getRawType(symbol.typeDescriptor());
+        Optional<Documentation> documentation = symbol.documentation();
+
+        if (documentation.isEmpty()) {
+            return getDefaultHoverObject();
         }
 
-        if (filterAttributes.get(ContextConstants.DOC_PARAM) != null) {
-            String docAttributes = getDocAttributes(filterAttributes.get(ContextConstants.DOC_PARAM), symbol, ctx);
-            if (!docAttributes.isEmpty()) {
-                content.append(getFormattedHoverDocContent(ContextConstants.PARAM_TITLE, docAttributes));
-            }
+        if (rawType.typeKind() == TypeDescKind.RECORD) {
+            return getRecordTypeHoverContent(documentation.get(), (RecordTypeSymbol) rawType, context);
+        }
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+            return getObjectHoverMarkupContent(documentation.get(), (ObjectTypeSymbol) rawType, context);
         }
 
-        if (filterAttributes.get(ContextConstants.DOC_FIELD) != null) {
-            String docAttributes = getDocAttributes(filterAttributes.get(ContextConstants.DOC_FIELD), symbol, ctx);
-            if (!docAttributes.isEmpty()) {
-                content.append(getFormattedHoverDocContent(ContextConstants.FIELD_TITLE, docAttributes));
-            }
+        return getDescriptionOnlyHoverObject(documentation.get());
+    }
+
+    private static Hover getClassHoverMarkupContent(ClassSymbol symbol, HoverContext context) {
+        Optional<Documentation> documentation = symbol.documentation();
+
+        if (documentation.isEmpty()) {
+            return getDefaultHoverObject();
         }
 
-        if (docAttachment.returnValueDescription != null && !docAttachment.returnValueDescription.isEmpty()) {
-            String returnType = "";
-            if (symbol instanceof BInvokableSymbol) {
-                // Get type information
-                BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
-                returnType = " `" + CommonUtil.getBTypeName(invokableSymbol.retType, ctx, false) + "`";
-            }
-            content.append(getFormattedHoverDocContent(ContextConstants.RETURN_TITLE, returnType,
-                    getReturnValueDescription(
-                            docAttachment.returnValueDescription)));
+        return getObjectHoverMarkupContent(documentation.get(), symbol, context);
+    }
+
+    private static Hover getRecordTypeHoverContent(Documentation documentation,
+                                                   RecordTypeSymbol recordType,
+                                                   HoverContext ctx) {
+        List<String> hoverContent = new ArrayList<>();
+        if (documentation.description().isPresent()) {
+            hoverContent.add(documentation.description().get());
         }
 
-        hoverMarkupContent.setValue(content.toString());
+        Map<String, String> paramsMap = documentation.parameterMap();
+        if (!paramsMap.isEmpty()) {
+            List<String> params = new ArrayList<>();
+            params.add(header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
 
-        return new Hover(hoverMarkupContent);
+            params.addAll(recordType.fieldDescriptors().entrySet().stream()
+                    .map(fieldEntry -> {
+                        String desc = paramsMap.get(fieldEntry.getKey());
+                        String typeName = CommonUtil.getModifiedTypeName(ctx, fieldEntry.getValue().typeDescriptor());
+                        return quotedString(typeName) + " " + italicString(boldString(fieldEntry.getKey()))
+                                + " : " + desc;
+                    }).collect(Collectors.toList()));
+            Optional<TypeSymbol> restTypeDesc = recordType.restTypeDescriptor();
+            restTypeDesc.ifPresent(typeSymbol ->
+                    params.add(quotedString(CommonUtil.getModifiedTypeName(ctx, typeSymbol) + "...")));
+            hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
+        }
+
+        Hover hover = new Hover();
+        MarkupContent hoverMarkupContent = new MarkupContent();
+        hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
+        hoverMarkupContent.setValue(hoverContent.stream().collect(Collectors.joining(getHorizontalSeparator())));
+        hover.setContents(hoverMarkupContent);
+
+        return hover;
+    }
+
+    private static Hover getTypeRefHoverMarkupContent(TypeReferenceTypeSymbol typeSymbol, SemanticModel model,
+                                                      Document srcFile, HoverContext context) {
+        Optional<Symbol> associatedDef = model.symbol(srcFile, typeSymbol.getLocation().get().lineRange().startLine());
+
+        if (associatedDef.isEmpty()) {
+            return getDefaultHoverObject();
+        }
+
+        switch (associatedDef.get().kind()) {
+            case TYPE_DEFINITION:
+                return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) associatedDef.get(), context);
+            case ENUM:
+                return getDescriptionOnlyHoverObject(associatedDef.get());
+            case CLASS:
+                return getClassHoverMarkupContent((ClassSymbol) associatedDef.get(), context);
+        }
+
+        return getDefaultHoverObject();
     }
 
     /**
@@ -121,164 +243,121 @@ public class HoverUtil {
     }
 
     /**
-     * Get the markdown doc attachment for the symbol.
-     * For the variable symbol direct markdown content is empty, hence consider the type symbol.
+     * Get the description only hover object.
      *
-     * @param bSymbol BSymbol to evaluate
-     * @return {@link MarkdownDocAttachment} Doc Attachment
+     * @return {@link Hover}
      */
-    public static MarkdownDocAttachment getMarkdownDocForSymbol(BSymbol bSymbol) {
-        SymbolKind symbolKind = bSymbol.kind == null ? bSymbol.type.tsymbol.kind : bSymbol.kind;
-        if (symbolKind == null) {
-            return bSymbol.markdownDocumentation;
+    private static Hover getDescriptionOnlyHoverObject(Documentation documentation) {
+        String description = "";
+        if (documentation.description().isPresent()) {
+            description = documentation.description().get();
         }
-        MarkdownDocAttachment markdownDocAttachment = null;
+        Hover hover = new Hover();
+        MarkupContent hoverMarkupContent = new MarkupContent();
+        hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
+        hoverMarkupContent.setValue(description);
+        hover.setContents(hoverMarkupContent);
 
-        switch (symbolKind) {
-            case RECORD:
-            case OBJECT:
-                markdownDocAttachment = bSymbol.type.tsymbol.markdownDocumentation;
-                break;
-            case ANNOTATION:
-                markdownDocAttachment = ((BAnnotationSymbol) bSymbol.type.tsymbol).attachedType.markdownDocumentation;
-                break;
-            case FUNCTION:
-                markdownDocAttachment = bSymbol.markdownDocumentation;
-                break;
-            default:
-                break;
-        }
-
-        return markdownDocAttachment;
+        return hover;
     }
 
     /**
-     * Filter documentation attributes to each tags.
+     * Get the description only hover object.
      *
-     * @param docAttachment documentation node
-     * @return {@link Map}      filtered content map
+     * @return {@link Hover}
      */
-    private static Map<String, List<MarkdownDocAttachment.Parameter>> filterDocumentationAttributes(
-            MarkdownDocAttachment docAttachment, BSymbol symbol) {
-        Map<String, List<MarkdownDocAttachment.Parameter>> filteredAttributes = new HashMap<>();
-        String paramType = "";
-        SymbolKind symbolKind = symbol.kind == null ? symbol.type.tsymbol.kind : symbol.kind;
-        if (symbolKind == null) {
-            return filteredAttributes;
-        }
-        switch (symbolKind) {
-            case FUNCTION:
-                paramType = ContextConstants.DOC_PARAM;
-                break;
-            case OBJECT:
-            case RECORD:
-            case TYPE_DEF:
-            case ANNOTATION:
-                paramType = ContextConstants.DOC_FIELD;
-                break;
-            default:
-                break;
+    public static Hover getDescriptionOnlyHoverObject(Symbol symbol) {
+        if (!(symbol instanceof Documentable) || ((Documentable) symbol).documentation().isEmpty()) {
+            return getDefaultHoverObject();
         }
 
-        for (MarkdownDocAttachment.Parameter parameter : docAttachment.parameters) {
-            if (filteredAttributes.get(paramType) == null) {
-                filteredAttributes.put(paramType, new ArrayList<>());
-                filteredAttributes.get(paramType).add(parameter);
-            } else {
-                filteredAttributes.get(paramType).add(parameter);
-            }
-        }
-
-        return filteredAttributes;
+        return getDescriptionOnlyHoverObject(((Documentable) symbol).documentation().get());
     }
 
-    /**
-     * Get the doc annotation attributes.
-     *
-     * @param parameters parameters to be extracted
-     * @param symbol     symbol
-     * @param ctx        LS Context
-     * @return {@link String }  extracted content of annotation
-     */
-    private static String getDocAttributes(List<MarkdownDocAttachment.Parameter> parameters, BSymbol symbol,
-                                           LSContext ctx) {
-        Map<String, BSymbol> paramSymbols = new HashMap<>();
-        if (symbol instanceof BVarSymbol && !(symbol instanceof BInvokableSymbol)) {
-            symbol = ((BVarSymbol) symbol).type.tsymbol;
+//    private static boolean skipFirstParam(LSContext context, BInvokableSymbol invokableSymbol) {
+    // Fixme in the next phase
+//        NonTerminalNode evalNode = context.get(CompletionKeys.TOKEN_AT_CURSOR_KEY).parent();
+//        return CommonUtil.isLangLibSymbol(invokableSymbol) && evalNode.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
+//        return false;
+//    }
+
+    private static Hover getFunctionHoverMarkupContent(FunctionSymbol symbol, HoverContext ctx) {
+        Optional<Documentation> documentation = symbol.documentation();
+        if (documentation.isEmpty()) {
+            return getDefaultHoverObject();
         }
-        boolean skipFirstParam = false;
-        if (symbol instanceof BInvokableSymbol) {
-            // If it is a parameters set of a function invocation
-            BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
-            List<BVarSymbol> params = invokableSymbol.params;
-            skipFirstParam = skipFirstParam(ctx, invokableSymbol);
-            for (int i = 0; i < params.size(); i++) {
-                if (i == 0 && skipFirstParam) {
-                    continue;
+
+        List<String> hoverContent = new ArrayList<>();
+        if (documentation.get().description().isPresent()) {
+            hoverContent.add(documentation.get().description().get());
+        }
+        Map<String, String> paramsMap = documentation.get().parameterMap();
+        if (!paramsMap.isEmpty()) {
+            List<String> params = new ArrayList<>();
+            params.add(header(3, ContextConstants.PARAM_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
+
+            params.addAll(symbol.typeDescriptor().parameters().stream()
+                    .map(param -> {
+                        if (param.getName().isEmpty()) {
+                            return quotedString(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()));
+                        }
+                        String paramName = param.getName().get();
+                        String desc = paramsMap.get(paramName);
+                        return quotedString(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor())) + " "
+                                + italicString(boldString(paramName)) + " : " + desc;
+                    }).collect(Collectors.toList()));
+
+            Optional<ParameterSymbol> restParam = symbol.typeDescriptor().restParam();
+            if (restParam.isPresent()) {
+                String modifiedTypeName = CommonUtil.getModifiedTypeName(ctx, restParam.get().typeDescriptor());
+                StringBuilder restParamBuilder = new StringBuilder(quotedString(modifiedTypeName + "..."));
+                if (restParam.get().getName().isPresent()) {
+                    restParamBuilder.append(" ").append(italicString(boldString(restParam.get().getName().get())))
+                            .append(" : ").append(paramsMap.get(restParam.get().getName().get()));
                 }
-                BVarSymbol param = params.get(i);
-                paramSymbols.put(param.name.value, param);
+                params.add(restParamBuilder.toString());
             }
-        } else if (symbol instanceof BStructureTypeSymbol || symbol instanceof BAnnotationSymbol) {
-            Map<Name, Scope.ScopeEntry> entries;
-            if (symbol instanceof BStructureTypeSymbol) {
-                // If it is a field set of a object or a record
-                BStructureTypeSymbol objectTypeSymbol = (BStructureTypeSymbol) symbol;
-                entries = objectTypeSymbol.scope.entries;
-            } else {
-                entries = ((BAnnotationSymbol) symbol).attachedType.scope.entries;
-            }
-            entries.values()
-                    .stream()
-                    .filter(s -> s.symbol instanceof BVarSymbol && s.symbol.getFlags().contains(Flag.PUBLIC))
-                    .forEach(s -> paramSymbols.put(s.symbol.name.value, s.symbol));
+
+            hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
         }
-        StringBuilder value = new StringBuilder();
-        for (int i = 0; i < parameters.size(); i++) {
-            if (i == 0 && skipFirstParam) {
-                continue;
-            }
-            MarkdownDocAttachment.Parameter parameter = parameters.get(i);
-            boolean isOptional = false;
-            String type = "";
-            if (!paramSymbols.isEmpty() && paramSymbols.get(parameter.name) != null) {
-                isOptional = ((paramSymbols.get(parameter.name).flags & Flags.OPTIONAL) == Flags.OPTIONAL);
-                type = "`" + CommonUtil.getBTypeName(paramSymbols.get(parameter.name).type, ctx, false) + "` ";
-            }
-            value.append("- ")
-                    .append(type).append("**")
-                    .append(parameter.name.trim())
-                    .append(isOptional ? "?" : "")
-                    .append("**")
-                    .append(": ")
-                    .append(parameter.description.trim()).append(CommonUtil.MD_LINE_SEPARATOR);
+        if (documentation.get().returnDescription().isPresent()) {
+            String returnDoc = header(3, ContextConstants.RETURN_TITLE) + CommonUtil.MD_LINE_SEPARATOR +
+                    CommonUtil.getModifiedTypeName(ctx, symbol.typeDescriptor().returnTypeDescriptor().orElseThrow())
+                    + documentation.get().returnDescription().get();
+            hoverContent.add(returnDoc);
         }
-        return value.toString();
+
+        Hover hover = new Hover();
+        MarkupContent hoverMarkupContent = new MarkupContent();
+        hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
+        hoverMarkupContent.setValue(hoverContent.stream().collect(Collectors.joining(getHorizontalSeparator())));
+        hover.setContents(hoverMarkupContent);
+
+        return hover;
     }
 
-    private static String getReturnValueDescription(String returnVal) {
-        return "- " + CommonUtil.MD_NEW_LINE_PATTERN.matcher(returnVal).replaceAll(CommonUtil.MD_LINE_SEPARATOR) +
-                CommonUtil.MD_LINE_SEPARATOR;
+    private static String getHorizontalSeparator() {
+        return CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "---"
+                + CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR;
     }
 
-    /**
-     * get the formatted string with markdowns.
-     *
-     * @param header header.
-     * @return {@link String} formatted string using markdown.
-     */
-    private static String getFormattedHoverDocContent(String header, String content) {
-        return getFormattedHoverDocContent(header, "", content);
+    private static String quotedString(String value) {
+        return "`" + value.trim() + "`";
     }
 
-    private static String getFormattedHoverDocContent(String header, String subHeader, String content) {
-        return "**" + header + "**" + subHeader + CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_NEW_LINE_PATTERN.matcher(
-                content)
-                .replaceAll(CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
+    private static String boldString(String value) {
+        return "**" + value.trim() + "**";
     }
 
-    private static boolean skipFirstParam(LSContext context, BInvokableSymbol invokableSymbol) {
-        NonTerminalNode evalNode = context.get(CompletionKeys.TOKEN_AT_CURSOR_KEY).parent();
-        return CommonUtil.isLangLibSymbol(invokableSymbol) && evalNode.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
+    private static String italicString(String value) {
+        return "*" + value.trim() + "*";
+    }
+
+    private static String bulletItem(String value) {
+        return "+ " + value.trim() + CommonUtil.MD_LINE_SEPARATOR;
+    }
+
+    private static String header(int level, String header) {
+        return String.join("", Collections.nCopies(level, "#")) + " " + header;
     }
 }

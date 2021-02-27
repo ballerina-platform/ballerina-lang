@@ -1,0 +1,21 @@
+[
+  {
+    "description": "Imports int module.",
+    "code": "import ballerina/lang.'int;"
+  },
+  {
+    "description": "Define parsing function.",
+    "code": "function parse(string num) returns int|error { return 'int:fromString(num); }"
+  },
+  {
+    "description": "Check panic on a valid value.",
+    "code": "int y = checkpanic parse(\"120\"); y",
+    "expr": "120"
+  },
+  {
+    "description": "Check panic on an error.",
+    "code": "int z = checkpanic parse(\"Invalid\");",
+    "stdout": "Exception occurred: error(\"{ballerina/lang.int}NumberParsingError\",message=\"'string' value 'Invalid' cannot be converted to 'int'\")\n",
+    "error": "InvokerException"
+  }
+]

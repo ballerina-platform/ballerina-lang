@@ -1,0 +1,50 @@
+{
+    "packages": [
+        {
+            "org": "samjs",
+            "name": "package_a",
+            "version": "0.1.0",
+            "dependencies": [
+                {
+                    "org": "samjs",
+                    "name": "package_b",
+                    "version": "1.1.0"
+                },
+                {
+                    "org": "samjs",
+                    "name": "package_c",
+                    "version": "2.2.0"
+                },
+                {
+                    "org": "samjs",
+                    "name": "package_d",
+                    "version": "2.2.0"
+                }
+            ]
+        },
+        {
+            "org": "samjs",
+            "name": "package_b",
+            "version": "2.1.0",
+            "dependencies": [
+                {
+                    "org": "samjs",
+                    "name": "package_c",
+                    "version": "2.4.5"
+                }
+            ]
+        },
+        {
+            "org": "samjs",
+            "name": "package_d",
+            "version": "2.1.2",
+            "dependencies": [
+                {
+                    "org": "samjs",
+                    "name": "package_b",
+                    "version": "2.3.0"
+                }
+            ]
+        }
+    ]
+}

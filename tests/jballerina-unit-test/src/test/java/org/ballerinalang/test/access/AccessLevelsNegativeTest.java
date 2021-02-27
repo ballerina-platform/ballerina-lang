@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.access;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -73,7 +73,7 @@ public class AccessLevelsNegativeTest {
 
     @Test
     public void testPrivateTypeAccessNegative() {
-        CompileResult pkgB = BCompileUtil.compile(this, "test-src/access/pvtAccessTest", "B");
+        CompileResult pkgB = BCompileUtil.compile("test-src/access/pvtAccessTest");
         BAssertUtil.validateError(pkgB, 0, "attempt to refer to non-accessible symbol 'Bar'", 22, 2);
         BAssertUtil.validateError(pkgB, 1, "unknown type 'Bar'", 22, 2);
     }

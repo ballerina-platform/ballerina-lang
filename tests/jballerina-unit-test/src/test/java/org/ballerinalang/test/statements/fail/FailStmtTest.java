@@ -18,16 +18,17 @@
 
 package org.ballerinalang.test.statements.fail;
 
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * This contains methods to test fail statement.
@@ -62,5 +63,10 @@ public class FailStmtTest {
         validateError(negativeResult, index++,
                 "type 'err' not allowed here; expected an 'error' or a subtype of 'error'.",
                 5, 10);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

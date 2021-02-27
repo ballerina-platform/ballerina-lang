@@ -19,7 +19,7 @@ import ballerina/test;
 // Tests the behaviour when a non-exesting function is provided as the before function
 
 @test:Config {
-    before:"beforeFunc-nonExist"
+    before: beforeFuncNonExist
 }
 public function beforeFuncNegative() {
 }

@@ -144,14 +144,14 @@ public client class '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Connector {
 
     }
 
-    public remote function action1() returns string {
+    remote function action1() returns string {
         string 'sample_String_1 = "this ";
         string '\ \/\:\@\[\`\{\~\u{2324}_var = "is ";
         string 'üňĩćőđę_var = "action 1";
         return 'sample_String_1 + '\ \/\:\@\[\`\{\~\u{2324}_var + 'üňĩćőđę_var;
     }
 
-    public remote function '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Action() returns string {
+    remote function '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Action() returns string {
         string 'sample_String_2 = "this ";
         string '\ \/\:\@\[\`\{\~\u{2324}_var2 = "is ";
         string 'üňĩćőđę_var2 = "action 2";
@@ -283,6 +283,29 @@ function testImmutableTypeIL() {
     assertEquality(1234, obj.id);
 }
 
+type '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Employee record {|
+    readonly int 'έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324};
+    string 'first\.name;
+|};
+
+type EmployeeTable table<'\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Employee> key('έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324});
+
+function testILInTableType() {
+     EmployeeTable empTable = table [
+        {'έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324}: 1, 'first\.name: "Mary"},
+        {'έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324}: 2, 'first\.name: "James"},
+        {'έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324}: 3, 'first\.name: "Jim"}
+     ];
+     assertEquality(3 ,empTable.length());
+
+     '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Employee result = {'έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324}: 2, 'first\.name: "James"};
+     assertEquality(result ,empTable.get(2));
+
+     '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Employee jack = {'έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324}: 4, 'first\.name: "Jack"};
+     empTable.add(jack);
+     assertEquality(4 ,empTable.length());
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
@@ -294,6 +317,9 @@ function assertEquality(any|error expected, any|error actual) {
     if expected === actual {
         return;
     }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

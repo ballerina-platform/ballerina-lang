@@ -16,10 +16,11 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -28,7 +29,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-@Test(groups = { "disableOnOldParser" })
 public class WaitActionsNegativeTest {
 
     private CompileResult resultNegative;
@@ -88,5 +88,10 @@ public class WaitActionsNegativeTest {
                 "incompatible types: expected 'future<int>', found 'future<string>'", 89, 55);
         BAssertUtil.validateError(resultNegative, index,
                 "incompatible types: expected 'future<string>', found 'future<int>'", 90, 54);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        resultNegative = null;
     }
 }

@@ -24,7 +24,13 @@
                           "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
@@ -224,7 +230,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ]
                     }
@@ -259,7 +265,13 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "  "
+                                          "value": "    "
+                                        }
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
                                         }
                                       ]
                                     },
@@ -296,7 +308,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ]
                     }
@@ -328,7 +340,7 @@
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "  "
+                                      "value": "    "
                                     }
                                   ]
                                 },
@@ -359,7 +371,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -482,7 +494,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -530,7 +542,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -586,7 +598,7 @@
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "  "
+                                      "value": "    "
                                     }
                                   ]
                                 },
@@ -617,7 +629,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -664,7 +676,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ]
                     }
@@ -688,7 +700,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -755,7 +767,13 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "  "
+                                          "value": "    "
+                                        }
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
                                         }
                                       ]
                                     },
@@ -791,7 +809,7 @@
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "  "
+                                      "value": "    "
                                     }
                                   ]
                                 },
@@ -822,7 +840,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -869,7 +887,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [

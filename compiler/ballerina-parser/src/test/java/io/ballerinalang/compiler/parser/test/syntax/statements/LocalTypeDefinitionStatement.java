@@ -28,7 +28,7 @@ public class LocalTypeDefinitionStatement extends AbstractStatementTest {
     // declare a local type def
 
     @Test
-    public void testLocalTypedef() {
+    public void testLocalTypeDef() {
         testFile("local-type-defn-stmt/local_type_defn_stmt_source_01.bal",
         "local-type-defn-stmt/local_type_defn_stmt_assert_01.json");
     }

@@ -18,30 +18,23 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BIterator;
 
 /**
  * Native implementation of lang.array:iterator(Type[]).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "iterator",
-        args = {@Argument(name = "m", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "iterator",
+//        args = {@Argument(name = "m", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.OBJECT)},
+//        isPublic = true
+//)
 public class GetIterator {
 
-    public static IteratorValue iterator(Strand strand, ArrayValue arr) {
+    public static BIterator iterator(BArray arr) {
         return arr.getIterator();
     }
 }

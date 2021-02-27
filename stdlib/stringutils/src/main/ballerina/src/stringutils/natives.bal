@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 import ballerina/io;
 
 # Checks whether the given string contains a particular substring.
@@ -242,6 +242,6 @@ function toBooleanExternal(handle stringValue) returns boolean = @java:Method {
 } external;
 
 function getBallerinaStringArray(handle h) returns string[] = @java:Constructor {
-    'class:"org/ballerinalang/jvm/values/ArrayValueImpl",
+    'class:"io/ballerina/runtime/internal/values/ArrayValueImpl",
     paramTypes:["[Ljava.lang.String;"]
 } external;

@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.MethodDeclarationNode;
+import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -32,14 +32,14 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class MethodDeclarationNodeContext extends AbstractCompletionProvider<MethodDeclarationNode> {
     public MethodDeclarationNodeContext() {
         super(MethodDeclarationNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, MethodDeclarationNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, MethodDeclarationNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -47,6 +47,8 @@ public class MethodDeclarationNodeContext extends AbstractCompletionProvider<Met
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
         }
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 }

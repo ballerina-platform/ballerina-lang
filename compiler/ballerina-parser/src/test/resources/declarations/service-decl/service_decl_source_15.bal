@@ -1,11 +1,22 @@
 service Foo on bar {
-    resource transactional function () {
+
+    // Test duplicate qualifiers
+
+    public transactional isolated transactional function foo() {
+
     }
 
-    ffdh transactional  5383 resource function start() {
+    isolated isolated resource function get x/y/z() {
+
     }
 
-    transactional remote function () {
+    // Test visibility qualifier with remote and resource
+
+    public remote function foo() {
+
     }
 
+    public resource function get x/y/z() {
+
+    }
 }

@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.lexer;
 
-import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import io.ballerina.compiler.internal.parser.tree.STToken;
 import org.testng.annotations.Test;
 
 /**

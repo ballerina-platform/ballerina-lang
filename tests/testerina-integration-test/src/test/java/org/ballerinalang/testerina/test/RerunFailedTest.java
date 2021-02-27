@@ -20,9 +20,15 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.ballerinalang.testerina.test.utils.FileUtils;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.HashMap;
 
 /**
  * Test class containting tests related to Rerun failed test functionality.
@@ -35,45 +41,39 @@ public class RerunFailedTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = rerunFailedProjectPath.toString();
+        projectPath = projectBasedTestsPath.toString();
     }
 
     @Test
     public void testFullTest() throws BallerinaTestException {
         String msg1 = "2 passing";
         String msg2 = "2 failing";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-
-        balClient.runMain("test", new String[]{"module_1"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"rerun-failed-tests"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            AssertionUtils.assertForTestFailures(output, "running test suite with failed tests failure");
+        }
     }
 
     @Test (dependsOnMethods = "testFullTest")
     public void testRerunFailedTest() throws BallerinaTestException {
         String msg1 = "0 passing";
         String msg2 = "2 failing";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-
-        balClient.runMain("test", new String[]{"--rerun-failed", "module_1"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
+        String[] args = mergeCoverageArgs(new String[]{"--rerun-failed", "rerun-failed-tests"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            AssertionUtils.assertForTestFailures(output, "rerun failed tests failure");
+        }
     }
 
-    @Test
-    public void testRerunWithNoFailedTests() throws BallerinaTestException {
-        String msg1 = "No failed test/s found in cache";
-        LogLeecher clientLeecher = new LogLeecher(msg1);
-
-        balClient.runMain("test", new String[]{"--rerun-failed", "module_2"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-
-        clientLeecher.waitForText(20000);
+    @AfterMethod
+    public void copyExec() {
+        try {
+            FileUtils.copyBallerinaExec(Paths.get(projectPath), String.valueOf(System.currentTimeMillis()));
+        } catch (IOException e) {
+            // ignore exception
+        }
     }
 }

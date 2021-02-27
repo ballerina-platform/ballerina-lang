@@ -1,3 +1,4 @@
-[project]
-org-name = "ballerina-test"
+[package]
+org = "test_org"
+name = "typecast"
 version = "0.0.0"

@@ -18,22 +18,20 @@
 
 package org.ballerinalang.langlib.test;
 
-
-import org.ballerinalang.model.util.XMLNodeType;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLSequence;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.util.XMLNodeType;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BXML;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -71,6 +69,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXMLIteratorInvocation() {
+        BRunUtil.invoke(compileResult, "testXMLIteratorInvocation");
+    }
+
+    @Test
     public void testFromXml() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFromString");
         assertEquals(returns[0].stringValue(),
@@ -92,6 +95,11 @@ public class LangLibXMLTest {
         assertEquals(returns[0].stringValue(),
                 "<hello>xml content</hello><TITLE>Empire Burlesque</TITLE><TITLE>Hide your heart</TITLE>" +
                         "<TITLE>Greatest Hits</TITLE>hello from String");
+    }
+
+    @Test
+    public void testConcatWithXMLSequence() {
+        BRunUtil.invoke(compileResult, "testConcatWithXMLSequence");
     }
 
     @Test
@@ -188,9 +196,13 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testCreateText() {
+        BRunUtil.invoke(compileResult, "testCreateText");
+    }
+
+    @Test
     public void testForEach() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
-        assertEquals((returns[0]).size(), 3);
+        BRunUtil.invoke(compileResult, "testForEach");
     }
 
     @Test
@@ -233,11 +245,11 @@ public class LangLibXMLTest {
     public void testAsyncFpArgsWithXmls() {
         BValue[] results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithXmls");
         assertTrue(results[0] instanceof BInteger);
-        assertTrue(results[1] instanceof BXMLSequence);
+        assertTrue(results[1] instanceof BXML);
         assertEquals(((BInteger) results[0]).intValue(), 6021);
-        BXMLSequence bxmlSequence = (BXMLSequence) results[1];
-        assertEquals(bxmlSequence.getItem(0).children().getItem(1).getTextValue().stringValue(), "Harry Potter");
-        assertEquals(bxmlSequence.getItem(1).children().getItem(1).getTextValue().stringValue(), "Learning XML");
+        BXML bxml = (BXML) results[1];
+        assertEquals(bxml.getItem(0).children().getItem(1).getTextValue().stringValue(), "Harry Potter");
+        assertEquals(bxml.getItem(1).children().getItem(1).getTextValue().stringValue(), "Learning XML");
     }
 
     public void testChildren() {
@@ -262,16 +274,6 @@ public class LangLibXMLTest {
     @Test
     public void testElementChildrenNS()  {
         BValue[] returns = BRunUtil.invoke(compileResult, "testElementChildrenNS");
-    }
-
-    @Test
-    public void testXMLFunctionalCtor() {
-        BRunUtil.invoke(compileResult, "testXMLFunctionalCtor");
-        BRunUtil.invoke(compileResult, "testXMLFunctionalConstructorWithAttributes");
-        BRunUtil.invoke(compileResult, "testXMLFunctionalConstructorWithAChild");
-        BRunUtil.invoke(compileResult, "testXMLCommentCtor");
-        BRunUtil.invoke(compileResult, "testXMLPICtor");
-        BRunUtil.invoke(compileResult, "testXMLTextCtor");
     }
 
     @Test

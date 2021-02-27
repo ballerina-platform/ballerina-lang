@@ -19,10 +19,10 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 dependencies {
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
-    baloCreat project(':lib-creator')
+    balaImplementation project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
+
+    balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-logging')
@@ -30,7 +30,7 @@ dependencies {
     testCompile 'org.testng:testng'
 }
 
-createBalo {
+createBala {
     jvmTarget = 'true'
 }
 

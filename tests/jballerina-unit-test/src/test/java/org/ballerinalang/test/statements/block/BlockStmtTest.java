@@ -16,13 +16,14 @@
  */
 package org.ballerinalang.test.statements.block;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -114,5 +115,12 @@ public class BlockStmtTest {
         //testUninitializedVariableAssignInBlock
         BAssertUtil.validateError(resultNegative, 12, "variable 'a' is not initialized", 136, 17);
         BAssertUtil.validateError(resultNegative, 13, "variable 'a' is not initialized", 143, 9);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
+        resultSemanticsNegative = null;
     }
 }

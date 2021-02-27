@@ -18,7 +18,7 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
-import org.ballerinalang.jvm.launch.LaunchUtils;
+import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
@@ -41,16 +41,26 @@ import java.util.Arrays;
  */
 public class Main {
     public static void main(String[] args) throws IOException {
-        Path jsonCachePath = Paths.get(args[0], TesterinaConstants.TESTERINA_TEST_SUITE);
+        Path jsonCachePath = Paths.get(args[0]).resolve(TesterinaConstants.TESTERINA_TEST_SUITE);
         Path jsonTmpSummaryPath = Paths.get(args[0], TesterinaConstants.STATUS_FILE);
         String[] configArgs = Arrays.copyOfRange(args, 1, args.length);
         LaunchUtils.initConfigurations(configArgs);
+
         try (BufferedReader br = Files.newBufferedReader(jsonCachePath, StandardCharsets.UTF_8)) {
             //convert the json string back to object
             Gson gson = new Gson();
             TestSuite response = gson.fromJson(br, TestSuite.class);
+            response.setModuleName(filterModuleName(args[args.length - 1]));
             startTestSuit(Paths.get(response.getSourceRootPath()), response, jsonTmpSummaryPath);
         }
+    }
+
+    private static String filterModuleName(String argument) {
+        //The module argument is always wrapped with a `\"` at start and end
+        if (argument.startsWith("\"") && argument.endsWith("\"") && argument.length() >= 2) {
+            return argument.substring(1, argument.length() - 1);
+        }
+        return argument;
     }
 
     private static void startTestSuit(Path sourceRootPath, TestSuite testSuite, Path jsonTmpSummaryPath)
@@ -70,6 +80,9 @@ public class Main {
 
     private static void writeStatusToJsonFile(ModuleStatus moduleStatus, Path tmpJsonPath) throws IOException {
         File jsonFile = new File(tmpJsonPath.toString());
+        if (!Files.exists(tmpJsonPath.getParent())) {
+            Files.createDirectories(tmpJsonPath.getParent());
+        }
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
             Gson gson = new Gson();
             String json = gson.toJson(moduleStatus);

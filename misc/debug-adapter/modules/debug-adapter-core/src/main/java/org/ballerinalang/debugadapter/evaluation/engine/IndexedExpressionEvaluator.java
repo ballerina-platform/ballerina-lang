@@ -17,16 +17,17 @@
 package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.Value;
-import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.List;
@@ -86,7 +87,7 @@ public class IndexedExpressionEvaluator extends Evaluator {
                                 "String index out of range: index=" + index + ", size=" + strLength));
                     }
                     String substring = containerVar.getDapVariable().getValue().substring(index, index + 1);
-                    return EvaluationUtils.make(context, substring);
+                    return VMUtils.make(context, substring);
                 }
                 // Index access of lists
                 // If it is list, and index is < 0 or ≥ the length of the list, then the evaluation completes abruptly
@@ -99,14 +100,13 @@ public class IndexedExpressionEvaluator extends Evaluator {
                                         keyVar.getBType() + "'"));
                     }
                     int index = Integer.parseInt(keyVar.getDapVariable().getValue());
-                    int childSize = ((BCompoundVariable) containerVar).getChildVariables().size();
+                    int childSize = ((BCompoundVariable) containerVar).getChildrenCount();
                     // Validates for IndexOutOfRange errors.
                     if (index < 0 || index >= childSize) {
                         throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                                 "String index out of range: index=" + index + ", size=" + childSize));
                     }
-                    String indexAsKey = String.format("[%d]", index);
-                    Value child = ((BCompoundVariable) containerVar).getChildByName(indexAsKey);
+                    Value child = ((IndexedCompoundVariable) containerVar).getChildByIndex(index);
                     return new BExpressionValue(context, child);
                 }
                 // Index access of mappings (map, json)
@@ -125,7 +125,7 @@ public class IndexedExpressionEvaluator extends Evaluator {
                     }
                     String keyString = keyVar.getDapVariable().getValue();
                     try {
-                        Value child = ((BCompoundVariable) containerVar).getChildByName(keyString);
+                        Value child = ((IndexedCompoundVariable) containerVar).getChildByName(keyString);
                         return new BExpressionValue(context, child);
                     } catch (DebugVariableException e) {
                         return new BExpressionValue(context, null);

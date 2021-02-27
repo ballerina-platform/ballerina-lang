@@ -17,16 +17,15 @@
  */
 package org.ballerinalang.test.expressions.checkedexpr;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
  * This class contains a set of negative test cases related to the checked operator.
  */
-@Test(groups = { "brokenOnNewParser" })
 public class CheckedExprNegativeTest {
 
     private static final String ERROR_MISMATCH_ERR_MSG = "invalid usage of the 'check' expression operator: no " +
@@ -55,7 +54,7 @@ public class CheckedExprNegativeTest {
         BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 11, 19);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testSemanticErrorsWithResources() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_within_resource_negative.bal");
@@ -70,5 +69,16 @@ public class CheckedExprNegativeTest {
         Assert.assertEquals(compile.getErrorCount(), 2);
         BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 24, 13);
         BAssertUtil.validateError(compile, 1, ERROR_MISMATCH_ERR_MSG, 45, 17);
+    }
+
+    @Test
+    public void testCheckedErrorsWithReadOnlyInUnionNegative() {
+        CompileResult compile = BCompileUtil.compile(
+                "test-src/expressions/checkedexpr/checked_expression_with_readonly_in_union_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(compile, index++, ERROR_MISMATCH_ERR_MSG, 23, 13);
+        BAssertUtil.validateError(compile, index++, ERROR_MISMATCH_ERR_MSG, 29, 13);
+        BAssertUtil.validateError(compile, index++, ERROR_MISMATCH_ERR_MSG, 37, 13);
+        Assert.assertEquals(compile.getErrorCount(), index);
     }
 }

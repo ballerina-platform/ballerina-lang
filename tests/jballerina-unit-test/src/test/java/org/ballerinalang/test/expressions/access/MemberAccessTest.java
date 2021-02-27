@@ -17,18 +17,18 @@
  */
 package org.ballerinalang.test.expressions.access;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Test cases for member access.
@@ -48,7 +48,6 @@ public class MemberAccessTest {
 
     @Test(groups = { "disableOnOldParser" })
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 53);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 34, 12);
@@ -118,6 +117,10 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 195, 14);
         validateError(negativeResult, i++, "undefined field 'age' in 'Employee'", 196, 14);
         validateError(negativeResult, i++, "missing key expr in member access expr", 201, 26);
+        validateError(negativeResult, i++, "invalid expression statement", 202, 5);
+        validateError(negativeResult, i++, "missing key expr in member access expr", 202, 14);
+        validateError(negativeResult, i++, "missing semicolon token", 203, 1);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test(dataProvider = "listMemberAccessFunctions")
@@ -212,7 +215,11 @@ public class MemberAccessTest {
             { "testRecordMemberAccessByLiteral" },
             { "testRecordMemberAccessByConstant" },
             { "testRecordMemberAccessByVariable" },
-            { "testRecordMemberAccessForNonExistingKey" }
+            { "testRecordMemberAccessForNonExistingKey" },
+            { "testRestFieldAccessOnNilableRecordUnion" },
+            { "testAccessOnNilableMapUnion" },
+            { "testAccessOnNilableRecordMapUnion" },
+            { "testNestedAccessOnNilableUnion" }
         };
     }
 
@@ -249,6 +256,21 @@ public class MemberAccessTest {
             { "testMemberAccessOnNillableRecord2" },
             { "testMemberAccessNilLiftingOnNillableRecord1" },
             { "testMemberAccessNilLiftingOnNillableRecord2" },
+        };
+    }
+
+    @Test(dataProvider = "optionalMappingMemberAccessFunctions2")
+    public void testOptionalMappingMemberAccess2(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "optionalMappingMemberAccessFunctions2")
+    public Object[][] optionalMappingMemberAccessFunctions2() {
+        return new Object[][] {
+                { "testUnavailableFinalAccessInNestedAccess" },
+                { "testAvailableFinalAccessInNestedAccess" },
+                { "testUnavailableIntermediateAccessInNestedAccess" },
+                { "testNilValuedFinalAccessInNestedAccess" }
         };
     }
 
@@ -317,5 +339,29 @@ public class MemberAccessTest {
     @Test
     public void testMemberAccessInUnionType() {
         BRunUtil.invoke(result, "testMemberAccessInUnionType");
+    }
+
+    @Test
+    public void testMemberAccessOnStructuralConstructs() {
+        BRunUtil.invoke(result, "testMemberAccessOnStructuralConstructs");
+    }
+
+    @Test
+    public void testMemberAccessOnStrings() {
+        BRunUtil.invoke(result, "testMemberAccessOnStrings");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
+                    + "index out of range: index: 5, size: 3\"\\}.*")
+    public void testInvalidMemberAccessOnStrings1() {
+        BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings1");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
+                    + "index out of range: index: 3, size: 1\"\\}.*")
+    public void testInvalidMemberAccessOnStrings2() {
+        BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings2");
     }
 }

@@ -17,29 +17,30 @@
  */
 package org.ballerinalang.test.types.string;
 
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.XmlItem;
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.util.JsonParser;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BXMLItem;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Test Native functions in ballerina.model.string.
@@ -206,7 +207,7 @@ public class StringTest {
 
     @Test
     public void testXmlValueOf() {
-        OMNode omNode = ((XMLItem) ((ArrayValue) XMLFactory.parse("<test>name</test>").value()).get(0)).value();
+        OMNode omNode = ((XmlItem) ((ArrayValue) XmlFactory.parse("<test>name</test>").value()).get(0)).value();
         BValue[] args = { new BXMLItem(omNode) };
         BValue[] returns = BRunUtil.invoke(result, "xmlValueOf", args);
         Assert.assertTrue(returns[0] instanceof BString);
@@ -237,5 +238,10 @@ public class StringTest {
         validateError(multilineLiterals, indx++, "missing double quote", 19, 11);
         validateError(multilineLiterals, indx++, "missing semicolon token", 20, 1);
         Assert.assertEquals(multilineLiterals.getErrorCount(), indx);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -18,33 +18,24 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.FLOAT_VERSION;
-
 /**
  * Native implementation of lang.float:max(float...).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", version = FLOAT_VERSION, functionName = "max",
-        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.float", functionName = "max",
+//        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
+//        isPublic = true
+//)
 public class Max {
 
-    public static double max(Strand strand, ArrayValue ns) {
+    public static double max(double[] ns) {
         double max = Double.NEGATIVE_INFINITY;
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            double current = ns.getFloat(i);
+            double current = ns[i];
             max = current >= max ? current : max;
         }
         return max;

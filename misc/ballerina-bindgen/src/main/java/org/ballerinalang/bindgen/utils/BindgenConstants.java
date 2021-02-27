@@ -27,8 +27,6 @@ public class BindgenConstants {
     private BindgenConstants() {
     }
 
-    public static final String BALLERINA_BINDINGS_DIR = "ballerina_bindings";
-    public static final String BINDINGS_DIR = "bindings";
     public static final String ACCESS_FIELD = "access";
     public static final String ACCESS_FIELD_INTEROP_TYPE = "@java:FieldGet";
     public static final String BAL_EXTENSION = ".bal";
@@ -42,17 +40,14 @@ public class BindgenConstants {
     public static final String MUTATE_FIELD_INTEROP_TYPE = "@java:FieldSet";
     public static final String DEFAULT_TEMPLATE_DIR = "/templates";
     public static final String USER_DIR = "user.dir";
-    public static final String UTILS_DIR = "utils";
     public static final String CONSTANTS_FILE_NAME = "Constants.bal";
-    public static final String DEPENDENCIES_DIR = "dependencies";
-    public static final String ERROR_TYPES_DIR = "error_types";
     public static final String ARRAY_BRACKETS = "[]";
+    public static final String MODULES_DIR = "modules";
     static final String TARGET_DIR = "target";
     static final String MVN_REPO = "platform-libs";
     static final String FILE_SEPARATOR = "file.separator";
     static final String MUSTACHE_FILE_EXTENSION = ".mustache";
     static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
-    static final String BALLERINA_TOML = "Ballerina.toml";
     static final String FLOAT = "float";
     static final String INT = "int";
     static final String BOOLEAN = "boolean";

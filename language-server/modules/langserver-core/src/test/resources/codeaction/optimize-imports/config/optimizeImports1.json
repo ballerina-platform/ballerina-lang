@@ -1,0 +1,45 @@
+{
+  "line": 14,
+  "character": 13,
+  "expected": [
+    {
+      "title": "Optimize all imports",
+      "kind": "quickfix",
+      "diagnostics": [],
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 15,
+                    "character": 24
+                  }
+                },
+                "newText": ""
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 0
+                  }
+                },
+                "newText": "import projectls.lsmod2;\nimport ballerina/xyz;\n"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

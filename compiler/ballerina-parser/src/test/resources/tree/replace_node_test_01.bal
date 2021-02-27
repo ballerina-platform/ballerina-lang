@@ -1,7 +1,7 @@
 import ballerina/io;
 
 function bar() returns int {
-    return a + b + d +( s * 6);
+    return a + b + d + (s * 6);
 }
 
 function bar1() returns int {
@@ -14,7 +14,7 @@ public function add() {
 }
 
 function foo() {
-    return a + b;//This is a comment
+    return a + b; //This is a comment
     int a = 5 + 10;
 }
 

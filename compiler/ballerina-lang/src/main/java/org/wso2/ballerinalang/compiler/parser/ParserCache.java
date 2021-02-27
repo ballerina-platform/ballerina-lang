@@ -88,6 +88,8 @@ class ParserCache {
 
         newCompUnit.hash = hash;
         newCompUnit.length = length;
+        newCompUnit.setPackageID(packageID);
+
         sourceEntryCache.put(entryName, newCompUnit);
     }
 

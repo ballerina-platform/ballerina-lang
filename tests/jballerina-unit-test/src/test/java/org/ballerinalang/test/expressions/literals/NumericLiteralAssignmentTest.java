@@ -18,12 +18,13 @@
 
 package org.ballerinalang.test.expressions.literals;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -146,5 +147,10 @@ public class NumericLiteralAssignmentTest {
     public void testFloatLiteralAsIntWithBuiltinUnion() {
         BValue[] returns = BRunUtil.invoke(result, "testFloatLiteralAsFloatWithBuiltinUnion");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

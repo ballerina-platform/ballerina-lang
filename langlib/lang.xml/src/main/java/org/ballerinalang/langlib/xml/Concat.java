@@ -17,60 +17,48 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
+import io.ballerina.runtime.internal.XmlFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Concatenate xml items into a new sequence. Empty xml sequence if empty.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "concat",
-        args = {@Argument(name = "arrayValue", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
 public class Concat {
 
-    public static XMLValue concat(Strand strand, ArrayValue arrayValue) {
-        List<BXML> backingArray = new ArrayList<>();
-        XMLValue lastItem = null;
-        for (int i = 0; i < arrayValue.size(); i++) {
-            Object refValue = arrayValue.getRefValue(i);
+    public static BXml concat(Object... arrayValue) {
+        List<BXml> backingArray = new ArrayList<>();
+        BXml lastItem = null;
+        for (int i = 0; i < arrayValue.length; i++) {
+            Object refValue = arrayValue[i];
             if (refValue instanceof BString) {
-                if (lastItem != null && lastItem.getNodeType() == XMLNodeType.TEXT) {
+                if (lastItem != null && lastItem.getNodeType() == XmlNodeType.TEXT) {
                     // If last added item is a string, then concat prev values with this values and replace prev value.
                     String concat = lastItem.getTextValue() + refValue;
-                    XMLValue xmlText = XMLFactory.createXMLText(concat);
+                    BXml xmlText = XmlFactory.createXMLText(concat);
                     backingArray.set(backingArray.size() - 1, xmlText);
                     lastItem = xmlText;
                     continue;
                 }
-                XMLValue xmlText = XMLFactory.createXMLText((BString) refValue);
+                BXml xmlText = XmlFactory.createXMLText((BString) refValue);
                 backingArray.add(xmlText);
                 lastItem = xmlText;
+            } else if (refValue instanceof BXmlSequence) {
+                backingArray.addAll(((BXmlSequence) refValue).getChildrenList());
+                lastItem = (BXml) refValue;
             } else {
-                backingArray.add((XMLValue) refValue);
-                lastItem = (XMLValue) refValue;
+                backingArray.add((BXml) refValue);
+                lastItem = (BXml) refValue;
             }
         }
-        return new XMLSequence(backingArray);
+        return ValueCreator.createXmlSequence(backingArray);
     }
 }

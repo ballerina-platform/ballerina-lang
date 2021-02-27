@@ -17,10 +17,11 @@
  */
 package org.ballerinalang.test.types.nullvalue;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -52,5 +53,11 @@ public class BNullValueTest {
     void testNullValueNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegative, 0, "'null' literal is only supported for 'json'", 20, 12);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        resultNegative = null;
+        resultSemanticsNegative = null;
     }
 }

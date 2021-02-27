@@ -17,32 +17,18 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.observability.metrics.Counter;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.metrics.Counter;
 
 /**
  * This is the getValue function native implementation of the Counter object.
  *
  * @since 0.980.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "getValue",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.COUNTER,
-                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
-        returnType = @ReturnType(type = TypeKind.INT),
-        isPublic = true
-)
 
 public class CounterGetValue {
 
-    public static long getValue(Strand strand, ObjectValue counterObj) {
+    public static long getValue(BObject counterObj) {
         Counter counter = (Counter) counterObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         return counter.getValue();
     }

@@ -83,25 +83,29 @@ function testLikeModuleQualifiedVarNameAsJsonField() {
 }
 
 annotation Foo foo on service;
+annotation param on parameter;
 
-service serv1 =
+service object {} serv1 =
 @foo {
     s,
     i
 }
-service {
+service object {
 
 };
 
 function testVarNameFieldInAnnotation() {
     s = "new value";
 
-    service serv2 =
+    service object {} serv2 =
     @foo {
         s,
         i: 100
     }
-    service {
+    service object {
+        resource function get foo(@param int i) {
+
+        }
 
     };
 
@@ -125,6 +129,8 @@ function testVarNameFieldInAnnotation() {
 }
 
 function getFailureError(any|error expected, any|error actual) returns error {
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     return  error(ASSERTION_ERROR_REASON,
-                    message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                    message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

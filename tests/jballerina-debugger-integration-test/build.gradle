@@ -27,10 +27,10 @@ configurations {
 
 dependencies {
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
-    testCompile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j.debug', version: '0.7.1'
-    testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile 'org.apache.commons:commons-lang3'
+    implementation group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j.debug', version: '0.7.1'
+    implementation 'org.testng:testng'
+    implementation 'org.slf4j:slf4j-jdk14'
+    implementation 'org.apache.commons:commons-lang3'
     implementation 'info.picocli:picocli'
     implementation project(path: ':ballerina-test-utils')
 }

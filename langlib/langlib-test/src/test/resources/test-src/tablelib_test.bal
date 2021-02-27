@@ -115,7 +115,7 @@ function testTableLength() returns int {
 function testIterator() returns boolean {
     boolean testPassed = true;
     Person[] personList = getPersonList();
-    object { public function next() returns record {| Person value; |}?;} itr = tab.iterator();
+    object { public isolated function next() returns record {| Person value; |}?;} itr = tab.iterator();
 
     Person? person = getPerson(itr.next());
     testPassed = testPassed && person == personList[0];
@@ -190,7 +190,7 @@ function testChangeValueForAGivenKeyWhileIterating() returns boolean {
     var value = itr.next();
     value = itr.next();
     Person p = { name: "Gima", age: 50 };
-    tab["Gima"] = p;
+    tab.put(p);
     value = itr.next();
 
     return value?.value?.age == 50;
@@ -220,18 +220,11 @@ function testMap() returns boolean {
           return {name: person.name, department : "HR"};
     });
 
-    var personTblKeys = tab.keys();
-    var castedEmpTab = <table<Employee> key(name)> empTab;
-    var empTblKeys = castedEmpTab.keys();
-    testPassed = testPassed && personTblKeys.length() == empTblKeys.length();
-    //check keys of both tables are equal. Cannot check it until KeyType[] is returned
-
-    int index = 0;
-    castedEmpTab.forEach(function (Employee emp) {
-    testPassed = testPassed && emp.name == personList[index].name;
-    testPassed = testPassed && emp.department == "HR";
-    index+=1;
-    });
+    Employee[] tableToList = empTab.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && empTab.toString() == "[{\"name\":\"Chiran\",\"department\":\"HR\"}," +
+        "{\"name\":\"Mohan\",\"department\":\"HR\"},{\"name\":\"Gima\",\"department\":\"HR\"}," +
+        "{\"name\":\"Granier\",\"department\":\"HR\"}]";
 
     return testPassed;
 }
@@ -690,3 +683,43 @@ function testPutValidDataToKeylessTbl() returns boolean {
     testPassed = testPassed && tableToList[2] == intern1;
     return testPassed;
 }
+
+function testReadOnlyTableFilter() {
+    PersonalTable & readonly personTable = table [
+      { name: "Harry", age: 14 },
+      { name: "Hermione", age: 28 },
+      { name: "Ron", age: 11 },
+      { name: "Draco", age: 23 }
+    ];
+    table<Person> children = personTable.filter(function (Person person) returns boolean {
+                                                      return person.age < 18;
+                                                  });
+    assertEquals(children.length(), 2);
+    children.forEach(function(Person person) {
+        assertTrue(person.age < 18);
+        assertTrue(person.isReadOnly());
+    });
+    assertFalse(children.isReadOnly());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(boolean actual) {
+    assertEquals(true, actual);
+}
+
+function assertFalse(boolean actual) {
+    assertEquals(false, actual);
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if (expected == actual) {
+        return;
+    }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(ASSERTION_ERROR_REASON, message = msg);
+}
+

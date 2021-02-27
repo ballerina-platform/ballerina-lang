@@ -17,39 +17,41 @@
 
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BFunctionPointer;
-import org.ballerinalang.jvm.api.values.BFuture;
-import org.ballerinalang.jvm.api.values.BStream;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BTypedesc;
-import org.ballerinalang.jvm.api.values.BValue;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.BmpStringValue;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.jvm.values.TupleValueImpl;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BStream;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.BmpStringValue;
+import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.MapValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.internal.values.TableValue;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.jvm.types.TypeTags.BOOLEAN_TAG;
-import static org.ballerinalang.jvm.types.TypeTags.BYTE_TAG;
-import static org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG;
-import static org.ballerinalang.jvm.types.TypeTags.FLOAT_TAG;
-import static org.ballerinalang.jvm.types.TypeTags.INT_TAG;
-import static org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG;
-import static org.ballerinalang.jvm.types.TypeTags.STRING_TAG;
+import static io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG;
+import static io.ballerina.runtime.api.TypeTags.BYTE_TAG;
+import static io.ballerina.runtime.api.TypeTags.DECIMAL_TAG;
+import static io.ballerina.runtime.api.TypeTags.FLOAT_TAG;
+import static io.ballerina.runtime.api.TypeTags.INT_TAG;
+import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
+import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
 
 /**
  * Native methods for testing functions with variable return types.
@@ -70,7 +72,7 @@ public class VariableReturnType {
         return value;
     }
 
-    public static BXML getXML(BTypedesc td, BXML value) {
+    public static BXml getXML(BTypedesc td, BXml value) {
         return value;
     }
 
@@ -103,7 +105,7 @@ public class VariableReturnType {
     }
 
     public static Object getObjectValue(ObjectValue objectValue, BTypedesc td) {
-        BType describingType = td.getDescribingType();
+        Type describingType = td.getDescribingType();
         if (describingType.getTag() == STRING_TAG) {
             BString newFname = objectValue.getStringValue(new BmpStringValue("fname"))
                     .concat(new BmpStringValue(" ")).concat(objectValue.getStringValue(new BmpStringValue("lname")));
@@ -114,7 +116,7 @@ public class VariableReturnType {
     }
 
     public static MapValue query(BString query, BTypedesc typedesc) {
-        BType type = typedesc.getDescribingType();
+        Type type = typedesc.getDescribingType();
         MapValue map;
 
         if (type.getTag() == INT_TAG) {
@@ -126,14 +128,14 @@ public class VariableReturnType {
             map.put(NAME, new BmpStringValue("Pubudu"));
             map.put(CITY, new BmpStringValue("Panadura"));
         } else {
-            map = new MapValueImpl(new BMapType(BTypes.typeAny));
+            map = new MapValueImpl(new BMapType(PredefinedTypes.TYPE_ANY));
         }
 
         return map;
     }
 
     public static ArrayValue getTuple(BTypedesc td1, BTypedesc td2, BTypedesc td3) {
-        List<BType> memTypes = new ArrayList<>();
+        List<Type> memTypes = new ArrayList<>();
         memTypes.add(td1.getDescribingType());
         memTypes.add(td2.getDescribingType());
         memTypes.add(td3.getDescribingType());
@@ -166,8 +168,8 @@ public class VariableReturnType {
     }
 
     public static Object getVariedUnion(long x, BTypedesc td1, BTypedesc td2) {
-        BType type1 = td1.getDescribingType();
-        BType type2 = td2.getDescribingType();
+        Type type1 = td1.getDescribingType();
+        Type type2 = td2.getDescribingType();
 
         if (x == 0) {
             switch (type1.getTag()) {
@@ -190,7 +192,7 @@ public class VariableReturnType {
     }
 
     public static ArrayValue getArray(BTypedesc td) {
-        return new ArrayValueImpl(new long[]{10, 20, 30});
+        return new ArrayValueImpl(new long[]{10, 20, 30}, false);
     }
 
     public static Object getInvalidValue(BTypedesc td1, BTypedesc td2) {
@@ -203,7 +205,7 @@ public class VariableReturnType {
         return null;
     }
 
-    private static Object getValue(BType type) {
+    private static Object getValue(Type type) {
         switch (type.getTag()) {
             case INT_TAG:
                 return 150L;
@@ -235,5 +237,46 @@ public class VariableReturnType {
                 return person;
         }
         return null;
+    }
+
+    public static Object get(ObjectValue objectValue, BTypedesc td) {
+        Type describingType = td.getDescribingType();
+
+        switch (describingType.getTag()) {
+            case INT_TAG:
+                return objectValue.getIntValue(StringUtils.fromString("a"));
+            case STRING_TAG:
+                return objectValue.getStringValue(StringUtils.fromString("b"));
+        }
+        return objectValue.get(StringUtils.fromString("c"));
+    }
+
+    public static Object getIntFieldOrDefault(ObjectValue objectValue, BTypedesc td) {
+        Type describingType = td.getDescribingType();
+
+        if (describingType.getTag() == INT_TAG) {
+            return objectValue.getIntValue(StringUtils.fromString("i"));
+        }
+
+        return getValue(describingType);
+    }
+
+    public static Object getValueForParamOne(ObjectValue objectValue, BTypedesc td1, BTypedesc td2) {
+        return getIntFieldOrDefault(objectValue, td1);
+    }
+
+    public static Object getWithDefaultableParams(Object x, Object y, BTypedesc z) {
+        Type xType = TypeChecker.getType(x);
+        Type yType = TypeChecker.getType(y);
+
+        if (z.getDescribingType().getTag() == INT_TAG) {
+            long xAsInt = xType.getTag() == INT_TAG ? (long) x : Long.valueOf(((BString) x).getValue());
+            long yAsInt = yType.getTag() == INT_TAG ? (long) y : Long.valueOf(((BString) y).getValue());
+            return xAsInt + yAsInt;
+        }
+
+        BString xAsString = xType.getTag() == INT_TAG ? StringUtils.fromString(Long.toString((long) x)) : (BString) x;
+        BString yAsString = yType.getTag() == INT_TAG ? StringUtils.fromString(Long.toString((long) y)) : (BString) y;
+        return xAsString.concat(yAsString);
     }
 }

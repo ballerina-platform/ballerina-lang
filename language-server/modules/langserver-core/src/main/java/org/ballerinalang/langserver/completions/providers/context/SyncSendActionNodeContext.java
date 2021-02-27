@@ -15,18 +15,16 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.SyncSendActionNode;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.syntax.tree.SyncSendActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,24 +35,24 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class SyncSendActionNodeContext extends AbstractCompletionProvider<SyncSendActionNode> {
     public SyncSendActionNodeContext() {
         super(SyncSendActionNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, SyncSendActionNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, SyncSendActionNode node)
             throws LSCompletionException {
-        ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        List<Scope.ScopeEntry> filteredWorkers = visibleSymbols.stream()
-                .filter(scopeEntry -> !(scopeEntry.symbol instanceof BInvokableSymbol)
-                        && (scopeEntry.symbol.flags & Flags.WORKER) == Flags.WORKER)
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        List<Symbol> filteredWorkers = visibleSymbols.stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
                 .collect(Collectors.toList());
 
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getCompletionItemList(filteredWorkers, context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
-
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 }

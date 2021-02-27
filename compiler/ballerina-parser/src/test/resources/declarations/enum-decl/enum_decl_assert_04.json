@@ -104,7 +104,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -152,7 +152,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -205,7 +205,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -245,7 +245,6 @@
                 },
                 {
                   "kind": "ENUM_MEMBER",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -253,7 +252,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -262,35 +261,38 @@
                           "value": "\n"
                         }
                       ]
-                    },
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_COMMA_TOKEN"
+                  ]
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
                     {
-                      "kind": "EQUAL_TOKEN",
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_TOKEN"
-                      ],
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "value",
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
-                        },
-                        {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "IDENTIFIER_TOKEN",
-                                "value": "value"
-                              }
-                            ]
-                          }
-                        },
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": " "
                         }
-                      ],
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -335,7 +337,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [
@@ -382,7 +384,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": "    "
                         }
                       ],
                       "trailingMinutiae": [

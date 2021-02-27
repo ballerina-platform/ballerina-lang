@@ -27,7 +27,6 @@ results
 .ballerina
 /gen
 /compiler/ballerina-lang/src/main/resources/grammar/BallerinaLexer.tokens
-/tool-plugins/intellij/src/main/antlr/org/ballerinalang/plugins/idea/grammar/BallerinaLexer.tokens
 /composer/modules/web/dist-electron/
 velocity.log
 /composer/modules/web/dist-electron
@@ -48,3 +47,9 @@ gradle-app.setting
 .project
 .settings
 .vscode
+
+# java packages
+!/compiler/ballerina-lang/src/main/java/io/ballerina/build
+
+# code coverage reports
+/.jacoco

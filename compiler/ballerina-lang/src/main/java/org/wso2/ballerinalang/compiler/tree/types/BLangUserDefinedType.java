@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.types;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -32,6 +33,7 @@ import java.util.Set;
 public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNode {
     public BLangIdentifier pkgAlias;
     public BLangIdentifier typeName;
+    public BSymbol symbol;
 
     public BLangUserDefinedType() {
         this.flagSet = new HashSet<>();

@@ -93,6 +93,12 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
+                                          ],
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
                                           ]
                                         },
                                         {
@@ -100,7 +106,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": " Teacher name",
+                                              "value": "Teacher name",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -136,6 +142,10 @@
                               "value": " "
                             }
                           ]
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
                         },
                         {
                           "kind": "STRING_TYPE_DESC",
@@ -192,6 +202,12 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
+                                          ],
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
                                           ]
                                         },
                                         {
@@ -199,7 +215,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": " Teacher age",
+                                              "value": "Teacher age",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -235,6 +251,10 @@
                               "value": " "
                             }
                           ]
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
                         },
                         {
                           "kind": "INT_TYPE_DESC",

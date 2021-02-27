@@ -15,18 +15,17 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class WaitActionNodeContext extends AbstractCompletionProvider<WaitActionNode> {
 
     public WaitActionNodeContext() {
@@ -45,7 +44,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, WaitActionNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WaitActionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -54,17 +53,18 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
             Covers the following,
             (1) wait fs1|f<cursor>
              */
-            ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-            List<Scope.ScopeEntry> filteredSymbols = visibleSymbols.stream().filter(scopeEntry -> {
-                BSymbol symbol = scopeEntry.symbol;
-                return symbol instanceof BVarSymbol && symbol.type instanceof BFutureType;
-            }).collect(Collectors.toList());
-
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+            List<Symbol> filteredSymbols = visibleSymbols.stream()
+                    .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE
+                            && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE)
+                    .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(filteredSymbols, context));
         } else {
             completionItems.addAll(this.actionKWCompletions(context));
             completionItems.addAll(this.expressionCompletions(context));
         }
+        this.sort(context, node, completionItems);
+
         return completionItems;
     }
 }

@@ -1,0 +1,200 @@
+{
+  "kind": "MODULE_PART",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "value": "key",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved."
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "#"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# WSO2 Inc. licenses this file to you under the Apache License,"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# Version 2.0 (the \"License\"); you may not use this file except"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# in compliance with the License."
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# You may obtain a copy of the License at"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "#"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "#   http://www.apache.org/licenses/LICENSE-2.0"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "#"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# Unless required by applicable law or agreed to in writing,"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# software distributed under the License is distributed on an"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# KIND, either express or implied.  See the License for the"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# specific language governing permissions and limitations"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# under the License."
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# Keys"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "basic key"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
+}

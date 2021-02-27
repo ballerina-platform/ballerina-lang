@@ -17,15 +17,16 @@
  */
 package org.ballerinalang.test.isolation;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Test cases related to isolation analysis.
@@ -41,19 +42,19 @@ public class IsolationAnalysisTest {
     private static final String INVALID_NON_ISOLATED_INIT_EXPR_IN_ISOLATED_FUNC_ERROR =
             "invalid non-isolated initialization expression in an 'isolated' function";
 
-    private static final String INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT =
-            "invalid access of mutable storage as the default value of a record field";
-    private static final String INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT =
-            "invalid invocation of a non-isolated function as the default value of a record field";
-    private static final String INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_FIELD_DEFAULT =
-            "invalid non-isolated initialization expression as the default value of a record field";
+    private static final String INVALID_MUTABLE_STORAGE_ACCESS_IN_RECORD_FIELD_DEFAULT =
+            "invalid access of mutable storage in the default value of a record field";
+    private static final String INVALID_NON_ISOLATED_FUNCTION_CALL_IN_RECORD_FIELD_DEFAULT =
+            "invalid invocation of a non-isolated function in the default value of a record field";
+    private static final String INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_RECORD_FIELD_DEFAULT =
+            "invalid non-isolated initialization expression in the default value of a record field";
 
-    private static final String INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT =
-            "invalid access of mutable storage as the initializer of an object field";
-    private static final String INVALID_NON_ISOLATED_FUNCTION_CALL_AS_OBJECT_FIELD_DEFAULT =
-            "invalid invocation of a non-isolated function as the initializer of an object field";
-    private static final String INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_FIELD_DEFAULT =
-            "invalid non-isolated initialization expression as the initializer of an object field";
+    private static final String INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT =
+            "invalid access of mutable storage in the initializer of an object field";
+    private static final String INVALID_NON_ISOLATED_FUNCTION_CALL_IN_OBJECT_FIELD_DEFAULT =
+            "invalid invocation of a non-isolated function in the initializer of an object field";
+    private static final String INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_OBJECT_FIELD_DEFAULT =
+            "invalid non-isolated initialization expression in the initializer of an object field";
 
     private CompileResult result;
 
@@ -82,7 +83,11 @@ public class IsolationAnalysisTest {
                 "testConstantRefsInIsolatedFunctions",
                 "testIsolatedClosuresAsRecordDefaultValues",
                 "testIsolatedObjectFieldInitializers",
-                "testIsolationAnalysisWithRemoteMethods"
+                "testIsolationAnalysisWithRemoteMethods",
+                "testIsolatedFunctionWithDefaultableParams",
+                "testAccessingFinalIsolatedObjectInIsolatedFunction",
+                "testIsolationOfBoundMethods",
+                "testFinalReadOnlyServiceAccessInIsolatedFunction"
         };
     }
 
@@ -103,7 +108,15 @@ public class IsolationAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'Qux', found 'object { int i; function qux () " +
                 "returns (int); }'", 37, 13);
         validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
-                "'function () returns (int)'", 42, 40);
+                "'function () returns (int)'", 44, 24);
+        validateError(result, i++, "incompatible types: expected 'isolated function (int) returns (int)', found " +
+                "'function (int) returns (int)'", 66, 51);
+        validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
+                "'function () returns (int)'", 69, 48);
+        validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
+                "'function () returns (int)'", 72, 48);
+        validateError(result, i++, "incompatible types: expected 'isolated function (int) returns (int)', found " +
+                "'(function (int) returns (int)|isolated function (int) returns (int))'", 75, 57);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -127,46 +140,58 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 50, 7);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 55, 13);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 68, 13);
-        validateError(result, i++, "invalid worker declaration in an 'isolated' function", 74, 12);
-        validateError(result, i++, "invalid async invocation in an 'isolated' function", 80, 28);
+        validateError(result, i++, "worker declaration not allowed in an 'isolated' function", 74, 12);
+        validateError(result, i++, "async invocation not allowed in an 'isolated' function", 80, 22);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 94, 13);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 101, 22);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 105, 25);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 126, 17);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 131, 28);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 135, 17);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 141, 17);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 146, 28);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 150, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 124, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 129, 28);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 133, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 139, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 144, 28);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 148, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 155, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 156, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 156, 23);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 156, 30);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 157, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 157, 27);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 158, 20);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 158, 23);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 158, 30);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 158, 29);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 159, 20);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 159, 27);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 160, 20);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 160, 23);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 160, 29);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 20);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 27);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 30);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 161, 39);
-        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 168, 13);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 168, 29);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 169, 16);
-        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 174, 17);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 174, 33);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 175, 20);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 182, 34);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 185, 34);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 188, 56);
-        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 193, 5);
-        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 194, 13);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 194, 20);
-        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 195, 13);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 195, 20);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 195, 23);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 195, 26);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 159, 30);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 159, 39);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 166, 13);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 166, 29);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 167, 16);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 172, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 172, 33);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 173, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 180, 34);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 183, 34);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 186, 56);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 191, 5);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 192, 13);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 192, 20);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 193, 13);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 193, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 193, 23);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 193, 26);
+        validateError(result, i++, "fork statement not allowed in an 'isolated' function", 208, 5);
+        validateError(result, i++, "worker declaration not allowed in an 'isolated' function", 209, 16);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 218, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 223, 81);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 223, 94);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 227, 45);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 227, 73);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 253, 27);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 254, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 271, 14);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 272, 14);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 273, 14);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -175,14 +200,14 @@ public class IsolationAnalysisTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/isolation-analysis/isolated_record_field_default_negative.bal");
         int i = 0;
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 22, 13);
-        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 23, 13);
-        validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_FIELD_DEFAULT, 24, 13);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 31, 17);
-        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 32, 20);
-        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 33, 20);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 33, 24);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT, 39, 25);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_RECORD_FIELD_DEFAULT, 22, 13);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_IN_RECORD_FIELD_DEFAULT, 23, 13);
+        validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_RECORD_FIELD_DEFAULT, 24, 13);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_RECORD_FIELD_DEFAULT, 31, 17);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_IN_RECORD_FIELD_DEFAULT, 32, 20);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_IN_RECORD_FIELD_DEFAULT, 33, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_RECORD_FIELD_DEFAULT, 33, 24);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT, 39, 25);
         Assert.assertEquals(result.getErrorCount(), i);
 
     }
@@ -192,14 +217,19 @@ public class IsolationAnalysisTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/isolation-analysis/isolated_object_field_default_negative.bal");
         int i = 0;
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT, 20, 13);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT, 24, 13);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT, 20, 13);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT, 24, 13);
         validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPR_IN_ISOLATED_FUNC_ERROR, 44, 14);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT, 47, 17);
-        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT, 51, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT, 47, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT, 51, 17);
         validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPR_IN_ISOLATED_FUNC_ERROR, 58, 15);
-        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_OBJECT_FIELD_DEFAULT, 68, 14);
-        validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_FIELD_DEFAULT, 74, 12);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_IN_OBJECT_FIELD_DEFAULT, 68, 14);
+        validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_OBJECT_FIELD_DEFAULT, 74, 12);
         Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

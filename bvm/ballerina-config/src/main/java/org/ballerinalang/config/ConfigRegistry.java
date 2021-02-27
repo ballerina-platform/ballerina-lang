@@ -21,8 +21,6 @@ package org.ballerinalang.config;
 import org.ballerinalang.bcl.parser.BConfig;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -34,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,12 +43,11 @@ import java.util.regex.Pattern;
  */
 public class ConfigRegistry {
 
-    private static final Logger log = LoggerFactory.getLogger(ConfigRegistry.class);
     private static final ConfigRegistry configRegistry = new ConfigRegistry();
     private static final Pattern encryptedFieldPattern = Pattern.compile("@encrypted:\\{(.*)\\}");
     private static final String ENV_VAR_FORMAT = "[a-zA-Z_]+[a-zA-Z0-9_]*";
 
-    private Map<String, Object> configEntries = new HashMap<>();
+    private Map<String, Object> configEntries = new ConcurrentHashMap<>();
     private AESCipherTool cipherTool;
     private PrintStream stderr = System.err;
 

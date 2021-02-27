@@ -19,6 +19,10 @@
       "value": "foo"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -113,10 +117,6 @@
                 {
                   "kind": "TRANSACTION_KEYWORD",
                   "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    },
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
@@ -251,10 +251,6 @@
                 {
                   "kind": "TRANSACTION_KEYWORD",
                   "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    },
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"

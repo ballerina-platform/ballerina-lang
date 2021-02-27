@@ -20,6 +20,10 @@
       "value": "name"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -85,7 +89,7 @@
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "value": " "
                         }
                       ]
                     }

@@ -17,11 +17,12 @@
   */
  package org.ballerinalang.test.jvm;
 
- import org.ballerinalang.model.values.BValue;
- import org.ballerinalang.test.util.BCompileUtil;
- import org.ballerinalang.test.util.BRunUtil;
- import org.ballerinalang.test.util.CompileResult;
+ import org.ballerinalang.core.model.values.BValue;
+ import org.ballerinalang.test.BCompileUtil;
+ import org.ballerinalang.test.BRunUtil;
+ import org.ballerinalang.test.CompileResult;
  import org.testng.Assert;
+ import org.testng.annotations.AfterClass;
  import org.testng.annotations.BeforeClass;
  import org.testng.annotations.Test;
 
@@ -68,5 +69,10 @@
      public void testWorkerBasic() {
          BValue[] result = BRunUtil.invoke(compileResult, "basicWorkerTest");
          Assert.assertEquals(result[0].stringValue(), "120");
+     }
+
+     @AfterClass
+     public void tearDown() {
+         compileResult = null;
      }
  }

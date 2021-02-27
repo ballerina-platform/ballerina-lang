@@ -1,10 +1,11 @@
-# This is to test single backtick content
+# This is to test single backtick reference
 #
-# This is an invalid content `invalid content`
+# This is a code reference `code content`
 #
-# Following are valid backtick content
+# Following are ballerina name references
 # `x()`
 # `m:x()`
 # `T.y()`
 # `m:T.y()`
-function foo() {}
+function foo() {
+}

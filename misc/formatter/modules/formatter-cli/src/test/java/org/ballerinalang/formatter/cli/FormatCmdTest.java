@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.formatter.cli;
 
-import org.ballerinalang.tool.BLauncherException;
+import io.ballerina.cli.launcher.BLauncherException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -80,8 +80,7 @@ public class FormatCmdTest {
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
-                Assert.assertEquals(exception.get(0), "error: " + Messages.getNotBallerinaProject(),
-                        "actual exception didn't match the expected.");
+                Assert.assertEquals(exception.get(0), "error: couldn't find an existing module by the name: pkg1");
             } else {
                 Assert.fail("failed the test with " + exception.size()
                         + " exceptions where there needs to be 1 exception");
@@ -148,10 +147,11 @@ public class FormatCmdTest {
 
     @Test(description = "Test to check the exception for no existing ballerina file or module.")
     public void formatCLINotABallerinaFileOrModuleTest() {
+        Path sourceRoot = RES_DIR.resolve("project");
         List<String> argList = new ArrayList<>();
         argList.add("invalid.pkg2");
         try {
-            FormatUtil.execute(argList, false, false, RES_DIR);
+            FormatUtil.execute(argList, false, false, sourceRoot);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
