@@ -384,15 +384,17 @@ public class BByteValueTest {
     private void invokeBitwiseAndTestFunction(byte a, byte b, int i, int j) {
         BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseAndOperator", args);
-        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(returns.length, 7);
         BByte bByte1 = (BByte) returns[0];
         BByte bByte2 = (BByte) returns[1];
-        BInteger bInteger1 = (BInteger) returns[2];
-        BInteger bInteger2 = (BInteger) returns[3];
-        BInteger bInteger3 = (BInteger) returns[4];
-        BInteger bInteger4 = (BInteger) returns[5];
+        BByte bByte3 = (BByte) returns[2];
+        BInteger bInteger1 = (BInteger) returns[3];
+        BInteger bInteger2 = (BInteger) returns[4];
+        BInteger bInteger3 = (BInteger) returns[5];
+        BInteger bInteger4 = (BInteger) returns[6];
         Assert.assertEquals(bByte1.value().byteValue(), a & b, "Invalid result");
         Assert.assertEquals(bByte2.value().byteValue(), a & (byte) i, "Invalid result");
+        Assert.assertEquals(bByte3.value().byteValue(), (byte) i & a, "Invalid result");
         Assert.assertEquals(bInteger1.intValue(), Byte.toUnsignedInt(a) & Byte.toUnsignedInt(b), "Invalid result");
         Assert.assertEquals(bInteger2.intValue(), Byte.toUnsignedInt(a) & i, "Invalid result");
         Assert.assertEquals(bInteger3.intValue(), i & j, "Invalid result");
