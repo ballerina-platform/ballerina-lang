@@ -101,13 +101,10 @@ public class ModuleTupleVariableTest {
 
     @Test
     public void testUninitializedModuleLevelTupleVar() {
-        // TODO: disallow uninitialized tuple variables from parser and update this test
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_tuple_var_decl.bal");
         int index = 0;
-        validateError(compileResult, index++, "uninitialized variable 'a'", 17, 13);
-        validateError(compileResult, index++, "uninitialized variable 'b'", 17, 16);
-        validateError(compileResult, index++, "variable 'a' is not initialized", 20, 13);
+        validateError(compileResult, index++, "complex variable must be initialized", 17, 18);
         assertEquals(compileResult.getErrorCount(), index);
     }
 }
