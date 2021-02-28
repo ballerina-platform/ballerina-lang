@@ -187,7 +187,8 @@ public class BuildProject extends Project {
             if (!pkgDependencies.isEmpty()) {
                 // write content to Dependencies.toml file
                 createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML),
-                                          getDependenciesTomlContent(pkgDependencies));
+                                          getDependenciesTomlContent(pkgDependencies,
+                        currentPackage.manifest().dependencies()));
             }
         }
     }

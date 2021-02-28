@@ -513,15 +513,24 @@ public class ProjectUtils {
      * Get `Dependencies.toml` content as a string.
      *
      * @param pkgDependencies direct dependencies of the package
+     * @param dependencies list of dependencies as of root package manifest
      * @return Dependencies.toml` content
      */
-    public static String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgDependencies) {
+    public static String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgDependencies,
+                                                    List<PackageManifest.Dependency> dependencies) {
         StringBuilder content = new StringBuilder();
         for (ResolvedPackageDependency dependency : pkgDependencies) {
             content.append("[[dependency]]\n");
             content.append("org = \"").append(dependency.packageInstance().packageOrg().value()).append("\"\n");
             content.append("name = \"").append(dependency.packageInstance().packageName().value()).append("\"\n");
             content.append("version = \"").append(dependency.packageInstance().packageVersion().value()).append("\"\n");
+            dependencies.forEach(dependency1 -> {
+                if (dependency1.org().value().equals(dependency.packageInstance().packageOrg().value()) &&
+                        dependency1.name().value().equals(dependency.packageInstance().packageName().value()) &&
+                        dependency1.repository() != null) {
+                    content.append("repository = \"").append(dependency1.repository()).append("\"\n");
+                }
+            });
             content.append("\n");
         }
         return String.valueOf(content);
