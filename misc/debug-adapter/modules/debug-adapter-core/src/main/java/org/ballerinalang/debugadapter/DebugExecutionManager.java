@@ -21,6 +21,7 @@ import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
+import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,20 +29,27 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
+
 /**
  * Debug process related low-level task executor through JDI.
  */
 public class DebugExecutionManager {
 
-    private VirtualMachine attachedVm;
     private String host;
     private Integer port;
+    private VirtualMachine attachedVm;
+    private final JBallerinaDebugServer server;
 
     public static final String LOCAL_HOST = "localhost";
     private static final String SOCKET_CONNECTOR_NAME = "com.sun.jdi.SocketAttach";
     private static final String CONNECTOR_ARGS_HOST = "hostname";
     private static final String CONNECTOR_ARGS_PORT = "port";
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugExecutionManager.class);
+
+    DebugExecutionManager(JBallerinaDebugServer server) {
+        this.server = server;
+    }
 
     public boolean isActive() {
         return attachedVm != null;
@@ -74,8 +82,11 @@ public class DebugExecutionManager {
         attachedVm = socketAttachingConnector.attach(connectorArgs);
         this.host = !hostName.isEmpty() ? hostName : LOCAL_HOST;
         this.port = port;
-        // Todo - enable after implementing debug server client logger
-        // server.sendOutput(String.format("Connected to the target VM, address: '%s:%s'", host, port), STDOUT);
+
+        // Todo - enable for launch-mode after implementing debug server client logger
+        if (server.getClientConfigHolder().getKind() == ClientConfigHolder.ClientConfigKind.ATTACH_CONFIG) {
+            server.sendOutput(String.format("Connected to the target VM, address: '%s:%s'", host, port), STDOUT);
+        }
         return attachedVm;
     }
 }
