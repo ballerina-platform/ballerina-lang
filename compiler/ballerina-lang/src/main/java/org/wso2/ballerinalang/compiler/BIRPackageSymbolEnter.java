@@ -471,6 +471,9 @@ public class BIRPackageSymbolEnter {
     }
 
     private void setInvokableTypeSymbol(BInvokableType invokableType) {
+        if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
+            return;
+        }
         BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
         List<BVarSymbol> params = new ArrayList<>(invokableType.paramTypes.size());
         for (BType paramType : invokableType.paramTypes) {
@@ -540,8 +543,13 @@ public class BIRPackageSymbolEnter {
     }
 
     private BInvokableType createClonedInvokableTypeWithTsymbol(BInvokableType bInvokableType) {
-        BInvokableType clonedType = new BInvokableType(bInvokableType.paramTypes, bInvokableType.restType,
-                bInvokableType.retType, null);
+        BInvokableType clonedType;
+        if (Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION)) {
+            clonedType = new BInvokableType(null, null, null, null);
+        } else {
+            clonedType = new BInvokableType(bInvokableType.paramTypes, bInvokableType.restType, bInvokableType.retType,
+                                            null);
+        }
         clonedType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                bInvokableType.flags, env.pkgSymbol.pkgID, null,
                                                                env.pkgSymbol.owner, symTable.builtinPos,
@@ -781,7 +789,9 @@ public class BIRPackageSymbolEnter {
                 break;
             case TypeTags.INVOKABLE:
                 BInvokableType invokableType = (BInvokableType) type;
-
+                if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
+                    break;
+                }
                 for (BType t : invokableType.paramTypes) {
                     populateParameterizedType(t, paramsMap, invSymbol);
                 }
@@ -1104,6 +1114,9 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.INVOKABLE:
                     BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
                     bInvokableType.flags = flags;
+                    if (inputStream.readBoolean()) {
+                        return bInvokableType;
+                    }
                     int paramCount = inputStream.readInt();
                     List<BType> paramTypes = new ArrayList<>(paramCount);
                     for (int i = 0; i < paramCount; i++) {

@@ -177,12 +177,16 @@ types:
         size: value_length
   type_invokable:
     seq:
+      - id: is_any_function
+        type: u1
       - id: param_types_count
         type: s4
+        if: is_any_function == 0
       - id: param_type_cp_index
         type: s4
         repeat: expr
         repeat-expr: param_types_count
+        if: is_any_function == 0
       - id: has_rest_type
         type: u1
       - id: rest_type_cp_index
@@ -190,6 +194,7 @@ types:
         if: has_rest_type == 1
       - id: return_type_cp_index
         type: s4
+        if: is_any_function == 0
   type_map:
     seq:
       - id: constraint_type_cp_index

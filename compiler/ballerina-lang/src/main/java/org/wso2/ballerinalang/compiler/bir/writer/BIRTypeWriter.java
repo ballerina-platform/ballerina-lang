@@ -183,13 +183,14 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BInvokableType bInvokableType) {
-        if (Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION)) {
-            buff.writeInt(0);
-        } else {
-            buff.writeInt(bInvokableType.paramTypes.size());
-            for (BType params : bInvokableType.paramTypes) {
-                writeTypeCpIndex(params);
-            }
+        boolean isAnyFunction = Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION);
+        buff.writeBoolean(isAnyFunction);
+        if (isAnyFunction) {
+            return;
+        }
+        buff.writeInt(bInvokableType.paramTypes.size());
+        for (BType params : bInvokableType.paramTypes) {
+            writeTypeCpIndex(params);
         }
 
         boolean restTypeExist = bInvokableType.restType != null;
