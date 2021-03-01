@@ -95,7 +95,7 @@ public class ConnectorNodeVisitor extends NodeVisitor {
             String typeName = String.format("%s:%s", typeSymbol.get().getModule().get().id().toString(),
                     typeSymbol.get().getName().get());
             if (rawType.typeKind() == TypeDescKind.RECORD || rawType.typeKind() == TypeDescKind.UNION
-                    || rawType.typeKind() == TypeDescKind.RECORD) {
+                    || rawType.typeKind() == TypeDescKind.ERROR) {
                 this.records.put(typeName, typeDefinitionNode);
             }
         }
