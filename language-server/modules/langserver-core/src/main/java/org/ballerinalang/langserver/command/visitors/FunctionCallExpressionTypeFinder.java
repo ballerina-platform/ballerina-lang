@@ -21,7 +21,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
@@ -32,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 
 import java.util.Optional;
 
@@ -66,21 +66,17 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     @Override
     public void visit(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         Symbol symbol = semanticModel.symbol(moduleVariableDeclarationNode).orElse(null);
-        if (symbol instanceof VariableSymbol) {
-            TypeSymbol typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
-            checkAndSetTypeResult(typeSymbol);
-        }
+        TypeSymbol typeDescriptor = SymbolUtil.getTypeDescriptor(symbol).orElse(null);
+        checkAndSetTypeResult(typeDescriptor);
     }
 
     @Override
     public void visit(AssignmentStatementNode assignmentStatementNode) {
         Symbol symbol = semanticModel.symbol(assignmentStatementNode).orElse(null);
-        if (symbol instanceof VariableSymbol) {
-            TypeSymbol typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
-            checkAndSetTypeResult(typeSymbol);
-            if (resultFound) {
-                return;
-            }
+        TypeSymbol typeDescriptor = SymbolUtil.getTypeDescriptor(symbol).orElse(null);
+        checkAndSetTypeResult(typeDescriptor);
+        if (resultFound) {
+            return;
         }
 
         assignmentStatementNode.varRef().accept(this);
@@ -90,11 +86,8 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     @Override
     public void visit(VariableDeclarationNode variableDeclarationNode) {
         Symbol symbol = semanticModel.symbol(variableDeclarationNode).orElse(null);
-        if (symbol instanceof VariableSymbol) {
-            TypeSymbol typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
-            checkAndSetTypeResult(typeSymbol);
-        }
-    }
+        TypeSymbol typeDescriptor = SymbolUtil.getTypeDescriptor(symbol).orElse(null);
+        checkAndSetTypeResult(typeDescriptor);    }
 
     @Override
     public void visit(SpecificFieldNode specificFieldNode) {
