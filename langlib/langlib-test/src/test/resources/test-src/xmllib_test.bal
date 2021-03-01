@@ -180,11 +180,11 @@ function testCreateText() {
     'xml:Text text4 = 'xml:createText("Thisisxmltext");
     'xml:Text text5 = 'xml:createText("XML\ntext");
 
-    assert(<string>text1, "This is xml text");
-    assert(<string>text2, "");
-    assert(<string>text3, "T");
-    assert(<string>text4, "Thisisxmltext");
-    assert(<string>text5, "XML\ntext");
+    assert(text1.toString(), "This is xml text");
+    assert(text2.toString(), "");
+    assert(text3.toString(), "T");
+    assert(text4.toString(), "Thisisxmltext");
+    assert(text5.toString(), "XML\ntext");
 }
 
 function testForEach() {

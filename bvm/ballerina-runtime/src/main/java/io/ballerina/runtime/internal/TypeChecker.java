@@ -664,6 +664,7 @@ public class TypeChecker {
             case TypeTags.CHAR_STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
+            case TypeTags.STRING_TAG:
                 if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
@@ -676,14 +677,6 @@ public class TypeChecker {
                     return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
                 }
                 return sourceTypeTag == targetTypeTag;
-            case TypeTags.STRING_TAG:
-                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
-                    return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
-                }
-                if (sourceTypeTag == TypeTags.XML_TAG) {
-                    return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
-                }
-                return sourceTypeTag == targetTypeTag || sourceTypeTag == TypeTags.XML_TEXT_TAG;
             case TypeTags.INT_TAG:
                 if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);

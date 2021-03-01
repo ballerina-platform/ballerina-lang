@@ -2536,6 +2536,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (BLangRecordDestructure) TreeBuilder.createRecordDestructureStatementNode();
         recordDestructure.varRef = (BLangRecordVarRef) createExpression(assignmentStmtNode.varRef());
         recordDestructure.setExpression(createExpression(assignmentStmtNode.expression()));
+        recordDestructure.pos = getPosition(assignmentStmtNode);
         return recordDestructure;
     }
 
