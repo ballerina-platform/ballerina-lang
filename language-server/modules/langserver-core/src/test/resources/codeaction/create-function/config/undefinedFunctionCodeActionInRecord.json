@@ -1,23 +1,23 @@
 {
-  "line": 3,
-  "character": 11,
+  "line": 18,
+  "character": 22,
   "expected": [
     {
-      "title": "Create function 'addTwoIntegers2(...)'",
+      "title": "Create function 'getManufacturer(...)'",
       "command": {
-        "title": "Create function 'addTwoIntegers2(...)'",
+        "title": "Create function 'getManufacturer(...)'",
         "command": "CREATE_FUNC",
         "arguments": [
           {
             "key": "node.range",
             "value": {
               "start": {
-                "line": 3,
-                "character": 11
+                "line": 18,
+                "character": 22
               },
               "end": {
-                "line": 3,
-                "character": 32
+                "line": 18,
+                "character": 39
               }
             }
           }

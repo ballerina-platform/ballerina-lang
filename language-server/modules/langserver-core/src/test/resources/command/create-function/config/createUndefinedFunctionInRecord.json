@@ -2,12 +2,12 @@
     "arguments": {
         "node.range": {
             "start": {
-                "line": 9,
-                "character": 4
+                "line": 18,
+                "character": 22
             },
             "end": {
-                "line": 9,
-                "character": 23
+                "line": 18,
+                "character": 39
             }
         }
     },
@@ -20,15 +20,15 @@
                             {
                                 "range": {
                                     "start": {
-                                        "line": 17,
+                                        "line": 25,
                                         "character": 0
                                     },
                                     "end": {
-                                        "line": 17,
+                                        "line": 25,
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction addStudent(module1:Student a) {\n    \n}\n"
+                                "newText": "\n\nfunction getManufacturer() returns Manufacturer {\n    \n    return {};\n}\n"
                             }
                         ]
                     }

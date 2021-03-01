@@ -1,23 +1,23 @@
 {
-  "line": 3,
-  "character": 11,
+  "line": 13,
+  "character": 37,
   "expected": [
     {
-      "title": "Create function 'addTwoIntegers2(...)'",
+      "title": "Create function 'getYear(...)'",
       "command": {
-        "title": "Create function 'addTwoIntegers2(...)'",
+        "title": "Create function 'getYear(...)'",
         "command": "CREATE_FUNC",
         "arguments": [
           {
             "key": "node.range",
             "value": {
               "start": {
-                "line": 3,
-                "character": 11
+                "line": 13,
+                "character": 37
               },
               "end": {
-                "line": 3,
-                "character": 32
+                "line": 13,
+                "character": 48
               }
             }
           }

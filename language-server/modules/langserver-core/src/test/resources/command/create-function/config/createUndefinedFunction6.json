@@ -1,8 +1,14 @@
 {
   "arguments": {
-    "node.position": {
-      "line": 4,
-      "character": 49
+    "node.range": {
+      "start": {
+        "line": 4,
+        "character": 44
+      },
+      "end": {
+        "line": 4,
+        "character": 65
+      }
     }
   },
   "expected": {
