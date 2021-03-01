@@ -316,7 +316,7 @@ public class SignatureHelpUtil {
      * Find the token at cursor.
      */
     private static Optional<NonTerminalNode> getTokenInfoAtCursor(SignatureContext context) {
-        Optional<Document> document = context.workspace().document(context.filePath());
+        Optional<Document> document = context.currentDocument();
         if (document.isEmpty()) {
             return Optional.empty();
         }

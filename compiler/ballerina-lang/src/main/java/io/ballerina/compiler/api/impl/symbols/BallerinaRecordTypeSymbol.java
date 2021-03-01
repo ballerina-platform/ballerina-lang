@@ -41,14 +41,12 @@ import java.util.StringJoiner;
  */
 public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements RecordTypeSymbol {
 
-    private final boolean isInclusive;
     private Map<String, RecordFieldSymbol> fieldSymbols;
     private TypeSymbol restTypeDesc;
     private List<TypeSymbol> typeInclusions;
 
     public BallerinaRecordTypeSymbol(CompilerContext context, ModuleID moduleID, BRecordType recordType) {
         super(context, TypeDescKind.RECORD, recordType);
-        this.isInclusive = !recordType.sealed;
     }
 
     @Override
@@ -103,37 +101,16 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
 
     @Override
     public String signature() {
-        // if isInclusive and has a rest type desc, then the rest type desc must be ANY_DATA.
-        // otherwise it is actually exclusive.
-        //
-        // This is a counter for following being identified as inclusive.
-        // type Person record {|
-        //    string name;
-        //    int age;
-        //    string...;
-        //|};
-        boolean isRestAnyData = restTypeDescriptor()
-                .map(t -> TypeDescKind.ANYDATA.equals(t.typeKind()))
-                .orElse(true);
-        boolean isExclusive = !(this.isInclusive && isRestAnyData);
-
-        StringJoiner joiner;
-        if (!isExclusive) {
-            joiner = new StringJoiner(" ", "{ ", " }");
-        } else {
-            joiner = new StringJoiner(" ", "{| ", " |}");
-        }
+        // Treating every record typedesc as exclusive record typedescs.
+        StringJoiner joiner = new StringJoiner(" ", "{| ", " |}");
         for (RecordFieldSymbol fieldSymbol : this.fieldDescriptors().values()) {
             String ballerinaFieldSignature = fieldSymbol.signature() + ";";
             joiner.add(ballerinaFieldSignature);
         }
 
-        // No rest descriptor if the record in inclusive
-        if (isExclusive) {
-            restTypeDescriptor().ifPresent(typeDescriptor -> {
-                joiner.add(typeDescriptor.signature() + "...;");
-            });
-        }
+        restTypeDescriptor().ifPresent(typeDescriptor -> {
+            joiner.add(typeDescriptor.signature() + "...;");
+        });
 
         return "record " + joiner.toString();
     }

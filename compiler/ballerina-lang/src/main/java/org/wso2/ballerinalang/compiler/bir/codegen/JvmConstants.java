@@ -311,6 +311,7 @@ public class JvmConstants {
     public static final String REPORT_ERROR_METHOD = "reportError";
     public static final String STOP_OBSERVATION_METHOD = "stopObservation";
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
+    public static final String DISPLAY_ANNOTATION = "display";
     public static final String RECORD_CHECKPOINT_METHOD = "recordCheckpoint";
 
     // visibility flags

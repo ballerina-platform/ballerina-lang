@@ -16,7 +16,7 @@
     {
       "label": "foo",
       "kind": "Field",
-      "detail": "Field",
+      "detail": "string",
       "sortText": "G",
       "insertText": "foo: \"${1}\"",
       "insertTextFormat": "Snippet"
@@ -24,7 +24,7 @@
     {
       "label": "bar",
       "kind": "Field",
-      "detail": "Field",
+      "detail": "int",
       "sortText": "G",
       "insertText": "bar: ${1:0}",
       "insertTextFormat": "Snippet"

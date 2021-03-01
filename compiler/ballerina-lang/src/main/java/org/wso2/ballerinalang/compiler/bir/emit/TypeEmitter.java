@@ -91,6 +91,8 @@ class TypeEmitter {
                 return "json";
             case TypeTags.XML:
                 return "xml";
+            case TypeTags.XML_TEXT:
+                return "xml:Text";
             case TypeTags.DECIMAL:
                 return "decimal";
             case TypeTags.UNION:
