@@ -31,8 +31,7 @@ public class BallerinaRecordRequest {
     private String name;
     private Boolean beta;
 
-    public BallerinaRecordRequest(String org, String module, String version, String name, Boolean beta,
-                                  String javaVersion) {
+    public BallerinaRecordRequest(String org, String module, String version, String name, Boolean beta) {
         this.org = org;
         this.module = module;
         this.version = version;
