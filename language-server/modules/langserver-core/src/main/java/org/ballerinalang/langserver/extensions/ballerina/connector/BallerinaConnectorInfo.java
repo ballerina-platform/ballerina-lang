@@ -32,10 +32,9 @@ public class BallerinaConnectorInfo {
     private String logoBase64Encoded;
     private Boolean beta;
     private String category;
-    private String javaVersion;
 
     public BallerinaConnectorInfo(String org, String module, String name,
-                                  String version, String displayName, Boolean beta, String category, String javaVersion) {
+                                  String version, String displayName, Boolean beta, String category) {
         this.org = org;
         this.module = module;
         this.name = name;
@@ -43,11 +42,10 @@ public class BallerinaConnectorInfo {
         this.displayName = displayName;
         this.beta = beta;
         this.category = category;
-        this.javaVersion = javaVersion;
     }
 
     public BallerinaConnectorInfo(String org, String module, String name, String version, String displayName,
-                                  String logoBase64Encoded, Boolean beta, String category, String javaVersion) {
+                                  String logoBase64Encoded, Boolean beta, String category) {
         this.org = org;
         this.module = module;
         this.name = name;
@@ -56,7 +54,6 @@ public class BallerinaConnectorInfo {
         this.logoBase64Encoded = logoBase64Encoded;
         this.beta = beta;
         this.category = category;
-        this.javaVersion = category;
     }
 
     public String getOrg() {
@@ -101,7 +98,6 @@ public class BallerinaConnectorInfo {
                 ", displayName='" + displayName + '\'' +
                 ", logoBase64Encoded='" + logoBase64Encoded + '\'' +
                 ", beta=" + beta +
-                ", javaVersion=" + javaVersion +
                 '}';
     }
 }
