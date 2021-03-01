@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.AsyncSendActionNode;
+import io.ballerina.compiler.syntax.tree.BallerinaNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
@@ -45,7 +46,6 @@ import io.ballerina.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.DistinctTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.DoStatementNode;
-import io.ballerina.compiler.syntax.tree.DocumentationReferenceNode;
 import io.ballerina.compiler.syntax.tree.ElseBlockNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumMemberNode;
@@ -85,6 +85,7 @@ import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.InlineCodeReferenceNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.JoinClauseNode;
@@ -103,6 +104,7 @@ import io.ballerina.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.MappingMatchPatternNode;
+import io.ballerina.compiler.syntax.tree.MarkdownCodeBlockNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
@@ -2530,6 +2532,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (BLangRecordDestructure) TreeBuilder.createRecordDestructureStatementNode();
         recordDestructure.varRef = (BLangRecordVarRef) createExpression(assignmentStmtNode.varRef());
         recordDestructure.setExpression(createExpression(assignmentStmtNode.expression()));
+        recordDestructure.pos = getPosition(assignmentStmtNode);
         return recordDestructure;
     }
 
@@ -5375,7 +5378,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Node singleDocLine : docLineList) {
             switch (singleDocLine.kind()) {
                 case MARKDOWN_DOCUMENTATION_LINE:
-                case MARKDOWN_CODE_DOCUMENTATION_LINE:
                 case MARKDOWN_REFERENCE_DOCUMENTATION_LINE:
                     MarkdownDocumentationLineNode docLineNode = (MarkdownDocumentationLineNode) singleDocLine;
                     NodeList<Node> docElements = docLineNode.documentElements();
@@ -5457,6 +5459,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     bLangDeprecationDoc.addDeprecationLine("# " + lineText);
                     bLangDeprecationDoc.pos = getPosition(deprecationDocLineNode);
                     break;
+                case MARKDOWN_CODE_BLOCK:
+                    MarkdownCodeBlockNode codeBlockNode = (MarkdownCodeBlockNode) singleDocLine;
+                    transformCodeBlock(documentationLines, codeBlockNode);
+                    break;
                 default:
                     break;
             }
@@ -5471,26 +5477,48 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return doc;
     }
 
+    private void transformCodeBlock(LinkedList<BLangMarkdownDocumentationLine> documentationLines,
+                                    MarkdownCodeBlockNode codeBlockNode) {
+        BLangMarkdownDocumentationLine bLangDocLine =
+                (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
+
+        StringBuilder docText = new StringBuilder();
+
+        if (codeBlockNode.langAttribute().isPresent()) {
+            docText.append(codeBlockNode.startBacktick().text());
+            docText.append(codeBlockNode.langAttribute().get().toString());
+        } else {
+            docText.append(codeBlockNode.startBacktick().toString());
+        }
+
+        codeBlockNode.codeLines().forEach(codeLine -> docText.append(codeLine.toString()));
+        docText.append(codeBlockNode.endLineHashToken().toString());
+        docText.append(codeBlockNode.endBacktick().text());
+
+        bLangDocLine.text = docText.toString();
+        bLangDocLine.pos = getPosition(codeBlockNode.startLineHashToken());
+        documentationLines.add(bLangDocLine);
+    }
+
     private String addReferencesAndReturnDocumentationText(LinkedList<BLangMarkdownReferenceDocumentation> references,
                                                            NodeList<Node> docElements) {
         StringBuilder docText = new StringBuilder();
         for (Node element : docElements) {
-            if (element.kind() == SyntaxKind.DOCUMENTATION_REFERENCE) {
+            if (element.kind() == SyntaxKind.BALLERINA_NAME_REFERENCE) {
                 BLangMarkdownReferenceDocumentation bLangRefDoc = new BLangMarkdownReferenceDocumentation();
-                DocumentationReferenceNode docReferenceNode = (DocumentationReferenceNode) element;
+                BallerinaNameReferenceNode balNameRefNode = (BallerinaNameReferenceNode) element;
 
-                Location pos = getPosition(docReferenceNode);
-                bLangRefDoc.pos = pos;
+                bLangRefDoc.pos = getPosition(balNameRefNode);
 
-                Token startBacktick = docReferenceNode.startBacktick();
-                Node backtickContent = docReferenceNode.backtickContent();
-                Token endBacktick = docReferenceNode.endBacktick();
+                Token startBacktick = balNameRefNode.startBacktick();
+                Node backtickContent = balNameRefNode.nameReference();
+                Token endBacktick = balNameRefNode.endBacktick();
 
                 String contentString = backtickContent.isMissing() ? "" : backtickContent.toString();
                 bLangRefDoc.referenceName = contentString;
 
                 bLangRefDoc.type = DocumentationReferenceType.BACKTICK_CONTENT;
-                Optional<Token> referenceType = docReferenceNode.referenceType();
+                Optional<Token> referenceType = balNameRefNode.referenceType();
                 referenceType.ifPresent(
                         refType -> {
                             bLangRefDoc.type = stringToRefType(refType.text());
@@ -5507,9 +5535,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else if (element.kind() == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
                 Token docDescription = (Token) element;
                 docText.append(docDescription.text());
-            } else if (element.kind() == SyntaxKind.CODE_DESCRIPTION) {
-                Token codeDescription = (Token) element;
-                docText.append(codeDescription.text().replaceAll("\n[\\s]*#", "\n"));
+            } else if (element.kind() == SyntaxKind.INLINE_CODE_REFERENCE) {
+                InlineCodeReferenceNode inlineCodeRefNode = (InlineCodeReferenceNode) element;
+                docText.append(inlineCodeRefNode.startBacktick().text());
+                docText.append(inlineCodeRefNode.codeReference().text());
+                docText.append(inlineCodeRefNode.endBacktick().text());
             }
         }
 
@@ -5530,8 +5560,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         SimpleNameReferenceNode simpleRef;
 
         switch (backtickContent.kind()) {
-            case BACKTICK_CONTENT:
-                // reaching here means backtick content is invalid.
+            case CODE_CONTENT:
+                // reaching here means ballerina name reference is syntactically invalid.
                 // therefore, set hasParserWarnings to true. so that,
                 // doc analyzer will avoid further checks on this.
                 bLangRefDoc.hasParserWarnings = true;

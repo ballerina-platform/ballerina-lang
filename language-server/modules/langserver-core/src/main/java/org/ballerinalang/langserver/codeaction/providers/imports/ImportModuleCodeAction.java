@@ -98,7 +98,7 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
 
     private static Position getImportPosition(CodeActionContext context) {
         // Calculate initial import insertion line
-        Optional<SyntaxTree> syntaxTree = context.workspace().syntaxTree(context.filePath());
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
         ModulePartNode modulePartNode = syntaxTree.orElseThrow().rootNode();
         NodeList<ImportDeclarationNode> imports = modulePartNode.imports();
         if (imports.isEmpty()) {

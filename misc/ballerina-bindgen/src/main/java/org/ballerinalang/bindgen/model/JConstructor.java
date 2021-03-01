@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.bindgen.model;
 
-import org.ballerinalang.bindgen.command.BindingsGenerator;
+import org.ballerinalang.bindgen.utils.BindgenEnv;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
@@ -56,7 +56,7 @@ public class JConstructor implements Cloneable {
     private StringBuilder paramTypes = new StringBuilder();
     private Set<String> importedPackages = new HashSet<>();
 
-    JConstructor(Constructor c) {
+    JConstructor(Constructor c, BindgenEnv env) {
         parentClass = c.getDeclaringClass();
         shortClassName = getAlias(c.getDeclaringClass());
         constructorName = c.getName();
@@ -65,7 +65,7 @@ public class JConstructor implements Cloneable {
 
         // Loop through the parameters of the constructor to populate a list.
         for (Parameter param : c.getParameters()) {
-            JParameter parameter = new JParameter(param, parentClass);
+            JParameter parameter = new JParameter(param, parentClass, env);
             parameters.add(parameter);
             importedPackages.add(param.getType().getPackageName());
             paramTypes.append(getAlias(param.getType()).toLowerCase(Locale.ENGLISH));
@@ -90,7 +90,7 @@ public class JConstructor implements Cloneable {
                     JError jError = new JError(exceptionType);
                     exceptionName = jError.getShortExceptionName();
                     exceptionConstName = jError.getExceptionConstName();
-                    if (BindingsGenerator.getModulesFlag()) {
+                    if (env.getModulesFlag()) {
                         exceptionName = getPackageAlias(exceptionName, exceptionType);
                         exceptionConstName = getPackageAlias(exceptionConstName, exceptionType);
                     }

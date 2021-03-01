@@ -306,7 +306,7 @@ function testMappingJsonNoIntersectionMergeSuccess() returns boolean {
     }
 
     json mj = <json> checkpanic mje;
-    return mj.one == "hello" && mj.two == "world" && mj.three == 1 && mj.x == 12.0 && mj.y == "test value";
+    return mj.one === "hello" && mj.two === "world" && mj.three === 1 && mj.x === 12.0 && mj.y === "test value";
 }
 
 function testMappingJsonWithIntersectionMergeFailure1() returns boolean {
@@ -363,8 +363,8 @@ function testMappingJsonWithIntersectionMergeSuccess() returns boolean {
     } else {
         map<json> expMap = { a: "strings", b: "test", c: "value" };
         map<json> mj4 = <map<json>> (checkpanic mj.four);
-        return mj === j1 && mj.one == "hello" && mj.two == "world" && mj.three == 1 &&
-            mj4 == expMap && mj.five == 5 && j2 == j2Clone;
+        return mj === j1 && mj.one === "hello" && mj.two === "world" && mj.three === 1 &&
+            mj4 == expMap && mj.five === 5 && j2 == j2Clone;
     }
 }
 
@@ -374,7 +374,7 @@ function testMergeJsonSuccessForValuesWithNonIntersectingCyclicRefererences() re
     map<json> j2 = { x: { b: 2 } };
     j2["p"] = j2;
     var result = j1.mergeJson(j2);
-    return result === j1 && j1.x == <json> { a: 1, b: 2 } && j1.z === j1 && j2.p === j2;
+    return result === j1 && (checkpanic j1.x) == <json> { a: 1, b: 2 } && j1.z === j1 && j2.p === j2;
 }
 
 function testMergeJsonFailureForValuesWithIntersectingCyclicRefererences() returns boolean {
@@ -392,7 +392,8 @@ function testMergeJsonFailureForValuesWithIntersectingCyclicRefererences() retur
             return false;
         }
     }
-    return j1.x == <json> { a: 1 } && j2.x == <json> { b: 2 } && j1.z == j1 && j2.z == j2;
+    return (checkpanic j1.x) == <json> { a: 1 } && (checkpanic j2.x) == <json> { b: 2 }
+        && (checkpanic j1.z) == j1 && (checkpanic j2.z) == j2;
 }
 
 public type AnotherDetail record {
@@ -1434,4 +1435,17 @@ function testAssigningCloneableToAnyOrError() {
     }
 
     panic error("Invalid value.", message = "Expected 25");
+}
+
+function testXMLWithAngleBrackets() {
+    xml xy = xml`x&amp;y`;
+    xml:Element e = xml`<p/>`;
+    e.setChildren(xy);
+    xml exy = xy + e + xy;
+
+    string expected = "x&amp;y<p>x&amp;y</p>x&amp;y";
+    if (exy.toString() == expected) {
+        return;
+    }
+    panic error("AssertionError : expected: " + expected + " found: " + exy.toString());
 }

@@ -429,8 +429,13 @@ public class TypeChecker extends BLangNodeVisitor {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
         }
         BType actualType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
-        types.checkType(xmlNavigation, actualType, expType);
 
+        if (actualType.tag == TypeTags.UNION) {
+            dlog.error(xmlNavigation.pos, DiagnosticErrorCode.TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS,
+                    xmlNavigation.expr.type);
+        }
+
+        types.checkType(xmlNavigation, actualType, expType);
         if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
             resultType = symTable.xmlType;
         } else {
@@ -2607,18 +2612,22 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
+        boolean isStringValue = containerExpression.type != null && containerExpression.type.tag == TypeTags.STRING;
+
         // Container expression must be a accessible expression.
-        if (!(containerExpression instanceof BLangAccessibleExpression)) {
+        if (!(containerExpression instanceof BLangAccessibleExpression) && !isStringValue) {
             dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_INDEX_ACCESS,
                     containerExpression);
             resultType = symTable.semanticError;
             return;
         }
 
-        ((BLangAccessibleExpression) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
-        ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
-                indexBasedAccessExpr.compoundAssignmentLhsVar;
-        checkExpr(containerExpression, this.env, symTable.noType);
+        if (!isStringValue) {
+            ((BLangAccessibleExpression) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
+            ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
+                    indexBasedAccessExpr.compoundAssignmentLhsVar;
+            checkExpr(containerExpression, this.env, symTable.noType);
+        }
 
         if (indexBasedAccessExpr.indexExpr.getKind() == NodeKind.TABLE_MULTI_KEY &&
                 containerExpression.type.tag != TypeTags.TABLE) {
@@ -5177,25 +5186,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void setErrorDetailArgsToNamedArgsList(BLangInvocation iExpr) {
-        List<BLangExpression> namedArgPositions = new ArrayList<>(iExpr.argExprs.size());
-        for (int i = 0; i < iExpr.argExprs.size(); i++) {
-            BLangExpression argExpr = iExpr.argExprs.get(i);
-            if (argExpr.getKind() == NodeKind.NAMED_ARGS_EXPR) {
-                iExpr.requiredArgs.add(argExpr);
-                namedArgPositions.add(argExpr);
-            } else {
-                dlog.error(argExpr.pos, DiagnosticErrorCode.ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG);
-                resultType = symTable.semanticError;
-            }
-        }
-
-        for (BLangExpression expr : namedArgPositions) {
-            // This check is to filter out additional field assignments when Error detail type is a open record.
-            iExpr.argExprs.remove(expr);
-        }
-    }
-
     /**
      * Create a error detail record using all metadata from {@code targetErrorDetailsType} and put actual error details
      * from {@code iExpr} expression.
@@ -5208,10 +5198,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private BRecordType createErrorDetailRecordType(BLangErrorConstructorExpr errorConstructorExpr,
                                                     BRecordType targetErrorDetailsType) {
         List<BLangNamedArgsExpression> namedArgs = getProvidedErrorDetails(errorConstructorExpr);
-        if (namedArgs == null) {
-            // error in provided error details
-            return null;
-        }
 
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(
                 SymTag.RECORD, targetErrorDetailsType.tsymbol.flags, Names.EMPTY, targetErrorDetailsType.tsymbol.pkgID,
@@ -5229,13 +5215,29 @@ public class TypeChecker extends BLangNodeVisitor {
             availableErrorDetailFields.add(fieldName);
         }
 
+        Set<Name> fieldsInTargetType = new HashSet<>();
         for (BField field : targetErrorDetailsType.fields.values()) {
+            fieldsInTargetType.add(field.name);
             boolean notRequired = (field.symbol.flags & Flags.REQUIRED) != Flags.REQUIRED;
             if (notRequired && !availableErrorDetailFields.contains(field.name)) {
                 BField defaultableField = new BField(field.name, errorConstructorExpr.pos,
                                                      new BVarSymbol(field.symbol.flags, field.name, null, field.type,
                                                                     null, errorConstructorExpr.pos, VIRTUAL));
                 recordType.fields.put(defaultableField.name.value, defaultableField);
+            }
+        }
+
+        HashSet<Name> restFields = new HashSet<>(availableErrorDetailFields);
+        restFields.removeAll(fieldsInTargetType);
+        // If there are individual field descriptors specified in the error detail record,
+        // we should not allow rest fields via error constructors detail args.
+        // https://github.com/ballerina-platform/ballerina-spec/issues/740
+        if (!targetErrorDetailsType.sealed && !targetErrorDetailsType.fields.isEmpty() && !restFields.isEmpty()) {
+            for (BLangNamedArgsExpression namedArg : namedArgs) {
+                if (restFields.contains(names.fromIdNode(namedArg.name))) {
+                    dlog.error(namedArg.pos, DiagnosticErrorCode.INVALID_REST_DETAIL_ARG, namedArg.name.value,
+                            targetErrorDetailsType);
+                }
             }
         }
 
@@ -6761,7 +6763,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             indexBasedAccessExpr.originalType = symTable.stringType;
             actualType = symTable.stringType;
-        } else if (varRefType.tag == TypeTags.XML) {
+        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             if (indexBasedAccessExpr.lhsVar) {
                 indexExpr.type = symTable.semanticError;
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_XML_SEQUENCE);
@@ -6774,8 +6776,12 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             // Note: out of range member access returns empty xml value unlike lists
             // hence, this needs to be set to xml type
-            actualType = varRefType;
-            indexBasedAccessExpr.originalType = actualType;
+            indexBasedAccessExpr.originalType = varRefType;
+            if (varRefType.tag == TypeTags.XML || varRefType.tag == TypeTags.XML_TEXT) {
+                actualType = varRefType;
+            } else {
+                actualType = BUnionType.create(null, varRefType, symTable.xmlNeverType);
+            }
         } else if (varRefType.tag == TypeTags.TABLE) {
             if (indexBasedAccessExpr.lhsVar) {
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS,

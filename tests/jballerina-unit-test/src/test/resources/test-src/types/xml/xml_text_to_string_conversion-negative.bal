@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,10 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'xml;
 import ballerina/lang.'string as strings;
 
-const ASSERTION_ERR_REASON = "AssertionError";
 type FooBar "foo"|"bar";
 
 function assignToString() {
@@ -25,7 +23,6 @@ function assignToString() {
     string s2 = <'xml:Text> xml `test2`;
     'xml:Text x1 = <'xml:Text> xml `test3`;
     string s3 = x1;
-    string s4 = <string> xml `test4`;
     string str1 = "test5";
     xml x2 = xml `${str1}`;
     string s5 = <'xml:Text> x2;
@@ -33,23 +30,6 @@ function assignToString() {
     map<string> s7 = {};
     s7["firstElement"] = xml `hello`;
     s7[xml `secondElement`] = "my";
-    s7[xml `thirdElement`] = "world";
-
-    if (s1 == "test1" && s2 == "test2" && s3 == "test3" && s4 == "test4" && s5 == "test5" && s6[2] == "my" &&
-        s7.get("firstElement") == "hello" && s7.get("secondElement") == "my" && s7.get("thirdElement") == "world") {
-        return;
-    }
-    panic error(ASSERTION_ERR_REASON, message = "expected 'true', found 'false'");
-}
-
-function castToString() {
-    'xml:Text x3 = xml `foo`;
-    FooBar s8 = <FooBar> x3;
-
-    if (s8 == "foo") {
-        return;
-    }
-    panic error(ASSERTION_ERR_REASON, message = "expected 'true', found 'false'");
 }
 
 function foo(string s1, string s2, string s3) returns string {
@@ -60,11 +40,6 @@ function passToFunction() {
     string s1 = foo("hello ", "hello ", xml `world`);
     string s2 = foo("hello ", xml `my `, "world");
     string s3 = foo(xml `hello `, "my ", "friend");
-
-    if (s1 == "hello hello world" && s2 == "hello my world" && s3 == "hello my friend") {
-        return;
-    }
-    panic error(ASSERTION_ERR_REASON, message = "expected 'true', found 'false'");
 }
 
 function invokeLangLibMethods() {
@@ -74,16 +49,21 @@ function invokeLangLibMethods() {
         strings:codePointCompare(getXMLText(), "y world") == -1 && !getXMLText().startsWith("he")) {
         return;
     }
-    panic error(ASSERTION_ERR_REASON, message = "expected 'true', found 'false'");
 }
 
 function getXMLText() returns 'xml:Text {
     return xml `my world`;
 }
 
-function testXMLTestToStringConversion() {
-    assignToString();
-    passToFunction();
-    invokeLangLibMethods();
-    castToString();
+function castToString() {
+   'xml:Text x1 = xml `test1`;
+   xml x2 = xml `test2`;
+   xml<'xml:Text> x3 = xml `test3`;
+   'xml:Text x4 = xml `foo`;
+
+   string s1 = <string> x1;
+   string s2 = <string> x2;
+   string s3 = <string> x3;
+   string s4 = <string> xml `test4`;
+   FooBar s5 = <FooBar> x4;
 }

@@ -27,6 +27,13 @@
                         <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
                     </And>
                     <Bug pattern="DM_EXIT"/>
+                    <And>
+                        <Or>
+                            <Method name="attach"/>
+                            <Method name="launch"/>
+                        </Or>
+                        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+                    </And>
                 </Or>
             </And>
             <And>

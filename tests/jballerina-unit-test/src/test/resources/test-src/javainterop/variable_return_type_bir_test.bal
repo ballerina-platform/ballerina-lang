@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'xml;
-import testorg/returntypes as rt;
+import testorg/foo.returntypes as rt;
 
 type ItemType 'xml:Element|'xml:Comment|'xml:ProcessingInstruction|'xml:Text;
 

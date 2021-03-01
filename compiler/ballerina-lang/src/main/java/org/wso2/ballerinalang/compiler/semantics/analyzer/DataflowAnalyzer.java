@@ -355,25 +355,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkForUninitializedGlobalVars(List<BLangVariable> globalVars) {
-        // TODO: remove unwanted cases after disallowing uninitialized tuple variables from parser
         for (BLangVariable globalVar : globalVars) {
-            switch (globalVar.getKind()) {
-                case VARIABLE:
-                    if (this.uninitializedVars.containsKey(globalVar.symbol)) {
-                        this.dlog.error(globalVar.pos, DiagnosticErrorCode.UNINITIALIZED_VARIABLE, globalVar.symbol);
-                    }
-                    break;
-                case TUPLE_VARIABLE:
-                    checkForUninitializedGlobalVars(((BLangTupleVariable) globalVar).memberVariables);
-                    break;
-                case RECORD_VARIABLE:
-                    BLangRecordVariable recordVariable = (BLangRecordVariable) globalVar;
-                    List<BLangVariable> memberVariables = new ArrayList<>();
-                    for (BLangRecordVariable.BLangRecordVariableKeyValue memberKeyValue : recordVariable.variableList) {
-                        memberVariables.add(memberKeyValue.valueBindingPattern);
-                    }
-                    checkForUninitializedGlobalVars(memberVariables);
-                    break;
+            if (globalVar.getKind() == NodeKind.VARIABLE && this.uninitializedVars.containsKey(globalVar.symbol)) {
+                this.dlog.error(globalVar.pos, DiagnosticErrorCode.UNINITIALIZED_VARIABLE, globalVar.symbol);
             }
         }
     }
@@ -1698,25 +1682,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         analyzeNode(bLangTupleVariable.typeNode, env);
-        if (bLangTupleVariable.expr != null) {
-            this.currDependentSymbol.push(bLangTupleVariable.symbol);
-            analyzeNode(bLangTupleVariable.expr, env);
-            this.currDependentSymbol.pop();
-            return;
-        }
-
-        for (BLangVariable member: bLangTupleVariable.memberVariables) {
-            if (member.getKind() == NodeKind.VARIABLE) {
-                addUninitializedVar(member);
-                continue;
-            }
-            analyzeNode(member, env);
-        }
-
-        BLangSimpleVariable restVar = (BLangSimpleVariable) bLangTupleVariable.restVariable;
-        if (restVar != null) {
-            addUninitializedVar(restVar);
-        }
+        this.currDependentSymbol.push(bLangTupleVariable.symbol);
+        analyzeNode(bLangTupleVariable.expr, env);
+        this.currDependentSymbol.pop();
     }
 
     @Override
@@ -1727,26 +1695,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         analyzeNode(bLangRecordVariable.typeNode, env);
-        if (bLangRecordVariable.expr != null) {
-            this.currDependentSymbol.push(bLangRecordVariable.symbol);
-            analyzeNode(bLangRecordVariable.expr, env);
-            this.currDependentSymbol.pop();
-            return;
-        }
-
-        for (BLangRecordVariable.BLangRecordVariableKeyValue memberKeyValue : bLangRecordVariable.variableList) {
-            BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
-            if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
-                addUninitializedVar(valueBindingPattern);
-                continue;
-            }
-            analyzeNode(valueBindingPattern, env);
-        }
-
-        BLangSimpleVariable restParam = (BLangSimpleVariable) bLangRecordVariable.restParam;
-        if (restParam != null) {
-            addUninitializedVar(restParam);
-        }
+        this.currDependentSymbol.push(bLangRecordVariable.symbol);
+        analyzeNode(bLangRecordVariable.expr, env);
+        this.currDependentSymbol.pop();
     }
 
     @Override
@@ -1757,36 +1708,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
         analyzeNode(bLangErrorVariable.typeNode, env);
-        if (bLangErrorVariable.expr != null) {
-            this.currDependentSymbol.push(bLangErrorVariable.symbol);
-            analyzeNode(bLangErrorVariable.expr, env);
-            this.currDependentSymbol.pop();
-            return;
-        }
-
-        BLangSimpleVariable message = bLangErrorVariable.message;
-        if (message != null) {
-            addUninitializedVar(message);
-        }
-
-        BLangVariable cause = bLangErrorVariable.cause;
-        if (cause != null) {
-            analyzeNode(cause, env);
-        }
-
-        for (BLangErrorVariable.BLangErrorDetailEntry memberKeyValue : bLangErrorVariable.detail) {
-            BLangVariable valueBindingPattern = memberKeyValue.valueBindingPattern;
-            if (valueBindingPattern.getKind() == NodeKind.VARIABLE) {
-                addUninitializedVar(valueBindingPattern);
-                continue;
-            }
-            analyzeNode(valueBindingPattern, env);
-        }
-
-        BLangSimpleVariable restDetail = bLangErrorVariable.restDetail;
-        if (restDetail != null) {
-            addUninitializedVar(restDetail);
-        }
+        this.currDependentSymbol.push(bLangErrorVariable.symbol);
+        analyzeNode(bLangErrorVariable.expr, env);
+        this.currDependentSymbol.pop();
     }
 
     @Override

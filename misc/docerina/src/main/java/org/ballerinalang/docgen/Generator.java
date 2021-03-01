@@ -41,6 +41,8 @@ import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.MarkdownCodeBlockNode;
+import io.ballerina.compiler.syntax.tree.MarkdownCodeLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
@@ -722,22 +724,23 @@ public class Generator {
         if (optionalMetadataNode.isEmpty()) {
             return "";
         }
-        String doc = "";
+        StringBuilder doc = new StringBuilder();
         MarkdownDocumentationNode docLines = optionalMetadataNode.get().documentationString().isPresent() ?
                 (MarkdownDocumentationNode) optionalMetadataNode.get().documentationString().get() : null;
         if (docLines != null) {
             for (Node docLine : docLines.documentationLines()) {
                 if (docLine instanceof MarkdownDocumentationLineNode) {
-                    doc += !((MarkdownDocumentationLineNode) docLine).documentElements().isEmpty() ?
-                            getDocString(((MarkdownDocumentationLineNode) docLine).documentElements()) : "\n";
+                    doc.append(!((MarkdownDocumentationLineNode) docLine).documentElements().isEmpty() ?
+                            getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()) : "\n");
+                } else if (docLine instanceof MarkdownCodeBlockNode) {
+                    doc.append(getDocCodeBlockString((MarkdownCodeBlockNode) docLine));
                 } else {
                     break;
                 }
             }
-            return doc;
-        } else {
-            return "";
         }
+
+        return doc.toString();
     }
 
     private static String getParameterDocFromMetadataList(String parameterName,
@@ -754,23 +757,22 @@ public class Generator {
                 if (docLine instanceof MarkdownParameterDocumentationLineNode) {
                     if (((MarkdownParameterDocumentationLineNode) docLine).parameterName().text()
                             .equals(parameterName)) {
-                        parameterDoc.append(getDocString(((MarkdownParameterDocumentationLineNode) docLine)
+                        parameterDoc.append(getDocLineString(((MarkdownParameterDocumentationLineNode) docLine)
                                 .documentElements()));
                         lookForMoreLines = true;
                     } else {
                         lookForMoreLines = false;
                     }
                 } else if (lookForMoreLines && docLine instanceof MarkdownDocumentationLineNode) {
-                    parameterDoc.append(getDocString(((MarkdownDocumentationLineNode) docLine).documentElements()));
+                    parameterDoc.append(getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()));
                 }
             }
-            return parameterDoc.toString();
-        } else {
-            return "";
         }
+
+        return parameterDoc.toString();
     }
 
-    private static String getDocString(NodeList<Node> documentElements) {
+    private static String getDocLineString(NodeList<Node> documentElements) {
         if (documentElements.isEmpty()) {
             return "";
         }
@@ -778,9 +780,21 @@ public class Generator {
         for (Node docNode : documentElements) {
             doc.append(docNode.toString());
         }
-        if (doc.toString().startsWith(" ")) {
-            return doc.substring(1);
+
+        return doc.toString();
+    }
+
+    private static String getDocCodeBlockString(MarkdownCodeBlockNode markdownCodeBlockNode) {
+        StringBuilder doc = new StringBuilder();
+
+        doc.append(markdownCodeBlockNode.startBacktick().toString());
+        markdownCodeBlockNode.langAttribute().ifPresent(langAttribute -> doc.append(langAttribute.toString()));
+
+        for (MarkdownCodeLineNode codeLineNode : markdownCodeBlockNode.codeLines()) {
+            doc.append(codeLineNode.codeDescription().toString());
         }
+
+        doc.append(markdownCodeBlockNode.endBacktick().toString());
         return doc.toString();
     }
 }
