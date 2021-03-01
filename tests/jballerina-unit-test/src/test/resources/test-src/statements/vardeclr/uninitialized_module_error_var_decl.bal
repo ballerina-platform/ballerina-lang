@@ -1,4 +1,4 @@
-//  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 //  WSO2 Inc. licenses this file to you under the Apache License,
 //  Version 2.0 (the "License"); you may not use this file except
@@ -14,18 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Car record {
-    int id;
-    string color;
+type ErrorDetail record {
+    int riskLevel?;
 };
 
-Car {id: carId, color: carColor};
+type RiskError error<ErrorDetail>;
+
+RiskError error RiskError(errorMsg, cause, riskLevel = riskLevel);
 
 function init() {
-    carId = 1009;
-    carColor = "red";
+    errorMsg = "AssignmentFailed";
+    cause = error("CCE");
+    riskLevel = 5;
 }
 
 public function main() {
-   string myCarColor = carColor;
+   string msg = errorMsg;
 }
