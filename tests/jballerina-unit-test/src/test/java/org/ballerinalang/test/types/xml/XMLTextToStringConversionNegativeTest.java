@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases to check invalid XML Text to String conversion.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class XMLTextToStringConversionNegativeTest {
 
