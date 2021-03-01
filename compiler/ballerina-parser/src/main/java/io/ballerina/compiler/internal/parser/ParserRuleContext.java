@@ -658,8 +658,8 @@ public enum ParserRuleContext {
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),
     TYPEDESC_RHS("type-desc-rhs"),
-    FUNC_TYPEDESC_OR_FUNC_KEYWORD_RHS("func-typedesc-or-func-keyword-rhs"),
-    FUNC_TYPEDESC_OR_FUNC_KEYWORD_RHS_START("func-typedesc-or-func-keyword-rhs-start"),
+    FUNC_TYPE_FUNC_KEYWORD_RHS("func-type-func-keyword-rhs"),
+    FUNC_TYPE_FUNC_KEYWORD_RHS_START("func-type-func-keyword-rhs-start"),
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
     KEY_CONSTRAINTS_RHS("key-constraints-rhs"),
