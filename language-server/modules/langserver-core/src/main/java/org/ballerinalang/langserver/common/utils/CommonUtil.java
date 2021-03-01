@@ -968,7 +968,7 @@ public class CommonUtil {
     }
     
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
-        Pattern pattern = Pattern.compile("([0-9a-zA-Z_.]*)/([0-9a-zA-Z._]*):([0-9]*\\.[0-9]*\\.[0-9]*)");
+        Pattern pattern = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
         String typeSignature = typeSymbol.signature();
         Matcher matcher = pattern.matcher(typeSignature);
         while (matcher.find()) {

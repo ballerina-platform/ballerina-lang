@@ -57,8 +57,8 @@ public class HoverUtil {
      * @return {@link Hover} Hover content
      */
     public static Hover getHover(HoverContext context) {
-        Optional<Document> srcFile = context.workspace().document(context.filePath());
-        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
+        Optional<Document> srcFile = context.currentDocument();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
         if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }

@@ -36,7 +36,6 @@ public class ExecutionContext {
     private VirtualMachineProxyImpl debuggee;
     private Project sourceProject;
     private Process launchedProcess;
-    private DebugInstruction lastInstruction;
 
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
@@ -91,13 +90,5 @@ public class ExecutionContext {
 
     public BufferedReader getErrorStream() {
         return new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(), StandardCharsets.UTF_8));
-    }
-
-    public DebugInstruction getLastInstruction() {
-        return lastInstruction;
-    }
-
-    public void setLastInstruction(DebugInstruction lastInstruction) {
-        this.lastInstruction = lastInstruction;
     }
 }

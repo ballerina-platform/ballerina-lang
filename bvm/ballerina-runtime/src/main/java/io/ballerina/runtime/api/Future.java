@@ -15,9 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.ballerina.runtime.api;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A future that will resume the underling strand when completed.
@@ -26,12 +32,16 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  */
 public class Future {
     private final Strand strand;
-
+    private final AtomicBoolean visited = new AtomicBoolean();
      Future(Strand strand) {
         this.strand = strand;
     }
 
     public void complete(Object returnValue) {
+        if (visited.getAndSet(true)) {
+            throw ErrorCreator.createError(StringUtils.fromString("cannot complete the same future twice."),
+                                           new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+        }
         strand.returnValue = returnValue;
         strand.scheduler.unblockStrand(strand);
     }
