@@ -300,6 +300,10 @@ public class AnnotationDesugar {
             if (!annotation.annotationName.value.equals("strand")) {
                 continue;
             }
+            if (annotation.expr == null) {
+                annotation.expr = ASTBuilderUtil.createEmptyRecordLiteral(annotation.pos,
+                        annotation.annotationSymbol.attachedType.type);
+            }
             List<RecordLiteralNode.RecordField> fields = ((BLangRecordLiteral) annotation.expr).fields;
             for (RecordLiteralNode.RecordField field : fields) {
                 if (field.getKind() != NodeKind.RECORD_LITERAL_KEY_VALUE) {
