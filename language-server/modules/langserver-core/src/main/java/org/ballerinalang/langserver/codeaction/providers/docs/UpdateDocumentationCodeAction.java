@@ -77,7 +77,7 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
         String docUri = context.fileUri();
-        SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
+        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
         Optional<NonTerminalNode> topLevelNode = CodeActionUtil.getTopLevelNode(context.cursorPosition(), syntaxTree);
         if (topLevelNode.isEmpty()) {
             return Collections.emptyList();

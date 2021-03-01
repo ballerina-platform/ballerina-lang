@@ -26,6 +26,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
@@ -276,5 +278,30 @@ public class SymbolLookupTest {
         Map<String, Symbol> symbolsForOrderBy = getSymbolsInFile(model, srcFile, 50, 25, moduleID);
         assertList(symbolsForOrderBy, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "p1",
                 "p2", "personList", "p"));
+    }
+
+    @Test
+    public void testSymbolLookupWithAnnotationOnFunction() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_annotation_on_function.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        List<Symbol> symbolList = model.visibleSymbols(srcFile, LinePosition.from(24, 5)).stream()
+                .filter(s -> s.getModule().get().id().equals(moduleID)).collect(Collectors.toList());
+        List<String> symbolStringList = symbolList.stream().map(this::createSymbolString).collect(Collectors.toList());
+
+        List<String> expectedNameList = asList("SimpleRecordTYPE_DEFINITION", "func1ANNOTATION", "func1FUNCTION");
+
+        assert symbolStringList.containsAll(expectedNameList);
+    }
+
+    private String createSymbolString(Symbol symbol) {
+        return (symbol.getName().isPresent() ? symbol.getName().get() : "") + symbol.kind();
     }
 }

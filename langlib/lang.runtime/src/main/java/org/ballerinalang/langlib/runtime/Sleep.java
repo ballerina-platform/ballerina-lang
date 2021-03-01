@@ -36,11 +36,14 @@ public class Sleep {
 
     private static final int CORE_THREAD_POOL_SIZE = 1;
 
-    private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
+    private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
 
     public static void sleep(Environment env, BDecimal delaySeconds) {
         Future balFuture = env.markAsync();
         long delayMillis = (delaySeconds.decimalValue().multiply(new BigDecimal("1000.0"))).longValue();
         executor.schedule(() -> balFuture.complete(null), delayMillis, TimeUnit.MILLISECONDS);
+    }
+
+    private Sleep() {
     }
 }

@@ -42,8 +42,8 @@ public class ReferencesUtil {
     }
     
     public static Map<Module, List<Location>> getReferences(PositionedOperationContext context) {
-        Optional<Document> srcFile = context.workspace().document(context.filePath());
-        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
+        Optional<Document> srcFile = context.currentDocument();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
         
         Map<Module, List<Location>> moduleLocationMap = new HashMap<>();
 

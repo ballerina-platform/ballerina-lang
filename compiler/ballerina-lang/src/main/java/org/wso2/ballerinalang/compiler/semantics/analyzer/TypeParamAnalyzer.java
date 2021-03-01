@@ -302,6 +302,9 @@ public class TypeParamAnalyzer {
         switch (expType.tag) {
             case TypeTags.XML:
                 if (!TypeTags.isXMLTypeTag(actualType.tag)) {
+                    if (actualType.tag == TypeTags.UNION) {
+                        dlog.error(loc, DiagnosticErrorCode.XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE, actualType);
+                    }
                     return;
                 }
                 switch (actualType.tag) {

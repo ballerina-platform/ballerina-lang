@@ -67,9 +67,11 @@ public class TracingBaseTestCase extends ObservabilityBaseTest {
         super.cleanupServer();
     }
 
-    protected List<BMockSpan> getFinishedSpans(String serviceName, String resource) throws IOException {
+    protected List<BMockSpan> getFinishedSpans(String serviceName, String entrypointModule,
+                                               String entrypointPosition) throws IOException {
         return getFinishedSpans(serviceName).stream()
-                .filter(span -> Objects.equals(span.getTags().get("resource"), resource))
+                .filter(span -> Objects.equals(span.getTags().get("entrypoint.function.module"), entrypointModule) &&
+                        Objects.equals(span.getTags().get("entrypoint.function.position"), entrypointPosition))
                 .collect(Collectors.toList());
     }
 

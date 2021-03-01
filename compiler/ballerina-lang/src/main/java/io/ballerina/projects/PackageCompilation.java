@@ -174,7 +174,7 @@ public class PackageCompilation {
         diagnostics.addAll(diagnosticResult.allDiagnostics);
     }
 
-    public List<Diagnostic> pluginDiagnostics() {
+    List<Diagnostic> pluginDiagnostics() {
         return pluginDiagnostics;
     }
 }

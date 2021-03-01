@@ -155,9 +155,10 @@ public class ParserTestFormatter extends FormatterTest {
                 "match_stmt_source_06.bal", "match_stmt_source_07.bal", "match_stmt_source_11.bal",
                 "receive_action_source_02.bal", "receive_action_source_03.bal", "module_var_decl_source_15.bal",
                 "annot_decl_source_02.bal", "do_stmt_source_08.bal", "func_params_source_11.bal",
-                "predeclared-module-prefix_02.bal", "object_type_def_source_44.bal",
+                "predeclared-module-prefix_02.bal", "object_type_def_source_44.bal", "record_type_def_source_27.bal",
                 "record_type_def_source_27.bal", "func_type_source_09.bal", "func_type_source_13.bal",
-                "func_type_source_14.bal", "func_type_source_15.bal", "func_type_source_16.bal");
+                "func_type_source_14.bal", "func_type_source_15.bal", "func_type_source_16.bal",
+                "import_decl_source_24.bal");
     }
 
     @DataProvider(name = "test-file-provider")

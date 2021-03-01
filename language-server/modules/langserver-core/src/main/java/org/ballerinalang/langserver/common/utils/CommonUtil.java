@@ -50,6 +50,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
+import org.ballerinalang.langserver.common.constants.PatternConstants;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -693,6 +694,20 @@ public class CommonUtil {
     }
 
     /**
+     * Checks if the provided identifier is valid as per the ballerina specification.
+     *
+     * @param identifier Identifier to be checked for validity
+     * @return True, if the identifier is valid as per the ballerina specification
+     */
+    public static boolean isValidIdentifier(String identifier) {
+        if (identifier == null || identifier.isEmpty()) {
+            return false;
+        }
+
+        return identifier.matches(PatternConstants.IDENTIFIER_PATTERN);
+    }
+
+    /**
      * Returns module prefix and process imports required.
      *
      * @param importsAcceptor import acceptor
@@ -953,7 +968,7 @@ public class CommonUtil {
     }
     
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
-        Pattern pattern = Pattern.compile("([0-9a-zA-Z_.]*)/([0-9a-zA-Z._]*):([0-9]*\\.[0-9]*\\.[0-9]*)");
+        Pattern pattern = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
         String typeSignature = typeSymbol.signature();
         Matcher matcher = pattern.matcher(typeSignature);
         while (matcher.find()) {

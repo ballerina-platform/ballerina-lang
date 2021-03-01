@@ -429,8 +429,13 @@ public class TypeChecker extends BLangNodeVisitor {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
         }
         BType actualType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
-        types.checkType(xmlNavigation, actualType, expType);
 
+        if (actualType.tag == TypeTags.UNION) {
+            dlog.error(xmlNavigation.pos, DiagnosticErrorCode.TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS,
+                    xmlNavigation.expr.type);
+        }
+
+        types.checkType(xmlNavigation, actualType, expType);
         if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
             resultType = symTable.xmlType;
         } else {
@@ -2607,18 +2612,22 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
+        boolean isStringValue = containerExpression.type != null && containerExpression.type.tag == TypeTags.STRING;
+
         // Container expression must be a accessible expression.
-        if (!(containerExpression instanceof BLangAccessibleExpression)) {
+        if (!(containerExpression instanceof BLangAccessibleExpression) && !isStringValue) {
             dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_INDEX_ACCESS,
                     containerExpression);
             resultType = symTable.semanticError;
             return;
         }
 
-        ((BLangAccessibleExpression) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
-        ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
-                indexBasedAccessExpr.compoundAssignmentLhsVar;
-        checkExpr(containerExpression, this.env, symTable.noType);
+        if (!isStringValue) {
+            ((BLangAccessibleExpression) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
+            ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
+                    indexBasedAccessExpr.compoundAssignmentLhsVar;
+            checkExpr(containerExpression, this.env, symTable.noType);
+        }
 
         if (indexBasedAccessExpr.indexExpr.getKind() == NodeKind.TABLE_MULTI_KEY &&
                 containerExpression.type.tag != TypeTags.TABLE) {
@@ -6756,9 +6765,23 @@ public class TypeChecker extends BLangNodeVisitor {
                 return symTable.semanticError;
             }
 
+            if (varRefType.tag == TypeTags.UNION) {
+                Set<BType> memTypes = ((BUnionType) varRefType).getMemberTypes();
+                if (memTypes.contains(symTable.xmlTextType) || memTypes.contains(symTable.xmlType)) {
+                    indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+                            indexBasedAccessExpr.expr.type);
+                    return symTable.semanticError;
+                }
+            }
             indexBasedAccessExpr.originalType = symTable.stringType;
             actualType = symTable.stringType;
-        } else if (varRefType.tag == TypeTags.XML) {
+
+            if (TypeTags.isXMLTypeTag(varRefType.tag)) {
+                indexBasedAccessExpr.originalType = varRefType;
+                actualType = varRefType;
+            }
+        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             if (indexBasedAccessExpr.lhsVar) {
                 indexExpr.type = symTable.semanticError;
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_XML_SEQUENCE);
@@ -6771,8 +6794,12 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             // Note: out of range member access returns empty xml value unlike lists
             // hence, this needs to be set to xml type
-            actualType = varRefType;
-            indexBasedAccessExpr.originalType = actualType;
+            indexBasedAccessExpr.originalType = varRefType;
+            if (varRefType.tag == TypeTags.XML) {
+                actualType = varRefType;
+            } else {
+                actualType = BUnionType.create(null, varRefType, symTable.xmlNeverType);
+            }
         } else if (varRefType.tag == TypeTags.TABLE) {
             if (indexBasedAccessExpr.lhsVar) {
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS,
