@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * Represents the expression `<>`. This is only allowed to be used for default values of typedesc params in an external
  * function signature.
  *
- * @since 2.0.0-preview2
+ * @since 2.0.0
  */
 public class BLangInferTypedescExpr extends BLangExpression implements InferTypedescExpressionNode {
 
