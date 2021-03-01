@@ -1684,6 +1684,12 @@ public class JvmInstructionGen {
         this.storeToVar(newXMLPI.lhsOp.variableDcl);
     }
 
+    void generateXMLSequenceIns(BIRNonTerminator.NewXMLSequence xmlSequenceIns) {
+        this.loadVar(xmlSequenceIns.lhsOp.variableDcl);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "addChildren", String.format("(L%s;)V", XML_VALUE),
+                false);
+    }
+
     void generateXMLStoreIns(BIRNonTerminator.XMLAccess xmlStoreIns) {
 
         this.loadVar(xmlStoreIns.lhsOp.variableDcl);
@@ -1957,6 +1963,9 @@ public class JvmInstructionGen {
                     break;
                 case NEW_STRING_XML_QNAME:
                     generateNewStringXMLQNameIns((BIRNonTerminator.NewStringXMLQName) inst);
+                    break;
+                case NEW_XML_SEQUENCE:
+                    generateXMLSequenceIns((BIRNonTerminator.NewXMLSequence) inst);
                     break;
                 case XML_SEQ_STORE:
                     generateXMLStoreIns((BIRNonTerminator.XMLAccess) inst);
