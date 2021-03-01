@@ -26,9 +26,9 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class InferDefaultValueNode extends ExpressionNode {
+public class InferredTypedescDefaultNode extends ExpressionNode {
 
-    public InferDefaultValueNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public InferredTypedescDefaultNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -57,7 +57,7 @@ public class InferDefaultValueNode extends ExpressionNode {
                 "gtToken"};
     }
 
-    public InferDefaultValueNode modify(
+    public InferredTypedescDefaultNode modify(
             Token ltToken,
             Token gtToken) {
         if (checkForReferenceEquality(
@@ -66,13 +66,13 @@ public class InferDefaultValueNode extends ExpressionNode {
             return this;
         }
 
-        return NodeFactory.createInferDefaultValueNode(
+        return NodeFactory.createInferredTypedescDefaultNode(
                 ltToken,
                 gtToken);
     }
 
-    public InferDefaultValueNodeModifier modify() {
-        return new InferDefaultValueNodeModifier(this);
+    public InferredTypedescDefaultNodeModifier modify() {
+        return new InferredTypedescDefaultNodeModifier(this);
     }
 
     /**
@@ -80,32 +80,32 @@ public class InferDefaultValueNode extends ExpressionNode {
      *
      * @since 2.0.0
      */
-    public static class InferDefaultValueNodeModifier {
-        private final InferDefaultValueNode oldNode;
+    public static class InferredTypedescDefaultNodeModifier {
+        private final InferredTypedescDefaultNode oldNode;
         private Token ltToken;
         private Token gtToken;
 
-        public InferDefaultValueNodeModifier(InferDefaultValueNode oldNode) {
+        public InferredTypedescDefaultNodeModifier(InferredTypedescDefaultNode oldNode) {
             this.oldNode = oldNode;
             this.ltToken = oldNode.ltToken();
             this.gtToken = oldNode.gtToken();
         }
 
-        public InferDefaultValueNodeModifier withLtToken(
+        public InferredTypedescDefaultNodeModifier withLtToken(
                 Token ltToken) {
             Objects.requireNonNull(ltToken, "ltToken must not be null");
             this.ltToken = ltToken;
             return this;
         }
 
-        public InferDefaultValueNodeModifier withGtToken(
+        public InferredTypedescDefaultNodeModifier withGtToken(
                 Token gtToken) {
             Objects.requireNonNull(gtToken, "gtToken must not be null");
             this.gtToken = gtToken;
             return this;
         }
 
-        public InferDefaultValueNode apply() {
+        public InferredTypedescDefaultNode apply() {
             return oldNode.modify(
                     ltToken,
                     gtToken);

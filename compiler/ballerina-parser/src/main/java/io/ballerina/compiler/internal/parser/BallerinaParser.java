@@ -9426,7 +9426,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseInferDefaultValueTypeExpr() {
         STNode ltToken = parseLTToken();
         STNode gtToken = parseGTToken();
-        return STNodeFactory.createInferDefaultValueNode(ltToken, gtToken);
+        return STNodeFactory.createInferredTypedescDefaultNode(ltToken, gtToken);
     }
 
     /**

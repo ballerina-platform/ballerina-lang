@@ -841,16 +841,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRestArgumentNode.createUnlinkedFacade();
     }
 
-    public static InferDefaultValueNode createInferDefaultValueNode(
+    public static InferredTypedescDefaultNode createInferredTypedescDefaultNode(
             Token ltToken,
             Token gtToken) {
         Objects.requireNonNull(ltToken, "ltToken must not be null");
         Objects.requireNonNull(gtToken, "gtToken must not be null");
 
-        STNode stInferDefaultValueNode = STNodeFactory.createInferDefaultValueNode(
+        STNode stInferredTypedescDefaultNode = STNodeFactory.createInferredTypedescDefaultNode(
                 ltToken.internalNode(),
                 gtToken.internalNode());
-        return stInferDefaultValueNode.createUnlinkedFacade();
+        return stInferredTypedescDefaultNode.createUnlinkedFacade();
     }
 
     public static ObjectTypeDescriptorNode createObjectTypeDescriptorNode(

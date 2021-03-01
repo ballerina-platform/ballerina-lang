@@ -17,7 +17,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.InferTypedescExpressionNode;
+import org.ballerinalang.model.tree.expressions.InferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  *
  * @since 2.0.0
  */
-public class BLangInferTypedescExpr extends BLangExpression implements InferTypedescExpressionNode {
+public class BLangInferredTypedescDefaultNode extends BLangExpression implements InferredTypedescDefaultNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {

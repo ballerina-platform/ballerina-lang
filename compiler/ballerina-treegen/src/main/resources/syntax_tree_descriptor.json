@@ -1141,7 +1141,7 @@
             ]
         },
         {
-            "name": "InferDefaultValueNode",
+            "name": "InferredTypedescDefaultNode",
             "base": "ExpressionNode",
             "kind": "INFERRED_TYPEDESC_DEFAULT",
             "attributes": [

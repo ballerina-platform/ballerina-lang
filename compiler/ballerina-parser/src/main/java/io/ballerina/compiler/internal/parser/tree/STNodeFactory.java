@@ -643,11 +643,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
-    public static STNode createInferDefaultValueNode(
+    public static STNode createInferredTypedescDefaultNode(
             STNode ltToken,
             STNode gtToken) {
 
-        return new STInferDefaultValueNode(
+        return new STInferredTypedescDefaultNode(
                 ltToken,
                 gtToken);
     }

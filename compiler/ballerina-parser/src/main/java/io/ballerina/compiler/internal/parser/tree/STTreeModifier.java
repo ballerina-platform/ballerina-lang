@@ -677,11 +677,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STInferDefaultValueNode transform(
-            STInferDefaultValueNode inferDefaultValueNode) {
-        STNode ltToken = modifyNode(inferDefaultValueNode.ltToken);
-        STNode gtToken = modifyNode(inferDefaultValueNode.gtToken);
-        return inferDefaultValueNode.modify(
+    public STInferredTypedescDefaultNode transform(
+            STInferredTypedescDefaultNode inferredTypedescDefaultNode) {
+        STNode ltToken = modifyNode(inferredTypedescDefaultNode.ltToken);
+        STNode gtToken = modifyNode(inferredTypedescDefaultNode.gtToken);
+        return inferredTypedescDefaultNode.modify(
                 ltToken,
                 gtToken);
     }

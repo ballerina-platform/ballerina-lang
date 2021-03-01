@@ -862,13 +862,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public InferDefaultValueNode transform(
-            InferDefaultValueNode inferDefaultValueNode) {
+    public InferredTypedescDefaultNode transform(
+            InferredTypedescDefaultNode inferredTypedescDefaultNode) {
         Token ltToken =
-                modifyToken(inferDefaultValueNode.ltToken());
+                modifyToken(inferredTypedescDefaultNode.ltToken());
         Token gtToken =
-                modifyToken(inferDefaultValueNode.gtToken());
-        return inferDefaultValueNode.modify(
+                modifyToken(inferredTypedescDefaultNode.gtToken());
+        return inferredTypedescDefaultNode.modify(
                 ltToken,
                 gtToken);
     }

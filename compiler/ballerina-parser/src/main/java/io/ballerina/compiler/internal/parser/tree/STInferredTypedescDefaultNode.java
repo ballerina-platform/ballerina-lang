@@ -17,7 +17,7 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
-import io.ballerina.compiler.syntax.tree.InferDefaultValueNode;
+import io.ballerina.compiler.syntax.tree.InferredTypedescDefaultNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -30,11 +30,11 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STInferDefaultValueNode extends STExpressionNode {
+public class STInferredTypedescDefaultNode extends STExpressionNode {
     public final STNode ltToken;
     public final STNode gtToken;
 
-    STInferDefaultValueNode(
+    STInferredTypedescDefaultNode(
             STNode ltToken,
             STNode gtToken) {
         this(
@@ -43,7 +43,7 @@ public class STInferDefaultValueNode extends STExpressionNode {
                 Collections.emptyList());
     }
 
-    STInferDefaultValueNode(
+    STInferredTypedescDefaultNode(
             STNode ltToken,
             STNode gtToken,
             Collection<STNodeDiagnostic> diagnostics) {
@@ -57,13 +57,13 @@ public class STInferDefaultValueNode extends STExpressionNode {
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STInferDefaultValueNode(
+        return new STInferredTypedescDefaultNode(
                 this.ltToken,
                 this.gtToken,
                 diagnostics);
     }
 
-    public STInferDefaultValueNode modify(
+    public STInferredTypedescDefaultNode modify(
             STNode ltToken,
             STNode gtToken) {
         if (checkForReferenceEquality(
@@ -72,14 +72,14 @@ public class STInferDefaultValueNode extends STExpressionNode {
             return this;
         }
 
-        return new STInferDefaultValueNode(
+        return new STInferredTypedescDefaultNode(
                 ltToken,
                 gtToken,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new InferDefaultValueNode(this, position, parent);
+        return new InferredTypedescDefaultNode(this, position, parent);
     }
 
     @Override
