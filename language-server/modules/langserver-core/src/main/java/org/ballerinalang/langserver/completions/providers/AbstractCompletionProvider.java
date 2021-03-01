@@ -21,6 +21,8 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -43,10 +45,13 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
+import org.ballerinalang.langserver.completions.ObjectFieldCompletionItem;
+import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.FieldCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
@@ -69,9 +74,12 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
 
 /**
@@ -166,6 +174,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             } else if (symbol.kind() == XMLNS) {
                 CompletionItem xmlItem = XMLNSCompletionItemBuilder.build((XMLNamespaceSymbol) symbol);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, xmlItem));
+            } else if (symbol.kind() == RECORD_FIELD) {
+                RecordFieldSymbol recordFieldSymbol = (RecordFieldSymbol) symbol;
+                CompletionItem recFieldItem = FieldCompletionItemBuilder.build(recordFieldSymbol);
+                completionItems.add(new RecordFieldCompletionItem(ctx, recordFieldSymbol, recFieldItem));
+            } else if (symbol.kind() == OBJECT_FIELD || symbol.kind() == CLASS_FIELD) {
+                ObjectFieldSymbol objectFieldSymbol = (ObjectFieldSymbol) symbol;
+                CompletionItem objFieldItem = FieldCompletionItemBuilder.build(objectFieldSymbol);
+                completionItems.add(new ObjectFieldCompletionItem(ctx, objectFieldSymbol, objFieldItem));
             }
 
             processedSymbols.add(symbol);

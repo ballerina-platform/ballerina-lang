@@ -116,7 +116,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
     private static String extractTypeName(Matcher matcher, CodeActionContext context, String foundType,
                                           List<TextEdit> edits) {
-        Optional<SyntaxTree> syntaxTree = context.workspace().syntaxTree(context.filePath());
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
         if (matcher.find() && matcher.groupCount() > 2 && syntaxTree.isPresent()) {
             String orgName = matcher.group(1);
             String moduleName = matcher.group(2);

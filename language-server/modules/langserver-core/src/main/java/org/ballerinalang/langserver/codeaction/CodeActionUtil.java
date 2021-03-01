@@ -286,8 +286,9 @@ public class CodeActionUtil {
         } else if (typeDescriptor.typeKind() == TypeDescKind.ARRAY) {
             // Handle ambiguous array element types eg. record[], json[], map[]
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
+            boolean isUnion = arrayTypeSymbol.memberTypeDescriptor().typeKind() == TypeDescKind.UNION;
             return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), edits, context)
-                    .stream().map(m -> m + "[]")
+                    .stream().map(m -> isUnion ? "(" + m + ")[]" : m + "[]")
                     .collect(Collectors.toList());
         } else {
             types.add(FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context));
@@ -302,23 +303,23 @@ public class CodeActionUtil {
     /**
      * Returns position details for this cursor position.
      *
-     * @param range      cursor {@link Range}
      * @param syntaxTree {@link SyntaxTree}
+     * @param diagnostic {@link Diagnostic}
      * @param context    {@link CodeActionContext}
      * @return {@link DiagBasedPositionDetails}
      */
-    public static DiagBasedPositionDetails computePositionDetails(Range range, SyntaxTree syntaxTree,
+    public static DiagBasedPositionDetails computePositionDetails(SyntaxTree syntaxTree, Diagnostic diagnostic,
                                                                   CodeActionContext context) {
         // Find Cursor node
+        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
-        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
+        Document srcFile = context.currentDocument().orElseThrow();
+        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
 
         Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode, range,
                                                                                         semanticModel, srcFile);
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
-        Optional<TypeSymbol> matchedExprTypeSymbol;
         if (nodeAndSymbol.isPresent()) {
             matchedNode = nodeAndSymbol.get().getLeft();
             matchedSymbol = nodeAndSymbol.get().getRight();
@@ -326,8 +327,7 @@ public class CodeActionUtil {
             matchedNode = cursorNode;
             matchedSymbol = null;
         }
-        matchedExprTypeSymbol = semanticModel.type(largestExpressionNode(cursorNode, range).lineRange());
-        return DiagBasedPositionDetailsImpl.from(matchedNode, matchedSymbol, matchedExprTypeSymbol.orElse(null));
+        return DiagBasedPositionDetailsImpl.from(matchedNode, matchedSymbol, diagnostic);
     }
 
     public static List<TextEdit> getTypeGuardCodeActionEdits(String varName, Range range, UnionTypeSymbol unionType,
@@ -398,8 +398,8 @@ public class CodeActionUtil {
         }
 
         List<TextEdit> edits = new ArrayList<>();
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Document document = context.workspace().document(context.filePath()).orElseThrow();
+        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
+        Document document = context.currentDocument().orElseThrow();
         Optional<Symbol> optEnclosedFuncSymbol =
                 semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
 
@@ -560,7 +560,7 @@ public class CodeActionUtil {
                             return Optional.of((NonTerminalNode) memberNode);
                         }
                     }
-                    return Optional.of(member);
+                    return Optional.empty();
                 }
             } else if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION && isWithinStartSegment) {
                 return Optional.of(member);

@@ -82,7 +82,7 @@ public enum SyntaxKind {
     SELECT_KEYWORD(227, "select"),
     START_KEYWORD(228, "start"),
     FLUSH_KEYWORD(229, "flush"),
-    DEFAULT_KEYWORD(230, "default"),
+    CONFIGURABLE_KEYWORD(230, "configurable"),
     WAIT_KEYWORD(231, "wait"),
     DO_KEYWORD(232, "do"),
     TRANSACTION_KEYWORD(233, "transaction"),
@@ -104,7 +104,6 @@ public enum SyntaxKind {
     BY_KEYWORD(249, "by"),
     ASCENDING_KEYWORD(250, "ascending"),
     DESCENDING_KEYWORD(251, "descending"),
-    CONFIGURABLE_KEYWORD(252, "configurable"),
 
     // Type keywords
     INT_KEYWORD(300, "int"),

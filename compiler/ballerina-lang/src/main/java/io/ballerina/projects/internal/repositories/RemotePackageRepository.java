@@ -112,7 +112,8 @@ public class RemotePackageRepository implements PackageRepository {
         }
 
         try {
-            for (String version : this.client.getPackageVersions(orgName, packageName, JvmTarget.JAVA_11.code())) {
+            for (String version : this.client.getPackageVersions(orgName, packageName, JvmTarget.JAVA_11.code(),
+                                                                 RepoUtils.getBallerinaVersion())) {
                 packageVersions.add(PackageVersion.from(version));
             }
         } catch (ConnectionErrorException e) {

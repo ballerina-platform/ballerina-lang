@@ -59,7 +59,7 @@ public class MarkAsUntaintedCodeAction extends AbstractCodeActionProvider {
             String commandTitle = String.format(CommandConstants.MARK_UNTAINTED_TITLE, param);
             // Extract specific content range
             Range range = CommonUtil.toRange(diagnostic.location().lineRange());
-            Document document = context.workspace().document(context.filePath()).orElseThrow();
+            Document document = context.currentDocument().orElseThrow();
             String content = getContent(document, CommonUtil.toRange(diagnostic.location().lineRange()));
             // Add `untaint` keyword
             matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);

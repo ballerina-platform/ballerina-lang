@@ -109,7 +109,7 @@ public class SyntaxErrors {
             case IDENT_AFTER_OBJECT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
             case VAR_DECL_STMT_RHS:
-            case IMPORT_DECL_RHS:
+            case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
             case IMPORT_SUB_VERSION:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case SIMPLE_TYPE_DESCRIPTOR:
@@ -354,6 +354,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_IMPORT_KEYWORD;
             case FUNCTION_KEYWORD:
             case FUNCTION_IDENT:
+            case OPTIONAL_PEER_WORKER:
+            case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
             case CONST_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_CONST_KEYWORD;
@@ -448,10 +450,6 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_START_KEYWORD;
             case FLUSH_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_FLUSH_KEYWORD;
-            case DEFAULT_KEYWORD:
-            case OPTIONAL_PEER_WORKER:
-            case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
-                return DiagnosticErrorCode.ERROR_MISSING_DEFAULT_KEYWORD;
             case WAIT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_WAIT_KEYWORD;
             case DO_KEYWORD:

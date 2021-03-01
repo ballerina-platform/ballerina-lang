@@ -16,7 +16,7 @@
     {
       "label": "field1",
       "kind": "Field",
-      "detail": "Field",
+      "detail": "int",
       "sortText": "G",
       "insertText": "field1: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -24,7 +24,7 @@
     {
       "label": "field2",
       "kind": "Field",
-      "detail": "Field",
+      "detail": "string",
       "sortText": "G",
       "insertText": "field2: \"${1}\"",
       "insertTextFormat": "Snippet"
@@ -32,7 +32,7 @@
     {
       "label": "field3",
       "kind": "Field",
-      "detail": "Field",
+      "detail": "boolean",
       "sortText": "G",
       "insertText": "field3: ${1:false}",
       "insertTextFormat": "Snippet"

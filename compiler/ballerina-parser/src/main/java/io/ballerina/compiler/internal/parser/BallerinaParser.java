@@ -458,7 +458,7 @@ public class BallerinaParser extends AbstractParser {
                 alias = STNodeFactory.createEmptyNode();
                 break;
             default:
-                recover(peek(), ParserRuleContext.IMPORT_DECL_RHS, importKeyword, identifier);
+                recover(peek(), ParserRuleContext.IMPORT_DECL_ORG_OR_MODULE_NAME_RHS, importKeyword, identifier);
                 return parseImportDecl(importKeyword, identifier);
         }
 
@@ -516,8 +516,13 @@ public class BallerinaParser extends AbstractParser {
         moduleNameParts.add(moduleNameStart);
 
         STToken nextToken = peek();
-        while (!isEndOfImportModuleName(nextToken)) {
-            moduleNameParts.add(parseDotToken());
+        while (!isEndOfImportDecl(nextToken)) {
+            STNode moduleNameSeparator = parseModuleNameRhs();
+            if (moduleNameSeparator == null) {
+                break;
+            }
+
+            moduleNameParts.add(moduleNameSeparator);
             moduleNameParts.add(parseIdentifier(ParserRuleContext.IMPORT_MODULE_NAME));
             nextToken = peek();
         }
@@ -525,8 +530,18 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(moduleNameParts);
     }
 
-    private boolean isEndOfImportModuleName(STToken nextToken) {
-        return nextToken.kind != SyntaxKind.DOT_TOKEN && nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN;
+    private STNode parseModuleNameRhs() {
+        switch(peek().kind) {
+            case DOT_TOKEN:
+                return consume();
+            case AS_KEYWORD:
+            case VERSION_KEYWORD:
+            case SEMICOLON_TOKEN:
+                return null;
+            default:
+                recover(peek(), ParserRuleContext.AFTER_IMPORT_MODULE_NAME);
+                return parseModuleNameRhs();
+        }
     }
 
     private boolean isEndOfImportDecl(STToken nextToken) {
@@ -4191,6 +4206,19 @@ public class BallerinaParser extends AbstractParser {
         }
 
         endContext();
+
+        if (!hasVarInit) {
+            SyntaxKind bindingPatternKind = ((STTypedBindingPatternNode) typedBindingPattern).bindingPattern.kind;
+            boolean hasComplexBP = bindingPatternKind != SyntaxKind.CAPTURE_BINDING_PATTERN &&
+                    bindingPatternKind != SyntaxKind.WILDCARD_BINDING_PATTERN;
+            if (hasComplexBP) {
+                assign = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.EQUAL_TOKEN,
+                        DiagnosticErrorCode.ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED);
+                STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                expr = STNodeFactory.createSimpleNameReferenceNode(identifier);
+            }
+        }
+
         if (isModuleVar) {
             return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr,
                     semicolon, isConfigurable, hasVarInit);
@@ -8129,9 +8157,9 @@ public class BallerinaParser extends AbstractParser {
         STNode name;
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            case DEFAULT_KEYWORD:
-                STNode defaultKeyword = parseDefaultKeyword();
-                name = STNodeFactory.createSimpleNameReferenceNode(defaultKeyword);
+            case FUNCTION_KEYWORD:
+                STNode functionKeyword = consume();
+                name = STNodeFactory.createSimpleNameReferenceNode(functionKeyword);
                 return parseAsyncSendAction(expression, rightArrow, name);
             case IDENTIFIER_TOKEN:
                 name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
@@ -8159,21 +8187,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 recover(peek(), ParserRuleContext.REMOTE_CALL_OR_ASYNC_SEND_END, expression, rightArrow, name);
                 return parseRemoteCallOrAsyncSendEnd(expression, rightArrow, name);
-        }
-    }
-
-    /**
-     * Parse default keyword.
-     *
-     * @return default keyword node
-     */
-    private STNode parseDefaultKeyword() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.DEFAULT_KEYWORD) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.DEFAULT_KEYWORD);
-            return parseDefaultKeyword();
         }
     }
 
@@ -11327,7 +11340,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse peer worker.
      * <p>
-     * <code>peer-worker := worker-name | default</code>
+     * <code>peer-worker := worker-name | function</code>
      *
      * @return peer worker name node
      */
@@ -11335,7 +11348,7 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
-            case DEFAULT_KEYWORD:
+            case FUNCTION_KEYWORD:
                 return STNodeFactory.createSimpleNameReferenceNode(consume());
             default:
                 return STNodeFactory.createEmptyNode();
@@ -11536,7 +11549,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse peer worker.
      * <p>
-     * <code>peer-worker := worker-name | default</code>
+     * <code>peer-worker := worker-name | function</code>
      *
      * @return peer worker name node
      */
@@ -11544,7 +11557,7 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
-            case DEFAULT_KEYWORD:
+            case FUNCTION_KEYWORD:
                 return STNodeFactory.createSimpleNameReferenceNode(consume());
             default:
                 recover(token, ParserRuleContext.PEER_WORKER_NAME);
@@ -11584,7 +11597,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseReceiveWorkers() {
         switch (peek().kind) {
-            case DEFAULT_KEYWORD:
+            case FUNCTION_KEYWORD:
             case IDENTIFIER_TOKEN:
                 return parsePeerWorkerName();
             case OPEN_BRACE_TOKEN:
@@ -11676,9 +11689,9 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseReceiveField() {
         switch (peek().kind) {
-            case DEFAULT_KEYWORD:
-                STNode defaultKeyword = parseDefaultKeyword();
-                return STNodeFactory.createSimpleNameReferenceNode(defaultKeyword);
+            case FUNCTION_KEYWORD:
+                STNode functionKeyword = consume();
+                return STNodeFactory.createSimpleNameReferenceNode(functionKeyword);
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseIdentifier(ParserRuleContext.RECEIVE_FIELD_NAME);
                 return createQualifiedReceiveField(identifier);
@@ -17083,10 +17096,12 @@ public class BallerinaParser extends AbstractParser {
         // We reach here for something like: "{ foo:bar[". But we started parsing the rhs component
         // starting with "bar". Hence if its a typed-binding-pattern, then merge the "foo:" with
         // the rest of the type-desc.
+        STTypedBindingPatternNode typedBP = (STTypedBindingPatternNode) typedBPOrExpr;
         STNode qualifiedNameRef = STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
-        STNode typeDesc = mergeQualifiedNameWithTypeDesc(qualifiedNameRef,
-                ((STTypedBindingPatternNode) typedBPOrExpr).typeDescriptor);
-        return parseVarDeclRhs(annots, varDeclQualifiers, typeDesc, false);
+        STNode typeDesc = mergeQualifiedNameWithTypeDesc(qualifiedNameRef, typedBP.typeDescriptor);
+
+        STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(typeDesc, typedBP.bindingPattern);
+        return parseVarDeclRhs(annots, varDeclQualifiers, typedBindingPattern, false);
     }
 
     /**

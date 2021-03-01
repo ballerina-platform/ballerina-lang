@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
-import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BXml;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.CharacterDataImpl;
@@ -28,8 +27,6 @@ import org.apache.axiom.om.impl.llom.CharacterDataImpl;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
 
 /**
  * XML nodes containing atomic content such as text, comment and processing instructions.
@@ -89,16 +86,6 @@ public class XmlText extends XmlNonElementItem {
         CharacterDataImpl characterData = new CharacterDataImpl();
         characterData.data = this.data;
         return characterData;
-    }
-
-    @Override
-    public String stringValue(BLink parent) {
-        try {
-            return data;
-        } catch (Throwable t) {
-            handleXmlException("failed to get xml as string: ", t);
-        }
-        return STRING_NULL_VALUE;
     }
 
     @Override

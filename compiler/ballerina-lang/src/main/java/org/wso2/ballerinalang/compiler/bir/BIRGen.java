@@ -207,7 +207,7 @@ public class BIRGen extends BLangNodeVisitor {
     private static final CompilerContext.Key<BIRGen> BIR_GEN =
             new CompilerContext.Key<>();
 
-    public static final String DEFAULT_WORKER_NAME = "default";
+    public static final String DEFAULT_WORKER_NAME = "function";
     public static final String CLONE_READ_ONLY = "cloneReadOnly";
     private BIRGenEnv env;
     private Names names;
@@ -2624,7 +2624,7 @@ public class BIRGen extends BLangNodeVisitor {
             if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
                 insKind = InstructionKind.XML_ATTRIBUTE_LOAD;
                 keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
-            } else if (astAccessExprExprType.tag == TypeTags.XML) {
+            } else if (TypeTags.isXMLTypeTag(astAccessExprExprType.tag)) {
                 generateXMLAccess((BLangXMLAccessExpr) astIndexBasedAccessExpr, tempVarRef, varRefRegIndex,
                         keyRegIndex);
                 this.varAssignment = variableStore;
