@@ -363,13 +363,11 @@ function assertFalse(any|error actual) {
                 message = "expected 'false', found '" + (actual is error ? actual.toString() : actual.toString()) + "'");
 }
 
-function assertValueEquality(anydata|error expected, anydata|error actual) {
+function assertValueEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
     }
 
-    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
-    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+                message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
