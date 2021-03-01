@@ -794,7 +794,7 @@ public class Generator {
             doc.append(codeLineNode.codeDescription().toString());
         }
 
-        doc.append(markdownCodeBlockNode.endBacktick().text());
+        doc.append(markdownCodeBlockNode.endBacktick().text()).append("\n");
         return doc.toString();
     }
 }
