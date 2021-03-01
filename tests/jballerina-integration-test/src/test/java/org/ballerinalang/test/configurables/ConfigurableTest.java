@@ -74,7 +74,7 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testAPICNegativeTest() throws BallerinaTestException {
         String errorMsg = "configurable variable 'configPkg:invalidArr' with type '(int[] & readonly)[] & readonly' " +
-                "is not supported";
+                "is not supported [Config.toml:(3:1,3:28)]";
         executeBalCommand("/testErrorProject", new LogLeecher(errorMsg, ERROR), "test",
                 "configPkg", null);
     }
@@ -113,7 +113,7 @@ public class ConfigurableTest extends BaseTest {
         String tomlError1 = "missing identifier [Config.toml:(0:9,0:9)]";
         String tomlError2 = "missing identifier [Config.toml:(0:20,0:20)]";
         String tomlError3 = "missing identifier [Config.toml:(0:21,0:21)]";
-        String errorMsg = "error: invalid `Config.toml` file : ";
+        String errorMsg = "error: invalid configuration file : ";
         LogLeecher errorLeecher1 = new LogLeecher(errorMsg, ERROR);
         LogLeecher errorLeecher2 = new LogLeecher(tomlError1, ERROR);
         LogLeecher errorLeecher3 = new LogLeecher(tomlError2, ERROR);
@@ -131,15 +131,15 @@ public class ConfigurableTest extends BaseTest {
     public Object[][] getNegativeTestProjects() {
         return new Object[][]{
                 {"invalidComplexArray", "configurable variable 'main:intComplexArr' with type " +
-                        "'(int[] & readonly)[] & readonly' is not supported" },
+                        "'(int[] & readonly)[] & readonly' is not supported [Config.toml:(2:1,2:41)]" },
                 {"invalidRecordField", "field type 'string[][]' in configurable variable 'main:testUser' is " +
-                        "not supported"},
+                        "not supported [Config.toml:(4:1,4:40)]"},
                 {"invalidByteRange", "Value provided for byte variable 'main:byteVar' is out of range. " +
-                        "Expected range is (0-255), found '355'"},
+                        "Expected range is (0-255), found '355' [Config.toml:(3:11,3:14)]"},
                 {"invalidMapType",
                         "configurable variable 'main:intMap' with type 'map<int> & readonly' is not supported"},
                 {"invalidTableConstraint", "table constraint type '(map<string> & readonly)' in configurable variable" +
-                        " 'main:tab' is not supported"}
+                        " 'main:tab' is not supported [Config.toml:(1:1,2:16)]"}
         };
     }
 
@@ -166,43 +166,51 @@ public class ConfigurableTest extends BaseTest {
     public Object[][] getNegativeTests() {
         return new Object[][]{
                 {"empty_config_file", "an empty configuration file is found in path "},
-                {"no_module_config", "invalid module structure found for module 'main'." +
-                        " Please provide the module name as '[main]'"},
-                {"invalid_org_name", "invalid module structure found for module 'main'." +
-                        " Please provide the module name as '[main]'" },
+                {"no_module_config", "invalid module structure found for module 'main'. " +
+                        "Please provide the module name as '[main]' [no_module_config.toml:(1:1,2:12)]"},
+                {"invalid_org_name", "invalid module structure found for module 'main'. " +
+                        "Please provide the module name as '[main]' [invalid_org_name.toml:(1:1,3:21)]" },
                 {"invalid_org_structure", "invalid module structure found for module 'testOrg.main'. " +
-                        "Please provide the module name as '[testOrg.main]'" },
+                        "Please provide the module name as '[testOrg.main]' [invalid_org_structure.toml:(1:1,1:13)]" },
                 {"invalid_module_structure", "invalid module structure found for module 'main'. " +
-                        "Please provide the module name as '[main]'" },
+                        "Please provide the module name as '[main]' [invalid_module_structure.toml:(1:1,1:17)]" },
                 {"invalid_sub_module_structure", "invalid module structure found for module 'main.foo'. " +
-                        "Please provide the module name as '[main.foo]'" },
-                {"required_negative", "value not provided for required configurable variable 'main:stringVar'"},
+                        "Please provide the module name as '[main.foo]' " +
+                        "[invalid_sub_module_structure.toml:(3:1,3:9)]" },
+                {"required_negative", "error: value not provided for required configurable variable 'main:stringVar'" +
+                        " [required_negative.toml:(1:1,2:11)]"},
                 {"primitive_type_error", "configurable variable 'main:intVar' is expected to be of type 'int', " +
-                        "but found 'float'"},
-                {"primitive_structure_error", "configurable variable 'main:intVar' is expected to be of type 'int', " +
-                        "but found 'record'"},
+                        "but found 'float' [primitive_type_error.toml:(2:10,2:14)]"},
+                {"primitive_structure_error", "configurable variable 'main:intVar' is expected to be of type 'int'," +
+                        " but found 'record' [primitive_structure_error.toml:(2:1,2:24)]"},
                 {"array_type_error", "configurable variable 'main:intArr' is expected to be of type " +
-                        "'int[] & readonly', but found 'string'"},
+                        "'int[] & readonly', but found 'string' [array_type_error.toml:(4:1,4:17)]"},
                 {"array_structure_error", "configurable variable 'main:intArr' is expected to be of type " +
-                        "'int[] & readonly', but found 'record'"},
+                        "'int[] & readonly', but found 'record' [array_structure_error.toml:(4:1,4:32)]"},
                 {"array_element_structure", "configurable variable 'main:intArr[2]' is expected to be of type 'int'," +
-                        " but found 'array'"},
+                        " but found 'array' [array_element_structure.toml:(4:19,4:26)]"},
                 {"array_multi_type", "configurable variable 'main:intArr[1]' is expected to be of type 'int'," +
-                        " but found 'string'"},
-                {"additional_field", "additional field 'scopes' provided for configurable variable 'main:testUser'" +
-                        " of record 'main:AuthInfo' is not supported"},
+                        " but found 'string' [array_multi_type.toml:(4:15,4:21)]"},
+                {"additional_field", "additional field 'scopes' provided for configurable variable 'main:testUser' " +
+                        "of record 'main:AuthInfo' is not supported [additional_field.toml:(7:1,7:19)]"},
                 {"missing_record_field", "value not provided for non-defaultable required field 'username' of record" +
-                        " 'main:AuthInfo' in configurable variable 'main:testUser'"},
+                        " 'main:AuthInfo' in configurable variable 'main:testUser' " +
+                        "[missing_record_field.toml:(4:1,5:22)]"},
                 {"record_type_error", "configurable variable 'main:testUser' is expected to be of type " +
-                        "'main:(testOrg/main:0.1.0:AuthInfo & readonly)', but found 'string'"},
+                        "'main:(testOrg/main:0.1.0:AuthInfo & readonly)', but found 'string' " +
+                        "[record_type_error.toml:(3:1,3:39)]"},
                 {"record_field_structure_error", "field 'username' from configurable variable 'main:testUser' " +
-                        "is expected to be of type 'string', but found 'record'"},
+                        "is expected to be of type 'string', but found 'record' " +
+                        "[record_field_structure_error.toml:(5:1,5:28)]"},
                 {"record_field_type_error", "field 'username' from configurable variable 'main:testUser' " +
-                        "is expected to be of type 'string', but found 'int'"},
+                        "is expected to be of type 'string', but found 'int' " +
+                        "[record_field_type_error.toml:(5:12,5:16)]"},
                 {"missing_table_key", "value required for key 'username' of type 'table<(main:AuthInfo & readonly)>" +
-                        " key(username) & readonly' in configurable variable 'main:users'"},
+                        " key(username) & readonly' in configurable variable 'main:users' " +
+                        "[missing_table_key.toml:(8:1,9:21)]"},
                 {"table_type_error", "configurable variable 'main:users' is expected to be of type " +
-                        "'table<(main:AuthInfo & readonly)> key(username) & readonly', but found 'record'"},
+                        "'table<(main:AuthInfo & readonly)> key(username) & readonly', but found 'record' " +
+                        "[table_type_error.toml:(4:1,6:21)]"},
                 {"table_field_type_error", "field 'username' from configurable variable 'main:users' is " +
                         "expected to be of type 'string', but found 'int'"},
                 {"table_field_structure_error", "field 'username' from configurable variable 'main:users' " +

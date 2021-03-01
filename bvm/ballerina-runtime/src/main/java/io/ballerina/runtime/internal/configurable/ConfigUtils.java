@@ -24,8 +24,11 @@ import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIG_FILE_NAME;
 
 /**
  * Util methods required for configurable variables.
@@ -95,5 +98,17 @@ public class ConfigUtils {
 
     static boolean isPrimitiveType(int typeTag) {
         return typeTag <= TypeTags.BOOLEAN_TAG;
+    }
+
+    static String getLineRange(TomlNode node) {
+        if (node.location() == null) {
+            return "[" + CONFIG_FILE_NAME + "]";
+        }
+        LineRange lineRange = node.location().lineRange();
+        LineRange oneBasedLineRange = LineRange.from(
+                lineRange.filePath(),
+                LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
+                LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
+        return " [" + oneBasedLineRange.filePath() + ":" + oneBasedLineRange.toString() + "]";
     }
 }

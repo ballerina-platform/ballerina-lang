@@ -25,7 +25,7 @@ package io.ballerina.runtime.internal.configurable;
  */
 public class ConfigurableConstants {
     public static final String CONFIG_FILE_NAME = "Config.toml";
-    public static final String INVALID_TOML_FILE = "invalid `" + CONFIG_FILE_NAME + "` file : ";
+    public static final String INVALID_TOML_FILE = "invalid configuration file : ";
     public static final String INVALID_TOML_TYPE = "configurable variable '%s' is expected to be of type '%s', " +
             "but found '%s'";
     public static final String CONFIGURATION_NOT_SUPPORTED = "configurable variable '%s' with type '%s' is not " +
@@ -43,7 +43,7 @@ public class ConfigurableConstants {
             " '%s' of record '%s' in configurable variable '%s'";
     public static final String TABLE_KEY_NOT_PROVIDED = "value required for key '%s' of type '%s' in " +
             "configurable variable '%s'";
-    public static final String INVALID_BYTE_RANGE = "Value provided for byte variable '%s' is out of range. Expected " +
+    public static final String INVALID_BYTE_RANGE = "value provided for byte variable '%s' is out of range. Expected " +
             "range is (0-255), found '%s'";
     public static final String INVALID_MODULE_STRUCTURE = "invalid module structure found for module '%s'. Please " +
             "provide the module name as '[%s]' ";
