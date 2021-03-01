@@ -24,6 +24,8 @@ import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -55,15 +57,24 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ImplicitNewExpressionNode node) {
-        /*
-        Supports the following
-        (1) lhs = new <cursor>
-        */
-        Optional<ClassSymbol> classSymbol = getClassSymbol(context, node);
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
-        classSymbol.ifPresent(symbol -> completionItems.add(this.getExplicitNewCompletionItem(symbol, context)));
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (this.withinArgs(context, node)) {
+            /*
+            Covers
+            lhs = new(<cursor>)
+             */
+            completionItems.addAll(this.getCompletionsWithinArgs(context));
+        } else {
+            /*
+            Supports the following
+            (1) lhs = new <cursor>
+            */
+            Optional<ClassSymbol> classSymbol = getClassSymbol(context, node);
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            classSymbol.ifPresent(symbol -> completionItems.add(this.getExplicitNewCompletionItem(symbol, context)));
+        }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
@@ -131,5 +142,26 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         }
 
         return Optional.of(SymbolUtil.getTypeDescForClassSymbol(varEntry.get()));
+    }
+
+    private boolean withinArgs(BallerinaCompletionContext context, ImplicitNewExpressionNode node) {
+        if (node.parenthesizedArgList().isEmpty()) {
+            return false;
+        }
+        ParenthesizedArgList parenthesizedArgList = node.parenthesizedArgList().get();
+        int cursor = context.getCursorPositionInTree();
+
+        return cursor > parenthesizedArgList.openParenToken().textRange().startOffset()
+                && cursor < parenthesizedArgList.closeParenToken().textRange().endOffset();
+    }
+
+    private List<LSCompletionItem> getCompletionsWithinArgs(BallerinaCompletionContext ctx) {
+        NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
+        if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
+        }
+
+        return this.expressionCompletions(ctx);
     }
 }

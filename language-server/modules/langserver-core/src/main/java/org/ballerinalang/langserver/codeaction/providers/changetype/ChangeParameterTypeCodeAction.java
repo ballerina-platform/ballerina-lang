@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -35,7 +36,7 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -58,14 +59,20 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
 
         // Skip, non-local var declarations
-        PositionDetails positionDetails = context.positionDetails();
         if (positionDetails.matchedNode().kind() != SyntaxKind.LOCAL_VAR_DECL) {
+            return Collections.emptyList();
+        }
+
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
+        if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -77,8 +84,8 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         // Get parameter symbol
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
+        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
+        Document srcFile = context.currentDocument().orElseThrow();
         Optional<Symbol> optParamSymbol = semanticModel.symbol(srcFile,
                                                                initializer.get().lineRange().startLine());
         if (optParamSymbol.isEmpty() || optParamSymbol.get().kind() != SymbolKind.VARIABLE) {
@@ -96,7 +103,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         // Get line-range of type-desc of parameter
-        SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
+        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
         Optional<Range> paramTypeRange = getParameterTypeRange(CommonUtil.findNode(paramSymbol, syntaxTree));
         if (paramTypeRange.isEmpty()) {
             return Collections.emptyList();
@@ -105,7 +112,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         // Derive possible types
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes(positionDetails.matchedExprType(), importEdits, context);
+        List<String> types = CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context);
         for (String type : types) {
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(paramTypeRange.get(), type));

@@ -16,7 +16,7 @@
     {
       "label": "rec2f1",
       "kind": "Field",
-      "detail": "Field",
+      "detail": "int",
       "sortText": "G",
       "insertText": "rec2f1: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -24,7 +24,7 @@
     {
       "label": "rec2f2",
       "kind": "Field",
-      "detail": "Field",
+      "detail": "int",
       "sortText": "G",
       "insertText": "rec2f2: ${1:0}",
       "insertTextFormat": "Snippet"

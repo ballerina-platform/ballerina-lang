@@ -212,6 +212,8 @@ public enum Snippet {
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
 
+    KW_CONFIGURABLE(SnippetGenerator.getConfigurableKeywordSnippet()),
+
     KW_FAIL(SnippetGenerator.getFailKeywordSnippet()),
 
     KW_REMOTE(SnippetGenerator.getRemoteKeywordSnippet()),

@@ -19,14 +19,11 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
-
-import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
 
 /**
  * Test class containing tests related to selective function tests.
@@ -69,12 +66,12 @@ public class SelectedFunctionTest extends BaseTestCase {
     @Test
     public void testNonExistingFunctionExecution() throws BallerinaTestException {
         String msg = "No tests found";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-
         String[] args = mergeCoverageArgs(new String[]{"--tests", "nonExistingFunc", "single-test-execution.bal"});
-        balClient.runMain("test", args,
-                null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg)) {
+            AssertionUtils.assertForTestFailures(output, "non existing function execution failure");
+        }
     }
 
     @Test
@@ -89,12 +86,12 @@ public class SelectedFunctionTest extends BaseTestCase {
     public void testDependentDisabledFunctionExecution() throws BallerinaTestException {
         String errMsg = "error: Test [testDependentDisabledFunc] depends on function [testDisabledFunc], " +
                 "but it is either disabled or not included.";
-        LogLeecher clientLeecher = new LogLeecher(errMsg, ERROR);
-
         String[] args = mergeCoverageArgs(
                 new String[]{"--tests", "testDependentDisabledFunc", "single-test-execution.bal"});
-        balClient.runMain("test", args, null, new String[]{}, new LogLeecher[]{clientLeecher},
-                projectPath);
-        clientLeecher.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        if (!output.contains(errMsg)) {
+            AssertionUtils.assertForTestFailures(output, "dependant disabled function execution failure");
+        }
     }
 }

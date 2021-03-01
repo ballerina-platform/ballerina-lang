@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
@@ -45,10 +46,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -152,8 +155,41 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTupleVariable tupleVariableNode) {
+        validateNoParameters(tupleVariableNode);
+        validateReturnParameter(tupleVariableNode, null, false);
+        validateReferences(tupleVariableNode);
+        validateDeprecationDocumentation(tupleVariableNode.markdownDocumentationAttachment, false,
+                tupleVariableNode.pos);
+        validateDeprecatedParametersDocumentation(tupleVariableNode.markdownDocumentationAttachment,
+                tupleVariableNode.pos);
+    }
+
+    @Override
     public void visit(BLangResourceFunction funcNode) {
         visit((BLangFunction) funcNode);
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+        validateNoParameters(bLangRecordVariable);
+        validateReturnParameter(bLangRecordVariable, null, false);
+        validateReferences(bLangRecordVariable);
+        validateDeprecationDocumentation(bLangRecordVariable.markdownDocumentationAttachment, false,
+                bLangRecordVariable.pos);
+        validateDeprecatedParametersDocumentation(bLangRecordVariable.markdownDocumentationAttachment,
+                bLangRecordVariable.pos);
+    }
+
+    @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        validateNoParameters(bLangErrorVariable);
+        validateReturnParameter(bLangErrorVariable, null, false);
+        validateReferences(bLangErrorVariable);
+        validateDeprecationDocumentation(bLangErrorVariable.markdownDocumentationAttachment, false,
+                bLangErrorVariable.pos);
+        validateDeprecatedParametersDocumentation(bLangErrorVariable.markdownDocumentationAttachment,
+                bLangErrorVariable.pos);
     }
 
     @Override

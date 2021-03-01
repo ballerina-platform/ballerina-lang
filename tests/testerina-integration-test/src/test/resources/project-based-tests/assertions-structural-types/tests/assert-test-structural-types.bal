@@ -293,33 +293,3 @@ function testAssertMapNotEqualsNegative() {
     error? err = trap test:assertNotEquals(testMap1, testMap2);
     test:assertTrue(err is error);
 }
-
-@test:Config {}
-function testAssertErrorEquals() {
-    error err1 = error("errorMessage");
-    error err2 = error("errorMessage");
-    test:assertEquals(err1, err2);
-}
-
-@test:Config {}
-function testAssertErrorEqualsNegative() {
-    error err1 = error("errorMessage");
-    error err2 = error("errorMessage1");
-    error? err = trap test:assertEquals(err1, err2);
-    test:assertTrue(err is error);
-}
-
-@test:Config {}
-function testAssertErrorNotEquals() {
-    error err1 = error("errorMessage");
-    error err2 = error("errorMessage1");
-    test:assertNotEquals(err1, err2);
-}
-
-@test:Config {}
-function testAssertErrorNotEqualsNegative() {
-    error err1 = error("errorMessage");
-    error err2 = error("errorMessage");
-    error? err = trap test:assertNotEquals(err1, err2);
-    test:assertTrue(err is error);
-}

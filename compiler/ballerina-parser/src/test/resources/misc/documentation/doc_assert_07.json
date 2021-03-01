@@ -24,23 +24,29 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " test backtick reference "
+                                  "value": "test backtick reference "
                                 },
                                 {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "INLINE_CODE_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "CODE_CONTENT",
                                       "value": "dummy content"
                                     },
                                     {
@@ -62,17 +68,23 @@
                           "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN"
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": " test reference with special keyword: "
+                                  "value": "test reference with special keyword: "
                                 },
                                 {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "BALLERINA_NAME_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "FUNCTION_DOC_REFERENCE_TOKEN",
@@ -105,7 +117,7 @@
                                   "value": " and "
                                 },
                                 {
-                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "kind": "BALLERINA_NAME_REFERENCE",
                                   "children": [
                                     {
                                       "kind": "MODULE_DOC_REFERENCE_TOKEN",

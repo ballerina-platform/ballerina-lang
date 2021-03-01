@@ -47,6 +47,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -84,12 +85,14 @@ class AIDataMapperCodeActionUtil {
     /**
      * Returns the workspace edits for the automatic data mapping code action.
      *
-     * @param context    {@link CodeActionContext}
-     * @param diagnostic {@link Diagnostic}
+     * @param positionDetails {@link DiagBasedPositionDetails}
+     * @param context         {@link CodeActionContext}
+     * @param diagnostic      {@link Diagnostic}
      * @return edits for the data mapper code action
      * @throws IOException throws if error occurred when getting generatedRecordMappingFunction
      */
-    static List<TextEdit> getAIDataMapperCodeActionEdits(CodeActionContext context, Diagnostic diagnostic)
+    static List<TextEdit> getAIDataMapperCodeActionEdits(DiagBasedPositionDetails positionDetails,
+                                                         CodeActionContext context, Diagnostic diagnostic)
             throws IOException {
         List<TextEdit> fEdits = new ArrayList<>();
         String diagnosticMessage = diagnostic.message();
@@ -176,7 +179,7 @@ class AIDataMapperCodeActionUtil {
                     }
 
 
-                    String functionCall = context.positionDetails().matchedNode().toString();
+                    String functionCall = positionDetails.matchedNode().toString();
                     if (foundErrorRight && !foundErrorLeft) {
                         symbolAtCursorName = functionCall.split("[=;]")[1].trim();
                         generatedFunctionName =
@@ -184,7 +187,7 @@ class AIDataMapperCodeActionUtil {
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else if (foundErrorLeft && foundErrorRight) {
                         // get the information about the line positions
-                        newTextRange = CommonUtil.toRange(context.positionDetails().matchedNode().lineRange());
+                        newTextRange = CommonUtil.toRange(positionDetails.matchedNode().lineRange());
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, functionCall);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));

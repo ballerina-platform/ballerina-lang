@@ -42,9 +42,4 @@ public class OptionalFieldAccessExpressionNodeContext extends FieldAccessContext
 
         return completionItems;
     }
-
-    @Override
-    protected boolean removeOptionalFields() {
-        return false;
-    }
 }

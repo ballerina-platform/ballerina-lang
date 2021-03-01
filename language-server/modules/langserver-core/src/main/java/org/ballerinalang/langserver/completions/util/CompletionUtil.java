@@ -104,7 +104,7 @@ public class CompletionUtil {
      */
     public static void fillTokenInfoAtCursor(BallerinaCompletionContext context) throws TokenOrSymbolNotFoundException {
         context.setTokenAtCursor(TokensUtil.findTokenAtPosition(context, context.getCursorPosition()));
-        Optional<Document> document = context.workspace().document(context.filePath());
+        Optional<Document> document = context.currentDocument();
         if (document.isEmpty()) {
             throw new RuntimeException("Could not find a valid document");
         }

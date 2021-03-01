@@ -781,7 +781,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 commitRollbackAllowed = true;
         }
         boolean prevTxMode = this.withinTransactionScope;
-        if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
+        if ((ifStmt.expr.getKind() == NodeKind.GROUP_EXPR ?
+                ((BLangGroupExpr) ifStmt.expr).expression.getKind() :
+                ifStmt.expr.getKind()) == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = true;
         }
         analyzeNode(ifStmt.body, env);
@@ -3059,7 +3061,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExprs(actionInvocation.requiredArgs);
         analyzeExprs(actionInvocation.restArgs);
 
-        if (actionInvocation.symbol.kind == SymbolKind.FUNCTION &&
+        if (actionInvocation.symbol != null && actionInvocation.symbol.kind == SymbolKind.FUNCTION &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.DEPRECATED)) {
             dlog.warning(actionInvocation.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, actionInvocation);
         }
@@ -3077,9 +3079,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if ((actionInvocation.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
+        if (actionInvocation.symbol != null &&
+                (actionInvocation.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.INVALID_FUNCTIONAL_CONSTRUCTOR_INVOCATION,
-                       actionInvocation.symbol);
+                    actionInvocation.symbol);
             return;
         }
 
