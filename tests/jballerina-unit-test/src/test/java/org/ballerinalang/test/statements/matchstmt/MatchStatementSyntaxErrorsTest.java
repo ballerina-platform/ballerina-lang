@@ -41,24 +41,35 @@ public class MatchStatementSyntaxErrorsTest {
 
     @Test
     public void testSyntaxErrors() {
-        Assert.assertEquals(result.getErrorCount(), 15);
+        Assert.assertEquals(result.getErrorCount(), 26);
 
         int i = -1;
         BAssertUtil.validateError(result, ++i, "undefined symbol 'v'", 5, 9);
         BAssertUtil.validateError(result, ++i, "variable 'v' should be declared as constant", 5, 9);
         BAssertUtil.validateError(result, ++i, "missing open brace token", 6, 1);
         BAssertUtil.validateError(result, ++i, "missing right double arrow token", 6, 1);
-        BAssertUtil.validateError(result, ++i, "missing close brace token", 8, 1);
+        BAssertUtil.validateError(result, ++i, "invalid error binding pattern with type 'function'", 9, 10);
+        BAssertUtil.validateError(result, ++i, "missing error keyword", 9, 10);
+        BAssertUtil.validateError(result, ++i, "complex variable must be initialized", 9, 18);
+        BAssertUtil.validateError(result, ++i, "missing semicolon token", 9, 18);
         BAssertUtil.validateError(result, ++i, "match statement should have one or more match clauses", 12, 1);
         BAssertUtil.validateError(result, ++i, "missing open brace token", 12, 1);
-        BAssertUtil.validateError(result, ++i, "missing close brace token", 13, 1);
-        BAssertUtil.validateError(result, ++i, "match statement should have one or more match clauses", 17, 1);
-        BAssertUtil.validateError(result, ++i, "missing identifier", 17, 1);
-        BAssertUtil.validateError(result, ++i, "missing open brace token", 17, 1);
-        BAssertUtil.validateError(result, ++i, "missing close brace token", 18, 1);
+        BAssertUtil.validateError(result, ++i, "invalid error binding pattern with type 'function'", 14, 10);
+        BAssertUtil.validateError(result, ++i, "missing error keyword", 14, 10);
+        BAssertUtil.validateError(result, ++i, "complex variable must be initialized", 14, 18);
+        BAssertUtil.validateError(result, ++i, "missing semicolon token", 14, 18);
+        BAssertUtil.validateError(result, ++i, "redeclared symbol 'v'", 15, 12);
+        BAssertUtil.validateError(result, ++i, "invalid token '}'", 19, 1);
+        BAssertUtil.validateError(result, ++i, "invalid token 'func4'", 19, 15);
         BAssertUtil.validateError(result, ++i, "missing colon token", 21, 11);
         BAssertUtil.validateError(result, ++i, "missing identifier", 21, 11);
         BAssertUtil.validateError(result, ++i, "unsupported match pattern", 21, 11);
+        BAssertUtil.validateError(result, ++i, "match statement should have one or more match clauses", 24, 1);
+        BAssertUtil.validateError(result, ++i, "missing close brace token", 24, 1);
+        BAssertUtil.validateError(result, ++i, "missing close brace token", 24, 1);
+        BAssertUtil.validateError(result, ++i, "missing close brace token", 24, 1);
+        BAssertUtil.validateError(result, ++i, "missing close brace token", 24, 1);
+        BAssertUtil.validateError(result, ++i, "missing open brace token", 24, 1);
     }
 
     @AfterClass
