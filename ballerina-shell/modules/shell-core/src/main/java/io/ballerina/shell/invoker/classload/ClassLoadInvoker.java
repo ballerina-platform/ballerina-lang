@@ -348,7 +348,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     private void processCurrentState() throws InvokerException {
         Set<String> importStrings = getRequiredImportStatements();
         ClassLoadContext context = new ClassLoadContext(this.contextId, importStrings,
-                moduleDclns.values(), globalVariableContexts().values(), null);
+                moduleDclns.values(), globalVariableContexts().values(), null, null);
         Project project = getProject(context, DECLARATION_TEMPLATE_FILE);
         compile(project);
     }
@@ -385,9 +385,12 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             lastVarDclns.add(varSnippet.toString());
             importStrings.addAll(getRequiredImportStatements(varSnippet));
         }
+        Collection<String> variableNameStrs = variableNames.stream()
+                .map(QuotedIdentifier::getName)
+                .collect(Collectors.toSet());
 
         return new ClassLoadContext(this.contextId, importStrings, moduleDclnStringsMap.values(),
-                oldVarDclns.values(), lastVarDclns.toString());
+                oldVarDclns.values(), variableNameStrs, lastVarDclns.toString());
     }
 
     /**
@@ -422,7 +425,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
         newVariables.forEach((k, v) -> varDclnsMap.put(k, VariableContext.newVar(v)));
         return new ClassLoadContext(this.contextId, importStrings, moduleDclns.values(),
-                varDclnsMap.values(), newVariableDclns.toString(), lastStatements);
+                varDclnsMap.values(), null, newVariableDclns.toString(), lastStatements);
     }
 
     /**
