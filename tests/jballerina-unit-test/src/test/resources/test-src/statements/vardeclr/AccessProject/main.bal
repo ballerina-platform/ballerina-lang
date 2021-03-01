@@ -36,6 +36,14 @@ public function testPublicVisibilityInComplexVar() {
     assertEquality(1, module1:riskLevel);
 }
 
+public function testPublicWithIsolatedFuncType() {
+    assertEquality(10, module1:myIsolatedFunction());
+}
+
+public function testPublicWithIsolatedObjectType() {
+    assertEquality(20, module1:myIsolatedObj.getVal());
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

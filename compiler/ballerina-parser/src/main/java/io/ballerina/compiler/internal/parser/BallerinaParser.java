@@ -4285,7 +4285,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode createModuleVarDeclaration(STNode metadata, STNode publicQualifier, List<STNode> varDeclQuals,
                                               STNode typedBindingPattern, STNode assign,
                                               STNode expr, STNode semicolon) {
-        // Invalidate public qualifier with isolated qualifier
+        // Invalidate public qualifier with isolated qualifier and declared with var
         if (publicQualifier != null) {
             if (((STTypedBindingPatternNode) typedBindingPattern).typeDescriptor.kind == SyntaxKind.VAR_TYPE_DESC) {
                 if (varDeclQuals.size() != 0) {

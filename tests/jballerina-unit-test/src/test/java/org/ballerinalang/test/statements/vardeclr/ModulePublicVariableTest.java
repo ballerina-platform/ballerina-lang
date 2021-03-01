@@ -53,6 +53,8 @@ public class ModulePublicVariableTest {
                 "testDefaultVisibility",
                 "testPublicVisibility",
                 "testPublicVisibilityInComplexVar",
+                "testPublicWithIsolatedFuncType",
+                "testPublicWithIsolatedObjectType",
         };
     }
 
@@ -60,6 +62,7 @@ public class ModulePublicVariableTest {
     public void testModulePublicVariableAccessNegative() {
         int index = 0;
         validateError(compileResultNegetive, index++, "isolated variable cannot be declared as public", 17, 8);
+        validateError(compileResultNegetive, index++, "variable declared with var cannot be public", 19, 8);
         validateError(compileResultNegetive, index++, "attempt to refer to non-accessible symbol 'name'", 20, 21);
         validateError(compileResultNegetive, index++, "undefined symbol 'name'", 20, 21);
         assertEquals(compileResultNegetive.getErrorCount(), index);
