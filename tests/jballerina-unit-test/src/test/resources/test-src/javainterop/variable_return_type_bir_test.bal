@@ -99,7 +99,7 @@ function testCastingForInvalidValues() {
 function testStream() {
     string[] stringList = ["hello", "world", "from", "ballerina"];
     stream<string> st = stringList.toStream();
-    stream<string> newSt = rt:getStream(string, st);
+    stream<string> newSt = rt:getStream(st, string);
     string s = "";
 
     error? err = newSt.forEach(function (string x) { s += x; });
@@ -114,13 +114,13 @@ function testTable() {
         { name: "Granier", age: 34, designation: "SE" }
     ];
 
-    table<Person> newTab = rt:getTable(Person, tab);
+    table<Person> newTab = rt:getTable(tab, Person);
     assert(tab, newTab);
 }
 
 function testFunctionPointers() {
     function (anydata) returns int fn = s => 10;
-    function (string) returns int newFn = rt:getFunction(string, int, fn);
+    function (string) returns int newFn = rt:getFunction(fn, string, int);
     assertSame(fn, newFn);
     assert(fn("foo"), newFn("foo"));
 }
@@ -133,7 +133,7 @@ function testTypedesc() {
 function testFuture() {
     var fn = function (string name) returns string => "Hello " + name;
     future<string> f = start fn("Pubudu");
-    future<string> fNew = rt:getFuture(string, f);
+    future<string> fNew = rt:getFuture(f, string);
     string res = wait fNew;
     assertSame(f, fNew);
     assert("Hello Pubudu", res);
@@ -156,22 +156,22 @@ type IntStream stream<int>;
 type IntArray int[];
 
 function testComplexTypes() {
-    json j = rt:echo(json, <json>{"name": "John Doe"});
+    json j = rt:echo(<json>{"name": "John Doe"}, json);
     assert(<json>{"name": "John Doe"}, j);
 
-    xml x = rt:echo(xml, xml `<hello>xml content</hello>`);
+    xml x = rt:echo(xml `<hello>xml content</hello>`, xml);
     assert(xml `<hello>xml content</hello>`, x);
 
-    int[] ar = rt:echo(IntArray, <int[]>[20, 30, 40]);
+    int[] ar = rt:echo(<int[]>[20, 30, 40], IntArray);
     assert(<int[]>[20, 30, 40], ar);
 
     PersonObj pObj = new("John", "Doe");
-    PersonObj nObj = rt:echo(PersonObj, pObj);
+    PersonObj nObj = rt:echo(pObj, PersonObj);
     assertSame(pObj, nObj);
 
     int[] intList = [10, 20, 30, 40, 50];
     stream<int> st = intList.toStream();
-    stream<int> newSt = rt:echo(IntStream, st);
+    stream<int> newSt = rt:echo(st, IntStream);
     int tot = 0;
 
     error? err = newSt.forEach(function (int x) { tot+= x; });
@@ -184,7 +184,7 @@ function testComplexTypes() {
         { name: "Granier", age: 34}
     ];
 
-    table<Person> newTab = rt:echo(PersonTable, tab);
+    table<Person> newTab = rt:echo(tab, PersonTable);
     assert(tab, newTab);
 }
 

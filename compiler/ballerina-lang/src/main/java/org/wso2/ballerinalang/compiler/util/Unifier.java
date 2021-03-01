@@ -47,7 +47,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -313,6 +315,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BUnionType originalType, BType expType) {
+        if (originalType.isCyclic) {
+            return originalType;
+        }
+
         boolean hasNewType = false;
         LinkedHashSet<BType> newMemberTypes = new LinkedHashSet<>();
 
@@ -445,18 +451,32 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
         int nArgs = invocation.requiredArgs.size();
         int nParams = symbol.params.size();
-        BVarSymbol param;
+
+        int argIndex = 0;
 
         for (int i = 0; i < nParams; i++) {
-            param = symbol.params.get(i);
+            if (argIndex < nArgs) {
+                BLangExpression arg = invocation.requiredArgs.get(argIndex);
 
-            if (param.defaultableParam &&
-                    (i >= nArgs || invocation.requiredArgs.get(i).getKind() == NodeKind.IGNORE_EXPR)) {
-                paramValueTypes.put(param.name.value, symbol.paramDefaultValTypes.get(param.name.value));
+                NodeKind kind = arg.getKind();
+                if (kind == NodeKind.NAMED_ARGS_EXPR) {
+                    paramValueTypes.put(((BLangNamedArgsExpression) arg).name.value, arg.type);
+                } else if (kind == NodeKind.IGNORE_EXPR) {
+                    String paramName = symbol.params.get(i).name.value;
+                    paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
+                } else {
+                    paramValueTypes.put(symbol.params.get(i).name.value, arg.type);
+                }
+
+                argIndex++;
                 continue;
             }
 
-            paramValueTypes.put(param.name.value, invocation.requiredArgs.get(i).type);
+            BVarSymbol param = symbol.params.get(i);
+            String paramName = param.name.value;
+            if (param.defaultableParam && !paramValueTypes.containsKey(paramName)) {
+                paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
+            }
         }
     }
 

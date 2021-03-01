@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 type Person record {
     readonly string name;
@@ -69,7 +69,7 @@ function testRuntimeCastError() {
 
     error err = <error>m1;
     assert("{ballerina}TypeCastError", err.message());
-    assert("incompatible types: 'map' cannot be cast to 'map<anydata>'", err.detail()["message"].toString());
+    assert("incompatible types: 'map' cannot be cast to 'map<anydata>'", <string> checkpanic err.detail()["message"]);
 }
 
 function testVarRefUseInMultiplePlaces() {
@@ -196,7 +196,7 @@ function testFunctionAssignment() {
 
     error err = <error>v;
     assert("{ballerina}TypeCastError", err.message());
-    assert("incompatible types: 'string' cannot be cast to 'int'", err.detail()["message"].toString());
+    assert("incompatible types: 'string' cannot be cast to 'int'", <string> checkpanic err.detail()["message"]);
 }
 
 
@@ -204,81 +204,81 @@ function testFunctionAssignment() {
 function getValue(typedesc<int|float|decimal|string|boolean> td = <>) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getValue",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getRecord(typedesc<anydata> td = <>) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getRecord",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function query(string q, typedesc<anydata> rowType = <>) returns map<rowType> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "query",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BString", "org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BString", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getTuple(typedesc<int|string> td1 = <>, typedesc<record {}> td2 = <>, typedesc<float|boolean> td3 = <>) returns [td1, td2, td3] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTuple",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getArray(typedesc<anydata> td = <>) returns td[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getArray",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 //function getInvalidValue(typedesc<int|Person> td1 = <>, typedesc<Person> td2 = Person) returns td1 = @java:Method {
 //    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
 //    name: "getInvalidValue",
-//    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BTypedesc"]
+//    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
 //} external;
 
 function getStream( stream<anydata> value, typedesc<anydata> td = <>) returns stream<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getStream",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BStream", "org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BStream", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getTable(table<anydata> value, typedesc<anydata> td = <>) returns table<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTable",
-    paramTypes: ["org.ballerinalang.jvm.values.TableValue", "org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.internal.values.TableValue", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getFunction(function (string|int) returns anydata fn, typedesc<anydata> param = <>, typedesc<anydata> ret = <>)
                                                                 returns function (param) returns ret = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getFunction",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BFunctionPointer", "org.ballerinalang.jvm.api.values.BTypedesc",
-                    "org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer", "io.ballerina.runtime.api.values.BTypedesc",
+                    "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getTypedesc(typedesc<anydata> td = <>) returns typedesc<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTypedesc",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getFuture(future<anydata> f, typedesc<anydata> td = <>) returns future<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getFuture",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BFuture", "org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BFuture", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function echo(any val, typedesc<any> td = <>) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "echo",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BValue", "org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BValue", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getValue2(typedesc<int|string> aTypeVar = <>) returns aTypeVar = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getValue",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc"]
+    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 

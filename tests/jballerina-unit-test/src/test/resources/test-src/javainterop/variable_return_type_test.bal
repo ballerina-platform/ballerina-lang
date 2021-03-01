@@ -284,21 +284,21 @@ function getXML(typedesc<ItemType> td, xml value) returns xml<td> = @java:Method
 function getStream(stream<anydata> value, typedesc<anydata> td) returns stream<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getStream",
-    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BStream"]
+    paramTypes: ["io.ballerina.runtime.api.values.BStream", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getTable(table<anydata> value, typedesc<anydata> td) returns table<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTable",
-    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.internal.values.TableValue"]
+    paramTypes: ["io.ballerina.runtime.internal.values.TableValue", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getFunction(function (string|int) returns anydata fn, typedesc<anydata> param, typedesc<anydata> ret)
                                                                 returns function (param) returns ret = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getFunction",
-    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc",
-                    "io.ballerina.runtime.api.values.BFunctionPointer"]
+    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer", "io.ballerina.runtime.api.values.BTypedesc",
+                    "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getTypedesc(typedesc<anydata> td) returns typedesc<td> = @java:Method {
@@ -310,13 +310,13 @@ function getTypedesc(typedesc<anydata> td) returns typedesc<td> = @java:Method {
 function getFuture(future<anydata> f, typedesc<anydata> td) returns future<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getFuture",
-    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BFuture"]
+    paramTypes: ["io.ballerina.runtime.api.values.BFuture", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function echo(any val, typedesc<any> td) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "echo",
-    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BValue"]
+    paramTypes: ["io.ballerina.runtime.api.values.BValue", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
 function getValue2(typedesc<int|string> aTypeVar) returns aTypeVar = @java:Method {

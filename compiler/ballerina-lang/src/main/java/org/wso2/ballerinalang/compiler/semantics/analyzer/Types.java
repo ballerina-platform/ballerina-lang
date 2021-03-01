@@ -816,7 +816,10 @@ public class Types {
         }
 
         unionType.flags |= Flags.READONLY;
-        unionType.tsymbol.flags |= Flags.READONLY;
+        BTypeSymbol tsymbol = unionType.tsymbol;
+        if (tsymbol != null) {
+            tsymbol.flags |= Flags.READONLY;
+        }
         return false;
     }
 
