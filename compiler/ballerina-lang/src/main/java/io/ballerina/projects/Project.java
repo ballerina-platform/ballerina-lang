@@ -96,4 +96,6 @@ public abstract class Project {
     }
 
     public abstract DocumentId documentId(Path file);
+
+    public abstract void save();
 }

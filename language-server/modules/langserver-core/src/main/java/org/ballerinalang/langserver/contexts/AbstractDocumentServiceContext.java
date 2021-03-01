@@ -138,6 +138,11 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     }
 
     @Override
+    public Optional<Document> currentDocument() {
+        return this.workspace().document(this.filePath());
+    }
+
+    @Override
     public Optional<Module> currentModule() {
         return this.workspaceManager.module(this.filePath);
     }

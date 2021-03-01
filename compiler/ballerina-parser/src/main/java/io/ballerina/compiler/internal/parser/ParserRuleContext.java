@@ -126,7 +126,7 @@ public enum ParserRuleContext {
     PATCH_VERSION("patch-version"),
     IMPORT_PREFIX("import-prefix"),
     IMPORT_PREFIX_DECL("import-alias"),
-    IMPORT_DECL_RHS("import-decl-rhs"),
+    IMPORT_DECL_ORG_OR_MODULE_NAME_RHS("import-decl-org-or-module-name-rhs"),
     AFTER_IMPORT_MODULE_NAME("after-import-module-name"),
     MAJOR_MINOR_VERSION_END("major-minor-version-end"),
     SERVICE_DECL("service-decl"),

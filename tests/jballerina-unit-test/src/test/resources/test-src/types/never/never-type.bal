@@ -96,6 +96,13 @@ function testXMLWithNeverType() {
 
     string|'xml:Text r = a;
     string s = r;
+
+    xml<xml<'xml:Element>> t = xml ``;
+    xml<'xml:Element> u = xml ``;
+    xml<xml<'xml:Comment>> v = xml ``;
+    xml<'xml:Comment> w = xml ``;
+    xml<xml<'xml:ProcessingInstruction>> z = xml ``;
+    xml<'xml:ProcessingInstruction> y = xml ``;
 }
 
 //---------------Test 'never' types with 'union-type' descriptors ------------

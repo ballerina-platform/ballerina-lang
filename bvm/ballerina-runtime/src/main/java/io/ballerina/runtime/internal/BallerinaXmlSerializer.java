@@ -27,6 +27,7 @@ import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
 
+import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
@@ -57,6 +58,7 @@ public class BallerinaXmlSerializer extends OutputStream {
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
+    private boolean withinElement;
 
     static {
         xmlOutputFactory = XMLOutputFactory.newInstance();
@@ -64,8 +66,6 @@ public class BallerinaXmlSerializer extends OutputStream {
             xmlOutputFactory.setProperty(WstxOutputProperties.P_OUTPUT_VALIDATE_STRUCTURE, false);
         }
     }
-
-
 
     public BallerinaXmlSerializer(OutputStream outputStream) {
         try {
@@ -137,10 +137,42 @@ public class BallerinaXmlSerializer extends OutputStream {
     }
 
     private void writeXMLText(XmlText xmlValue) throws XMLStreamException {
-        String textValue = xmlValue.getTextValue();
-        if (!textValue.isEmpty()) {
-            xmlStreamWriter.writeCharacters(textValue);
+        // No need to escape xml text when they are within xml element, it's handle from xml stream writer.
+        if (this.withinElement) {
+            String textValue = xmlValue.getTextValue();
+            if (!textValue.isEmpty()) {
+                xmlStreamWriter.writeCharacters(textValue);
+            }
+        } else {
+            char[] textValue = escapeCharacters(xmlValue.getTextValue());
+            if (textValue.length != 0) {
+                xmlStreamWriter.writeCharacters(textValue, 0, textValue.length);
+            }
         }
+    }
+
+    private char[] escapeCharacters(String textValue) {
+        char[] chars = textValue.toCharArray();
+        int length = chars.length;
+        CharArrayWriter writer = new CharArrayWriter(length);
+        int i;
+        for (i = 0; i < length; i++) {
+            char c = chars[i];
+            switch (c) {
+                case '<':
+                    writer.append("&lt;");
+                    break;
+                case '&':
+                    writer.append("&amp;");
+                    break;
+                case '>':
+                    writer.append("&gt;");
+                    break;
+                default:
+                    writer.append(c);
+            }
+        }
+        return writer.toCharArray();
     }
 
     private void writeElement(XmlItem xmlValue) throws XMLStreamException {
@@ -163,7 +195,12 @@ public class BallerinaXmlSerializer extends OutputStream {
         // Write attributes
         writeAttributes(currentNSLevel, attributeMap);
 
+        // Track and override xml text escape when xml text is within an element.
+        boolean prevWithinElementFlag = this.withinElement;
+        this.withinElement = true;
         xmlValue.getChildrenSeq().serialize(this);
+        this.withinElement = prevWithinElementFlag;
+
         xmlStreamWriter.writeEndElement();
         // Reset namespace decl hierarchy for this node.
         this.parentNSSet.pop();
