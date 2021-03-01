@@ -121,7 +121,7 @@ public class JarResolver {
 
             // Remove the generated jar without test code.
             PlatformLibrary generatedJar = jBalBackend.codeGeneratedLibrary(rootPackageId, moduleName);
-            allJarFileForTestExec.removeIf(jarFile -> jarFile.path() == generatedJar.path());
+            allJarFileForTestExec.removeIf(jarFile -> jarFile.path().toString().equals(generatedJar.path().toString()));
         }
 
         // 3) Add platform-specific libraries with test scope defined in the root package's Ballerina.toml
