@@ -368,7 +368,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void analyzeTopLevelNodes(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
-        for (int i = 0, topLevelNodesSize = topLevelNodes.size(); i < topLevelNodesSize; i++) {
+        for (int i = 0; i < topLevelNodes.size(); i++) {
             TopLevelNode topLevelNode = topLevelNodes.get(i);
             analyzeNode((BLangNode) topLevelNode, pkgEnv);
         }

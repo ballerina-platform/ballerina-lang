@@ -2143,11 +2143,12 @@ public class Types {
             return true;
         }
 
+        // Disallow casting away error, this forces user to handle the error via type-test, check, or checkpanic
         IntersectionContext intersectionContext = IntersectionContext.compilerInternalIntersectionTestContext();
         BType errorIntersection = getTypeIntersection(intersectionContext, sourceType, symTable.errorType, env);
         if (errorIntersection != symTable.semanticError &&
-                getTypeIntersection(intersectionContext, symTable.errorType, targetType, env) ==
-                        symTable.semanticError) {
+                getTypeIntersection(intersectionContext, symTable.errorType, targetType, env)
+                        == symTable.semanticError) {
             return false;
         }
 
@@ -3717,8 +3718,7 @@ public class Types {
                                                   BArrayType arrayType, BTupleType tupleType, SymbolEnv env) {
         List<BType> tupleMemberTypes = new ArrayList<>();
         for (BType memberType : tupleType.tupleTypes) {
-            BType intersectionType = getTypeIntersection(intersectionContext,
-                    memberType, arrayType.eType, env);
+            BType intersectionType = getTypeIntersection(intersectionContext, memberType, arrayType.eType, env);
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
@@ -3744,8 +3744,7 @@ public class Types {
             return symTable.semanticError;
         }
 
-        BType detailIntersectionType = getTypeIntersection(intersectionContext,
-                detailTypeOne, detailTypeTwo, env);
+        BType detailIntersectionType = getTypeIntersection(intersectionContext, detailTypeOne, detailTypeTwo, env);
         if (detailIntersectionType == symTable.semanticError) {
             return symTable.semanticError;
         }
@@ -3754,9 +3753,8 @@ public class Types {
 
         if (!intersectionContext.compilerInternalIntersectionTest) {
             BTypeSymbol errorTSymbol = intersectionErrorType.tsymbol;
-            BLangErrorType bLangErrorType =
-                    TypeDefBuilderHelper.createBLangErrorType(symTable.builtinPos, intersectionErrorType, env,
-                            anonymousModelHelper);
+            BLangErrorType bLangErrorType = TypeDefBuilderHelper.createBLangErrorType(symTable.builtinPos,
+                    intersectionErrorType, env, anonymousModelHelper);
             BLangTypeDefinition errorTypeDefinition = TypeDefBuilderHelper.addTypeDefinition(
                     intersectionErrorType, errorTSymbol, bLangErrorType, env);
             errorTypeDefinition.pos = symTable.builtinPos;
@@ -3842,8 +3840,8 @@ public class Types {
             BLangTypeDefinition recordTypeDef = TypeDefBuilderHelper.addTypeDefinition(
                     intersectionRecord, intersectionRecord.tsymbol, recordTypeNode, env);
             env.enclPkg.symbol.scope.define(intersectionRecord.tsymbol.name, intersectionRecord.tsymbol);
+            recordTypeDef.pos = symTable.builtinPos;
         }
-
 
         return intersectionRecord;
     }

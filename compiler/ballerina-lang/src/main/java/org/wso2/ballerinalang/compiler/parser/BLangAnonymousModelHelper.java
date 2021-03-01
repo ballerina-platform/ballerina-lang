@@ -44,8 +44,8 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> tupleVarCount;
     private Map<PackageID, Integer> recordVarCount;
     private Map<PackageID, Integer> errorVarCount;
-    private Map<PackageID, Integer> anonIntersectionRecordCount;
-    private Map<PackageID, Integer> anonIntersectionErrorCount;
+    private Map<PackageID, Integer> intersectionRecordCount;
+    private Map<PackageID, Integer> intersectionErrorCount;
 
     private static final String ANON_TYPE = "$anonType$";
     public static final String LAMBDA = "$lambda$";
@@ -57,7 +57,7 @@ public class BLangAnonymousModelHelper {
     private static final String ANON_TYPE_ID = "$anonTypeid$";
     private static final String RAW_TEMPLATE_TYPE = "$rawTemplate$";
     private static final String ANON_INTERSECTION_RECORD = "$anonIntersectionRecordType$";
-    private static final String ANON_INTERSECTION_ERROR_TYPE = "$anonErrorType$";
+    private static final String ANON_INTERSECTION_ERROR_TYPE = "$anonIntersectionErrorType$";
     private static final String TUPLE_VAR = "$tupleVar$";
     private static final String RECORD_VAR = "$recordVar$";
     private static final String ERROR_VAR = "$errorVar$";
@@ -76,8 +76,8 @@ public class BLangAnonymousModelHelper {
         tupleVarCount = new HashMap<>();
         recordVarCount = new HashMap<>();
         errorVarCount = new HashMap<>();
-        anonIntersectionRecordCount = new HashMap<>();
-        anonIntersectionErrorCount = new HashMap<>();
+        intersectionRecordCount = new HashMap<>();
+        intersectionErrorCount = new HashMap<>();
     }
 
     public static BLangAnonymousModelHelper getInstance(CompilerContext context) {
@@ -156,14 +156,14 @@ public class BLangAnonymousModelHelper {
     }
 
     public String getNextAnonymousIntersectionErrorDetailTypeName(PackageID packageID) {
-        Integer nextval = anonIntersectionRecordCount.compute(packageID,
-                (packageID1, integer) -> integer != null ? integer + 1 : 0);
-        return ANON_INTERSECTION_RECORD + UNDERSCORE + nextval;
+        Integer nextValue = intersectionRecordCount.getOrDefault(packageID, 0);
+        intersectionRecordCount.put(packageID, nextValue + 1);
+        return ANON_INTERSECTION_RECORD + UNDERSCORE + nextValue;
     }
 
     public String getNextAnonymousIntersectionErrorTypeName(PackageID packageID) {
-        Integer nextval = anonIntersectionErrorCount.compute(packageID,
-                (packageID1, integer) -> integer != null ? integer + 1 : 0);
-        return ANON_INTERSECTION_ERROR_TYPE + UNDERSCORE + nextval;
+        Integer nextValue = intersectionErrorCount.getOrDefault(packageID, 0);
+        intersectionErrorCount.put(packageID, nextValue + 1);
+        return ANON_INTERSECTION_ERROR_TYPE + UNDERSCORE + nextValue;
     }
 }

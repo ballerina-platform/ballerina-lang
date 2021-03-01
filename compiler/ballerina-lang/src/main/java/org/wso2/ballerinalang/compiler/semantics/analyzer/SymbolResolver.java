@@ -1900,21 +1900,19 @@ public class SymbolResolver extends BLangNodeVisitor {
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
 
         if (!isAlreadyDefinedDetailType && intersectionErrorType.detailType.tag == TypeTags.RECORD) {
-            defineErrorDetailRecord((BRecordType) intersectionErrorType.detailType,
-                                                                        pos, pkgEnv);
+            defineErrorDetailRecord((BRecordType) intersectionErrorType.detailType, pos, pkgEnv);
         }
-        return defineErrorIntersectionType(intersectionErrorType, constituentBTypes, pkgId, owner,
-                                           pkgEnv);
+        return defineErrorIntersectionType(intersectionErrorType, constituentBTypes, pkgId, owner);
     }
 
     private BLangTypeDefinition defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
         BRecordTypeSymbol detailRecordSymbol = (BRecordTypeSymbol) detailRecord.tsymbol;
-        if (detailRecordSymbol.initializerFunc != null) {
-            detailRecordSymbol.scope.define(names.fromString(
-                    detailRecordSymbol.name.value + "." + detailRecordSymbol.initializerFunc.funcName.value),
-                    detailRecordSymbol.initializerFunc.symbol);
-            env.scope.define(detailRecordSymbol.name, detailRecordSymbol);
-        }
+//        if (detailRecordSymbol.initializerFunc != null) {
+//            detailRecordSymbol.scope.define(names.fromString(
+//                    detailRecordSymbol.name.value + "." + detailRecordSymbol.initializerFunc.funcName.value),
+//                    detailRecordSymbol.initializerFunc.symbol);
+//            env.scope.define(detailRecordSymbol.name, detailRecordSymbol);
+//        }
 
         for (BField field : detailRecord.fields.values()) {
             BVarSymbol fieldSymbol = field.symbol;
@@ -1934,7 +1932,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private BIntersectionType defineErrorIntersectionType(BErrorType effectiveType,
                                                           LinkedHashSet<BType> constituentBTypes, PackageID pkgId,
-                                                          BSymbol owner, SymbolEnv pkgEnv) {
+                                                          BSymbol owner) {
 
         BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
                                                                       Flags.asMask(EnumSet.of(Flag.PUBLIC)),
