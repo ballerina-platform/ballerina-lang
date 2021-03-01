@@ -874,14 +874,6 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseModuleVarDecl(STNode metadata, STNode publicQualifier, List<STNode> topLevelQualifiers) {
-
-        // Invalidate public qualifier with isolated qualifier
-        if (isSyntaxKindInList(topLevelQualifiers, SyntaxKind.ISOLATED_KEYWORD) && publicQualifier != null) {
-            updateFirstNodeInListWithLeadingInvalidNode(topLevelQualifiers, publicQualifier,
-                    DiagnosticErrorCode.ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC);
-            publicQualifier = STNodeFactory.createEmptyNode();
-        }
-
         List<STNode> varDeclQuals = extractVarDeclQualifiers(topLevelQualifiers);
         return parseVariableDecl(metadata, publicQualifier, varDeclQuals, topLevelQualifiers, true);
     }
@@ -1562,19 +1554,6 @@ public class BallerinaParser extends AbstractParser {
         if (isObjectMember) {
             objectFieldQualifiers = extractObjectFieldQualifiers(qualifierList, isObjectTypeDesc);
         } else {
-            if (visibilityQualifier != null) {
-                // Visibility qualifier is not allowed in the variable declaration
-                STToken invalidQualifier = (STToken) visibilityQualifier;
-                if (qualifierList.isEmpty()) {
-                    functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword,
-                            visibilityQualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
-                            ((STToken) visibilityQualifier).text());
-                } else {
-                    updateFirstNodeInListWithLeadingInvalidNode(qualifierList, invalidQualifier,
-                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, invalidQualifier.text());
-                }
-            }
-
             varDeclQualifiers = extractVarDeclQualifiers(qualifierList);
         }
 
@@ -1617,7 +1596,7 @@ public class BallerinaParser extends AbstractParser {
                     isObjectTypeDesc);
         }
 
-        return parseVarDeclTypeDescRhs(typeDesc, metadata, varDeclQualifiers, false, true);
+        return parseVarDeclTypeDescRhs(typeDesc, metadata, visibilityQualifier, varDeclQualifiers, false, true);
     }
 
     /**
@@ -4148,6 +4127,11 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseVarDeclTypeDescRhs(STNode typeDesc, STNode metadata, List<STNode> qualifiers,
                                            boolean isTypedBindingPattern, boolean isModuleVar) {
+        return parseVarDeclTypeDescRhs(typeDesc, metadata, null, qualifiers, isTypedBindingPattern, isModuleVar);
+    }
+
+    private STNode parseVarDeclTypeDescRhs(STNode typeDesc, STNode metadata, STNode publicQual, List<STNode> qualifiers,
+                                           boolean isTypedBindingPattern, boolean isModuleVar) {
         startContext(ParserRuleContext.VAR_DECL_STMT);
         // Check for complex type desc
         typeDesc = parseComplexTypeDescriptor(typeDesc,
@@ -4155,7 +4139,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc,
                 ParserRuleContext.VAR_DECL_STMT);
-        return parseVarDeclRhs(metadata, qualifiers, typedBindingPattern, isModuleVar);
+        return parseVarDeclRhs(metadata, publicQual, qualifiers, typedBindingPattern, isModuleVar);
     }
 
     /**
@@ -4301,6 +4285,25 @@ public class BallerinaParser extends AbstractParser {
     private STNode createModuleVarDeclaration(STNode metadata, STNode publicQualifier, List<STNode> varDeclQuals,
                                               STNode typedBindingPattern, STNode assign,
                                               STNode expr, STNode semicolon) {
+        // Invalidate public qualifier with isolated qualifier
+        if (publicQualifier != null) {
+            if (((STTypedBindingPatternNode) typedBindingPattern).typeDescriptor.kind == SyntaxKind.VAR_TYPE_DESC) {
+                if (varDeclQuals.size() != 0) {
+                    updateFirstNodeInListWithLeadingInvalidNode(varDeclQuals, publicQualifier,
+                            DiagnosticErrorCode.ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC);
+                } else {
+                    typedBindingPattern = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typedBindingPattern,
+                            publicQualifier, DiagnosticErrorCode.ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC);
+                }
+                publicQualifier = STNodeFactory.createEmptyNode();
+
+            } else if (isSyntaxKindInList(varDeclQuals, SyntaxKind.ISOLATED_KEYWORD)) {
+                updateFirstNodeInListWithLeadingInvalidNode(varDeclQuals, publicQualifier,
+                        DiagnosticErrorCode.ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC);
+                publicQualifier = STNodeFactory.createEmptyNode();
+            }
+        }
+
         STNode varDeclQualifiersNode = STNodeFactory.createNodeList(varDeclQuals);
         return STNodeFactory.createModuleVariableDeclarationNode(metadata, publicQualifier, varDeclQualifiersNode,
                 typedBindingPattern, assign, expr, semicolon);

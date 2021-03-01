@@ -7,3 +7,9 @@ public const string s3 = "http://hello3.com";
 public isolated string s4;
 
 % public int i = 5;
+
+public var a = 5;
+
+public isolated object {} a = myobj;
+
+public isolated function() returns int myIsolatedFunction = isolatedFunc;
