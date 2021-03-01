@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-
 type Annot record {
     string val;
 };
@@ -182,4 +180,33 @@ function funcWithFuture() {
         val: false
     }
     start funcWithWorker();
+}
+
+function myFunctionWithWorkers() {
+    @strand
+    worker w {
+
+    }
+}
+
+@v1
+type MyType int|string;
+
+@v3
+function myFunction1(@v6 string name) returns string {
+    return "Hello " + name;
+}
+
+service object {} serviceThree = @v8 service object {
+    @v5
+    resource function get res(@v6 int intVal) {
+    }
+};
+
+public annotation map<string> v16 on function;
+annotation map<int> v17 on parameter;
+
+@v16
+function myFunction2(@v17 string name) returns string {
+    return "Hello " + name;
 }

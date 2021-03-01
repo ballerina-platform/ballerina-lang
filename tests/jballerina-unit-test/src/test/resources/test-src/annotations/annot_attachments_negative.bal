@@ -868,16 +868,6 @@ type MyObject object {
 
 function myFunction() returns @v7 {} string => "hello";
 
-function myFunctionWithWorkers() {
-    @strand
-    worker w {
-
-    }
-}
-
-@v1
-type MyType int|string;
-
 @tainted
 @tainted
 @v1 {val: "one"}
