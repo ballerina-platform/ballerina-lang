@@ -12,7 +12,7 @@ public var a = 5;
 
 public isolated object {} a = myobj;
 
-public isolated function() returns int myIsolatedFunction = isolatedFunc;
+public isolated function () returns int myIsolatedFunction = isolatedFunc;
 
 public var int a;
 
