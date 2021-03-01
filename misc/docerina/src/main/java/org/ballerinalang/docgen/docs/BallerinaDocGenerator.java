@@ -143,6 +143,7 @@ public class BallerinaDocGenerator {
             }
         }
         packageLib.packages.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+        centralLib.packages.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
         writeAPIDocs(packageLib, apiDocsRoot, true, false);
 
         // Create the central standard library index json
