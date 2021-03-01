@@ -45,7 +45,7 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,10 +81,10 @@ import javax.annotation.Nonnull;
  * @since 2.0.0
  */
 public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
-    private final BallerinaCompletionContext context;
+    private final PositionedOperationContext context;
     private final List<Node> visitedNodes = new ArrayList<>();
 
-    public ContextTypeResolver(BallerinaCompletionContext context) {
+    public ContextTypeResolver(PositionedOperationContext context) {
         this.context = context;
     }
 
