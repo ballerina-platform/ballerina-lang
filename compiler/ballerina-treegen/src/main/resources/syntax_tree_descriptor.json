@@ -1143,7 +1143,7 @@
         {
             "name": "InferDefaultValueNode",
             "base": "ExpressionNode",
-            "kind": "REST_ARG",
+            "kind": "INFERRED_TYPEDESC_DEFAULT",
             "attributes": [
                 {
                     "name": "ltToken",

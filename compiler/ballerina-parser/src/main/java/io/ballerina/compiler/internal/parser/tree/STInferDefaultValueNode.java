@@ -17,10 +17,10 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
+import io.ballerina.compiler.syntax.tree.InferDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.InferDefaultValueNode;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -47,7 +47,7 @@ public class STInferDefaultValueNode extends STExpressionNode {
             STNode ltToken,
             STNode gtToken,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.REST_ARG, diagnostics);
+        super(SyntaxKind.INFERRED_TYPEDESC_DEFAULT, diagnostics);
         this.ltToken = ltToken;
         this.gtToken = gtToken;
 
