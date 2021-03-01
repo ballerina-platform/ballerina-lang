@@ -104,7 +104,8 @@ public class GlobalVariableRefAnalyzer {
                 continue;
             }
 
-            analyzeDependenciesRecursively(dependent, globalVars);
+            analyzeDependenciesRecursively(dependent, globalVars.stream()
+                    .map(v -> v.symbol).collect(Collectors.toCollection(HashSet::new)));
         }
     }
 
@@ -116,7 +117,7 @@ public class GlobalVariableRefAnalyzer {
         return this.globalVariablesDependsOn;
     }
 
-    private void analyzeDependenciesRecursively(BSymbol dependent, List<BLangVariable> globalVars) {
+    private void analyzeDependenciesRecursively(BSymbol dependent, Set<BSymbol> globalVars) {
         // Only analyze unvisited nodes.
         // Do DFS into dependency providers to detect cycles.
         if (!dependencyNodes.containsKey(dependent)) {
@@ -126,7 +127,7 @@ public class GlobalVariableRefAnalyzer {
         }
     }
 
-    private Set<BVarSymbol> analyzeDependenciesRecursively(NodeInfo node, List<BLangVariable> globalVars) {
+    private Set<BVarSymbol> analyzeDependenciesRecursively(NodeInfo node, Set<BSymbol> globalVars) {
         if (node.onStack) {
             return getGlobalVarFromCurrentNode(node, globalVars);
         }
@@ -169,7 +170,7 @@ public class GlobalVariableRefAnalyzer {
         return dependentGlobalVars;
     }
 
-    private Set<BVarSymbol> getGlobalVarFromCurrentNode(NodeInfo node, List<BLangVariable> globalVars) {
+    private Set<BVarSymbol> getGlobalVarFromCurrentNode(NodeInfo node, Set<BSymbol> globalVars) {
         Set<BVarSymbol> globalVarsForCurrentNode = new HashSet<>();
         Set<BSymbol> providers = this.globalNodeDependsOn.getOrDefault(node.symbol, new LinkedHashSet<>());
 
@@ -182,7 +183,7 @@ public class GlobalVariableRefAnalyzer {
         return globalVarsForCurrentNode;
     }
 
-    private Set<BVarSymbol> getDependentsFromSymbol(BSymbol symbol, List<BLangVariable> globalVars) {
+    private Set<BVarSymbol> getDependentsFromSymbol(BSymbol symbol, Set<BSymbol> globalVars) {
         if (isFunction(symbol)) {
             return ((BInvokableSymbol) symbol).dependentGlobalVars;
         } else if (isGlobalVarSymbol(symbol, globalVars)) {
@@ -196,7 +197,7 @@ public class GlobalVariableRefAnalyzer {
         return (symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION;
     }
 
-    private boolean isGlobalVarSymbol(BSymbol symbol, List<BLangVariable> globalVars) {
+    private boolean isGlobalVarSymbol(BSymbol symbol, Set<BSymbol> globalVars) {
         if (symbol == null) {
             return false;
         }
@@ -210,8 +211,7 @@ public class GlobalVariableRefAnalyzer {
             return false;
         }
 
-        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE)
-                && globalVars.stream().anyMatch(v -> v.symbol == symbol);
+        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) && globalVars.contains(symbol);
     }
 
     /**
