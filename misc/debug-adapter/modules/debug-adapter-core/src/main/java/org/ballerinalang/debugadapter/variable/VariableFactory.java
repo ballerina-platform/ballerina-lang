@@ -22,6 +22,7 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.types.BArray;
 import org.ballerinalang.debugadapter.variable.types.BBoolean;
+import org.ballerinalang.debugadapter.variable.types.BByte;
 import org.ballerinalang.debugadapter.variable.types.BDecimal;
 import org.ballerinalang.debugadapter.variable.types.BError;
 import org.ballerinalang.debugadapter.variable.types.BFloat;
@@ -133,6 +134,8 @@ public class VariableFactory {
         } else if (valueTypeName.equals(JVMValueType.DOUBLE.getString())
                 || valueTypeName.equals(JVMValueType.J_DOUBLE.getString())) {
             return new BFloat(context, varName, value);
+        } else if (valueTypeName.equals(JVMValueType.BYTE.getString())) {
+            return new BByte(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.DECIMAL.getString())) {
             return new BDecimal(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.BMPSTRING.getString())
