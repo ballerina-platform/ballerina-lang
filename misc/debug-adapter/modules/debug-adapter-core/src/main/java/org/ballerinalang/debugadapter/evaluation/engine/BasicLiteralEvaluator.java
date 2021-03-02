@@ -30,6 +30,8 @@ import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_CREATOR_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_DECIMAL_VALUE_METHOD;
@@ -45,8 +47,9 @@ public class BasicLiteralEvaluator extends Evaluator {
     private final Node syntaxNode;
     private final String literalString;
 
-    private static final String HEX_INDICATOR_PREFIX_REGEX = "0[Xx]";
-    private static final String FLOATING_POINT_TYPE_SUFFIX_REGEX = "[dDfF]$";
+    private static final String HEX_INDICATOR_PREFIX_PATTERN = "0[xX]";
+    private static final String FLOAT_TYPE_SUFFIX_PATTERN = "[fF]$";
+    private static final String DECIMAL_TYPE_SUFFIX_PATTERN = "[dD]$";
 
     public BasicLiteralEvaluator(SuspendedContext context, BasicLiteralNode node) {
         this(context, node, node.literalToken().text());
@@ -81,8 +84,7 @@ public class BasicLiteralEvaluator extends Evaluator {
                 case TEMPLATE_STRING:
                     return VMUtils.make(context, literalString);
                 default:
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "Unsupported basic literal detected: " + literalString));
+                    throw createUnsupportedLiteralError(literalString);
             }
         } catch (EvaluationException e) {
             throw e;
@@ -97,23 +99,40 @@ public class BasicLiteralEvaluator extends Evaluator {
      * {@code  BExpressionValue}.
      */
     private BExpressionValue parseAndGetNumericValue(String literalString) throws EvaluationException {
+        // A numeric-literal represents a value belonging to one of the basic types int, float or decimal. The basic
+        // type to which the value belongs is determined as follows:
+        //
+        // 1. if the numeric-literal includes a FloatTypeSuffix, then the basic type is float;
+        // 2. if the numeric-literal includes a DecimalTypeSuffix, then the basic type is decimal;
+        // 3. if the numeric-literal is a HexFloatingPointLiteral, then the basic type is float;
+        // 4. otherwise, the basic type depends on the applicable expected numeric type (where the possible basic types
+        //    are int, float and decimal):
+        //    - if the applicable contextually expected type is a subtype of decimal, then the basic type is decimal;
+        //    - if the applicable contextually expected type is a subtype of float, then the basic type is float;
+        //    - otherwise, if the numeric literal is an int-literal, then the basic type is int;
+        //    - otherwise, the basic type is float.
         SyntaxKind literalTokenKind = ((BasicLiteralNode) syntaxNode).literalToken().kind();
         if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
             return VMUtils.make(context, Long.parseLong(literalString));
         } else if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
             // Removes hex indicator.
-            String withoutHexIndicator = literalString.replaceFirst(HEX_INDICATOR_PREFIX_REGEX, "");
-            String withoutTypeSuffix = withoutHexIndicator.replaceAll(FLOATING_POINT_TYPE_SUFFIX_REGEX, "");
-            return VMUtils.make(context, Long.parseLong(withoutTypeSuffix, 16));
+            String withoutHexIndicator = literalString.replaceFirst(HEX_INDICATOR_PREFIX_PATTERN, "");
+            return VMUtils.make(context, Long.parseLong(withoutHexIndicator, 16));
         } else if (literalTokenKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
-            return new BExpressionValue(context, createDecimalValue(literalString));
+            if (isDecimalType(literalString)) {
+                // Removes decimal type suffix.
+                String stringWithoutSuffix = literalString.replaceAll(DECIMAL_TYPE_SUFFIX_PATTERN, "");
+                return new BExpressionValue(context, createDecimalValueFrom(stringWithoutSuffix));
+            } else {
+                // Removes float type suffix.
+                String stringWithoutSuffix = literalString.replaceAll(FLOAT_TYPE_SUFFIX_PATTERN, "");
+                return VMUtils.make(context, Double.parseDouble(stringWithoutSuffix));
+            }
         } else if (literalTokenKind == SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN) {
             // Todo - add support for hex floats
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    "Unsupported basic literal detected: " + literalString));
+            throw createUnsupportedLiteralError(literalString);
         } else {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    "Unsupported basic literal detected: " + literalString));
+            throw createUnsupportedLiteralError(literalString);
         }
     }
 
@@ -123,10 +142,24 @@ public class BasicLiteralEvaluator extends Evaluator {
      * @param decimalValueString user input string
      * @return parsed decimal value
      */
-    private Value createDecimalValue(String decimalValueString) throws EvaluationException {
+    private Value createDecimalValueFrom(String decimalValueString) throws EvaluationException {
         RuntimeStaticMethod method = getRuntimeMethod(context, B_VALUE_CREATOR_CLASS,
                 CREATE_DECIMAL_VALUE_METHOD, Collections.singletonList(EvaluationUtils.JAVA_STRING_CLASS));
         method.setArgValues(Collections.singletonList(EvaluationUtils.getAsJString(context, decimalValueString)));
         return method.invoke();
+    }
+
+    /**
+     * Checks if the given literal string is a ballerina decimal literal.
+     */
+    private static boolean isDecimalType(String literalString) {
+        Pattern pattern = Pattern.compile(DECIMAL_TYPE_SUFFIX_PATTERN);
+        Matcher matcher = pattern.matcher(literalString);
+        return matcher.find();
+    }
+
+    private static EvaluationException createUnsupportedLiteralError(String literalString) {
+        return new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                "Unsupported basic literal detected: " + literalString));
     }
 }
