@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.completions.toml;
+package org.ballerinalang.docgen.generator.model;
+
+import com.google.gson.annotations.Expose;
+import org.ballerinalang.docgen.generator.model.search.SearchJson;
 
 /**
- * Represets Toml Node for completion builder.
+ * Holds doc and search data needed to render API Docs.
  *
- * @since 2.0.0
+ * @since 2.0
  */
-public interface TomlNode {
-
-    String prettyPrint();
+public class ApiDocsJson {
+    @Expose
+    public PackageLibrary docsData;
+    @Expose
+    public SearchJson searchData;
 }

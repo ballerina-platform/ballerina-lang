@@ -781,8 +781,6 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         desugarClassDefinitions(pkgNode.topLevelNodes);
 
-        pkgNode.functions = rewrite(pkgNode.functions, env);
-
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env, pkgNode.startFunction, pkgNode.stopFunction);
         ASTBuilderUtil.appendStatements(serviceAttachments, (BLangBlockFunctionBody) pkgNode.initFunction.body);
 
@@ -793,6 +791,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
+        pkgNode.functions = rewrite(pkgNode.functions, env);
 
         // Invoke closure desugar.
         closureDesugar.visit(pkgNode);
@@ -6620,26 +6619,9 @@ public class Desugar extends BLangNodeVisitor {
         // validateIsNotCastToAnImportedAnonType(targetType == null ? conversionExpr.type : targetType);
 
         conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
-        if (types.isXMLExprCastableToString(conversionExpr.expr.type, conversionExpr.type)) {
-            result = convertXMLTextToString(conversionExpr);
-            return;
-        }
+
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
         result = conversionExpr;
-    }
-
-    private BLangExpression convertXMLTextToString(BLangTypeConversionExpr conversionExpr) {
-        BLangInvocation invocationNode = createLanglibXMLInvocation(conversionExpr.pos, XML_GET_CONTENT_OF_TEXT,
-                conversionExpr.expr, new ArrayList<>(), new ArrayList<>());
-        BLangSimpleVariableDef tempVarDef = createVarDef("$$__xml_string__$$",
-                conversionExpr.targetType, invocationNode, conversionExpr.pos);
-        BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(conversionExpr.pos, tempVarDef.var.symbol);
-
-        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(conversionExpr.pos);
-        blockStmt.addStatement(tempVarDef);
-        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, tempVarRef);
-        stmtExpr.type = conversionExpr.type;
-        return rewrite(stmtExpr, env);
     }
 
     @Override
