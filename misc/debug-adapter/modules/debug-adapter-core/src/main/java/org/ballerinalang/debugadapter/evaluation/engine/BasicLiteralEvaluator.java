@@ -111,28 +111,28 @@ public class BasicLiteralEvaluator extends Evaluator {
         //    - if the applicable contextually expected type is a subtype of float, then the basic type is float;
         //    - otherwise, if the numeric literal is an int-literal, then the basic type is int;
         //    - otherwise, the basic type is float.
-        SyntaxKind literalTokenKind = ((BasicLiteralNode) syntaxNode).literalToken().kind();
-        if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-            return VMUtils.make(context, Long.parseLong(literalString));
-        } else if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
-            // Removes hex indicator.
-            String withoutHexIndicator = literalString.replaceFirst(HEX_INDICATOR_PREFIX_PATTERN, "");
-            return VMUtils.make(context, Long.parseLong(withoutHexIndicator, 16));
-        } else if (literalTokenKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
-            if (isDecimalType(literalString)) {
-                // Removes decimal type suffix.
-                String stringWithoutSuffix = literalString.replaceAll(DECIMAL_TYPE_SUFFIX_PATTERN, "");
-                return new BExpressionValue(context, createDecimalValueFrom(stringWithoutSuffix));
-            } else {
-                // Removes float type suffix.
-                String stringWithoutSuffix = literalString.replaceAll(FLOAT_TYPE_SUFFIX_PATTERN, "");
-                return VMUtils.make(context, Double.parseDouble(stringWithoutSuffix));
-            }
-        } else if (literalTokenKind == SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN) {
-            // Todo - add support for hex floats
-            throw createUnsupportedLiteralError(literalString);
-        } else {
-            throw createUnsupportedLiteralError(literalString);
+        switch (((BasicLiteralNode) syntaxNode).literalToken().kind()) {
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+                return VMUtils.make(context, Long.parseLong(literalString));
+            case HEX_INTEGER_LITERAL_TOKEN:
+                // Removes hex indicator.
+                String withoutHexIndicator = literalString.replaceFirst(HEX_INDICATOR_PREFIX_PATTERN, "");
+                return VMUtils.make(context, Long.parseLong(withoutHexIndicator, 16));
+            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
+                if (isDecimalType(literalString)) {
+                    // Removes decimal type suffix.
+                    String stringWithoutSuffix = literalString.replaceAll(DECIMAL_TYPE_SUFFIX_PATTERN, "");
+                    return new BExpressionValue(context, createDecimalValueFrom(stringWithoutSuffix));
+                } else {
+                    // Removes float type suffix.
+                    String stringWithoutSuffix = literalString.replaceAll(FLOAT_TYPE_SUFFIX_PATTERN, "");
+                    return VMUtils.make(context, Double.parseDouble(stringWithoutSuffix));
+                }
+            case HEX_FLOATING_POINT_LITERAL_TOKEN:
+                // Todo - add support for hex floats
+                throw createUnsupportedLiteralError(literalString);
+            default:
+                throw createUnsupportedLiteralError(literalString);
         }
     }
 
