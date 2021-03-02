@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.File;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -1079,10 +1080,11 @@ public class CommonUtil {
         try {
             Class<?> aClass = Class.forName("io.ballerina.compiler.internal.parser.LexerTerminals");
             return Arrays.stream(aClass.getDeclaredFields())
-                    .filter(f -> f.getModifiers() == 25 && (f.getType() == String.class))
-                    .map(f -> {
+                    .filter(field -> field.getModifiers() == (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)
+                            && (field.getType() == String.class))
+                    .map(field -> {
                         try {
-                            return f.get(null).toString();
+                            return field.get(null).toString();
                         } catch (IllegalAccessException e) {
                             return null;
                         }
