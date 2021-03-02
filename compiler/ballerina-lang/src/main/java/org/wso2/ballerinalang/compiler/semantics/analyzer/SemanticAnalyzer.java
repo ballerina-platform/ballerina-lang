@@ -1254,7 +1254,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 simpleVariable.type = rhsType;
 
                 int ownerSymTag = blockEnv.scope.owner.tag;
-                if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+                if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE
+                        || (ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE) {
                     // This is a variable declared in a function, an action or a resource
                     // If the variable is parameter then the variable symbol is already defined
                     if (simpleVariable.symbol == null) {
@@ -3316,7 +3317,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
-        dlog.error(variableNode.typeNode.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, varType, typeNodeType);
+        if (variableNode.typeNode != null && variableNode.typeNode.pos != null) {
+            dlog.error(variableNode.typeNode.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, varType, typeNodeType);
+        }
         handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
     }
 

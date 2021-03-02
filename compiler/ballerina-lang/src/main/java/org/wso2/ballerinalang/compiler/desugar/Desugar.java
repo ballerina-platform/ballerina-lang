@@ -781,8 +781,6 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         desugarClassDefinitions(pkgNode.topLevelNodes);
 
-        pkgNode.functions = rewrite(pkgNode.functions, env);
-
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env, pkgNode.startFunction, pkgNode.stopFunction);
         ASTBuilderUtil.appendStatements(serviceAttachments, (BLangBlockFunctionBody) pkgNode.initFunction.body);
 
@@ -793,6 +791,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
+        pkgNode.functions = rewrite(pkgNode.functions, env);
 
         // Invoke closure desugar.
         closureDesugar.visit(pkgNode);
@@ -4753,10 +4752,14 @@ public class Desugar extends BLangNodeVisitor {
         onFailBody.stmts.add(0, errorVarDef);
 
         int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
-        int enclosingOnFailIndex = currentOnFailIndex == -1 ? this.enclosingOnFailClause.size() - 1
+        int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
                 : (currentOnFailIndex - 1);
         this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
-        this.onFailCallFuncDef = this.enclosingOnFailCallFunc.get(enclosingOnFailIndex);
+        if (!this.enclosingOnFailCallFunc.isEmpty()) {
+            this.onFailCallFuncDef = this.enclosingOnFailCallFunc.get(enclosingOnFailIndex);
+        } else {
+            this.onFailCallFuncDef = null;
+        }
         onFailBody = rewrite(onFailBody, env);
         if (onFailClause.isInternal && fail.exprStmt != null) {
             if (fail.exprStmt instanceof BLangPanic) {
@@ -5972,13 +5975,13 @@ public class Desugar extends BLangNodeVisitor {
         } else if (types.isSubTypeOfList(varRefType)) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                     indexAccessExpr.indexExpr);
+        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
+            targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+                    indexAccessExpr.indexExpr);
         } else if (types.isAssignable(varRefType, symTable.stringType)) {
             indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, symTable.stringType);
             targetVarRef = new BLangStringAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                      indexAccessExpr.indexExpr);
-        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
-            targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                    indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.TABLE) {
             if (targetVarRef.indexExpr.getKind() == NodeKind.TABLE_MULTI_KEY) {
                 BLangTupleLiteral listConstructorExpr = new BLangTupleLiteral();
@@ -6616,26 +6619,9 @@ public class Desugar extends BLangNodeVisitor {
         // validateIsNotCastToAnImportedAnonType(targetType == null ? conversionExpr.type : targetType);
 
         conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
-        if (types.isXMLExprCastableToString(conversionExpr.expr.type, conversionExpr.type)) {
-            result = convertXMLTextToString(conversionExpr);
-            return;
-        }
+
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
         result = conversionExpr;
-    }
-
-    private BLangExpression convertXMLTextToString(BLangTypeConversionExpr conversionExpr) {
-        BLangInvocation invocationNode = createLanglibXMLInvocation(conversionExpr.pos, XML_GET_CONTENT_OF_TEXT,
-                conversionExpr.expr, new ArrayList<>(), new ArrayList<>());
-        BLangSimpleVariableDef tempVarDef = createVarDef("$$__xml_string__$$",
-                conversionExpr.targetType, invocationNode, conversionExpr.pos);
-        BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(conversionExpr.pos, tempVarDef.var.symbol);
-
-        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(conversionExpr.pos);
-        blockStmt.addStatement(tempVarDef);
-        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, tempVarRef);
-        stmtExpr.type = conversionExpr.type;
-        return rewrite(stmtExpr, env);
     }
 
     @Override
