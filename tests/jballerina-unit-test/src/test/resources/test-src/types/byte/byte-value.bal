@@ -199,8 +199,8 @@ function testWorkerWithByteVariable() {
 
 function testBitwiseAndOperator(byte a, byte b, int i, int j) returns [byte, byte, byte, int, int, int, int]{
     byte b1 = a & b;
-    byte b2 = 0xFF & i;
-    byte b3 = i & 0xFF;
+    byte b2 = 0x7F & i;
+    byte b3 = i & 0x7F;
     int r1 = <int>(a & b);
     int r2 = <int>a & i;
     int r3 = i & j;
