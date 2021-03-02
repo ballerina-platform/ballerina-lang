@@ -516,7 +516,7 @@ class JvmValueGen {
             i += 1;
         }
 
-        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex,"No such field: ");
+        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such field: ");
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
