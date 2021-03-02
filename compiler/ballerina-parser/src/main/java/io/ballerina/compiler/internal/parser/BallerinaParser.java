@@ -9697,8 +9697,8 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse error type descriptor.
      * <p>
-     * error-type-descriptor := error [error-type-parameter]
-     * error-type-parameter := < type-descriptor >
+     * error-type-descriptor := error [type-parameter]
+     * type-parameter := < type-descriptor >
      * </p>
      *
      * @return Parsed node
