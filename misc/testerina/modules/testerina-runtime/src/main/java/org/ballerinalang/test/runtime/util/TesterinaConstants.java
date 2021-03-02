@@ -49,4 +49,5 @@ public class TesterinaConstants {
     public static final String REPORT_ZIP_NAME = REPORT_DIR_NAME + ".zip";
     public static final String REPORT_DATA_PLACEHOLDER = "__data__";
     public static final String FILE_PROTOCOL = "file://";
+    public static final String REPORT_XML_FILE = "coverage-report.xml";
 }

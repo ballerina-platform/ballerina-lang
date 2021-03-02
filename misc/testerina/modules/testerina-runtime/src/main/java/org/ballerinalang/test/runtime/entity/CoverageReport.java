@@ -27,12 +27,17 @@ import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.tools.ExecFileLoader;
+import org.jacoco.report.IReportVisitor;
+import org.jacoco.report.xml.XMLFormatter;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_XML_FILE;
 import static org.jacoco.core.analysis.ICounter.FULLY_COVERED;
 import static org.jacoco.core.analysis.ICounter.NOT_COVERED;
 import static org.jacoco.core.analysis.ICounter.PARTLY_COVERED;
@@ -49,6 +54,7 @@ public class CoverageReport {
     private Path executionDataFile;
     private Path classesDirectory;
     private final Path projectDir;
+    private final Path reportDir;
 
     private ExecFileLoader execFileLoader;
 
@@ -61,6 +67,7 @@ public class CoverageReport {
         this.orgName = orgName;
         this.moduleName = moduleName;
         this.projectDir = targetDirPath.resolve(TesterinaConstants.COVERAGE_DIR);
+        this.reportDir = targetDirPath.resolve(TesterinaConstants.REPORT_DIR_NAME);
         this.title = projectDir.toFile().getName();
         this.classesDirectory = projectDir.resolve(TesterinaConstants.BIN_DIR);
         this.executionDataFile = projectDir.resolve(TesterinaConstants.EXEC_FILE_NAME);
@@ -78,6 +85,7 @@ public class CoverageReport {
 
         final IBundleCoverage bundleCoverage = analyzeStructure();
         createReport(bundleCoverage);
+        createXMLReport(bundleCoverage);
     }
 
     private IBundleCoverage analyzeStructure() throws IOException {
@@ -124,4 +132,23 @@ public class CoverageReport {
         }
 
     }
+
+    private void createXMLReport(IBundleCoverage bundleCoverage) throws IOException {
+        XMLFormatter xmlFormatter = new XMLFormatter();
+        File reportFile = new File(reportDir.resolve(
+                moduleName).resolve(REPORT_XML_FILE).toString());
+        boolean creationStatus = reportFile.getParentFile().mkdirs();
+        if (creationStatus) {
+            try (FileOutputStream fileOutputStream = new FileOutputStream(reportFile)) {
+                IReportVisitor visitor = xmlFormatter.createVisitor(fileOutputStream);
+                visitor.visitInfo(execFileLoader.getSessionInfoStore().getInfos(),
+                        execFileLoader.getExecutionDataStore().getContents());
+
+                visitor.visitBundle(bundleCoverage, null);
+
+                visitor.visitEnd();
+            }
+        }
+    }
+
 }
