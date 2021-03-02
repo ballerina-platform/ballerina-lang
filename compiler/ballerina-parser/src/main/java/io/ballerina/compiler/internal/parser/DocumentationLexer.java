@@ -421,14 +421,43 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken getCodeLineStartHashToken() {
         STNode leadingTrivia = getLeadingTrivia();
-        STNode trailingTrivia = processTrailingTrivia();
 
-        // If there's no newline minutiae, switch the mode to capture the code description
-        int bucketCount = trailingTrivia.bucketCount();
-        if (bucketCount == 0 || trailingTrivia.childInBucket(bucketCount - 1).kind != SyntaxKind.END_OF_LINE_MINUTIAE) {
-            switchMode(previousBacktickMode); // fall back to previous mode
+        // Trivia for # in a code line can only have following 3 cases.
+        // single whitespace char, newline or single whitespace char followed by a newline
+        // Additional whitespaces should be part of the code description.
+        STNode trailingTrivia;
+        List<STNode> triviaList = new ArrayList<>(2);
+
+        int nextChar = peek();
+        switch (nextChar) {
+            case LexerTerminals.SPACE:
+            case LexerTerminals.TAB:
+            case LexerTerminals.FORM_FEED:
+                reader.mark();
+                reader.advance();
+                STNode singleWhitespace = STNodeFactory.createMinutiae(SyntaxKind.WHITESPACE_MINUTIAE, getLexeme());
+                triviaList.add(singleWhitespace);
+
+                nextChar = peek();
+                if (nextChar == LexerTerminals.NEWLINE || nextChar == LexerTerminals.CARRIAGE_RETURN) {
+                    reader.mark();
+                    triviaList.add(processEndOfLine());
+                } else {
+                    // No newline, switch the mode to capture the code description
+                    switchMode(previousBacktickMode);
+                }
+                break;
+            case LexerTerminals.CARRIAGE_RETURN:
+            case LexerTerminals.NEWLINE:
+                reader.mark();
+                triviaList.add(processEndOfLine());
+                break;
+            default:
+                // No newline, switch the mode to capture the code description
+                switchMode(previousBacktickMode);
         }
 
+        trailingTrivia = STNodeFactory.createNodeList(triviaList);
         return STNodeFactory.createToken(SyntaxKind.HASH_TOKEN, leadingTrivia, trailingTrivia);
     }
 

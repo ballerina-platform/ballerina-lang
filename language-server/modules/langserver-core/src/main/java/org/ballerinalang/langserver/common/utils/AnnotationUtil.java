@@ -203,7 +203,8 @@ public class AnnotationUtil {
                 }
                 List<String> insertTexts = new ArrayList<>();
                 requiredFields.forEach(field -> {
-                    String fieldInsertionText = "\t" + getRecordFieldCompletionInsertText(field, 1);
+                    String fieldInsertionText = "\t" + 
+                            getRecordFieldCompletionInsertText(field, Collections.emptyList(), 1);
                     insertTexts.add(fieldInsertionText);
                 });
                 annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));
