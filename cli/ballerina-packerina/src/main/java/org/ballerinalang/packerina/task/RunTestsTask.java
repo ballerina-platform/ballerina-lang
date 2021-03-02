@@ -82,18 +82,20 @@ public class RunTestsTask implements Task {
     private List<String> singleExecTests;
     private Path testJarPath;
     TestReport testReport;
+    private final String includesInCoverage;
 
-    public RunTestsTask(boolean report, boolean coverage, String[] args) {
+    public RunTestsTask(boolean report, boolean coverage, String[] args, String includes) {
         this.coverage = coverage;
         this.args = args;
         this.report = report;
         if (report || coverage) {
             testReport = new TestReport();
         }
+        this.includesInCoverage = includes;
     }
 
     public RunTestsTask(boolean report, boolean coverage, String[] args, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList) {
+                        List<String> disableGroupList, List<String> testList, String includes) {
         this.args = args;
         this.report = report;
         this.coverage = coverage;
@@ -112,6 +114,7 @@ public class RunTestsTask implements Task {
         if (report || coverage) {
             testReport = new TestReport();
         }
+        this.includesInCoverage = includes;
     }
 
     @Override
@@ -331,8 +334,10 @@ public class RunTestsTask implements Task {
                         + "=destfile="
                         + targetDir.resolve(TesterinaConstants.COVERAGE_DIR)
                         .resolve(TesterinaConstants.EXEC_FILE_NAME).toString();
-                if (!TesterinaConstants.DOT.equals(packageName)) {
+                if (!TesterinaConstants.DOT.equals(packageName) && this.includesInCoverage == null) {
                     agentCommand += ",includes=" + orgName + "." + packageName + ".*";
+                } else {
+                    agentCommand += ",includes=" + this.includesInCoverage;
                 }
                 cmdArgs.add(agentCommand);
             }
