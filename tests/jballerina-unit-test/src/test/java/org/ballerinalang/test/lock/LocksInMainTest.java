@@ -284,7 +284,8 @@ public class LocksInMainTest {
         BRunUtil.invoke(importInvocationDependencies, "testLockWithInvokableChainsAccessingGlobal");
     }
 
-    @Test(description = "Test for locks on global references")
+    //TODO testcase disabled with https://github.com/ballerina-platform/ballerina-lang/issues/28930
+    @Test(description = "Test for locks on global references", enabled = false)
     public void testLocksWhenGlobalVariablesReferToSameValue() {
         BRunUtil.invoke(parallelCompileResult, "testLocksWhenGlobalVariablesReferToSameValue");
     }
