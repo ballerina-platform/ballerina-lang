@@ -53,7 +53,6 @@ import io.ballerina.compiler.syntax.tree.ErrorBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
@@ -1252,7 +1251,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     env.trailingWS, env.trailingNL);
         }
 
-        ErrorTypeParamsNode errorTypeParamsNode = formatNode(errorTypeDescriptorNode.errorTypeParamsNode().orElse(null),
+        TypeParameterNode errorTypeParamsNode = formatNode(errorTypeDescriptorNode.errorTypeParamsNode().orElse(null),
                 env.trailingWS, env.trailingNL);
         return errorTypeDescriptorNode.modify()
                 .withErrorKeywordToken(errorKeywordToken)
@@ -2495,19 +2494,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOpenParenToken(openParenToken)
                 .withFieldNames(fieldNames)
                 .withCloseParenToken(closeParenToken)
-                .apply();
-    }
-
-    @Override
-    public ErrorTypeParamsNode transform(ErrorTypeParamsNode errorTypeParamsNode) {
-        Token ltToken = formatToken(errorTypeParamsNode.ltToken(), 0, 0);
-        Node parameter = formatNode(errorTypeParamsNode.parameter(), 0, 0);
-        Token gtToken = formatToken(errorTypeParamsNode.gtToken(), env.trailingWS, env.trailingNL);
-
-        return errorTypeParamsNode.modify()
-                .withLtToken(ltToken)
-                .withParameter(parameter)
-                .withGtToken(gtToken)
                 .apply();
     }
 

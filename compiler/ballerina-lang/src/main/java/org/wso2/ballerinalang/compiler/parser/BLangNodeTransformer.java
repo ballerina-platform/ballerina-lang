@@ -53,7 +53,6 @@ import io.ballerina.compiler.syntax.tree.ErrorBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
@@ -953,10 +952,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        Optional<ErrorTypeParamsNode> typeParam = errorTypeDescriptorNode.errorTypeParamsNode();
+        Optional<TypeParameterNode> typeParam = errorTypeDescriptorNode.errorTypeParamsNode();
         errorType.pos = getPosition(errorTypeDescriptorNode);
         if (typeParam.isPresent()) {
-            ErrorTypeParamsNode typeNode = typeParam.get();
+            TypeParameterNode typeNode = typeParam.get();
             BLangType detail = null;
             if (isAnonymousTypeNode(typeNode)) {
                 detail = deSugarTypeAsUserDefType(createTypeNode(typeNode));
@@ -979,23 +978,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return errorType;
     }
 
-    private boolean isAnonymousTypeNode(ErrorTypeParamsNode typeNode) {
-        SyntaxKind paramKind = typeNode.parameter().kind();
+    private boolean isAnonymousTypeNode(TypeParameterNode typeNode) {
+        SyntaxKind paramKind = typeNode.typeNode().kind();
         if (paramKind == SyntaxKind.RECORD_TYPE_DESC || paramKind == SyntaxKind.OBJECT_TYPE_DESC
                 || paramKind == SyntaxKind.ERROR_TYPE_DESC) {
             return checkIfAnonymous(typeNode);
         }
         return false;
-    }
-
-    @Override
-    public BLangNode transform(ErrorTypeParamsNode errorTypeParamsNode) {
-        Node param = errorTypeParamsNode.parameter();
-        if (param.kind() == SyntaxKind.ASTERISK_TOKEN) {
-            return null;
-        }
-
-        return createTypeNode(errorTypeParamsNode.parameter());
     }
 
     @Override
