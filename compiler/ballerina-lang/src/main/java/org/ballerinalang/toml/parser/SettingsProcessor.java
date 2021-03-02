@@ -43,23 +43,12 @@ public class SettingsProcessor {
      * @throws IOException Exception if the file cannot be found
      */
     public static Settings parseTomlContentFromFile(Path settingsPath) throws IOException {
-        InputStream settingsInputStream = new FileInputStream(settingsPath.toFile());
-        return getSettings(settingsInputStream);
-    }
-
-    /**
-     * Get the settings config object by an input stream.
-     *
-     * @param inputStream Settings.toml file's input stream.
-     * @return The Settings object
-     */
-    private static Settings getSettings(InputStream inputStream) {
         Toml toml;
-        try {
-            toml = new Toml().read(inputStream);
+        try (InputStream settingsInputStream = new FileInputStream(settingsPath.toFile())) {
+            toml = new Toml().read(settingsInputStream);
             return toml.to(Settings.class);
         } catch (IllegalStateException e) {
-            out.println("warning: invalid 'Settings.toml' due to " + e.getMessage());
+            out.println("warning: invalid 'Settings.toml' file at:" + settingsPath + " due to:" + e.getMessage());
         }
         return new Settings();
     }
