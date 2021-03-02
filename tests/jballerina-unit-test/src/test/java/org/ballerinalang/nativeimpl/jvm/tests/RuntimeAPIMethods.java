@@ -45,7 +45,7 @@ public class RuntimeAPIMethods {
         address.put("city", StringUtils.fromString("Nugegoda"));
         address.put("country", StringUtils.fromString("Sri Lanka"));
         address.put("postalCode", 10250);
-        return ValueCreator.createReadonlyRecordValue(recordModule, recordName.getValue(), address);
+        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), address);
     }
 
     public static BObject getObject(BString objectName) {

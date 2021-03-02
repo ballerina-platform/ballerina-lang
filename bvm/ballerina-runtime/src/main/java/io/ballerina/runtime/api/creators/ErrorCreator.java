@@ -140,9 +140,9 @@ public class ErrorCreator {
     }
 
     /**
-     * Create a error value with given error type  defined in the given module.
+     * Create a error value with given error type defined in the given module.
      *
-     * @param module        module name.
+     * @param module        module name
      * @param errorTypeName error type name
      * @param message       error message
      * @param cause         error cause
