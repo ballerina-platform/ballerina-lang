@@ -158,8 +158,10 @@ public class EvaluationUtils {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to load JVM util function: " + methodName));
         }
-        methods = methods.stream().filter(method -> method.isPublic() && method.isStatic())
+        methods = methods.stream()
+                .filter(method -> method.isPublic() && method.isStatic())
                 .collect(Collectors.toList());
+
         if (methods.size() != 1) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to load JVM util function: " + methodName));

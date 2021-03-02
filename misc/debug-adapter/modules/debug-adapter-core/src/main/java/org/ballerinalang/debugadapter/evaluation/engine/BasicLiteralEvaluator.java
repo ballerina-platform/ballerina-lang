@@ -45,6 +45,9 @@ public class BasicLiteralEvaluator extends Evaluator {
     private final Node syntaxNode;
     private final String literalString;
 
+    private static final String HEX_INDICATOR_PREFIX_REGEX = "0[Xx]";
+    private static final String FLOATING_POINT_TYPE_SUFFIX_REGEX = "[dDfF]$";
+
     public BasicLiteralEvaluator(SuspendedContext context, BasicLiteralNode node) {
         this(context, node, node.literalToken().text());
     }
@@ -71,21 +74,7 @@ public class BasicLiteralEvaluator extends Evaluator {
                 case NIL_LITERAL:
                     return new BExpressionValue(context, null);
                 case NUMERIC_LITERAL:
-                    SyntaxKind literalTokenKind = ((BasicLiteralNode) syntaxNode).literalToken().kind();
-                    if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-                        return VMUtils.make(context, Long.parseLong(literalString.trim()));
-                    } else if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
-                        return VMUtils.make(context, Long.parseLong(literalString.trim(), 16));
-                    } else if (literalTokenKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
-                        return new BExpressionValue(context, createDecimalValue(literalString.trim()));
-                    } else if (literalTokenKind == SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN) {
-                        // Todo - add support for hex floats
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "Unsupported basic literal detected: " + literalString));
-                    } else {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "Unsupported basic literal detected: " + literalString));
-                    }
+                    return parseAndGetNumericValue(literalString.trim());
                 case BOOLEAN_LITERAL:
                     return VMUtils.make(context, Boolean.parseBoolean(literalString.trim()));
                 case STRING_LITERAL:
@@ -100,6 +89,31 @@ public class BasicLiteralEvaluator extends Evaluator {
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
                     syntaxNode.toSourceCode().trim()));
+        }
+    }
+
+    /**
+     * Parses a user given literal expression string into a ballerina numeric value and return as an instance of
+     * {@code  BExpressionValue}.
+     */
+    private BExpressionValue parseAndGetNumericValue(String literalString) throws EvaluationException {
+        SyntaxKind literalTokenKind = ((BasicLiteralNode) syntaxNode).literalToken().kind();
+        if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
+            return VMUtils.make(context, Long.parseLong(literalString));
+        } else if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
+            // Removes hex indicator.
+            String withoutHexIndicator = literalString.replaceFirst(HEX_INDICATOR_PREFIX_REGEX, "");
+            String withoutTypeSuffix = withoutHexIndicator.replaceAll(FLOATING_POINT_TYPE_SUFFIX_REGEX, "");
+            return VMUtils.make(context, Long.parseLong(withoutTypeSuffix, 16));
+        } else if (literalTokenKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
+            return new BExpressionValue(context, createDecimalValue(literalString));
+        } else if (literalTokenKind == SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN) {
+            // Todo - add support for hex floats
+            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                    "Unsupported basic literal detected: " + literalString));
+        } else {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                    "Unsupported basic literal detected: " + literalString));
         }
     }
 
