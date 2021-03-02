@@ -1675,25 +1675,29 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         defineNode(serviceNode.serviceVariable, env);
+
+        Name generatedServiceName = names.fromString("service$" + serviceNode.serviceClass.symbol.name.value);
         BType type = serviceNode.serviceClass.typeRefs.isEmpty() ? null : serviceNode.serviceClass.typeRefs.get(0).type;
         BServiceSymbol serviceSymbol = new BServiceSymbol((BClassSymbol) serviceNode.serviceClass.symbol,
-                                                          Flags.asMask(serviceNode.flagSet), Names.EMPTY,
+                                                          Flags.asMask(serviceNode.flagSet), generatedServiceName,
                                                           env.enclPkg.symbol.pkgID, type, env.enclPkg.symbol,
                                                           serviceNode.pos, SOURCE);
         serviceNode.symbol = serviceSymbol;
 
-        if (serviceNode.absoluteResourcePath.isEmpty()) {
-            return;
+        if (!serviceNode.absoluteResourcePath.isEmpty()) {
+            if ("/".equals(serviceNode.absoluteResourcePath.get(0).getValue())) {
+                serviceSymbol.setAbsResourcePath(Collections.emptyList());
+            } else {
+                List<String> list = new ArrayList<>();
+                for (IdentifierNode identifierNode : serviceNode.absoluteResourcePath) {
+                    list.add(identifierNode.getValue());
+                }
+                serviceSymbol.setAbsResourcePath(list);
+            }
         }
 
-        if ("/".equals(serviceNode.absoluteResourcePath.get(0).getValue())) {
-            serviceSymbol.setAttachPoint(Collections.emptyList());
-        } else {
-            List<String> list = new ArrayList<>();
-            for (IdentifierNode identifierNode : serviceNode.absoluteResourcePath) {
-                list.add(identifierNode.getValue());
-            }
-            serviceSymbol.setAttachPoint(list);
+        if (serviceNode.serviceNameLiteral != null) {
+            serviceSymbol.setAttachPointStringLiteral(serviceNode.serviceNameLiteral.originalValue);
         }
     }
 

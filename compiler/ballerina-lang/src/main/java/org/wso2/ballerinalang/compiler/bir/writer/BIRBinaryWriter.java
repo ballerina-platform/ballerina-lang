@@ -54,7 +54,8 @@ import java.util.stream.Collectors;
  *
  * @since 0.980.0
  */
-public class BIRBinaryWriter {
+public class
+BIRBinaryWriter {
 
     private final ConstantPool cp = new ConstantPool();
     private final BIRNode.BIRPackage birPackage;
@@ -85,6 +86,8 @@ public class BIRBinaryWriter {
         writeFunctions(birbuf, typeWriter, birPackage.functions);
         // Write annotations
         writeAnnotations(birbuf, typeWriter, birPackage.annotations);
+        // Write service declarations
+        writeServiceDeclarations(birbuf, typeWriter, birPackage.serviceDecls);
 
         // Write the constant pool entries.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -432,6 +435,36 @@ public class BIRBinaryWriter {
                 throw new UnsupportedOperationException(
                         "finite type value is not supported for type: " + constValue.type);
 
+        }
+    }
+
+    private void writeServiceDeclarations(ByteBuf buf, BIRTypeWriter typeWriter,
+                                          List<BIRNode.BIRServiceDeclaration> birServiceDeclList) {
+        buf.writeInt(birServiceDeclList.size());
+        birServiceDeclList.forEach(service -> writeServiceDeclaration(buf, typeWriter, service));
+    }
+
+    private void writeServiceDeclaration(ByteBuf buf, BIRTypeWriter typeWriter,
+                                         BIRNode.BIRServiceDeclaration birServiceDecl) {
+        buf.writeInt(addStringCPEntry(birServiceDecl.generatedName.value));
+        buf.writeInt(addStringCPEntry(birServiceDecl.associatedClassName.value));
+        buf.writeLong(birServiceDecl.flags);
+        buf.writeByte(birServiceDecl.origin.value());
+        writePosition(buf, birServiceDecl.pos);
+
+        typeWriter.writeMarkdownDocAttachment(buf, birServiceDecl.markdownDocAttachment);
+
+        writeType(buf, birServiceDecl.type);
+
+        if (birServiceDecl.attachPoint == null) {
+            buf.writeBoolean(false);
+        } else {
+            buf.writeBoolean(true);
+            buf.writeInt(birServiceDecl.attachPoint.size());
+
+            for (String pathSegment : birServiceDecl.attachPoint) {
+                buf.writeInt(addStringCPEntry(pathSegment));
+            }
         }
     }
 

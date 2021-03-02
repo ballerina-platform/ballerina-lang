@@ -34,7 +34,8 @@ import java.util.Optional;
 public class BServiceSymbol extends BSymbol {
 
     private final BClassSymbol associatedClass;
-    private List<String> attachPoint;
+    private List<String> absResourcePath;
+    private String attachPointStringLiteral;
 
     public BServiceSymbol(BClassSymbol associatedClass, long flags, Name name, PackageID pkgID, BType type,
                           BSymbol owner, Location pos, SymbolOrigin origin) {
@@ -43,15 +44,23 @@ public class BServiceSymbol extends BSymbol {
         this.kind = SymbolKind.SERVICE;
     }
 
-    public Optional<List<String>> getAttachPoint() {
-        return Optional.ofNullable(this.attachPoint);
+    public Optional<List<String>> getAbsResourcePath() {
+        return Optional.ofNullable(this.absResourcePath);
+    }
+
+    public Optional<String> getAttachPointStringLiteral() {
+        return Optional.ofNullable(this.attachPointStringLiteral);
     }
 
     public BClassSymbol getAssociatedClassSymbol() {
         return this.associatedClass;
     }
 
-    public void setAttachPoint(List<String> attachPoint) {
-        this.attachPoint = attachPoint;
+    public void setAbsResourcePath(List<String> absResourcePath) {
+        this.absResourcePath = absResourcePath;
+    }
+
+    public void setAttachPointStringLiteral(String attachPointStringLiteral) {
+        this.attachPointStringLiteral = attachPointStringLiteral;
     }
 }
