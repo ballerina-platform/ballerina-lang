@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
+import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.NilLiteralNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -25,7 +26,14 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
+
+import java.util.Collections;
+
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_CREATOR_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_DECIMAL_VALUE_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 
 /**
  * Evaluator implementation for Basic literals.
@@ -57,29 +65,54 @@ public class BasicLiteralEvaluator extends Evaluator {
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
-        SyntaxKind basicLiteralKind = syntaxNode.kind();
-        switch (basicLiteralKind) {
-            case NIL_LITERAL:
-                return new BExpressionValue(context, null);
-            case NUMERIC_LITERAL:
-                SyntaxKind literalTokenKind = ((BasicLiteralNode) syntaxNode).literalToken().kind();
-                if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-                    // int literal
-                    // Todo - Add hex int literal support
-                    return VMUtils.make(context, Long.parseLong(literalString.trim()));
-                } else {
-                    // float literal
-                    // Todo - Add hex float literal support
-                    return VMUtils.make(context, Double.parseDouble(literalString.trim()));
-                }
-            case BOOLEAN_LITERAL:
-                return VMUtils.make(context, Boolean.parseBoolean(literalString.trim()));
-            case STRING_LITERAL:
-            case TEMPLATE_STRING:
-                return VMUtils.make(context, literalString);
-            default:
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "Unsupported basic literal detected: " + literalString));
+        try {
+            SyntaxKind basicLiteralKind = syntaxNode.kind();
+            switch (basicLiteralKind) {
+                case NIL_LITERAL:
+                    return new BExpressionValue(context, null);
+                case NUMERIC_LITERAL:
+                    SyntaxKind literalTokenKind = ((BasicLiteralNode) syntaxNode).literalToken().kind();
+                    if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
+                        return VMUtils.make(context, Long.parseLong(literalString.trim()));
+                    } else if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
+                        return VMUtils.make(context, Long.parseLong(literalString.trim(), 16));
+                    } else if (literalTokenKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
+                        return new BExpressionValue(context, createDecimalValue(literalString.trim()));
+                    } else if (literalTokenKind == SyntaxKind.HEX_FLOATING_POINT_LITERAL_TOKEN) {
+                        // Todo - add support for hex floats
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                                "Unsupported basic literal detected: " + literalString));
+                    } else {
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                                "Unsupported basic literal detected: " + literalString));
+                    }
+                case BOOLEAN_LITERAL:
+                    return VMUtils.make(context, Boolean.parseBoolean(literalString.trim()));
+                case STRING_LITERAL:
+                case TEMPLATE_STRING:
+                    return VMUtils.make(context, literalString);
+                default:
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "Unsupported basic literal detected: " + literalString));
+            }
+        } catch (EvaluationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
+                    syntaxNode.toSourceCode().trim()));
         }
+    }
+
+    /**
+     * Parses the user input string into a decimal value using ValueCreator API in ballerina runtime.
+     *
+     * @param decimalValueString user input string
+     * @return parsed decimal value
+     */
+    private Value createDecimalValue(String decimalValueString) throws EvaluationException {
+        RuntimeStaticMethod method = getRuntimeMethod(context, B_VALUE_CREATOR_CLASS,
+                CREATE_DECIMAL_VALUE_METHOD, Collections.singletonList(EvaluationUtils.JAVA_STRING_CLASS));
+        method.setArgValues(Collections.singletonList(EvaluationUtils.getAsJString(context, decimalValueString)));
+        return method.invoke();
     }
 }
