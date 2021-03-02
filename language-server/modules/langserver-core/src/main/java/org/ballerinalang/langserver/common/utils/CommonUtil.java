@@ -281,7 +281,7 @@ public class CommonUtil {
                                                                        Map<String, RecordFieldSymbol> fields) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         fields.forEach((name, field) -> {
-            String insertText = getRecordFieldCompletionInsertText(field, 0);
+            String insertText = getRecordFieldCompletionInsertText(field, Collections.emptyList(), 0);
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText);
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
@@ -465,9 +465,12 @@ public class CommonUtil {
      * Get the completion item insert text for a BField.
      *
      * @param bField BField to evaluate
+     * @param parents Parent record field symbols
      * @return {@link String} Insert text
      */
-    public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField, int tabOffset) {
+    public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField,
+                                                            List<RecordFieldSymbol> parents,
+                                                            int tabOffset) {
         TypeSymbol fieldType = CommonUtil.getRawType(bField.typeDescriptor());
         StringBuilder insertText = new StringBuilder(bField.getName().get() + ": ");
         if (fieldType.typeKind() == TypeDescKind.RECORD) {
@@ -479,9 +482,15 @@ public class CommonUtil {
             insertText.append("{").append(LINE_SEPARATOR);
             List<String> requiredFieldInsertTexts = new ArrayList<>();
             for (RecordFieldSymbol field : requiredFields) {
-                String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
-                        getRecordFieldCompletionInsertText(field, tabOffset + 1);
-                requiredFieldInsertTexts.add(fieldText);
+                // If the field refers to the same type as bField or a parent of bField, 
+                // it results in a stack overflow error. Avoiding that using the following check
+                if (!parents.contains(field)) {
+                    List<RecordFieldSymbol> newParentsList = new ArrayList<>(parents);
+                    newParentsList.add(field);
+                    String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
+                            getRecordFieldCompletionInsertText(field, newParentsList, tabOffset + 1);
+                    requiredFieldInsertTexts.add(fieldText);
+                }
             }
             insertText.append(String.join("," + CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
             insertText.append(LINE_SEPARATOR)
