@@ -76,7 +76,7 @@ public abstract class IndexedCompoundVariable extends BCompoundVariable {
             if (childVariables.getRight() == null || childVariables.getRight().isEmpty()) {
                 throw new DebugVariableException("No child variables found with index: '" + index + "'");
             }
-            return childVariables.getRight().get(index);
+            return childVariables.getRight().get(0);
         }
         throw new DebugVariableException("No child variables found with index: '" + index + "'");
     }

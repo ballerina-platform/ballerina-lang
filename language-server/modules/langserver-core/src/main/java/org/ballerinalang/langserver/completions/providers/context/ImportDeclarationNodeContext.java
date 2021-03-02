@@ -34,12 +34,9 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -49,6 +46,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.langserver.completions.providers.context.util.ImportDeclarationContextUtil.getImportCompletion;
+import static org.ballerinalang.langserver.completions.providers.context.util.ImportDeclarationContextUtil.getLangLibModuleNameInsertText;
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
 
 /**
@@ -58,7 +57,7 @@ import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortT
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ImportDeclarationNodeContext extends AbstractCompletionProvider<ImportDeclarationNode> {
-    
+
     private static final String LANGLIB_MODULE_PREFIX = Names.BALLERINA_ORG.getValue()
             + Names.ORG_NAME_SEPARATOR.getValue() + Names.LANG.getValue() + Names.DOT.getValue();
     private static final String BALLERINA_MODULE_PREFIX = Names.BALLERINA_ORG.getValue()
@@ -275,10 +274,6 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         return completionItems;
     }
 
-    private String getLangLibModuleNameInsertText(String pkgName) {
-        return pkgName.replace(".", ".'") + ";";
-    }
-
     private ArrayList<LSCompletionItem> moduleNameContextCompletions(BallerinaCompletionContext context,
                                                                      String orgName) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
@@ -303,17 +298,6 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         });
 
         return completionItems;
-    }
-
-    private static LSCompletionItem getImportCompletion(BallerinaCompletionContext context, String label,
-                                                        String insertText) {
-        CompletionItem item = new CompletionItem();
-        item.setLabel(label);
-        item.setInsertText(insertText);
-        item.setKind(CompletionItemKind.Module);
-        item.setDetail(ItemResolverConstants.MODULE_TYPE);
-
-        return new StaticCompletionItem(context, item, StaticCompletionItem.Kind.MODULE);
     }
 
     private boolean onSuggestAsKeyword(BallerinaCompletionContext context, ImportDeclarationNode node) {

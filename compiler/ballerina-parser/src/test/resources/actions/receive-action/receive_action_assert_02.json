@@ -455,23 +455,28 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
+                              "kind": "QUALIFIED_NAME_REFERENCE",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_INVALID_TOKEN"
-                              ],
-                              "value": "c",
-                              "leadingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "INVALID_NODE_MINUTIAE",
-                                  "invalidNode": {
-                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                    "children": [
-                                      {
-                                        "kind": "COLON_TOKEN"
-                                      }
-                                    ]
-                                  }
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_IDENTIFIER"
+                                  ]
+                                },
+                                {
+                                  "kind": "COLON_TOKEN"
+                                },
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "c"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -568,7 +573,7 @@
                               "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
-                                  "kind": "DEFAULT_KEYWORD"
+                                  "kind": "FUNCTION_KEYWORD"
                                 }
                               ]
                             },
@@ -595,7 +600,7 @@
                                   "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "DEFAULT_KEYWORD"
+                                      "kind": "FUNCTION_KEYWORD"
                                     }
                                   ]
                                 }

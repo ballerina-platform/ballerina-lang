@@ -60,7 +60,12 @@ public class GetErrorMessageTrial extends TreeParserTrial {
         } catch (InterruptedException e) {
             throw new ParserTrialFailedException("Tree parsing was interrupted.");
         } catch (ExecutionException e) {
-            throw new ParserTrialFailedException("Tree parsing failed: " + e.getCause().getMessage());
+            // Error message thrown should be in "syntax error: ERROR" format.
+            String errorMessage = e.getCause().getMessage();
+            if (errorMessage.startsWith("error:")) {
+                throw new ParserTrialFailedException("syntax " + errorMessage);
+            }
+            throw new ParserTrialFailedException("syntax error: " + errorMessage);
         } catch (TimeoutException e) {
             future.cancel(true);
             throw new ParserTrialFailedException("Tree parsing was timed out.");

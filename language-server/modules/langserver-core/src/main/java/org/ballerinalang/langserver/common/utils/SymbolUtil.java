@@ -20,8 +20,10 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -32,6 +34,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Carries a set of utilities to check the types of the symbols.
@@ -48,6 +51,7 @@ public class SymbolUtil {
      * @param symbol to evaluate
      * @return {@link Boolean} whether the symbol holds the type object
      */
+    @Deprecated(forRemoval = true)
     public static boolean isObject(Symbol symbol) {
         TypeSymbol typeDescriptor;
         switch (symbol.kind()) {
@@ -73,6 +77,7 @@ public class SymbolUtil {
      * @param symbol to evaluate
      * @return {@link Boolean}
      */
+    @Deprecated(forRemoval = true)
     public static boolean isClass(Symbol symbol) {
         TypeSymbol typeDescriptor;
         switch (symbol.kind()) {
@@ -92,11 +97,45 @@ public class SymbolUtil {
     }
 
     /**
+     * Check whether the symbol is a class definition.
+     * This method will not consider the variable symbols. In order to check the variable symbols,
+     * use {@link #isClassVariable(Symbol)}
+     *
+     * @param symbol symbol to be evaluated
+     * @return {@link Boolean}
+     */
+    public static boolean isClassDefinition(Symbol symbol) {
+        if (symbol.kind() == SymbolKind.CLASS) {
+            return true;
+        }
+        if (symbol.kind() == SymbolKind.TYPE) {
+            return CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).kind() == SymbolKind.CLASS;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check whether the symbol is a variable symbol while the kind is {@link SymbolKind#CLASS}.
+     *
+     * @param variableSymbol variable symbol to evaluate
+     * @return {@link Boolean}
+     */
+    public static boolean isClassVariable(Symbol variableSymbol) {
+        if (variableSymbol.kind() != SymbolKind.VARIABLE) {
+            return false;
+        }
+        TypeSymbol typeSymbol = ((VariableSymbol) variableSymbol).typeDescriptor();
+        return CommonUtil.getRawType(typeSymbol).kind() == SymbolKind.CLASS;
+    }
+
+    /**
      * Check whether the given symbol is a symbol with the type Record.
      *
      * @param symbol to evaluate
      * @return {@link Boolean} whether the symbol holds the type record
      */
+    @Deprecated(forRemoval = true)
     public static boolean isRecord(Symbol symbol) {
         TypeSymbol typeDescriptor;
         switch (symbol.kind()) {
@@ -114,13 +153,45 @@ public class SymbolUtil {
     }
 
     /**
+     * Check whether the symbol is a record type definition.
+     * This method will not consider the variable symbols. In order to check the variable symbols,
+     * use {@link #isRecordVariable(Symbol)}
+     *
+     * @param symbol symbol to be evaluated
+     * @return {@link Boolean}
+     */
+    public static boolean isRecordTypeDefinition(Symbol symbol) {
+        if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
+            return false;
+        }
+        TypeSymbol typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
+
+        return CommonUtil.getRawType(typeDescriptor).typeKind() == TypeDescKind.RECORD;
+    }
+
+    /**
+     * Check whether the symbol is a variable symbol while the kind is {@link TypeDescKind#RECORD}.
+     *
+     * @param variableSymbol variable symbol to evaluate
+     * @return {@link Boolean}
+     */
+    public static boolean isRecordVariable(Symbol variableSymbol) {
+        if (variableSymbol.kind() != SymbolKind.VARIABLE) {
+            return false;
+        }
+        TypeSymbol typeSymbol = ((VariableSymbol) variableSymbol).typeDescriptor();
+
+        return CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.RECORD;
+    }
+
+    /**
      * Get the type descriptor of the given symbol.
      * If the symbol is not a variable symbol this method will return empty optional value
      *
      * @param symbol to evaluate
      * @return {@link Optional} type descriptor
      */
-    public static Optional<? extends TypeSymbol> getTypeDescriptor(Symbol symbol) {
+    public static Optional<TypeSymbol> getTypeDescriptor(Symbol symbol) {
         if (symbol == null) {
             return Optional.empty();
         }
@@ -132,11 +203,16 @@ public class SymbolUtil {
             case ANNOTATION:
                 return ((AnnotationSymbol) symbol).typeDescriptor();
             case FUNCTION:
+            case METHOD:
                 return Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
             case CONSTANT:
                 return Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
             case CLASS:
                 return Optional.of((ClassSymbol) symbol);
+            case RECORD_FIELD:
+                return Optional.ofNullable(((RecordFieldSymbol) symbol).typeDescriptor());
+            case OBJECT_FIELD:
+                return Optional.of(((ObjectFieldSymbol) symbol).typeDescriptor());
             default:
                 return Optional.empty();
         }
@@ -203,7 +279,7 @@ public class SymbolUtil {
         Map<String, MethodSymbol> attachedMethods =
                 ((ClassSymbol) CommonUtil.getRawType(symbolTypeDesc.get())).methods();
         return attachedMethods.containsKey("start") && attachedMethods.containsKey("immediateStop")
-                && attachedMethods.containsKey("immediateStop") && attachedMethods.containsKey("attach");
+                && attachedMethods.containsKey("attach");
     }
 
     /**
@@ -226,6 +302,7 @@ public class SymbolUtil {
      * @param symbol symbol to be evaluated
      * @return {@link Boolean} status of the evaluation
      */
+    @Deprecated(forRemoval = true)
     public static boolean isError(Symbol symbol) {
         if (symbol.kind() != SymbolKind.VARIABLE) {
             return false;
@@ -236,16 +313,28 @@ public class SymbolUtil {
     }
 
     /**
-     * Check whether the given symbol is a symbol with the type Record.
+     * Get the type kind of a variable symbol.
      *
      * @param symbol to evaluate
-     * @return {@link Boolean} whether the symbol holds the type record
+     * @return {@link Optional} empty if the symbol is not a variable symbol
      */
+    @Deprecated(forRemoval = true)
     public static Optional<TypeDescKind> getTypeKind(Symbol symbol) {
         if (symbol.kind() != SymbolKind.VARIABLE) {
             return Optional.empty();
         }
 
         return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor().typeKind());
+    }
+
+    /**
+     * Predicate to evaluate whether a symbol is a type definition of the provided kind.
+     *
+     * @param typeDescKind to compare the symbol
+     * @return {@link Predicate}
+     */
+    public static Predicate<Symbol> isOfType(TypeDescKind typeDescKind) {
+        return symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION
+                && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind() == typeDescKind;
     }
 }

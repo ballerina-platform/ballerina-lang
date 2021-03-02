@@ -55,7 +55,7 @@ public class OpenRecordIterationTest {
 
         // Test invalid no. of args with foreach loop
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "invalid tuple binding pattern: attempted to infer a tuple type, " +
+                                  "invalid list binding pattern: attempted to infer a list type, " +
                                   "but found 'anydata'",
                                   34, 17);
 

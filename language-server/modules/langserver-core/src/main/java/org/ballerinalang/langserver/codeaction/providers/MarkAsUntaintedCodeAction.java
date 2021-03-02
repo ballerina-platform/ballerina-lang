@@ -22,6 +22,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -44,6 +45,7 @@ public class MarkAsUntaintedCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.TAINTED_PARAM_PASSED))) {
             return Collections.emptyList();
@@ -57,7 +59,7 @@ public class MarkAsUntaintedCodeAction extends AbstractCodeActionProvider {
             String commandTitle = String.format(CommandConstants.MARK_UNTAINTED_TITLE, param);
             // Extract specific content range
             Range range = CommonUtil.toRange(diagnostic.location().lineRange());
-            Document document = context.workspace().document(context.filePath()).orElseThrow();
+            Document document = context.currentDocument().orElseThrow();
             String content = getContent(document, CommonUtil.toRange(diagnostic.location().lineRange()));
             // Add `untaint` keyword
             matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);
