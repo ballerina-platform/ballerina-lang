@@ -110,8 +110,29 @@ public class CoverageReport {
         }
 
         if (!filteredPathList.isEmpty()) {
+            addCompiledSources(filteredPathList, orgName, packageName, version);
+            execFileLoader.load(executionDataFile.toFile());
+            final CoverageBuilder coverageBuilder = analyzeStructure();
+            // Create testerina coverage report
+            createReport(coverageBuilder.getBundle(title), moduleCoverageMap);
+            // Add additional dependency jars for Coverage XML
+            addCompiledSources(getDependencyJarList(jBallerinaBackend), orgName, packageName, version);
+            execFileLoader.load(executionDataFile.toFile());
+            final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
+            // Create XML coverage report for Codecov
+            createXMLReport(getPartialCoverageModifiedBundle(xmlCoverageBuilder));
+            CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
+        } else {
+            String msg = "Unable to generate code coverage for the module " + packageName + ". Jar files dont exist.";
+            throw new NoSuchFileException(msg);
+        }
+    }
+
+    private void addCompiledSources(List<Path> pathList, String orgName, String packageName, String version) throws
+            IOException {
+        if (!pathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
-            for (Path jarPath : filteredPathList) {
+            for (Path jarPath : pathList) {
                 try {
                     // Creates coverage folder with each class per module
                     CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir, orgName, packageName, version);
@@ -122,15 +143,6 @@ public class CoverageReport {
                     return;
                 }
             }
-
-            execFileLoader.load(executionDataFile.toFile());
-            final CoverageBuilder coverageBuilder = analyzeStructure();
-            createReport(coverageBuilder.getBundle(title), moduleCoverageMap);
-            createXMLReport(getPartialCoverageModifiedBundle(coverageBuilder));
-            CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
-        } else {
-            String msg = "Unable to generate code coverage for the module " + packageName + ". Jar files dont exist.";
-            throw new NoSuchFileException(msg);
         }
     }
 
@@ -320,6 +332,22 @@ public class CoverageReport {
         exclusionPathList.add(jBallerinaBackend.runtimeLibrary().path());
         exclusionPathList.addAll(ProjectUtils.testDependencies());
         return exclusionPathList;
+    }
+
+    private List<Path> getDependencyJarList(JBallerinaBackend jBallerinaBackend) {
+        List<Path> dependencyPathList = new ArrayList<>();
+        module.packageInstance().getResolution().allDependencies()
+                .stream()
+                .map(ResolvedPackageDependency::packageInstance)
+                .forEach(pkg -> {
+                    for (ModuleId dependencyModuleId : pkg.moduleIds()) {
+                        Module dependencyModule = pkg.module(dependencyModuleId);
+                        PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
+                                pkg.packageId(), dependencyModule.moduleName());
+                        dependencyPathList.add(generatedJarLibrary.path());
+                    }
+                });
+        return dependencyPathList;
     }
 
     private Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {
