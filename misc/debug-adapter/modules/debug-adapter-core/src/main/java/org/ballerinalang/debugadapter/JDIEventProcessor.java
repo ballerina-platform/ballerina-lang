@@ -47,6 +47,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -103,17 +104,19 @@ public class JDIEventProcessor {
             configureUserBreakPoints(evt.referenceType());
             eventSet.resume();
         } else if (event instanceof BreakpointEvent) {
+            Value value = null;
             String qualifiedClassName =
-                    getQualifiedClassName(context, ((BreakpointEvent) event).location().declaringType());
-            if (!balBreakpointsMap.containsKey(qualifiedClassName)) {
-                return false;
-            }
+                getQualifiedClassName(context, ((BreakpointEvent) event).location().declaringType());
             Map<Integer, BalBreakpoint> balBreakpoints = balBreakpointsMap.get(qualifiedClassName);
             int lineNumber = ((BreakpointEvent) event).location().lineNumber();
-            Value value = context.getAdapter().evaluateExpression(balBreakpoints.get(lineNumber).getCondition(),
-                    ((BreakpointEvent) event).thread());
 
-            if (balBreakpoints.get(lineNumber).getCondition() != null && !Boolean.parseBoolean(value.toString())) {
+            if (balBreakpoints != null && balBreakpoints.containsKey(lineNumber)) {
+                value = context.getAdapter().evaluateExpression(balBreakpoints.get(lineNumber).getCondition(),
+                    ((BreakpointEvent) event).thread());
+            }
+            if (balBreakpoints != null && balBreakpoints.containsKey(lineNumber)
+                && balBreakpoints.get(lineNumber).getCondition() != null
+                && !Boolean.parseBoolean(Objects.requireNonNull(value).toString())) {
                 context.getDebuggee().resume();
                 ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
                 continuedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
