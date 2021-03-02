@@ -376,8 +376,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TABLE_KEY_RHS =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
-    private static final ParserRuleContext[] ERROR_TYPE_PARAMS = { ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS };
-
     private static final ParserRuleContext[] LET_VAR_DECL_START =
             { ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, ParserRuleContext.ANNOTATIONS };
 
@@ -709,7 +707,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.LT, ParserRuleContext.TYPEDESC_RHS };
 
     private static final ParserRuleContext[] ERROR_TYPE_OR_TYPE_REF =
-            { ParserRuleContext.COLON, ParserRuleContext.ERROR_TYPE_PARAM_START };
+            { ParserRuleContext.COLON, ParserRuleContext.LT };
 
     private static final ParserRuleContext[] PARAMETERIZED_TYPE_OR_TYPE_REF =
             { ParserRuleContext.COLON, ParserRuleContext.LT};
@@ -815,7 +813,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_KEYWORD_RHS:
             case ARRAY_LENGTH:
             case TYPEDESC_RHS:
-            case ERROR_TYPE_PARAMS:
             case STREAM_TYPE_FIRST_PARAM_RHS:
             case KEY_CONSTRAINTS_RHS:
             case TABLE_TYPE_DESC_RHS:
@@ -1465,7 +1462,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_ROW_END:
             case KEY_SPECIFIER_RHS:
             case TABLE_KEY_RHS:
-            case ERROR_TYPE_PARAMS:
             case LET_VAR_DECL_START:
             case ORDER_KEY_LIST_END:
             case STREAM_TYPE_FIRST_PARAM_RHS:
@@ -1973,9 +1969,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case TYPEDESC_RHS:
                 alternativeRules = TYPEDESC_RHS;
-                break;
-            case ERROR_TYPE_PARAMS:
-                alternativeRules = ERROR_TYPE_PARAMS;
                 break;
             case STREAM_TYPE_FIRST_PARAM_RHS:
                 alternativeRules = STREAM_TYPE_FIRST_PARAM_RHS;
@@ -2950,8 +2943,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OPEN_BRACKET;
             case KEY_SPECIFIER:
                 return ParserRuleContext.KEY_KEYWORD;
-            case ERROR_TYPE_PARAM_START:
-                return ParserRuleContext.ERROR_TYPE_PARAMS;
             case LET_EXPRESSION:
                 return ParserRuleContext.LET_KEYWORD;
             case LET_EXPR_LET_VAR_DECL:
@@ -4858,7 +4849,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private ParserRuleContext getNextRuleForErrorKeyword() {
         if (isInTypeDescContext()) {
-            return ParserRuleContext.ERROR_TYPE_PARAM_START;
+            return ParserRuleContext.LT;
         }
 
         ParserRuleContext parentCtx = getParentContext();
