@@ -393,8 +393,8 @@ public class BByteValueTest {
         BInteger bInteger3 = (BInteger) returns[5];
         BInteger bInteger4 = (BInteger) returns[6];
         Assert.assertEquals(bByte1.value().byteValue(), a & b, "Invalid result");
-        Assert.assertEquals(bByte2.value().byteValue(), a & (byte) i, "Invalid result");
-        Assert.assertEquals(bByte3.value().byteValue(), (byte) i & a, "Invalid result");
+        Assert.assertEquals(bByte2.value().byteValue(), (byte) Integer.parseInt("0xFF", 16) & i, "Invalid result");
+        Assert.assertEquals(bByte3.value().byteValue(), i & (byte) Integer.parseInt("0xFF", 16), "Invalid result");
         Assert.assertEquals(bInteger1.intValue(), Byte.toUnsignedInt(a) & Byte.toUnsignedInt(b), "Invalid result");
         Assert.assertEquals(bInteger2.intValue(), Byte.toUnsignedInt(a) & i, "Invalid result");
         Assert.assertEquals(bInteger3.intValue(), i & j, "Invalid result");
