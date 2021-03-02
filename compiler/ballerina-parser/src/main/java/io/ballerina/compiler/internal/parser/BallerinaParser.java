@@ -16061,7 +16061,7 @@ public class BallerinaParser extends AbstractParser {
         endContext();
 
         if (!isRoot) {
-            return tupleType;
+            return typeDesc;
         }
 
         STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT, isRoot);
