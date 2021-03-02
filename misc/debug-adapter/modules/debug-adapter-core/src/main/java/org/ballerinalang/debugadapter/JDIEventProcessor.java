@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.Value;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
@@ -35,7 +36,6 @@ import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
-import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
@@ -60,7 +60,7 @@ import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 public class JDIEventProcessor {
 
     private final ExecutionContext context;
-    private final Map<String, Breakpoint[]> breakpointsList = new HashMap<>();
+    private final Map<String, Map<Integer, BalBreakpoint>> balBreakpointsMap = new HashMap<>();
     private final List<EventRequest> stepEventRequests = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String BALLERINA_ORG_PREFIX = "ballerina";
@@ -103,11 +103,29 @@ public class JDIEventProcessor {
             configureUserBreakPoints(evt.referenceType());
             eventSet.resume();
         } else if (event instanceof BreakpointEvent) {
-            StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
-            stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
-            stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
-            stoppedEventArguments.setAllThreadsStopped(true);
-            context.getClient().stopped(stoppedEventArguments);
+            String qualifiedClassName =
+                    getQualifiedClassName(context, ((BreakpointEvent) event).location().declaringType());
+            if (!balBreakpointsMap.containsKey(qualifiedClassName)) {
+                return false;
+            }
+            Map<Integer, BalBreakpoint> balBreakpoints = balBreakpointsMap.get(qualifiedClassName);
+            int lineNumber = ((BreakpointEvent) event).location().lineNumber();
+            Value value = context.getAdapter().evaluateExpression(balBreakpoints.get(lineNumber).getCondition(),
+                    ((BreakpointEvent) event).thread());
+
+            if (balBreakpoints.get(lineNumber).getCondition() != null && !Boolean.parseBoolean(value.toString())) {
+                context.getDebuggee().resume();
+                ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
+                continuedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
+                continuedEventArguments.setAllThreadsContinued(true);
+                context.getClient().continued(continuedEventArguments);
+            } else {
+                StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
+                stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
+                stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
+                stoppedEventArguments.setAllThreadsStopped(true);
+                context.getClient().stopped(stoppedEventArguments);
+            }
             context.getEventManager().deleteEventRequests(stepEventRequests);
         } else if (event instanceof StepEvent) {
             StepEvent stepEvent = (StepEvent) event;
@@ -160,9 +178,8 @@ public class JDIEventProcessor {
         }
     }
 
-    void setBreakpointsList(String path, Breakpoint[] breakpointsList) {
-        Breakpoint[] breakpoints = breakpointsList.clone();
-        this.breakpointsList.put(getQualifiedClassName(path), breakpoints);
+    void setBalBreakpointsList(String path, Map<Integer, BalBreakpoint> balBreakpointsList) {
+        this.balBreakpointsMap.put(getQualifiedClassName(path), balBreakpointsList);
         if (context.getDebuggee() != null) {
             // Setting breakpoints to a already running debug session.
             context.getEventManager().deleteAllBreakpoints();
@@ -204,11 +221,11 @@ public class JDIEventProcessor {
             }
 
             String qualifiedClassName = getQualifiedClassName(context, referenceType);
-            if (!breakpointsList.containsKey(qualifiedClassName)) {
+            if (!balBreakpointsMap.containsKey(qualifiedClassName)) {
                 return;
             }
-            Breakpoint[] breakpoints = breakpointsList.get(qualifiedClassName);
-            for (Breakpoint bp : breakpoints) {
+            Map<Integer, BalBreakpoint> breakpoints = balBreakpointsMap.get(qualifiedClassName);
+            for (BalBreakpoint bp : breakpoints.values()) {
                 List<Location> locations = referenceType.locationsOfLine(bp.getLine().intValue());
                 if (!locations.isEmpty()) {
                     Location loc = locations.get(0);

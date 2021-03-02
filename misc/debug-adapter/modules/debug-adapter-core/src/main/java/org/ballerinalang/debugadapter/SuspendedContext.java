@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.InvalidStackFrameException;
+import com.sun.jdi.ThreadReference;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -46,6 +47,7 @@ public class SuspendedContext {
 
     private final VirtualMachineProxyImpl attachedVm;
     private final ThreadReferenceProxyImpl owningThread;
+    private final ThreadReference threadReference;
     private final StackFrameProxyImpl frame;
     private final Project project;
     private final String projectRoot;
@@ -69,6 +71,21 @@ public class SuspendedContext {
         this.lineNumber = -1;
         this.fileName = null;
         this.breakPointSourcePath = null;
+        this.threadReference = null;
+    }
+
+    SuspendedContext(Project project, VirtualMachineProxyImpl vm, ThreadReference threadRef,
+                     StackFrameProxyImpl frame) {
+        this.attachedVm = vm;
+        this.owningThread = null;
+        this.frame = frame;
+        this.project = project;
+        this.projectRoot = project.sourceRoot().toAbsolutePath().toString();
+        this.sourceType = (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) ? SINGLE_FILE : PACKAGE;
+        this.lineNumber = -1;
+        this.fileName = null;
+        this.breakPointSourcePath = null;
+        this.threadReference = threadRef;
     }
 
     public Project getProject() {
@@ -185,5 +202,9 @@ public class SuspendedContext {
         DocumentId documentId = project.documentId(breakPointSourcePath.get());
         Module module = project.currentPackage().module(documentId.moduleId());
         document = module.document(documentId);
+    }
+
+    public ThreadReference getThreadReference() {
+        return threadReference;
     }
 }

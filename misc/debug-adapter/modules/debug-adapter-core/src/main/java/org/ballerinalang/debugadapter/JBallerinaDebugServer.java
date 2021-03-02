@@ -179,7 +179,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         // Todo - Implement
         capabilities.setSupportsCompletionsRequest(false);
         capabilities.setSupportsRestartRequest(false);
-        capabilities.setSupportsConditionalBreakpoints(false);
+        capabilities.setSupportsConditionalBreakpoints(true);
         // unsupported capabilities
         capabilities.setSupportsHitConditionalBreakpoints(false);
         capabilities.setSupportsModulesRequest(false);
@@ -200,10 +200,18 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
                 .toArray(Breakpoint[]::new);
 
+        BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
+            .map((SourceBreakpoint sourceBreakpoint) -> toBalBreakpoint(sourceBreakpoint, args.getSource()))
+            .toArray(BalBreakpoint[]::new);
+
+        Map<Integer, BalBreakpoint> balBreakpointsMap = new HashMap<>();
+        for (BalBreakpoint bp: balBreakpoints) {
+            balBreakpointsMap.put(bp.getLine().intValue(), bp);
+        }
         SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
         breakpointsResponse.setBreakpoints(breakpoints);
         String path = args.getSource().getPath();
-        eventProcessor.setBreakpointsList(path, breakpoints);
+        eventProcessor.setBalBreakpointsList(path, balBreakpointsMap);
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
 
@@ -464,6 +472,18 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
     }
 
+    public Value evaluateExpression(String expression, ThreadReference threadReference) {
+        try {
+            StackFrameProxyImpl frame = getAllThreads().get(threadReference.uniqueID()).frame(0);
+            SuspendedContext ctx = new SuspendedContext(project, context.getDebuggee(), threadReference, frame);
+            ExpressionEvaluator evaluator = new ExpressionEvaluator(ctx);
+            return evaluator.evaluate(expression);
+        } catch (JdiProxyException e) {
+            LOGGER.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
     @Override
     public CompletableFuture<SetFunctionBreakpointsResponse> setFunctionBreakpoints(
             SetFunctionBreakpointsArguments args) {
@@ -476,6 +496,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         breakpoint.setSource(source);
         breakpoint.setVerified(true);
         return breakpoint;
+    }
+
+    private BalBreakpoint toBalBreakpoint(SourceBreakpoint sourceBreakpoint, Source source) {
+        BalBreakpoint balBreakpoint = new BalBreakpoint();
+        balBreakpoint.setLine(sourceBreakpoint.getLine());
+        balBreakpoint.setSource(source);
+        balBreakpoint.setVerified(true);
+        balBreakpoint.setCondition(sourceBreakpoint.getCondition());
+        return balBreakpoint;
     }
 
     private Thread toThread(ThreadReferenceProxyImpl threadReference) {
