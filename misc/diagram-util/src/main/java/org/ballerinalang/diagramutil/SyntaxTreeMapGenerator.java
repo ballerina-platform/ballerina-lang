@@ -131,7 +131,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                                 JsonObject memberJson = (JsonObject) generateTypeJson(member);
                                 memberArray.add(memberJson);
                             } catch (JSONGenerationException e) {
-                                e.printStackTrace();
+                                // ignored
                             }
                         });
                         ((JsonObject) symbolJson.get("typeSymbol")).add("members", memberArray);
@@ -301,7 +301,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 //                        listPropJson.add((Boolean) listPropItem);
 //                    }
 //                }
-            } else if (prop instanceof Optional && ((Optional<?>) prop).isPresent() && ((Optional) prop).get() instanceof ModuleSymbol) {
+            } else if (prop instanceof Optional &&
+                    ((Optional<?>) prop).isPresent() && ((Optional) prop).get() instanceof ModuleSymbol) {
                 ModuleID ballerinaModuleID = ((ModuleSymbol) ((Optional) prop).get()).id();
                 JsonObject moduleIdJson = new JsonObject();
                 moduleIdJson.addProperty("orgName", ballerinaModuleID.orgName());
