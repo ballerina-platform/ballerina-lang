@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class PackageResolutionTests {
+public class PackageResolutionTests extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/projects_for_resolution_tests").toAbsolutePath();
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
@@ -67,19 +67,6 @@ public class PackageResolutionTests {
 
     @BeforeTest
     public void setup() throws IOException {
-        // Here package_a depends on package_b
-        // and package_b depends on package_c
-        // Therefore package_c is transitive dependency of package_a
-
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_b");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_e");
-
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_unstable_k_alpha");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_unstable_k_beta");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_unstable_k_GA");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_l_with_unstable_dep");
-
         // Compile and cache dependency for custom repo tests
         cacheDependencyToLocalRepo(RESOURCE_DIRECTORY.resolve("package_c_with_pkg_private_function"));
     }
