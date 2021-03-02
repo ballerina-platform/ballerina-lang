@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -140,6 +141,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -1673,6 +1675,26 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         defineNode(serviceNode.serviceVariable, env);
+        BType type = serviceNode.serviceClass.typeRefs.isEmpty() ? null : serviceNode.serviceClass.typeRefs.get(0).type;
+        BServiceSymbol serviceSymbol = new BServiceSymbol((BClassSymbol) serviceNode.serviceClass.symbol,
+                                                          Flags.asMask(serviceNode.flagSet), Names.EMPTY,
+                                                          env.enclPkg.symbol.pkgID, type, env.enclPkg.symbol,
+                                                          serviceNode.pos, SOURCE);
+        serviceNode.symbol = serviceSymbol;
+
+        if (serviceNode.absoluteResourcePath.isEmpty()) {
+            return;
+        }
+
+        if ("/".equals(serviceNode.absoluteResourcePath.get(0).getValue())) {
+            serviceSymbol.setAttachPoint(Collections.emptyList());
+        } else {
+            List<String> list = new ArrayList<>();
+            for (IdentifierNode identifierNode : serviceNode.absoluteResourcePath) {
+                list.add(identifierNode.getValue());
+            }
+            serviceSymbol.setAttachPoint(list);
+        }
     }
 
     @Override

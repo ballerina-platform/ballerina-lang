@@ -18,20 +18,40 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * {@link BServiceSymbol} represents a service symbol in a scope.
  *
  * @since 0.985.0
  */
-public class BServiceSymbol extends BVarSymbol {
+public class BServiceSymbol extends BSymbol {
 
-    public BServiceSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
-                          SymbolOrigin origin) {
-        super(flags, name, pkgID, type, owner, pos, origin);
-        this.tag = SymTag.SERVICE;
+    private final BClassSymbol associatedClass;
+    private List<String> attachPoint;
+
+    public BServiceSymbol(BClassSymbol associatedClass, long flags, Name name, PackageID pkgID, BType type,
+                          BSymbol owner, Location pos, SymbolOrigin origin) {
+        super(SymTag.SERVICE, flags, name, pkgID, type, owner, pos, origin);
+        this.associatedClass = associatedClass;
+        this.kind = SymbolKind.SERVICE;
+    }
+
+    public Optional<List<String>> getAttachPoint() {
+        return Optional.ofNullable(this.attachPoint);
+    }
+
+    public BClassSymbol getAssociatedClassSymbol() {
+        return this.associatedClass;
+    }
+
+    public void setAttachPoint(List<String> attachPoint) {
+        this.attachPoint = attachPoint;
     }
 }
