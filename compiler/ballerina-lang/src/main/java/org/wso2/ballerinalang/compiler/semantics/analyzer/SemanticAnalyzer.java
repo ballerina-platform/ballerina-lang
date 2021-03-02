@@ -3499,6 +3499,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        // At this point the type is a subtype of  map<anydata>|record{ anydata...; } or
+        // map<anydata>[]|record{ anydata...; }[]. For map<anydata>[]|record{ anydata...; }[] an expression is
+        // required while map<anydata>|record{ anydata...; } can be empty.
+        if (annAttachmentNode.expr == null && annotationSymbol.attachedType != null &&
+                !(annotationSymbol.attachedType.type.tag == TypeTags.MAP ||
+                        annotationSymbol.attachedType.type.tag == TypeTags.RECORD)) {
+            this.dlog.error(annAttachmentNode.pos, DiagnosticErrorCode.ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE,
+                    annotationSymbol);
+            return;
+        }
+
         if (annAttachmentNode.expr != null) {
             BType annotType = annotationSymbol.attachedType.type;
             this.typeChecker.checkExpr(annAttachmentNode.expr, env,
