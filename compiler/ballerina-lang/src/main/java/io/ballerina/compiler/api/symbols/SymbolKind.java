@@ -31,7 +31,7 @@ public enum SymbolKind {
     TYPE_DEFINITION,
     TYPE,
     VARIABLE,
-    SERVICE,
+    SERVICE_DECLARATION,
     CLASS,
     WORKER,
     ANNOTATION,
