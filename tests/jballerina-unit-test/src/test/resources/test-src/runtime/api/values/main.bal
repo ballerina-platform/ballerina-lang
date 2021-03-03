@@ -27,7 +27,11 @@ public function main() {
 
     test:assertValueEqual(p.getPersonCity(), "Nugegoda");
     test:assertValueEqual(address.city, "Nugegoda");
-    test:assertTrue(userError is errors:Error);
+    test:assertTrue(userError is errors:GenericError);
+
+    // check cast
+    errors:GenericError error1 = <errors:GenericError>userError;
+    errors:UserError error2 = <errors:UserError>userError;
 
     // Negative Tests
     object{}|error invalidObject = trap objects:getObject("Person2");
