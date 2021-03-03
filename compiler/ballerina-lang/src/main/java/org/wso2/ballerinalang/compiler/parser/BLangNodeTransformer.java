@@ -5118,6 +5118,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 value = getIntegerLiteral(literal, textValue, sign);
                 originalValue = textValue;
                 bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+                if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN && withinByteRange(value)) {
+                    typeTag = TypeTags.BYTE;
+                }
             } else if (literalTokenKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
                 //TODO: Check effect of mapping negative(-) numbers as unary-expr
                 typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
@@ -5818,6 +5821,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         userDefinedType.pkgAlias = pkgAlias;
         userDefinedType.typeName = name;
         return userDefinedType;
+    }
+
+    private boolean withinByteRange(Object num) {
+        if (num instanceof Long) {
+            return (Long) num <= 255 && (Long) num >= 0;
+        }
+        return false;
     }
 
     private class SimpleVarBuilder {
