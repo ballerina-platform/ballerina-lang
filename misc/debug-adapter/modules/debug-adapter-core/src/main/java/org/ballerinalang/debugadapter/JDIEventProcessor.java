@@ -61,7 +61,7 @@ import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 public class JDIEventProcessor {
 
     private final ExecutionContext context;
-    private final Map<String, Map<Integer, BalBreakpoint>> balBreakpointsMap = new HashMap<>();
+    private final Map<String, Map<Integer, BalBreakpoint>> balBreakpoints = new HashMap<>();
     private final List<EventRequest> stepEventRequests = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String BALLERINA_ORG_PREFIX = "ballerina";
@@ -107,7 +107,7 @@ public class JDIEventProcessor {
             Value value = null;
             String qualifiedClassName =
                 getQualifiedClassName(context, ((BreakpointEvent) event).location().declaringType());
-            Map<Integer, BalBreakpoint> balBreakpoints = balBreakpointsMap.get(qualifiedClassName);
+            Map<Integer, BalBreakpoint> balBreakpoints = this.balBreakpoints.get(qualifiedClassName);
             int lineNumber = ((BreakpointEvent) event).location().lineNumber();
 
             if (balBreakpoints != null && balBreakpoints.containsKey(lineNumber)) {
@@ -181,8 +181,8 @@ public class JDIEventProcessor {
         }
     }
 
-    void setBalBreakpointsList(String path, Map<Integer, BalBreakpoint> balBreakpointsList) {
-        this.balBreakpointsMap.put(getQualifiedClassName(path), balBreakpointsList);
+    void setBalBreakpoints(String path, Map<Integer, BalBreakpoint> balBreakpoints) {
+        this.balBreakpoints.put(getQualifiedClassName(path), balBreakpoints);
         if (context.getDebuggee() != null) {
             // Setting breakpoints to a already running debug session.
             context.getEventManager().deleteAllBreakpoints();
@@ -224,10 +224,10 @@ public class JDIEventProcessor {
             }
 
             String qualifiedClassName = getQualifiedClassName(context, referenceType);
-            if (!balBreakpointsMap.containsKey(qualifiedClassName)) {
+            if (!balBreakpoints.containsKey(qualifiedClassName)) {
                 return;
             }
-            Map<Integer, BalBreakpoint> breakpoints = balBreakpointsMap.get(qualifiedClassName);
+            Map<Integer, BalBreakpoint> breakpoints = balBreakpoints.get(qualifiedClassName);
             for (BalBreakpoint bp : breakpoints.values()) {
                 List<Location> locations = referenceType.locationsOfLine(bp.getLine().intValue());
                 if (!locations.isEmpty()) {

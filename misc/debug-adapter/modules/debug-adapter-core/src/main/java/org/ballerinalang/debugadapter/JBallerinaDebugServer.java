@@ -211,7 +211,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
         breakpointsResponse.setBreakpoints(breakpoints);
         String path = args.getSource().getPath();
-        eventProcessor.setBalBreakpointsList(path, balBreakpointsMap);
+        eventProcessor.setBalBreakpoints(path, balBreakpointsMap);
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
 
