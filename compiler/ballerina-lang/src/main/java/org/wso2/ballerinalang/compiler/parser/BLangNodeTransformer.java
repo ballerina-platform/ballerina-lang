@@ -1529,11 +1529,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         // change default worker name
-        String workerName = namedWorkerDeclNode.workerName().text();
+        String workerName;
+        if (namedWorkerDeclNode.workerName().isMissing()) {
+            workerName = missingNodesHelper.getNextMissingNodeName(packageID);
+        } else {
+            workerName = namedWorkerDeclNode.workerName().text();
+        }
+
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLFunction.defaultWorkerName.originalValue = workerName;
             workerName = IdentifierUtils.unescapeUnicodeCodepoints(workerName.substring(1));
         }
+
         bLFunction.defaultWorkerName.value = workerName;
         bLFunction.defaultWorkerName.pos = getPosition(namedWorkerDeclNode.workerName());
 
