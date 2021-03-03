@@ -313,22 +313,7 @@ public class CoverageReport {
 
     private List<Path> getExclusionJarList(JBallerinaBackend jBallerinaBackend) {
         List<Path> exclusionPathList = new ArrayList<>();
-        module.packageInstance().getResolution().allDependencies()
-                .stream()
-                .map(ResolvedPackageDependency::packageInstance)
-                .forEach(pkg -> {
-                    for (ModuleId dependencyModuleId : pkg.moduleIds()) {
-                        Module dependencyModule = pkg.module(dependencyModuleId);
-                        PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
-                                pkg.packageId(), dependencyModule.moduleName());
-                        exclusionPathList.add(generatedJarLibrary.path());
-                    }
-                    Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
-                            pkg.packageId(), PlatformLibraryScope.DEFAULT);
-                    for (PlatformLibrary otherJarDependency : otherJarDependencies) {
-                        exclusionPathList.add(otherJarDependency.path());
-                    }
-                });
+        exclusionPathList.addAll(getDependencyJarList(jBallerinaBackend));
         exclusionPathList.add(jBallerinaBackend.runtimeLibrary().path());
         exclusionPathList.addAll(ProjectUtils.testDependencies());
         return exclusionPathList;
@@ -345,6 +330,11 @@ public class CoverageReport {
                         PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
                                 pkg.packageId(), dependencyModule.moduleName());
                         dependencyPathList.add(generatedJarLibrary.path());
+                    }
+                    Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
+                            pkg.packageId(), PlatformLibraryScope.DEFAULT);
+                    for (PlatformLibrary otherJarDependency : otherJarDependencies) {
+                        dependencyPathList.add(otherJarDependency.path());
                     }
                 });
         return dependencyPathList;
