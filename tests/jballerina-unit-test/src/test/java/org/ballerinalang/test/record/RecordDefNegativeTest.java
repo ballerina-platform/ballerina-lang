@@ -45,8 +45,8 @@ public class RecordDefNegativeTest {
     public void duplicateFieldTest() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/duplicate-field-negative.bal");
         int errorIndex = 0;
-        BAssertUtil.validateError(compileResult, errorIndex++, "redeclared symbol 'error'",19, 11);
-        BAssertUtil.validateError(compileResult, errorIndex++, "redeclared symbol 'name'",24, 12);
+        BAssertUtil.validateError(compileResult, errorIndex++, "redeclared symbol 'error'", 19, 11);
+        BAssertUtil.validateError(compileResult, errorIndex++, "redeclared symbol 'name'", 24, 12);
     }
 
     @Test
