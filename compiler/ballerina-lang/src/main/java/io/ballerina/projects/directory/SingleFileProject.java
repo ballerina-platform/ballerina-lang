@@ -87,7 +87,7 @@ public class SingleFileProject extends Project {
 
     @Override
     public Optional<Path> documentPath(DocumentId documentId) {
-        if(this.currentPackage().getDefaultModule().documentIds().iterator().next().equals(documentId)) {
+        if (this.currentPackage().getDefaultModule().documentIds().iterator().next().equals(documentId)) {
             return Optional.of(sourceRoot.toAbsolutePath());
         }
         return Optional.empty();

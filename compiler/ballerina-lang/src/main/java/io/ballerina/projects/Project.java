@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -103,6 +102,15 @@ public abstract class Project {
 
     public abstract Optional<Path> documentPath(DocumentId documentId);
 
+    /**
+     * Returns the path of the specified file from dependency bala.
+     *
+     * @param org package org of the dependency
+     * @param moduleName module name of the dependency
+     * @param filename name of the file to get the path of
+     * @return path of the file
+     * @throws ProjectException if file cannot be found in the dependency package
+     */
     public Path dependencyFilePath(String org, String moduleName, String filename) {
         List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(moduleName);
         for (PackageName possiblePackageName : possiblePackageNames) {

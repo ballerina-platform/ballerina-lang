@@ -188,19 +188,10 @@ public class PackageResolution {
         return allModuleLoadRequests;
     }
 
-    PackageVersion getVersionFromPackageManifest(PackageOrg requestedPkgOrg, PackageName requestedPkgName) {
+    PackageManifest.Dependency getVersionFromPackageManifest(PackageOrg requestedPkgOrg, PackageName requestedPkgName) {
         for (PackageManifest.Dependency dependency : rootPackageContext.manifest().dependencies()) {
             if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
-                return dependency.version();
-            }
-        }
-        return null;
-    }
-
-    String getRepositoryFromPackageManifest(PackageOrg requestedPkgOrg, PackageName requestedPkgName) {
-        for (PackageManifest.Dependency dependency : rootPackageContext.manifest().dependencies()) {
-            if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
-                return dependency.repository();
+                return dependency;
             }
         }
         return null;
@@ -424,10 +415,10 @@ public class PackageResolution {
                     }
                 } else {
                     // Check whether this package is already defined in the package manifest, if so get the version
-                    PackageVersion packageVersion = PackageResolution.this.getVersionFromPackageManifest(
+                    PackageManifest.Dependency dependency = PackageResolution.this.getVersionFromPackageManifest(
                             packageOrg, possiblePkgName);
-                    String repository = PackageResolution.this.
-                            getRepositoryFromPackageManifest(packageOrg, possiblePkgName);
+                    PackageVersion packageVersion = dependency != null ? dependency.version() : null;
+                    String repository = dependency != null ? dependency.repository() : null;;
 
                     // Try to resolve the package via repositories
                     PackageDescriptor pkgDesc = PackageDescriptor.from(

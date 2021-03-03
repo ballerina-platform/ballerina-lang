@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -20,7 +20,6 @@ package io.ballerina.projects.test;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -33,7 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Contains cases to test package resolution logic.
+ * Contains cases to test dependency file path resolution logic.
  *
  * @since 2.0.0
  */
@@ -45,14 +44,14 @@ public class DependencyFilePathTests extends BaseTest {
 
     @BeforeTest
     public void setup() {
-        // Compile and cache dependency for custom repo tests
+        // Compile and cache dependency for dependency path tests
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_a");
         BCompileUtil.compileAndCacheBala("projects_for_dependency_file_path/package_a.b");
     }
 
     @Test
     public void testGetBuildProjectDependencyFilePath() {
-        // package_a --> package_b --> package_c
+        // package_a --> package_b
         Path projectDirPath = RESOLUTION_PROJECTS_DIR.resolve("package_a");
         Project project = ProjectLoader.loadProject(projectDirPath);
         Path dependencyFilePath = project.dependencyFilePath("samjs", "package_b", "main.bal");
@@ -85,11 +84,11 @@ public class DependencyFilePathTests extends BaseTest {
 
     @Test
     public void testGetBalaProjectDependencyFilePath() {
-        // package_b --> package_c
+        // package_a --> package_b --> package_c
         Path balaPath = getBalaPath("samjs", "package_a", "0.1.0");
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+        Project balaProject = ProjectLoader.loadProject(balaPath, defaultBuilder);
 
         Path dependencyFilePath = balaProject.dependencyFilePath("samjs", "package_c.mod_c2", "mod2.bal");
         Path expectedPath = getBalaPath("samjs", "package_c", "0.1.0")
@@ -121,7 +120,7 @@ public class DependencyFilePathTests extends BaseTest {
 
     @Test
     public void testSingleFileDependencyFilePath() {
-        // standalone file -> package_a.b
+        // standalone file -> package_a
         Path projectDirPath = DEPENDENCY_FILEPATH_PROJECTS_DIR.resolve("standalone-main.bal");
         Project project = ProjectLoader.loadProject(projectDirPath);
         Path dependencyFilePath = project.dependencyFilePath("samjs", "package_b", "main.bal");
@@ -138,7 +137,6 @@ public class DependencyFilePathTests extends BaseTest {
 
     @Test (expectedExceptions = ProjectException.class)
     public void testGetDependencyFilePathInvalidFile() {
-        // package_a --> package_b --> package_c
         Path projectDirPath = RESOLUTION_PROJECTS_DIR.resolve("package_a");
         BuildProject buildProject = BuildProject.load(projectDirPath);
         Path dependencyFilePath = buildProject.dependencyFilePath("samjs", "package_b", "mod1.bal");
@@ -146,7 +144,6 @@ public class DependencyFilePathTests extends BaseTest {
 
     @Test (expectedExceptions = ProjectException.class)
     public void testGetDependencyFilePathInvalidModule() {
-        // package_a --> package_b --> package_c
         Path projectDirPath = RESOLUTION_PROJECTS_DIR.resolve("package_a");
         BuildProject buildProject = BuildProject.load(projectDirPath);
         Path dependencyFilePath = buildProject.dependencyFilePath("samjs", "package_b1", "main.bal");
@@ -154,7 +151,6 @@ public class DependencyFilePathTests extends BaseTest {
 
     @Test (expectedExceptions = ProjectException.class)
     public void testGetDependencyFilePathInvalidHierarchicalModule() {
-        // package_a --> package_b --> package_c
         Path projectDirPath = DEPENDENCY_FILEPATH_PROJECTS_DIR.resolve("standalone-main.bal");
         Project project = ProjectLoader.loadProject(projectDirPath);
         Path dependencyFilePath = project.dependencyFilePath("samjs", "package_a.b", "main.bal");
@@ -162,7 +158,6 @@ public class DependencyFilePathTests extends BaseTest {
 
     @Test (expectedExceptions = ProjectException.class)
     public void testGetDependencyFilePathInvalidOrg() {
-        // package_a --> package_b --> package_c
         Path projectDirPath = RESOLUTION_PROJECTS_DIR.resolve("package_a");
         BuildProject buildProject = BuildProject.load(projectDirPath);
         Path dependencyFilePath = buildProject.dependencyFilePath("sam", "package_b1", "main.bal");
@@ -170,7 +165,6 @@ public class DependencyFilePathTests extends BaseTest {
 
     @Test (expectedExceptions = ProjectException.class)
     public void testGetDependencyFilePathEmptyValue() {
-        // package_a --> package_b --> package_c
         Path projectDirPath = RESOLUTION_PROJECTS_DIR.resolve("package_a");
         BuildProject buildProject = BuildProject.load(projectDirPath);
         Path dependencyFilePath = buildProject.dependencyFilePath("samjs", "", "main.bal");

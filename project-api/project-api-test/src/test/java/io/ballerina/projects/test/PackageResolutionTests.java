@@ -75,7 +75,7 @@ public class PackageResolutionTests extends BaseTest {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies
@@ -92,7 +92,7 @@ public class PackageResolutionTests extends BaseTest {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies
@@ -109,7 +109,7 @@ public class PackageResolutionTests extends BaseTest {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies
@@ -127,7 +127,7 @@ public class PackageResolutionTests extends BaseTest {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies
@@ -167,7 +167,7 @@ public class PackageResolutionTests extends BaseTest {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         String balaName = ProjectUtils.getBalaName(buildProject.currentPackage().manifest());
@@ -205,7 +205,7 @@ public class PackageResolutionTests extends BaseTest {
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
 
@@ -246,7 +246,7 @@ public class PackageResolutionTests extends BaseTest {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(out::println);
+        diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies

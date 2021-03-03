@@ -55,12 +55,11 @@ public class TestConcurrentProjectAccess {
         // Check direct package dependencies
         Assert.assertEquals(buildProject.currentPackage().packageDependencies().size(), 1,
                 "Unexpected number of dependencies");
-
     }
 
     @Test(threadPoolSize = 50, invocationCount = 50,  timeOut = 30000)
     public void testConcurrentBalaProjectLoad() {
-        // package_a --> package_b --> package_c
+        // package_b --> package_c
         Path balaPath = REPO_BALA_DIRECTORY.resolve("samjs").resolve("package_b").resolve("0.1.0").resolve("any");
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
@@ -74,6 +73,5 @@ public class TestConcurrentProjectAccess {
         // Check direct package dependencies
         Assert.assertEquals(balaProject.currentPackage().packageDependencies().size(), 1,
                 "Unexpected number of dependencies");
-
     }
 }

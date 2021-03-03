@@ -41,7 +41,7 @@ import java.util.List;
  */
 public class BaseTest {
     static final Path USER_HOME = Paths.get("build").resolve("user-home");
-    static final PrintStream out = System.out;
+    static final PrintStream OUT = System.out;
 
     @BeforeSuite
     public void init() {
