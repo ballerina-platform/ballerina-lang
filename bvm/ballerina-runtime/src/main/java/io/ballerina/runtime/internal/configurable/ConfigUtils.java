@@ -87,8 +87,8 @@ public class ConfigUtils {
                 tomlType = TomlType.TABLE_ARRAY;
                 break;
             default:
-                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, expectedType.toString(),
-                        variableName));
+                throw new TomlException(
+                        String.format(CONFIGURATION_NOT_SUPPORTED, variableName, expectedType.toString()));
         }
         return tomlType;
     }

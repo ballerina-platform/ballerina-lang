@@ -164,7 +164,7 @@ public class ConfigTomlParser {
             case TypeTags.INTERSECTION_TAG:
                 return retrieveComplexValue((BIntersectionType) type, tomlValue, variableName);
             default:
-                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, type.toString(), variableName));
+                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, variableName, type.toString()));
         }
     }
 
@@ -179,7 +179,7 @@ public class ConfigTomlParser {
                 return retrieveTableValues(tomlValue, variableName, (TableType) effectiveType);
             default:
                 throw new TomlException(
-                        String.format(CONFIGURATION_NOT_SUPPORTED, effectiveType.toString(), variableName));
+                        String.format(CONFIGURATION_NOT_SUPPORTED, variableName, effectiveType.toString()));
         }
     }
 
@@ -214,7 +214,7 @@ public class ConfigTomlParser {
         List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlValue).elements();
         if (!isPrimitiveType(elementType.getTag())) {
             //Remove after supporting all arrays
-            throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, effectiveType.toString(), variableName));
+            throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, variableName, effectiveType.toString()));
         }
         return new ArrayValueImpl(effectiveType, arrayList.size(), createArray(variableName, arrayList, elementType));
     }
@@ -259,11 +259,11 @@ public class ConfigTomlParser {
             Type fieldType = field.getFieldType();
             if (!isSupportedType(fieldType)) {
                 throw new TomlException(
-                        String.format(FIELD_TYPE_NOT_SUPPORTED, fieldType.toString(), variableName, recordType));
+                        String.format(FIELD_TYPE_NOT_SUPPORTED, fieldType, variableName));
             }
             TomlNode value = tomlField.getValue();
             Object objectValue;
-            String errorPrefix = "record field '" + fieldName + "' from ";
+            String errorPrefix = "field '" + fieldName + "' from ";
             switch (fieldType.getTag()) {
                 case TypeTags.ARRAY_TAG:
                     objectValue = retrieveArrayValues(value, variableName, (ArrayType) fieldType, errorPrefix);

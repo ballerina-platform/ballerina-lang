@@ -73,8 +73,8 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testAPICNegativeTest() throws BallerinaTestException {
-        String errorMsg = "configurable feature is yet to be supported for type '(int[] & readonly)[] & readonly' " +
-                "used in variable 'configPkg:invalidArr'";
+        String errorMsg = "configurable variable 'configPkg:invalidArr' with type '(int[] & readonly)[] & readonly' " +
+                "is not supported";
         executeBalCommand("/testErrorProject", new LogLeecher(errorMsg, ERROR), "test",
                 "configPkg", null);
     }
@@ -130,16 +130,16 @@ public class ConfigurableTest extends BaseTest {
     @DataProvider(name = "negative-projects")
     public Object[][] getNegativeTestProjects() {
         return new Object[][]{
-                {"invalidComplexArray", "configurable feature is yet to be supported for type " +
-                        "'(int[] & readonly)[] & readonly' used in variable 'main:intComplexArr'" },
-                {"invalidRecordField", "configurable feature is yet to be supported for field type " +
-                        "'string[][]' in variable 'main:testUser' of record 'main:AuthInfo'"},
+                {"invalidComplexArray", "configurable variable 'main:intComplexArr' with type " +
+                        "'(int[] & readonly)[] & readonly' is not supported" },
+                {"invalidRecordField", "field type 'string[][]' in configurable variable 'main:testUser' is " +
+                        "not supported"},
                 {"invalidByteRange", "Value provided for byte variable 'main:byteVar' is out of range. " +
                         "Expected range is (0-255), found '355'"},
-                {"invalidMapType", "configurable feature is yet to be supported for type " +
-                        "'map<int> & readonly' used in variable 'main:intMap'"},
-                {"invalidTableConstraint", "configurable feature is yet to be supported for table " +
-                        "constraint type 'string' used in variable 'main:tab'"}
+                {"invalidMapType",
+                        "configurable variable 'main:intMap' with type 'map<int> & readonly' is not supported"},
+                {"invalidTableConstraint", "table constraint type '(map<string> & readonly)' in configurable variable" +
+                        " 'main:tab' is not supported"}
         };
     }
 
@@ -192,14 +192,18 @@ public class ConfigurableTest extends BaseTest {
                         " 'main:AuthInfo' in configurable variable 'main:testUser'"},
                 {"record_type_error", "configurable variable 'main:testUser' is expected to be of type " +
                         "'main:(testOrg/main:0.1.0:AuthInfo & readonly)', but found 'string'"},
-                {"record_field_structure_error", "record field 'username' from configurable variable 'main:testUser' " +
+                {"record_field_structure_error", "field 'username' from configurable variable 'main:testUser' " +
                         "is expected to be of type 'string', but found 'record'"},
-                {"record_field_type_error", "record field 'username' from configurable variable 'main:testUser' " +
+                {"record_field_type_error", "field 'username' from configurable variable 'main:testUser' " +
                         "is expected to be of type 'string', but found 'int'"},
                 {"missing_table_key", "value required for key 'username' of type 'table<(main:AuthInfo & readonly)>" +
                         " key(username) & readonly' in configurable variable 'main:users'"},
                 {"table_type_error", "configurable variable 'main:users' is expected to be of type " +
                         "'table<(main:AuthInfo & readonly)> key(username) & readonly', but found 'record'"},
+                {"table_field_type_error", "field 'username' from configurable variable 'main:users' is " +
+                        "expected to be of type 'string', but found 'int'"},
+                {"table_field_structure_error", "field 'username' from configurable variable 'main:users' " +
+                        "is expected to be of type 'string', but found 'record'"},
         };
     }
 

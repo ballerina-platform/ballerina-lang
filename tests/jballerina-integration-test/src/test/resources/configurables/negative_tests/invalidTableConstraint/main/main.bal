@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type invalidTable table<string> & readonly;
+type invalidTable table<map<string>> & readonly;
 
 configurable invalidTable tab = ?;
 
