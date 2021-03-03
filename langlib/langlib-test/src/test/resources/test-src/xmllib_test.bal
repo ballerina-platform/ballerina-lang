@@ -444,7 +444,7 @@ function testXMLIteratorInvocation() {
     assert((iter5.next()).toString(), "{\"value\":`<one>first</one>`}");
 }
 
-function testSelectingTextFromXml() returns string? {
+function testSelectingTextFromXml() {
     xml:Element authors = xml `<authors><author><name>Enid<middleName/>Blyton</name></author></authors>`;
     xml:Text authorsList = authors.text();
     assert(authorsList.toString(), "");
@@ -468,7 +468,7 @@ function testSelectingTextFromXml() returns string? {
     xml nameText = (name/*).text();
     assert(nameText.toString(), "DanBrown");
 
-    xml<xml:Text> nameText2 = xml:text(name/*);
+    xml<xml:Text> nameText2 = xml:text((name/*));
     assert(nameText2.toString(), nameText.toString());
 }
 
