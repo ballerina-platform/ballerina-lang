@@ -596,7 +596,8 @@ public class Types {
 
     public boolean isSubTypeOfBaseType(BType type, int baseTypeTag) {
         if (type.tag != TypeTags.UNION) {
-            return type.tag == baseTypeTag;
+            return type.tag == baseTypeTag || (baseTypeTag == TypeTags.TUPLE && type.tag == TypeTags.ARRAY)
+                    || (baseTypeTag == TypeTags.ARRAY && type.tag == TypeTags.TUPLE);
         }
         // TODO: Recheck this
         if (TypeTags.isXMLTypeTag(baseTypeTag)) {

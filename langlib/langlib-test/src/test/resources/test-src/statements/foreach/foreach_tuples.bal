@@ -218,11 +218,8 @@ function testTupleWithRestDescriptorInForeach1() {
 function testTupleWithRestDescriptorInForeach2() {
     [int[3]...] x = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
     [int, int[]][] arr = [];
-    int i = 0;
     foreach [int, int...] [a, ...b] in x {
-        arr[i][0] = a;
-        arr[i][1] = b;
-        i+= 1;
+        arr.push([a, b]);
     }
     assertEquality(1, arr[0][0]);
     assertEquality(2, arr[0][1][0]);
@@ -238,11 +235,8 @@ function testTupleWithRestDescriptorInForeach2() {
 function testTupleWithRestDescriptorInForeach3() {
     [[int, int...], [int, int, int], [int, int, int...]] x = [[1, 2], [3, 4, 5], [7, 8, 9, 10]];
     [int, int[]][] arr = [];
-    int i = 0;
     foreach [int, int...] [a, ...b] in x {
-        arr[i][0] = a;
-        arr[i][1] = b;
-        i += 1;
+        arr.push([a, b]);
     }
     assertEquality(1, arr[0][0]);
     assertEquality(2, arr[0][1][0]);
@@ -258,10 +252,8 @@ function testTupleWithRestDescriptorInForeach3() {
 function testTupleWithRestDescriptorInForeach4() {
     [[int, int...], int[4]] x = [[1, 2, 3, 4], [7, 8, 9, 10]];
     int[][] arr = [];
-    int i = 0;
     foreach [int...] [...a] in x {
-        arr[i] = a;
-        i += 1;
+        arr.push(a);
     }
     assertEquality(1, arr[0][0]);
     assertEquality(2, arr[0][1]);
@@ -276,11 +268,8 @@ function testTupleWithRestDescriptorInForeach4() {
 function testTupleWithRestDescriptorInForeach5() {
     [[int, int], [int, int, int...], int[2]...] x = [[1, 2], [3, 4, 5, 6], [7, 8], [9, 10]];
     [int, int[]][] arr = [];
-    int i = 0;
     foreach var [a, ...b] in x {
-        arr[i][0] = a;
-        arr[i][1] = b;
-        i += 1;
+        arr.push([a, b]);
     }
     assertEquality(1, arr[0][0]);
     assertEquality(2, arr[0][1][0]);

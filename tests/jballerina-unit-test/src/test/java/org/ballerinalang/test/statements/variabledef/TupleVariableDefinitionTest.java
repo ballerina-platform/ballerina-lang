@@ -375,7 +375,7 @@ public class TupleVariableDefinitionTest {
     public void testNegativeTupleVariables() {
         int i = -1;
         String errorMsg1 = "invalid list binding pattern; member variable count mismatch with member type count";
-        String errorMsg2 = "invalid list binding pattern: expected a list type, but found ";
+        String errorMsg2 = "invalid list binding pattern: expected an array or a tuple, but found ";
         String errorMsg3 = "tuple and expression size does not match";
         String errorMsg4 = "incompatible types: expected ";
 
@@ -407,7 +407,7 @@ public class TupleVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 106, 26);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  "invalid list binding pattern: expected a list type, but found '(string|int)'",
+                                  "invalid list binding pattern: expected an array or a tuple, but found '(string|int)'",
                                   110, 16);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
