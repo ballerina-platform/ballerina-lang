@@ -217,6 +217,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
 
+    private boolean isField = false;
+
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
 
@@ -263,6 +265,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv prevEnv = this.env;
         this.env = env;
         node.accept(this);
+        this.env = prevEnv;
+    }
+
+    public void defineField(BLangNode node, SymbolEnv env) {
+        SymbolEnv prevEnv = this.env;
+        boolean prevIsField = this.isField;
+        this.isField = true;
+        this.env = env;
+        node.accept(this);
+        this.isField = prevIsField;
         this.env = prevEnv;
     }
 
@@ -3118,7 +3130,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BObjectType objType = (BObjectType) tSymbol.type;
 
         for (BLangSimpleVariable field : classDefinition.fields) {
-            defineNode(field, typeDefEnv);
+            defineField(field, typeDefEnv);
             if (field.symbol.type == symTable.semanticError) {
                 continue;
             }
@@ -3193,7 +3205,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
                                SymbolEnv typeDefEnv) {
         structureType.fields = structureTypeNode.fields.stream()
-                .peek(field -> defineNode(field, typeDefEnv))
+                .peek(field -> defineField(field, typeDefEnv))
                 .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
                 .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
                 .collect(getFieldCollector());
@@ -3689,9 +3701,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create variable symbol
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos, isInternal);
-
-        if (!symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
-            varSymbol.type = symTable.semanticError;
+        if (this.isField) {
+            if (!symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
+                varSymbol.type = symTable.semanticError;
+            }
+        } else {
+            if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
+                varSymbol.type = symTable.semanticError;
+            }
         }
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;

@@ -777,8 +777,8 @@ public class ObjectTest {
     @Test(description = "Negative test to test duplicate fields")
     public void testDuplicateFields() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_field_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
         BAssertUtil.validateError(result, 0, "redeclared symbol 'error'",
                 20, 18);
+        Assert.assertEquals(result.getErrorCount(), 1);
     }
 }
