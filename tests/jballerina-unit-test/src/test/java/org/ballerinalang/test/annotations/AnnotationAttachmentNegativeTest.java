@@ -37,7 +37,7 @@ public class AnnotationAttachmentNegativeTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 248);
+        Assert.assertEquals(compileResult.getErrorCount(), 251);
     }
 
     @Test
@@ -454,10 +454,20 @@ public class AnnotationAttachmentNegativeTest {
     }
 
     @Test
+    public void testInvalidAttachmentWithoutValue() {
+        validateError(compileResult, 246, "missing non-defaultable required record field 'val'",
+                871, 1);
+        validateError(compileResult, 247, "missing non-defaultable required record field 'val'",
+                874, 1);
+        validateError(compileResult, 248, "missing non-defaultable required record field 'val'",
+                875, 22);
+    }
+
+    @Test
     public void testInvalidAttachmentCount() {
-        validateError(compileResult, 246, "cannot specify more than one annotation value for " +
-                              "annotation 'ballerina/lang.annotations:1.0.0:tainted'", 871, 1);
-        validateError(compileResult, 247,
-                      "cannot specify more than one annotation value for annotation 'v1'", 873, 1);
+        validateError(compileResult, 249, "cannot specify more than one annotation value for " +
+                              "annotation 'ballerina/lang.annotations:1.0.0:tainted'", 879, 1);
+        validateError(compileResult, 250,
+                      "cannot specify more than one annotation value for annotation 'v1'", 881, 1);
     }
 }

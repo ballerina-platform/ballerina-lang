@@ -868,6 +868,14 @@ type MyObject object {
 
 function myFunction() returns @v7 {} string => "hello";
 
+@v1
+type MyType int|string;
+
+@v3
+function myFunction1(@v6 string name) returns string {
+    return "Hello " + name;
+}
+
 @tainted
 @tainted
 @v1 {val: "one"}

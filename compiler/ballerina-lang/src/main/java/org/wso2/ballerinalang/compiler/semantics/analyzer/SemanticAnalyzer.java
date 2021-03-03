@@ -3500,29 +3500,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // At this point the type is a subtype of  map<anydata>|record{ anydata...; } or
-        // map<anydata>[]|record{ anydata...; }[]. For map<anydata>[]|record{ anydata...; }[] an expression is
-        // required while map<anydata>|record{ anydata...; } can be empty.
-        if (annAttachmentNode.expr == null && annotationSymbol.attachedType != null &&
-                !(annotationSymbol.attachedType.type.tag == TypeTags.MAP ||
-                        annotationSymbol.attachedType.type.tag == TypeTags.RECORD)) {
-            this.dlog.error(annAttachmentNode.pos, DiagnosticErrorCode.ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE,
-                    annotationSymbol);
-            return;
+        if (annAttachmentNode.expr == null) {
+            annAttachmentNode.expr = new BLangRecordLiteral();
+            annAttachmentNode.expr.pos = annAttachmentNode.pos;
         }
 
-        if (annAttachmentNode.expr != null) {
-            BType annotType = annotationSymbol.attachedType.type;
-            this.typeChecker.checkExpr(annAttachmentNode.expr, env,
-                    annotType.tag == TypeTags.ARRAY ? ((BArrayType) annotType).eType : annotType);
+        BType annotType = annotationSymbol.attachedType.type;
+        this.typeChecker.checkExpr(annAttachmentNode.expr, env,
+                annotType.tag == TypeTags.ARRAY ? ((BArrayType) annotType).eType : annotType);
 
-            if (Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
-                if (annotationSymbol.points.stream().anyMatch(attachPoint -> !attachPoint.source)) {
-                    constantAnalyzer.analyzeExpr(annAttachmentNode.expr);
-                    return;
-                }
-                checkAnnotConstantExpression(annAttachmentNode.expr);
+        if (Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
+            if (annotationSymbol.points.stream().anyMatch(attachPoint -> !attachPoint.source)) {
+                constantAnalyzer.analyzeExpr(annAttachmentNode.expr);
+                return;
             }
+            checkAnnotConstantExpression(annAttachmentNode.expr);
         }
     }
 

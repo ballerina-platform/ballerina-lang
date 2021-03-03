@@ -189,24 +189,52 @@ function myFunctionWithWorkers() {
     }
 }
 
-@v1
+type A record {
+    string val = "ABC";
+};
+
+public annotation A v16 on type;
+public annotation A v17 on function;
+public annotation A v18 on object function;
+annotation A v19 on parameter;
+annotation A v20 on service, class;
+
+@v16
 type MyType int|string;
 
-@v3
-function myFunction1(@v6 string name) returns string {
+@v17
+function myFunction1(@v19 string name) returns string {
     return "Hello " + name;
 }
 
-service object {} serviceThree = @v8 service object {
-    @v5
-    resource function get res(@v6 int intVal) {
+service object {} serviceThree = @v20 service object {
+    @v18
+    resource function get res(@v19 int intVal) {
     }
 };
 
-public annotation map<string> v16 on function;
-annotation map<int> v17 on parameter;
+public annotation map<int> v21 on function;
+annotation map<int> v22 on parameter;
 
-@v16
-function myFunction2(@v17 string name) returns string {
+@v21
+function myFunction2(@v22 string name) returns string {
     return "Hello " + name;
+}
+
+type B map<int>;
+annotation B[] v23 on function;
+
+@v23
+@v23
+public function myFunction3(string... argv) {
+}
+
+@v17 {}
+function myFunction4(@v19 {} string name) returns string {
+    return "Hello " + name;
+}
+
+@v23 {}
+@v23 {}
+public function myFunction5(string... argv) {
 }
