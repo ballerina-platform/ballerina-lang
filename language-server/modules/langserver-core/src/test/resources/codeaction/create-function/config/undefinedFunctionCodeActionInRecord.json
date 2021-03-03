@@ -1,0 +1,28 @@
+{
+  "line": 18,
+  "character": 22,
+  "expected": [
+    {
+      "title": "Create function 'getManufacturer(...)'",
+      "command": {
+        "title": "Create function 'getManufacturer(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 18,
+                "character": 22
+              },
+              "end": {
+                "line": 18,
+                "character": 39
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

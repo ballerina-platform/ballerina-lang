@@ -1,7 +1,15 @@
 {
   "arguments": {
-    "node.line": 5,
-    "node.column": 25
+    "node.range": {
+      "start": {
+        "line": 5,
+        "character": 14
+      },
+      "end": {
+        "line": 5,
+        "character": 38
+      }
+    }
   },
   "expected": {
     "result": {

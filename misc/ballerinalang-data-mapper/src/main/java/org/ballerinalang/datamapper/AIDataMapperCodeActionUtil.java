@@ -30,6 +30,8 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -169,21 +171,33 @@ class AIDataMapperCodeActionUtil {
                         foundErrorRight = true;
                     }
 
+                    NonTerminalNode matchedNode = null;
+                    if (positionDetails.matchedNode().kind() == SyntaxKind.FUNCTION_CALL) {
+                        matchedNode = positionDetails.matchedNode();
+                        if (matchedNode.parent().kind() == SyntaxKind.CHECK_EXPRESSION) {
+                            matchedNode = matchedNode.parent();
+                        }
+                    }
 
-                    String functionCall = positionDetails.matchedNode().toString();
+                    if (matchedNode == null) {
+                        throw new IllegalStateException("Unexpected node at cursor:" +
+                                positionDetails.matchedNode().kind());
+                    }
+
+                    String functionCall = matchedNode.toString();
                     if (foundErrorRight && !foundErrorLeft) {
-                        symbolAtCursorName = functionCall.split("[=;]")[1].trim();
+                        symbolAtCursorName = functionCall.trim();
                         generatedFunctionName =
                                 String.format("map%sTo%s(check %s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else if (foundErrorLeft && foundErrorRight) {
                         // get the information about the line positions
-                        newTextRange = CommonUtil.toRange(positionDetails.matchedNode().lineRange());
+                        newTextRange = CommonUtil.toRange(matchedNode.lineRange());
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, functionCall);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else {
-                        symbolAtCursorName = functionCall.split("[=;]")[1].trim();
+                        symbolAtCursorName = functionCall.trim();
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));

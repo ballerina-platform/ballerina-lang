@@ -45,6 +45,11 @@ function getTotal(int a, int b, int c, int... m) returns int {
     return a + b + c;
 }
 
+function getRestParam(int a, int b, int c, int... m) returns int[] {
+    int[] l = <int[]> m;
+    return l;
+}
+
 function testFunctionWithMappingTypeRestArg() {
     Foo f = {};
     Foo f1 = {c:20, d:15};
@@ -62,6 +67,9 @@ function testFunctionWithMappingTypeRestArg() {
 
     Baz z = {c:10};
     assertEquality(30, getTotal(10, 10, ...z));
+
+    record {| int a; int b; int c; |} x = {a: 3, b: 5, c: 10};
+    assertEquality(0, getRestParam(...x).length());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -64,9 +66,11 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        if (positionDetails.matchedNode().kind() != SyntaxKind.RETURN_STATEMENT) {
+        ReturnStatementNode returnStatementNode = getReturnStatement(positionDetails.matchedNode());
+        if (returnStatementNode == null) {
             return Collections.emptyList();
         }
+
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnostic.message());
         if (matcher.find() && matcher.groupCount() > 1) {
             String foundType = matcher.group(2);
@@ -106,6 +110,14 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         return Collections.emptyList();
     }
 
+    private ReturnStatementNode getReturnStatement(NonTerminalNode node) {
+        while (node != null && node.kind() != SyntaxKind.RETURN_STATEMENT) {
+            node = node.parent();
+        }
+
+        return node != null ? (ReturnStatementNode) node : null;
+    }
+    
     private FunctionDefinitionNode getFunctionNode(DiagBasedPositionDetails positionDetails) {
         Node parent = positionDetails.matchedNode();
         while (parent.kind() != SyntaxKind.FUNCTION_DEFINITION) {
