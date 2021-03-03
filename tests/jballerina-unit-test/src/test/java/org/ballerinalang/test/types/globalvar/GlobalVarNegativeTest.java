@@ -33,12 +33,10 @@ public class GlobalVarNegativeTest {
     public void testGlobalVarNegatives() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global_variable_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        Assert.assertEquals(resultNegative.getErrorCount(), 7);
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "missing non-defaultable required record field 'x'", 22, 12);
         BAssertUtil.validateError(resultNegative, i++, "invalid character ':' in field access expression", 23, 15);
-        BAssertUtil.validateError(resultNegative, i++, "invalid qualifier 'public'", 27, 8);
-        BAssertUtil.validateError(resultNegative, i++, "invalid qualifier 'public'", 29, 8);
         BAssertUtil.validateError(resultNegative, i++, "missing equal token", 31, 46);
         BAssertUtil.validateError(resultNegative, i++, "missing identifier", 31, 46);
         BAssertUtil.validateError(resultNegative, i++, "missing equal token", 33, 59);

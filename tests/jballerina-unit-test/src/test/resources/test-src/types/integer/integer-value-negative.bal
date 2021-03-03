@@ -17,5 +17,4 @@ function test2() {
     int y = 1
 }
 
-// This is to verify the correct error message
 public int a;
