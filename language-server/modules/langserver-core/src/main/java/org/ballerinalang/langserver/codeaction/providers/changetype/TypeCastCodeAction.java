@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
@@ -43,6 +44,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +56,7 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class TypeCastCodeAction extends AbstractCodeActionProvider {
+
     /**
      * {@inheritDoc}
      */
@@ -64,10 +67,8 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
-        Node matchedNode = positionDetails.matchedNode();
-        if (matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
-                matchedNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
-                matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
+        Node matchedNode = getMatchedNode(positionDetails.matchedNode());
+        if (matchedNode == null) {
             return Collections.emptyList();
         }
 
@@ -101,6 +102,16 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         edits.add(new TextEdit(new Range(editPos, editPos), editText));
         String commandTitle = CommandConstants.ADD_TYPE_CAST_TITLE;
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+    }
+
+    private NonTerminalNode getMatchedNode(NonTerminalNode node) {
+        List<SyntaxKind> syntaxKinds = Arrays.asList(SyntaxKind.LOCAL_VAR_DECL,
+                SyntaxKind.MODULE_VAR_DECL, SyntaxKind.ASSIGNMENT_STATEMENT);
+        while (node != null && !syntaxKinds.contains(node.kind())) {
+            node = node.parent();
+        }
+
+        return node;
     }
 
     private Optional<ExpressionNode> getExpression(Node node) {
@@ -138,7 +149,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
         Document srcFile = context.currentDocument().orElseThrow();
         Optional<Symbol> symbol = semanticModel.symbol(srcFile,
-                                                       assignmentStmtNode.varRef().lineRange().startLine());
+                assignmentStmtNode.varRef().lineRange().startLine());
         if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.VARIABLE) {
             return Optional.empty();
         }

@@ -25,6 +25,7 @@ public enum JVMValueType {
     LONG("long"),
     BOOLEAN("boolean"),
     DOUBLE("double"),
+    BYTE("byte"),
     J_INT("java.lang.Int"),
     J_LONG("java.lang.Long"),
     J_BOOLEAN("java.lang.Boolean"),

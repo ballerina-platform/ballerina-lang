@@ -782,8 +782,6 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         desugarClassDefinitions(pkgNode.topLevelNodes);
 
-        pkgNode.functions = rewrite(pkgNode.functions, env);
-
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env, pkgNode.startFunction, pkgNode.stopFunction);
         ASTBuilderUtil.appendStatements(serviceAttachments, (BLangBlockFunctionBody) pkgNode.initFunction.body);
 
@@ -794,6 +792,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
+        pkgNode.functions = rewrite(pkgNode.functions, env);
 
         // Invoke closure desugar.
         closureDesugar.visit(pkgNode);
@@ -7913,8 +7912,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangRestArgsExpression restArgsExpression = (BLangRestArgsExpression) restArgs.remove(0);
             BArrayType restParamType = (BArrayType) invokableSymbol.restParam.type;
             if (restArgsExpression.type.tag == TypeTags.RECORD) {
-                BLangExpression expr = new BLangIgnoreExpr();
-                expr.type = restParamType;
+                BLangExpression expr = ASTBuilderUtil.createEmptyArrayLiteral(invokableSymbol.pos, restParamType);
                 restArgs.add(expr);
                 return;
             }
