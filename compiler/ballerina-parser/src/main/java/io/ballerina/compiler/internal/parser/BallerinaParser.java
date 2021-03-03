@@ -824,8 +824,8 @@ public class BallerinaParser extends AbstractParser {
                 }
                 // fall through
             default:
-                if (publicQualifier == null && isPossibleServiceDecl(qualifiers)) {
-                    return parseServiceDeclOrVarDecl(metadata, qualifiers);
+                if (isPossibleServiceDecl(qualifiers)) {
+                    return parseServiceDeclOrVarDecl(metadata, publicQualifier, qualifiers);
                 }
 
                 if (isTypeStartingToken(nextToken.kind) && nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
@@ -4295,7 +4295,7 @@ public class BallerinaParser extends AbstractParser {
         // Invalidate public qualifier with isolated qualifier and declared with var
         if (publicQualifier != null) {
             if (((STTypedBindingPatternNode) typedBindingPattern).typeDescriptor.kind == SyntaxKind.VAR_TYPE_DESC) {
-                if (varDeclQuals.size() != 0) {
+                if (varDeclQuals.size() > 0) {
                     updateFirstNodeInListWithLeadingInvalidNode(varDeclQuals, publicQualifier,
                             DiagnosticErrorCode.ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC);
                 } else {
@@ -7056,48 +7056,51 @@ public class BallerinaParser extends AbstractParser {
      * @param qualifiers     Preceding top level qualifiers
      * @return Parsed node
      */
-    private STNode parseServiceDeclOrVarDecl(STNode metadata, List<STNode> qualifiers) {
+    private STNode parseServiceDeclOrVarDecl(STNode metadata, STNode publicQualifier, List<STNode> qualifiers) {
         startContext(ParserRuleContext.SERVICE_DECL);
-        STNode serviceDeclQualNodeList = extractAndCreateServiceDeclQual(qualifiers);
+        List<STNode> serviceDeclQualList = extractAndCreateServiceDeclQual(qualifiers);
         STNode serviceKeyword = extractServiceKeyword(qualifiers);
         STNode typeDesc = parseServiceDeclTypeDescriptor(qualifiers);
 
         if (typeDesc != null && typeDesc.kind == SyntaxKind.OBJECT_TYPE_DESC) {
-            return parseServiceDeclOrVarDecl(metadata, serviceDeclQualNodeList, serviceKeyword, typeDesc);
+            return parseServiceDeclOrVarDecl(metadata, publicQualifier, serviceDeclQualList, serviceKeyword,
+                    typeDesc);
         } else {
-            return parseServiceDecl(metadata, serviceDeclQualNodeList, serviceKeyword, typeDesc);
+            return parseServiceDecl(metadata, publicQualifier, serviceDeclQualList, serviceKeyword, typeDesc);
         }
     }
 
-    private STNode parseServiceDeclOrVarDecl(STNode metadata, STNode serviceDeclQualNodeList, STNode serviceKeyword,
-                                             STNode typeDesc) {
+    private STNode parseServiceDeclOrVarDecl(STNode metadata, STNode publicQualifier, List<STNode> serviceDeclQualList,
+                                             STNode serviceKeyword, STNode typeDesc) {
         // Reaching here means service keyword is followed by an object type desc.
         // It could either be service declaration or variable declaration with service object type.
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case SLASH_TOKEN:
             case ON_KEYWORD:
-                return parseServiceDecl(metadata, serviceDeclQualNodeList, serviceKeyword, typeDesc);
+                return parseServiceDecl(metadata, publicQualifier, serviceDeclQualList, serviceKeyword, typeDesc);
             case OPEN_BRACKET_TOKEN: // List binding pattern
             case IDENTIFIER_TOKEN: // Binding pattern starts with identifier
             case OPEN_BRACE_TOKEN: // Mapping binding pattern
             case ERROR_KEYWORD: // Error binding pattern
                 endContext(); // End `SERVICE_DECL` context
                 typeDesc = modifyObjectTypeDescWithALeadingQualifier(typeDesc, serviceKeyword);
+                STNode serviceDeclQualNodeList = STNodeFactory.createNodeList(serviceDeclQualList);
                 STNodeList qualifiers = (STNodeList) serviceDeclQualNodeList;
                 if (!qualifiers.isEmpty()) {
                     // Currently, service-decl-quals := isolated-qual only.
                     STNode isolatedQualifier = qualifiers.get(0);
                     typeDesc = modifyObjectTypeDescWithALeadingQualifier(typeDesc, isolatedQualifier);
                 }
-                return parseVarDeclTypeDescRhs(typeDesc, metadata, new ArrayList<>(), true, true);
+                return parseVarDeclTypeDescRhs(typeDesc, metadata, publicQualifier, new ArrayList<>(), true, true);
             default:
                 recover(nextToken, ParserRuleContext.SERVICE_DECL_OR_VAR_DECL);
-                return parseServiceDeclOrVarDecl(metadata, serviceDeclQualNodeList, serviceKeyword, typeDesc);
+                return parseServiceDeclOrVarDecl(metadata, publicQualifier, serviceDeclQualList, serviceKeyword,
+                        typeDesc);
         }
     }
 
-    private STNode extractAndCreateServiceDeclQual(List<STNode> qualifierList) {
+    private List<STNode> extractAndCreateServiceDeclQual(List<STNode> qualifierList) {
         // We only reach here for a qualifierList containing service keyword/s.
         // Validate qualifierList until first service keyword is reached.
         List<STNode> validatedList = new ArrayList<>();
@@ -7132,7 +7135,7 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        return STNodeFactory.createNodeList(validatedList);
+        return validatedList;
     }
 
     private STNode extractServiceKeyword(List<STNode> qualifierList) {
@@ -7156,13 +7159,28 @@ public class BallerinaParser extends AbstractParser {
      * object-constructor-block := { object-member* }
      * </code>
      *
-     * @param metadata       Metadata
-     * @param qualNodeList   Qualifiers that precede service keyword
-     * @param serviceKeyword Service keyword
-     * @param serviceType    Type descriptor
+     * @param metadata        Metadata
+     * @param publicQualifier Public qualifier to invalidate if present
+     * @param qualList        Qualifiers that precede service keyword
+     * @param serviceKeyword  Service keyword
+     * @param serviceType     Type descriptor
      * @return Parsed node
      */
-    private STNode parseServiceDecl(STNode metadata, STNode qualNodeList, STNode serviceKeyword, STNode serviceType) {
+    private STNode parseServiceDecl(STNode metadata, STNode publicQualifier, List<STNode> qualList,
+                                    STNode serviceKeyword, STNode serviceType) {
+        // Invalidate public qualifier if present
+        if (publicQualifier != null) {
+            if (qualList.size() > 0) {
+                updateFirstNodeInListWithLeadingInvalidNode(qualList, publicQualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
+            } else {
+                serviceKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(serviceKeyword, publicQualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
+            }
+        }
+
+        STNode qualNodeList = STNodeFactory.createNodeList(qualList);
+
         STNode resourcePath = parseOptionalAbsolutePathOrStringLiteral();
         STNode onKeyword = parseOnKeyword();
         STNode expressionList = parseListeners();
