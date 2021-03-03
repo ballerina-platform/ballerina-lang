@@ -40,6 +40,11 @@ public class FunctionParamsTest extends AbstractDeclarationTest {
     public void testParamsQualifiedNamedTyped() {
         test("func-definition/func_params_source_08.bal", "func-definition/func_params_assert_08.json");
     }
+
+    @Test
+    public void testDefaultableParamWithInferredTypedescDefault() {
+        test("func-definition/func_params_source_18.bal", "func-definition/func_params_assert_18.json");
+    }
     
     // Recovery tests
     @Test
@@ -110,5 +115,15 @@ public class FunctionParamsTest extends AbstractDeclarationTest {
     @Test
     public void testIncludedRecordParamWithAnnotationAndExtraKeyWord() {
         test("func-definition/func_params_source_17.bal", "func-definition/func_params_assert_17.json");
+    }
+
+    @Test
+    public void testDefaultableParamWithInferredTypedescDefaultMissingStartLT() {
+        test("func-definition/func_params_source_19.bal", "func-definition/func_params_assert_19.json");
+    }
+
+    @Test
+    public void testDefaultableParamWithInferredTypedescDefaultMissingEndGT() {
+        test("func-definition/func_params_source_20.bal", "func-definition/func_params_assert_20.json");
     }
 }
