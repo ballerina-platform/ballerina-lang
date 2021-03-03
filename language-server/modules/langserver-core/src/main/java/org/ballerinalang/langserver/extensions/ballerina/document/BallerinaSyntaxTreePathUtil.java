@@ -30,10 +30,6 @@ public class BallerinaSyntaxTreePathUtil {
         Optional<JsonElement> temp = Optional.of(syntaxTreeJson);
 
         while (temp.isPresent()) {
-            JsonElement tempNode = temp.get();
-            if (tempNode.isJsonObject() && tempNode.getAsJsonObject().has("isToken")) {
-                break;
-            }
             temp = findChildren(syntaxTree, node, temp.get());
         }
         return syntaxTreeJson;
