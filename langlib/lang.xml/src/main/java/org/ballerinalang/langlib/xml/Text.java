@@ -19,8 +19,12 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
+
+import java.util.List;
 
 /**
  * Selects all the items in a sequence that are of type xml:Text
@@ -29,6 +33,18 @@ import io.ballerina.runtime.api.values.BXml;
  */
 public class Text {
     public static BXml text(BXml xml) {
-        return ValueCreator.createXmlText(StringUtils.fromString(xml.getTextValue()));
+        if (xml.getNodeType() == XmlNodeType.TEXT) {
+            return xml;
+        } else if (xml.getNodeType() == XmlNodeType.SEQUENCE) {
+            StringBuilder seqTextBuilder = new StringBuilder();
+            List<BXml> children = ((BXmlSequence) xml).getChildrenList();
+            for (BXml child : children) {
+                if (child.getNodeType() == XmlNodeType.TEXT) {
+                    seqTextBuilder.append(child.getTextValue());
+                }
+            }
+            return ValueCreator.createXmlText(StringUtils.fromString(seqTextBuilder.toString()));
+        }
+        return ValueCreator.createXmlText(StringUtils.fromString(""));
     }
 }
