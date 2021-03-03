@@ -331,13 +331,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map",
-      "kind": "TypeParameter",
-      "detail": "type ",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -356,13 +349,6 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "insertText": "record {|${1}|}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {

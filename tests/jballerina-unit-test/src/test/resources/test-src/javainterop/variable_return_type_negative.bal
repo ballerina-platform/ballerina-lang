@@ -185,3 +185,18 @@ public function testSubtypingAgainstConcreteReturnType() {
     Corge corge = new Grault();
     Grault grault = new Corge();
 }
+
+function getWithDefaultableParams(int|string x, int|string y = 1, typedesc<int|string> z = int) returns z =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getWithDefaultableParams"
+    } external;
+
+function testDependentlyTypedFunctionWithDefaultableParamsNegative() {
+    string a = getWithDefaultableParams("");
+    string b = getWithDefaultableParams("hello", z = int);
+    int c = getWithDefaultableParams("hello", z = string);
+    int d = getWithDefaultableParams(x = 1, z = string);
+    int e = getWithDefaultableParams(x = 1, y = "", z = string);
+    int f = getWithDefaultableParams(z = string, x = 1, y = "");
+}

@@ -7,12 +7,12 @@ type Address record {|
     string country;
 |};
 
-type Person record {|
+type Person record {
    string firstName;
    string lastName;
    string deptAccess;
    int age = 0;
-|};
+};
 
 type FullName record {
     string firstName;
@@ -71,7 +71,8 @@ function testMultipleSelectClausesWithSimpleVariable() {
             select {
                    firstName: person.firstName,
                    lastName: person.lastName,
-                   deptAccess: dept.name
+                   deptAccess: dept.name,
+                   age: 0
             };
 
 

@@ -35,6 +35,7 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Code Action for type guard variable assignment.
@@ -60,12 +61,15 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         }
 
         Symbol matchedSymbol = positionDetails.matchedSymbol();
-        TypeSymbol typeDescriptor = positionDetails.matchedExprType();
-        String uri = context.fileUri();
-        if (typeDescriptor == null || typeDescriptor.typeKind() != TypeDescKind.UNION) {
+
+        Optional<TypeSymbol> typeDescriptor = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+        if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }
-        UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
+
+        String uri = context.fileUri();
+        UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor.get();
         boolean isRemoteInvocation = matchedSymbol instanceof Qualifiable &&
                 ((Qualifiable) matchedSymbol).qualifiers().contains(Qualifier.REMOTE);
         if (isRemoteInvocation) {
@@ -73,7 +77,8 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         }
 
         Range range = CommonUtil.toRange(diagnostic.location().lineRange());
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeDescriptor.get(),
+                                                                          context);
 
         // Add type guard code action
         String commandTitle = CommandConstants.CREATE_VAR_TYPE_GUARD_TITLE;

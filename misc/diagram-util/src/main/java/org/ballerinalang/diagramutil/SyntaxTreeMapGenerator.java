@@ -23,12 +23,14 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
@@ -126,6 +128,22 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         }
                     }
                     symbolJson.add("typeSymbol", generateTypeJson(typeSymbol.get()));
+
+                    if (typeSymbol.get().getModule().isPresent()) { // todo: check if this is the correct way to access
+                        JsonObject typeDataJson = (JsonObject) generateTypeJson(typeSymbol.get().getModule().get());
+                        ((JsonObject) symbolJson.get("typeSymbol")).add("moduleID", typeDataJson.get("id"));
+                    } else if (typeSymbol.get() instanceof UnionTypeSymbol) {
+                        JsonArray memberArray = new JsonArray();
+                        ((UnionTypeSymbol) typeSymbol.get()).memberTypeDescriptors().forEach(member -> {
+                            try {
+                                JsonObject memberJson = (JsonObject) generateTypeJson(member);
+                                memberArray.add(memberJson);
+                            } catch (JSONGenerationException e) {
+                                // ignored
+                            }
+                        });
+                        ((JsonObject) symbolJson.get("typeSymbol")).add("members", memberArray);
+                    }
                 }
             } catch (Exception | AssertionError e) {
                 // TODO: Remove the AssertionError catcher when fix the symbolVisitor to be extended from BaseVisitor.
@@ -278,6 +296,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 //                        listPropJson.add((Boolean) listPropItem);
 //                    }
 //                }
+            } else if (prop instanceof Optional &&
+                    ((Optional<?>) prop).isPresent() && ((Optional) prop).get() instanceof ModuleSymbol) {
+                ModuleID ballerinaModuleID = ((ModuleSymbol) ((Optional) prop).get()).id();
+                JsonObject moduleIdJson = new JsonObject();
+                moduleIdJson.addProperty("orgName", ballerinaModuleID.orgName());
+                moduleIdJson.addProperty("moduleName", ballerinaModuleID.moduleName());
+                moduleIdJson.addProperty("version", ballerinaModuleID.version());
+                nodeJson.add("moduleID", moduleIdJson);
             } else if (prop instanceof ModuleID) {
                 ModuleID ballerinaModuleID = (ModuleID) prop;
                 JsonObject moduleIdJson = new JsonObject();

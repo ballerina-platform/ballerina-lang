@@ -717,6 +717,33 @@ function testNilValuedFinalAccessInNestedAccess() {
     assertEquality(2, q);
 }
 
+function testMemberAccessOnStrings() {
+    string a = "ABC"[0];
+    assertEquality("A", a);
+
+    string b = "EFG";
+    string c = b[1];
+    assertEquality("F", c);
+
+    string e = string `${"HIJ"}`;
+    string f = e[2];
+    assertEquality("J", f);
+
+    string:Char g = "K";
+    string h = g[0];
+    assertEquality("K", h);
+}
+
+function testInvalidMemberAccessOnStrings1() {
+    string a = "ABC";
+    string b = a[5];
+}
+
+function testInvalidMemberAccessOnStrings2() {
+    string:Char a = "K";
+    string b = a[3];
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

@@ -66,10 +66,8 @@ public abstract class AbstractCommandExecutionTest {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
-        List<Object> args = new ArrayList<>();
-        JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
-        args.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
-        args.add(CommandArgument.from(CommandConstants.ARG_KEY_NODE_POS, arguments.getAsJsonObject("node.position")));
+        
+        List<Object> args = getArgs(configJsonObject, sourcePath);
 
         JsonObject responseJson = getCommandResponse(args, command);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
@@ -99,6 +97,25 @@ public abstract class AbstractCommandExecutionTest {
                 {"testGenerationForServicesNegative.json", Paths.get("testgen", "module2", "services.bal")},
         };
     }
+
+    /**
+     * Get args to be sent to LS.
+     *
+     * @param configJson Config json
+     * @param sourcePath Source file path
+     * @return List of args
+     */
+    protected List<Object> getArgs(JsonObject configJson, Path sourcePath) {
+        List<Object> args = new ArrayList<>();
+        args.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+
+        JsonObject arguments = configJson.get("arguments").getAsJsonObject();
+        args.addAll(getArgs(arguments));
+
+        return args;
+    }
+    
+    protected abstract List<Object> getArgs(JsonObject argsObject);
 
     /**
      * Get the root directory name where test sources and test config are located.

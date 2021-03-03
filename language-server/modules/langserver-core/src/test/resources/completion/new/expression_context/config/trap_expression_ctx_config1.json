@@ -416,6 +416,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "is",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "is",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -450,7 +458,7 @@
     {
       "label": "testVar",
       "kind": "Variable",
-      "detail": "TYPEDESC<int>|error",
+      "detail": "typedesc<int>|error",
       "sortText": "B",
       "insertText": "testVar",
       "insertTextFormat": "Snippet"

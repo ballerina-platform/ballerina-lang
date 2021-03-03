@@ -855,3 +855,31 @@ public const annotation v20 on class;
         self.i = 2;
     }
 }
+
+@tainted
+class MyClass {
+}
+
+
+@tainted {
+}
+type MyObject object {
+};
+
+function myFunction() returns @v7 {} string => "hello";
+
+function myFunctionWithWorkers() {
+    @strand
+    worker w {
+
+    }
+}
+
+@v1
+type MyType int|string;
+
+@tainted
+@tainted
+@v1 {val: "one"}
+@v1 {val: "two"}
+type MyTypeTwo int|boolean;
