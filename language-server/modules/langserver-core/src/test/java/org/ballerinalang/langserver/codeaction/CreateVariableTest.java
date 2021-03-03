@@ -79,7 +79,7 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"variableAssignmentRequiredCodeAction33.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction34.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction35.json", "createVariable5.bal"},
-//                {"variableAssignmentRequiredCodeAction36.json", "createVariable5.bal"}, //disabled need isAssignable
+                {"variableAssignmentRequiredCodeAction36.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction37.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction38.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction39.json", "createVariable5.bal"},
