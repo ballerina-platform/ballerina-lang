@@ -3690,8 +3690,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos, isInternal);
 
-        // Add it to the enclosing scope
-        if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
+        if (!symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
             varSymbol.type = symTable.semanticError;
         }
         enclScope.define(varSymbol.name, varSymbol);
