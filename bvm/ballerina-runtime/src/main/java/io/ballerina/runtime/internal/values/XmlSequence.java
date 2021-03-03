@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
@@ -287,12 +288,26 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
      */
     @Override
     @Deprecated
-    public void addChildren(BXml seq) {
-        if (children.size() != 1) {
-            throw ErrorCreator.createError(StringUtils.fromString(("not an " + XmlNodeType.ELEMENT)));
-        }
+    public void addChildren(BXml xmlItem) {
+        children.add(xmlItem);
 
-        children.get(0).addChildren(seq);
+        //if sequence contains children of same type
+        // the sequence type should be changed to that corresponding xml type
+        boolean isSameType = true;
+        Type tempExprType = null;
+        for (int i = 0; i< children.size(); i++) {
+            if (i == 0) {
+                tempExprType = children.get(i).getType();
+            } else if ( tempExprType != children.get(i).getType()) {
+                isSameType = false;
+                break;
+            }
+        }
+        if (isSameType) {
+            this.type = tempExprType;
+            return;
+        }
+        this.type = PredefinedTypes.TYPE_XML;;
     }
 
     /**

@@ -2693,6 +2693,8 @@ public class BIRGen extends BLangNodeVisitor {
     private void populateXMLSequence(BLangXMLSequenceLiteral xmlSequenceLiteral, BIROperand toVarRef) {
         if (xmlSequenceLiteral.type.tag == TypeTags.XML_TEXT) {
             xmlSequenceLiteral.concatExpr.get(0).accept(this);
+            setScopeAndEmit(
+                    new BIRNonTerminator.XMLAccess(xmlSequenceLiteral.concatExpr.get(0).pos, InstructionKind.XML_SEQ_STORE, toVarRef, this.env.targetOperand));
             return;
         }
         int indexOfFirstAdjacentXMLText = 0;
@@ -2725,7 +2727,8 @@ public class BIRGen extends BLangNodeVisitor {
                 BIROperand childOp = this.env.targetOperand;
                 setScopeAndEmit(
                         new BIRNonTerminator.XMLAccess(childPosition, InstructionKind.XML_SEQ_STORE, toVarRef, childOp));
-                if (i == xmlItemSize - 1) {
+                //identify if sequence ends with xml:Text type
+                if (lastExpression.type.tag == childItem.type.tag) {
                     continue;
                 }
                 isFirstAdjacentXMLText = true;

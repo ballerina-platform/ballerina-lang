@@ -6715,6 +6715,7 @@ public class Desugar extends BLangNodeVisitor {
                     continue;
                 }
             }
+            //handle previous item if it was of xml:Text type
             if (lastExpression != null && lastExpression.type.tag == TypeTags.XML_TEXT) {
                 if (adjacentXMLTextLiterals.size() > 1) {
                     //adjacent XML Text Literals (contains interpolated items and xml:Text items) should be concatenated together before rewriting
@@ -6723,12 +6724,14 @@ public class Desugar extends BLangNodeVisitor {
                 } else {
                     rewriteExpr(lastExpression);
                 }
-                if (i == xmlItemSize - 1) {
+                //identify if sequence ends with xml:Text type
+                if (lastExpression.type.tag == childItem.type.tag) {
                     continue;
                 }
                 adjacentXMLTextLiterals.clear();
                 isFirstAdjacentXMLText = true;
             }
+            //handle current item that is not of xml:Text type
             rewriteExpr(childItem);
             lastExpression = childItem;
         }
