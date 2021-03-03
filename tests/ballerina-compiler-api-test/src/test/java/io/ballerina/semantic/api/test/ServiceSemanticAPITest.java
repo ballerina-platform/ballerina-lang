@@ -19,10 +19,14 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.AbsResourcePathAttachPoint;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.LiteralAttachPoint;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
+import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -37,6 +41,7 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,6 +49,9 @@ import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
 import static io.ballerina.compiler.api.symbols.Qualifier.LISTENER;
 import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
+import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.ABSOLUTE_RESOURCE_PATH;
+import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.STRING_LITERAL;
+import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -52,6 +60,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaul
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -70,6 +79,7 @@ public class ServiceSemanticAPITest {
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
     }
+
     @Test
     public void testServiceClass() {
         ClassSymbol symbol = (ClassSymbol) model.symbol(srcFile, from(22, 14)).get();
@@ -149,6 +159,53 @@ public class ServiceSemanticAPITest {
         return new Object[][]{
                 {68, 26, concatSymbols(moduleSymbols, "magic")},
 //                {70, 59, concatSymbols(moduleSymbols, "magic", "createError")} // TODO: Fix #27314
+        };
+    }
+
+    @Test
+    public void testServiceDeclSymbol() {
+        Object[][] expVals = getExpValues();
+        SemanticModel model = getDefaultModulesSemanticModel("test-src/service_decl_test.bal");
+        List<ServiceDeclarationSymbol> services = model.moduleSymbols().stream()
+                .filter(s -> s.kind() == SERVICE_DECLARATION)
+                .map(s -> (ServiceDeclarationSymbol) s)
+                .collect(Collectors.toList());
+
+        assertEquals(services.size(), expVals.length);
+
+        for (int i = 0, servicesSize = services.size(); i < servicesSize; i++) {
+            ServiceDeclarationSymbol service = services.get(i);
+
+            Optional<TypeSymbol> typedesc = service.typeDescriptor();
+            if (typedesc.isPresent()) {
+                assertEquals(typedesc.get().typeKind(), expVals[i][0]);
+                assertEquals(typedesc.get().getName().get(), expVals[i][1]);
+            } else {
+                assertNull(expVals[i][0], "Expected typedesc kind: " + expVals[i][0]);
+            }
+
+            Optional<ServiceAttachPoint> attachPoint = service.attachPoint();
+            if (attachPoint.isPresent()) {
+                assertEquals(attachPoint.get().kind(), expVals[i][2]);
+                String attachPointStr;
+                if (attachPoint.get().kind() == ABSOLUTE_RESOURCE_PATH) {
+                    attachPointStr = ((AbsResourcePathAttachPoint) attachPoint.get()).get().toString();
+                } else {
+                    attachPointStr = ((LiteralAttachPoint) attachPoint.get()).get();
+                }
+                assertEquals(attachPointStr, expVals[i][3]);
+            } else {
+                assertNull(expVals[i][2], "Expected attach point kind: " + expVals[i][2]);
+            }
+        }
+    }
+
+    private Object[][] getExpValues() {
+        return new Object[][]{
+                {null, null, null, null},
+                {TYPE_REFERENCE, "HelloWorld", ABSOLUTE_RESOURCE_PATH, "[]"},
+                {TYPE_REFERENCE, "HelloWorld", ABSOLUTE_RESOURCE_PATH, "[foo, bar]"},
+                {TYPE_REFERENCE, "HelloWorld", STRING_LITERAL, "GreetingService"},
         };
     }
 
