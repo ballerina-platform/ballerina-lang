@@ -99,6 +99,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Shift expression
  * <li> Unary expression
  * <li> Type test expression
+ * <li> Type cast expression
  * </ul>
  * <br>
  * To be Implemented.
@@ -109,7 +110,6 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Error constructor
  * <li> Anonymous function expression
  * <li> Let expression
- * <li> Type cast expression
  * <li> Range expression
  * <li> Checking expression
  * <li> Trap expression
