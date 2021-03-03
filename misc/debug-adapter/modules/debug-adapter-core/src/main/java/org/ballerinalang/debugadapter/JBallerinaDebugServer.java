@@ -475,7 +475,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public Value evaluateExpression(String expression, ThreadReference threadReference) {
         try {
             StackFrameProxyImpl frame = getAllThreads().get(threadReference.uniqueID()).frame(0);
-            SuspendedContext ctx = new SuspendedContext(project, context.getDebuggee(), threadReference, frame);
+            SuspendedContext ctx = new SuspendedContext(project, context.getDebuggee(),
+                    getAllThreads().get(threadReference.uniqueID()), frame);
             ExpressionEvaluator evaluator = new ExpressionEvaluator(ctx);
             return evaluator.evaluate(expression);
         } catch (JdiProxyException e) {
