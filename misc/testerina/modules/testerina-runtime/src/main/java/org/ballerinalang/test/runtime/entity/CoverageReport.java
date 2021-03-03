@@ -156,25 +156,25 @@ public class CoverageReport {
         }
     }
 
-    private Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {
+    private Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourceFiles) {
         Collection<ISourceFileCoverage> modifiedSourceFiles = new ArrayList<>();
-        for (ISourceFileCoverage sourcefile : sourcefiles) {
-            if (sourcefile.getName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
-                List<ILine> modifiedLines = modifyLines(sourcefile);
-                ISourceFileCoverage modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
+        for (ISourceFileCoverage sourceFile : sourceFiles) {
+            if (sourceFile.getName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                List<ILine> modifiedLines = modifyLines(sourceFile);
+                ISourceFileCoverage modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourceFile,
                         modifiedLines);
                 modifiedSourceFiles.add(modifiedSourceFile);
             } else {
-                modifiedSourceFiles.add(sourcefile);
+                modifiedSourceFiles.add(sourceFile);
             }
         }
         return modifiedSourceFiles;
     }
 
-    private List<ILine> modifyLines(ISourceFileCoverage sourcefile) {
+    private List<ILine> modifyLines(ISourceFileCoverage sourceFile) {
         List<ILine> modifiedLines = new ArrayList<>();
-        for (int i = sourcefile.getFirstLine(); i <= sourcefile.getLastLine(); i++) {
-            ILine line = sourcefile.getLine(i);
+        for (int i = sourceFile.getFirstLine(); i <= sourceFile.getLastLine(); i++) {
+            ILine line = sourceFile.getLine(i);
             ILine modifiedLine = new PartialCoverageModifiedLine(line.getInstructionCounter(), line.getBranchCounter());
             modifiedLines.add(modifiedLine);
         }
