@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.File;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -137,10 +138,13 @@ public class CommonUtil {
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
             "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
 
+    public static final List<String> BALLERINA_KEYWORDS;
+
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
+        BALLERINA_KEYWORDS = getBallerinaKeywords();
     }
 
     private CommonUtil() {
@@ -628,6 +632,7 @@ public class CommonUtil {
     }
 
     private static String generateVariableName(int suffix, String name, Set<String> names) {
+        names.addAll(BALLERINA_KEYWORDS);
         String newName = name.replaceAll(".+[\\:\\.]", "");
         if (suffix == 1 && !name.isEmpty()) {
             BiFunction<String, String, String> replacer = (search, text) ->
@@ -853,7 +858,7 @@ public class CommonUtil {
         Position rangeEnd = range.getEnd();
         int start = textDocument.textPositionFrom(LinePosition.from(rangeStart.getLine(), rangeStart.getCharacter()));
         int end = textDocument.textPositionFrom(LinePosition.from(rangeEnd.getLine(), rangeEnd.getCharacter()));
-        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start));
+        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start), true);
     }
 
     /**
@@ -872,7 +877,7 @@ public class CommonUtil {
         LineRange symbolRange = symbol.getLocation().get().lineRange();
         int start = textDocument.textPositionFrom(symbolRange.startLine());
         int len = symbolRange.endLine().offset() - symbolRange.startLine().offset();
-        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, len));
+        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, len), true);
     }
 
     public static boolean isWithinLineRange(Position pos, LineRange lineRange) {
@@ -1057,15 +1062,37 @@ public class CommonUtil {
             SeparatedNodeList<IdentifierToken> moduleComponents = matchedImport.get().moduleName();
             return moduleComponents.get(moduleComponents.size() - 1).text();
         }
-        
+
         String[] modNameComponents = modName.split("\\.");
         return modNameComponents[modNameComponents.length - 1];
     }
-    
+
     private static String getQualifiedModuleName(Module module) {
         if (module.isDefaultModule()) {
             return module.moduleName().packageName().value();
         }
-        return module.moduleName().packageName().value() + Names.DOT.getValue() + module.moduleName().moduleNamePart(); 
+        return module.moduleName().packageName().value() + Names.DOT.getValue() + module.moduleName().moduleNamePart();
+    }
+
+    private static List<String> getBallerinaKeywords() {
+        // NOTE: This is a temporary fix to retrieve lexer defined keywords until we comeup with a proper api.
+        // Related discussion can be found in https://github.com/ballerina-platform/ballerina-lang/discussions/28827
+        try {
+            Class<?> aClass = Class.forName("io.ballerina.compiler.internal.parser.LexerTerminals");
+            return Arrays.stream(aClass.getDeclaredFields())
+                    .filter(field -> field.getModifiers() == (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)
+                            && (field.getType() == String.class))
+                    .map(field -> {
+                        try {
+                            return field.get(null).toString();
+                        } catch (IllegalAccessException e) {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        } catch (ClassNotFoundException e) {
+            return Collections.emptyList();
+        }
     }
 }

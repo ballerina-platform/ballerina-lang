@@ -7917,8 +7917,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangRestArgsExpression restArgsExpression = (BLangRestArgsExpression) restArgs.remove(0);
             BArrayType restParamType = (BArrayType) invokableSymbol.restParam.type;
             if (restArgsExpression.type.tag == TypeTags.RECORD) {
-                BLangExpression expr = new BLangIgnoreExpr();
-                expr.type = restParamType;
+                BLangExpression expr = ASTBuilderUtil.createEmptyArrayLiteral(invokableSymbol.pos, restParamType);
                 restArgs.add(expr);
                 return;
             }

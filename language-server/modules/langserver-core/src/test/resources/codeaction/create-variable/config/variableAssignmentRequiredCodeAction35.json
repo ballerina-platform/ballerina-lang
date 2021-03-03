@@ -3,7 +3,7 @@
     "character": 4,
     "expected": [
         {
-            "title": "Create variable with 'map<string>[]'",
+            "title": "Create variable with 'map<any>[]'",
             "edits": [
                 {
                     "range": {
@@ -16,7 +16,7 @@
                             "character": 4
                         }
                     },
-                    "newText": "map<string>[] listResult = "
+                    "newText": "map<any>[] listResult = "
                 }
             ]
         }
