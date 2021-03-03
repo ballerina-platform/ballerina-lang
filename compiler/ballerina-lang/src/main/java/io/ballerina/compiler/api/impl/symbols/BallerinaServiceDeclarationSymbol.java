@@ -57,8 +57,8 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
     }
 
     @Override
-    public TypeSymbol typeDescriptor() {
-        return this.typeDescriptor;
+    public Optional<TypeSymbol> typeDescriptor() {
+        return Optional.ofNullable(this.typeDescriptor);
     }
 
     @Override

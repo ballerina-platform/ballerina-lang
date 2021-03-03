@@ -35,11 +35,11 @@ import java.util.Optional;
 public interface ServiceDeclarationSymbol extends Symbol, Annotatable, Documentable, Qualifiable {
 
     /**
-     * Returns the type of the service. The type can be either user specified or inferred by the compiler.
+     * Returns the type of the service. The type is user specified and it is optional.
      *
      * @return The type of the service
      */
-    TypeSymbol typeDescriptor();
+    Optional<TypeSymbol> typeDescriptor();
 
     /**
      * Returns the specified attach point if there is one. If an attach point is returned, it can be one of the
