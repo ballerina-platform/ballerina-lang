@@ -252,6 +252,9 @@ public class BIRPackageSymbolEnter {
         // Define annotations.
         defineSymbols(dataInStream, rethrow(this::defineAnnotations));
 
+        // Define service declarations
+        defineSymbols(dataInStream, rethrow(this::defineServiceDeclarations));
+
         this.typeReader = null;
         return this.env.pkgSymbol;
     }
@@ -667,8 +670,7 @@ public class BIRPackageSymbolEnter {
             }
         }
 
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(this.env.pkgSymbol);
-        BSymbol classSymbol = symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(associatedClassName));
+        BSymbol classSymbol = this.env.pkgSymbol.scope.lookup(names.fromString(associatedClassName)).symbol;
         BServiceSymbol serviceDecl = new BServiceSymbol((BClassSymbol) classSymbol, flags,
                                                         names.fromString(serviceName), this.env.pkgSymbol.pkgID, type,
                                                         this.env.pkgSymbol, pos, SymbolOrigin.toOrigin(origin));

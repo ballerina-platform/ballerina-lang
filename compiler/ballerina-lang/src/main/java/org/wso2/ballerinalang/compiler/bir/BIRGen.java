@@ -397,6 +397,7 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.stopFunction.accept(this);
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
         astPkg.annotations.forEach(astAnn -> astAnn.accept(this));
+        astPkg.services.forEach(service -> service.accept(this));
     }
 
     private void generateClassDefinitions(List<TopLevelNode> topLevelNodes) {

@@ -1697,8 +1697,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (serviceNode.serviceNameLiteral != null) {
-            serviceSymbol.setAttachPointStringLiteral(serviceNode.serviceNameLiteral.originalValue);
+            serviceSymbol.setAttachPointStringLiteral(serviceNode.serviceNameLiteral.value.toString());
         }
+
+        env.scope.define(serviceSymbol.name, serviceSymbol);
     }
 
     @Override
