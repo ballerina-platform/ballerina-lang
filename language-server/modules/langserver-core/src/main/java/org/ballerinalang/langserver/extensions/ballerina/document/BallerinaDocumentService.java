@@ -40,6 +40,9 @@ public interface BallerinaDocumentService {
     CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeModify(BallerinaSyntaxTreeModifyRequest request);
 
     @JsonRequest
+    CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeNodePath(BallerinaSyntaxTreeByRangeRequest request);
+
+    @JsonRequest
     CompletableFuture<BallerinaSyntaxTreeResponse> triggerModify(BallerinaTriggerModifyRequest request);
 
     @JsonRequest

@@ -111,13 +111,54 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             //Find the ST Nodes of the selected range
             SyntaxTree syntaxTree = srcFile.get().syntaxTree();
             Node node = BallerinaSyntaxTreeByRangeUtil.getNode(request.getLineRange(), syntaxTree);
-            
+
             // Get the generated syntax tree JSON with type info.
             JsonElement subSyntaxTree = DiagramUtil.getSyntaxTreeJSONByRange(node, semanticModel.get());
 
             // Preparing the response.
             reply.setSource(node.toSourceCode());
             reply.setSyntaxTree(subSyntaxTree);
+            reply.setParseSuccess(reply.getSyntaxTree() != null);
+        } catch (Throwable e) {
+            reply.setParseSuccess(false);
+            String msg = "Operation 'ballerinaDocument/syntaxTreeByRange' failed!";
+            this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+        }
+        return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    @Override
+    public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeNodePath(
+            BallerinaSyntaxTreeByRangeRequest request) {
+        BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
+        String fileUri = request.getDocumentIdentifier().getUri();
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        if (filePath.isEmpty()) {
+            return CompletableFuture.supplyAsync(() -> reply);
+        }
+
+        try {
+            Optional<Document> srcFile = this.workspaceManager.document(filePath.get());
+            if (srcFile.isEmpty()) {
+                return CompletableFuture.supplyAsync(() -> reply);
+            }
+
+            // Get the semantic model.
+            Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
+
+            //Find the ST Nodes of the selected range
+            SyntaxTree syntaxTree = srcFile.get().syntaxTree();
+
+            // Get the generated syntax tree JSON with type info.
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(srcFile.get(), semanticModel.get());
+
+            //Map the path on the object
+            syntaxTreeJSON = BallerinaSyntaxTreeNodePathUtil.mapNodePath(request.getLineRange(), syntaxTree,
+                    syntaxTreeJSON);
+
+            // Preparing the response.
+            reply.setSyntaxTree(syntaxTreeJSON);
+            reply.setSource(srcFile.get().syntaxTree().toSourceCode());
             reply.setParseSuccess(reply.getSyntaxTree() != null);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
@@ -212,9 +253,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             String fileUri = params.getDocumentIdentifier().getUri();
             try {
                 DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
-                                                                                 this.workspaceManager,
-                                                                                 LSContextOperation.DOC_DIAGNOSTICS,
-                                                                                 this.serverContext);
+                        this.workspaceManager,
+                        LSContextOperation.DOC_DIAGNOSTICS,
+                        this.serverContext);
                 DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
                 return diagnosticsHelper.getLatestDiagnostics(context).entrySet().stream()
                         .map((entry) -> new PublishDiagnosticsParams(entry.getKey(), entry.getValue()))
