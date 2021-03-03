@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
-import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.jacoco.core.analysis.Analyzer;
@@ -26,6 +25,7 @@ import org.jacoco.core.analysis.IBundleCoverage;
 import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
+import org.jacoco.core.internal.analysis.BundleCoverageImpl;
 import org.jacoco.core.tools.ExecFileLoader;
 import org.jacoco.report.IReportVisitor;
 import org.jacoco.report.xml.XMLFormatter;
@@ -35,8 +35,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_XML_FILE;
 import static org.jacoco.core.analysis.ICounter.FULLY_COVERED;
 import static org.jacoco.core.analysis.ICounter.NOT_COVERED;
@@ -82,18 +84,16 @@ public class CoverageReport {
     public void generateReport() throws IOException {
         CodeCoverageUtils.unzipCompiledSource(sourceJarPath, projectDir, orgName, moduleName);
         execFileLoader.load(executionDataFile.toFile());
-
-        final IBundleCoverage bundleCoverage = analyzeStructure();
-        createReport(bundleCoverage);
-        createXMLReport(bundleCoverage);
+        final CoverageBuilder coverageBuilder = analyzeStructure();
+        createReport(coverageBuilder.getBundle(title));
+        createXMLReport(getPartialCoverageModifiedBundle(coverageBuilder));
     }
 
-    private IBundleCoverage analyzeStructure() throws IOException {
+    private CoverageBuilder analyzeStructure() throws IOException {
         final CoverageBuilder coverageBuilder = new CoverageBuilder();
-        final Analyzer analyzer = new Analyzer(
-                execFileLoader.getExecutionDataStore(), coverageBuilder);
+        final Analyzer analyzer = new Analyzer(execFileLoader.getExecutionDataStore(), coverageBuilder);
         analyzer.analyzeAll(classesDirectory.toFile());
-        return coverageBuilder.getBundle(title);
+        return coverageBuilder;
     }
 
     private void createReport(final IBundleCoverage bundleCoverage) {
@@ -107,7 +107,7 @@ public class CoverageReport {
             }
             if (containsSourceFiles) {
                 for (ISourceFileCoverage sourceFileCoverage : packageCoverage.getSourceFiles()) {
-                    if (sourceFileCoverage.getName().contains(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
+                    if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX) &&
                             !sourceFileCoverage.getName().contains("tests/")) {
                         List<Integer> coveredLines = new ArrayList<>();
                         List<Integer> missedLines = new ArrayList<>();
@@ -133,6 +133,11 @@ public class CoverageReport {
 
     }
 
+    private IBundleCoverage getPartialCoverageModifiedBundle(CoverageBuilder coverageBuilder) {
+        return new BundleCoverageImpl(title, coverageBuilder.getClasses(),
+                modifySourceFiles(coverageBuilder.getSourceFiles()));
+    }
+
     private void createXMLReport(IBundleCoverage bundleCoverage) throws IOException {
         XMLFormatter xmlFormatter = new XMLFormatter();
         File reportFile = new File(reportDir.resolve(
@@ -151,4 +156,28 @@ public class CoverageReport {
         }
     }
 
+    private Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {
+        Collection<ISourceFileCoverage> modifiedSourceFiles = new ArrayList<>();
+        for (ISourceFileCoverage sourcefile : sourcefiles) {
+            if (sourcefile.getName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                List<ILine> modifiedLines = modifyLines(sourcefile);
+                ISourceFileCoverage modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
+                        modifiedLines);
+                modifiedSourceFiles.add(modifiedSourceFile);
+            } else {
+                modifiedSourceFiles.add(sourcefile);
+            }
+        }
+        return modifiedSourceFiles;
+    }
+
+    private List<ILine> modifyLines(ISourceFileCoverage sourcefile) {
+        List<ILine> modifiedLines = new ArrayList<>();
+        for (int i = sourcefile.getFirstLine(); i <= sourcefile.getLastLine(); i++) {
+            ILine line = sourcefile.getLine(i);
+            ILine modifiedLine = new PartialCoverageModifiedLine(line.getInstructionCounter(), line.getBranchCounter());
+            modifiedLines.add(modifiedLine);
+        }
+        return modifiedLines;
+    }
 }
