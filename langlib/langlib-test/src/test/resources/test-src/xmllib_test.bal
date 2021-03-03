@@ -444,6 +444,60 @@ function testXMLIteratorInvocation() {
     assert((iter5.next()).toString(), "{\"value\":`<one>first</one>`}");
 }
 
+function testSelectingTextFromXml() returns string? {
+    xml:Element authors = xml `<authors><author><name>Enid Blyton</name></author></authors>`;
+    xml:Text authorName = authors.text();
+    assert(authorName.toString(), "Enid Blyton");
+
+    xml:Text helloText = xml `hello text`;
+    xml:Text textValues = helloText.text();
+    assert(textValues.toString(), "hello text");
+
+    xml:Comment comment = xml `<!-- This is a comment -->`;
+    xml:Text commentText = comment.text();
+    assert(commentText.toString(), " This is a comment ");
+
+    xml:ProcessingInstruction instruction = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
+    xml:Text instructionText = instruction.text();
+    assert(instructionText.toString(), "");
+
+    xml<xml:Text> catalogText = catalog.text();
+    assert(catalogText.toString(),"\n" +
+                  "                       \n" +
+                  "                           Empire Burlesque\n" +
+                  "                           Bob Dylan\n" +
+                  "                       \n" +
+                  "                       \n" +
+                  "                           Hide your heart\n" +
+                  "                           Bonnie Tyler\n" +
+                  "                       \n" +
+                  "                       \n" +
+                  "                           Greatest Hits\n" +
+                  "                           Dolly Parton\n" +
+                  "                       \n" +
+                  "                   ");
+
+    xmlns "foo" as ns;
+    xml letter = xml `<note>
+                            <ns:to>Love</ns:to>
+                            <to>John</to>
+                            <!-- This is a comment -->
+                            <from>Anne</from>
+                            <body>Don't forget me this weekend!</body>
+                          </note>`;
+    xml letterText = letter.text();
+    assert(letterText.toString(), "\n" +
+                   "                            Love\n" +
+                   "                            John\n" +
+                   "                            \n" +
+                   "                            Anne\n" +
+                   "                            Don't forget me this weekend!\n" +
+                   "                          ");
+
+    xml<xml:Text> letterText2 = xml:text(letter);
+    assert(letterText2.toString(), letterText.toString());
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
