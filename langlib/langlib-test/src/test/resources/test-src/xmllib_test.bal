@@ -445,9 +445,9 @@ function testXMLIteratorInvocation() {
 }
 
 function testSelectingTextFromXml() returns string? {
-    xml:Element authors = xml `<authors><author><name>Enid Blyton</name></author></authors>`;
-    xml:Text authorName = authors.text();
-    assert(authorName.toString(), "Enid Blyton");
+    xml:Element authors = xml `<authors><author><name>Enid<middleName/>Blyton</name></author></authors>`;
+    xml:Text authorsList = authors.text();
+    assert(authorsList.toString(), "");
 
     xml:Text helloText = xml `hello text`;
     xml:Text textValues = helloText.text();
@@ -455,47 +455,21 @@ function testSelectingTextFromXml() returns string? {
 
     xml:Comment comment = xml `<!-- This is a comment -->`;
     xml:Text commentText = comment.text();
-    assert(commentText.toString(), " This is a comment ");
+    assert(commentText.toString(), "");
 
     xml:ProcessingInstruction instruction = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
     xml:Text instructionText = instruction.text();
     assert(instructionText.toString(), "");
 
-    xml<xml:Text> catalogText = catalog.text();
-    assert(catalogText.toString(),"\n" +
-                  "                       \n" +
-                  "                           Empire Burlesque\n" +
-                  "                           Bob Dylan\n" +
-                  "                       \n" +
-                  "                       \n" +
-                  "                           Hide your heart\n" +
-                  "                           Bonnie Tyler\n" +
-                  "                       \n" +
-                  "                       \n" +
-                  "                           Greatest Hits\n" +
-                  "                           Dolly Parton\n" +
-                  "                       \n" +
-                  "                   ");
+    xml<xml:Text> authorName = (authors/<author>/<name>/*).text();
+    assert(authorName.toString(),"EnidBlyton");
 
-    xmlns "foo" as ns;
-    xml letter = xml `<note>
-                            <ns:to>Love</ns:to>
-                            <to>John</to>
-                            <!-- This is a comment -->
-                            <from>Anne</from>
-                            <body>Don't forget me this weekend!</body>
-                          </note>`;
-    xml letterText = letter.text();
-    assert(letterText.toString(), "\n" +
-                   "                            Love\n" +
-                   "                            John\n" +
-                   "                            \n" +
-                   "                            Anne\n" +
-                   "                            Don't forget me this weekend!\n" +
-                   "                          ");
+    var name = xml `<name>Dan<lname>Gerhard</lname><!-- This is a comment -->Brown</name>`;
+    xml nameText = (name/*).text();
+    assert(nameText.toString(), "DanBrown");
 
-    xml<xml:Text> letterText2 = xml:text(letter);
-    assert(letterText2.toString(), letterText.toString());
+    xml<xml:Text> nameText2 = xml:text(name/*);
+    assert(nameText2.toString(), nameText.toString());
 }
 
 function assert(anydata actual, anydata expected) {
