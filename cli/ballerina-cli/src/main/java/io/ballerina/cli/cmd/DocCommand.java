@@ -116,7 +116,7 @@ public class DocCommand implements BLauncherCmd {
         // combine docs
         if (this.combine) {
             outStream.println("Combining Docs");
-            BallerinaDocGenerator.mergeApiDocs(this.projectPath.toString());
+            BallerinaDocGenerator.mergeApiDocs(this.projectPath);
             if (this.exitWhenFinish) {
                 Runtime.getRuntime().exit(0);
             }

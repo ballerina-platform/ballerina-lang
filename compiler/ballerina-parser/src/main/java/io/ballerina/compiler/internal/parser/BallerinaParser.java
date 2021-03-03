@@ -16129,10 +16129,12 @@ public class BallerinaParser extends AbstractParser {
         STNode typeDesc =
                 parseComplexTypeDescriptor(tupleType, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
         endContext();
-        STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT, isRoot);
+
         if (!isRoot) {
-            return typedBindingPattern;
+            return typeDesc;
         }
+
+        STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT, isRoot);
 
         switchContext(ParserRuleContext.VAR_DECL_STMT);
         return parseVarDeclRhs(annots, new ArrayList<>(), typedBindingPattern, false);

@@ -66,7 +66,8 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         // Skip, non-local var declarations
-        if (positionDetails.matchedNode().kind() != SyntaxKind.LOCAL_VAR_DECL) {
+        VariableDeclarationNode localVarNode = getVariableDeclarationNode(positionDetails.matchedNode());
+        if (localVarNode == null) {
             return Collections.emptyList();
         }
 
@@ -77,7 +78,6 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         // Skip, variable declarations with non-initializers
-        VariableDeclarationNode localVarNode = (VariableDeclarationNode) positionDetails.matchedNode();
         Optional<ExpressionNode> initializer = localVarNode.initializer();
         if (initializer.isEmpty()) {
             return Collections.emptyList();
@@ -121,6 +121,14 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         }
         return actions;
+    }
+
+    private VariableDeclarationNode getVariableDeclarationNode(NonTerminalNode node) {
+        while (node != null && node.kind() != SyntaxKind.LOCAL_VAR_DECL) {
+            node = node.parent();
+        }
+
+        return node != null ? (VariableDeclarationNode) node : null;
     }
 
     private Optional<Range> getParameterTypeRange(NonTerminalNode parameterNode) {

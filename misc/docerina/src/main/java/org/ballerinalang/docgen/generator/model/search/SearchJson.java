@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.docgen.generator.model.search;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,17 +26,29 @@ import java.util.List;
  * JSON to hold search data.
  */
 public class SearchJson {
+    @Expose
     private List<ModuleSearchJson> modules;
+    @Expose
     private List<ConstructSearchJson> classes;
+    @Expose
     private List<ConstructSearchJson> functions;
+    @Expose
     private List<ConstructSearchJson> records;
+    @Expose
     private List<ConstructSearchJson> constants;
+    @Expose
     private List<ConstructSearchJson> errors;
+    @Expose
     private List<ConstructSearchJson> types;
+    @Expose
     private List<ConstructSearchJson> clients;
+    @Expose
     private List<ConstructSearchJson> listeners;
+    @Expose
     private List<ConstructSearchJson> annotations;
+    @Expose
     private List<ConstructSearchJson> objectTypes;
+    @Expose
     private List<ConstructSearchJson> enums;
 
     public SearchJson(List<ModuleSearchJson> modules,

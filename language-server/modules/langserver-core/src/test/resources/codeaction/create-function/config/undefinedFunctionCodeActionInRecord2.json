@@ -1,0 +1,28 @@
+{
+  "line": 22,
+  "character": 20,
+  "expected": [
+    {
+      "title": "Create function 'createListener(...)'",
+      "command": {
+        "title": "Create function 'createListener(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 22,
+                "character": 20
+              },
+              "end": {
+                "line": 22,
+                "character": 41
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
