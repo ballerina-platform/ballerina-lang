@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.values.BXmlSequence;
 import java.util.List;
 
 /**
- * Selects all the items in a sequence that are of type xml:Text
+ * Selects all the items in a sequence that are of type xml:Text.
  *
  * @since 2.0.0
  */
