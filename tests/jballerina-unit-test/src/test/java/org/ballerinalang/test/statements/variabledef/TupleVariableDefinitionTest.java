@@ -406,9 +406,8 @@ public class TupleVariableDefinitionTest {
                 "incompatible types: expected '[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 101, 84);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 106, 26);
-        BAssertUtil.validateError(resultNegative, ++i,
-                                  "invalid list binding pattern: expected an array or a tuple, but found '(string|int)'",
-                                  110, 16);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: " +
+                        "expected an array or a tuple, but found '(string|int)'", 110, 16);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
