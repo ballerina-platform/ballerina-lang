@@ -471,6 +471,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  */
 public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
+    private static final String WORKER_NAME = "worker_name";
     private BLangDiagnosticLog dlog;
     private SymbolTable symTable;
 
@@ -486,6 +487,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private Stack<BLangStatement> additionalStatements = new Stack<>();
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
+    private int noOfWorkers = 0;
 
     public BLangNodeTransformer(CompilerContext context,
                                 PackageID packageID, String entryName) {
@@ -1529,7 +1531,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         // change default worker name
-        String workerName = namedWorkerDeclNode.workerName().text();
+        String workerName;
+        if (namedWorkerDeclNode.workerName().text().equals("")) {
+            workerName = WORKER_NAME + "_" + noOfWorkers++;
+        } else {
+            workerName = namedWorkerDeclNode.workerName().text();
+        }
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLFunction.defaultWorkerName.originalValue = workerName;
             workerName = IdentifierUtils.unescapeUnicodeCodepoints(workerName.substring(1));

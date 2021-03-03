@@ -1117,8 +1117,8 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseFunctionDefinition(STNode metadata, STNode visibilityQualifier, STNode resourcePath,
-                                           List<STNode> qualifiers, STNode functionKeyword, boolean isObjectMember,
-                                           boolean isObjectTypeDesc, STNode name) {
+                                           List<STNode> qualifiers, STNode functionKeyword, STNode name,
+                                           boolean isObjectMember, boolean isObjectTypeDesc) {
         switchContext(ParserRuleContext.FUNC_DEF);
         STNode funcSignature = parseFuncSignature(false);
         STNode funcDef = parseFuncDefOrMethodDeclEnd(metadata, visibilityQualifier, qualifiers, functionKeyword, name,
@@ -1138,9 +1138,9 @@ public class BallerinaParser extends AbstractParser {
      * @param isObjectTypeDesc Whether object type or not
      * @return Parsed node
      */
-    private STNode parseFuncDefOrFuncTypeDescRhs(STNode name, STNode metadata, STNode visibilityQualifier,
-                                              List<STNode> qualifiers, STNode functionKeyword, boolean isObjectMember,
-                                              boolean isObjectTypeDesc) {
+    private STNode parseFuncDefOrFuncTypeDescRhs(STNode metadata, STNode visibilityQualifier, List<STNode> qualifiers,
+                                                 STNode functionKeyword, STNode name, boolean isObjectMember,
+                                                 boolean isObjectTypeDesc) {
         switch (peek().kind) {
             case OPEN_PAREN_TOKEN:
             case DOT_TOKEN:
@@ -1148,7 +1148,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 STNode resourcePath = parseOptionalRelativePath(isObjectMember);
                 return parseFunctionDefinition(metadata, visibilityQualifier, resourcePath, qualifiers, functionKeyword,
-                                               isObjectMember, isObjectTypeDesc, name);
+                                               name, isObjectMember, isObjectTypeDesc);
             case EQUAL_TOKEN:
             case SEMICOLON_TOKEN:
                 endContext();
@@ -1173,7 +1173,7 @@ public class BallerinaParser extends AbstractParser {
             STToken token = peek();
             recover(token, ParserRuleContext.FUNC_DEF_OR_TYPE_DESC_RHS, metadata, visibilityQualifier, qualifiers,
                     functionKeyword, isObjectMember, isObjectTypeDesc);
-            return parseFuncDefOrFuncTypeDescRhs(name, metadata, visibilityQualifier, qualifiers, functionKeyword,
+            return parseFuncDefOrFuncTypeDescRhs(metadata, visibilityQualifier, qualifiers, functionKeyword, name,
                                                  isObjectMember, isObjectTypeDesc);
         }
     }
@@ -1183,8 +1183,8 @@ public class BallerinaParser extends AbstractParser {
         switch (peek().kind) {
             case IDENTIFIER_TOKEN:
                 STNode name = consume();
-                return parseFuncDefOrFuncTypeDescRhs(name, metadata, visibilityQualifier, qualifiers,
-                                                     functionKeyword, isObjectMember, isObjectTypeDesc);
+                return parseFuncDefOrFuncTypeDescRhs(metadata, visibilityQualifier, qualifiers, functionKeyword, name,
+                                                     isObjectMember, isObjectTypeDesc);
             case OPEN_PAREN_TOKEN:
                 STNode funcSignature = parseFuncSignature(true);
                 return parseFunctionTypeDescRhs(metadata, visibilityQualifier, qualifiers, functionKeyword,
