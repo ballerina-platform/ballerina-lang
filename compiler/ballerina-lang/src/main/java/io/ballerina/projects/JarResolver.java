@@ -62,10 +62,11 @@ public class JarResolver {
         addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
 
         // 2) Get all the dependencies of the root package including transitives.
-        // Filter out PackageDependencyScope.TEST_ONLY scope dependencies
+        // Filter out PackageDependencyScope.TEST_ONLY scope dependencies and lang libs
         pkgResolution.allDependencies()
                 .stream()
                 .filter(pkgDep -> pkgDep.scope() != PackageDependencyScope.TEST_ONLY)
+                .filter(pkgDep -> !pkgDep.packageInstance().descriptor().isLangLibPackage())
                 .map(pkgDep -> pkgDep.packageInstance().packageContext())
                 .forEach(pkgContext -> {
                     // Add generated thin jar of every module in the package represented by the packageContext

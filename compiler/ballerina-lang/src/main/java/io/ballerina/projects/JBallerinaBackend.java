@@ -588,7 +588,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void addConflictedJars(JarLibrary jarLibrary, HashMap<String, JarLibrary> copiedEntries, String entryName) {
-        if (entryName.endsWith(".class")) {
+        if (entryName.endsWith(".class") && !entryName.equals("module-info.class")) {
             JarLibrary conflictingJar = copiedEntries.get(entryName);
             JarConflict jarConflict = getJarConflict(conflictingJar);
 

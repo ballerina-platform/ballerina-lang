@@ -62,6 +62,9 @@ OPTIONS
        --taint-check
            Perform taint flow analysis.
 
+       --list-conflicted-classes
+       		List conflicting classes of conflicting jars in the project.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set the Ballerina environment parameters as key/value pairs.

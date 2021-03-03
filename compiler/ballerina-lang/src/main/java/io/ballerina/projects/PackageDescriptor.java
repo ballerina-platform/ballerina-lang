@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.wso2.ballerinalang.compiler.util.Names;
+
 import java.util.Objects;
 
 /**
@@ -58,7 +60,8 @@ public class PackageDescriptor {
     }
 
     public boolean isLangLibPackage() {
-        return org().isBallerinaOrg() && packageName.value().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX);
+        return (org().isBallerinaOrg() && packageName.value().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX)) ||
+                (org().isBallerinaOrg() && packageName.value().equals(Names.JAVA.getValue()));
     }
 
     @Override
