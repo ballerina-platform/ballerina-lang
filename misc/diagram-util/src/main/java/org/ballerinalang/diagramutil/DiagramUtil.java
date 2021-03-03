@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
@@ -61,9 +60,7 @@ public class DiagramUtil {
         try {
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
 
-            if (node.kind() == SyntaxKind.LIST) {
-                syntaxTreeJson = mapGenerator.transformSyntaxNode(node.parent());
-            } else if (node instanceof Token) {
+            if (node instanceof Token) {
                 JsonObject nodeJson = new JsonObject();
                 JsonElement nodeInfo = mapGenerator.apply(node);
                 String nodeKind  = mapGenerator.prettifyKind(node.kind().toString());

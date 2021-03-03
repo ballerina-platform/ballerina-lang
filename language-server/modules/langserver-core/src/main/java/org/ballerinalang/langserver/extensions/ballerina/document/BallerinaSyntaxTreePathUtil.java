@@ -21,12 +21,17 @@ public class BallerinaSyntaxTreePathUtil {
     private static final String PATH_PROPERTY = "isNodePath";
 
     public static JsonElement mapNodePath(Range range, SyntaxTree syntaxTree, JsonElement syntaxTreeJson) {
+        syntaxTreeJson.getAsJsonObject().addProperty(PATH_PROPERTY, true);
         Node node = BallerinaSyntaxTreeByRangeUtil.getNode(range, syntaxTree);
+
+        if (node == syntaxTree.rootNode()) {
+            return syntaxTreeJson;
+        }
+
         return findNodePath(syntaxTreeJson, syntaxTree, node);
     }
 
     private static JsonElement findNodePath (JsonElement syntaxTreeJson, SyntaxTree syntaxTree, Node node) {
-        syntaxTreeJson.getAsJsonObject().addProperty(PATH_PROPERTY, true);
         Optional<JsonElement> temp = Optional.of(syntaxTreeJson);
 
         while (temp.isPresent()) {
