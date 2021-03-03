@@ -152,7 +152,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             // Get the generated syntax tree JSON with type info.
             JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(srcFile.get(), semanticModel.get());
 
-            //Map the path on the object
+            //Map the path on the JSON syntax tree object
             syntaxTreeJSON = BallerinaSyntaxTreePathUtil.mapNodePath(request.getLineRange(), syntaxTree,
                     syntaxTreeJSON);
 
@@ -162,7 +162,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             reply.setParseSuccess(reply.getSyntaxTree() != null);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
-            String msg = "Operation 'ballerinaDocument/syntaxTreeByRange' failed!";
+            String msg = "Operation 'ballerinaDocument/syntaxTreePath' failed!";
             this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);

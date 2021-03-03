@@ -31,9 +31,8 @@ import org.eclipse.lsp4j.Range;
 import java.util.Optional;
 
 /**
- * This is the BallerinaSyntaxTreeByRange class for related utils in retrieving the ST for a given selection.
+ * This is the BallerinaSyntaxTreeByRangeUtil class for related utils in retrieving the ST for a given selection.
  */
-
 public class BallerinaSyntaxTreeByRangeUtil {
     public static Node getNode(Range range, SyntaxTree syntaxTree) {
         TextDocument textDocument = syntaxTree.textDocument();
@@ -76,7 +75,8 @@ public class BallerinaSyntaxTreeByRangeUtil {
             int offsetWithMinutiae = offset + internalChildNode.textRangeWithMinutiae().length();
             if (textRange.startOffset() >= offset && textRange.endOffset() <= offsetWithMinutiae) {
                 return Optional.ofNullable(internalChildNode);
-            } else if (textRange.startOffset() <= offset && textRange.endOffset() >= offsetWithMinutiae) {
+            } 
+            if (textRange.startOffset() <= offset && textRange.endOffset() > offsetWithMinutiae) {
                 return Optional.empty();
             }
 

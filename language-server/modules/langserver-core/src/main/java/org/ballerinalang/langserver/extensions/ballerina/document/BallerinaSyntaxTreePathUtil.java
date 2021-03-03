@@ -16,19 +16,22 @@ import java.util.Optional;
  * This is the BallerinaSyntaxTreePathUtil class for related utils in retrieving the location of syntax nodes
  * for a given selection.
  */
-
 public class BallerinaSyntaxTreePathUtil {
+    private static final String POSITION = "position";
+    private static final String PATH_PROPERTY = "isNodePath";
+
     public static JsonElement mapNodePath(Range range, SyntaxTree syntaxTree, JsonElement syntaxTreeJson) {
         Node node = BallerinaSyntaxTreeByRangeUtil.getNode(range, syntaxTree);
         return findNodePath(syntaxTreeJson, syntaxTree, node);
     }
 
     private static JsonElement findNodePath (JsonElement syntaxTreeJson, SyntaxTree syntaxTree, Node node) {
-        syntaxTreeJson.getAsJsonObject().addProperty("isNodePath", true);
+        syntaxTreeJson.getAsJsonObject().addProperty(PATH_PROPERTY, true);
         Optional<JsonElement> temp = Optional.of(syntaxTreeJson);
 
         while (temp.isPresent()) {
-            if (temp.get().isJsonObject() && temp.get().getAsJsonObject().has("isToken")) {
+            JsonElement tempNode = temp.get();
+            if (tempNode.isJsonObject() && tempNode.getAsJsonObject().has("isToken")) {
                 break;
             }
             temp = findChildren(syntaxTree, node, temp.get());
@@ -41,20 +44,22 @@ public class BallerinaSyntaxTreePathUtil {
             if (childEntry.getValue().isJsonArray()) {
                 for (JsonElement childProps: childEntry.getValue().getAsJsonArray()) {
                     Integer isPath = checkRange(syntaxTree, node, childProps,
-                            childProps.getAsJsonObject().get("position").getAsJsonObject());
+                            childProps.getAsJsonObject().get(POSITION).getAsJsonObject());
                     if (isPath > 0) {
                         return Optional.of(childProps);
-                    } else if (isPath < 0) {
+                    }
+                    if (isPath < 0) {
                         return Optional.empty();
                     }
                 }
             } else if (childEntry.getValue().isJsonObject()
-                    && childEntry.getValue().getAsJsonObject().has("position")) {
+                    && childEntry.getValue().getAsJsonObject().has(POSITION)) {
                 Integer isPath = checkRange(syntaxTree, node, childEntry.getValue(),
-                        childEntry.getValue().getAsJsonObject().get("position").getAsJsonObject());
+                            childEntry.getValue().getAsJsonObject().get(POSITION).getAsJsonObject());
                 if (isPath > 0) {
                     return Optional.ofNullable(childEntry.getValue());
-                } else if (isPath < 0) {
+                }
+                if (isPath < 0) {
                     return Optional.empty();
                 }
             }
@@ -72,7 +77,7 @@ public class BallerinaSyntaxTreePathUtil {
         TextRange textRange = TextRange.from(start, end - start);
 
         if (textRange.intersectionExists(node.textRange())) {
-            jsonNode.getAsJsonObject().addProperty("isNodePath", true);
+            jsonNode.getAsJsonObject().addProperty(PATH_PROPERTY, true);
             if (textRange.equals(node.textRange())) {
                 return -1;
             }

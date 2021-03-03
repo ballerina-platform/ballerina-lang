@@ -24,7 +24,6 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
  * Represents a request for a Ballerina SyntaxTree by Range.
  *
  */
-
 public class BallerinaSyntaxTreeByRangeRequest {
 
     private TextDocumentIdentifier documentIdentifier;
