@@ -128,7 +128,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
-    public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeNodePath(
+    public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreePath(
             BallerinaSyntaxTreeByRangeRequest request) {
         BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
         String fileUri = request.getDocumentIdentifier().getUri();
@@ -153,7 +153,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(srcFile.get(), semanticModel.get());
 
             //Map the path on the object
-            syntaxTreeJSON = BallerinaSyntaxTreeNodePathUtil.mapNodePath(request.getLineRange(), syntaxTree,
+            syntaxTreeJSON = BallerinaSyntaxTreePathUtil.mapNodePath(request.getLineRange(), syntaxTree,
                     syntaxTreeJSON);
 
             // Preparing the response.
