@@ -19,14 +19,18 @@
 package io.ballerina.projects.bala;
 
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
+import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * {@code BalaProject} represents a Ballerina project instance created from a bala.
@@ -57,6 +61,18 @@ public class BalaProject extends Project {
     @Override
     public DocumentId documentId(Path file) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<Path> documentPath(DocumentId documentId) {
+        for (ModuleId moduleId : currentPackage().moduleIds()) {
+            Module module = currentPackage().module(moduleId);
+            Path modulePath = sourceRoot.resolve(ProjectConstants.MODULES_ROOT).resolve(module.moduleName().toString());
+            if (module.documentIds().contains(documentId)) {
+                return Optional.of(modulePath.resolve(module.document(documentId).name()));
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

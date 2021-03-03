@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
  */
 public class TestBalaWriter extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
-    private static final Path BALA_PATH = RESOURCE_DIRECTORY.resolve("tmpBalaDir");
+    private static final Path BALA_PATH = Paths.get("build").resolve("tmpBalaDir");
 
 
     @BeforeTest

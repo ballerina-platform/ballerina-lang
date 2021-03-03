@@ -22,6 +22,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageName;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
@@ -58,6 +59,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.StringJoiner;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
@@ -534,6 +536,17 @@ public class ProjectUtils {
             content.append("\n");
         }
         return String.valueOf(content);
+    }
+
+    public static List<PackageName> getPossiblePackageNames(String moduleName) {
+        String[] modNameParts = moduleName.split("\\.");
+        StringJoiner pkgNameBuilder = new StringJoiner(".");
+        List<PackageName> possiblePkgNames = new ArrayList<>(modNameParts.length);
+        for (String modNamePart : modNameParts) {
+            pkgNameBuilder.add(modNamePart);
+            possiblePkgNames.add(PackageName.from(pkgNameBuilder.toString()));
+        }
+        return possiblePkgNames;
     }
 
     /**

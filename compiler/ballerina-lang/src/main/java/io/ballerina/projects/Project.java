@@ -17,11 +17,15 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
@@ -97,5 +101,43 @@ public abstract class Project {
 
     public abstract DocumentId documentId(Path file);
 
+    public abstract Optional<Path> documentPath(DocumentId documentId);
+
+    public Path dependencyFilePath(String org, String moduleName, String filename) {
+        List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(moduleName);
+        for (PackageName possiblePackageName : possiblePackageNames) {
+            PackageResolution resolution = currentPackage().getResolution();
+            for (ResolvedPackageDependency resolvedPackageDependency : resolution.dependencyGraph().getNodes()) {
+                if (resolvedPackageDependency.packageInstance().packageOrg().value().equals(org) &&
+                        resolvedPackageDependency.packageInstance().packageName().equals(possiblePackageName)) {
+                    ModuleName modName = findModuleName(possiblePackageName, moduleName);
+                    Module module = resolvedPackageDependency.packageInstance().module(modName);
+                    if (module != null) {
+                        for (DocumentId documentId : module.documentIds()) {
+                            if (module.document(documentId).name().equals(filename)) {
+                                Project dependencyProject = resolvedPackageDependency.packageInstance().project();
+                                Optional<Path> documentPath = dependencyProject.documentPath(documentId);
+                                if (documentPath.isPresent()) {
+                                    return documentPath.get();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        throw new ProjectException("no matching file '" + filename + "' found in dependency graph in '" +
+                org + "/" + moduleName + "'");
+    }
+
     public abstract void save();
+
+    private ModuleName findModuleName(PackageName packageName, String moduleNameStr) {
+        if (packageName.value().equals(moduleNameStr)) {
+            return ModuleName.from(packageName);
+        } else {
+            String moduleNamePart = moduleNameStr.substring(packageName.value().length() + 1);
+            return ModuleName.from(packageName, moduleNamePart);
+        }
+    }
 }

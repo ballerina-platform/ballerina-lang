@@ -22,9 +22,12 @@ import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDependencyScope;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -34,12 +37,14 @@ import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
@@ -110,6 +115,7 @@ public class BuildProject extends Project {
         return Optional.empty();
     }
 
+    @Override
     public Optional<Path> documentPath(DocumentId documentId) {
         for (ModuleId moduleId : currentPackage().moduleIds()) {
             Module module = currentPackage().module(moduleId);

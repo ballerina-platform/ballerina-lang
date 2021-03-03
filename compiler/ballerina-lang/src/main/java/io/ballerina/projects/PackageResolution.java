@@ -27,6 +27,7 @@ import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
+import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -37,10 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
-
-import static io.ballerina.projects.PackageName.LANG_LIB_PACKAGE_NAME_PREFIX;
 
 /**
  * Resolves dependencies and handles version conflicts in the dependency graph.
@@ -413,8 +411,7 @@ public class PackageResolution {
             }
 
             PackageOrg packageOrg = importModuleRequest.packageOrg();
-            List<PackageName> possiblePkgNames;
-            possiblePkgNames = getPossiblePackageNames(importModuleRequest);
+            List<PackageName> possiblePkgNames = ProjectUtils.getPossiblePackageNames(importModuleRequest.moduleName());
             for (PackageName possiblePkgName : possiblePkgNames) {
                 if (packageOrg.equals(rootPackageContext.packageOrg()) &&
                         possiblePkgName.equals(rootPackageContext.packageName())) {
@@ -488,27 +485,6 @@ public class PackageResolution {
                 depGraphBuilder.mergeGraph(resolvedPackage.packageContext().dependencyGraph(),
                         PackageDependencyScope.TEST_ONLY);
             }
-        }
-
-        private List<PackageName> getPossiblePackageNames(ImportModuleRequest importModuleRequest) {
-            if (langLibPackage(importModuleRequest.packageOrg(), importModuleRequest.moduleName())) {
-                return Collections.singletonList(PackageName.from(importModuleRequest.moduleName()));
-            }
-            String[] modNameParts = importModuleRequest.moduleName().split("\\.");
-            StringJoiner pkgNameBuilder = new StringJoiner(".");
-            List<PackageName> possiblePkgNames = new ArrayList<>(modNameParts.length);
-            for (String modNamePart : modNameParts) {
-                pkgNameBuilder.add(modNamePart);
-                possiblePkgNames.add(PackageName.from(pkgNameBuilder.toString()));
-            }
-            return possiblePkgNames;
-        }
-
-        private boolean langLibPackage(PackageOrg packageOrg, String moduleName) {
-            if (packageOrg.isBallerinaOrg()) {
-                return moduleName.startsWith(LANG_LIB_PACKAGE_NAME_PREFIX) || moduleName.equals(Names.JAVA.toString());
-            }
-            return false;
         }
     }
 }
