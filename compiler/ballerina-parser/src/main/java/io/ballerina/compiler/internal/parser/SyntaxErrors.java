@@ -289,11 +289,13 @@ public class SyntaxErrors {
             case GT_TOKEN:
             case XML_START_OR_EMPTY_TAG_END:
             case XML_ATTRIBUTES:
+            case INFERRED_TYPEDESC_DEFAULT_END_GT:
                 return DiagnosticErrorCode.ERROR_MISSING_GT_TOKEN;
             case LT:
             case LT_TOKEN:
             case XML_START_OR_EMPTY_TAG:
             case XML_END_TAG:
+            case INFERRED_TYPEDESC_DEFAULT_START_LT:
                 return DiagnosticErrorCode.ERROR_MISSING_LT_TOKEN;
             case SYNC_SEND_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_SYNC_SEND_TOKEN;

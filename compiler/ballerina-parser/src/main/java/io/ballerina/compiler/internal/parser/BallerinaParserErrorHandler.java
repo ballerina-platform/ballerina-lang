@@ -758,6 +758,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] MODULE_VAR_WITHOUT_SECOND_QUAL =
             { ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.MODULE_VAR_THIRD_QUAL };
 
+    private static final ParserRuleContext[] EXPR_START_OR_INFERRED_TYPEDESC_DEFAULT_START =
+            { ParserRuleContext.TERMINAL_EXPRESSION, ParserRuleContext.INFERRED_TYPEDESC_DEFAULT_START_LT };
+
+    private static final ParserRuleContext[] TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END =
+            { ParserRuleContext.TYPE_CAST_PARAM_START, ParserRuleContext.INFERRED_TYPEDESC_DEFAULT_END_GT };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -1093,9 +1099,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = isParameterizedTypeToken(nextToken.kind);
                     break;
                 case LT:
+                case INFERRED_TYPEDESC_DEFAULT_START_LT:
                     hasMatch = nextToken.kind == SyntaxKind.LT_TOKEN;
                     break;
                 case GT:
+                case INFERRED_TYPEDESC_DEFAULT_END_GT:
                     hasMatch = nextToken.kind == SyntaxKind.GT_TOKEN;
                     break;
                 case FIELD_IDENT:
@@ -1607,6 +1615,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MODULE_VAR_DECL_START:
             case MODULE_VAR_WITHOUT_FIRST_QUAL:
             case MODULE_VAR_WITHOUT_SECOND_QUAL:
+            case EXPR_START_OR_INFERRED_TYPEDESC_DEFAULT_START:
+            case TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END:
                 return true;
             default:
                 return false;
@@ -1924,6 +1934,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case OBJECT_TYPE_WITHOUT_FIRST_QUALIFIER:
                 alternativeRules = OBJECT_TYPE_WITHOUT_FIRST_QUALIFIER;
+                break;
+            case EXPR_START_OR_INFERRED_TYPEDESC_DEFAULT_START:
+                alternativeRules = EXPR_START_OR_INFERRED_TYPEDESC_DEFAULT_START;
+                break;
+            case TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END:
+                alternativeRules = TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2981,8 +2997,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.LT;
             case LT:
                 return getNextRuleForLt();
+            case INFERRED_TYPEDESC_DEFAULT_START_LT:
+                return ParserRuleContext.INFERRED_TYPEDESC_DEFAULT_END_GT;
             case GT:
                 return getNextRuleForGt(nextLookahead);
+            case INFERRED_TYPEDESC_DEFAULT_END_GT:
+                return getNextRuleForExpr();
+            case TYPE_CAST_PARAM_START:
+                startContext(ParserRuleContext.TYPE_CAST);
+                return ParserRuleContext.TYPE_CAST_PARAM;
             case TEMPLATE_END:
                 return ParserRuleContext.EXPRESSION_RHS;
             case TEMPLATE_START:
@@ -5178,8 +5201,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RIGHT_ARROW:
                 return SyntaxKind.RIGHT_ARROW_TOKEN;
             case GT:
+            case INFERRED_TYPEDESC_DEFAULT_END_GT:
                 return SyntaxKind.GT_TOKEN;
             case LT:
+            case INFERRED_TYPEDESC_DEFAULT_START_LT:
                 return SyntaxKind.LT_TOKEN;
             case STMT_START_WITH_EXPR_RHS:
                 return SyntaxKind.EQUAL_TOKEN;
