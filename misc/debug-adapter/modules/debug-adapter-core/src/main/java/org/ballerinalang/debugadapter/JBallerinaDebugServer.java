@@ -156,6 +156,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
+    private static final String CONDITION_TRUE = "true";
 
     public JBallerinaDebugServer() {
         context = new ExecutionContext(this);
@@ -176,10 +177,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsConfigurationDoneRequest(true);
         capabilities.setSupportsTerminateRequest(true);
         capabilities.setSupportTerminateDebuggee(true);
+        capabilities.setSupportsConditionalBreakpoints(true);
         // Todo - Implement
         capabilities.setSupportsCompletionsRequest(false);
         capabilities.setSupportsRestartRequest(false);
-        capabilities.setSupportsConditionalBreakpoints(true);
         // unsupported capabilities
         capabilities.setSupportsHitConditionalBreakpoints(false);
         capabilities.setSupportsModulesRequest(false);
@@ -200,18 +201,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
                 .toArray(Breakpoint[]::new);
 
-        BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
-            .map((SourceBreakpoint sourceBreakpoint) -> toBalBreakpoint(sourceBreakpoint, args.getSource()))
-            .toArray(BalBreakpoint[]::new);
-
-        Map<Integer, BalBreakpoint> balBreakpointsMap = new HashMap<>();
-        for (BalBreakpoint bp: balBreakpoints) {
-            balBreakpointsMap.put(bp.getLine().intValue(), bp);
+        Map<Integer, SourceBreakpoint> sourceBreakpoints = new HashMap<>();
+        for (SourceBreakpoint sourceBreakpoint: args.getBreakpoints()) {
+            sourceBreakpoints.put(sourceBreakpoint.getLine().intValue(), sourceBreakpoint);
         }
         SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
         breakpointsResponse.setBreakpoints(breakpoints);
         String path = args.getSource().getPath();
-        eventProcessor.setBalBreakpoints(path, balBreakpointsMap);
+        eventProcessor.setBreakpoints(path, breakpoints, sourceBreakpoints);
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
 
@@ -472,16 +469,17 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
     }
 
-    public Value evaluateExpression(String expression, ThreadReference threadReference) {
+    public boolean evaluateBreakpointCondition(String expression, ThreadReference threadReference) {
         try {
             StackFrameProxyImpl frame = getAllThreads().get(threadReference.uniqueID()).frame(0);
             SuspendedContext ctx = new SuspendedContext(project, context.getDebuggeeVM(),
                     getAllThreads().get(threadReference.uniqueID()), frame);
             ExpressionEvaluator evaluator = new ExpressionEvaluator(ctx);
-            return evaluator.evaluate(expression);
+            String condition = evaluator.evaluate(expression).toString();
+            return condition.equalsIgnoreCase(CONDITION_TRUE);
         } catch (JdiProxyException e) {
             LOGGER.error(e.getMessage(), e);
-            return null;
+            return false;
         }
     }
 
@@ -497,15 +495,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         breakpoint.setSource(source);
         breakpoint.setVerified(true);
         return breakpoint;
-    }
-
-    private BalBreakpoint toBalBreakpoint(SourceBreakpoint sourceBreakpoint, Source source) {
-        BalBreakpoint balBreakpoint = new BalBreakpoint();
-        balBreakpoint.setLine(sourceBreakpoint.getLine());
-        balBreakpoint.setSource(source);
-        balBreakpoint.setVerified(true);
-        balBreakpoint.setCondition(sourceBreakpoint.getCondition());
-        return balBreakpoint;
     }
 
     private Thread toThread(ThreadReferenceProxyImpl threadReference) {
