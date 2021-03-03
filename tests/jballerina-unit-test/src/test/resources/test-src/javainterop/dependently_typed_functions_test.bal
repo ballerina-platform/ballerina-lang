@@ -674,26 +674,25 @@ function testArgsForDependentlyTypedFunctionViaRecordRestArg() {
     int|error d = getWithUnion(...c);
     assert(11, checkpanic d);
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/28774
-    //IJ e = {i: 0, j: string};
-    //string|boolean f = getWithRestParam(...e);
-    //assert(true, f);
-    //
-    //record {| typedesc<string> j = string; |} g = {};
-    //string|boolean h = getWithRestParam(1, ...g);
-    //assert(false, h);
-    //
-    //IJK m = {i: 1, j: string, k: int};
-    //int|string|boolean n = getWithMultipleTypedescs(...m);
-    //assert(true, n);
-    //
-    //record {| typedesc<string> j = string; typedesc<int> k; |} o = {k: int};
-    //int|string|boolean p = getWithMultipleTypedescs(1, ...o);
-    //assert(true, p);
-    //
-    //record {| int i; typedesc<byte> j = byte; typedesc<byte> k; |} q = {i: 1, k: byte};
-    //byte|boolean r = getWithMultipleTypedescs(...q);
-    //assert(true, r);
+    IJ e = {i: 0, j: string};
+    string|boolean f = getWithRestParam(...e);
+    assert(true, f);
+
+    record {| typedesc<string> j = string; |} g = {};
+    string|boolean h = getWithRestParam(1, ...g);
+    assert(false, h);
+
+    IJK m = {i: 1, j: string, k: int};
+    int|string|boolean n = getWithMultipleTypedescs(...m);
+    assert(true, n);
+
+    record {| typedesc<string> j = string; typedesc<int> k; |} o = {k: int};
+    int|string|boolean p = getWithMultipleTypedescs(1, ...o);
+    assert(true, p);
+
+    record {| int i; typedesc<byte> j = byte; typedesc<byte> k; |} q = {i: 1, k: byte};
+    byte|boolean r = getWithMultipleTypedescs(...q);
+    assert(true, r);
 }
 
 // Util functions
