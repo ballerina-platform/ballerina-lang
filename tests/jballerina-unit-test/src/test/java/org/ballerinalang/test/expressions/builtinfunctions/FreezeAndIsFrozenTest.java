@@ -419,14 +419,6 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test
-    public void testStructureWithErrorValueFreeze() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructureWithErrorValueFreeze", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
     public void testFrozenValueUpdatePanicWithCheckTrap() {
         BValue[] returns = BRunUtil.invoke(result, "testFrozenValueUpdatePanicWithCheckTrap", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
