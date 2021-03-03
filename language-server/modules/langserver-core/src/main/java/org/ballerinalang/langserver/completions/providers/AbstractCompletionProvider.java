@@ -168,10 +168,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                         typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == PARAMETER) {
-                ParameterSymbol varSymbol = (ParameterSymbol) symbol;
-                TypeSymbol typeDesc = (varSymbol).typeDescriptor();
-                String typeName = typeDesc == null ? "" : CommonUtil.getModifiedTypeName(ctx, typeDesc);
-                CompletionItem variableCItem = ParameterCompletionItemBuilder.build(varSymbol.getName().get(),
+                ParameterSymbol paramSymbol = (ParameterSymbol) symbol;
+                TypeSymbol typeDesc = paramSymbol.typeDescriptor();
+                String typeName = CommonUtil.getModifiedTypeName(ctx, typeDesc);
+                CompletionItem variableCItem = ParameterCompletionItemBuilder.build(paramSymbol.getName().get(),
                                                                                     typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
