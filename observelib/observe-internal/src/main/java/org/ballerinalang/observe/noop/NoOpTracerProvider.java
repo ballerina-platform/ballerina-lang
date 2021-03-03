@@ -34,7 +34,7 @@ public class NoOpTracerProvider implements TracerProvider {
 
     @Override
     public void init() {
-        instance = Tracer.getDefault();
+        instance = io.opentelemetry.api.trace.TracerProvider.noop().get("");
     }
 
     @Override

@@ -23,7 +23,8 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
-import io.opentelemetry.context.propagation.TextMapPropagator;
+import io.opentelemetry.context.propagation.TextMapGetter;
+import io.opentelemetry.context.propagation.TextMapSetter;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -98,21 +99,20 @@ public class BSpan {
      */
     public static BSpan start(HttpExchange httpExchange, String serviceName, String operationName, boolean isClient) {
 
-        TextMapPropagator.Getter<HttpExchange> getter =
-                new TextMapPropagator.Getter<>() {
-                    @Override
-                    public String get(HttpExchange carrier, String key) {
-                        if (carrier != null && carrier.getRequestHeaders().containsKey(key)) {
-                            return carrier.getRequestHeaders().get(key).get(0);
-                        }
-                        return null;
-                    }
+        TextMapGetter<HttpExchange> getter = new TextMapGetter<>() {
+            @Override
+            public String get(HttpExchange carrier, String key) {
+                if (carrier != null && carrier.getRequestHeaders().containsKey(key)) {
+                    return carrier.getRequestHeaders().get(key).get(0);
+                }
+                return null;
+            }
 
-                    @Override
-                    public Iterable<String> keys(HttpExchange carrier) {
-                        return carrier.getRequestHeaders().keySet();
-                    }
-                };
+            @Override
+            public Iterable<String> keys(HttpExchange carrier) {
+                return carrier.getRequestHeaders().keySet();
+            }
+        };
 
         Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
         Context parentContext = TracersStore.getInstance().getPropagators()
@@ -140,7 +140,7 @@ public class BSpan {
         Map<String, String> carrierMap;
         if (span != null) {
 
-            TextMapPropagator.Setter<HttpURLConnection> setter = (carrier, key, value) -> {
+            TextMapSetter<HttpURLConnection> setter = (carrier, key, value) -> {
                 if (carrier != null) {
                     carrier.setRequestProperty(key, value);
                 }
