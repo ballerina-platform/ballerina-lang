@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.JvmTarget;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.PackageSearchResult;
@@ -124,7 +125,9 @@ public class SearchCommand implements BLauncherCmd {
             Settings settings = readSettings();
             Proxy proxy = initializeProxy(settings.getProxy());
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
-            PackageSearchResult packageSearchResult = client.searchPackage(query);
+            PackageSearchResult packageSearchResult = client.searchPackage(query,
+                                                                           JvmTarget.JAVA_11.code(),
+                                                                           RepoUtils.getBallerinaVersion());
 
             if (packageSearchResult.getCount() > 0) {
                 printPackages(packageSearchResult.getPackages(), RepoUtils.getTerminalWidth());

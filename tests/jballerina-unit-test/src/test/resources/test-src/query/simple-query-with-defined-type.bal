@@ -347,8 +347,13 @@ public function testQueryWithStream() returns boolean {
     int[]|error oddNumberList = from int num in numberStream
                                  where (num % 2 == 1)
                                  select num;
-    return oddNumberList == [1, 3, 5];
+    if (oddNumberList is error) {
+        return false;
+    } else {
+        return oddNumberList == [1, 3, 5];
+    }
 }
+
 
 public function testQueryStreamWithError() returns int[]|error {
     NumberGeneratorWithError numGen = new;

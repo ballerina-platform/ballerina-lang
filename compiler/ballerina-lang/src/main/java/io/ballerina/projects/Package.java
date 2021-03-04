@@ -235,6 +235,7 @@ public class Package {
 
         Modifier updateModule(ModuleContext newModuleContext) {
             this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
+            resetDependantModules(newModuleContext.moduleId());
             return this;
         }
 
@@ -247,17 +248,6 @@ public class Package {
         public Modifier addModule(ModuleConfig moduleConfig) {
             ModuleContext newModuleContext = ModuleContext.from(this.project, moduleConfig);
             this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
-            return this;
-        }
-
-        /**
-         * Creates a copy of the existing package and removes the module from the new package.
-         *
-         * @param moduleId moduleId of the module to remove
-         * @return Package.Modifier which contains the updated package
-         */
-        public Modifier removeModule(ModuleId moduleId) {
-            moduleContextMap.remove(moduleId);
             return this;
         }
 
@@ -385,6 +375,30 @@ public class Package {
         Modifier updatePackageMd(MdDocumentContext packageMd) {
             this.packageMdContext = packageMd;
             return this;
+        }
+
+        private void resetDependantModules(ModuleId updatedModuleId) {
+            List<ModuleId> dependantList = new ArrayList<>();
+            for (Map.Entry<ModuleId, ModuleContext> moduleContextEntry : this.moduleContextMap.entrySet()) {
+                if (moduleContextEntry.getKey() != updatedModuleId) {
+                    Collection<ModuleDependency> dependencies = moduleContextEntry.getValue().dependencies();
+                    if (dependencies == null) {
+                        continue;
+                    }
+                    for (ModuleDependency moduleDependency : dependencies) {
+                        if (moduleDependency.moduleId().equals(updatedModuleId)) {
+                            ModuleId key = moduleContextEntry.getKey();
+                            dependantList.add(key);
+                        }
+                    }
+                }
+            }
+            for (ModuleId moduleId : dependantList) {
+                Module oldModule = this.project.currentPackage().module(moduleId);
+                // recursively reset transitively dependant modules as well
+                Module module = oldModule.modify().apply();
+                this.moduleContextMap.put(module.moduleId(), module.moduleContext());
+            }
         }
     }
 }

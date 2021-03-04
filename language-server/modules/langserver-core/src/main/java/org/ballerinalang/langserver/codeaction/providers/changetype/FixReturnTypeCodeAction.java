@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -31,6 +33,7 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -56,18 +59,22 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
+                                                    CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
 
-        if (context.positionDetails().matchedNode().kind() != SyntaxKind.RETURN_STATEMENT) {
+        ReturnStatementNode returnStatementNode = getReturnStatement(positionDetails.matchedNode());
+        if (returnStatementNode == null) {
             return Collections.emptyList();
         }
+
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnostic.message());
         if (matcher.find() && matcher.groupCount() > 1) {
             String foundType = matcher.group(2);
-            FunctionDefinitionNode funcDef = getFunctionNode(context);
+            FunctionDefinitionNode funcDef = getFunctionNode(positionDetails);
             if (!RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.functionName().text())) {
                 // Process full-qualified BType name  eg. ballerina/http:Client and if required; add
                 // auto-import
@@ -90,7 +97,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
                     LinePosition retStart = returnTypeDesc.type().lineRange().startLine();
                     LinePosition retEnd = returnTypeDesc.type().lineRange().endLine();
                     start = new Position(retStart.line(),
-                            retStart.offset());
+                                         retStart.offset());
                     end = new Position(retEnd.line(), retEnd.offset());
                 }
                 edits.add(new TextEdit(new Range(start, end), editText));
@@ -103,8 +110,16 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         return Collections.emptyList();
     }
 
-    private FunctionDefinitionNode getFunctionNode(CodeActionContext context) {
-        Node parent = context.positionDetails().matchedNode();
+    private ReturnStatementNode getReturnStatement(NonTerminalNode node) {
+        while (node != null && node.kind() != SyntaxKind.RETURN_STATEMENT) {
+            node = node.parent();
+        }
+
+        return node != null ? (ReturnStatementNode) node : null;
+    }
+    
+    private FunctionDefinitionNode getFunctionNode(DiagBasedPositionDetails positionDetails) {
+        Node parent = positionDetails.matchedNode();
         while (parent.kind() != SyntaxKind.FUNCTION_DEFINITION) {
             parent = parent.parent();
         }
@@ -113,7 +128,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
     private static String extractTypeName(Matcher matcher, CodeActionContext context, String foundType,
                                           List<TextEdit> edits) {
-        Optional<SyntaxTree> syntaxTree = context.workspace().syntaxTree(context.filePath());
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
         if (matcher.find() && matcher.groupCount() > 2 && syntaxTree.isPresent()) {
             String orgName = matcher.group(1);
             String moduleName = matcher.group(2);

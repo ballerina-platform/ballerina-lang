@@ -40,6 +40,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.PlatformLibraryScope;
@@ -706,34 +707,6 @@ public class TestBuildProject {
     }
 
     @Test
-    public void testRemoveModule() {
-        Path filePath =
-                RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("storage")
-                        .toAbsolutePath();
-        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        Package oldPackage = buildProject.currentPackage();
-        // get module to remove
-        Module module = buildProject.currentPackage().module(ModuleName.from(
-                buildProject.currentPackage().packageName(), filePath.getFileName().toString()));
-
-        ModuleId removeId = module.moduleId();
-        Package newPackage = oldPackage.modify().removeModule(removeId).apply();
-
-        Assert.assertEquals(newPackage.moduleIds().size(), (oldPackage.moduleIds().size() - 1));
-        Assert.assertEquals(newPackage.moduleIds().size(), 2);
-        Assert.assertTrue(oldPackage.moduleIds().contains(removeId));
-        Assert.assertFalse(newPackage.moduleIds().contains(removeId));
-
-        for (ModuleId moduleId : oldPackage.moduleIds()) {
-            if (moduleId == removeId) {
-                Assert.assertFalse(newPackage.moduleIds().contains(moduleId));
-            } else {
-                Assert.assertTrue(newPackage.moduleIds().contains(moduleId));
-            }
-        }
-    }
-
-    @Test
     public void testAccessNonExistingDocument() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("db.bal").toAbsolutePath();
@@ -1038,6 +1011,109 @@ public class TestBuildProject {
             Package newPackage = newBallerinaToml.packageInstance();
         }
 
+    }
+
+    @Test
+    public void testEditDependantModuleDocument() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_for_module_edit_test");
+        String updatedFunctionStr = "public function concatStrings(string a, string b, string c) returns string {\n" +
+                "\treturn a + b;\n" +
+                "}\n";
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load current package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 0);
+
+        // 4) Edit a module that is used by another module
+        Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
+        DocumentId documentId = module.documentIds().stream().findFirst().get();
+        module.document(documentId).modify().withContent(updatedFunctionStr).apply();
+
+        PackageCompilation compilation1 = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+                "main.bal");
+        Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
+                .contains("missing required parameter 'c'"));
+    }
+
+    @Test
+    public void testRemoveDependantModuleDocument() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_for_module_edit_test");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load current package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 0);
+
+        // 4) Edit a module that is used by another module
+        Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
+        DocumentId documentId = module.documentIds().stream().findFirst().get();
+        module.modify().removeDocument(documentId).apply();
+
+        PackageCompilation compilation1 = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+                "main.bal");
+        Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
+                .contains("undefined function 'concatStrings'"));
+    }
+
+    @Test
+    public void testEditTransitivelyDependantModuleDocument() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_for_module_edit_test2");
+        String updatedFunctionStr = "public function concatStrings(string a, string b) returns string {\n" +
+                "\treturn a + b;\n" +
+                "}\n";
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load current package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 0);
+
+        // 4) Edit a module that is used by another module
+        Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
+        DocumentId documentId = module.documentIds().stream().findFirst().get();
+        module.document(documentId).modify().withContent(updatedFunctionStr).apply();
+
+        PackageCompilation compilation1 = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+                Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
+        Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
+                .contains("unknown type 'PersonalDetails'"));
     }
 
     @AfterClass (alwaysRun = true)

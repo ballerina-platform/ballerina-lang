@@ -18,6 +18,7 @@
 
 package io.ballerina.shell.parser.trials;
 
+import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 
@@ -28,7 +29,7 @@ import io.ballerina.tools.text.TextDocument;
  */
 public class ParserTrialFailedException extends Exception {
     public ParserTrialFailedException(TextDocument textDocument, Diagnostic diagnostic) {
-        super(io.ballerina.shell.Diagnostic.highlightDiagnostic(textDocument, diagnostic));
+        super(StringUtils.highlightDiagnostic(textDocument, diagnostic));
     }
 
     public ParserTrialFailedException(String message) {

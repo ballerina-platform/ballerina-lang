@@ -29,6 +29,12 @@ jobs:
                     packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
                 run: |
                     ./gradlew clean build -x createJavadoc --scan publish --continue --rerun-tasks
+                    ./gradlew createCodeCoverageReport
+                    
+            -   name: Generate Codecov Report
+                uses: codecov/codecov-action@v1
+                with:
+                    files: ./.jacoco/reports/jacoco/report.xml
 
             -   name: Trigger Standard Library Module Builds
                 run: |

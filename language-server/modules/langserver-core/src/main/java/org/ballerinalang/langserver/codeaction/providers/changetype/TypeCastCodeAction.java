@@ -18,12 +18,15 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
@@ -34,12 +37,14 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -57,18 +62,32 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
-        Node matchedNode = context.positionDetails().matchedNode();
-        if (matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
-                matchedNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
-                matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
+        Node matchedNode = getMatchedNode(positionDetails.matchedNode());
+        if (matchedNode == null) {
             return Collections.emptyList();
         }
+
+        Optional<TypeSymbol> rhsTypeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
+        if (rhsTypeSymbol.isEmpty()) {
+            return Collections.emptyList();
+        }
+        if (rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
+            // If RHS is a union and has error member type; skip code-action
+            UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) rhsTypeSymbol.get();
+            boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
+                    .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
+            if (hasErrorMemberType) {
+                return Collections.emptyList();
+            }
+        }
         Optional<ExpressionNode> expressionNode = getExpression(matchedNode);
-        Optional<TypeSymbol> variableTypeSymbol = getVariableTypeSymbol(matchedNode, context);
+        Optional<TypeSymbol> variableTypeSymbol = getVariableTypeSymbol(matchedNode, rhsTypeSymbol.get(), context);
         if (expressionNode.isEmpty() || variableTypeSymbol.isEmpty() ||
                 expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Collections.emptyList();
@@ -85,6 +104,16 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }
 
+    private NonTerminalNode getMatchedNode(NonTerminalNode node) {
+        List<SyntaxKind> syntaxKinds = Arrays.asList(SyntaxKind.LOCAL_VAR_DECL,
+                SyntaxKind.MODULE_VAR_DECL, SyntaxKind.ASSIGNMENT_STATEMENT);
+        while (node != null && !syntaxKinds.contains(node.kind())) {
+            node = node.parent();
+        }
+
+        return node;
+    }
+
     private Optional<ExpressionNode> getExpression(Node node) {
         if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             return ((VariableDeclarationNode) node).initializer();
@@ -97,11 +126,13 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         }
     }
 
-    protected Optional<TypeSymbol> getVariableTypeSymbol(Node matchedNode, CodeActionContext context) {
+    protected Optional<TypeSymbol> getVariableTypeSymbol(Node matchedNode,
+                                                         TypeSymbol typeSymbol,
+                                                         CodeActionContext context) {
         switch (matchedNode.kind()) {
             case LOCAL_VAR_DECL:
             case MODULE_VAR_DECL:
-                return Optional.of(context.positionDetails().matchedExprType());
+                return Optional.of(typeSymbol);
             case ASSIGNMENT_STATEMENT:
                 Optional<VariableSymbol> optVariableSymbol = getVariableSymbol(context, matchedNode);
                 if (optVariableSymbol.isEmpty()) {
@@ -115,10 +146,10 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
 
     protected Optional<VariableSymbol> getVariableSymbol(CodeActionContext context, Node matchedNode) {
         AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
+        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
+        Document srcFile = context.currentDocument().orElseThrow();
         Optional<Symbol> symbol = semanticModel.symbol(srcFile,
-                                                       assignmentStmtNode.varRef().lineRange().startLine());
+                assignmentStmtNode.varRef().lineRange().startLine());
         if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.VARIABLE) {
             return Optional.empty();
         }

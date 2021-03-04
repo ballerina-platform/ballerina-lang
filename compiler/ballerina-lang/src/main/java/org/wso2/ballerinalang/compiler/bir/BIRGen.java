@@ -205,7 +205,7 @@ public class BIRGen extends BLangNodeVisitor {
     private static final CompilerContext.Key<BIRGen> BIR_GEN =
             new CompilerContext.Key<>();
 
-    public static final String DEFAULT_WORKER_NAME = "default";
+    public static final String DEFAULT_WORKER_NAME = "function";
     public static final String CLONE_READ_ONLY = "cloneReadOnly";
     private BIRGenEnv env;
     private Names names;
@@ -297,8 +297,8 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private boolean listenerDeclarationFound(List<BLangSimpleVariable> globalVars) {
-        for (BLangSimpleVariable globalVar : globalVars) {
+    private boolean listenerDeclarationFound(List<BLangVariable> globalVars) {
+        for (BLangVariable globalVar : globalVars) {
             if (Symbols.isFlagOn(globalVar.symbol.flags, Flags.LISTENER)) {
                 return true;
             }
@@ -1407,15 +1407,8 @@ public class BIRGen extends BLangNodeVisitor {
 
         // seems like restArgs.size() is always 1 or 0, but lets iterate just in case
         for (BLangExpression arg : restArgs) {
-            if (arg.getKind() != NodeKind.IGNORE_EXPR) {
-                arg.accept(this);
-                args.add(new BIRArgument(ArgumentState.PROVIDED, this.env.targetOperand.variableDcl));
-            } else {
-                BIRVariableDcl birVariableDcl =
-                        new BIRVariableDcl(arg.type, new Name("_"), VarScope.FUNCTION, VarKind.ARG);
-                birVariableDcl.ignoreVariable = true;
-                args.add(new BIRArgument(ArgumentState.NOT_PROVIDED, birVariableDcl));
-            }
+            arg.accept(this);
+            args.add(new BIRArgument(ArgumentState.PROVIDED, this.env.targetOperand.variableDcl));
         }
 
         BIROperand fp = null;
@@ -2621,7 +2614,7 @@ public class BIRGen extends BLangNodeVisitor {
             if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
                 insKind = InstructionKind.XML_ATTRIBUTE_LOAD;
                 keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
-            } else if (astAccessExprExprType.tag == TypeTags.XML) {
+            } else if (TypeTags.isXMLTypeTag(astAccessExprExprType.tag)) {
                 generateXMLAccess((BLangXMLAccessExpr) astIndexBasedAccessExpr, tempVarRef, varRefRegIndex,
                         keyRegIndex);
                 this.varAssignment = variableStore;

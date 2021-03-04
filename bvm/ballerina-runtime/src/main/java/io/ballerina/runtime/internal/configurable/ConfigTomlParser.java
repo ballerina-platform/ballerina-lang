@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -57,12 +58,14 @@ import java.util.Map;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.DEFAULT_MODULE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.FIELD_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_BYTE_RANGE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_FIELD_IN_RECORD;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_TOML_FILE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_VARIABLE_TYPE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.REQUIRED_FIELD_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.SUBMODULE_DELIMITER;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.TABLE_KEY_NOT_PROVIDED;
+import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 
 /**
  * Toml parser for configurable implementation.
@@ -123,6 +126,7 @@ public class ConfigTomlParser {
         Object value;
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
@@ -264,15 +268,19 @@ public class ConfigTomlParser {
         Type constraintType = tableType.getConstrainedType();
         int tableSize = tableNodeList.size();
         ListInitialValueEntry.ExpressionEntry[] tableEntries = new ListInitialValueEntry.ExpressionEntry[tableSize];
+        String[] keys = tableType.getFieldNames();
         for (int i = 0; i < tableSize; i++) {
-            validateKeyField(tableNodeList.get(i), tableType.getFieldNames(), tableType, variableName);
+            if (keys != null) {
+                validateKeyField(tableNodeList.get(i), keys, tableType, variableName);
+            }
             Object value = retrieveRecordValues(tableNodeList.get(i), variableName, (BIntersectionType) constraintType);
             tableEntries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         ArrayValue tableData =
                 new ArrayValueImpl(TypeCreator.createArrayType(constraintType), tableSize, tableEntries);
-        return new TableValueImpl<>((BTableType) tableType, tableData,
-                (ArrayValue) StringUtils.fromStringArray(tableType.getFieldNames()));
+        ArrayValue keyNames = keys == null ? (ArrayValue) ValueCreator.createArrayValue(new BString[]{}) :
+                (ArrayValue) StringUtils.fromStringArray(keys);
+        return new TableValueImpl<>((BTableType) tableType, tableData, keyNames);
     }
 
     private static void validateKeyField(TomlTableNode recordTable, String[] fieldNames, Type tableType,
@@ -286,6 +294,13 @@ public class ConfigTomlParser {
     }
 
     private static Object getBalValue(String variableName, int typeTag, Object tomlValue) {
+        if (typeTag == TypeTags.BYTE_TAG) {
+            int value = ((Long) tomlValue).intValue();
+            if (!isByteLiteral(value)) {
+                throw new TomlException(String.format(INVALID_BYTE_RANGE, variableName, value));
+            }
+            return value;
+        }
         if (typeTag == TypeTags.DECIMAL_TAG) {
             return ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) tomlValue));
         }
@@ -301,6 +316,7 @@ public class ConfigTomlParser {
         TomlType tomlType;
         switch (expectedType.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
                 tomlType = TomlType.INTEGER;
                 break;
             case TypeTags.BOOLEAN_TAG:
