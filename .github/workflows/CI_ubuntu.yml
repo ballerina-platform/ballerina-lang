@@ -38,11 +38,14 @@ jobs:
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew build --max-workers=2 --scan --no-daemon
-          ./gradlew createCodeCoverageReport
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
+      - name: Generate Jacoco report
+        if:  github.event_name == 'pull_request'
+        run: ./gradlew createCodeCoverageReport
+
       - name: Generate Codecov Report
-          if: github.event_name == 'pull_request'
-          uses: codecov/codecov-action@v1
-          with:
-            files: ./.jacoco/reports/jacoco/report.xml
+        if:  github.event_name == 'pull_request'
+        uses: codecov/codecov-action@v1
+        with:
+          files: ./.jacoco/reports/jacoco/report.xml
