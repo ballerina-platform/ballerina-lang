@@ -270,7 +270,7 @@ public class RunTestsTask implements Task {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             CoverageReport coverageReport = new CoverageReport(module);
-            coverageReport.generateReport(jarResolver, moduleCoverageMap, jBallerinaBackend);
+            coverageReport.generateReport(moduleCoverageMap, jBallerinaBackend, this.includesInCoverage);
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
