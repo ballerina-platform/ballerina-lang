@@ -703,7 +703,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load type name
-        String name = getFullName(recordType);
+        String name = recordType.getDisplayName().value;
         mv.visitLdcInsn(name);
 
         // Load package path
@@ -731,18 +731,6 @@ public class JvmTypeGen {
         // initialize the record type
         mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE_IMPL, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;JZI)V", STRING_VALUE, MODULE), false);
-    }
-
-    private String getFullName(BRecordType recordType) {
-        String fullName;
-
-        if (recordType.shouldPrintShape()) {
-            fullName = recordType.toString();
-        } else {
-            // for non-shape values toString gives the org name + name, we only need the name
-            fullName = recordType.tsymbol.name.value;
-        }
-        return fullName;
     }
 
     /**

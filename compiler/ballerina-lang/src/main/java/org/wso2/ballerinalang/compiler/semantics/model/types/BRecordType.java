@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -69,6 +70,21 @@ public class BRecordType extends BStructureType implements RecordType {
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
+    }
+
+    public Name getDisplayName() {
+        if (this.immutableType != null &&
+            !this.immutableType.tsymbol.name.value.isEmpty()) {
+
+            return this.immutableType.tsymbol.name;
+        }
+
+        if (shouldPrintShape()) {
+            return new Name(toString());
+        } else {
+            // for non-shape values toString gives the org name + name, we only need the name
+            return this.tsymbol.name;
+        }
     }
 
     @Override

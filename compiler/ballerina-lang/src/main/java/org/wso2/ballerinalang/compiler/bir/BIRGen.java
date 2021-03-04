@@ -408,12 +408,11 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeDefinition astTypeDefinition) {
         BType type = getDefinedType(astTypeDefinition);
-        Name displayName = astTypeDefinition.symbol.name;
+        Name displayName;
         if (type.tag == TypeTags.RECORD) {
-            BRecordType recordType = (BRecordType) type;
-            if (recordType.shouldPrintShape()) {
-                displayName = new Name(recordType.toString());
-            }
+            displayName = ((BRecordType) type).getDisplayName();
+        } else {
+            displayName = astTypeDefinition.symbol.name;
         }
 
         BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
