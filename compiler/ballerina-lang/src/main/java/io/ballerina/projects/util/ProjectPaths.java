@@ -110,7 +110,7 @@ public class ProjectPaths {
      * @param filepath Ballerina file path
      * @return true if the path is a ballerina project related toml file.
      */
-    public static boolean isBallerinaRelatedToml(Path filepath) {
+    private static boolean isBallerinaRelatedToml(Path filepath) {
         String fileName = Optional.of(filepath.getFileName()).get().toString();
         switch (fileName) {
             case ProjectConstants.BALLERINA_TOML:
