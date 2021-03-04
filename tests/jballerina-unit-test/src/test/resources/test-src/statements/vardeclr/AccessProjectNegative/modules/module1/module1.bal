@@ -17,4 +17,3 @@
 public isolated string name = "Ballerina";
 
 public var id = 1001;
-

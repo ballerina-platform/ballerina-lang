@@ -16,5 +16,3 @@ function test2() {
     // This is to verify that the compilation continues.
     int y = 1
 }
-
-public int a;

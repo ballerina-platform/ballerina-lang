@@ -34,12 +34,11 @@ import static org.testng.Assert.assertEquals;
  */
 public class ModulePublicVariableTest {
 
-    private CompileResult compileResult, compileResultNegetive;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/statements/vardeclr/AccessProject");
-        compileResultNegetive = BCompileUtil.compile("test-src/statements/vardeclr/AccessProjectNegative");
     }
     
     @Test(dataProvider = "modulePublicVariableAccessData")
@@ -60,11 +59,13 @@ public class ModulePublicVariableTest {
 
     @Test
     public void testModulePublicVariableAccessNegative() {
+        CompileResult compileResultNegative =
+                BCompileUtil.compile("test-src/statements/vardeclr/AccessProjectNegative");
         int index = 0;
-        validateError(compileResultNegetive, index++, "isolated variable cannot be declared as public", 17, 8);
-        validateError(compileResultNegetive, index++, "variable declared with var cannot be public", 19, 8);
-        validateError(compileResultNegetive, index++, "attempt to refer to non-accessible symbol 'name'", 20, 21);
-        validateError(compileResultNegetive, index++, "undefined symbol 'name'", 20, 21);
-        assertEquals(compileResultNegetive.getErrorCount(), index);
+        validateError(compileResultNegative, index++, "isolated variable cannot be declared as public", 17, 8);
+        validateError(compileResultNegative, index++, "variable declared with var cannot be public", 19, 8);
+        validateError(compileResultNegative, index++, "attempt to refer to non-accessible symbol 'name'", 20, 21);
+        validateError(compileResultNegative, index++, "undefined symbol 'name'", 20, 21);
+        assertEquals(compileResultNegative.getErrorCount(), index);
     }
 }

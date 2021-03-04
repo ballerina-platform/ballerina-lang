@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import AccessProjectNegative.module1;
+import testorg/publicVariables;
 
-public function testVisibilityInDefaultModule() {
-    string myname = module1:name;
+public function testDefaultVisibility() {
+    int mynumber = publicVariables:number;
 }

@@ -26,6 +26,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.testng.Assert.assertEquals;
+
 /**
  * Public variable in BALA test.
  * 
@@ -37,7 +40,7 @@ public class PublicVariableBalaTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_public_var");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_public_var");
         compileResult = BCompileUtil.compile("test-src/bala/test_bala/globalvar/test_public_variable.bal");
     }
 
@@ -55,5 +58,15 @@ public class PublicVariableBalaTest {
                 "testPublicWithIsolatedFuncType",
                 "testPublicWithIsolatedObjectType",
         };
+    }
+
+    @Test
+    public void testModulePublicVariableAccessNegative() {
+        CompileResult compileResultNegetive =
+                BCompileUtil.compile("test-src/bala/test_bala/globalvar/test_public_variable_negetive.bal");
+        int index = 0;
+        validateError(compileResultNegetive, index++, "attempt to refer to non-accessible symbol 'number'", 20, 20);
+        validateError(compileResultNegetive, index++, "undefined symbol 'number'", 20, 20);
+        assertEquals(compileResultNegetive.getErrorCount(), index);
     }
 }
