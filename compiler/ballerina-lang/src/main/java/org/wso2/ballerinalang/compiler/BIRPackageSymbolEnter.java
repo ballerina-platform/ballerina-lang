@@ -1225,7 +1225,7 @@ public class BIRPackageSymbolEnter {
                     break;
                 case TypeTags.ERROR:
                     BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
-                                                                   env.pkgSymbol.pkgID, null, env.pkgSymbol.owner,
+                                                                   env.pkgSymbol.pkgID, null, env.pkgSymbol,
                                                                    symTable.builtinPos, COMPILED_SOURCE);
                     BErrorType errorType = new BErrorType(errorSymbol);
                     addShapeCP(errorType, cpI);
