@@ -25,7 +25,7 @@ import java.io.IOException;
  * Tests for {@link org.ballerinalang.langserver.completions.providers.context.VariableDeclarationProvider}
  * completion provider.
  */
-public class VariableDeclarationTest extends ExpressionContextTest {
+public class VariableDeclarationContextTest extends ExpressionContextTest {
 
     @Test(dataProvider = "completion-data-provider")
     @Override
