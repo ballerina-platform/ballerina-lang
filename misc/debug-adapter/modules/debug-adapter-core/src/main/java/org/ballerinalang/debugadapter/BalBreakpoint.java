@@ -69,7 +69,7 @@ public class BalBreakpoint {
         Breakpoint breakpoint = new Breakpoint();
         breakpoint.setLine(line);
         breakpoint.setSource(source);
-        breakpoint.setVerified(true);
+        breakpoint.setVerified(verified);
         return breakpoint;
     }
 }
