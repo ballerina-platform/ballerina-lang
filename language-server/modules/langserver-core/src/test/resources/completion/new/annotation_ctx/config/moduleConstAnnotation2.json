@@ -264,11 +264,29 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
       "label": "sourceConstAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
       "insertText": "sourceConstAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "display",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "display {\n\tlabel: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },

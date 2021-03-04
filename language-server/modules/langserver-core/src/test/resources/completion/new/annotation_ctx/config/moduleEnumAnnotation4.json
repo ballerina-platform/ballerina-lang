@@ -6,6 +6,15 @@
   "source": "annotation_ctx/source/moduleEnumAnnotation4.bal",
   "items": [
     {
+      "label": "annotationCommon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "annotationCommon {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
       "label": "typeAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
