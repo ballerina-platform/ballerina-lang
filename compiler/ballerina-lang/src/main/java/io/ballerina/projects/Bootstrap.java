@@ -96,8 +96,8 @@ public class Bootstrap {
 
         if (langLib.equals(INTERNAL)) {
             symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
-            symResolver.bootstrapIteratorType();
-            return; // Nothing else to load.
+            symResolver.bootstrapIterableType();
+            return;
         }
 
         // load internal
@@ -108,7 +108,7 @@ public class Bootstrap {
         symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
         symbolTable.langInternalModuleSymbol = loadLangLibFromBala(INTERNAL, compilerContext);
         symResolver.bootstrapIntRangeType();
-        symResolver.bootstrapIteratorType();
+        symResolver.bootstrapIterableType();
 
         if (langLib.equals(QUERY)) {
             // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
@@ -164,7 +164,7 @@ public class Bootstrap {
         symbolTable.langMapModuleSymbol = loadLangLibFromBala(MAP, compilerContext);
         symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
         symResolver.loadRawTemplateType();
-        symResolver.bootstrapIteratorType();
+        symResolver.bootstrapIterableType();
         symbolTable.langStreamModuleSymbol = loadLangLibFromBala(STREAM, compilerContext);
         symbolTable.langTableModuleSymbol = loadLangLibFromBala(TABLE, compilerContext);
         symbolTable.langStringModuleSymbol = loadLangLibFromBala(STRING, compilerContext);
