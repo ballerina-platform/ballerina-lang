@@ -33,7 +33,7 @@ function testFieldAccessWithOptionalFieldAccess1() returns boolean {
 function testFieldAccessWithOptionalFieldAccess2() returns boolean {
     json j1 = { a: 1, b: { c: "qwer", d: 12.0 } };
     json|error j2 = j1?.b.c;
-    return j2 == "qwer";
+    return (checkpanic j2) == "qwer";
 }
 
 function testFieldAccessWithOptionalFieldAccess3() returns boolean {

@@ -110,7 +110,7 @@ public class CodeCoverageUtils {
 
         //Next we walk through extractedJarPath and copy only the class files
         List<Path> pathList;
-        try (Stream<Path> walk = Files.walk(extractedJarPath, 5)) {
+        try (Stream<Path> walk = Files.walk(extractedJarPath)) {
             pathList = walk.map(path -> path).filter(f -> f.toString().endsWith(".class")).collect(Collectors.toList());
         } catch (IOException e) {
             return;
@@ -140,16 +140,21 @@ public class CodeCoverageUtils {
     }
 
     private static String resolveClassDir(Path classPath, String version) {
-        // Typical class path is .jar/<moduleName>/<version>/class
-        // This function extracts the <moduleName> to create a unique directory
+        // Typical class path is .jar/<moduleName>/<version>/class for .bal files
+        // This function extracts the <moduleName> to create a unique directory for .bal files
+        // For .java files, the parent directory of the class file is returned
         version = version.replace(".", "_");
         Path resolvedPath = classPath;
-        String pathVersion;
-        do {
-            resolvedPath = resolvedPath.getParent();
-            pathVersion = resolvedPath.getFileName().toString();
-        } while (!pathVersion.equals(version));
-        return resolvedPath.getParent().getFileName().toString();
+        if (!resolvedPath.toString().contains(version)) {
+            return resolvedPath.getParent().getFileName().toString();
+        } else {
+            String pathVersion;
+            do {
+                resolvedPath = resolvedPath.getParent();
+                pathVersion = resolvedPath.getFileName().toString();
+            } while (!pathVersion.equals(version));
+            return resolvedPath.getParent().getFileName().toString();
+        }
     }
 
     private static boolean isRequiredFile(String path, String orgName, String moduleName, String version) {
@@ -161,6 +166,8 @@ public class CodeCoverageUtils {
             return false;
         } else if (path.contains(
                 orgName + "/" + moduleName + "/" + version.replace(".", "_") + "/" + moduleName + ".class")) {
+            return false;
+        } else if (path.contains("module-info.class")) {
             return false;
         }
         return true;

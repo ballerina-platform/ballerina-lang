@@ -20,6 +20,7 @@ import intg_tests/tracing_tests.utils as utils;
 
 utils:MockClient testClient = new();
 
+@display { label: "mockTracer" }
 service /mockTracer on new testobserve:Listener(9090) {
     resource function post getMockTraces(testobserve:Caller caller, string serviceName) {
         json spans = testobserve:getFinishedSpans(serviceName);

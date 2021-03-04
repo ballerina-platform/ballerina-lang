@@ -23,6 +23,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ResolvedPackageDependency;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -47,6 +48,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -201,8 +203,8 @@ public class ProjectUtils {
     }
 
     public static String getExecutableName(Package pkg) {
-        // <packagename>-<version>.jar
-        return pkg.packageName().toString() + "-" + pkg.packageVersion() + BLANG_COMPILED_JAR_EXT;
+        // <packagename>.jar
+        return pkg.packageName().toString() + BLANG_COMPILED_JAR_EXT;
     }
 
     public static String getOrgFromBalaName(String balaName) {
@@ -483,5 +485,23 @@ public class ProjectUtils {
     private static boolean validateDotSeparatedIdentifiers(String identifiers) {
         Matcher m = separatedIdentifierPattern.matcher(identifiers);
         return m.matches();
+    }
+
+    /**
+     * Get `Dependencies.toml` content as a string.
+     *
+     * @param pkgDependencies direct dependencies of the package
+     * @return Dependencies.toml` content
+     */
+    public static String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgDependencies) {
+        StringBuilder content = new StringBuilder();
+        for (ResolvedPackageDependency dependency : pkgDependencies) {
+            content.append("[[dependency]]\n");
+            content.append("org = \"").append(dependency.packageInstance().packageOrg().value()).append("\"\n");
+            content.append("name = \"").append(dependency.packageInstance().packageName().value()).append("\"\n");
+            content.append("version = \"").append(dependency.packageInstance().packageVersion().value()).append("\"\n");
+            content.append("\n");
+        }
+        return String.valueOf(content);
     }
 }

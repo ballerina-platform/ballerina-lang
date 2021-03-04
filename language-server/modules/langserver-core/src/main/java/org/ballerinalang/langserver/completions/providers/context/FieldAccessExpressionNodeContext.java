@@ -41,19 +41,13 @@ public class FieldAccessExpressionNodeContext extends FieldAccessContext<FieldAc
         ExpressionNode expression = node.expression();
         List<LSCompletionItem> completionItems = getEntries(context, expression);
         this.sort(context, node, completionItems);
-        
-        return completionItems;
-    }
 
-    @Override
-    protected boolean removeOptionalFields() {
-        return true;
+        return completionItems;
     }
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, FieldAccessExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
-
         return cursor <= node.textRange().endOffset();
     }
 }

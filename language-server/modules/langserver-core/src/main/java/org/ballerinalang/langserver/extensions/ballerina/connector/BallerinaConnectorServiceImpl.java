@@ -59,8 +59,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -68,6 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -107,13 +110,17 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         return CompletableFuture.supplyAsync(BallerinaConnectorsResponse::new);
     }
 
-    private Path getBalaPath(String org, String module, String version) throws LSConnectorException {
-        Path balaPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module).
-                resolve(version.isEmpty() ?
-                        ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version).
-                resolve(String.format("%s-%s-any-%s%s", org, module, version,
-                        ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT));
-        if (!Files.exists(balaPath.toAbsolutePath())) {
+    private Path getBalaPath(String org, String module, String version) throws LSConnectorException, IOException {
+        Path balaPath;
+
+        Path connectorPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module)
+                .resolve(version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
+        String pattern = connectorPath.toFile().getAbsolutePath() + "/*.bala";
+        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
+        Stream<Path> paths = Files.find(connectorPath, 1, (path, f) -> pathMatcher.matches(path));
+        List<Path> pathList = paths.collect(Collectors.toList());
+
+        if (pathList.isEmpty()) {
             //check external modules
             PackageID packageID = new PackageID(new Name(org), new Name(module), new Name(version));
             HomeBalaRepo homeBalaRepo = new HomeBalaRepo(new HashMap<>());
@@ -126,6 +133,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 throw new LSConnectorException("No file exist in '" + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT
                         + path.get().toAbsolutePath() + "'");
             }
+        } else {
+            balaPath = pathList.get(0);
         }
         return balaPath;
     }

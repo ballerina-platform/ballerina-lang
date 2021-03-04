@@ -144,6 +144,11 @@ public function testGetCurrentModule() {
      test:assertEquals(moduleString, "$anon#.#0.0.0#4");
 }
 
+public function testGetDefaultValueWithBEnv() {
+     int defaultValue =  getDefaultValueWithBEnv();
+     test:assertEquals(defaultValue, 2021);
+}
+
 function hashCode(int receiver) returns int = @java:Method {
     name: "hashCode",
     'class: "java.lang.Byte",
@@ -275,6 +280,10 @@ public function addTwoNumbersFastAsync(int a, int b) returns int = @java:Method 
 } external;
 
 function getCurrentModule(int a) returns string  = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getDefaultValueWithBEnv(int a = 2021) returns int  = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

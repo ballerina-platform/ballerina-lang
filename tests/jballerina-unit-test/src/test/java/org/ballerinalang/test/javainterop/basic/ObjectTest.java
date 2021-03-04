@@ -38,7 +38,7 @@ public class ObjectTest {
         result = BCompileUtil.compile("test-src/javainterop/basic/object_test.bal");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testInteropsInsideObject() {
         BRunUtil.invoke(result, "testInteropsInsideObject");
     }

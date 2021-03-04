@@ -67,7 +67,7 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "incompatible types: expected '[other,other]', found 'string[]'",
                 48, 18);
         BAssertUtil.validateError(negative, index++,
-                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'other'",
+                                  "invalid list binding pattern: attempted to infer a list type, but found 'other'",
                                   48, 18);
         BAssertUtil.validateError(negative, index++, "invalid operation: type 'string' does not support field access",
                 49, 35);

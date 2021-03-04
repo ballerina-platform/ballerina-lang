@@ -273,7 +273,9 @@ public abstract class AbstractParserErrorHandler {
                 continue;
             }
 
-            if (result.matches >= LOOKAHEAD_LIMIT - 1) {
+
+            // exit early
+            if (hasFoundBestAlternative(result)) {
                 return getFinalResult(currentMatches, result);
             }
 
@@ -324,6 +326,22 @@ public abstract class AbstractParserErrorHandler {
         }
 
         return getFinalResult(currentMatches, bestMatch);
+    }
+
+    private boolean hasFoundBestAlternative(Result result) {
+        // If the best possible solution is found we can exit early. However, if that solution
+        // is an REMOVE action, then we should not terminate, because there can be another
+        // alternative that could give an equally good solution with an INSERT action. Since
+        // INSERT action is given high priority, we should continue to search.
+        if (result.matches < LOOKAHEAD_LIMIT - 1) {
+            return false;
+        }
+
+        if (result.solution == null) {
+            return true;
+        }
+
+        return result.solution.action != Action.REMOVE;
     }
 
     /**
