@@ -6782,7 +6782,8 @@ public class Desugar extends BLangNodeVisitor {
             //handle previous item if it was of xml:Text type
             if (lastExpression != null && lastExpression.type.tag == TypeTags.XML_TEXT) {
                 if (adjacentXMLTextLiterals.size() > 1) {
-                    //adjacent XML Text Literals (contains interpolated items and xml:Text items) should be concatenated together before rewriting
+                    //adjacent XML Text Literals (contains interpolated items and xml:Text items) should be
+                    // concatenated together before rewriting
                     xmlSequenceLiteral.concatExpr.put(adjacentXMLTextIndex,
                             rewriteExpr(constructStringTemplateConcatExpression(adjacentXMLTextLiterals)));
                 } else {

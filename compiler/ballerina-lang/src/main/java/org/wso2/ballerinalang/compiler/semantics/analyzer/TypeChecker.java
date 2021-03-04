@@ -4155,11 +4155,11 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BLangExpression> childXMLTypes = bLangXMLSequenceLiteral.xmlItems;
         boolean isSameType = true;
         BType tempExprType = null;
-        for (int i = 0; i< childXMLTypes.size(); i++) {
+        for (int i = 0; i < childXMLTypes.size(); i++) {
             checkExpr(childXMLTypes.get(i), env, expType);
             if (i == 0) {
                 tempExprType = childXMLTypes.get(i).type;
-            } else if ( tempExprType != childXMLTypes.get(i).type) {
+            } else if (tempExprType != childXMLTypes.get(i).type) {
                 isSameType = false;
                 break;
             }

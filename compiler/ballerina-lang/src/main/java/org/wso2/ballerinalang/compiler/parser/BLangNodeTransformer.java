@@ -4030,35 +4030,36 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return matchStatement;
     }
 
-    public BLangNode createXmlTemplateLiteral(TemplateExpressionNode expressionNode) {
-        SyntaxKind contentKind;
-        BLangExpression xmlItem;
+    public BLangXMLSequenceLiteral createXmlSequence(TemplateExpressionNode expressionNode) {
         BLangXMLSequenceLiteral xmlSequenceLiteral = (BLangXMLSequenceLiteral) TreeBuilder.createXMLSequenceLiteralNode();
         xmlSequenceLiteral.pos = getPosition(expressionNode);
-        int numberOfChildNodes = expressionNode.content().size();
-        for (int index=0; index<numberOfChildNodes; index++) {
-            Node xmlTypeNode = expressionNode.content().get(index);
-            if (expressionNode.content().isEmpty()) {
-                return createXMLEmptyLiteral(expressionNode);
-            } else {
-                contentKind = xmlTypeNode.kind();
-            }
-            switch (contentKind) {
-                case XML_COMMENT:
-                case XML_PI:
-                case XML_ELEMENT:
-                case XML_EMPTY_ELEMENT:
-                    xmlItem = createExpression(xmlTypeNode);
-                    break;
-                default:
-                    xmlItem = (BLangExpression)createXMLTextLiteral(xmlTypeNode);
-            }
-            if (numberOfChildNodes == 1) {
-                return xmlItem;
-            }
-            xmlSequenceLiteral.xmlItems.add(xmlItem);
+
+        for (int index = 0; index < expressionNode.content().size(); index++) {
+            xmlSequenceLiteral.xmlItems.add(createXmlSingletonItem(expressionNode.content().get(index)));
         }
         return xmlSequenceLiteral;
+    }
+
+    public BLangExpression createXmlSingletonItem(Node xmlTypeNode) {
+        switch (xmlTypeNode.kind()) {
+            case XML_COMMENT:
+            case XML_PI:
+            case XML_ELEMENT:
+            case XML_EMPTY_ELEMENT:
+                return createExpression(xmlTypeNode);
+            default:
+                return (BLangExpression) createXMLTextLiteral(xmlTypeNode);
+        }
+    }
+
+    public BLangNode createXmlTemplateLiteral(TemplateExpressionNode expressionNode) {
+        if (expressionNode.content().isEmpty()) {
+            return createXMLEmptyLiteral(expressionNode);
+        }
+        if (expressionNode.content().size() > 1) {
+            return createXmlSequence(expressionNode);
+        }
+        return createXmlSingletonItem(expressionNode.content().get(0));
     }
 
     private BLangMatchPattern transformMatchPattern(Node matchPattern) {
