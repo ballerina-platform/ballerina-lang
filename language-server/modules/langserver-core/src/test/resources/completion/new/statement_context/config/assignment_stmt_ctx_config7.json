@@ -3,7 +3,7 @@
     "line": 7,
     "character": 10
   },
-  "source": "assignment-statement-context/source/assignment_ctx_source1.bal",
+  "source": "statement_context/source/assignment_stmt_ctx_source7.bal",
   "items": [
     {
       "label": "start",

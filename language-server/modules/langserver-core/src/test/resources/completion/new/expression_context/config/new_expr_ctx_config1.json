@@ -471,14 +471,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "obj1",
-      "kind": "Variable",
-      "detail": "TestObject1",
-      "sortText": "A",
-      "insertText": "obj1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testNewFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -490,6 +482,14 @@
       },
       "sortText": "D",
       "insertText": "testNewFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "obj1",
+      "kind": "Variable",
+      "detail": "TestObject1",
+      "sortText": "C",
+      "insertText": "obj1",
       "insertTextFormat": "Snippet"
     },
     {

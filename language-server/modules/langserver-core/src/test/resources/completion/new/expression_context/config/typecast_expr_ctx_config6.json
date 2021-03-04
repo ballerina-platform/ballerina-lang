@@ -456,11 +456,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value1",
+      "label": "value2",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "string",
       "sortText": "C",
-      "insertText": "value1",
+      "insertText": "value2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -478,11 +478,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value2",
+      "label": "value1",
       "kind": "Variable",
-      "detail": "string",
-      "sortText": "A",
-      "insertText": "value2",
+      "detail": "int",
+      "sortText": "C",
+      "insertText": "value1",
       "insertTextFormat": "Snippet"
     }
   ]

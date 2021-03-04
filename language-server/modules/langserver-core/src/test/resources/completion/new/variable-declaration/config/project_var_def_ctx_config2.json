@@ -479,81 +479,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "stringFunction()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "stringFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getAge()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "getAge()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "main()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "main()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getOddNumber()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "getOddNumber()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getPerson()(models:Person)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `models:Person`   \n  \n"
-        }
-      },
-      "sortText": "A",
-      "insertText": "getPerson()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "person",
+      "label": "num",
       "kind": "Variable",
-      "detail": "models:Person",
-      "sortText": "A",
-      "insertText": "person",
+      "detail": "int",
+      "sortText": "C",
+      "insertText": "num",
       "insertTextFormat": "Snippet"
     },
     {
@@ -575,11 +505,81 @@
       }
     },
     {
-      "label": "num",
+      "label": "stringFunction()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "stringFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "person",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "models:Person",
       "sortText": "C",
-      "insertText": "num",
+      "insertText": "person",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getOddNumber()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "getOddNumber()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "main()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "main()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getPerson()(models:Person)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `models:Person`   \n  \n"
+        }
+      },
+      "sortText": "A",
+      "insertText": "getPerson()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getAge()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "getAge()",
       "insertTextFormat": "Snippet"
     }
   ]

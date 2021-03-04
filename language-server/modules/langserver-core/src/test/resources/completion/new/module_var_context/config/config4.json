@@ -488,7 +488,7 @@
       "label": "test",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "A",
+      "sortText": "C",
       "insertText": "test",
       "insertTextFormat": "Snippet"
     }

@@ -94,7 +94,8 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     }
 
     @Override
-    public void sort(BallerinaCompletionContext context, AssignmentStatementNode node, List<LSCompletionItem> completionItems) {
+    public void sort(BallerinaCompletionContext context, AssignmentStatementNode node, 
+                     List<LSCompletionItem> completionItems) {
         Optional<TypeSymbol> typeSymbolAtCursor = context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.symbol(node.varRef()))
                 .flatMap(SymbolUtil::getTypeDescriptor);
