@@ -22,10 +22,10 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Tests for {@link org.ballerinalang.langserver.completions.providers.context.VariableDeclarationProvider}
+ * Tests for {@link org.ballerinalang.langserver.completions.providers.context.AssignmentStatementNodeContext}
  * completion provider.
  */
-public class VariableDeclarationContextTest extends CompletionTestNew {
+public class AssignmentStatementContextTest extends CompletionTestNew {
 
     @Test(dataProvider = "completion-data-provider")
     @Override
@@ -37,20 +37,13 @@ public class VariableDeclarationContextTest extends CompletionTestNew {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"var_def_ctx_config1.json", getTestResourceDir()},
-                {"var_def_ctx_config2.json", getTestResourceDir()},
-                {"var_def_ctx_config3.json", getTestResourceDir()},
-                {"var_def_ctx_config4.json", getTestResourceDir()},
-                {"var_def_ctx_config5.json", getTestResourceDir()},
-                {"var_def_ctx_config6.json", getTestResourceDir()},
-                {"project_var_def_ctx_config1.json", getTestResourceDir()},
-                {"project_var_def_ctx_config2.json", getTestResourceDir()},
-                {"project_var_def_ctx_config3.json", getTestResourceDir()}
+                {"assignment_ctx_config1.json", getTestResourceDir()},
+                {"assignment_ctx_config2.json", getTestResourceDir()}
         };
     }
 
     @Override
     public String getTestResourceDir() {
-        return "variable-declaration";
+        return "assignment-statement-context";
     }
 }

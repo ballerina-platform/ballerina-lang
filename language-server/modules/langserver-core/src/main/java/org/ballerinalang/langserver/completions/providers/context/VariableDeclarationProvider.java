@@ -76,7 +76,8 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
             // highest rank to such variables and methods.
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
                 SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
-                Optional<TypeSymbol> completionItemType = getTypeSymbol(symbolCompletionItem.getSymbol());
+                Optional<TypeSymbol> completionItemType =
+                        SymbolUtil.getReturnTypeDescriptor(symbolCompletionItem.getSymbol());
                 if (completionItemType.isPresent() && completionItemType.get().assignableTo(symbol)) {
                     rank = 1;
                 }
@@ -149,24 +150,5 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         classSymbol.ifPresent(typeDesc -> completionItems.add(this.getImplicitNewCompletionItem(typeDesc, context)));
 
         return completionItems;
-    }
-
-    /**
-     * Get the type of the symbol. For functions, this returns the return type of the function symbol.
-     *
-     * @param symbol symbol of which the type is required
-     * @return Optional type of the provided symbol
-     */
-    private Optional<TypeSymbol> getTypeSymbol(Symbol symbol) {
-        if (symbol == null) {
-            return Optional.empty();
-        }
-
-        if (symbol.kind() == SymbolKind.FUNCTION || symbol.kind() == SymbolKind.METHOD) {
-            FunctionTypeSymbol functionTypeSymbol = ((FunctionSymbol) symbol).typeDescriptor();
-            return functionTypeSymbol.returnTypeDescriptor();
-        }
-
-        return SymbolUtil.getTypeDescriptor(symbol);
     }
 }
