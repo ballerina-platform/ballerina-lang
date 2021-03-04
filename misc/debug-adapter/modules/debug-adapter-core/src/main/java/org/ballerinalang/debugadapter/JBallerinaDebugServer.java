@@ -156,7 +156,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
-    private static final String CONDITION_TRUE = "true";
 
     public JBallerinaDebugServer() {
         context = new ExecutionContext(this);
@@ -466,20 +465,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return CompletableFuture.completedFuture(response);
-        }
-    }
-
-    public boolean evaluateBreakpointCondition(String expression, ThreadReference threadReference) {
-        try {
-            StackFrameProxyImpl frame = getAllThreads().get(threadReference.uniqueID()).frame(0);
-            SuspendedContext ctx = new SuspendedContext(project, context.getDebuggeeVM(),
-                    getAllThreads().get(threadReference.uniqueID()), frame);
-            ExpressionEvaluator evaluator = new ExpressionEvaluator(ctx);
-            String condition = evaluator.evaluate(expression).toString();
-            return condition.equalsIgnoreCase(CONDITION_TRUE);
-        } catch (JdiProxyException e) {
-            LOGGER.error(e.getMessage(), e);
-            return false;
         }
     }
 

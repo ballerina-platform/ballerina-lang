@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
@@ -33,7 +34,9 @@ import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
+import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
+import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
@@ -67,6 +70,7 @@ public class JDIEventProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String BALLERINA_ORG_PREFIX = "ballerina";
     private static final String BALLERINAX_ORG_PREFIX = "ballerinax";
+    private static final String CONDITION_TRUE = "true";
 
     JDIEventProcessor(ExecutionContext context) {
         this.context = context;
@@ -105,18 +109,15 @@ public class JDIEventProcessor {
             configureUserBreakPoints(evt.referenceType());
             eventSet.resume();
         } else if (event instanceof BreakpointEvent) {
-            boolean condition = false;
             String qualifiedClassName =
-                getQualifiedClassName(context, ((BreakpointEvent) event).location().declaringType());
+                    getQualifiedClassName(context, ((BreakpointEvent) event).location().declaringType());
             Map<Integer, SourceBreakpoint> sourceBreakpoints = this.sourceBreakpoints.get(qualifiedClassName);
             int lineNumber = ((BreakpointEvent) event).location().lineNumber();
 
-            if (sourceBreakpoints != null && sourceBreakpoints.containsKey(lineNumber)) {
-                condition = context.getAdapter().evaluateBreakpointCondition(
-                        sourceBreakpoints.get(lineNumber).getCondition(), ((BreakpointEvent) event).thread());
-            }
             if (sourceBreakpoints != null && sourceBreakpoints.containsKey(lineNumber)
-                && sourceBreakpoints.get(lineNumber).getCondition() != null && !condition) {
+                    && sourceBreakpoints.get(lineNumber).getCondition() != null
+                    && !evaluateBreakpointCondition(sourceBreakpoints.get(lineNumber).getCondition(),
+                    ((BreakpointEvent) event).thread())) {
                 context.getDebuggeeVM().resume();
                 ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
                 continuedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
@@ -163,6 +164,20 @@ public class JDIEventProcessor {
             eventSet.resume();
         }
         return true;
+    }
+
+    private boolean evaluateBreakpointCondition(String expression, ThreadReference threadReference) {
+        try {
+            StackFrameProxyImpl frame = context.getAdapter().getAllThreads().get(threadReference.uniqueID()).frame(0);
+            SuspendedContext ctx = new SuspendedContext(context.getSourceProject(), context.getDebuggeeVM(),
+                    context.getAdapter().getAllThreads().get(threadReference.uniqueID()), frame);
+            ExpressionEvaluator evaluator = new ExpressionEvaluator(ctx);
+            String condition = evaluator.evaluate(expression).toString();
+            return condition.equalsIgnoreCase(CONDITION_TRUE);
+        } catch (JdiProxyException e) {
+            LOGGER.error(e.getMessage(), e);
+            return false;
+        }
     }
 
     /**
