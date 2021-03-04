@@ -88,7 +88,7 @@ public class BCompileUtil {
         BLangPackage bLangPackage = currentPackage.getCompilation().defaultModuleBLangPackage();
         BPackageSymbol bPackageSymbol = bLangPackage.symbol;
 
-        return new BIRCompileResult(bPackageSymbol.bir, currentPackage.getDefaultModule().birBytes());
+        return new BIRCompileResult(bPackageSymbol.bir, nullBackend.getDefaultModuleBir());
     }
 
     public static CompileResult compileWithoutInitInvocation(String sourceFilePath) {

@@ -138,8 +138,9 @@ class ModuleContext {
     }
 
     byte[] getBirBytes() {
+        BLangPackage bLangPackage = getBLangPackageOrThrow();
         if (birBytes == null) {
-            birBytes = new BIRBinaryWriter(this.bLangPackage.symbol.bir).serialize();
+            birBytes = new BIRBinaryWriter(bLangPackage.symbol.bir).serialize();
         }
         return birBytes;
     }
@@ -399,7 +400,7 @@ class ModuleContext {
             compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
         }
 
-        // Skip the code generation phase if there are diagnosticsRun
+        // Skip the code generation phase if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
             return;
         }
