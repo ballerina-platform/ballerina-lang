@@ -22,6 +22,8 @@ import io.ballerina.compiler.api.impl.symbols.resourcepath.BallerinaDotResourceP
 import io.ballerina.compiler.api.impl.symbols.resourcepath.BallerinaPathRestParam;
 import io.ballerina.compiler.api.impl.symbols.resourcepath.BallerinaPathSegmentList;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
@@ -33,6 +35,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Represents an implementation of the resource method symbol.
@@ -45,9 +48,11 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
     private static final String PATH_PARAM = "*";
     private static final String PATH_REST_PARAM = "**";
 
+    private final CompilerContext context;
+    private final BInvokableSymbol internalSymbol;
+
     private ResourcePath resourcePath;
-    private BInvokableSymbol internalSymbol;
-    private CompilerContext context;
+    private String signature;
 
     public BallerinaResourceMethodSymbol(FunctionSymbol functionSymbol, BInvokableSymbol symbol,
                                          CompilerContext context) {
@@ -88,6 +93,35 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
     @Override
     public SymbolKind kind() {
         return SymbolKind.RESOURCE_METHOD;
+    }
+
+    @Override
+    public String signature() {
+        if (this.signature != null) {
+            return this.signature;
+        }
+
+        StringJoiner qualifierJoiner = new StringJoiner(" ");
+        this.qualifiers().stream().map(Qualifier::getValue).forEach(qualifierJoiner::add);
+        qualifierJoiner.add("function ");
+
+        StringBuilder signature = new StringBuilder(qualifierJoiner.toString());
+        StringJoiner joiner = new StringJoiner(", ");
+
+        signature.append(this.getName().get()).append(" ").append(this.resourcePath().signature()).append(" (");
+
+        for (ParameterSymbol requiredParam : this.typeDescriptor().parameters()) {
+            String ballerinaParameterSignature = requiredParam.signature();
+            joiner.add(ballerinaParameterSignature);
+        }
+
+        this.typeDescriptor().restParam().ifPresent(ballerinaParameter -> joiner.add(ballerinaParameter.signature()));
+        signature.append(joiner.toString()).append(")");
+        this.typeDescriptor().returnTypeDescriptor().ifPresent(typeDescriptor -> signature.append(" returns ")
+                .append(typeDescriptor.signature()));
+
+        this.signature = signature.toString();
+        return this.signature;
     }
 
     private BResourceFunction getBResourceFunction(List<BAttachedFunction> methods, BInvokableSymbol internalSymbol) {

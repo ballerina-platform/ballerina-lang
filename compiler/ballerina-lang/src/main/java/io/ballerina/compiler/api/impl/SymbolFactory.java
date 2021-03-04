@@ -30,7 +30,9 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.impl.symbols.BallerinaObjectFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaParameterSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaPathParameterSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaRecordFieldSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaResourceMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaServiceDeclarationSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
@@ -43,11 +45,13 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -58,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -119,6 +124,9 @@ public class SymbolFactory {
         if (symbol instanceof BVarSymbol) {
             if (symbol.kind == SymbolKind.FUNCTION) {
                 if (Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)) {
+                    if (Symbols.isFlagOn(symbol.flags, Flags.RESOURCE)) {
+                        return createResourceMethodSymbol((BInvokableSymbol) symbol);
+                    }
                     return createMethodSymbol((BInvokableSymbol) symbol);
                 }
                 return createFunctionSymbol((BInvokableSymbol) symbol, name);
@@ -252,6 +260,18 @@ public class SymbolFactory {
         return createMethodSymbol(invokableSymbol, name);
     }
 
+    public BallerinaResourceMethodSymbol createResourceMethodSymbol(BInvokableSymbol invokableSymbol) {
+        String name = getMethodName(invokableSymbol, (BObjectTypeSymbol) invokableSymbol.owner);
+        TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(invokableSymbol.type);
+        BallerinaFunctionSymbol functionSymbol = createFunctionSymbol(invokableSymbol, name);
+
+        if (typeDescriptor.typeKind() == TypeDescKind.FUNCTION) {
+            return new BallerinaResourceMethodSymbol(functionSymbol, invokableSymbol, this.context);
+        }
+
+        throw new AssertionError("Invalid type descriptor found");
+    }
+
     /**
      * Create a generic variable symbol.
      *
@@ -335,6 +355,13 @@ public class SymbolFactory {
         }
 
         return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind, symbol, this.context);
+    }
+
+    public PathParameterSymbol createPathParamSymbol(BVarSymbol symbol, PathSegment.Kind kind) {
+        if (symbol == null) {
+            return null;
+        }
+        return new BallerinaPathParameterSymbol(kind, symbol, this.context);
     }
 
     /**
@@ -515,6 +542,9 @@ public class SymbolFactory {
 
         for (BAttachedFunction mthd : methods) {
             if (method == mthd.symbol) {
+                if (mthd instanceof BResourceFunction) {
+                    return ((BResourceFunction) mthd).accessor.value;
+                }
                 return mthd.funcName.value;
             }
         }

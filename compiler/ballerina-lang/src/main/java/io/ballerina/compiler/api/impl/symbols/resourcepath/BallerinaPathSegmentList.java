@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Represents an implementation of a path segment list.
@@ -39,14 +40,15 @@ import java.util.Optional;
  */
 public class BallerinaPathSegmentList implements PathSegmentList {
 
+    private final List<Name> internalSegments;
+    private final List<BVarSymbol> internalPathParams;
+    private final BVarSymbol internalPathRestParam;
     private final CompilerContext context;
+
     private List<PathParameterSymbol> pathParams;
     private PathParameterSymbol pathRestParam;
     private List<PathSegment> resourcePath;
-
-    private List<Name> internalSegments;
-    private List<BVarSymbol> internalPathParams;
-    private BVarSymbol internalPathRestParam;
+    private String signature;
 
     public BallerinaPathSegmentList(List<Name> segments, List<BVarSymbol> pathParams, BVarSymbol pathRestParam,
                                     CompilerContext context) {
@@ -122,6 +124,18 @@ public class BallerinaPathSegmentList implements PathSegmentList {
 
     @Override
     public String signature() {
-        return "";
+        if (this.signature != null) {
+            return this.signature;
+        }
+
+        StringJoiner stringJoiner = new StringJoiner("/");
+        List<PathSegment> segments = list();
+        
+        for (PathSegment segment : segments) {
+            stringJoiner.add(segment.signature());
+        }
+
+        this.signature = stringJoiner.toString();
+        return this.signature;
     }
 }

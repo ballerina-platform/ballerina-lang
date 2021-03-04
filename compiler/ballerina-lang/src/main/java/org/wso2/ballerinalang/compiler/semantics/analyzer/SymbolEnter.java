@@ -3845,14 +3845,20 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         List<BVarSymbol> pathParamSymbols = resourceFunction.pathParams.stream()
-                .map(p -> p.symbol)
+                .map(p -> {
+                    p.symbol.kind = SymbolKind.PATH_PARAMETER;
+                    return p.symbol;
+                })
                 .collect(Collectors.toList());
 
-        BVarSymbol restPathParamSym =
-                resourceFunction.restPathParam != null ? resourceFunction.restPathParam.symbol : null;
+        BVarSymbol restPathParamSym = null;
+        if (resourceFunction.restPathParam != null) {
+            restPathParamSym = resourceFunction.restPathParam.symbol;
+            restPathParamSym.kind = SymbolKind.PATH_REST_PARAMETER;
+        }
 
         return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
-                accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
+                                     accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {

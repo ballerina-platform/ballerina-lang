@@ -27,6 +27,7 @@ public enum SymbolKind {
     XMLNS,
     FUNCTION,
     METHOD,
+    RESOURCE_METHOD,
     CONSTANT,
     TYPE_DEFINITION,
     TYPE,
@@ -39,5 +40,6 @@ public enum SymbolKind {
     OBJECT_FIELD,
     CLASS_FIELD,
     ENUM,
-    PARAMETER
+    PARAMETER,
+    PATH_PARAMETER
 }

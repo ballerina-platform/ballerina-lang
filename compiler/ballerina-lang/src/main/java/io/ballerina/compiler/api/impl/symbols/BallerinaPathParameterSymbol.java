@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -43,6 +44,7 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
     private final PathSegment.Kind segmentKind;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
+    private String signature;
 
     public BallerinaPathParameterSymbol(PathSegment.Kind kind, BSymbol symbol, CompilerContext context) {
         super(symbol.name.value, SymbolKind.PATH_PARAMETER, symbol, context);
@@ -85,6 +87,18 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
 
     @Override
     public String signature() {
-        return "[" + this.typeDescriptor().signature() + " " + this.getName().get() + "]";
+        if (this.signature != null) {
+            return this.signature;
+        }
+
+        String typeSignature;
+        if (this.pathSegmentKind() == Kind.PATH_REST_PARAMETER) {
+            typeSignature = ((ArrayTypeSymbol) this.typeDescriptor()).memberTypeDescriptor().signature() + "...";
+        } else {
+            typeSignature = this.typeDescriptor().signature();
+        }
+
+        this.signature = "[" + typeSignature + " " + this.getName().get() + "]";
+        return this.signature;
     }
 }

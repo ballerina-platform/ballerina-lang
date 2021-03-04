@@ -21,6 +21,8 @@ package io.ballerina.compiler.api.symbols;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -48,4 +50,18 @@ public interface ServiceDeclarationSymbol extends Symbol, Annotatable, Documenta
      * @return The attach point if it is specified, returns empty otherwise
      */
     Optional<ServiceAttachPoint> attachPoint();
+
+    /**
+     * Returns the user specified fields of this service declaration.
+     *
+     * @return A map containing a mapping between the field names and the field symbols
+     */
+    Map<String, ClassFieldSymbol> fieldDescriptors();
+
+    /**
+     * Returns a list of methods. This includes regular methods, remote methods and resource methods.
+     *
+     * @return A list of methods in this service declaration
+     */
+    List<? extends MethodSymbol> methods();
 }

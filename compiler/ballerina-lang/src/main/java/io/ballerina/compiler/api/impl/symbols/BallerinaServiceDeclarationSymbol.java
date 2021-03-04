@@ -18,18 +18,29 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
@@ -43,6 +54,8 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
 
     private TypeSymbol typeDescriptor;
     private ServiceAttachPoint attachPoint;
+    private Map<String, ClassFieldSymbol> fields;
+    private List<MethodSymbol> methods;
     private List<Qualifier> qualifiers;
     private List<AnnotationSymbol> annots;
 
@@ -64,6 +77,47 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
     @Override
     public Optional<ServiceAttachPoint> attachPoint() {
         return Optional.ofNullable(this.attachPoint);
+    }
+
+    @Override
+    public Map<String, ClassFieldSymbol> fieldDescriptors() {
+        if (this.fields != null) {
+            return this.fields;
+        }
+
+        BServiceSymbol symbol = (BServiceSymbol) getInternalSymbol();
+        BObjectType classType = (BObjectType) symbol.getAssociatedClassSymbol().type;
+        Map<String, ClassFieldSymbol> fields = new LinkedHashMap<>();
+
+        for (BField field : classType.fields.values()) {
+            fields.put(field.name.value, new BallerinaClassFieldSymbol(this.context, field));
+        }
+
+        this.fields = Collections.unmodifiableMap(fields);
+        return this.fields;
+    }
+
+    @Override
+    public List<? extends MethodSymbol> methods() {
+        if (methods != null) {
+            return this.methods;
+        }
+
+        BServiceSymbol symbol = (BServiceSymbol) getInternalSymbol();
+        BClassSymbol classSymbol = symbol.getAssociatedClassSymbol();
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        List<MethodSymbol> methods = new ArrayList<>();
+
+        for (BAttachedFunction method : classSymbol.attachedFuncs) {
+            if (method instanceof BResourceFunction) {
+                methods.add(symbolFactory.createResourceMethodSymbol(method.symbol));
+            } else {
+                methods.add(symbolFactory.createMethodSymbol(method.symbol, method.funcName.value));
+            }
+        }
+
+        this.methods = Collections.unmodifiableList(methods);
+        return this.methods;
     }
 
     @Override
