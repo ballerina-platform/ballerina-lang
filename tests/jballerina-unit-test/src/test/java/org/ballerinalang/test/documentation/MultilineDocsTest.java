@@ -60,7 +60,7 @@ public class MultilineDocsTest {
             "```ballerina\n" +
             "string s8 = io:sprintf(\"%s scored %d for %s and has an average of %.2f.\", name, marks, " +
             "subjects[0], average);\n" +
-            "```\n";
+            "```\n\n";
 
     @BeforeClass
     public void setup() throws IOException {

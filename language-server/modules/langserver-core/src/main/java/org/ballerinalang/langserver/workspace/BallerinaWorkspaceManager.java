@@ -31,7 +31,6 @@ import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
@@ -67,8 +66,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import static io.ballerina.projects.util.ProjectConstants.DOT;
 
 /**
  * Contains a set of utility methods to manage projects.
@@ -787,7 +784,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     private Optional<Document> document(Path filePath, Project project) {
         try {
-            DocumentId documentId = documentId(filePath, project);
+            DocumentId documentId = project.documentId(filePath);
             Module module = project.currentPackage().module(documentId.moduleId());
             return Optional.of(module.document(documentId));
         } catch (ProjectException e) {
@@ -821,45 +818,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // Unlock Project Instance
             lock.unlock();
         }
-    }
-
-    private DocumentId documentId(Path filePath, Project project) {
-        //TODO: Remove this method when project-api `Project.documentId` got removed disk I/O checks
-        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            if (!project.sourceRoot().toAbsolutePath().normalize().toString().equals(
-                    filePath.toAbsolutePath().normalize().toString())) {
-                throw new ProjectException("provided path does not belong to the project");
-            }
-            return project.currentPackage().getDefaultModule().documentIds().iterator().next();
-        }
-        Path parent = Optional.of(filePath.toAbsolutePath().getParent()).get();
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            String moduleDirName;
-            if (moduleId.moduleName().contains(DOT)) {
-                moduleDirName = moduleId.moduleName()
-                        .split(project.currentPackage().packageName().toString() + DOT)[1];
-            } else {
-                moduleDirName = Optional.of(project.sourceRoot().getFileName()).get().toString();
-            }
-
-            if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName) || Optional.of(
-                    Optional.of(parent.getParent()).get().getFileName()).get().toString().equals(moduleDirName)) {
-                Module module = project.currentPackage().module(moduleId);
-                for (DocumentId documentId : module.documentIds()) {
-                    if (module.document(documentId).name().equals(
-                            Optional.of(filePath.getFileName()).get().toString())) {
-                        return documentId;
-                    }
-                }
-                for (DocumentId documentId : module.testDocumentIds()) {
-                    if (module.document(documentId).name().split(ProjectConstants.TEST_DIR_NAME + "/")[1]
-                            .equals(Optional.of(filePath.getFileName()).get().toString())) {
-                        return documentId;
-                    }
-                }
-            }
-        }
-        throw new ProjectException("provided path does not belong to the project");
     }
 
     private ProjectPair createOrGetProjectPair(Path filePath, String operationName) throws WorkspaceDocumentException {

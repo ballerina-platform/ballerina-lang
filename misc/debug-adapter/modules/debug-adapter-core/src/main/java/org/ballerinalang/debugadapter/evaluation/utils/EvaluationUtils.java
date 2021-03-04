@@ -52,6 +52,7 @@ public class EvaluationUtils {
     public static final String B_BINARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.binary";
     public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.internal.TypeChecker";
     public static final String B_TYPE_CREATOR_CLASS = "io.ballerina.runtime.api.creators.TypeCreator";
+    public static final String B_VALUE_CREATOR_CLASS = "io.ballerina.runtime.api.creators.ValueCreator";
     public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.utils.StringUtils";
     public static final String B_TYPE_UTILS_CLASS = "io.ballerina.runtime.api.utils.TypeUtils";
     public static final String B_XML_FACTORY_CLASS = "io.ballerina.runtime.internal.XmlFactory";
@@ -95,6 +96,7 @@ public class EvaluationUtils {
     public static final String CHECK_IS_TYPE_METHOD = "checkIsType";
     public static final String CHECK_CAST_METHOD = "checkCast";
     public static final String CREATE_UNION_TYPE_METHOD = "createUnionType";
+    public static final String CREATE_DECIMAL_VALUE_METHOD = "createDecimalValue";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String VALUE_FROM_STRING_METHOD = "fromString";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
@@ -156,8 +158,10 @@ public class EvaluationUtils {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to load JVM util function: " + methodName));
         }
-        methods = methods.stream().filter(method -> method.isPublic() && method.isStatic())
+        methods = methods.stream()
+                .filter(method -> method.isPublic() && method.isStatic())
                 .collect(Collectors.toList());
+
         if (methods.size() != 1) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to load JVM util function: " + methodName));
@@ -310,6 +314,17 @@ public class EvaluationUtils {
                 argTypeNames);
         fromStringMethod.setArgValues(Collections.singletonList(stringRef));
         return fromStringMethod.invoke();
+    }
+
+    /**
+     * Converts the user given string literal into a {@link com.sun.jdi.StringReference} instance.
+     *
+     * @param context suspended debug context
+     * @param val     string value
+     * @return {@link com.sun.jdi.StringReference} instance
+     */
+    public static Value getAsJString(SuspendedContext context, String val) throws EvaluationException {
+        return context.getAttachedVm().mirrorOf(val);
     }
 
     /**

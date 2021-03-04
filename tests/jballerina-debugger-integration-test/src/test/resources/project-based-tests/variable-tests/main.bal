@@ -135,6 +135,7 @@ public function main() {
     //------------------------ basic, structured type variables ------------------------//
 
     any[] arrayVar = [1, 20, -10.0, "foo"];
+    byte[] byteArrayVar = base64 `aa ab cc ad af df 1a d2 f3 a4`;
     [int, string] tupleVar = [20, "foo"];
     map<string> mapVar = {line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka"};
 
