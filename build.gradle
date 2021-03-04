@@ -31,11 +31,6 @@ subprojects {
                 artifactId project.name
                 version = project.version
             }
-            CodeCov(MavenPublication) {
-                groupId project.group
-                artifactId project.name + "-jacoco"
-                version = project.version
-            }
         }
         repositories {
             maven {

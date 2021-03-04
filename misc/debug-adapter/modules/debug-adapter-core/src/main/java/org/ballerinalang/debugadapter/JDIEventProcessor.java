@@ -31,6 +31,8 @@ import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
+import org.ballerinalang.debugadapter.config.ClientConfigHolder;
+import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.eclipse.lsp4j.debug.Breakpoint;
@@ -76,7 +78,7 @@ public class JDIEventProcessor {
             boolean vmAttached = true;
             while (vmAttached) {
                 try {
-                    EventSet eventSet = context.getDebuggee().eventQueue().remove();
+                    EventSet eventSet = context.getDebuggeeVM().eventQueue().remove();
                     EventIterator eventIterator = eventSet.eventIterator();
                     while (eventIterator.hasNext() && vmAttached) {
                         vmAttached = processEvent(eventSet, eventIterator.next());
@@ -161,10 +163,10 @@ public class JDIEventProcessor {
     void setBreakpointsList(String path, Breakpoint[] breakpointsList) {
         Breakpoint[] breakpoints = breakpointsList.clone();
         this.breakpointsList.put(getQualifiedClassName(path), breakpoints);
-        if (context.getDebuggee() != null) {
+        if (context.getDebuggeeVM() != null) {
             // Setting breakpoints to a already running debug session.
             context.getEventManager().deleteAllBreakpoints();
-            context.getDebuggee().allClasses().forEach(this::configureUserBreakPoints);
+            context.getDebuggeeVM().allClasses().forEach(this::configureUserBreakPoints);
         }
     }
 
@@ -174,7 +176,7 @@ public class JDIEventProcessor {
         } else if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
             createStepRequest(threadId, stepType);
         }
-        context.getDebuggee().resume();
+        context.getDebuggeeVM().resume();
         // Notifies the debug client that the execution is resumed.
         ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
         continuedEventArguments.setAllThreadsContinued(true);
@@ -182,18 +184,25 @@ public class JDIEventProcessor {
     }
 
     void restoreBreakpoints(DebugInstruction instruction) {
-        if (context.getDebuggee() == null || instruction == DebugInstruction.STEP_OVER) {
+        if (context.getDebuggeeVM() == null || instruction == DebugInstruction.STEP_OVER) {
             return;
         }
 
         context.getEventManager().deleteAllBreakpoints();
         if (instruction == DebugInstruction.CONTINUE) {
-            context.getDebuggee().allClasses().forEach(this::configureUserBreakPoints);
+            context.getDebuggeeVM().allClasses().forEach(this::configureUserBreakPoints);
         }
     }
 
     private void configureUserBreakPoints(ReferenceType referenceType) {
         try {
+            // Avoids setting break points if the server is running in 'no-debug' mode.
+            ClientConfigHolder configHolder = context.getAdapter().getClientConfigHolder();
+            if (configHolder instanceof ClientLaunchConfigHolder
+                    && ((ClientLaunchConfigHolder) configHolder).isNoDebugMode()) {
+                return;
+            }
+
             String qualifiedClassName = getQualifiedClassName(context, referenceType);
             if (!breakpointsList.containsKey(qualifiedClassName)) {
                 return;

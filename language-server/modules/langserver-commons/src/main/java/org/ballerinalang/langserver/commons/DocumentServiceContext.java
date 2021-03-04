@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
@@ -79,6 +80,13 @@ public interface DocumentServiceContext {
      * @return {@link List} of import nodes
      */
     List<ImportDeclarationNode> currentDocImports();
+
+    /**
+     * Get the current document where the given file URI resides.
+     *
+     * @return {@link Document}
+     */
+    Optional<Document> currentDocument();
 
     /**
      * Get the current module where the given file URI resides.

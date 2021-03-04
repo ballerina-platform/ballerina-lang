@@ -125,13 +125,24 @@ public abstract class NonTerminalNode extends Node {
 
     /**
      * Find the inner most node encapsulating the a text range.
-     * Note: When evaluating the position of a node to check the range this will include the start offset while
+     * Note: When evaluating the position of a node to check the range this will not include the start offset while
      * excluding the end offset
      *
      * @param textRange to evaluate and find the node
      * @return {@link NonTerminalNode} which is the inner most non terminal node, encapsulating the given position
      */
-    public NonTerminalNode findNode(TextRange textRange) {
+    public NonTerminalNode findNode(TextRange textRange) { 
+        return findNode(textRange, false);
+    }
+
+    /**
+     * Find the inner most node encapsulating the a text range.
+     *
+     * @param textRange          text range to evaluate
+     * @param includeStartOffset whether to include start offset when checking text range
+     * @return Innermost {@link NonTerminalNode} encapsulation given text range
+     */
+    public NonTerminalNode findNode(TextRange textRange, boolean includeStartOffset) {
         TextRange textRangeWithMinutiae = textRangeWithMinutiae();
         if (!(this instanceof ModulePartNode)
                 && (!textRangeWithMinutiae.contains(textRange.startOffset())
@@ -143,7 +154,7 @@ public abstract class NonTerminalNode extends Node {
         Optional<Node> temp = Optional.of(this);
         while (temp.isPresent() && SyntaxUtils.isNonTerminalNode(temp.get())) {
             foundNode = (NonTerminalNode) temp.get();
-            temp = ((NonTerminalNode) temp.get()).findChildNode(textRange);
+            temp = ((NonTerminalNode) temp.get()).findChildNode(textRange, includeStartOffset);
         }
 
         return foundNode;
@@ -246,10 +257,11 @@ public abstract class NonTerminalNode extends Node {
      * Find a child node enclosing the given text range.
      * If there is no child node which can wrap the given range, this method will return empty
      *
-     * @param textRange text range to evaluate
+     * @param textRange          text range to evaluate
+     * @param includeStartOffset whether to include start offset when checking textRange
      * @return {@link Optional} node found, which is enclosing the given range
      */
-    private Optional<Node> findChildNode(TextRange textRange) {
+    private Optional<Node> findChildNode(TextRange textRange, boolean includeStartOffset) {
         int offset = textRangeWithMinutiae().startOffset();
         for (int bucket = 0; bucket < internalNode.bucketCount(); bucket++) {
             STNode internalChildNode = internalNode.childInBucket(bucket);
@@ -257,10 +269,19 @@ public abstract class NonTerminalNode extends Node {
                 continue;
             }
             int offsetWithMinutiae = offset + internalChildNode.widthWithMinutiae();
-            if (textRange.startOffset() > offset && textRange.endOffset() <= offsetWithMinutiae) {
-                // Populate the external node.
-                return Optional.ofNullable(this.childInBucket(bucket));
+
+            if (includeStartOffset) {
+                if (textRange.startOffset() >= offset && textRange.endOffset() <= offsetWithMinutiae) {
+                    // Populate the external node.
+                    return Optional.ofNullable(this.childInBucket(bucket));
+                }
+            } else {
+                if (textRange.startOffset() > offset && textRange.endOffset() <= offsetWithMinutiae) {
+                    // Populate the external node.
+                    return Optional.ofNullable(this.childInBucket(bucket));
+                }
             }
+
             offset += internalChildNode.widthWithMinutiae();
         }
 

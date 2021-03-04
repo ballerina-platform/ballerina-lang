@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
@@ -389,11 +390,11 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     BLangBlockStmt desugar(BLangRollback rollbackNode, BLangLiteral transactionBlockID,
-                           BLangSimpleVarRef retryManagerRef) {
+                           BLangSimpleVarRef shouldRetryRef) {
         // Rollback desugar implementation
         BLangBlockStmt rollbackBlockStmt = ASTBuilderUtil.createBlockStmt(rollbackNode.pos);
         BLangStatementExpression rollbackExpr = invokeRollbackFunc(rollbackNode.pos, rollbackNode.expr,
-                transactionBlockID, retryManagerRef);
+                transactionBlockID, shouldRetryRef);
         BLangExpressionStmt rollbackStmt = ASTBuilderUtil.createExpressionStmt(rollbackNode.pos, rollbackBlockStmt);
         rollbackStmt.expr = rollbackExpr;
         return rollbackBlockStmt;
@@ -406,7 +407,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     //    }
     void createRollbackIfFailed(Location pos, BLangBlockStmt onFailBodyBlock,
                                 BSymbol trxFuncResultSymbol, BLangLiteral trxBlockId,
-                                BLangSimpleVarRef retryManagerRef) {
+                                BLangSimpleVarRef shouldRetryRef) {
         BLangIf rollbackCheck = (BLangIf) TreeBuilder.createIfElseStatementNode();
         rollbackCheck.pos = pos;
         int stmtIndex = onFailBodyBlock.stmts.isEmpty() ? 0 : 1;
@@ -448,7 +449,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         // rollbackTransaction(transactionBlockID, retryManager);
         BLangStatementExpression rollbackInvocation = invokeRollbackFunc(pos,
                 desugar.addConversionExprIfRequired(trxResultRef, symTable.errorOrNilType),
-                trxBlockId, retryManagerRef);
+                trxBlockId, shouldRetryRef);
 
         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckPanickedExpr(pos, rollbackInvocation,
                 symTable.nilType);
@@ -480,7 +481,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     BLangStatementExpression invokeRollbackFunc(Location pos, BLangExpression rollbackExpr,
-                                                BLangLiteral trxBlockId, BLangSimpleVarRef retryManagerRef) {
+                                                BLangLiteral trxBlockId, BLangSimpleVarRef shouldRetryRef) {
         // Rollback desugar implementation
         BLangBlockStmt rollbackBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
 
@@ -489,11 +490,17 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(ROLLBACK_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(trxBlockId);
-        if (rollbackExpr != null) {
-            args.add(rollbackExpr);
+        if (shouldRetryRef != null) {
+            BLangNamedArgsExpression shouldRetry = new BLangNamedArgsExpression();
+            shouldRetry.name = ASTBuilderUtil.createIdentifier(pos, "shouldRetry");
+            shouldRetry.expr = shouldRetryRef;
+            args.add(shouldRetry);
         }
-        if (retryManagerRef != null) {
-            args.add(retryManagerRef);
+        if (rollbackExpr != null) {
+            BLangNamedArgsExpression rollbackErr = new BLangNamedArgsExpression();
+            rollbackErr.name = ASTBuilderUtil.createIdentifier(pos, "err");
+            rollbackErr.expr = rollbackExpr;
+            args.add(rollbackErr);
         }
         BLangInvocation rollbackTransactionInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(pos, rollbackTransactionInvokableSymbol, args, symResolver);
