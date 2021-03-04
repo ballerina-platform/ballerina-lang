@@ -2970,7 +2970,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(invocationIdentifier),
                 type.tsymbol);
-        if (funcSymbol == symTable.notFoundSymbol) {
+        if (funcSymbol == symTable.notFoundSymbol || funcSymbol.kind != SymbolKind.FUNCTION) {
             BSymbol langLibMethodSymbol = getLangLibMethod(iExpr, type);
             if (langLibMethodSymbol == symTable.notFoundSymbol) {
                 dlog.error(iExpr.name.pos, DiagnosticErrorCode.UNDEFINED_FIELD_IN_RECORD, invocationIdentifier, type);
@@ -6761,22 +6761,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 return symTable.semanticError;
             }
 
-            if (varRefType.tag == TypeTags.UNION) {
-                Set<BType> memTypes = ((BUnionType) varRefType).getMemberTypes();
-                if (memTypes.contains(symTable.xmlTextType) || memTypes.contains(symTable.xmlType)) {
-                    indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
-                    dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
-                            indexBasedAccessExpr.expr.type);
-                    return symTable.semanticError;
-                }
-            }
             indexBasedAccessExpr.originalType = symTable.stringType;
             actualType = symTable.stringType;
-
-            if (TypeTags.isXMLTypeTag(varRefType.tag)) {
-                indexBasedAccessExpr.originalType = varRefType;
-                actualType = varRefType;
-            }
         } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             if (indexBasedAccessExpr.lhsVar) {
                 indexExpr.type = symTable.semanticError;
@@ -6791,7 +6777,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // Note: out of range member access returns empty xml value unlike lists
             // hence, this needs to be set to xml type
             indexBasedAccessExpr.originalType = varRefType;
-            if (varRefType.tag == TypeTags.XML) {
+            if (varRefType.tag == TypeTags.XML || varRefType.tag == TypeTags.XML_TEXT) {
                 actualType = varRefType;
             } else {
                 actualType = BUnionType.create(null, varRefType, symTable.xmlNeverType);

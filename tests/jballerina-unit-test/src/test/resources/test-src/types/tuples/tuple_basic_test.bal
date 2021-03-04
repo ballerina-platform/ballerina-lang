@@ -417,6 +417,16 @@ function getComplexTuple1() returns [[int], map<int>, error, int...] => [[5], {a
 function getComplexTuple2() returns [string, [Foo, [BarObj, FooObj]], [Bar, int]] =>
                                        [foo.name, [foo, [barObj, fooObj]], [bar, barObj.i]];
 
+function testTupleAsTupleFirstMember() {
+    [[int, int]...] x = [[1, 2], [3, 4], [7, 8]];
+    assertEquality(1, x[0][0]);
+    assertEquality(2, x[0][1]);
+    assertEquality(3, x[1][0]);
+    assertEquality(4, x[1][1]);
+    assertEquality(7, x[2][0]);
+    assertEquality(8, x[2][1]);
+}
+
 function getError(string expectedVal, string actualVal) returns error {
     return error("expected " + expectedVal + " found " + actualVal);
 }

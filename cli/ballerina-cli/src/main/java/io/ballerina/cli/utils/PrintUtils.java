@@ -48,14 +48,15 @@ public class PrintUtils {
         int rightMargin = 3;
         int width = Integer.parseInt(terminalWidth) - rightMargin;
         int dateColWidth = 15;
-        int versionColWidth = 8;
         int authorsColWidth = 15;
-        double nameColFactor = 9.0;
-        double descColFactor = 16.0;
+        double nameColFactor = 7.0;
+        double descColFactor = 14.0;
+        double versionColFactor = 4.0;
         int additionalSpace = 7;
-        double remainingWidth = (double) width - (dateColWidth + versionColWidth + additionalSpace);
-        int nameColWidth = (int) Math.round(remainingWidth * (nameColFactor / (nameColFactor + descColFactor)));
-        int descColWidth = (int) Math.round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));
+        double remainingWidth = (double) width - (dateColWidth + additionalSpace);
+        int nameColWidth = getColWidth(remainingWidth, nameColFactor, descColFactor, versionColFactor);
+        int descColWidth = getColWidth(remainingWidth, descColFactor, nameColFactor, versionColFactor);
+        int versionColWidth = getColWidth(remainingWidth, versionColFactor, nameColFactor, descColFactor);
         int minDescColWidth = 60;
 
         printTitle();
@@ -63,7 +64,7 @@ public class PrintUtils {
 
         for (Package aPackage : packages) {
             printPackage(aPackage, dateColWidth, versionColWidth, authorsColWidth, nameColWidth, descColWidth,
-                    minDescColWidth);
+                         minDescColWidth);
             outStream.println();
         }
         outStream.println();
@@ -251,5 +252,10 @@ public class PrintUtils {
             summary = readme.substring(0, readme.indexOf('\n'));
         }
         return summary;
+    }
+
+    private static int getColWidth(double remainingWidth, double colFactor, double otherColFactor1,
+            double otherColFactor2) {
+        return (int) Math.round(remainingWidth * (colFactor / (colFactor + otherColFactor1 + otherColFactor2)));
     }
 }

@@ -57,4 +57,9 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
 
         return completionItems;
     }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, TypeTestExpressionNode node) {
+        return !node.isKeyword().isMissing();
+    }
 }
