@@ -20,7 +20,7 @@ package io.ballerina.projects.plugins;
 /**
  * @since 2.0.0
  */
-public class CompilerPluginContext {
+public abstract class CompilerPluginContext {
     public void addCodeAnalyzer(CodeAnalyzer codeAnalyzer) {
         throw new UnsupportedOperationException();
     }

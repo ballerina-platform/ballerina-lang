@@ -26,7 +26,7 @@ import io.ballerina.toml.syntax.tree.SyntaxKind;
  *
  * @since 2.0.0
  */
-public class CodeAnalysisContext {
+public abstract class CodeAnalysisContext {
 
     /**
      * Add a code analysis task to be triggered once the compilation is completed.
