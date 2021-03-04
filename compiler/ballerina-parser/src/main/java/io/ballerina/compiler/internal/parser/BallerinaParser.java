@@ -7058,7 +7058,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseServiceDeclOrVarDecl(STNode metadata, STNode publicQualifier, List<STNode> qualifiers) {
         startContext(ParserRuleContext.SERVICE_DECL);
-        List<STNode> serviceDeclQualList = extractAndCreateServiceDeclQual(qualifiers);
+        List<STNode> serviceDeclQualList = extractServiceDeclQualifiers(qualifiers);
         STNode serviceKeyword = extractServiceKeyword(qualifiers);
         STNode typeDesc = parseServiceDeclTypeDescriptor(qualifiers);
 
@@ -7085,11 +7085,9 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD: // Error binding pattern
                 endContext(); // End `SERVICE_DECL` context
                 typeDesc = modifyObjectTypeDescWithALeadingQualifier(typeDesc, serviceKeyword);
-                STNode serviceDeclQualNodeList = STNodeFactory.createNodeList(serviceDeclQualList);
-                STNodeList qualifiers = (STNodeList) serviceDeclQualNodeList;
-                if (!qualifiers.isEmpty()) {
+                if (!serviceDeclQualList.isEmpty()) {
                     // Currently, service-decl-quals := isolated-qual only.
-                    STNode isolatedQualifier = qualifiers.get(0);
+                    STNode isolatedQualifier = serviceDeclQualList.get(0);
                     typeDesc = modifyObjectTypeDescWithALeadingQualifier(typeDesc, isolatedQualifier);
                 }
                 return parseVarDeclTypeDescRhs(typeDesc, metadata, publicQualifier, new ArrayList<>(), true, true);
@@ -7100,7 +7098,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private List<STNode> extractAndCreateServiceDeclQual(List<STNode> qualifierList) {
+    private List<STNode> extractServiceDeclQualifiers(List<STNode> qualifierList) {
         // We only reach here for a qualifierList containing service keyword/s.
         // Validate qualifierList until first service keyword is reached.
         List<STNode> validatedList = new ArrayList<>();
