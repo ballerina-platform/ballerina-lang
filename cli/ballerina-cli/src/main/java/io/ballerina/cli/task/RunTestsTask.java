@@ -86,7 +86,6 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
 public class RunTestsTask implements Task {
     private final PrintStream out;
     private final PrintStream err;
-    private final List<String> args;
     private final String includesInCoverage;
     private List<String> groupList;
     private List<String> disableGroupList;
@@ -97,18 +96,16 @@ public class RunTestsTask implements Task {
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args, String includes) {
+    public RunTestsTask(PrintStream out, PrintStream err, String includes) {
         this.out = out;
         this.err = err;
-        this.args = Lists.of(args);
         this.includesInCoverage = includes;
     }
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean rerunTests, List<String> groupList,
+    public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
                         List<String> disableGroupList, List<String> testList, String includes) {
         this.out = out;
         this.err = err;
-        this.args = Lists.of(args);
         this.isSingleTestExecution = false;
         this.isRerunTestExecution = rerunTests;
 

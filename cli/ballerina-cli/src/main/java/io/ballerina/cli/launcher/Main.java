@@ -102,10 +102,10 @@ public class Main {
             // set stop at positional to run command
             cmdParser.getSubcommands().get("run").setStopAtPositional(true)
                     .setUnmatchedOptionsArePositionalParams(true);
-            cmdParser.getSubcommands().get("build").setStopAtPositional(true)
-                    .setUnmatchedOptionsArePositionalParams(true);
+            cmdParser.getSubcommands().get("build").setStopAtUnmatched(true).setStopAtPositional(true).
+                    setUnmatchedArgumentsAllowed(false);
             cmdParser.getSubcommands().get("test").setStopAtPositional(true)
-                    .setUnmatchedOptionsArePositionalParams(true);
+                    .setUnmatchedArgumentsAllowed(false);
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();
