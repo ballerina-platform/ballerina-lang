@@ -468,8 +468,8 @@ function testSelectingTextFromXml() {
     xml nameText = (name/*).text();
     assert(nameText.toString(), "DanBrown");
 
-    xml<xml:Text> nameText2 = xml:text((name/*));
-    assert(nameText2.toString(), nameText.toString());
+    xml<xml:Text> textValues2 = xml:text(helloText);
+    assert(textValues2.toString(), textValues.toString());
 }
 
 function assert(anydata actual, anydata expected) {
