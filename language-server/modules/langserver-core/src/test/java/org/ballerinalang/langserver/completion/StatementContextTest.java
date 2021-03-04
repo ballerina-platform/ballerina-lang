@@ -40,7 +40,10 @@ public class StatementContextTest extends CompletionTestNew {
                 "if_stmt_ctx_config3.json",
                 "elseif_stmt_ctx_config3.json",
                 "if_stmt_ctx_config3.json", // Blocked By #26317
-                "match_stmt_ctx_config1.json" // Blocked by #26455
+                "match_stmt_ctx_config8.json",
+                "match_stmt_ctx_config9.json",
+                "match_stmt_ctx_config10.json",
+                "match_stmt_ctx_config11.json"
         );
     }
 

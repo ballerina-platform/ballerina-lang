@@ -242,7 +242,7 @@ public final class FunctionCompletionItemBuilder {
                                                                        String functionName,
                                                                        BallerinaCompletionContext ctx) {
         if (functionSymbol == null) {
-            return ImmutablePair.of(functionName + "();", functionName + "()");
+            return ImmutablePair.of(functionName + "()", functionName + "()");
         }
         FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
         StringBuilder signature = new StringBuilder(functionName + "(");
