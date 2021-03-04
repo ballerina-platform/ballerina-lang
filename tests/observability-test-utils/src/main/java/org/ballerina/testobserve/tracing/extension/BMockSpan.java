@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.ballerina.testobserve.tracing.extension;
 
 import io.opentelemetry.api.common.Attributes;
@@ -42,10 +41,10 @@ public class BMockSpan {
     private String spanId;
     private String parentId;
     private Map<String, Object> tags;
-    private List<LogEntry> events;
+    private List<BMockEvent> events;
 
     public BMockSpan(String operationName, String traceId, String spanId, String parentId, Map<String, Object> tags,
-                     List<LogEntry> events) {
+                     List<BMockEvent> events) {
         this.operationName = operationName;
         this.traceId = traceId;
         this.spanId = spanId;
@@ -68,7 +67,7 @@ public class BMockSpan {
             HashMap<String, Object> field = new HashMap<>();
             eventData.getAttributes().forEach((attributeKey, o) -> field.put(attributeKey.getKey(), o));
             fields.put(eventData.getName(), field);
-            this.events.add(new LogEntry(eventData.getEpochNanos(), fields));
+            this.events.add(new BMockEvent(eventData.getEpochNanos(), fields));
         }
     }
 
@@ -112,7 +111,7 @@ public class BMockSpan {
         this.tags = tags;
     }
 
-    public List<LogEntry> getEvents() {
+    public List<BMockEvent> getEvents() {
         return events;
     }
 
@@ -120,11 +119,11 @@ public class BMockSpan {
         List<BMockSpanEvent> checkpoints;
         if (getEvents() != null) {
             checkpoints = new ArrayList<>(getEvents().size());
-            for (LogEntry eventLog : getEvents()) {
+            for (BMockEvent mockEvent : getEvents()) {
                 BMockSpan.BMockSpanEvent checkpoint = new BMockSpan.BMockSpanEvent(
-                        (((Map) eventLog.fields().get(CHECKPOINT_EVENT_NAME)).
+                        (((Map) mockEvent.fields().get(CHECKPOINT_EVENT_NAME)).
                                 get(TAG_KEY_SRC_MODULE)).toString(),
-                        (((Map) eventLog.fields().get(CHECKPOINT_EVENT_NAME)).
+                        (((Map) mockEvent.fields().get(CHECKPOINT_EVENT_NAME)).
                                 get(TAG_KEY_SRC_POSITION)).toString()
                 );
                 checkpoints.add(checkpoint);
@@ -168,13 +167,12 @@ public class BMockSpan {
 
     /**
      * This holds mock events.
-     * Copied from opentracing mock span.
      */
-    public static final class LogEntry {
+    public static final class BMockEvent {
         private final long timestampMicros;
         private final Map<String, ?> fields;
 
-        public LogEntry(long timestampMicros, Map<String, ?> fields) {
+        public BMockEvent(long timestampMicros, Map<String, ?> fields) {
             this.timestampMicros = timestampMicros;
             this.fields = fields;
         }

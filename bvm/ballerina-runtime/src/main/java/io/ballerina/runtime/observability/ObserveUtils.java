@@ -30,7 +30,6 @@ import io.ballerina.runtime.observability.tracer.BSpan;
 import io.opentelemetry.api.common.Attributes;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -235,9 +234,7 @@ public class ObserveUtils {
                 .put(TAG_KEY_SRC_MODULE, pkg.getValue())
                 .put(TAG_KEY_SRC_POSITION, position.getValue())
                 .build();
-        HashMap<String, Attributes> event = new HashMap<>(1);
-        event.put(CHECKPOINT_EVENT_NAME, eventAttributes);
-        span.addEvent(event);
+        span.addEvent(CHECKPOINT_EVENT_NAME, eventAttributes);
     }
 
     /**

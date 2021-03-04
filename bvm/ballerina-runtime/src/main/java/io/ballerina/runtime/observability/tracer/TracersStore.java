@@ -34,6 +34,7 @@ public class TracersStore {
     private Map<String, Tracer> store;
     private static final PrintStream consoleError = System.err;
     private static final TracersStore instance = new TracersStore();
+    private ContextPropagators propagators;
 
     public static TracersStore getInstance() {
         return instance;
@@ -44,6 +45,9 @@ public class TracersStore {
 
     public void setTracerGenerator(TracerProvider tracerProvider) {
         this.tracerProvider = tracerProvider;
+        if (tracerProvider != null) {
+            propagators = tracerProvider.getPropagators();
+        }
         store = new HashMap<>();
     }
 
@@ -76,14 +80,10 @@ public class TracersStore {
     }
 
     public ContextPropagators getPropagators() {
-        ContextPropagators propagators = null;
-        if (tracerProvider != null) {
-            propagators = tracerProvider.getPropagators();
+        if (propagators != null) {
+            return propagators;
         }
-        if (propagators == null) {
-            propagators = ContextPropagators.noop();
-        }
-        return propagators;
+        return ContextPropagators.noop();
     }
 
     /**
