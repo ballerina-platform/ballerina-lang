@@ -86,20 +86,32 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "INT_TYPE_DESC",
-                              "hasDiagnostics": true,
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
-                                  "kind": "INT_KEYWORD",
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_INVALID_TOKEN"
-                                  ],
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": " ",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": "    "
-                                    },
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_INVALID_TOKEN"
+                                  ],
+                                  "value": "a",
+                                  "leadingMinutiae": [
                                     {
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
@@ -111,23 +123,28 @@
                                           }
                                         ]
                                       }
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
+                                    },
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
+                                        "children": [
+                                          {
+                                            "kind": "INT_KEYWORD",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    },
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": " "
                                     }
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CAPTURE_BINDING_PATTERN",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "a"
                                 }
                               ]
                             }
