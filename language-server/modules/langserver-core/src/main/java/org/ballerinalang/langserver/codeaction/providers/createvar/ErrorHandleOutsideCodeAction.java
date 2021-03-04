@@ -33,6 +33,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.codeaction.CodeActionUtil.getAddCheckTextEdits;
@@ -63,12 +64,12 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
-        TypeSymbol typeSymbol = positionDetails.matchedExprType();
-        if (typeSymbol == null || typeSymbol.typeKind() != TypeDescKind.UNION) {
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }
-        UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol;
-
+        UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol.get();
         boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
                 .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
         long nonErrorNonNilMemberCount = unionTypeDesc.memberTypeDescriptors().stream()
@@ -78,7 +79,8 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
             return Collections.emptyList();
         }
         List<TextEdit> edits = new ArrayList<>();
-        edits.addAll(getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails, context));
+        edits.addAll(getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
+                                                   typeSymbol.get(), context));
         edits.addAll(getAddCheckTextEdits(CommonUtil.toRange(diagnostic.location().lineRange()).getStart(),
                                           positionDetails.matchedNode(), context));
 
@@ -89,12 +91,13 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
     private List<TextEdit> getModifiedCreateVarTextEdits(Diagnostic diagnostic,
                                                          UnionTypeSymbol unionTypeDesc,
                                                          DiagBasedPositionDetails positionDetails,
+                                                         TypeSymbol typeSymbol,
                                                          CodeActionContext context) {
         List<TextEdit> edits = new ArrayList<>();
 
         // Add create variable edits
         Range range = CommonUtil.toRange(diagnostic.location().lineRange());
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeSymbol, context);
 
         // Change and add type text edit
         String typeWithError = createVarTextEdits.types.get(0);

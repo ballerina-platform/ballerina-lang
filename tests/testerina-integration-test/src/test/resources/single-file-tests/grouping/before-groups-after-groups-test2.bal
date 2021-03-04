@@ -60,7 +60,10 @@ function testFunction3() {
     a += "5";
 }
 
-@test:Config {groups : ["g1", "g2"]}
+@test:Config {
+    groups : ["g1", "g2"],
+    dependsOn: [testFunction]
+}
 function testFunction4() {
     a += "6";
 }

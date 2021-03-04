@@ -35,6 +35,6 @@ import io.ballerina.runtime.api.values.BXml;
 public class IsText {
 
     public static boolean isText(BXml xmlValue) {
-        return xmlValue.getNodeType() == XmlNodeType.TEXT;
+        return xmlValue.getNodeType() == XmlNodeType.TEXT || xmlValue.isEmpty();
     }
 }

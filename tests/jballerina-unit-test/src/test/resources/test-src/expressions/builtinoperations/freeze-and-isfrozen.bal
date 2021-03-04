@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/lang.'xml as xmllib;
+import ballerina/lang.value;
 
 final string FREEZE_ERROR_OCCURRED = "error occurred on freeze: ";
 final string FREEZE_SUCCESSFUL = "freeze successful";
@@ -460,8 +461,8 @@ function testStructureWithErrorValueFreeze() returns boolean {
     error e = error(errReason);
     map<anydata|error> m = { err: e };
 
-    anydata res = m.cloneReadOnly();
-    return res is map<anydata|error> && res["err"] === e && res.isReadOnly();
+    value:Cloneable res = m.cloneReadOnly();
+    return res is map<value:Cloneable> && res["err"] === e && res.isReadOnly();
 }
 
 function testFrozenValueUpdatePanicWithCheckTrap() returns boolean|error {

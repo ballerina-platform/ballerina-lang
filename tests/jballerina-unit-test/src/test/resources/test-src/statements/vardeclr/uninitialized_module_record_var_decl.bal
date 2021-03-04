@@ -21,6 +21,11 @@ type Car record {
 
 Car {id: carId, color: carColor};
 
+function init() {
+    carId = 1009;
+    carColor = "red";
+}
+
 public function main() {
    string myCarColor = carColor;
 }

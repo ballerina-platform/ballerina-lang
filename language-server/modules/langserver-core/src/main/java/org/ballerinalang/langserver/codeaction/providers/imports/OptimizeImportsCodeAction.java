@@ -65,7 +65,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
                                                     NodeBasedPositionDetails posDetails) {
         List<CodeAction> actions = new ArrayList<>();
         String uri = context.fileUri();
-        SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
+        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
         // Copying to a separate list since there's side effects when modifying same node-list
         List<ImportDeclarationNode> fileImports = new ArrayList<>();
         ((ModulePartNode) syntaxTree.rootNode()).imports().stream().forEach(fileImports::add);
