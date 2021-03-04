@@ -110,7 +110,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
             //Find the ST Nodes of the selected range
             SyntaxTree syntaxTree = srcFile.get().syntaxTree();
-            Node node = BallerinaSyntaxTreeByRangeUtil.getNode(request.getLineRange(), syntaxTree);
+            Node node = CommonUtil.findNode(request.getLineRange(), syntaxTree);
 
             // Get the generated syntax tree JSON with type info.
             JsonElement subSyntaxTree = DiagramUtil.getSyntaxTreeJSONByRange(node, semanticModel.get());
@@ -128,8 +128,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
-    public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreePath(
-            BallerinaSyntaxTreeByRangeRequest request) {
+    public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeLocate(BallerinaSyntaxTreeByRangeRequest request) {
         BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
         String fileUri = request.getDocumentIdentifier().getUri();
         Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
@@ -153,7 +152,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(srcFile.get(), semanticModel.get());
 
             //Map the path on the JSON syntax tree object
-            syntaxTreeJSON = BallerinaSyntaxTreePathUtil.mapNodePath(request.getLineRange(), syntaxTree,
+            syntaxTreeJSON = BallerinaLocateSyntaxTreeUtil.mapNodePath(request.getLineRange(), syntaxTree,
                     syntaxTreeJSON);
 
             // Preparing the response.
@@ -162,7 +161,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             reply.setParseSuccess(reply.getSyntaxTree() != null);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
-            String msg = "Operation 'ballerinaDocument/syntaxTreePath' failed!";
+            String msg = "Operation 'ballerinaDocument/syntaxTreeLocate' failed!";
             this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
@@ -253,9 +252,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             String fileUri = params.getDocumentIdentifier().getUri();
             try {
                 DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
-                        this.workspaceManager,
-                        LSContextOperation.DOC_DIAGNOSTICS,
-                        this.serverContext);
+                                                                                 this.workspaceManager,
+                                                                                 LSContextOperation.DOC_DIAGNOSTICS,
+                                                                                 this.serverContext);
                 DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
                 return diagnosticsHelper.getLatestDiagnostics(context).entrySet().stream()
                         .map((entry) -> new PublishDiagnosticsParams(entry.getKey(), entry.getValue()))
