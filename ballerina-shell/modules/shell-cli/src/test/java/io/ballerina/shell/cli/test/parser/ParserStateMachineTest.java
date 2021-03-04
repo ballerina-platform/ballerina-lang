@@ -23,8 +23,6 @@ import io.ballerina.shell.cli.jline.parser.ParserStateMachine;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-
 /**
  * Test {@code ParserStateMachine} behavior.
  *
