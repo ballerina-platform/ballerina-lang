@@ -252,9 +252,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             String fileUri = params.getDocumentIdentifier().getUri();
             try {
                 DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
-                        this.workspaceManager,
-                        LSContextOperation.DOC_DIAGNOSTICS,
-                        this.serverContext);
+                                                                                this.workspaceManager,
+                                                                                LSContextOperation.DOC_DIAGNOSTICS,
+                                                                                this.serverContext);
                 DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
                 return diagnosticsHelper.getLatestDiagnostics(context).entrySet().stream()
                         .map((entry) -> new PublishDiagnosticsParams(entry.getKey(), entry.getValue()))

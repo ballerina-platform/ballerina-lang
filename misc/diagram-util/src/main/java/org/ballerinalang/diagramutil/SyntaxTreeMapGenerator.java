@@ -325,7 +325,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         return nodeJson;
     }
 
-    protected JsonElement apply(Node node) {
+    private JsonElement apply(Node node) {
         JsonObject nodeInfo = new JsonObject();
         nodeInfo.addProperty("kind", prettifyKind(node.kind().toString()));
         if (node instanceof Token) {
@@ -354,7 +354,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         return nodeInfo;
     }
 
-    protected String prettifyKind(String kind) {
+    private String prettifyKind(String kind) {
         return Arrays.stream(kind.split("_"))
                 .map(String::toLowerCase)
                 .map(StringUtils::capitalize)
