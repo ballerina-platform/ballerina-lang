@@ -100,7 +100,7 @@ public class ParserTestRunner {
     Object[][] getParserTestConfigs() {
         List<String> skippedTests = skipList();
         try {
-            return Files.walk(parserDir.resolve("src").resolve("test").resolve(Paths.get("resources").toString()))
+            return Files.walk(parserDir.resolve("src").resolve("test").resolve("resources"))
                     .filter(path -> {
                         File file = path.toFile();
                         return file.isFile() && file.getName().endsWith(".bal")
