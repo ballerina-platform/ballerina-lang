@@ -189,9 +189,9 @@ function myFunctionWithWorkers() {
     }
 }
 
-type A record {
+type A record {|
     string val = "ABC";
-};
+|};
 
 public annotation A v16 on type;
 public annotation A v17 on function;
@@ -237,4 +237,13 @@ function myFunction4(@v19 {} string name) returns string {
 @v23 {}
 @v23 {}
 public function myFunction5(string... argv) {
+}
+
+type C record { int i?; };
+
+annotation C[] v24 on function;
+
+@v24
+@v24
+public function myFunction6(string... argv) {
 }

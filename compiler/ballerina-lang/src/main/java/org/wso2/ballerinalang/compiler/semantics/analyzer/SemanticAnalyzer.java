@@ -3500,21 +3500,29 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (annAttachmentNode.expr == null) {
-            annAttachmentNode.expr = new BLangRecordLiteral();
-            annAttachmentNode.expr.pos = annAttachmentNode.pos;
-        }
-
         BType annotType = annotationSymbol.attachedType.type;
-        this.typeChecker.checkExpr(annAttachmentNode.expr, env,
-                annotType.tag == TypeTags.ARRAY ? ((BArrayType) annotType).eType : annotType);
-
-        if (Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
-            if (annotationSymbol.points.stream().anyMatch(attachPoint -> !attachPoint.source)) {
-                constantAnalyzer.analyzeExpr(annAttachmentNode.expr);
+        if (annAttachmentNode.expr == null) {
+            BRecordType recordType = annotType.tag == TypeTags.RECORD ? (BRecordType) annotType :
+                    annotType.tag == TypeTags.ARRAY && ((BArrayType) annotType).eType.tag == TypeTags.RECORD ?
+                            (BRecordType) ((BArrayType) annotType).eType : null;
+            if (recordType != null && this.typeChecker.checkRecordTypeForRequiredFields(recordType)) {
+                this.dlog.error(annAttachmentNode.pos, DiagnosticErrorCode.ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE,
+                        recordType);
                 return;
             }
-            checkAnnotConstantExpression(annAttachmentNode.expr);
+        }
+
+        if (annAttachmentNode.expr != null) {
+            this.typeChecker.checkExpr(annAttachmentNode.expr, env,
+                    annotType.tag == TypeTags.ARRAY ? ((BArrayType) annotType).eType : annotType);
+
+            if (Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
+                if (annotationSymbol.points.stream().anyMatch(attachPoint -> !attachPoint.source)) {
+                    constantAnalyzer.analyzeExpr(annAttachmentNode.expr);
+                    return;
+                }
+                checkAnnotConstantExpression(annAttachmentNode.expr);
+            }
         }
     }
 

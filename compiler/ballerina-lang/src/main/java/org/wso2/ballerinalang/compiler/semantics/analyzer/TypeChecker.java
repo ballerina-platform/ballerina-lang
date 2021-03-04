@@ -7722,4 +7722,19 @@ public class TypeChecker extends BLangNodeVisitor {
             this.readonly = readonly;
         }
     }
+
+    /**
+     * Check whether a record type has required fields.
+     *
+     * @param recordType Record type.
+     * @return true if the record type has required fields; false otherwise.
+     */
+    public boolean checkRecordTypeForRequiredFields(BRecordType recordType) {
+        for (BField field : recordType.fields.values()) {
+            if (Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -427,6 +427,12 @@ public class AnnotationAttachmentTest {
         validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v23", "A");
     }
 
+    @Test
+    public void testAnnotWithEmptyMapConstructorOnFunction6() {
+        BLangFunction function = getFunction("myFunction6");
+        validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v24", "C");
+    }
+
     public void validateEmptyMapConstructorExprInAnnot(List<BLangAnnotationAttachment> attachments,
                                                        String annotationName, String typeName) {
         int i = 0;

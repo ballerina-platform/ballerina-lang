@@ -876,6 +876,13 @@ function myFunction1(@v6 string name) returns string {
     return "Hello " + name;
 }
 
+annotation Annot[] v21 on function;
+
+@v21
+@v21
+public function myFunction6(string... argv) {
+}
+
 @tainted
 @tainted
 @v1 {val: "one"}
