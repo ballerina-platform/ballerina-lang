@@ -588,13 +588,15 @@ public class CommonUtil {
      * @return random argument name
      */
     public static String generateVariableName(Symbol symbol, TypeSymbol typeSymbol, Set<String> names) {
-        if (symbol != null) {
+        // In some scenarios the compiler sends the symbol name as empty string. Hence add the check
+        if (symbol != null && symbol.getName().isPresent() && !symbol.getName().get().isEmpty()) {
             // Start naming with symbol-name
-            return generateVariableName(1, symbol.getName().orElse(""), names);
+            return generateVariableName(1, symbol.getName().get(), names);
         } else if (typeSymbol != null) {
             // If symbol is null, try typeSymbol
             String name;
-            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE && !typeSymbol.getName().get().startsWith("$")) {
+            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE && typeSymbol.getName().isPresent()
+                    && !typeSymbol.getName().get().startsWith("$")) {
                 name = typeSymbol.getName().get();
             } else {
                 TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
