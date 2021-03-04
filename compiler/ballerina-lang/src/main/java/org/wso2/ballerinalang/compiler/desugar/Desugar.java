@@ -6848,11 +6848,12 @@ public class Desugar extends BLangNodeVisitor {
         BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
-        if (!objectType.typeIdSet.primary.isEmpty()) {
-            objectClassType.typeIdSet.primary.addAll(objectType.typeIdSet.primary);
+        var typeIdSet = objectType.typeIdSet;
+        if (!typeIdSet.primary.isEmpty()) {
+            objectClassType.typeIdSet.primary.addAll(typeIdSet.primary);
         }
-        if (!objectType.typeIdSet.secondary.isEmpty()) {
-            objectClassType.typeIdSet.secondary.addAll(objectType.typeIdSet.secondary);
+        if (!typeIdSet.secondary.isEmpty()) {
+            objectClassType.typeIdSet.secondary.addAll(typeIdSet.secondary);
         }
 
         // Create a new object type node and a type def from the concrete class type
