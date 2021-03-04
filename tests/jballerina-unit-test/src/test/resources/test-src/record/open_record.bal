@@ -597,6 +597,22 @@ function testScopingRules() {
     assert(<record {int a; int b; record {int p;} c;}>{a: 20, b: 10, c: {p: 10}}, f2);
 }
 
+type FieldsWithBuiltinNames record {
+    error 'error;
+    json 'json;
+    anydata 'anydata;
+};
+
+function testRecordsWithFieldsWithBuiltinNames() {
+    error newError = error("bam", message = "new error");
+    FieldsWithBuiltinNames f = {
+        'error: newError,
+        'json: {s: "s"},
+        'anydata: 3
+    };
+
+    assert("{\"error\":error(\"bam\",message=\"new error\"),\"json\":{\"s\":\"s\"},\"anydata\":3}", f.toString());
+}
 // Util functions
 
 function assert(anydata expected, anydata actual) {
