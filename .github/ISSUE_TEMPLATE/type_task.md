@@ -1,11 +1,14 @@
+---
+name: "Task"
+about: "Create a task which you want to keep track"
+labels: 'Type/Task'
+
+---
+
 **Description:**
-<!-- Give a brief description of the issue -->
+<!-- Give a brief description of the task -->
 
-**Steps to reproduce:**
-
-**Affected Versions:**
-
-**OS, DB, other environment details and versions:**
+**Describe your task(s)**
 
 **Related Issues (optional):**
 <!-- Any related issues such as sub tasks, issues reported in other repositories (e.g component repositories), similar problems, etc. -->
