@@ -24,8 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
 
 /**
  * Test running parser tests through compiler phases.
@@ -46,59 +45,54 @@ public class ParserTestRunner {
         }
     }
 
-    public List<String> skipList() {
-        return Arrays.asList(
-                // Following should be fixed
-                // TODO: categorize and create issues
-                "array_type_source_17.bal",
-                "singleton_type_source_08.bal",
-                "singleton_type_source_01.bal",
-                "singleton_type_source_02.bal",
-                "xml_template_source_24.bal",
-                "explicit-new-with-object-keyword-with-multiple-args-negative02.bal",
-                "explicit-new-with-object-keyword-with-one-arg-negative01.bal",
-                "explicit-new-with-object-keyword-with-no-args.bal",
-                "explicit-new-with-object-keyword-with-multiple-args.bal",
-                "explicit-new-with-object-keyword-with-one-arg-negative02.bal",
-                "explicit-new-with-object-keyword-with-multiple-args-negative01.bal",
-                "explicit-new-with-object-keyword-with-multiple-args-negative01.bal",
-                "explicit-new-with-object-keyword-with-one-args.bal",
-                "query_action_source_06.bal",
-                "send_action_source_01.bal",
-                "send_action_source_03.bal",
-                "func_def_source_08.bal",
-                "find_node_test_1.bal",
-                "enum_decl_source_08.bal",
-                "enum_decl_source_05.bal",
-                "enum_decl_source_09.bal",
-                "minutiae_test_05_with_no_newlines.bal",
-                "import_decl_source_13.bal",
-                "ambiguity_source_06.bal",
-                "ambiguity_source_11.bal",
-                "ambiguity_source_29.bal",
-                "worker_decl_source_02.bal",
-                "typed_binding_patterns_source_16.bal",
-                "forEach_stmt_source_07.bal",
-                "do_stmt_source_07.bal",
-                "match_stmt_source_13.bal",
-                "match_stmt_source_07.bal",
-                "match_stmt_source_10.bal",
-                "match_stmt_source_08.bal",
-                "match_stmt_source_12.bal",
-                "match_stmt_source_03.bal",
-                "match_stmt_source_06.bal",
-                "match_stmt_source_09.bal",
-                "match_stmt_source_11.bal"
-        );
+    public HashSet<String> skipList() {
+        HashSet<String> hashSet = new HashSet<>();
+        // Following should be fixed
+        // TODO: categorize and create issues
+        hashSet.add("array_type_source_17.bal");
+        hashSet.add("singleton_type_source_08.bal");
+        hashSet.add("singleton_type_source_01.bal");
+        hashSet.add("singleton_type_source_02.bal");
+        hashSet.add("xml_template_source_24.bal");
+        hashSet.add("explicit-new-with-object-keyword-with-multiple-args-negative02.bal");
+        hashSet.add("explicit-new-with-object-keyword-with-one-arg-negative01.bal");
+        hashSet.add("explicit-new-with-object-keyword-with-no-args.bal");
+        hashSet.add("explicit-new-with-object-keyword-with-multiple-args.bal");
+        hashSet.add("explicit-new-with-object-keyword-with-one-arg-negative02.bal");
+        hashSet.add("explicit-new-with-object-keyword-with-multiple-args-negative01.bal");
+        hashSet.add("explicit-new-with-object-keyword-with-one-args.bal");
+        hashSet.add("query_action_source_06.bal");
+        hashSet.add("send_action_source_01.bal");
+        hashSet.add("send_action_source_03.bal");
+        hashSet.add("func_def_source_08.bal");
+        hashSet.add("find_node_test_1.bal");
+        hashSet.add("enum_decl_source_08.bal");
+        hashSet.add("enum_decl_source_05.bal");
+        hashSet.add("enum_decl_source_09.bal");
+        hashSet.add("minutiae_test_05_with_no_newlines.bal");
+        hashSet.add("import_decl_source_13.bal");
+        hashSet.add("ambiguity_source_06.bal");
+        hashSet.add("ambiguity_source_11.bal");
+        hashSet.add("ambiguity_source_29.bal");
+        hashSet.add("worker_decl_source_02.bal");
+        hashSet.add("typed_binding_patterns_source_16.bal");
+        hashSet.add("forEach_stmt_source_07.bal");
+        hashSet.add("do_stmt_source_07.bal");
+        hashSet.add("match_stmt_source_13.bal");
+        hashSet.add("match_stmt_source_07.bal");
+        hashSet.add("match_stmt_source_10.bal");
+        hashSet.add("match_stmt_source_08.bal");
+        hashSet.add("match_stmt_source_12.bal");
+        hashSet.add("match_stmt_source_03.bal");
+        hashSet.add("match_stmt_source_06.bal");
+        hashSet.add("match_stmt_source_09.bal");
+        hashSet.add("match_stmt_source_11.bal");
+        return hashSet;
     }
 
     @DataProvider(name = "parser-test-file-provider")
     public Object[][] dataProvider() {
-        return getParserTestConfigs();
-    }
-
-    Object[][] getParserTestConfigs() {
-        List<String> skippedTests = skipList();
+        HashSet<String> skippedTests = skipList();
         try {
             return Files.walk(parserDir.resolve("src").resolve("test").resolve("resources"))
                     .filter(path -> {
@@ -109,6 +103,7 @@ public class ParserTestRunner {
                     .map(path -> new Object[]{path.toFile().getName(), path.toString()})
                     .toArray(size -> new Object[size][2]);
         } catch (IOException e) {
+            Assert.fail("Can't resolve parser tests", e);
             return new Object[0][];
         }
     }
