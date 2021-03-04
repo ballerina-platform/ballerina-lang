@@ -1,0 +1,9 @@
+[main]
+stringVar = "required variable"
+
+[[main.users]]
+username = "alice"
+password="password1"
+
+[main.testUser]
+username = "user"

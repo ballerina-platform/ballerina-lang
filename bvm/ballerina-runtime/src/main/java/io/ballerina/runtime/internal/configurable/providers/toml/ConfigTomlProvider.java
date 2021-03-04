@@ -33,7 +33,6 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
@@ -356,7 +355,8 @@ public class ConfigTomlProvider implements ConfigProvider {
                     getTomlTypeString(tomlNode)));
         }
         TomlTableNode tomlValue = (TomlTableNode) tomlNode;
-        BMapInitialValueEntry[] initialValueEntries = new BMapInitialValueEntry[tomlValue.entries().size()];
+        MappingInitialValueEntry.KeyValueEntry[] initialValueEntries =
+                new MappingInitialValueEntry.KeyValueEntry[tomlValue.entries().size()];
         int count = 0;
         for (Map.Entry<String, TopLevelNode> tomlField : tomlValue.entries().entrySet()) {
             String fieldName = tomlField.getKey();
@@ -392,14 +392,11 @@ public class ConfigTomlProvider implements ConfigProvider {
         return ValueCreator.createMapValue(recordType, initialValueEntries);
     }
 
-    private static void validateRecordFields(BMapInitialValueEntry[] initialValueEntries, RecordType recordType,
-                                             String variableName) {
+    private static void validateRecordFields(MappingInitialValueEntry.KeyValueEntry[] initialValueEntries,
+                                             RecordType recordType, String variableName) {
         List<String> keyList = new ArrayList<>();
-        for (BMapInitialValueEntry entry : initialValueEntries) {
-            if (!entry.isKeyValueEntry()) {
-                continue;
-            }
-            keyList.add(String.valueOf(((MappingInitialValueEntry.KeyValueEntry) entry).key));
+        for (MappingInitialValueEntry.KeyValueEntry entry : initialValueEntries) {
+            keyList.add(String.valueOf(entry.key));
         }
         for (Map.Entry<String, Field> field : recordType.getFields().entrySet()) {
             String fieldName = field.getKey();

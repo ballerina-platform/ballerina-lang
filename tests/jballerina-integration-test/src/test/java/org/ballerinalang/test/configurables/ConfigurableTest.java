@@ -132,8 +132,8 @@ public class ConfigurableTest extends BaseTest {
         return new Object[][]{
                 {"invalidComplexArray", "configurable variable 'main:intComplexArr' with type " +
                         "'(int[] & readonly)[] & readonly' is not supported" },
-                {"invalidRecordField", "field type 'string[][]' in configurable variable 'main:testUser' is " +
-                        "not supported"},
+                {"invalidRecordField", "field type '(string[][] & readonly)' in configurable variable 'main:testUser'" +
+                        " is not supported"},
                 {"invalidByteRange", "Value provided for byte variable 'main:byteVar' is out of range. " +
                         "Expected range is (0-255), found '355'"},
                 {"invalidMapType",
@@ -187,9 +187,9 @@ public class ConfigurableTest extends BaseTest {
                 {"array_multi_type", "configurable variable 'main:intArr[1]' is expected to be of type 'int'," +
                         " but found 'string'"},
                 {"additional_field", "additional field 'scopes' provided for configurable variable 'main:testUser'" +
-                        " of record 'main:AuthInfo' is not supported"},
+                        " of record 'main:(testOrg/main:0.1.0:AuthInfo & readonly)' is not supported"},
                 {"missing_record_field", "value not provided for non-defaultable required field 'username' of record" +
-                        " 'main:AuthInfo' in configurable variable 'main:testUser'"},
+                        " 'main:(testOrg/main:0.1.0:AuthInfo & readonly)' in configurable variable 'main:testUser'"},
                 {"record_type_error", "configurable variable 'main:testUser' is expected to be of type " +
                         "'main:(testOrg/main:0.1.0:AuthInfo & readonly)', but found 'string'"},
                 {"record_field_structure_error", "field 'username' from configurable variable 'main:testUser' " +
@@ -204,6 +204,8 @@ public class ConfigurableTest extends BaseTest {
                         "expected to be of type 'string', but found 'int'"},
                 {"table_field_structure_error", "field 'username' from configurable variable 'main:users' " +
                         "is expected to be of type 'string', but found 'record'"},
+                {"warning_defaultable_field", "WARNING : configurable does not support defaultable record fields." +
+                        " Please provide a value for field 'password' in variable 'main:testUser'"}
         };
     }
 
