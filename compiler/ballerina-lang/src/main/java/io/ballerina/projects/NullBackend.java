@@ -102,4 +102,8 @@ public class NullBackend extends CompilerBackend {
         }
         return true;
     }
+
+    public byte[] getDefaultModuleBir() {
+        return packageContext.defaultModuleContext().getBirBytes();
+    }
 }

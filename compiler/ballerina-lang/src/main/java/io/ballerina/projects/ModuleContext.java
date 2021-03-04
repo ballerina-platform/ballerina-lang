@@ -138,8 +138,9 @@ class ModuleContext {
     }
 
     byte[] getBirBytes() {
+        BLangPackage bLangPackage = getBLangPackageOrThrow();
         if (birBytes == null) {
-            birBytes = new BIRBinaryWriter(this.bLangPackage.symbol.bir).serialize();
+            birBytes = new BIRBinaryWriter(bLangPackage.symbol.bir).serialize();
         }
         return birBytes;
     }
