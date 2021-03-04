@@ -261,9 +261,9 @@ public class PredefinedTypes {
         var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
         BUnionType jsonDecimal = new BUnionType(TypeConstants.JSON_DECIMAL_TNAME, valueModule, members);
         jsonDecimal.isCyclic = true;
-        MapType internaljsonDecimalMap = new BMapType(TypeConstants.MAP_TNAME, jsonDecimal, valueModule);
-        ArrayType internaljsonDecimalArray = new BArrayType(jsonDecimal);
-        jsonDecimal.addMembers(internaljsonDecimalArray, internaljsonDecimalMap);
+        MapType internalJsonDecimalMap = new BMapType(TypeConstants.MAP_TNAME, jsonDecimal, valueModule);
+        ArrayType internalJsonDecimalArray = new BArrayType(jsonDecimal);
+        jsonDecimal.addMembers(internalJsonDecimalArray, internalJsonDecimalMap);
         TYPE_JSON_DECIMAL = jsonDecimal;
     }
 
@@ -277,9 +277,9 @@ public class PredefinedTypes {
         var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
         BUnionType jsonFloat = new BUnionType(TypeConstants.JSON_FLOAT_TNAME, valueModule, members);
         jsonFloat.isCyclic = true;
-        MapType internaljsonFloatMap = new BMapType(TypeConstants.MAP_TNAME, jsonFloat, valueModule);
-        ArrayType internaljsonFloatArray = new BArrayType(jsonFloat);
-        jsonFloat.addMembers(internaljsonFloatArray, internaljsonFloatMap);
+        MapType internalJsonFloatMap = new BMapType(TypeConstants.MAP_TNAME, jsonFloat, valueModule);
+        ArrayType internalJsonFloatArray = new BArrayType(jsonFloat);
+        jsonFloat.addMembers(internalJsonFloatArray, internalJsonFloatMap);
         TYPE_JSON_FLOAT = jsonFloat;
     }
 }
