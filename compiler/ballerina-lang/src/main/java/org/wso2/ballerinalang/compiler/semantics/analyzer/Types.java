@@ -88,8 +88,8 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -135,7 +135,7 @@ public class Types {
 
     private static final CompilerContext.Key<Types> TYPES_KEY =
             new CompilerContext.Key<>();
-    private final ResolvedTypeBuilder typeBuilder;
+    private final Unifier unifier;
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -166,7 +166,7 @@ public class Types {
         this.expandedXMLBuiltinSubtypes = BUnionType.create(null,
                                                             symTable.xmlElementType, symTable.xmlCommentType,
                                                             symTable.xmlPIType, symTable.xmlTextType);
-        this.typeBuilder = new ResolvedTypeBuilder();
+        this.unifier = new Unifier();
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
@@ -824,7 +824,7 @@ public class Types {
     }
 
     private boolean isParameterizedTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        BType resolvedSourceType = typeBuilder.build(source);
+        BType resolvedSourceType = unifier.build(source);
 
         if (target.tag != TypeTags.PARAMETERIZED_TYPE) {
             return isAssignable(resolvedSourceType, target, unresolvedTypes);
@@ -834,7 +834,7 @@ public class Types {
             return false;
         }
 
-        return isAssignable(resolvedSourceType, typeBuilder.build(target), unresolvedTypes);
+        return isAssignable(resolvedSourceType, unifier.build(target), unresolvedTypes);
     }
 
     private boolean isAssignableRecordType(BRecordType recordType, BType type, Set<TypePair> unresolvedTypes) {

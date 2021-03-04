@@ -19,9 +19,7 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -30,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
@@ -55,10 +54,12 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Util class for building concrete BType types from parameterized types.
@@ -67,41 +68,27 @@ import java.util.Map;
  */
 public class Unifier implements BTypeVisitor<BType, BType> {
 
-    private static final CompilerContext.Key<Unifier> UNIFIER_KEY = new CompilerContext.Key<>();
-
     private Map<String, BType> paramValueTypes;
+    private Set<BType> visitedTypes;
     private boolean isInvocation;
     private BLangInvocation invocation;
-    private BLangDiagnosticLog dlogHelper;
-    private final SymbolTable symTable;
-    private final Types types;
+    private Types types;
 
-    private Unifier(CompilerContext context) {
-        context.put(UNIFIER_KEY, this);
-
-        this.symTable = SymbolTable.getInstance(context);
-        this.types = Types.getInstance(context);
-        this.dlogHelper = BLangDiagnosticLog.getInstance(context);
-    }
-
-    public static Unifier getInstance(CompilerContext context) {
-        Unifier unifier = context.get(UNIFIER_KEY);
-        if (unifier == null) {
-            unifier = new Unifier(context);
-        }
-
-        return unifier;
-    }
-
-    public BType build(BType originalType, BType expType, BLangInvocation invocation) {
+    public BType build(BType originalType, BType expType, BLangInvocation invocation, Types types) {
         this.isInvocation = invocation != null;
+        this.visitedTypes = new HashSet<>();
         if (this.isInvocation) {
             this.invocation = invocation;
             createParamMap(invocation);
         }
+        this.types = types;
         BType newType = originalType.accept(this, expType);
         reset();
         return newType;
+    }
+
+    public BType build(BType originalType) {
+        return build(originalType, null, null, null);
     }
 
     @Override
@@ -178,6 +165,36 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BRecordType originalType, BType expType) {
+        if (!Symbols.isFlagOn(originalType.tsymbol.flags, Flags.PARAMETERIZED)) {
+            return originalType;
+        }
+
+        LinkedHashMap<String, BField> newFields = new LinkedHashMap();
+        for (BField field : originalType.fields.values()) {
+            if (this.visitedTypes.contains(field.type)) {
+                continue;
+            }
+
+            this.visitedTypes.add(field.type);
+            BType newFType = field.type.accept(this, null);
+            this.visitedTypes.remove(field.type);
+
+            if (newFType == field.type) {
+                newFields.put(field.name.value, field);
+                continue;
+            }
+
+            BField newField = new BField(field.name, field.pos, field.symbol);
+            newField.type = newFType;
+            newFields.put(newField.name.value, newField);
+        }
+
+        BType newRestType = originalType.restFieldType.accept(this, null);
+
+        BRecordType newRecordType = new BRecordType(null);
+        newRecordType.fields = newFields;
+        newRecordType.restFieldType = newRestType;
+        setFlags(newRecordType, originalType.flags);
         return originalType;
     }
 
@@ -265,6 +282,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         newTableType.keyTypeConstraint = newKeyTypeConstraint;
         newTableType.fieldNameList = originalType.fieldNameList;
         newTableType.constraintPos = originalType.constraintPos;
+        newTableType.isTypeInlineDefined = originalType.isTypeInlineDefined;
         newTableType.keyPos = originalType.keyPos;
         setFlags(newTableType, originalType.flags);
         return newTableType;
@@ -315,7 +333,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BUnionType originalType, BType expType) {
-        if (originalType.isCyclic) {
+        if (!visitedTypes.add(originalType)) {
             return originalType;
         }
 
@@ -323,6 +341,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         LinkedHashSet<BType> newMemberTypes = new LinkedHashSet<>();
 
         for (BType member : originalType.getMemberTypes()) {
+            if (this.visitedTypes.contains(member)) {
+                continue;
+            }
+
             BType newMember = member.accept(this, null);
             newMemberTypes.add(newMember);
 
@@ -413,7 +435,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         if (Symbols.isFlagOn(originalType.paramSymbol.flags, Flags.INFER)) {
             BType paramSymbolType = ((BTypedescType) originalType.paramSymbol.type).constraint;
             if (expType != null && types.isAssignable(expType, paramSymbolType)) {
-                BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
+                BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode(); // todo move
                 typedescExpr.pos = this.invocation.pos;
                 typedescExpr.resolvedType = expType;
                 typedescExpr.type = new BTypedescType(expType, null);
@@ -430,19 +452,24 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return paramSymbolType;
         }
 
-        // This would return null if the calling function gets analyzed before the callee function. This only
-        // happens when the invocation uses the default value of the param.
-        BType type = paramValueTypes.get(paramVarName);
+        BType type;
+        if (this.isInvocation) {
+            // This would return null if the calling function gets analyzed before the callee function. This only
+            // happens when the invocation uses the default value of the param.
+            type = paramValueTypes.get(paramVarName);
 
-        if (type == null) {
-            return originalType.paramValueType;
+            if (type == null) {
+                return originalType.paramValueType;
+            }
+
+            if (type.tag == TypeTags.SEMANTIC_ERROR) {
+                return type;
+            }
+
+            type = ((BTypedescType) type).constraint;
+        } else {
+            type = ((BTypedescType) originalType.paramSymbol.type).constraint;
         }
-
-        if (type.tag == TypeTags.SEMANTIC_ERROR) {
-            return type;
-        }
-
-        type = ((BTypedescType) type).constraint;
         return type;
     }
 
@@ -512,6 +539,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private void reset() {
+        this.visitedTypes = new HashSet<>();
         this.paramValueTypes = null;
         this.isInvocation = false;
     }

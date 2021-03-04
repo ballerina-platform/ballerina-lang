@@ -47,8 +47,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -164,7 +164,7 @@ public class JvmTerminatorGen {
     private JvmInstructionGen jvmInstructionGen;
     private PackageCache packageCache;
     private SymbolTable symbolTable;
-    private ResolvedTypeBuilder typeBuilder;
+    private Unifier unifier;
     private JvmTypeGen jvmTypeGen;
     private JvmCastGen jvmCastGen;
     private AsyncDataCollector asyncDataCollector;
@@ -186,7 +186,7 @@ public class JvmTerminatorGen {
         this.symbolTable = jvmPackageGen.symbolTable;
         this.currentPackageName = JvmCodeGenUtil.getPackageName(packageID);
         this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
-        this.typeBuilder = new ResolvedTypeBuilder();
+        this.unifier = new Unifier();
         this.asyncDataCollector = asyncDataCollector;
     }
 
@@ -748,7 +748,7 @@ public class JvmTerminatorGen {
             jvmClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
                                                               JvmCodeGenUtil.cleanupPathSeparators(balFileName));
             //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
-            BType retType = typeBuilder.build(type.retType);
+            BType retType = unifier.build(type.retType);
             methodDesc = JvmCodeGenUtil.getMethodDesc(params, retType);
         }
         this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, encodedMethodName, methodDesc, false);
@@ -1288,7 +1288,7 @@ public class JvmTerminatorGen {
 
     public void genReturnTerm(int returnVarRefIndex, BIRNode.BIRFunction func) {
 
-        BType bType = typeBuilder.build(func.type.retType);
+        BType bType = unifier.build(func.type.retType);
 
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitVarInsn(LLOAD, returnVarRefIndex);
