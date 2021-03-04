@@ -102,7 +102,7 @@ public class ConfigUtils {
 
     static String getLineRange(TomlNode node) {
         if (node.location() == null) {
-            return "[" + CONFIG_FILE_NAME + "]";
+            return " [" + CONFIG_FILE_NAME + "]";
         }
         LineRange lineRange = node.location().lineRange();
         LineRange oneBasedLineRange = LineRange.from(

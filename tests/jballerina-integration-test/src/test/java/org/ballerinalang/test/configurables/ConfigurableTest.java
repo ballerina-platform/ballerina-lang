@@ -134,7 +134,7 @@ public class ConfigurableTest extends BaseTest {
                         "'(int[] & readonly)[] & readonly' is not supported [Config.toml:(2:1,2:41)]" },
                 {"invalidRecordField", "field type 'string[][]' in configurable variable 'main:testUser' is " +
                         "not supported [Config.toml:(4:1,4:40)]"},
-                {"invalidByteRange", "Value provided for byte variable 'main:byteVar' is out of range. " +
+                {"invalidByteRange", "value provided for byte variable 'main:byteVar' is out of range. " +
                         "Expected range is (0-255), found '355' [Config.toml:(3:11,3:14)]"},
                 {"invalidMapType",
                         "configurable variable 'main:intMap' with type 'map<int> & readonly' is not supported"},
@@ -212,9 +212,10 @@ public class ConfigurableTest extends BaseTest {
                         "'table<(main:AuthInfo & readonly)> key(username) & readonly', but found 'record' " +
                         "[table_type_error.toml:(4:1,6:21)]"},
                 {"table_field_type_error", "field 'username' from configurable variable 'main:users' is " +
-                        "expected to be of type 'string', but found 'int'"},
+                        "expected to be of type 'string', but found 'int' [table_field_type_error.toml:(5:12,5:16)]"},
                 {"table_field_structure_error", "field 'username' from configurable variable 'main:users' " +
-                        "is expected to be of type 'string', but found 'record'"},
+                        "is expected to be of type 'string', but found 'record' " +
+                        "[table_field_structure_error.toml:(5:1,5:29)]"},
         };
     }
 
