@@ -3,31 +3,35 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Range;
 
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * This is the BallerinaSyntaxTreePathUtil class for related utils in retrieving the location of syntax nodes
+ * This is the BallerinaLocateSyntaxTreeUtil class for related utils in retrieving the location of syntax nodes
  * for a given selection.
  */
-public class BallerinaSyntaxTreePathUtil {
+public class BallerinaLocateSyntaxTreeUtil {
     private static final String POSITION = "position";
-    private static final String PATH_PROPERTY = "isNodePath";
+    private static final String LOCATE_PATH_PROPERTY = "isNodePath";
 
     public static JsonElement mapNodePath(Range range, SyntaxTree syntaxTree, JsonElement syntaxTreeJson) {
-        syntaxTreeJson.getAsJsonObject().addProperty(PATH_PROPERTY, true);
-        Node node = BallerinaSyntaxTreeByRangeUtil.getNode(range, syntaxTree);
+        syntaxTreeJson.getAsJsonObject().addProperty(LOCATE_PATH_PROPERTY, true);
+        Node node = CommonUtil.findNode(range, syntaxTree);
 
+        if (node.kind() == SyntaxKind.LIST) {
+            node = node.parent();
+        }
         if (node == syntaxTree.rootNode()) {
             return syntaxTreeJson;
         }
-
         return findNodePath(syntaxTreeJson, syntaxTree, node);
     }
 
@@ -44,7 +48,7 @@ public class BallerinaSyntaxTreePathUtil {
         for (Map.Entry<String, JsonElement> childEntry: jsonNode.getAsJsonObject().entrySet()) {
             if (childEntry.getValue().isJsonArray()) {
                 for (JsonElement childProps: childEntry.getValue().getAsJsonArray()) {
-                    Integer isPath = checkRange(syntaxTree, node, childProps,
+                    Integer isPath = evaluateRange(syntaxTree, node, childProps,
                             childProps.getAsJsonObject().get(POSITION).getAsJsonObject());
                     if (isPath > 0) {
                         return Optional.of(childProps);
@@ -53,9 +57,8 @@ public class BallerinaSyntaxTreePathUtil {
                         return Optional.empty();
                     }
                 }
-            } else if (childEntry.getValue().isJsonObject()
-                    && childEntry.getValue().getAsJsonObject().has(POSITION)) {
-                Integer isPath = checkRange(syntaxTree, node, childEntry.getValue(),
+            } else if (childEntry.getValue().isJsonObject() && childEntry.getValue().getAsJsonObject().has(POSITION)) {
+                Integer isPath = evaluateRange(syntaxTree, node, childEntry.getValue(),
                             childEntry.getValue().getAsJsonObject().get(POSITION).getAsJsonObject());
                 if (isPath > 0) {
                     return Optional.ofNullable(childEntry.getValue());
@@ -65,11 +68,10 @@ public class BallerinaSyntaxTreePathUtil {
                 }
             }
         }
-
         return Optional.empty();
     }
 
-    private static Integer checkRange(SyntaxTree syntaxTree, Node node, JsonElement jsonNode, JsonObject position) {
+    private static Integer evaluateRange(SyntaxTree syntaxTree, Node node, JsonElement jsonNode, JsonObject position) {
         TextDocument textDocument = syntaxTree.textDocument();
         int start = textDocument.textPositionFrom(LinePosition.from(position.get("startLine").getAsInt(),
                 position.get("startColumn").getAsInt()));
@@ -78,13 +80,12 @@ public class BallerinaSyntaxTreePathUtil {
         TextRange textRange = TextRange.from(start, end - start);
 
         if (textRange.intersectionExists(node.textRange())) {
-            jsonNode.getAsJsonObject().addProperty(PATH_PROPERTY, true);
+            jsonNode.getAsJsonObject().addProperty(LOCATE_PATH_PROPERTY, true);
             if (textRange.equals(node.textRange())) {
                 return -1;
             }
             return +1;
         }
-
         return 0;
     }
 }
