@@ -91,7 +91,7 @@
                           ]
                         },
                         {
-                          "kind": "ERROR_TYPE_PARAMS",
+                          "kind": "TYPE_PARAMETER",
                           "children": [
                             {
                               "kind": "LT_TOKEN"
@@ -215,7 +215,7 @@
                           ]
                         },
                         {
-                          "kind": "ERROR_TYPE_PARAMS",
+                          "kind": "TYPE_PARAMETER",
                           "children": [
                             {
                               "kind": "LT_TOKEN"
@@ -302,7 +302,7 @@
                           ]
                         },
                         {
-                          "kind": "ERROR_TYPE_PARAMS",
+                          "kind": "TYPE_PARAMETER",
                           "children": [
                             {
                               "kind": "LT_TOKEN"
@@ -394,7 +394,7 @@
                           ]
                         },
                         {
-                          "kind": "ERROR_TYPE_PARAMS",
+                          "kind": "TYPE_PARAMETER",
                           "children": [
                             {
                               "kind": "LT_TOKEN"
