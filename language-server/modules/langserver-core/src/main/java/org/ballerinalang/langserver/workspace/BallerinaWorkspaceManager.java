@@ -36,12 +36,9 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -465,7 +462,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 }
                 break;
             case Deleted:
-                if (project.kind() == ProjectKind.BUILD_PROJECT) {
+                if (project.kind() != ProjectKind.SINGLE_FILE_PROJECT) {
                     // This results down-grading a build-project into a single-file-project
                     // Thus, removing the project and allow subsequent changes to create single-file-projects
                     Lock lock = projectPair.lockAndGet();
@@ -740,14 +737,10 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     // ============================================================================================================== //
 
     private Path computeProjectRoot(Path path) {
-        return computeProjectKindAndProjectRoot(path).getRight();
-    }
-
-    private Pair<ProjectKind, Path> computeProjectKindAndProjectRoot(Path path) {
         if (ProjectPaths.isStandaloneBalFile(path)) {
-            return new ImmutablePair<>(ProjectKind.SINGLE_FILE_PROJECT, path);
+            return path;
         } else {
-            return new ImmutablePair<>(ProjectKind.BUILD_PROJECT, ProjectPaths.packageRoot(path));
+            return ProjectPaths.packageRoot(path);
         }
     }
 
@@ -756,27 +749,17 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     private ProjectPair createProject(Path filePath, String operationName) {
-        Pair<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndProjectRoot(filePath);
-        ProjectKind projectKind = projectKindAndProjectRootPair.getLeft();
-        Path projectRoot = projectKindAndProjectRootPair.getRight();
         try {
-            Project project;
             BuildOptions options = new BuildOptionsBuilder().offline(true).build();
-            if (projectKind == ProjectKind.BUILD_PROJECT) {
-                project = BuildProject.load(projectRoot, options);
-            } else {
-                project = SingleFileProject.load(projectRoot, options);
-            }
+            Project project = ProjectLoader.loadProject(filePath, options);
             clientLogger.logTrace("Operation '" + operationName +
-                                          "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
+                                          "' {project: '" + project.sourceRoot().toUri().toString() + "' kind: '" +
                                           project.kind().name().toLowerCase(Locale.getDefault()) + "'} created");
-            ProjectPair projectPair = ProjectPair.from(project);
-            return projectPair;
+            return ProjectPair.from(project);
         } catch (ProjectException e) {
             clientLogger.notifyUser("Project load failed: " + e.getMessage(), e);
             clientLogger.logError("Operation '" + operationName +
-                                          "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
-                                          projectKind.name().toLowerCase(Locale.getDefault()) + "'} failed", e,
+                                          "' {uri: '" + filePath.toUri().toString() + "'} failed", e,
                                   new TextDocumentIdentifier(filePath.toUri().toString()));
             return null;
         }
