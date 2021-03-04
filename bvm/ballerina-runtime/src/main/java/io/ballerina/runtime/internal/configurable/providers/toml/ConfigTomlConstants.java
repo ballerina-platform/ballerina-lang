@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
+import java.io.PrintStream;
+
 /**
  * Constants used by toml parser.
  *
@@ -25,6 +27,7 @@ package io.ballerina.runtime.internal.configurable.providers.toml;
  */
 public class ConfigTomlConstants {
     public static final String CONFIG_FILE_NAME = "Config.toml";
+    public static final PrintStream STANDARD_ERR = System.err;
     public static final String INVALID_TOML_FILE = "invalid `" + CONFIG_FILE_NAME + "` file : ";
     public static final String INVALID_TOML_TYPE = "configurable variable '%s' is expected to be of type '%s', " +
             "but found '%s'";

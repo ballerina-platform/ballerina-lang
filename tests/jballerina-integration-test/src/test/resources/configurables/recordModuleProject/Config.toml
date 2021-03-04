@@ -13,6 +13,7 @@ isPermanent = false
 [[main.empTable]]
 empId = 102
 name = "Bob"
+salary = 200000.0
 isPermanent = true
 
 [[main.empTable]]

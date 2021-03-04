@@ -24,17 +24,20 @@ username = "alice"
 id = 11
 password="password1"
 scopes=["write"]
+isAdmin = false
 
 [[main.users]]
 username = "bob"
 id = 22
 password="password2"
 scopes=["write", "read"]
+isAdmin = false
 
 [[main.users]]
 username = "john"
 id = 33
 password="password3"
+isAdmin = false
 
 [[main.nonKeyUsers]]
 username = "alice"
@@ -52,3 +55,27 @@ scopes=["write", "read"]
 username = "john"
 id = 33
 password="password3"
+
+[[main.employees]]
+id = 111
+name = "anna"
+
+[[main.employees]]
+id = 222
+name = "elsa"
+salary = 25000.0
+
+[[main.employees]]
+id = 333
+name = "tom"
+
+[[main.people]]
+name = "alice"
+age = 22
+
+[[main.people]]
+name = "bob"
+
+[[main.people]]
+name = "john"
+age = 25

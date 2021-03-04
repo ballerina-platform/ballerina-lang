@@ -33,6 +33,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
@@ -44,6 +45,7 @@ import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
+import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
@@ -58,6 +60,7 @@ import io.ballerina.toml.semantic.ast.TopLevelNode;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -283,7 +286,7 @@ public class ConfigTomlProvider implements ConfigProvider {
         return moduleNode;
     }
 
-    private static Object retrievePrimitiveValue(TomlNode tomlValue, String variableName, Type type,
+ private static Object retrievePrimitiveValue(TomlNode tomlValue, String variableName, Type type,
                                                  String errorPrefix) {
         TomlType tomlType = tomlValue.kind();
         if (tomlType != TomlType.KEY_VALUE) {
@@ -341,16 +344,21 @@ public class ConfigTomlProvider implements ConfigProvider {
         return arrayEntries;
     }
 
-    private static BMap<BString, Object> retrieveRecordValues(TomlNode tomlNode, String variableName,
-                                                              BIntersectionType intersectionType) {
-        Type effectiveType = intersectionType.getEffectiveType();
-        if (tomlNode.kind() != getEffectiveTomlType(effectiveType, variableName)) {
-            throw new ConfigException(String.format(INVALID_TOML_TYPE, variableName, effectiveType ,
-                                                    getTomlTypeString(tomlNode)));
+    private static BMap<BString, Object> retrieveRecordValues(TomlNode tomlNode, String variableName, Type type) {
+        RecordType recordType;
+        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
+            recordType = (RecordType) ((BIntersectionType) type).getEffectiveType();
+        } else {
+            recordType = (RecordType) type;
         }
-        RecordType recordType = (RecordType) intersectionType.getConstituentTypes().get(0);
-        Map<String, Object> initialValueEntries = new HashMap<>();
-        for (Map.Entry<String, TopLevelNode> tomlField : ((TomlTableNode) tomlNode).entries().entrySet()) {
+        if (tomlNode.kind() != getEffectiveTomlType(recordType, variableName)) {
+            throw new ConfigException(String.format(INVALID_TOML_TYPE, variableName, recordType ,
+                    getTomlTypeString(tomlNode)));
+        }
+        TomlTableNode tomlValue = (TomlTableNode) tomlNode;
+        BMapInitialValueEntry[] initialValueEntries = new BMapInitialValueEntry[tomlValue.entries().size()];
+        int count = 0;
+        for (Map.Entry<String, TopLevelNode> tomlField : tomlValue.entries().entrySet()) {
             String fieldName = tomlField.getKey();
             Field field = recordType.getFields().get(fieldName);
             if (field == null) {
@@ -376,21 +384,36 @@ public class ConfigTomlProvider implements ConfigProvider {
                 default:
                     objectValue = retrievePrimitiveValue(value, variableName, fieldType, errorPrefix);
             }
-            initialValueEntries.put(fieldName, objectValue);
+            initialValueEntries[count] = new MappingInitialValueEntry.KeyValueEntry(StringUtils.fromString(fieldName)
+                    , objectValue);
+            count++;
         }
-        validateRequiredField(initialValueEntries, recordType, variableName);
-        return ValueCreator
-                .createReadonlyRecordValue(recordType.getPackage(), recordType.getName(), initialValueEntries);
+        validateRecordFields(initialValueEntries, recordType, variableName);
+        return ValueCreator.createMapValue(recordType, initialValueEntries);
     }
 
-    private static void validateRequiredField(Map<String, Object> initialValueEntries, RecordType recordType,
-                                              String variableName) {
+    private static void validateRecordFields(BMapInitialValueEntry[] initialValueEntries, RecordType recordType,
+                                             String variableName) {
+        List<String> keyList = new ArrayList<>();
+        for (BMapInitialValueEntry entry : initialValueEntries) {
+            if (!entry.isKeyValueEntry()) {
+                continue;
+            }
+            keyList.add(String.valueOf(((MappingInitialValueEntry.KeyValueEntry) entry).key));
+        }
         for (Map.Entry<String, Field> field : recordType.getFields().entrySet()) {
             String fieldName = field.getKey();
-            if (SymbolFlags.isFlagOn(field.getValue().getFlags(), SymbolFlags.REQUIRED) &&
-                    initialValueEntries.get(fieldName) == null) {
+            long flag = field.getValue().getFlags();
+            if (SymbolFlags.isFlagOn(flag, SymbolFlags.REQUIRED) && !keyList.contains(fieldName)) {
                 throw new ConfigException(
                         String.format(REQUIRED_FIELD_NOT_PROVIDED, fieldName, recordType.toString(), variableName));
+            }
+            // remove after fixing #28966
+            if (!SymbolFlags.isFlagOn(flag, SymbolFlags.OPTIONAL) && !SymbolFlags.isFlagOn(flag,
+                    SymbolFlags.REQUIRED) && !keyList.contains(fieldName)) {
+                String warning = String.format("WARNING : configurable does not support defaultable record fields. " +
+                        "Please provide a value for field '%s' in variable '%s'", fieldName, variableName);
+                System.err.println(warning);
             }
         }
     }
@@ -433,7 +456,7 @@ public class ConfigTomlProvider implements ConfigProvider {
             if (keys != null) {
                 validateKeyField(tableNodeList.get(i), keys, tableType, variableName);
             }
-            Object value = retrieveRecordValues(tableNodeList.get(i), variableName, (BIntersectionType) constraintType);
+            Object value = retrieveRecordValues(tableNodeList.get(i), variableName, constraintType);
             tableEntries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         ArrayValue tableData =
