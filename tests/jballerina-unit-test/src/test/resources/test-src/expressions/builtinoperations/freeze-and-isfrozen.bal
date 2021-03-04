@@ -461,10 +461,10 @@ function testStructureWithErrorValueFreeze() returns boolean {
     error e = error(errReason);
     map<anydata|error> m = { err: e };
 
-    map<value:Cloneable> res = m.cloneReadOnly();
+    value:Cloneable res = m.cloneReadOnly();
     //todo check `res is readonly` once #23691 get fixed
     //return res is readonly && res["err"] === e;
-    return res["err"] === e;
+    return res is map<value:Cloneable> && res["err"] === e;
 }
 
 function testFrozenValueUpdatePanicWithCheckTrap() returns boolean|error {
