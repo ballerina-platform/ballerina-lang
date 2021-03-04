@@ -15,12 +15,9 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -33,7 +30,7 @@ import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,26 +59,25 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
+        if (positionDetails.matchedNode() == null) {
+            return Collections.emptyList();
+        }
+
+        Optional<FunctionCallExpressionNode> callExpr = 
+                checkAndGetFunctionCallExpressionNode(positionDetails.matchedNode());
+        if (callExpr.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         String diagnosticMessage = diagnostic.message();
-        Position position = CommonUtil.toRange(diagnostic.location().lineRange()).getStart();
+        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
         String uri = context.fileUri();
-        CommandArgument posArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_POS, position);
+        CommandArgument posArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE, range);
         CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
 
         List<Object> args = Arrays.asList(posArg, uriArg);
         Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
         String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
-        Node cursorNode = positionDetails.matchedNode();
-
-        if (cursorNode == null) {
-            return Collections.emptyList();
-        }
-
-        Optional<FunctionCallExpressionNode> callExpr = getFunctionCallExpressionNodeAtCursor(cursorNode);
-
-        if (callExpr.isEmpty()) {
-            return Collections.emptyList();
-        }
 
         boolean isWithinFile = callExpr.get().functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
         if (isWithinFile) {
@@ -97,38 +93,12 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     }
 
     /**
-     * Tries to get the function call expression at the cursor.
-     *
-     * @param cursorNode Node at the cursor
-     * @return Optional function call expression at the cursor
-     */
-    public static Optional<FunctionCallExpressionNode> getFunctionCallExpressionNodeAtCursor(Node cursorNode) {
-        Optional<FunctionCallExpressionNode> fnCallExprNode = checkAndGetFunctionCallExpressionNode(cursorNode);
-        if (fnCallExprNode.isEmpty()) {
-            if (cursorNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
-                VariableDeclarationNode varNode = (VariableDeclarationNode) cursorNode;
-                Optional<ExpressionNode> initializer = varNode.initializer();
-                if (initializer.isPresent()) {
-                    fnCallExprNode = checkAndGetFunctionCallExpressionNode(initializer.get());
-                }
-            } else if (cursorNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
-                AssignmentStatementNode assignmentNode = (AssignmentStatementNode) cursorNode;
-                fnCallExprNode = checkAndGetFunctionCallExpressionNode(assignmentNode.expression());
-            } else if (cursorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                fnCallExprNode = checkAndGetFunctionCallExpressionNode(cursorNode.parent());
-            }
-        }
-
-        return fnCallExprNode;
-    }
-
-    /**
      * Get the function call expression node if the provided node is a function call.
      *
      * @param node Node to be checked if it's a function call
      * @return Optional function call expression node
      */
-    public static Optional<FunctionCallExpressionNode> checkAndGetFunctionCallExpressionNode(Node node) {
+    public static Optional<FunctionCallExpressionNode> checkAndGetFunctionCallExpressionNode(NonTerminalNode node) {
         FunctionCallExpressionNode functionCallExpressionNode = null;
         if (node.kind() == SyntaxKind.FUNCTION_CALL) {
             functionCallExpressionNode = (FunctionCallExpressionNode) node;

@@ -203,8 +203,8 @@ public class ProjectUtils {
     }
 
     public static String getExecutableName(Package pkg) {
-        // <packagename>-<version>.jar
-        return pkg.packageName().toString() + "-" + pkg.packageVersion() + BLANG_COMPILED_JAR_EXT;
+        // <packagename>.jar
+        return pkg.packageName().toString() + BLANG_COMPILED_JAR_EXT;
     }
 
     public static String getOrgFromBalaName(String balaName) {
