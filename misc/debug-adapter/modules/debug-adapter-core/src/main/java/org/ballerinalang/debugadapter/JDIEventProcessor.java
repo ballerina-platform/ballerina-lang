@@ -38,9 +38,7 @@ import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
-import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
-import org.eclipse.lsp4j.debug.SourceBreakpoint;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.slf4j.Logger;
@@ -64,7 +62,7 @@ import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 public class JDIEventProcessor {
 
     private final ExecutionContext context;
-    private final Map<String, Map<Integer, BalBreakpoint>> balBreakpoints = new HashMap<>();
+    private final Map<String, Map<Integer, BalBreakpoint>> breakpoints = new HashMap<>();
     private final List<EventRequest> stepEventRequests = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String BALLERINA_ORG_PREFIX = "ballerina";
@@ -109,14 +107,14 @@ public class JDIEventProcessor {
             eventSet.resume();
         } else if (event instanceof BreakpointEvent) {
             String qualifiedClassName =
-                    getQualifiedClassName(context, ((BreakpointEvent) event).location().declaringType());
-            Map<Integer, BalBreakpoint> balBreakpoints = this.balBreakpoints.get(qualifiedClassName);
+                getQualifiedClassName(context, ((BreakpointEvent) event).location().declaringType());
+            Map<Integer, BalBreakpoint> breakpoints = this.breakpoints.get(qualifiedClassName);
             int lineNumber = ((BreakpointEvent) event).location().lineNumber();
 
-            if (balBreakpoints != null && balBreakpoints.containsKey(lineNumber)
-                    && balBreakpoints.get(lineNumber).getCondition() != null
-                    && !evaluateBreakpointCondition(balBreakpoints.get(lineNumber).getCondition(),
-                    ((BreakpointEvent) event).thread())) {
+            if (breakpoints != null && breakpoints.containsKey(lineNumber)
+                && breakpoints.get(lineNumber).getCondition() != null
+                && !evaluateBreakpointCondition(breakpoints.get(lineNumber).getCondition(),
+                ((BreakpointEvent) event).thread())) {
                 context.getDebuggeeVM().resume();
                 ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
                 continuedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
@@ -195,8 +193,8 @@ public class JDIEventProcessor {
         }
     }
 
-    void setBalBreakpoints(String path, Map<Integer, BalBreakpoint> balBreakpoints) {
-        this.balBreakpoints.put(getQualifiedClassName(path), balBreakpoints);
+    void setBreakpoints(String path, Map<Integer, BalBreakpoint> breakpoints) {
+        this.breakpoints.put(getQualifiedClassName(path), breakpoints);
         if (context.getDebuggeeVM() != null) {
             // Setting breakpoints to a already running debug session.
             context.getEventManager().deleteAllBreakpoints();
@@ -238,11 +236,11 @@ public class JDIEventProcessor {
             }
 
             String qualifiedClassName = getQualifiedClassName(context, referenceType);
-            if (!balBreakpoints.containsKey(qualifiedClassName)) {
+            if (!breakpoints.containsKey(qualifiedClassName)) {
                 return;
             }
-            Map<Integer, BalBreakpoint> balBreakpoints = this.balBreakpoints.get(qualifiedClassName);
-            for (BalBreakpoint bp : balBreakpoints.values()) {
+            Map<Integer, BalBreakpoint> breakpoints = this.breakpoints.get(qualifiedClassName);
+            for (BalBreakpoint bp : breakpoints.values()) {
                 List<Location> locations = referenceType.locationsOfLine(bp.getLine().intValue());
                 if (!locations.isEmpty()) {
                     Location loc = locations.get(0);

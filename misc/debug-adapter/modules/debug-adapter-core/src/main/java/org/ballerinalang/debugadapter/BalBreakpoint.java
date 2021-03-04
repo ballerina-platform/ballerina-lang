@@ -18,8 +18,14 @@
 
 package org.ballerinalang.debugadapter;
 
+import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Source;
 
+/**
+ * Information about ballerina breakpoint (Properties).
+ *
+ * @since 2.0.0
+ */
 public class BalBreakpoint {
 
     private Long line;
@@ -57,5 +63,13 @@ public class BalBreakpoint {
 
     public void setCondition(String condition) {
         this.condition = condition;
+    }
+
+    public Breakpoint getBreakpoint() {
+        Breakpoint breakpoint = new Breakpoint();
+        breakpoint.setLine(line);
+        breakpoint.setSource(source);
+        breakpoint.setVerified(true);
+        return breakpoint;
     }
 }

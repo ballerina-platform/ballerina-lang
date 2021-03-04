@@ -197,22 +197,22 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
         BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
-            .map((SourceBreakpoint sourceBreakpoint) -> toBalBreakpoint(sourceBreakpoint, args.getSource()))
+            .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
             .toArray(BalBreakpoint[]::new);
 
         Breakpoint[] breakpoints = Arrays.stream(balBreakpoints)
-            .map((BalBreakpoint balBreakpoint) -> toBreakpoint(balBreakpoint, args.getSource()))
+            .map(BalBreakpoint::getBreakpoint)
             .toArray(Breakpoint[]::new);
 
-        Map<Integer, BalBreakpoint> balBreakpointsMap = new HashMap<>();
+        Map<Integer, BalBreakpoint> breakpointsMap = new HashMap<>();
         for (BalBreakpoint bp : balBreakpoints) {
-            balBreakpointsMap.put(bp.getLine().intValue(), bp);
+            breakpointsMap.put(bp.getLine().intValue(), bp);
         }
 
         SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
         breakpointsResponse.setBreakpoints(breakpoints);
         String path = args.getSource().getPath();
-        eventProcessor.setBalBreakpoints(path, balBreakpointsMap);
+        eventProcessor.setBreakpoints(path, breakpointsMap);
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
 
@@ -479,21 +479,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return CompletableFuture.completedFuture(null);
     }
 
-    private Breakpoint toBreakpoint(BalBreakpoint balBreakpoint, Source source) {
-        Breakpoint breakpoint = new Breakpoint();
-        breakpoint.setLine(balBreakpoint.getLine());
+    private BalBreakpoint toBreakpoint(SourceBreakpoint sourceBreakpoint, Source source) {
+        BalBreakpoint breakpoint = new BalBreakpoint();
+        breakpoint.setLine(sourceBreakpoint.getLine());
         breakpoint.setSource(source);
         breakpoint.setVerified(true);
+        breakpoint.setCondition(sourceBreakpoint.getCondition());
         return breakpoint;
-    }
-
-    private BalBreakpoint toBalBreakpoint(SourceBreakpoint sourceBreakpoint, Source source) {
-        BalBreakpoint balBreakpoint = new BalBreakpoint();
-        balBreakpoint.setLine(sourceBreakpoint.getLine());
-        balBreakpoint.setSource(source);
-        balBreakpoint.setVerified(true);
-        balBreakpoint.setCondition(sourceBreakpoint.getCondition());
-        return balBreakpoint;
     }
 
     private Thread toThread(ThreadReferenceProxyImpl threadReference) {
