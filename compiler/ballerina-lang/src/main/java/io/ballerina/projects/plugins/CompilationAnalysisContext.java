@@ -26,7 +26,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
  * @see CodeAnalysisContext
  * @since 2.0.0
  */
-public class CompilationAnalysisContext {
+public abstract class CompilationAnalysisContext {
 
     /**
      * Returns the current {@code Package} instance on which the compilation is being performed.
