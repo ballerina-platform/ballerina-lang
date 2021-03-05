@@ -5700,7 +5700,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
         if (Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE)
                 && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = unifier.build(retType, expType, iExpr, types);
+            retType = unifier.build(retType, expType, iExpr, types, dlog);
         }
 
         // check argument types in arr:sort function

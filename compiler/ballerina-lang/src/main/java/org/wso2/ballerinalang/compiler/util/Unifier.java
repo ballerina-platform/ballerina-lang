@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -73,8 +75,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private boolean isInvocation;
     private BLangInvocation invocation;
     private Types types;
+    private BLangDiagnosticLog dlog;
 
-    public BType build(BType originalType, BType expType, BLangInvocation invocation, Types types) {
+    public BType build(BType originalType, BType expType, BLangInvocation invocation, Types types,
+                       BLangDiagnosticLog dlog) {
         this.isInvocation = invocation != null;
         this.visitedTypes = new HashSet<>();
         if (this.isInvocation) {
@@ -82,13 +86,14 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             createParamMap(invocation);
         }
         this.types = types;
+        this.dlog = dlog;
         BType newType = originalType.accept(this, expType);
         reset();
         return newType;
     }
 
     public BType build(BType originalType) {
-        return build(originalType, null, null, null);
+        return build(originalType, null, null, null, null);
     }
 
     @Override
@@ -434,16 +439,26 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         if (Symbols.isFlagOn(originalType.paramSymbol.flags, Flags.INFER)) {
             BType paramSymbolType = ((BTypedescType) originalType.paramSymbol.type).constraint;
-            if (expType != null && types.isAssignable(expType, paramSymbolType)) {
-                BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode(); // todo move
-                typedescExpr.pos = this.invocation.pos;
-                typedescExpr.resolvedType = expType;
-                typedescExpr.type = new BTypedescType(expType, null);
+            if (expType != null) {
+                if (!types.isAssignable(expType, paramSymbolType)) {
+                    if (!paramValueTypes.containsKey(paramVarName)) {
+                        // Log an error only if the user has not explicitly passed an argument. If the passed
+                        // argument is invalid, the type checker will log the error.
+                        dlog.error(invocation.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_INFERRED_TYPEDESC_VALUE,
+                                   paramVarName, paramSymbolType, expType);
+                    }
+                    return paramSymbolType;
+                }
 
-                int indx = pos(originalType.paramSymbol);
-                if (indx >= invocation.requiredArgs.size()) {
-                    this.invocation.argExprs.add(indx, typedescExpr);
-                    this.invocation.requiredArgs.add(indx, typedescExpr);
+                int index = pos(originalType.paramSymbol);
+                if (index >= invocation.requiredArgs.size()) {
+                    BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
+                    typedescExpr.pos = this.invocation.pos;
+                    typedescExpr.resolvedType = expType;
+                    typedescExpr.type = new BTypedescType(expType, null);
+
+                    this.invocation.argExprs.add(index, typedescExpr);
+                    this.invocation.requiredArgs.add(index, typedescExpr);
                 }
                 return expType;
             }
@@ -481,6 +496,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         int argIndex = 0;
 
+        List<BLangExpression> restArgs = invocation.restArgs;
+        boolean hasRestArg = !restArgs.isEmpty() &&
+                restArgs.get(restArgs.size() - 1).getKind() == NodeKind.REST_ARGS_EXPR;
+
         for (int i = 0; i < nParams; i++) {
             if (argIndex < nArgs) {
                 BLangExpression arg = invocation.requiredArgs.get(argIndex);
@@ -488,9 +507,6 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 NodeKind kind = arg.getKind();
                 if (kind == NodeKind.NAMED_ARGS_EXPR) {
                     paramValueTypes.put(((BLangNamedArgsExpression) arg).name.value, arg.type);
-                } else if (kind == NodeKind.IGNORE_EXPR) {
-                    String paramName = symbol.params.get(i).name.value;
-                    paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
                 } else {
                     paramValueTypes.put(symbol.params.get(i).name.value, arg.type);
                 }
@@ -499,11 +515,63 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 continue;
             }
 
+            if (hasRestArg) {
+                // Param defaults are not added if there is a rest arg, so we can populate all the remaining param
+                // types based on the rest arg.
+                populateParamMapFromRestArg(symbol, i, restArgs.get(restArgs.size() - 1));
+                return;
+            }
+
             BVarSymbol param = symbol.params.get(i);
             String paramName = param.name.value;
-            if (param.defaultableParam && !paramValueTypes.containsKey(paramName)) {
+            if (param.defaultableParam && !Symbols.isFlagOn(param.flags, Flags.INFER) &&
+                    !paramValueTypes.containsKey(paramName)) {
                 paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
             }
+        }
+    }
+
+    private void populateParamMapFromRestArg(BInvokableSymbol symbol, int currentParamIndex, BLangExpression restArg) {
+        BType type = restArg.type;
+        int tag = type.tag;
+        if (tag == TypeTags.RECORD) {
+            populateParamMapFromRecordRestArg(symbol, currentParamIndex, (BRecordType) type);
+            return;
+        }
+
+        if (tag == TypeTags.ARRAY) {
+            populateParamMapFromArrayRestArg(symbol, currentParamIndex, (BArrayType) type);
+            return;
+        }
+
+        populateParamMapFromTupleRestArg(symbol, currentParamIndex, (BTupleType) type);
+    }
+
+    private void populateParamMapFromRecordRestArg(BInvokableSymbol symbol, int currentParamIndex,
+                                                   BRecordType recordType) {
+        List<BVarSymbol> params = symbol.params;
+        for (int i = currentParamIndex; i < params.size(); i++) {
+            String paramName = params.get(i).name.value;
+            paramValueTypes.put(paramName, recordType.fields.get(paramName).type);
+        }
+    }
+
+    private void populateParamMapFromArrayRestArg(BInvokableSymbol symbol, int currentParamIndex,
+                                                  BArrayType arrayType) {
+        BType elementType = arrayType.eType;
+        List<BVarSymbol> params = symbol.params;
+        for (int i = currentParamIndex; i < params.size(); i++) {
+            paramValueTypes.put(params.get(i).name.value, elementType);
+        }
+    }
+
+    private void populateParamMapFromTupleRestArg(BInvokableSymbol symbol, int currentParamIndex,
+                                                  BTupleType tupleType) {
+        int tupleIndex = 0;
+        List<BVarSymbol> params = symbol.params;
+        List<BType> tupleTypes = tupleType.tupleTypes;
+        for (int i = currentParamIndex; i < params.size(); i++) {
+            paramValueTypes.put(params.get(i).name.value, tupleTypes.get(tupleIndex++));
         }
     }
 

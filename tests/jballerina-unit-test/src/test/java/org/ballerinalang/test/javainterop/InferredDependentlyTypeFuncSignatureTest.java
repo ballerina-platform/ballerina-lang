@@ -20,9 +20,12 @@ package org.ballerinalang.test.javainterop;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Test cases for dependently typed function signatures derived from contextual type.
@@ -61,5 +64,17 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 {"testFunctionAssignment"}
 //                {"testCastingForInvalidValues"}
         };
+    }
+
+    @Test
+    public void testDependentlyTypedFunctionWithInferredTypedescValueNegative() {
+        CompileResult negativeResult =
+                BCompileUtil.compile("test-src/javainterop/inferred_dependently_typed_func_signature_negative.bal");
+        int index = 0;
+        validateError(negativeResult, index++, "incompatible type for parameter 'rowType' with inferred " +
+                "typedesc value: expected 'record {| int...; |}', found 'OpenRecord'", 20, 37);
+        validateError(negativeResult, index++, "incompatible types: expected 'typedesc<record {| int...; |}>', found " +
+                "'typedesc<OpenRecord>'", 21, 48);
+        Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }
