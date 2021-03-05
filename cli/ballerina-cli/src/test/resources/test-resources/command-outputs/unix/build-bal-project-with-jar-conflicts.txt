@@ -15,4 +15,4 @@ Generating executable
 		'one-1.0.0.jar' dependency of 'pramodya/conflictProject' conflict with 'two-1.0.0.jar' dependency of 'pramodya/conflictProject'
 			test/sample/Sample3.class
 			test/sample/Sample2.class
-	target/bin/conflictProject-0.1.7.jar
+	target/bin/conflictProject.jar
