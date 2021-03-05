@@ -33,6 +33,12 @@ service HelloWorld /foo/bar on lsn {
 }
 
 service HelloWorld "GreetingService" on lsn {
+
+    resource function get greet/[int x]/hello/[float y]/[string... rest] () returns json => { output: self.greeting };
+
+    resource function get [int... foo] () returns json => { output: self.greeting };
+
+    resource function get . () returns json => { output: self.greeting };
 }
 
 public class Listener {

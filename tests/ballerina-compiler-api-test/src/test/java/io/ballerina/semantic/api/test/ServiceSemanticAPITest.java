@@ -24,13 +24,21 @@ import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.LiteralAttachPoint;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
+import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
+import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
+import io.ballerina.compiler.api.symbols.resourcepath.util.NamedPathSegment;
+import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
@@ -52,6 +60,7 @@ import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
 import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.ABSOLUTE_RESOURCE_PATH;
 import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.STRING_LITERAL;
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -84,15 +93,15 @@ public class ServiceSemanticAPITest {
     public void testServiceClass() {
         ClassSymbol symbol = (ClassSymbol) model.symbol(srcFile, from(22, 14)).get();
 
-        List<String> expMethods = List.of("foo", "$get$barPath", "$get$foo$path", "$get$.", "$get$foo$baz",
-                                          "$get$foo$*", "$get$foo$*$**");
+        List<String> expMethods = List.of("foo", "get barPath", "get foo/path", "get .", "get foo/baz",
+                                          "get foo/*", "get foo/*/**");
         assertList(symbol.methods(), expMethods);
 
         MethodSymbol method = symbol.methods().get("foo");
         assertEquals(method.qualifiers().size(), 1);
         assertTrue(method.qualifiers().contains(Qualifier.REMOTE));
 
-        method = symbol.methods().get("$get$barPath");
+        method = symbol.methods().get("get barPath");
         assertEquals(method.qualifiers().size(), 1);
         assertTrue(method.qualifiers().contains(Qualifier.RESOURCE));
     }
@@ -139,7 +148,7 @@ public class ServiceSemanticAPITest {
     @DataProvider(name = "ServiceDeclMethodPos")
     public Object[][] getMethodPos() {
         return new Object[][]{
-                {70, 22, "$get$processRequest", List.of(RESOURCE)},
+                {70, 22, "get", List.of(RESOURCE)},
                 {72, 13, "createError", new ArrayList<Qualifier>()}
         };
     }
@@ -198,6 +207,53 @@ public class ServiceSemanticAPITest {
                 assertNull(expVals[i][2], "Expected attach point kind: " + expVals[i][2]);
             }
         }
+    }
+
+    @Test
+    public void testResourceMethod1() {
+        ResourceMethodSymbol method = (ResourceMethodSymbol) model.symbol(srcFile, from(35, 22)).get();
+        assertEquals(method.resourcePath().kind(), ResourcePath.Kind.DOT_RESOURCE_PATH);
+        assertEquals(method.resourcePath().signature(), ".");
+        assertEquals(method.signature(), "resource function get . () returns string");
+    }
+
+    @Test
+    public void testResourceMethod2() {
+        ResourceMethodSymbol method = (ResourceMethodSymbol) model.symbol(srcFile, from(47, 22)).get();
+        assertEquals(method.resourcePath().kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
+        assertEquals(method.resourcePath().signature(), "foo/[string s]/[string... r]");
+        assertEquals(method.signature(), "resource function get foo/[string s]/[string... r] () returns string");
+
+        PathSegmentList resourcePath = (PathSegmentList) method.resourcePath();
+
+        List<PathParameterSymbol> pathParams = resourcePath.pathParameters();
+        assertEquals(pathParams.size(), 1);
+        assertEquals(pathParams.get(0).typeDescriptor().typeKind(), STRING);
+        assertEquals(pathParams.get(0).getName().get(), "s");
+
+        assertEquals(resourcePath.pathRestParameter().get().getName().get(), "r");
+        assertEquals(resourcePath.pathRestParameter().get().typeDescriptor().typeKind(),
+                     TypeDescKind.ARRAY);
+
+        List<PathSegment> segments = resourcePath.list();
+        assertEquals(segments.size(), 3);
+        assertEquals(segments.get(0).pathSegmentKind(), PathSegment.Kind.NAMED_SEGMENT);
+        assertEquals(((NamedPathSegment) segments.get(0)).name(), "foo");
+
+        assertEquals(segments.get(1), pathParams.get(0));
+        assertEquals(segments.get(2), resourcePath.pathRestParameter().get());
+    }
+
+    @Test
+    public void testResourceMethod3() {
+        ResourceMethodSymbol method = (ResourceMethodSymbol) model.symbol(srcFile, from(74, 22)).get();
+        assertEquals(method.resourcePath().kind(), ResourcePath.Kind.PATH_REST_PARAM);
+        assertEquals(method.resourcePath().signature(), "[int... rest]");
+        assertEquals(method.signature(), "resource function get [int... rest] () returns string");
+
+        PathRestParam resourcePath = (PathRestParam) method.resourcePath();
+        assertEquals(resourcePath.parameter().getName().get(), "rest");
+        assertEquals(resourcePath.parameter().typeDescriptor().typeKind(), ARRAY);
     }
 
     private Object[][] getExpValues() {

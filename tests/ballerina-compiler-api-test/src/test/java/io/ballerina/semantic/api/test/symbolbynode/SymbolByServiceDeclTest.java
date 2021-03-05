@@ -20,6 +20,8 @@ package io.ballerina.semantic.api.test.symbolbynode;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AbsResourcePathAttachPoint;
+import io.ballerina.compiler.api.symbols.PathParameterSymbol;
+import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
 import io.ballerina.compiler.api.symbols.ServiceAttachPointKind;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
@@ -28,6 +30,10 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
+import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
+import io.ballerina.compiler.api.symbols.resourcepath.util.NamedPathSegment;
+import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -37,10 +43,12 @@ import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.testng.annotations.Test;
 
+import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
 import static org.testng.Assert.assertEquals;
 
@@ -94,9 +102,38 @@ public class SymbolByServiceDeclTest extends SymbolByNodeTest {
             @Override
             public void visit(FunctionDefinitionNode functionDefinitionNode) {
                 if (functionDefinitionNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
-                    assertSymbol(functionDefinitionNode, model, METHOD,
-                                 "$" + functionDefinitionNode.functionName().text() + "$" +
-                                         functionDefinitionNode.relativeResourcePath().get(0).toString());
+                    ResourceMethodSymbol method =
+                            (ResourceMethodSymbol) assertSymbol(functionDefinitionNode, model, RESOURCE_METHOD,
+                                                                functionDefinitionNode.functionName().text());
+                    assertEquals(method.signature(),
+                                 "resource function get greet/[int x]/hello/[float y]/[string... rest] () returns " +
+                                         "json");
+                    assertEquals(method.resourcePath().kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
+                    assertEquals(method.resourcePath().signature(),
+                                 "greet/[int x]/hello/[float y]/[string... rest]");
+
+                    PathSegmentList resourcePath = (PathSegmentList) method.resourcePath();
+
+                    List<PathParameterSymbol> pathParams = resourcePath.pathParameters();
+                    assertEquals(pathParams.get(0).typeDescriptor().typeKind(), TypeDescKind.INT);
+                    assertEquals(pathParams.get(0).getName().get(), "x");
+                    assertEquals(pathParams.get(1).typeDescriptor().typeKind(), TypeDescKind.FLOAT);
+                    assertEquals(pathParams.get(1).getName().get(), "y");
+
+                    assertEquals(resourcePath.pathRestParameter().get().getName().get(), "rest");
+                    assertEquals(resourcePath.pathRestParameter().get().typeDescriptor().typeKind(),
+                                 TypeDescKind.ARRAY);
+
+                    List<PathSegment> segments = resourcePath.list();
+                    assertEquals(segments.size(), 5);
+                    assertEquals(segments.get(0).pathSegmentKind(), PathSegment.Kind.NAMED_SEGMENT);
+                    assertEquals(((NamedPathSegment) segments.get(0)).name(), "greet");
+                    assertEquals(segments.get(2).pathSegmentKind(), PathSegment.Kind.NAMED_SEGMENT);
+                    assertEquals(((NamedPathSegment) segments.get(2)).name(), "hello");
+
+                    assertEquals(segments.get(1), pathParams.get(0));
+                    assertEquals(segments.get(3), pathParams.get(1));
+                    assertEquals(segments.get(4), resourcePath.pathRestParameter().get());
                 }
 
                 if (functionDefinitionNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {

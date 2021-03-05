@@ -22,7 +22,8 @@ service HelloWorld /foo/bar on new Listener() {
 
     public string greeting = "Hello World!";
 
-    resource function get greet() returns json => { output: self.greeting };
+    resource function get greet/[int x]/hello/[float y]/[string... rest] () returns json => { output: self.greeting };
+    //resource function get [int... foo]() returns json => { output: self.greeting };
 
     remote function sayHello() return string => self.greeting;
 
