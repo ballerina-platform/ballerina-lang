@@ -51,7 +51,7 @@ public class InferredDependentlyTypeFuncSignatureTest {
         return new Object[][]{
                 {"testRecordVarRef"},
                 {"testVarRefInMapConstraint"},
-                {"testVarRefUseInMultiplePlaces"},
+                {"testTupleTypes"},
                 {"testSimpleTypes"},
                 {"testArrayTypes"},
                 {"testStream"},
@@ -75,6 +75,10 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 "typedesc value: expected 'record {| int...; |}', found 'OpenRecord'", 20, 37);
         validateError(negativeResult, index++, "incompatible types: expected 'typedesc<record {| int...; |}>', found " +
                 "'typedesc<OpenRecord>'", 21, 48);
+        validateError(negativeResult, index++, "cannot have more than one defaultable parameter with an inferred " +
+                "typedesc default", 28, 1);
+        validateError(negativeResult, index++, "cannot have more than one defaultable parameter with an inferred " +
+                "typedesc default", 32, 5);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }

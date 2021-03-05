@@ -24,3 +24,17 @@ function testInvalidArgForInferTypedesc() {
 type OpenRecord record {
 
 };
+
+function queryWithMultipleInferTypedescs(string q, typedesc<record {|int...;|}> rowType = <>,
+                                         typedesc<error> errorType = <>) returns stream<rowType, errorType> = external;
+
+class ClassWithMethodWithMultipleInferTypedescs {
+    function queryWithMultipleInferTypedescs(typedesc<record {}> rowType = <>, typedesc<error> errorType = <>)
+                returns stream<rowType, errorType> = external;
+}
+
+stream<record {| int x; |}, error> stm = queryWithMultipleInferTypedescs("");
+
+ClassWithMethodWithMultipleInferTypedescs cl = new;
+stream<record {| int x; |}, error> stm2 = cl.queryWithMultipleInferTypedescs();
+stream<record {| int x; |}, error> stm3 = cl.queryWithMultipleInferTypedescs(rowType = OpenRecord);

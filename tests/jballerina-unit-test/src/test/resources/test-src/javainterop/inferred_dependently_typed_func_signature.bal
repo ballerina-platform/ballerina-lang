@@ -72,8 +72,8 @@ function testRuntimeCastError() {
     assert("incompatible types: 'map' cannot be cast to 'map<anydata>'", <string> checkpanic err.detail()["message"]);
 }
 
-function testVarRefUseInMultiplePlaces() {
-    [int, Person, float] tup1 = getTuple();
+function testTupleTypes() {
+    [int, Person, float] tup1 = getTuple(int, Person);
     assert(<[int, Person, float]>[150, expPerson, 12.34], tup1);
 }
 
@@ -114,7 +114,7 @@ function testTable() {
 
 function testFunctionPointers() {
     function (anydata) returns int fn = s => 10;
-    function (string) returns int newFn = getFunction(fn);
+    function (string) returns int newFn = getFunction(fn, string);
     assertSame(fn, newFn);
     assert(fn("foo"), newFn("foo"));
 }
@@ -219,7 +219,7 @@ function query(string q, typedesc<anydata> rowType = <>) returns map<rowType> = 
     paramTypes: ["io.ballerina.runtime.api.values.BString", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
-function getTuple(typedesc<int|string> td1 = <>, typedesc<record {}> td2 = <>, typedesc<float|boolean> td3 = <>) returns [td1, td2, td3] = @java:Method {
+function getTuple(typedesc<int|string> td1, typedesc<record {}> td2, typedesc<float|boolean> td3 = <>) returns [td1, td2, td3] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTuple",
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
@@ -249,7 +249,7 @@ function getTable(table<anydata> value, typedesc<anydata> td = <>) returns table
     paramTypes: ["io.ballerina.runtime.internal.values.TableValue", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
-function getFunction(function (string|int) returns anydata fn, typedesc<anydata> param = <>, typedesc<anydata> ret = <>)
+function getFunction(function (string|int) returns anydata fn, typedesc<anydata> param, typedesc<anydata> ret = <>)
                                                                 returns function (param) returns ret = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getFunction",
