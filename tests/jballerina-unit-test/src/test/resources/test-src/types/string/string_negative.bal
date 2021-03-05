@@ -17,4 +17,5 @@
 function testMultilineStrings() {
     string s1 = "Hello
     World!";
+    string name = "Alice " Bob "
 }
