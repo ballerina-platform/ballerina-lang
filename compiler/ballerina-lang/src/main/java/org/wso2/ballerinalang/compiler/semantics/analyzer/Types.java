@@ -3589,7 +3589,7 @@ public class Types {
         return  originalType;
     }
 
-    BType getTypeIntersection(BType lhsType, BType rhsType, SymbolEnv env) {
+    public BType getTypeIntersection(BType lhsType, BType rhsType, SymbolEnv env) {
         List<BType> narrowingTypes = getAllTypes(rhsType);
         LinkedHashSet<BType> intersection = narrowingTypes.stream().map(type -> {
             if (isAssignable(type, lhsType)) {

@@ -185,6 +185,7 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
@@ -237,6 +238,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType expType;
     private DiagnosticCode diagCode;
     private BType resType;
+    private Unifier unifier;
 
     private Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
     // Stack holding the fall-back environments. fall-back env is the env to go back
@@ -268,6 +270,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.constantAnalyzer = ConstantAnalyzer.getInstance(context);
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
         this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.unifier = new Unifier();
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -379,7 +382,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             validateAnnotationAttachmentCount(funcNode.annAttachments);
         }
 
-        if (funcNode.returnTypeNode != null) {
+        BLangType returnTypeNode = funcNode.returnTypeNode;
+        boolean hasReturnType = returnTypeNode != null;
+        if (hasReturnType) {
             funcNode.returnTypeAnnAttachments.forEach(annotationAttachment -> {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.RETURN);
                 this.analyzeDef(annotationAttachment, funcEnv);
@@ -420,10 +425,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             validateIsolatedParamUsage(inIsolatedFunction, restParam, true);
         }
 
+        if (hasReturnType && Symbols.isFlagOn(returnTypeNode.type.flags, Flags.PARAMETERIZED)) {
+            unifier.validate(returnTypeNode.type, funcNode, symTable, env, types, dlog);
+        }
+
         validateObjectAttachedFunction(funcNode);
 
         if (funcNode.hasBody()) {
-            analyzeNode(funcNode.body, funcEnv, funcNode.returnTypeNode.type, null);
+            analyzeNode(funcNode.body, funcEnv, returnTypeNode.type, null);
         }
 
         if (funcNode.anonForkName != null) {

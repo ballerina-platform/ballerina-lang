@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -48,6 +50,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
@@ -71,16 +75,18 @@ import java.util.Set;
 public class Unifier implements BTypeVisitor<BType, BType> {
 
     private Map<String, BType> paramValueTypes;
-    private Set<BType> visitedTypes;
+    private Set<BType> visitedTypes = new HashSet<>();
     private boolean isInvocation;
     private BLangInvocation invocation;
+    private BLangFunction function;
+    private SymbolTable symbolTable;
+    private SymbolEnv env;
     private Types types;
     private BLangDiagnosticLog dlog;
 
     public BType build(BType originalType, BType expType, BLangInvocation invocation, Types types,
                        BLangDiagnosticLog dlog) {
         this.isInvocation = invocation != null;
-        this.visitedTypes = new HashSet<>();
         if (this.isInvocation) {
             this.invocation = invocation;
             createParamMap(invocation);
@@ -88,12 +94,23 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         this.types = types;
         this.dlog = dlog;
         BType newType = originalType.accept(this, expType);
-        reset();
+        resetBuildArgs();
         return newType;
     }
 
     public BType build(BType originalType) {
         return build(originalType, null, null, null, null);
+    }
+
+    public void validate(BType returnType, BLangFunction function, SymbolTable symbolTable, SymbolEnv env, Types types,
+                         BLangDiagnosticLog dlog) {
+        this.function = function;
+        this.symbolTable = symbolTable;
+        this.env = env;
+        this.types = types;
+        this.dlog = dlog;
+        returnType.accept(this, null);
+        resetValidateArgs();
     }
 
     @Override
@@ -348,6 +365,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         for (BType member : originalType.getMemberTypes()) {
             if (this.visitedTypes.contains(member)) {
                 continue;
+            }
+
+            if (this.function != null && Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
+                BParameterizedType parameterizedType = (BParameterizedType) member;
+                BType paramConstraint = getParamConstrainTypeIfInferred(this.function, parameterizedType);
+                if (paramConstraint != symbolTable.noType && !isDisjointMemberType(parameterizedType, originalType)) {
+                    dlog.error(this.function.returnTypeNode.pos,
+                               DiagnosticErrorCode.INVALID_DEPENDENTLY_TYPED_RETURN_TYPE_WITH_INFERRED_TYPEDESC_PARAM);
+                    return originalType;
+                }
             }
 
             BType newMember = member.accept(this, null);
@@ -606,9 +633,112 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 String.format("Param '%s' not found in function '%s'", sym.name, invokableSymbol.name));
     }
 
-    private void reset() {
+    private BType getParamConstrainTypeIfInferred(BLangFunction function, BParameterizedType parameterizedType) {
+        String paramName = parameterizedType.paramSymbol.name.value;
+
+        for (BLangSimpleVariable requiredParam : function.requiredParams) {
+            if (!requiredParam.name.value.equals(paramName)) {
+                continue;
+            }
+
+            BLangExpression expr = requiredParam.expr;
+            if (expr == null || expr.getKind() != NodeKind.INFER_TYPEDESC_EXPR) {
+                return symbolTable.noType;
+            }
+
+            BType paramType = requiredParam.type;
+            if (paramType.tag != TypeTags.TYPEDESC) {
+                return symbolTable.noType;
+            }
+
+            return ((BTypedescType) paramType).constraint;
+        }
+        return symbolTable.noType;
+    }
+
+    private boolean isDisjointMemberType(BParameterizedType parameterizedType, BUnionType unionType) {
+        BType paramValueType = parameterizedType.paramValueType;
+
+        if (paramValueType.tag == TypeTags.UNION) {
+            return isDisjoint((BUnionType) paramValueType, unionType, parameterizedType);
+        }
+
+        for (BType memberType : unionType.getMemberTypes()) {
+            if (memberType == parameterizedType) {
+                continue;
+            }
+
+            if (hasSameBasicType(paramValueType, memberType) || hasIntersection(paramValueType, memberType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isDisjoint(BUnionType t1, BUnionType t2, BParameterizedType parameterizedType) {
+        for (BType memType1 : t1.getMemberTypes()) {
+            for (BType memType2 : t2.getMemberTypes()) {
+                if (memType2 == parameterizedType) {
+                    continue;
+                }
+
+                if (hasSameBasicType(memType1, memType2) || hasIntersection(memType1, memType2)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean hasIntersection(BType t1, BType t2) {
+        BType typeIntersection = types.getTypeIntersection(t1, t2, env);
+        return typeIntersection != null && typeIntersection != symbolTable.semanticError;
+    }
+
+    private boolean hasSameBasicType(BType t1, BType t2) {
+        int tag1 = t1.tag;
+        int tag2 = t2.tag;
+
+        if (tag1 == tag2) {
+            return true;
+        }
+
+        if (TypeTags.isIntegerTypeTag(tag1) != TypeTags.isIntegerTypeTag(tag2)) {
+            return false;
+        }
+
+        if (TypeTags.isStringTypeTag(tag1) != TypeTags.isStringTypeTag(tag2)) {
+            return false;
+        }
+
+        if (TypeTags.isXMLTypeTag(tag1) != TypeTags.isXMLTypeTag(tag2)) {
+            return false;
+        }
+
+        if (isMappingType(tag1) != isMappingType(tag2)) {
+            return true;
+        }
+
+        return isListType(tag1) && isListType(tag2);
+    }
+
+    private boolean isMappingType(int tag) {
+        return tag == TypeTags.MAP || tag == TypeTags.RECORD;
+    }
+
+    private boolean isListType(int tag) {
+        return tag == TypeTags.ARRAY || tag == TypeTags.TUPLE;
+    }
+
+    private void resetBuildArgs() {
         this.visitedTypes = new HashSet<>();
         this.paramValueTypes = null;
         this.isInvocation = false;
+    }
+
+    private void resetValidateArgs() {
+        this.visitedTypes = new HashSet<>();
+        this.function = null;
+        this.env = null;
     }
 }
