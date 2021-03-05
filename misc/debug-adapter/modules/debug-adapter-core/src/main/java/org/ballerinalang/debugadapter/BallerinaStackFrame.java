@@ -42,10 +42,11 @@ public class BallerinaStackFrame {
         this.jStackFrame = stackFrameProxy;
     }
 
-    public StackFrameProxyImpl getJStackFrame() {
-        return jStackFrame;
-    }
-
+    /**
+     * Returns a debugger adapter protocol compatible instance of this breakpoint.
+     *
+     * @return as an instance of {@link org.eclipse.lsp4j.debug.StackFrame}
+     */
     public Optional<StackFrame> getAsDAPStackFrame() {
         dapStackFrame = Objects.requireNonNullElse(dapStackFrame, computeDapStackFrame());
         return Optional.ofNullable(dapStackFrame);
@@ -84,38 +85,44 @@ public class BallerinaStackFrame {
      * @return Ballerina stack frame name
      */
     private static String getStackFrameName(StackFrameProxyImpl stackFrame) {
-        ObjectReference strand;
-        String stackFrameName;
         try {
-            if (stackFrame.location().method().name().matches(WORKER_LAMBDA_REGEX)
-                    && stackFrame.visibleVariableByName(STRAND_VAR_NAME) == null) {
-                strand = (ObjectReference) ((ArrayReference) stackFrame.getStackFrame().getArgumentValues().get(0))
-                        .getValue(0);
-                stackFrameName = String.valueOf(strand.getValue(strand.referenceType().fieldByName(STRAND_FIELD_NAME)));
-                stackFrameName = removeRedundantQuotes(stackFrameName);
-                return FRAME_TYPE_WORKER + FRAME_SEPARATOR + stackFrameName;
-            } else if (stackFrame.location().method().name().contains(LAMBDA)
-                    && stackFrame.visibleVariableByName(STRAND_VAR_NAME) == null) {
-                strand = (ObjectReference) ((ArrayReference) stackFrame.getStackFrame().getArgumentValues().get(0))
-                        .getValue(0);
-                Value stackFrameValue = strand.getValue(strand.referenceType().fieldByName(STRAND_FIELD_NAME));
-                if (stackFrameValue == null) {
-                    stackFrameName = FRAME_TYPE_ANONYMOUS;
+            String frameName;
+            ObjectReference strand = getStrand(stackFrame);
+            if (strand != null) {
+                Value frameNameValue = strand.getValue(strand.referenceType().fieldByName(STRAND_FIELD_NAME));
+                if (frameNameValue != null) {
+                    frameName = removeRedundantQuotes(String.valueOf(frameNameValue));
                 } else {
-                    stackFrameName = removeRedundantQuotes(stackFrameValue.toString());
+                    frameName = FRAME_TYPE_ANONYMOUS;
                 }
-                return FRAME_TYPE_START + FRAME_SEPARATOR + stackFrameName;
-            } else if (stackFrame.location().method().name().contains(LAMBDA)
-                    && stackFrame.visibleVariableByName(STRAND_VAR_NAME) != null) {
-                strand = (ObjectReference) stackFrame.getValue(stackFrame.visibleVariableByName(STRAND_VAR_NAME));
-                stackFrameName = String.valueOf(strand.getValue(strand.referenceType().fieldByName(STRAND_FIELD_NAME)));
-                stackFrameName = removeRedundantQuotes(stackFrameName);
-                return stackFrameName;
+            } else {
+                frameName = FRAME_TYPE_ANONYMOUS;
+            }
+
+            if (stackFrame.location().method().name().matches(WORKER_LAMBDA_REGEX)) {
+                return FRAME_TYPE_WORKER + FRAME_SEPARATOR + frameName;
+            } else if (stackFrame.location().method().name().contains(LAMBDA)) {
+                return FRAME_TYPE_START + FRAME_SEPARATOR + frameName;
             } else {
                 return stackFrame.location().method().name();
             }
         } catch (Exception e) {
             return FRAME_TYPE_ANONYMOUS;
+        }
+    }
+
+    /**
+     * Retrieves ballerina strand instance of the given stack frame.
+     */
+    private static ObjectReference getStrand(StackFrameProxyImpl frame) {
+        try {
+            if (frame.visibleVariableByName(STRAND_VAR_NAME) == null) {
+                return (ObjectReference) ((ArrayReference) frame.getStackFrame().getArgumentValues().get(0))
+                        .getValue(0);
+            }
+            return (ObjectReference) frame.getValue(frame.visibleVariableByName(STRAND_VAR_NAME));
+        } catch (Exception e) {
+            return null;
         }
     }
 }
