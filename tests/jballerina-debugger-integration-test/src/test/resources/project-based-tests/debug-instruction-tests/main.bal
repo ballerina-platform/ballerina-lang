@@ -15,8 +15,8 @@
 // under the License.
 
 public function main() {
-    earlyReturnFunc();
-    _ sum(a, b);
+    earlyReturnFunc(1,2);
+    _ = sum(1, 2);
 }
 
 function earlyReturnFunc(int a, int b) {

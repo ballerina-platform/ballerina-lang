@@ -120,7 +120,8 @@ public class BallerinaStackFrame {
             if (stackFrame.location().method().name().matches(WORKER_LAMBDA_REGEX)) {
                 return FRAME_TYPE_WORKER + FRAME_SEPARATOR + frameName;
             } else if (stackFrame.location().method().name().contains(LAMBDA)) {
-                return FRAME_TYPE_START + FRAME_SEPARATOR + frameName;
+                return stackFrame.visibleVariableByName(STRAND_VAR_NAME) != null ? frameName :
+                        FRAME_TYPE_START + FRAME_SEPARATOR + frameName;
             } else {
                 return stackFrame.location().method().name();
             }
