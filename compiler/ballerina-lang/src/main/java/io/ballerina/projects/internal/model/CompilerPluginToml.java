@@ -30,7 +30,7 @@ import java.util.List;
 public class CompilerPluginToml {
     private Plugin plugin;
 
-    private static final String DEPENDENCY = "Dependency";
+    private static final String DEPENDENCY = "dependency";
     @SerializedName(DEPENDENCY) private List<Dependency> dependencies;
 
     public Plugin getPlugin() {
