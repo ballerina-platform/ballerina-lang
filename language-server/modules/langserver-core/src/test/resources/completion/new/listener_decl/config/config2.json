@@ -9,24 +9,24 @@
       "label": "mod",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "N",
       "insertText": "mod",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "lang",
+      "label": "lang.object",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "object",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'test",
+      "sortText": "Q",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -40,7 +40,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'test;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -48,8 +48,8 @@
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'array",
+      "sortText": "Q",
+      "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -63,30 +63,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.transaction",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'transaction",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.'transaction;\n"
+          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
@@ -94,7 +71,7 @@
       "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BE",
+      "sortText": "Q",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -117,8 +94,8 @@
       "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'value",
+      "sortText": "Q",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -132,7 +109,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'value;\n"
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -140,8 +117,8 @@
       "label": "ballerina/lang.query",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'query",
+      "sortText": "Q",
+      "insertText": "query",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -155,7 +132,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'query;\n"
+          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },
@@ -163,8 +140,8 @@
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'runtime",
+      "sortText": "Q",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -178,127 +155,127 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'runtime;\n"
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
     {
-      "label": "ballerina/lang.float",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'float",
+      "label": "boolean",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.xml",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'xml",
+      "label": "decimal",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.decimal",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'decimal",
+      "label": "error",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.object",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'object",
+      "label": "float",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "float",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.string",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'string",
+      "label": "future",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "future",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.error",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'error",
+      "label": "int",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "int",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.stream",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'stream",
+      "label": "map",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "map",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.object",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'object",
+      "label": "object",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "object",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.map",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'map",
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.table",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'table",
+      "label": "string",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "string",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.int",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'int",
+      "label": "table",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "table",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.boolean",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'boolean",
+      "label": "transaction",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "transaction",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.future",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'future",
+      "label": "typedesc",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.typedesc",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BE",
-      "insertText": "'typedesc",
+      "label": "xml",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Listener",
       "kind": "Interface",
-      "detail": "Object",
-      "sortText": "C",
+      "detail": "Class",
+      "sortText": "K",
       "insertText": "Listener",
       "insertTextFormat": "Snippet"
     }
