@@ -71,8 +71,6 @@ public class ParserTestRunner {
         hashSet.add("enum_decl_source_09.bal");
         hashSet.add("minutiae_test_05_with_no_newlines.bal");
         hashSet.add("import_decl_source_13.bal");
-        hashSet.add("ambiguity_source_06.bal");
-        hashSet.add("ambiguity_source_11.bal");
         hashSet.add("ambiguity_source_29.bal");
         hashSet.add("worker_decl_source_02.bal");
         hashSet.add("typed_binding_patterns_source_16.bal");
