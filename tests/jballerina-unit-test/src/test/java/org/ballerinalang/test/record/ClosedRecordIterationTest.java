@@ -55,7 +55,8 @@ public class ClosedRecordIterationTest {
 
         // Test invalid no. of args with foreach loop
         BAssertUtil.validateError(closedRecNegatives, index++,
-                "invalid list binding pattern: expected an array or a tuple, but found '(string|int|ClosedAddress)'",
+                "invalid list binding pattern: attempted to infer a list type, but found " +
+                        "'(string|int|ClosedAddress)'",
                 40, 17);
         // Test invalid foreach iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,

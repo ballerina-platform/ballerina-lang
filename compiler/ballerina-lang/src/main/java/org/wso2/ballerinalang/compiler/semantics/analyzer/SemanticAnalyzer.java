@@ -1283,7 +1283,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 if (rhsType.tag == TypeTags.UNION || rhsType.tag == TypeTags.ARRAY) {
                     BTupleType tupleVariableType = null;
-                    if (tupleVariable.typeNode != null) {
+                    if (tupleVariable.typeNode != null && tupleVariable.typeNode.type.tag == TypeTags.TUPLE) {
                         tupleVariableType = (BTupleType) tupleVariable.typeNode.type;
                     }
                     if (!(this.symbolEnter.checkTypeAndVarCountConsistency(tupleVariable,
