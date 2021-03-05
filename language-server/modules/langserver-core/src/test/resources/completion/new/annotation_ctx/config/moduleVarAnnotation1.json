@@ -264,11 +264,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "sourceVarAnnotation1",
+      "label": "display",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "sourceVarAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertText": "display {\n\tlabel: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "tainted",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -278,6 +287,15 @@
       "detail": "Annotation",
       "sortText": "Q",
       "insertText": "sourceVarAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceVarAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "sourceVarAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }

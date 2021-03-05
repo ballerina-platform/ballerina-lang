@@ -1,9 +1,7 @@
-import ballerina/module1;
+import ballerina/module1 as testMod;
 
 function testNewFunction() {
-    module1:TestClass1 obj1;
-    obj1 = new 
-    int testVar = 12;
+    testMod:Client cl = new 
 }
 
 class TestObject1 {

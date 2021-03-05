@@ -169,7 +169,8 @@ public class AnnotationUtil {
      * @return {@link Boolean} having the attachment point or not
      */
     public static boolean hasAttachment(AnnotationSymbol annotation, AnnotationAttachPoint attachPoint) {
-        return annotation.attachPoints().contains(attachPoint);
+        // Annotations without attachment points can applied to any construct
+        return annotation.attachPoints().isEmpty() || annotation.attachPoints().contains(attachPoint);
     }
 
     /**
