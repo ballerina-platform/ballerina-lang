@@ -4161,7 +4161,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 tempExprType = childXMLTypes.get(i).type;
             } else if (tempExprType != childXMLTypes.get(i).type) {
                 isSameType = false;
-                break;
             }
         }
         if (isSameType) {
