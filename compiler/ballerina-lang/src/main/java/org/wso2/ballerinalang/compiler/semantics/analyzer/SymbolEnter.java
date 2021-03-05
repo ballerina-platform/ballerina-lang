@@ -1948,11 +1948,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 case TypeTags.UNION:
                     Set<BType> unionType = types.expandAndGetMemberTypesRecursive(varNode.type);
                     List<BType> possibleTypes = new ArrayList<>();
-                    for (BType type :unionType) {
-                        if (!(TypeTags.TUPLE == type.tag &&
-                                checkMemVarCountMatchWithMemTypeCount(varNode, (BTupleType) type)) &&
-                                TypeTags.ANY != type.tag && TypeTags.ANYDATA != type.tag &&
-                                (TypeTags.ARRAY != type.tag || ((BArrayType) type).state == BArrayState.OPEN)) {
+                    for (BType type : unionType) {
+                        if (TypeTags.TUPLE == type.tag &&
+                                !checkMemVarCountMatchWithMemTypeCount(varNode, (BTupleType) type)) {
+                            dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN);
+                            return false;
+                        } else if (TypeTags.TUPLE != type.tag && TypeTags.ANY != type.tag &&
+                                TypeTags.ANYDATA != type.tag && (TypeTags.ARRAY != type.tag ||
+                                ((BArrayType) type).state == BArrayState.OPEN)) {
                             continue;
                         }
                         possibleTypes.add(type);
