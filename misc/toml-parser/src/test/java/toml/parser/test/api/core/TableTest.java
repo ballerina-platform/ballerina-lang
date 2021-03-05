@@ -114,5 +114,13 @@ public class TableTest {
         Assert.assertEquals(firstElement, "Hammer");
         Assert.assertTrue(nullElement);
         Assert.assertEquals(thridElement, "Nail");
+
+        TomlStringValueNode generatedTableWithArray =
+                (TomlStringValueNode) read.getTables("foo.bar").get(0).get("name").get();
+        TomlStringValueNode generatedTableExplicitDecl = (TomlStringValueNode) read.get("foo.name").get();
+
+        Assert.assertEquals(generatedTableWithArray.getValue(), "Alice");
+        Assert.assertEquals(generatedTableExplicitDecl.getValue(), "Bob");
+
     }
 }

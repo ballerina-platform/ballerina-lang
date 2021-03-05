@@ -92,7 +92,7 @@ public class FileUtils {
      * @throws IOException if IO exception occurs
      */
     public static String readFileAsString(String path) throws IOException {
-        InputStream is = ClassLoader.getSystemResourceAsStream(path);
+        InputStream is = FileUtils.class.getClassLoader().getResourceAsStream(path);
         InputStreamReader inputStreamReader = null;
         BufferedReader br = null;
         StringBuilder sb = new StringBuilder();

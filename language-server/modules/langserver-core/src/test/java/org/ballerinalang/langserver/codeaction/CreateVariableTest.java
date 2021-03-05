@@ -54,7 +54,7 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"variableAssignmentRequiredCodeAction8.json", "createVariable3.bal"},
                 {"variableAssignmentRequiredCodeAction9.json", "createVariable3.bal"},
                 {"variableAssignmentRequiredCodeAction10.json", "createVariable3.bal"},
-//                {"variableAssignmentRequiredCodeAction11.json", "createVariable3.bal"}, //disable xml
+                {"variableAssignmentRequiredCodeAction11.json", "createVariable3.bal"},
                 {"variableAssignmentRequiredCodeAction12.json", "createVariable3.bal"},
                 {"variableAssignmentRequiredCodeAction13.json", "createVariable3.bal"},
                 {"variableAssignmentRequiredCodeAction14.json", "createVariable3.bal"},
@@ -73,17 +73,18 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"variableAssignmentRequiredCodeAction27.json", "createVariable4.bal"},
                 {"variableAssignmentRequiredCodeAction28.json", "createVariable4.bal"},
                 {"variableAssignmentRequiredCodeAction29.json", "createVariable5.bal"},
-//                {"variableAssignmentRequiredCodeAction30.json", "createVariable5.bal"}, ref: #28033
+                {"variableAssignmentRequiredCodeAction30.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction31.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction32.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction33.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction34.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction35.json", "createVariable5.bal"},
-//                {"variableAssignmentRequiredCodeAction36.json", "createVariable5.bal"}, //disabled need isAssignable
+                {"variableAssignmentRequiredCodeAction36.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction37.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction38.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction39.json", "createVariable5.bal"},
 //                {"variableAssignmentRequiredCodeAction40.json", "createVariable5.bal"},   // disabled due to #26996
+                {"variableAssignmentRequiredCodeAction41.json", "createVariable6.bal"},
                 {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
         };
     }

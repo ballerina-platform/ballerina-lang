@@ -60,8 +60,9 @@ public class ModulePartNodeContextUtil {
      */
     public static List<LSCompletionItem> getTopLevelItems(BallerinaCompletionContext context) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
+        // Here we should add the function keyword as well, although it is added via #getTypeItems
         List<Snippet> snippets = Arrays.asList(
-                Snippet.KW_IMPORT, Snippet.KW_FUNCTION, Snippet.KW_TYPE, Snippet.KW_PUBLIC, Snippet.KW_ISOLATED,
+                Snippet.KW_IMPORT, Snippet.KW_TYPE, Snippet.KW_PUBLIC, Snippet.KW_ISOLATED,
                 Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT, Snippet.KW_VAR,
                 Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS, Snippet.KW_TRANSACTIONAL,
                 Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION, Snippet.DEF_SERVICE, Snippet.KW_CONFIGURABLE,

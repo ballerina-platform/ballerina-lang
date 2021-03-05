@@ -105,4 +105,13 @@ public class ModuleErrorVariableTest {
                 "annotation 'ballerina/lang.annotations:1.0.0:deprecated' is not allowed on var", 20, 1);
         assertEquals(compileResult.getErrorCount(), index);
     }
+
+    @Test
+    public void testUninitializedModuleLevelErrorVar() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_error_var_decl.bal");
+        int index = 0;
+        validateError(compileResult, index++, "complex variable must be initialized", 23, 66);
+        assertEquals(compileResult.getErrorCount(), index);
+    }
 }

@@ -464,6 +464,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -480,14 +488,6 @@
       "detail": "Object",
       "sortText": "K",
       "insertText": "TestObject",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -563,6 +563,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -595,6 +603,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "self",
+      "kind": "Variable",
+      "detail": "isolated service object {resource function $name$.() returns () ;}",
+      "sortText": "B",
+      "insertText": "self",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "lst",
       "kind": "Variable",
       "detail": "module1:Listener",
@@ -614,14 +630,6 @@
       },
       "sortText": "C",
       "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "self",
-      "kind": "Variable",
-      "detail": "isolated service object {resource function $name$.() returns () ;}",
-      "sortText": "B",
-      "insertText": "self",
       "insertTextFormat": "Snippet"
     },
     {
