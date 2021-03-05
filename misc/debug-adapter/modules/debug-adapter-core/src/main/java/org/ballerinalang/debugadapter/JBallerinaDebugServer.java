@@ -176,10 +176,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsConfigurationDoneRequest(true);
         capabilities.setSupportsTerminateRequest(true);
         capabilities.setSupportTerminateDebuggee(true);
+        capabilities.setSupportsConditionalBreakpoints(true);
         // Todo - Implement
         capabilities.setSupportsCompletionsRequest(false);
         capabilities.setSupportsRestartRequest(false);
-        capabilities.setSupportsConditionalBreakpoints(false);
         // unsupported capabilities
         capabilities.setSupportsHitConditionalBreakpoints(false);
         capabilities.setSupportsModulesRequest(false);
@@ -196,14 +196,23 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
-        Breakpoint[] breakpoints = Arrays.stream(args.getBreakpoints())
-                .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
-                .toArray(Breakpoint[]::new);
+        BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
+            .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
+            .toArray(BalBreakpoint[]::new);
+
+        Breakpoint[] breakpoints = Arrays.stream(balBreakpoints)
+            .map(BalBreakpoint::getBreakpoint)
+            .toArray(Breakpoint[]::new);
+
+        Map<Integer, BalBreakpoint> breakpointsMap = new HashMap<>();
+        for (BalBreakpoint bp : balBreakpoints) {
+            breakpointsMap.put(bp.getLine().intValue(), bp);
+        }
 
         SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
         breakpointsResponse.setBreakpoints(breakpoints);
         String path = args.getSource().getPath();
-        eventProcessor.setBreakpointsList(path, breakpoints);
+        eventProcessor.setBreakpoints(path, breakpointsMap);
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
 
@@ -470,11 +479,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return CompletableFuture.completedFuture(null);
     }
 
-    private Breakpoint toBreakpoint(SourceBreakpoint sourceBreakpoint, Source source) {
-        Breakpoint breakpoint = new Breakpoint();
+    private BalBreakpoint toBreakpoint(SourceBreakpoint sourceBreakpoint, Source source) {
+        BalBreakpoint breakpoint = new BalBreakpoint();
         breakpoint.setLine(sourceBreakpoint.getLine());
         breakpoint.setSource(source);
         breakpoint.setVerified(true);
+        breakpoint.setCondition(sourceBreakpoint.getCondition());
         return breakpoint;
     }
 

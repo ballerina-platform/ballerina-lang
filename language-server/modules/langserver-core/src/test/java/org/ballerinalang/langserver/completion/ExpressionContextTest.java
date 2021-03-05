@@ -67,10 +67,6 @@ public class ExpressionContextTest extends CompletionTestNew {
                 "annotation_access_ctx_config4.json",
                 "annotation_access_ctx_config5.json",
                 "annotation_access_ctx_config6.json",
-                "new_expr_ctx_config7.json", // blocked due to the typeref issue
-                "new_expr_ctx_config8.json", // blocked due to the typeref issue
-                "new_expr_ctx_config9.json", // blocked due to the typeref issue
-                "new_expr_ctx_config10.json", // blocked due to the typeref issue
                 "optional_field_access_ctx_config1.json",
                 "optional_field_access_ctx_config2.json",
                 "optional_field_access_ctx_config3.json",
