@@ -5059,7 +5059,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLIdentifer.originalValue = value;
             bLIdentifer.setLiteral(true);
         } else {
-            bLIdentifer.setValue(value);
+            bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value));
             bLIdentifer.setLiteral(false);
         }
         bLIdentifer.pos = pos;
