@@ -242,6 +242,9 @@ public class StringTest {
         validateError(multilineLiterals, indx++, "missing double quote", 20, 32);
         validateError(multilineLiterals, indx++, "missing plus token", 20, 32);
         validateError(multilineLiterals, indx++, "missing semicolon token", 21, 1);
+        validateError(multilineLiterals, indx++, "missing double quote", 21, 22);
+        validateError(multilineLiterals, indx++, "missing plus token", 21, 22);
+        validateError(multilineLiterals, indx++, "missing semicolon token", 22, 1);
         Assert.assertEquals(multilineLiterals.getErrorCount(), indx);
     }
 
