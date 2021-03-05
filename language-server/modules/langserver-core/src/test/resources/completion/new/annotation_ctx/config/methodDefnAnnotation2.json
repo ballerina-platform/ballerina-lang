@@ -264,11 +264,29 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "objectFunctionAnnotation1",
+      "label": "functionAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "objectFunctionAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertText": "functionAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "display",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "display {\n\tlabel: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -291,11 +309,11 @@
       "additionalTextEdits": []
     },
     {
-      "label": "functionAnnotation1",
+      "label": "objectFunctionAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "functionAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertText": "objectFunctionAnnotation1 {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }

@@ -444,6 +444,34 @@ function testXMLIteratorInvocation() {
     assert((iter5.next()).toString(), "{\"value\":`<one>first</one>`}");
 }
 
+function testSelectingTextFromXml() {
+    xml:Element authors = xml `<authors><author><name>Enid<middleName/>Blyton</name></author></authors>`;
+    xml:Text authorsList = authors.text();
+    assert(authorsList.toString(), "");
+
+    xml:Text helloText = xml `hello text`;
+    xml:Text textValues = helloText.text();
+    assert(textValues.toString(), "hello text");
+
+    xml:Comment comment = xml `<!-- This is a comment -->`;
+    xml:Text commentText = comment.text();
+    assert(commentText.toString(), "");
+
+    xml:ProcessingInstruction instruction = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
+    xml:Text instructionText = instruction.text();
+    assert(instructionText.toString(), "");
+
+    xml<xml:Text> authorName = (authors/<author>/<name>/*).text();
+    assert(authorName.toString(),"EnidBlyton");
+
+    var name = xml `<name>Dan<lname>Gerhard</lname><!-- This is a comment -->Brown</name>`;
+    xml nameText = (name/*).text();
+    assert(nameText.toString(), "DanBrown");
+
+    xml<xml:Text> textValues2 = xml:text(helloText);
+    assert(textValues2.toString(), textValues.toString());
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

@@ -88,7 +88,7 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
     private List<LSCompletionItem> getModulePartContextItems(BallerinaCompletionContext context,
                                                              ModuleVariableDeclarationNode node) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             Predicate<Symbol> predicate =
                     symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> types = QNameReferenceUtil.getModuleContent(context,
