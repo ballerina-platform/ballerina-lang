@@ -533,6 +533,14 @@
       ]
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -541,14 +549,6 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -624,6 +624,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -662,7 +670,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n"
         }
       },
       "sortText": "C",
@@ -676,7 +684,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n"
         }
       },
       "sortText": "C",
@@ -690,7 +698,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n"
         }
       },
       "sortText": "C",
