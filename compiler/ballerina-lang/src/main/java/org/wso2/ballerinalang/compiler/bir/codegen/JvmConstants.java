@@ -294,6 +294,7 @@ public class JvmConstants {
     public static final String SCHEDULER_START_METHOD = "start";
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
+    public static final String CREATE_ERROR_VALUE = "createErrorValue";
 
     // strand data related constants
     public static final String STRAND = "strand";

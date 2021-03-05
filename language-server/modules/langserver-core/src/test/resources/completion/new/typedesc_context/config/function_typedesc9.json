@@ -243,17 +243,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap2",
+      "label": "Thread",
       "kind": "TypeParameter",
-      "detail": "Map",
-      "insertText": "TestMap2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "insertText": "TestMap3",
+      "detail": "Union",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -261,6 +254,13 @@
       "kind": "TypeParameter",
       "detail": "Map",
       "insertText": "TestMap1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -281,10 +281,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
+      "label": "TestMap3",
       "kind": "TypeParameter",
-      "detail": "Union",
-      "insertText": "Thread",
+      "detail": "Map",
+      "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -348,6 +348,13 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {

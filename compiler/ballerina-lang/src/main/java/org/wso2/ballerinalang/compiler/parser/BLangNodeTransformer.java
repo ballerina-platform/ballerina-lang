@@ -5060,7 +5060,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLIdentifer.originalValue = value;
             bLIdentifer.setLiteral(true);
         } else {
-            bLIdentifer.setValue(value);
+            bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value));
             bLIdentifer.setLiteral(false);
         }
         bLIdentifer.pos = pos;
@@ -5156,7 +5156,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 type == SyntaxKind.TEMPLATE_STRING || type == SyntaxKind.IDENTIFIER_TOKEN) {
             String text = textValue;
             if (type == SyntaxKind.STRING_LITERAL) {
-                text = text.substring(1, text.length() - 1);
+                if (text.length() > 1 && text.charAt(text.length() - 1) == '"') {
+                    text = text.substring(1, text.length() - 1);
+                } else {
+                    // Missing end quote case
+                    text = text.substring(1);
+                }
             }
             String originalText = text; // to log the errors
             Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);

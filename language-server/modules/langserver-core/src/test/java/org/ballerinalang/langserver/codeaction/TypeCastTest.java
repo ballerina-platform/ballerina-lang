@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class TypeCastTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "type-cast";
@@ -46,6 +47,8 @@ public class TypeCastTest extends AbstractCodeActionTest {
         return new Object[][]{
                 {"typeCast1.json", "typeCast.bal"},
                 {"typeCast2.json", "typeCast.bal"},
+                {"typeCast3.json", "typeCast.bal"},
+                {"typeCast4.json", "typeCast.bal"},
         };
     }
 }

@@ -212,6 +212,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
         completionItems.addAll(Arrays.asList(
                 new SnippetCompletionItem(context, Snippet.KW_RECORD.get()),
+                new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()),
                 new SnippetCompletionItem(context, Snippet.KW_DISTINCT.get()),
@@ -306,6 +307,15 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return completionItems;
     }
 
+    /**
+     * Check whether the cursor is within a qualified name reference.
+     * This has been deprecated and use QNameReferenceUtil#onQualifiedNameIdentifier instead.
+     * 
+     * @param context completion context
+     * @param node node to evaluate upon
+     * @return {@link Boolean}
+     */
+    @Deprecated(forRemoval = true)
     protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
         if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;

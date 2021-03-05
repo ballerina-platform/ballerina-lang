@@ -208,7 +208,7 @@ function testUnspecifiedErrorDetailFrozenness() returns boolean {
     return err is error && err.message() == "{ballerina/lang.map}InvalidUpdate";
 }
 
-function addValueToMap(map<anydata|readonly> m, string key, anydata|readonly value) {
+function addValueToMap(map<value:Cloneable> m, string key, anydata|readonly value) {
     m[key] = value;
 }
 

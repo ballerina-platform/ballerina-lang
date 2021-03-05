@@ -243,6 +243,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -257,13 +264,6 @@
       "kind": "Struct",
       "detail": "Record",
       "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -327,6 +327,13 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {

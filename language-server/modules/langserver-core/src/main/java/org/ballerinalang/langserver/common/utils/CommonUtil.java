@@ -588,13 +588,15 @@ public class CommonUtil {
      * @return random argument name
      */
     public static String generateVariableName(Symbol symbol, TypeSymbol typeSymbol, Set<String> names) {
-        if (symbol != null) {
+        // In some scenarios the compiler sends the symbol name as empty string. Hence add the check
+        if (symbol != null && symbol.getName().isPresent() && !symbol.getName().get().isEmpty()) {
             // Start naming with symbol-name
-            return generateVariableName(1, symbol.getName().orElse(""), names);
+            return generateVariableName(1, symbol.getName().get(), names);
         } else if (typeSymbol != null) {
             // If symbol is null, try typeSymbol
             String name;
-            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE && !typeSymbol.getName().get().startsWith("$")) {
+            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE && typeSymbol.getName().isPresent()
+                    && !typeSymbol.getName().get().startsWith("$")) {
                 name = typeSymbol.getName().get();
             } else {
                 TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
@@ -742,11 +744,11 @@ public class CommonUtil {
             String alias = moduleParts[1];
 
             pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
-            pkgPrefix = (preDeclaredLangLib) ? "'" + pkgPrefix : pkgPrefix;
+            pkgPrefix = (!preDeclaredLangLib && BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" + pkgPrefix : pkgPrefix;
 
             // See if an alias (ex: import project.module1 as mod1) is used
             List<ImportDeclarationNode> existingModuleImports = context.currentDocImports().stream()
-                    .filter(importDeclarationNode -> 
+                    .filter(importDeclarationNode ->
                             CodeActionModuleId.from(importDeclarationNode).moduleName().equals(moduleID.moduleName()))
                     .collect(Collectors.toList());
 
@@ -1042,7 +1044,7 @@ public class CommonUtil {
         return Optional.ofNullable(uri);
     }
     
-    private static String getModulePrefix(DocumentServiceContext context, String orgName, String modName) {
+    public static String getModulePrefix(DocumentServiceContext context, String orgName, String modName) {
         Project project = context.workspace().project(context.filePath()).orElseThrow();
         String currentProjectOrg = project.currentPackage().packageOrg().value();
         boolean isCurrentOrg = currentProjectOrg.equals(orgName);
