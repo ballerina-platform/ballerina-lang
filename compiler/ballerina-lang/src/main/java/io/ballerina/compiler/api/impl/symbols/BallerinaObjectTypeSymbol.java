@@ -26,11 +26,13 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -103,8 +105,20 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         Map<String, MethodSymbol> methods = new LinkedHashMap<>();
 
         for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) this.getBType().tsymbol).attachedFuncs) {
-            methods.put(attachedFunc.funcName.value,
-                        symbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
+            if (attachedFunc instanceof BResourceFunction) {
+                BResourceFunction resFn = (BResourceFunction) attachedFunc;
+                StringJoiner stringJoiner = new StringJoiner("/");
+
+                for (Name name : resFn.resourcePath) {
+                    stringJoiner.add(name.value);
+                }
+
+                methods.put(resFn.accessor.value + " " + stringJoiner.toString(),
+                            symbolFactory.createResourceMethodSymbol(attachedFunc.symbol));
+            } else {
+                methods.put(attachedFunc.funcName.value,
+                            symbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
+            }
         }
 
         this.methods = Collections.unmodifiableMap(methods);

@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
 
@@ -52,12 +54,13 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
  */
 public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implements ServiceDeclarationSymbol {
 
-    private TypeSymbol typeDescriptor;
-    private ServiceAttachPoint attachPoint;
+    private final List<AnnotationSymbol> annots;
+    private final List<Qualifier> qualifiers;
+    private final TypeSymbol typeDescriptor;
+    private final ServiceAttachPoint attachPoint;
+
     private Map<String, ClassFieldSymbol> fields;
-    private List<MethodSymbol> methods;
-    private List<Qualifier> qualifiers;
-    private List<AnnotationSymbol> annots;
+    private Map<String, MethodSymbol> methods;
 
     protected BallerinaServiceDeclarationSymbol(String name, TypeSymbol typeDescriptor, ServiceAttachPoint attachPoint,
                                                 List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
@@ -98,7 +101,7 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
     }
 
     @Override
-    public List<? extends MethodSymbol> methods() {
+    public Map<String, ? extends MethodSymbol> methods() {
         if (methods != null) {
             return this.methods;
         }
@@ -106,17 +109,26 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
         BServiceSymbol symbol = (BServiceSymbol) getInternalSymbol();
         BClassSymbol classSymbol = symbol.getAssociatedClassSymbol();
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        List<MethodSymbol> methods = new ArrayList<>();
+        Map<String, MethodSymbol> methods = new LinkedHashMap<>();
 
         for (BAttachedFunction method : classSymbol.attachedFuncs) {
             if (method instanceof BResourceFunction) {
-                methods.add(symbolFactory.createResourceMethodSymbol(method.symbol));
+                BResourceFunction resFn = (BResourceFunction) method;
+                StringJoiner stringJoiner = new StringJoiner("/");
+
+                for (Name name : resFn.resourcePath) {
+                    stringJoiner.add(name.value);
+                }
+
+                methods.put(resFn.accessor.value + " " + stringJoiner.toString(),
+                            symbolFactory.createResourceMethodSymbol(method.symbol));
             } else {
-                methods.add(symbolFactory.createMethodSymbol(method.symbol, method.funcName.value));
+                methods.put(method.funcName.value,
+                            symbolFactory.createMethodSymbol(method.symbol, method.funcName.value));
             }
         }
 
-        this.methods = Collections.unmodifiableList(methods);
+        this.methods = Collections.unmodifiableMap(methods);
         return this.methods;
     }
 

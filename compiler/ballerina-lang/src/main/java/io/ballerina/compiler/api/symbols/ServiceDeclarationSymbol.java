@@ -21,7 +21,6 @@ package io.ballerina.compiler.api.symbols;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -59,9 +58,11 @@ public interface ServiceDeclarationSymbol extends Symbol, Annotatable, Documenta
     Map<String, ClassFieldSymbol> fieldDescriptors();
 
     /**
-     * Returns a list of methods. This includes regular methods, remote methods and resource methods.
+     * Returns a map of methods. This includes regular methods, remote methods and resource methods. For a resource
+     * method, the key is the combination of method name and the resource path's form. e.g., if the resource path is
+     * defined as foo/[int x]/bar/[string... rest], and the method name is "get", then the key is "get foo/*\/bar/**".
      *
-     * @return A list of methods in this service declaration
+     * @return A map of methods in this service declaration
      */
-    List<? extends MethodSymbol> methods();
+    Map<String, ? extends MethodSymbol> methods();
 }
