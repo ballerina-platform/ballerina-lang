@@ -115,6 +115,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_V
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
@@ -509,6 +510,7 @@ public class JvmTypeGen {
         // due to structural type same name can appear twice, need to remove duplicates
         Set<BIRTypeDefinition> recordTypeDefSet = new TreeSet<>(NAME_HASH_COMPARATOR);
         List<BIRTypeDefinition> objectTypeDefs = new ArrayList<>();
+        List<BIRTypeDefinition> errorTypeDefs = new ArrayList<>();
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
@@ -516,12 +518,15 @@ public class JvmTypeGen {
                 recordTypeDefSet.add(optionalTypeDef);
             } else if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 objectTypeDefs.add(optionalTypeDef);
+            } else if (bType.tag == TypeTags.ERROR) {
+                errorTypeDefs.add(optionalTypeDef);
             }
         }
 
         ArrayList<BIRTypeDefinition> recordTypeDefs = new ArrayList<>(recordTypeDefSet);
         generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass, asyncDataCollector);
         generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass, symbolTable, asyncDataCollector);
+        generateErrorValueCreateMethod(cw, errorTypeDefs, typeOwnerClass, symbolTable);
     }
 
     private void generateRecordValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefs,
@@ -578,7 +583,7 @@ public class JvmTypeGen {
             i += 1;
         }
 
-        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such record: ");
         mv.visitMaxs(recordTypeDefs.size() + 10, recordTypeDefs.size() + 10);
         mv.visitEnd();
     }
@@ -682,8 +687,50 @@ public class JvmTypeGen {
             i += 1;
         }
 
-        createDefaultCase(mv, defaultCaseLabel, var1Index);
+        createDefaultCase(mv, defaultCaseLabel, var1Index, "No such object: ");
         mv.visitMaxs(objectTypeDefs.size() + 100, objectTypeDefs.size() + 100);
+        mv.visitEnd();
+    }
+
+    private void generateErrorValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> errorTypeDefs,
+                                                String typeOwnerClass, SymbolTable symbolTable) {
+
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_ERROR_VALUE,
+                                          String.format("(L%s;L%s;L%s;L%s;)L%s;", STRING_VALUE, B_STRING_VALUE, BERROR,
+                                                        OBJECT, BERROR), null, null);
+        mv.visitCode();
+        BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
+        indexMap.addIfNotExists("self", symbolTable.anyType);
+        int errorNameIndex = indexMap.addIfNotExists("errorTypeName", symbolTable.stringType);
+        int messageIndex = indexMap.addIfNotExists("message", symbolTable.stringType);
+        int causeIndex = indexMap.addIfNotExists("cause", symbolTable.errorType);
+        int detailsIndex = indexMap.addIfNotExists("details", symbolTable.anyType);
+        Label defaultCaseLabel = new Label();
+
+        // sort the fields before generating switch case
+        errorTypeDefs.sort(NAME_HASH_COMPARATOR);
+
+        List<Label> labels = createLabelsForSwitch(mv, errorNameIndex, errorTypeDefs, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, errorNameIndex, errorTypeDefs, labels,
+                                                             defaultCaseLabel);
+        int i = 0;
+        for (BIRTypeDefinition errorDefinition : errorTypeDefs) {
+            String fieldName = getTypeFieldName(errorDefinition.internalName.value);
+            Label targetLabel = targetLabels.get(i);
+            mv.visitLabel(targetLabel);
+            mv.visitTypeInsn(NEW, ERROR_VALUE);
+            mv.visitInsn(DUP);
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
+            mv.visitVarInsn(ALOAD, messageIndex);
+            mv.visitVarInsn(ALOAD, causeIndex);
+            mv.visitVarInsn(ALOAD, detailsIndex);
+            mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD,
+                               String.format("(L%s;L%s;L%s;L%s;)V", TYPE, B_STRING_VALUE, BERROR, OBJECT), false);
+            mv.visitInsn(ARETURN);
+            i += 1;
+        }
+        createDefaultCase(mv, defaultCaseLabel, errorNameIndex, "No such error: ");
+        mv.visitMaxs(errorTypeDefs.size() + 100, errorTypeDefs.size() + 100);
         mv.visitEnd();
     }
 

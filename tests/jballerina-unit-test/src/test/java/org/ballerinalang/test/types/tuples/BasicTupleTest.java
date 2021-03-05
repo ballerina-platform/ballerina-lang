@@ -270,6 +270,11 @@ public class BasicTupleTest {
                 " with member type count", 174, 9);
     }
 
+    @Test
+    public void testTupleAsTupleFirstMember() {
+        BRunUtil.invoke(result, "testTupleAsTupleFirstMember");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

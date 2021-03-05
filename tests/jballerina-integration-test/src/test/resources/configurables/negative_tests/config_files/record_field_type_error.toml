@@ -1,0 +1,4 @@
+[main.testUser]
+username = 1234
+password = "password"
+scopes = ["write"]

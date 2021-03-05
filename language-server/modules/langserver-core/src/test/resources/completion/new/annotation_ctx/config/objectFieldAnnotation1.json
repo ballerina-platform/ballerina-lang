@@ -264,11 +264,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "objectFieldAnnotation2",
+      "label": "fieldAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "objectFieldAnnotation2",
+      "insertText": "fieldAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "deprecated",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -282,6 +291,15 @@
       "additionalTextEdits": []
     },
     {
+      "label": "display",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "display {\n\tlabel: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
       "label": "fieldAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
@@ -291,11 +309,11 @@
       "additionalTextEdits": []
     },
     {
-      "label": "fieldAnnotation2",
+      "label": "objectFieldAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "fieldAnnotation2",
+      "insertText": "objectFieldAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }
