@@ -210,7 +210,8 @@ public class BTestRunner {
     private void execute(TestSuite suite, ClassLoader testClassLoader) {
         // Check if there are tests in the test suite
         if (suite.getTests().size() == 0) {
-            outStream.println("\tNo tests found\n");
+            outStream.println();
+            outStream.println("\t\tNo tests found\n");
             return;
         }
 

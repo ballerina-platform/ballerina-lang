@@ -19,7 +19,6 @@
 package io.ballerina.cli.task;
 
 import com.google.gson.Gson;
-import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
@@ -163,10 +162,6 @@ public class RunTestsTask implements Task {
             throw createLauncherException("error while creating target directory: ", e);
         }
 
-        this.out.println();
-        this.out.print("Processing Tests");
-        this.out.println();
-
         boolean hasTests = false;
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
@@ -187,17 +182,10 @@ public class RunTestsTask implements Task {
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
 
             if (suite == null) {
-                if (!project.currentPackage().packageOrg().anonymous()) {
-                    out.println();
-                    out.println("\t" + moduleName.toString());
-                }
-                out.println("\t" + "No tests found");
                 continue;
             } else if (isRerunTestExecution && suite.getTests().isEmpty()) {
-                out.println("\t" + "No failed test/s found in cache");
                 continue;
             } else if (isSingleTestExecution && suite.getTests().isEmpty()) {
-                out.println("\t" + "No tests found with the given name/s");
                 continue;
             }
             //Set 'hasTests' flag if there are any tests available in the package
@@ -213,19 +201,11 @@ public class RunTestsTask implements Task {
             }
             suite.setReportRequired(report || coverage);
 
-            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                out.println("\t" + module.document(module.documentIds().iterator().next()).name());
-            } else {
-                out.println("\t" + module.moduleName().toString());
-            }
-
             String resolvedModuleName =
                     module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
             testSuiteMap.put(resolvedModuleName, suite);
             moduleNamesList.add(resolvedModuleName);
         }
-
-        writeToTestSuiteJson(testSuiteMap, testsCachePath);
 
         int testResult;
 
@@ -233,7 +213,7 @@ public class RunTestsTask implements Task {
             try {
                 testResult = runTestSuit(testsCachePath, target,
                         project.currentPackage().packageName().toString(),
-                        project.currentPackage().packageOrg().toString());
+                        project.currentPackage().packageOrg().toString(), testSuiteMap);
 
                 if (report || coverage) {
                     for (String moduleName : moduleNamesList) {
@@ -369,7 +349,8 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int runTestSuit(Path testCachePath, Target target, String packageName, String orgName) throws IOException,
+    private int runTestSuit(Path testCachePath, Target target, String packageName, String orgName,
+                            Map<String, TestSuite> testSuiteMap) throws IOException,
             InterruptedException {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
@@ -406,7 +387,10 @@ public class RunTestsTask implements Task {
         cmdArgs.add(Boolean.toString(report));      // 2
         cmdArgs.add(Boolean.toString(coverage));    // 3
 
-        cmdArgs.addAll(args);                       // 4
+        Gson gson = new Gson();
+        cmdArgs.add(gson.toJson(testSuiteMap));     // 4
+
+        cmdArgs.addAll(args);                       // 5
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -434,30 +418,6 @@ public class RunTestsTask implements Task {
             return gson.fromJson(bufferedReader, ArrayList.class);
         } catch (IOException e) {
             throw createLauncherException("error while running failed tests : ", e);
-        }
-    }
-
-    /**
-     * Write the content of each test suite into a common json.
-     */
-    private static void writeToTestSuiteJson(Map<String, TestSuite> testSuiteMap, Path testsCachePath) {
-        if (!Files.exists(testsCachePath)) {
-            try {
-                Files.createDirectories(testsCachePath);
-            } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("couldn't create test suite : " + e.toString());
-            }
-        }
-
-        Path jsonFilePath = Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
-        File jsonFile = new File(jsonFilePath.toString());
-
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            Gson gson = new Gson();
-            String json = gson.toJson(testSuiteMap);
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
         }
     }
 

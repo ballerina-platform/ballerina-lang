@@ -7,5 +7,4 @@ module io.ballerina.testerina.core {
     requires io.ballerina.testerina.runtime;
     requires io.ballerina.runtime;
     requires io.github.javadiffutils;
-    requires gson;
 }

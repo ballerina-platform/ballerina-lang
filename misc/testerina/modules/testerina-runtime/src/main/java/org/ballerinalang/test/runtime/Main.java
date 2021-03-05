@@ -27,7 +27,6 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -52,17 +51,19 @@ import java.util.Map;
  * Main class to init the test suit.
  */
 public class Main {
+    private static final PrintStream out = System.out;
     static TestReport testReport;
     static ClassLoader classLoader;
-    private static final PrintStream out = System.out;
 
     public static void main(String[] args) throws IOException {
         int exitStatus = 0;
+        int result;
 
         Path testCache = Paths.get(args[0]);
         String target = args[1];
         boolean report = Boolean.valueOf(args[2]);
         boolean coverage = Boolean.valueOf(args[3]);
+        String testSuiteMapString = args[4];
 
         if (report || coverage) {
             testReport = new TestReport();
@@ -75,15 +76,13 @@ public class Main {
         }
         out.println();
 
-        Path testSuiteCachePath = testCache.resolve(TesterinaConstants.TESTERINA_TEST_SUITE);
+        Gson gson = new Gson();
+        Map<String, TestSuite> testSuiteMap;
 
-        try (BufferedReader br = Files.newBufferedReader(testSuiteCachePath, StandardCharsets.UTF_8)) {
-            Gson gson = new Gson();
-            Map<String, TestSuite> testSuiteMap;
+        testSuiteMap =
+                gson.fromJson(testSuiteMapString, new TypeToken<Map<String, TestSuite>>() { }.getType());
 
-            testSuiteMap = gson.fromJson(br, new TypeToken<Map<String, TestSuite>>() { }.getType());
-            testSuiteMap.isEmpty();
-
+        if (!testSuiteMap.isEmpty()) {
             for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
                 String moduleName = entry.getKey();
                 TestSuite testSuite = entry.getValue();
@@ -93,8 +92,7 @@ public class Main {
                 configList.add(testSuite.getOrgName());
                 configList.add(testSuite.getPackageName());
                 configList.add("\"" + moduleName + "\"");
-                configList.addAll(Lists.of(Arrays.copyOfRange(args, 4, args.length)));
-
+                configList.addAll(Lists.of(Arrays.copyOfRange(args, 5, args.length)));
                 String[] configArgs = configList.toArray(new String[0]);
 
                 LaunchUtils.initConfigurations(configArgs);
@@ -107,16 +105,14 @@ public class Main {
                 classLoader = createClassLoader(testExecutionDependencies);
 
                 Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
-                exitStatus += startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
+                result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
                         classLoader);
+                exitStatus = (result == 1) ? result : exitStatus;
             }
-        } catch (Exception e) {
+        } else {
             exitStatus = 1;
         }
 
-        if (exitStatus > 0) {
-            exitStatus = 1;
-        }
         Runtime.getRuntime().exit(exitStatus);
     }
 
@@ -162,8 +158,8 @@ public class Main {
         }
 
         URLClassLoader test = AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>)
-                        () -> new URLClassLoader(urlList.toArray(new URL[0]), ClassLoader.getSystemClassLoader()));
+                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urlList.toArray(new URL[0]),
+                        ClassLoader.getSystemClassLoader()));
 
         return test;
     }

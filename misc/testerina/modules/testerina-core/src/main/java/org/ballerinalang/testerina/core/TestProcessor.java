@@ -80,6 +80,9 @@ public class TestProcessor {
 
     private JarResolver jarResolver;
 
+    public TestProcessor() {
+    }
+
     public TestProcessor(JarResolver jarResolver) {
         this.jarResolver = jarResolver;
     }
