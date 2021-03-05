@@ -32,14 +32,12 @@ public class GetContent {
 
     public static BString getContent(Object xmlVal) {
         BXml value = (BXml) xmlVal;
-        if (IsText.isText(value)) {
-            return StringUtils.fromString(value.getTextValue());
-        } else if (IsProcessingInstruction.isProcessingInstruction(value)) {
+        if (IsProcessingInstruction.isProcessingInstruction(value)) {
             return StringUtils.fromString(XMLValueUtil.getPIContent(value));
         } else if (IsComment.isComment(value)) {
             return StringUtils.fromString(XMLValueUtil.getCommentContent(value));
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getContent",
-                                                       "text|processing instruction|comment");
+                                                       "processing instruction|comment");
     }
 }

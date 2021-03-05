@@ -59,9 +59,9 @@ public isolated function sleep(decimal seconds) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Sleep"
 } external;
 
-# Returns a stack trace for the current call stack.
-#
-# + return - An array representing the current call stack
+# Return a stack trace for the current call stack.
+# + return - an array representing the current call stack
+# The first member of the array represents the top of the call stack.
 public isolated function getStackTrace() returns StackFrame[] {
     StackFrame[] stackFrame = [];
     int i = 0;
@@ -75,7 +75,6 @@ public isolated function getStackTrace() returns StackFrame[] {
 }
 
 # Represents a stack frame.
-// todo use readonly qualifier once #27501 fixed
 # public type StackFrame readonly & object {
 public type StackFrame object {
 
